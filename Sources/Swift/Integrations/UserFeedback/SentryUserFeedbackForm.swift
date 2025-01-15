@@ -1,4 +1,4 @@
-//swiftlint:disable todo type_body_length file_length
+//swiftlint:disable type_body_length file_length
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -278,7 +278,7 @@ class SentryUserFeedbackForm: UIViewController {
         let view = UIView(frame: .zero)
         view.layer.addSublayer(shapeLayer)
         view.isAccessibilityElement = true
-        view.accessibilityLabel = "provided by Sentry" // ???: what do we want to say here?
+        view.accessibilityLabel = "provided by Sentry"
         return view
     }()
     
@@ -540,18 +540,19 @@ extension SentryUserFeedbackForm: UIImagePickerControllerDelegate & UINavigation
         }
         
         guard let photo = info[.editedImage] as? UIImage else {
-            // TODO: handle error
+            SentryLog.warning("Could not get edited image from photo picker.")
             return
         }
         addedScreenshot(image: photo)
          
         guard let asset = info[.phAsset] as? PHAsset else {
-            // TODO: handle error
+            SentryLog.warning("Could not get edited image asset information from photo picker.")
+            screenshotImageView.accessibilityLabel = "Image"
             return
         }
-        
         guard let date = asset.creationDate else {
-            // TODO: handle error
+            SentryLog.warning("Could not get creation date from edited image from photo picker.")
+            screenshotImageView.accessibilityLabel = "Image"
             return
         }
         screenshotImageView.accessibilityLabel = "Image taken \(SentryUserFeedbackForm.formatter.string(from: date))"
@@ -569,4 +570,4 @@ extension SentryUserFeedbackForm: UIImagePickerControllerDelegate & UINavigation
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable todo type_body_length file_length
+//swiftlint:enable type_body_length file_length
