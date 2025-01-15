@@ -447,8 +447,8 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(options["maskedViewClasses"])
         XCTAssertNil(options["unmaskedViewClasses"])
         XCTAssertEqual(options["quality"] as? String, "medium")
-        XCTAssertEqual(options["nativeSdkName"] as? String, SentryMeta.nativeSdkName)
-        XCTAssertEqual(options["nativeSdkVersion"] as? String, SentryMeta.nativeVersionString)
+        XCTAssertEqual(options["nativeSdkName"] as? String, SentryMeta.sdkName)
+        XCTAssertEqual(options["nativeSdkVersion"] as? String, SentryMeta.versionString)
     }
     
     func testOptionsInTheEventAllChanged() throws {
