@@ -163,7 +163,7 @@ class SentryUserFeedbackForm: UIViewController {
             present(alert, animated: config.animations)
         } else {
             let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
-            SentryLog.log(message: "Sending user feedback", andLevel: .debug)
+            SentryLog.debug("Sending user feedback")
             delegate?.finished(with: feedback)
         }
     }
