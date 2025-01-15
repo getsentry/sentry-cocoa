@@ -199,7 +199,6 @@
 #import "SentrySessionTracker.h"
 #import "SentrySpan.h"
 #import "SentrySpanId.h"
-#import "SentrySpanOperations.h"
 #import "SentrySpotlightTransport.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"

@@ -5,7 +5,6 @@
 #    import "SentrySwizzleWrapper.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryLog.h>
-#    import <SentrySpanOperations.h>
 #    import <SentryUIEventTrackerMode.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -100,10 +99,10 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
         [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
         [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
         [senderClass isSubclassOfClass:[UIPageControl class]]) {
-        return SentrySpanOperationUIActionClick;
+        return SentrySpanOperation.uiActionClick;
     }
 
-    return SentrySpanOperationUIAction;
+    return SentrySpanOperation.uiAction;
 }
 
 /**
@@ -132,10 +131,10 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
 
 + (BOOL)isUIEventOperation:(NSString *)operation
 {
-    if ([operation isEqualToString:SentrySpanOperationUIAction]) {
+    if ([operation isEqualToString:SentrySpanOperation.uiAction]) {
         return YES;
     }
-    if ([operation isEqualToString:SentrySpanOperationUIActionClick]) {
+    if ([operation isEqualToString:SentrySpanOperation.uiActionClick]) {
         return YES;
     }
     return NO;

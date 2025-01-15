@@ -230,7 +230,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
 {
-    return [self spanForPath:path operation:SENTRY_FILE_WRITE_OPERATION size:data.length];
+    return [self spanForPath:path operation:SentrySpanOperation.fileWrite size:data.length];
 }
 
 - (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
@@ -245,7 +245,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (count)
         return nil;
 
-    return [self spanForPath:path operation:SENTRY_FILE_READ_OPERATION size:0];
+    return [self spanForPath:path operation:SentrySpanOperation.fileRead size:0];
 }
 
 - (void)endTrackingFile
