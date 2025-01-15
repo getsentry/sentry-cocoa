@@ -9,7 +9,7 @@
 
 ### Internal
 
-- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
 
 ## 8.43.1-beta.0
 
