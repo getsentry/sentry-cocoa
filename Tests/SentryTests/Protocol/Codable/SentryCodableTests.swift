@@ -24,18 +24,5 @@ class SentryCodableTests: XCTestCase {
         let brokenJSON = "{\"broken\": \"json\"".data(using: .utf8)!
         XCTAssertNil(decodeFromJSONData(jsonData: brokenJSON) as Geo?)
     }
-    
-    func testSerializeToJSONObject_ThrowsError_ReturnsEmptyDict() throws {
-        let sut = FailingEncodable()
-        
-        let actual = try XCTUnwrap( addsPerformanceOverhead_serializeToJSONObject(sut) as [String: Any])
-        XCTAssertTrue(actual.isEmpty)
-    }
-    
-    class FailingEncodable: Encodable {
-        func encode(to encoder: Encoder) throws {
-            throw NSError(domain: "test", code: -1, userInfo: nil)
-        }
-    }
 
 }
