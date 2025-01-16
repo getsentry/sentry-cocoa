@@ -87,7 +87,7 @@ class SentryUserFeedbackForm: UIViewController {
     
     func addScreenshotButtonTapped() {
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
         //swiftlint:disable force_try force_unwrapping
         let url = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!
         let image = try! UIImage(data: Data(contentsOf: url))!
@@ -124,7 +124,7 @@ class SentryUserFeedbackForm: UIViewController {
             SentryLog.debug("Photos authorization level: \(status)")
             presentPicker()
         }
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
     }
     
     func removeScreenshotButtonTapped() {
@@ -160,12 +160,21 @@ class SentryUserFeedbackForm: UIViewController {
         if let message = validate() {
             let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: config.animations)
-        } else {
-            let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
-            SentryLog.debug("Sending user feedback")
-            delegate?.finished(with: feedback)
+            present(alert, animated: config.animations) {
+                if let block = self.config.onSubmitError {
+                    // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                    block(NSError(domain: "io.sentry.error", code: 1, userInfo: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."]))
+                }
+            }
+            return
         }
+
+        let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
+        SentryLog.debug("Sending user feedback")
+        if let block = config.onSubmitSuccess {
+            block(feedback.dataDictionary())
+        }
+        delegate?.finished(with: feedback)
     }
     
     func cancelButtonTapped() {

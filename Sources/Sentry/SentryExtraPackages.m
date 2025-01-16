@@ -34,7 +34,7 @@ static NSSet<NSDictionary<NSString *, NSString *> *> *extraPackages;
     }
 }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (void)clear
 {
     extraPackages = [[NSSet alloc] init];

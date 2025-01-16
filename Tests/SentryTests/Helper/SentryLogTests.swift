@@ -37,19 +37,23 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(message: "0", andLevel: SentryLevel.error)
     }
     
-    func testConfigureWithoutDebug_PrintsNothing() {
+    func testConfigureWithoutDebug_PrintsOnlyAlwaysThreshold() {
+        // -- Arrange --
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        
+
+        // -- Act --
         SentryLog.configure(false, diagnosticLevel: SentryLevel.none)
-        SentryLog.log(message: "0", andLevel: SentryLevel.fatal)
-        SentryLog.log(message: "0", andLevel: SentryLevel.error)
-        SentryLog.log(message: "0", andLevel: SentryLevel.warning)
-        SentryLog.log(message: "0", andLevel: SentryLevel.info)
-        SentryLog.log(message: "0", andLevel: SentryLevel.debug)
-        SentryLog.log(message: "0", andLevel: SentryLevel.none)
-        
-        XCTAssertEqual(0, logOutput.loggedMessages.count)
+        SentryLog.log(message: "fatal", andLevel: SentryLevel.fatal)
+        SentryLog.log(message: "error", andLevel: SentryLevel.error)
+        SentryLog.log(message: "warning", andLevel: SentryLevel.warning)
+        SentryLog.log(message: "info", andLevel: SentryLevel.info)
+        SentryLog.log(message: "debug", andLevel: SentryLevel.debug)
+        SentryLog.log(message: "none", andLevel: SentryLevel.none)
+
+        // -- Assert --
+        XCTAssertEqual(1, logOutput.loggedMessages.count)
+        XCTAssertEqual("[Sentry] [fatal] fatal", logOutput.loggedMessages.first)
     }
     
     func testLevelNone_PrintsEverythingExceptNone() {
