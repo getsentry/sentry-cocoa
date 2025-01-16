@@ -76,7 +76,6 @@ class SentryTraceViewModel {
         
         if let transactionId = transactionId {
             self.finishSpan(transactionId)
-            SentryPerformanceTracker.shared.popActiveSpan()
         }
     }
 }
