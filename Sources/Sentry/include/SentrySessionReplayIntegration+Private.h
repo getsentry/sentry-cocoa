@@ -14,6 +14,8 @@
 
 @property (nonatomic, strong) SentryViewPhotographer *viewPhotographer;
 
+- (void)setReplayTags:(NSDictionary<NSString *, id> *)tags;
+
 @end
 
 #endif

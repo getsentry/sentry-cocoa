@@ -161,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
 
-#if DEBUG || TEST || TESTCI
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.base64-attachment-data"]) {
             data = [[attachment.data base64EncodedStringWithOptions:0]
@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #else
         data = attachment.data;
-#endif // DEBUG || TEST || TESTCI
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     } else if (nil != attachment.path) {
 
         NSError *error = nil;
@@ -196,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
 
-#if DEBUG || TEST || TESTCI
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.base64-attachment-data"]) {
             data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
@@ -206,7 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #else
         data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
-#endif // DEBUG || TEST || TESTCI
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 
     if (data == nil) {

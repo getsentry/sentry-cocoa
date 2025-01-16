@@ -44,7 +44,7 @@
              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        _controllerName = [SwiftDescriptor getObjectClassName:controller];
+        _controllerName = [SwiftDescriptor getViewControllerClassName:controller];
         _waitForFullDisplay = waitForFullDisplay;
         _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;

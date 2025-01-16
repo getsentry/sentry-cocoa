@@ -198,6 +198,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes;
 + (void)setIgnoreContainerClass:(Class _Nonnull)containerClass;
 + (void)setRedactContainerClass:(Class _Nonnull)containerClass;
++ (void)setReplayTags:(NSDictionary<NSString *, id> *)tags;
 
 #endif
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans;
