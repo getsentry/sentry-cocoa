@@ -85,6 +85,11 @@ class SentryUserFeedbackForm: UIViewController {
     
     // MARK: Actions
     
+    /// Checks to make sure the app provides the necessary Info plist key to request authorization. If the key is not present, trying to interact with certain Photos APIs will crash the app.
+    var canRequestAuthorizationToAttachPhotos = {
+        Bundle.main.infoDictionary?["NSPhotoLibraryUsageDescription"] != nil
+    }()
+    
     func addScreenshotButtonTapped() {
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
 #if TEST || TESTCI
@@ -95,34 +100,40 @@ class SentryUserFeedbackForm: UIViewController {
         addedScreenshot(image: image)
         return
 #else
-        
         func presentPicker() {
-            let imagePickerController = UIImagePickerController()
-            imagePickerController.delegate = self
-            imagePickerController.sourceType = .photoLibrary
-            imagePickerController.allowsEditing = true
             DispatchQueue.main.async {
+                let imagePickerController = UIImagePickerController()
+                imagePickerController.delegate = self
+                imagePickerController.sourceType = .photoLibrary
+                imagePickerController.allowsEditing = true
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    imagePickerController.modalPresentationStyle = .popover
+                    // docs state that accessing the `popoverPresentationController` creates one if one doesn't already exist as long as `modalPresentationStyle = .popover`. it's a readonly property so you can't instantiate a new `UIPopoverPresentationController` and assign it.
+                    imagePickerController.popoverPresentationController?.sourceView = self.addScreenshotButton
+                }
                 self.present(imagePickerController, animated: self.config.animations)
             }
         }
         
-        let status = PHPhotoLibrary.authorizationStatus()
-        switch status {
-        case .notDetermined:
-            if #available(iOS 14, *) {
-                PHPhotoLibrary.requestAuthorization(for: .readWrite) {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
+        if canRequestAuthorizationToAttachPhotos {
+            let status = PHPhotoLibrary.authorizationStatus()
+            switch status {
+            case .notDetermined:
+                if #available(iOS 14, *) {
+                    PHPhotoLibrary.requestAuthorization(for: .readWrite) {
+                        SentryLog.debug("Photos authorization level: \($0)")
+                        presentPicker()
+                    }
+                } else {
+                    PHPhotoLibrary.requestAuthorization {
+                        SentryLog.debug("Photos authorization level: \($0)")
+                        presentPicker()
+                    }
                 }
-            } else {
-                PHPhotoLibrary.requestAuthorization {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
-                }
+            default:
+                SentryLog.debug("Photos authorization level: \(status)")
+                presentPicker()
             }
-        default:
-            SentryLog.debug("Photos authorization level: \(status)")
-            presentPicker()
         }
 #endif // TEST || TESTCI
     }
@@ -474,9 +485,13 @@ class SentryUserFeedbackForm: UIViewController {
         messageAndScreenshotStack.axis = .vertical
         
         if self.config.formConfig.enableScreenshot {
-            messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
-            messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
-            self.removeScreenshotStack.isHidden = true
+            if canRequestAuthorizationToAttachPhotos {
+                messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
+                messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
+                self.removeScreenshotStack.isHidden = true
+            } else {
+                SentryLog.warning("User feedback was configured to allow attaching images, but the required info plist key `NSPhotoLibraryUsageDescription` to request photos access was not included.")
+            }
         }
         messageAndScreenshotStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
         
