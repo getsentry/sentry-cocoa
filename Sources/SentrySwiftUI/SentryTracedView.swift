@@ -43,7 +43,6 @@ class SentryTraceViewModel {
         )
         SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
         self.transactionId = transactionId
-        
         let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
@@ -75,7 +74,9 @@ class SentryTraceViewModel {
         tracker?.reportInitialDisplay()
         
         if let transactionId = transactionId {
-            self.finishSpan(transactionId)
+            DispatchQueue.main.async {
+                self.finishSpan(transactionId)
+            }
         }
     }
 }

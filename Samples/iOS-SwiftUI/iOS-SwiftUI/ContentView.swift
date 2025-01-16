@@ -139,7 +139,8 @@ struct ContentView: View {
     }
     
     var body: some View {
-        return SentryTracedView("Content View Body", waitForFullDisplay: true) {             NavigationView {
+        return SentryTracedView("Content View Body", waitForFullDisplay: true) {
+            NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
