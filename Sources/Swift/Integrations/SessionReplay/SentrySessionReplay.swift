@@ -249,6 +249,7 @@ class SentrySessionReplay: NSObject {
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         
+        replayEvent.sdk = self.replayOptions.sdkInfo
         replayEvent.timestamp = video.end
         replayEvent.urls = video.screens
         
