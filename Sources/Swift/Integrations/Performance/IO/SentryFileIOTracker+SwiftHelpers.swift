@@ -27,9 +27,11 @@ extension SentryFileIOTracker {
             return try method(data, url, options)
         }
         let span = self.startTrackingWriting(data, filePath: url.path, origin: origin)
-        try method(data, url, options)
-        if let span = span {
-            self.finishTrackingNSData(data, span: span)
+        defer {
+            if let span = span {
+                self.finishTrackingNSData(data, span: span)
+            }
         }
+        try method(data, url, options)
     }
 }
