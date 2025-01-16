@@ -78,6 +78,9 @@
 		33EB2A922C341300004FED3D /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		51B15F7E2BE88A7C0026A2F2 /* URLSessionTaskHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B15F7D2BE88A7C0026A2F2 /* URLSessionTaskHelper.swift */; };
 		51B15F802BE88D510026A2F2 /* URLSessionTaskHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B15F7F2BE88D510026A2F2 /* URLSessionTaskHelperTests.swift */; };
+		620078722D38F00D0022CB67 /* SentryGeoCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620078712D38F00D0022CB67 /* SentryGeoCodable.swift */; };
+		620078742D38F0DF0022CB67 /* SentryCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620078732D38F0DF0022CB67 /* SentryCodable.swift */; };
+		620078782D3906BF0022CB67 /* SentryCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620078772D3906BF0022CB67 /* SentryCodableTests.swift */; };
 		620203B22C59025E0008317C /* SentryFileContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620203B12C59025E0008317C /* SentryFileContents.swift */; };
 		620379DB2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h in Headers */ = {isa = PBXBuildFile; fileRef = 620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */; };
 		620379DD2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m in Sources */ = {isa = PBXBuildFile; fileRef = 620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */; };
@@ -1089,6 +1092,9 @@
 		33EB2A8F2C3411AE004FED3D /* SentryWithoutUIKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryWithoutUIKit.h; path = Public/SentryWithoutUIKit.h; sourceTree = "<group>"; };
 		51B15F7D2BE88A7C0026A2F2 /* URLSessionTaskHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionTaskHelper.swift; sourceTree = "<group>"; };
 		51B15F7F2BE88D510026A2F2 /* URLSessionTaskHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTaskHelperTests.swift; sourceTree = "<group>"; };
+		620078712D38F00D0022CB67 /* SentryGeoCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryGeoCodable.swift; sourceTree = "<group>"; };
+		620078732D38F0DF0022CB67 /* SentryCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCodable.swift; sourceTree = "<group>"; };
+		620078772D3906BF0022CB67 /* SentryCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCodableTests.swift; sourceTree = "<group>"; };
 		620203B12C59025E0008317C /* SentryFileContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFileContents.swift; sourceTree = "<group>"; };
 		620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBuildAppStartSpans.h; path = include/SentryBuildAppStartSpans.h; sourceTree = "<group>"; };
 		620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBuildAppStartSpans.m; sourceTree = "<group>"; };
@@ -2131,6 +2137,23 @@
 			path = ViewHierarchy;
 			sourceTree = "<group>";
 		};
+		620078752D38F1110022CB67 /* Codable */ = {
+			isa = PBXGroup;
+			children = (
+				620078712D38F00D0022CB67 /* SentryGeoCodable.swift */,
+				620078732D38F0DF0022CB67 /* SentryCodable.swift */,
+			);
+			path = Codable;
+			sourceTree = "<group>";
+		};
+		620078762D3906AD0022CB67 /* Codable */ = {
+			isa = PBXGroup;
+			children = (
+				620078772D3906BF0022CB67 /* SentryCodableTests.swift */,
+			);
+			path = Codable;
+			sourceTree = "<group>";
+		};
 		621D9F2D2B9B030E003D94DE /* Helper */ = {
 			isa = PBXGroup;
 			children = (
@@ -2902,6 +2925,7 @@
 		7B3D0474249A3D5800E106B6 /* Protocol */ = {
 			isa = PBXGroup;
 			children = (
+				620078762D3906AD0022CB67 /* Codable */,
 				7BC6EBF7255C05060059822A /* TestData.swift */,
 				7B869EBB249B91D8004F4FDB /* SentryDebugMetaEquality.swift */,
 				7B869EBD249B964D004F4FDB /* SentryThreadEquality.swift */,
@@ -3996,6 +4020,7 @@
 		D8F016B12B9622B7007B9AFB /* Protocol */ = {
 			isa = PBXGroup;
 			children = (
+				620078752D38F1110022CB67 /* Codable */,
 				64F9571C2D12DA1800324652 /* SentryViewControllerBreadcrumbTracking.swift */,
 				D8F016B22B9622D6007B9AFB /* SentryId.swift */,
 				D8CAC0402BA0984500E38F34 /* SentryIntegrationProtocol.swift */,
@@ -4648,6 +4673,7 @@
 				7B7A30C824B48389005A4C6E /* SentryCrashWrapper.m in Sources */,
 				D8CAC0732BA4473000E38F34 /* SentryViewPhotographer.swift in Sources */,
 				D8ACE3C92762187200F5A213 /* SentryFileIOTrackingIntegration.m in Sources */,
+				620078742D38F0DF0022CB67 /* SentryCodable.swift in Sources */,
 				63FE713B20DA4C1100CDBAE8 /* SentryCrashFileUtils.c in Sources */,
 				63FE716920DA4C1100CDBAE8 /* SentryCrashStackCursor.c in Sources */,
 				6221BBCA2CAA932100C627CA /* SentryANRType.swift in Sources */,
@@ -4670,6 +4696,7 @@
 				8459FCC02BD73EB20038E9C9 /* SentryProfilerSerialization.mm in Sources */,
 				621C884A2CAD23E9000EABCB /* SentryCaptureTransactionWithProfile.mm in Sources */,
 				63EED6C02237923600E02400 /* SentryOptions.m in Sources */,
+				620078722D38F00D0022CB67 /* SentryGeoCodable.swift in Sources */,
 				D8CB741B2947286500A5F964 /* SentryEnvelopeItemHeader.m in Sources */,
 				D8CB7417294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m in Sources */,
 				D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */,
@@ -5168,6 +5195,7 @@
 				D8CB742B294B1DD000A5F964 /* SentryUIApplicationTests.swift in Sources */,
 				63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */,
 				D8918B222849FA6D00701F9A /* SentrySDKIntegrationTestsBase.swift in Sources */,
+				620078782D3906BF0022CB67 /* SentryCodableTests.swift in Sources */,
 				7B85BD8E24C5C3A6000A4225 /* SentryFileManagerTestExtension.swift in Sources */,
 				7B0002342477F52D0035FEF1 /* SentrySessionTests.swift in Sources */,
 			);
