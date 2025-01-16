@@ -15,12 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
-#if SENTRY_TEST || SENTRY_TEST_CI
-BOOL isErrorPathTooLong(NSError *error);
-
-BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
-#endif // SENTRY_TEST || SENTRY_TEST_CI
-
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
