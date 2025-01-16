@@ -85,6 +85,24 @@ class SentryTraceViewModelTestCase: XCTestCase {
         XCTAssertTrue(tracer.isFinished, "The transaction should be finished.")
         XCTAssertTrue(tracer.children.first?.isFinished == true, "The body span should be finished")
     }
+    
+    func testUseWaitForFullDisplayFromOptions() throws {
+        let option = Options()
+        option.enableTimeToFullDisplayTracing = true
+        SentrySDK.setStart(option)
+               
+        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: nil)
+        XCTAssertTrue(viewModel.waitForFullDisplay)
+    }
+    
+    func testUseWaitForFullDisplayFromParameter() throws {
+        let option = Options()
+        option.enableTimeToFullDisplayTracing = true
+        SentrySDK.setStart(option)
+               
+        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
+        XCTAssertFalse(viewModel.waitForFullDisplay)
+    }
 }
 
 #endif

@@ -188,6 +188,7 @@
         return;
     }
     [self.currentTTDTracker reportFullyDisplayed];
+}
 
 - (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                 waitForFullDisplay:(BOOL)waitForFullDisplay

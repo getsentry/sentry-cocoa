@@ -18,10 +18,10 @@ class SentryTraceViewModel {
     let waitForFullDisplay: Bool
     let traceOrigin = "auto.ui.swift_ui"
     
-    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool) {
+    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name
         self.nameSource = nameSource
-        self.waitForFullDisplay = waitForFullDisplay
+        self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
     }
     
     func startSpan() -> SpanId? {
@@ -116,14 +116,14 @@ public struct SentryTracedView<Content: View>: View {
     ///
     /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
     /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
-    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`
+    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
+    /// If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
     /// - Parameter content: The content that you want to track the performance
     public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        let waitforFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
-        self.viewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitforFullDisplay)
+        self.viewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay)
     }
 #else
     /// Creates a view that measures the performance of its `content`.

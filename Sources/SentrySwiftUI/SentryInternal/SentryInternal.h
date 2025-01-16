@@ -13,7 +13,7 @@
 #    import "Sentry.h"
 #endif
 
-#if TEST
+#if SENTRY_TEST
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
 #else
