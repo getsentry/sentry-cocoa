@@ -13,7 +13,7 @@ SENTRY_NO_INIT
 
 + (nullable NSDictionary<NSString *, NSString *> *)global;
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (void)setPackageManager:(NSUInteger)manager;
 + (void)resetPackageManager;
 #endif

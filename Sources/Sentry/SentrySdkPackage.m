@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentrySdkPackage getSentrySDKPackage:SENTRY_PACKAGE_INFO];
 }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (void)setPackageManager:(NSUInteger)manager
 {
     SENTRY_PACKAGE_INFO = manager;

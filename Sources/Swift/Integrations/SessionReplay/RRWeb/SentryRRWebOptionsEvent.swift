@@ -3,6 +3,10 @@ import Foundation
 
 @objc class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
     
+    init(timestamp: Date, customOptions: [String: Any]) {
+        super.init(timestamp: timestamp, tag: "options", payload: customOptions)
+    }
+    
     init(timestamp: Date, options: SentryReplayOptions) {
         var payload: [String: Any] = [
             "sessionSampleRate": options.sessionSampleRate,

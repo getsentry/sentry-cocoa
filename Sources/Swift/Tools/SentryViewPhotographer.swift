@@ -140,7 +140,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         redactBuilder.setRedactContainerClass(containerClass)
     }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     func getRedactBuild() -> UIRedactBuilder {
         redactBuilder
     }

@@ -83,7 +83,7 @@
         _SentrySWWrapArg(SentrySWArguments), _SentrySWWrapArg(SentrySWReplacement),                \
         SentrySwizzleMode, key)
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -98,7 +98,7 @@
  */
 #    define SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)                         \
         _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, key)
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #pragma mark └ Swizzle Class Method
 
@@ -176,12 +176,12 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  */
 @property (nonatomic, readonly) SEL selector;
 
-#if defined(TEST) || defined(TESTCI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 /**
  * A flag to check whether the original implementation was called.
  */
 @property (nonatomic) BOOL originalCalled;
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 
@@ -319,7 +319,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Unswizzles the instance method of the class.
  *
@@ -334,7 +334,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
  * @return @c YES if successfully unswizzled and @c NO if the method was not swizzled.
  */
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToUnswizzle key:(const void *)key;
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #pragma mark └ Swizzle Class method
 
@@ -401,7 +401,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#if defined(TEST) || defined(TESTCI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 #    define _SentrySWReplacement(code...)                                                          \
         @try {                                                                                     \
             code                                                                                   \
@@ -413,7 +413,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
         }
 #else
 #    define _SentrySWReplacement(code...) code
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,                 \
     SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                                \
@@ -430,7 +430,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Macro to unswizzle an instance method.
  *
@@ -444,7 +444,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
  */
 #    define _SentryUnswizzleInstanceMethod(classToUnswizzle, selector, KEY)                        \
         [SentrySwizzle unswizzleInstanceMethod:selector inClass:[classToUnswizzle class] key:KEY]
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 
 #define _SentrySwizzleClassMethod(                                                                 \
     classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)          \

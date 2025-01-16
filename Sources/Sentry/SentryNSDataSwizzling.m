@@ -122,7 +122,7 @@
 
 + (void)unswizzle
 {
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentryUnswizzleInstanceMethod(
@@ -145,7 +145,7 @@
         = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
     SentryUnswizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
         (void *)initWithContentsOfURLOptionsErrorSelector);
-#endif // TEST || TESTCI
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 }
 #pragma clang diagnostic pop
 @end

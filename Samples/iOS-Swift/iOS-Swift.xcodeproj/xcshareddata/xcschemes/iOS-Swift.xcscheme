@@ -102,8 +102,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.feedback.use-sentry-user"
-            isEnabled = "YES">
+            argument = "--io.sentry.feedback.dont-use-sentry-user"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.require-name"

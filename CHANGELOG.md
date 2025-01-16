@@ -6,6 +6,12 @@
 
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Add manual file IO tracking methods for Swift.Data (#4605)
+- Allow hybrid SDK to set replay options tags information (#4710)
+- Add threshold to always log fatal logs (#4707)
+
+### Internal
+
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
 
 ## 8.43.1-beta.0
 
@@ -14,7 +20,6 @@
 - Memory growth issue in profiler (#4682)
 - Replace occurences of `strncpy` with `strlcpy` (#4636)
 - Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
-
 
 ### Internal
 
