@@ -14,7 +14,7 @@ SENTRY_NO_INIT
 + (void)addPackageName:(NSString *)name version:(NSString *)version;
 + (NSMutableSet<NSDictionary<NSString *, NSString *> *> *)getPackages;
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (void)clear;
 #endif
 

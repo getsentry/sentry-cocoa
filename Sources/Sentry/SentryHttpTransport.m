@@ -40,9 +40,9 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -181,12 +181,12 @@
     }
 }
 
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 - (void)setStartFlushCallback:(void (^)(void))callback
 {
     _startFlushCallback = callback;
 }
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
@@ -206,11 +206,11 @@
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
-#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
         if (self.startFlushCallback != nil) {
             self.startFlushCallback();
         }
-#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     }
 
     // We are waiting for the dispatch group below, which we leave in finished sending. As

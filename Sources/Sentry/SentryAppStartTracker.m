@@ -225,12 +225,12 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 // With only running this once we know that the process is a new one when the following
 // code is executed.
 // We need to make sure the block runs on each test instead of only once
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     block();
 #    else
     static dispatch_once_t once;
     [self.dispatchQueue dispatchOnce:&once block:block];
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 }
 
 /**
@@ -315,9 +315,9 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
     [self.framesTracker removeListener:self];
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     self.isRunning = NO;
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 }
 
 - (void)dealloc

@@ -44,7 +44,7 @@ class SentryLog: NSObject {
         return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
  
-    #if TEST || TESTCI
+    #if SENTRY_TEST || SENTRY_TEST_CI
     
     static func setOutput(_ output: SentryLogOutput) {
         logOutput = output

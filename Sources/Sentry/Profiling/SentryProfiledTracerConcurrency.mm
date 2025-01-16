@@ -136,7 +136,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     return profiler;
 }
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void
 sentry_resetConcurrencyTracking()
 {
@@ -151,6 +151,6 @@ sentry_currentProfiledTracers()
     std::lock_guard<std::mutex> l(_gStateLock);
     return [_gTracersToProfilers count];
 }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

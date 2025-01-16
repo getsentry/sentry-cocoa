@@ -903,13 +903,13 @@
                                 <rect key="frame" x="0.0" y="134" width="320" height="385"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="zhO-zJ-CAt">
-                                        <rect key="frame" x="0.0" y="0.0" width="304" height="361"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="304" height="389"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Yzg-QH-aPg">
-                                                <rect key="frame" x="0.0" y="0.0" width="304" height="280"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="304" height="308"/>
                                                 <subviews>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="FaL-DP-Rl6">
-                                                        <rect key="frame" x="0.0" y="0.0" width="152" height="280"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="152" height="308"/>
                                                         <subviews>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oag-iN-lAn">
                                                                 <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
@@ -920,7 +920,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FfQ-2y-q0S">
-                                                                <rect key="frame" x="0.0" y="31.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="35" width="152" height="28"/>
                                                                 <accessibility key="accessibilityConfiguration" identifier="uiEventTests"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="UI event tests"/>
@@ -929,7 +929,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Did-Hh-ggK">
-                                                                <rect key="frame" x="0.0" y="63" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="70" width="152" height="28"/>
                                                                 <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="Message"/>
@@ -938,7 +938,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FrJ-bO-5YO">
-                                                                <rect key="frame" x="0.0" y="94.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="105" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="User Feedback"/>
                                                                 <connections>
@@ -946,7 +946,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7Z-ga-DoR" userLabel="HighCpuLoad">
-                                                                <rect key="frame" x="0.0" y="126" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="140" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="HighCpuLoad"/>
                                                                 <connections>
@@ -954,7 +954,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4G-h5-Sio">
-                                                                <rect key="frame" x="0.0" y="157.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="175" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="permissions"/>
                                                                 <connections>
@@ -962,7 +962,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YeN-3i-awu">
-                                                                <rect key="frame" x="0.0" y="189" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="210" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Flush"/>
@@ -971,7 +971,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="chU-g8-yNX">
-                                                                <rect key="frame" x="0.0" y="220.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="245" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Cause frozen frames"/>
@@ -980,7 +980,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3X-e9-STj">
-                                                                <rect key="frame" x="0.0" y="252" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="280" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Web View"/>
@@ -991,7 +991,7 @@
                                                         </subviews>
                                                     </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ULj-Tl-kYs">
-                                                        <rect key="frame" x="152" y="0.0" width="152" height="280"/>
+                                                        <rect key="frame" x="152" y="0.0" width="152" height="308"/>
                                                         <subviews>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weS-d7-IY1">
                                                                 <rect key="frame" x="0.0" y="0.0" width="152" height="28"/>
@@ -1083,12 +1083,23 @@
                                                                     <action selector="getLatestEnvelope:" destination="VqS-l1-kwe" eventType="touchUpInside" id="6mG-Pd-VkT"/>
                                                                 </connections>
                                                             </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GrG-53-N5h">
+                                                                <rect key="frame" x="0.0" y="280" width="152" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.button.get-application-support-directory"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Get app support path"/>
+                                                                <connections>
+                                                                    <action selector="getApplicationSupportPath:" destination="VqS-l1-kwe" eventType="touchUpInside" id="nck-yy-OlS"/>
+                                                                    <action selector="getLatestEnvelope:" destination="VqS-l1-kwe" eventType="touchUpInside" id="l3H-vg-yn9"/>
+                                                                </connections>
+                                                            </button>
                                                         </subviews>
                                                     </stackView>
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="omd-Rj-xhq">
-                                                <rect key="frame" x="0.0" y="280" width="304" height="81"/>
+                                                <rect key="frame" x="0.0" y="308" width="304" height="81"/>
                                                 <subviews>
                                                     <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMF-4u-JGE">
                                                         <rect key="frame" x="8" y="32" width="288" height="0.0"/>
@@ -1115,7 +1126,7 @@
                                                         <subviews>
                                                             <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QHh-KM-erK">
                                                                 <rect key="frame" x="0.0" y="0.0" width="0.0" height="34"/>
-                                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.text-field.data-marshaling.latest-envelope"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.text-field.data-marshaling.extras"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                 <textInputTraits key="textInputTraits"/>
                                                             </textField>
@@ -1168,9 +1179,9 @@
                         <outlet property="anrFullyBlockingButton" destination="rpD-Rf-xbz" id="jF4-7m-26n"/>
                         <outlet property="breadcrumbLabel" destination="4M5-qM-BM9" id="rDd-LH-T9l"/>
                         <outlet property="dataMarshalingErrorLabel" destination="ONf-Md-UTM" id="RB6-vO-9OX"/>
+                        <outlet property="dataMarshalingField" destination="QHh-KM-erK" id="05s-r2-O6f"/>
                         <outlet property="dataMarshalingStatusLabel" destination="7Km-xi-51t" id="2Sk-Hk-o0J"/>
                         <outlet property="dsnView" destination="R19-6T-z1w" id="XLU-qD-eFO"/>
-                        <outlet property="envelopeDataMarshalingField" destination="QHh-KM-erK" id="c80-C0-NWJ"/>
                         <outlet property="framesLabel" destination="xua-qE-dXN" id="vP2-XG-wBW"/>
                         <outlet property="uiTestNameLabel" destination="eMF-4u-JGE" id="YVe-Un-zF9"/>
                     </connections>
