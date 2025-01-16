@@ -150,7 +150,7 @@ class UIRedactBuilder {
         redactClassesIdentifiers.insert(id)
     }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     func isIgnoreContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isIgnoreContainerClass(containerClass)
     }

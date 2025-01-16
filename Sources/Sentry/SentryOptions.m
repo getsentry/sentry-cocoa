@@ -139,6 +139,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTrackingV2 = NO;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        self.sessionReplay = [[SentryReplayOptions alloc] init];
+#endif
+
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
@@ -467,6 +472,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
 
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
+        self.sessionReplay =
+            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+    }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     [self setBool:options[@"enableAppHangTracking"]
             block:^(BOOL value) { self->_enableAppHangTracking = value; }];
@@ -816,7 +828,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 - (NSString *)debugDescription
 {
     NSMutableString *propertiesDescription = [NSMutableString string];
@@ -838,5 +850,5 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     }
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
-#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 @end

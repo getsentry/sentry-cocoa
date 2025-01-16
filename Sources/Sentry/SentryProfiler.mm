@@ -61,12 +61,12 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 
 + (void)load
 {
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentry_startLaunchProfile();
 }
 
@@ -170,7 +170,9 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
             Backtrace backtraceCopy = backtrace;
             backtraceCopy.absoluteTimestamp
                 = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
-            [state appendBacktrace:backtraceCopy];
+            @autoreleasepool {
+                [state appendBacktrace:backtraceCopy];
+            }
         },
         kSentryProfilerFrequencyHz);
     _samplingProfiler->startSampling();

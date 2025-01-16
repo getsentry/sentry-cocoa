@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.0"
+      - run: ./scripts/ci-select-xcode.sh "16.2"
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -59,9 +59,9 @@ jobs:
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
           - runs-on: macos-15
-            xcode: "16"
+            xcode: "16.2"
             device: "iPhone 16"
-            os-version: "18.0"
+            os-version: "18.2"
 
     steps:
       - uses: actions/checkout@v4

@@ -46,7 +46,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
+            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
@@ -288,7 +288,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.maskedViewClasses = [AnotherLabel.self]
+            options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
         }
         
         let sut = try getSut()
@@ -301,7 +301,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
             
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-            options.experimental.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
+            options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
         }
     
         let sut = try getSut()
@@ -499,6 +499,44 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         integration.install(with: options)
         
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
+    }
+    
+    func testPersistScreenshotProviderAndBreadcrumbConverter() throws {
+        class CustomImageProvider: NSObject, SentryViewScreenshotProvider {
+            func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+                onComplete(UIImage())
+            }
+        }
+        
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any Sentry.SentryRRWebEventProtocol)? {
+                return nil
+            }
+        }
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(),
+                                                    screenshotProvider: CustomImageProvider())
+        let sut = try getSut()
+        
+        XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
+        XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
+        
+        sut.stop()
+        sut.start()
+        
+        XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
+        XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
+    }
+    
+    func testSetCustomOptions() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        let sut = try getSut()
+        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
+        
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
     }
     
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

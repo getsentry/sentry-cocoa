@@ -5,11 +5,61 @@
 ### Features
 
 - SwiftUI time for initial display and time for full display (#4596)
+- Add protocol for custom screenName for UIViewControllers (#4646)
+- Allow hybrid SDK to set replay options tags information (#4710)
+- Add threshold to always log fatal logs (#4707)
+
+### Internal
+
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
+
+## 8.43.1-beta.0
+
+### Fixes
+
+- Memory growth issue in profiler (#4682)
+- Replace occurences of `strncpy` with `strlcpy` (#4636)
+- Fix span recording for `NSFileManager.createFileAtPath` starting with iOS 18, macOS 15 and tvOS 18. This feature is experimental and must be enabled by setting the option `experimental.enableFileManagerSwizzling` to `true` (#4634)
+
+### Internal
+
+- Update to Xcode 16.2 in workflows (#4673)
+- Add method unswizzling (#4647)
+
+## 8.43.0
+
+> [!WARNING]
+> This release contains a breaking change for the previously experimental session replay options. We moved the options from Session from `options.experimental.sessionReplay` to `options.sessionReplay`.
+
+### Features
+
+- Session replay GA (#4662)
+- Show session replay options as replay tags (#4639)
+
+### Fixes
+
+- Remove empty session replay tags (#4667)
+- `SentrySdkInfo.packages` should be an array (#4626)
+- Use the same SdkInfo for envelope header and event (#4629)
 
 ### Improvements
 
 - Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
 - Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
+
+### Internal
+
+- Remove loading `integrations` names from `event.extra` (#4627)
+- Add Hybrid SDKs API to add extra SDK packages (#4637)
+
+## 8.43.0-beta.1
+
+### Improvements
+
+- Improve compiler error message for missing Swift declarations due to APPLICATION_EXTENSION_API_ONLY (#4603)
+- Mask screenshots for errors (#4623)
+- Slightly speed up serializing scope (#4661)
 
 ### Features
 
@@ -19,13 +69,18 @@
 
 - `SentrySdkInfo.packages` should be an array (#4626)
 - Use the same SdkInfo for envelope header and event (#4629)
-- Fixes Session replay screenshot provider crash (#4649)
-- Session Replay wrong clipping order (#4651)
 
 ### Internal
 
 - Remove loading `integrations` names from `event.extra` (#4627)
 - Add Hybrid SDKs API to add extra SDK packages (#4637)
+
+## 8.42.1
+
+### Fixes
+
+- Fixes Session replay screenshot provider crash (#4649)
+- Session Replay wrong clipping order (#4651)
 
 ## 8.42.0
 
