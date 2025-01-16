@@ -4,7 +4,6 @@
 ///
 /// - Note: Methods provided by this extension reflect the same functionality as the original `Data` methods,
 ///         but they automatically track the operation with Sentry.
-@available(iOS 18, macOS 15, tvOS 18, *)
 public extension Data {
 
     /// Initialize a `Data` with the contents of a `URL`, automatically tracking the operation with Sentry.

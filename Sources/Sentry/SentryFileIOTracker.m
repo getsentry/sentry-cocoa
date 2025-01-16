@@ -223,8 +223,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(
-        @"SentryFileIOTracker automatically started a new span with description: %@, operation: %@",
+    SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
         ioSpan.description, operation);
 
     [ioSpan setDataValue:path forKey:@"file.path"];
@@ -310,7 +309,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
     [span finish];
 
-    SENTRY_LOG_DEBUG(@"SentryFileIOTracker automatically finished span %@", span.description);
+    SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);
 }
 
 - (BOOL)ignoreFile:(NSString *)path
