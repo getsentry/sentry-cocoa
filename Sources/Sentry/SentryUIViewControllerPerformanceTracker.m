@@ -177,18 +177,17 @@
 - (void)reportFullyDisplayed
 {
     SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;
-    if (tracker) {
-        if (tracker.waitForFullDisplay) {
-            [self.currentTTDTracker reportFullyDisplayed];
-        } else {
-            SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
-                            @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
-                            @"property in our `SentryTracedView` view for SwiftUI.");
-        }
-    } else {
+    if (tracker == nil) {
         SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
+        return;
     }
-}
+    if (!tracker.waitForFullDisplay) {
+        SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
+                        @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
+                        @"property in our `SentryTracedView` view for SwiftUI.");
+        return;
+    }
+    [self.currentTTDTracker reportFullyDisplayed];
 
 - (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                 waitForFullDisplay:(BOOL)waitForFullDisplay
