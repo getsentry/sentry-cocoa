@@ -123,7 +123,7 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        self.viewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay)
+        viewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay)
     }
 #else
     /// Creates a view that measures the performance of its `content`.
