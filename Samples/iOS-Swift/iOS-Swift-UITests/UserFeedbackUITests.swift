@@ -1,9 +1,14 @@
-//swiftlint:disable todo
+//swiftlint:disable file_length
 
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
+    
+    let fm = FileManager.default
+    
+    /// The Application Support directory is different between this UITest runner app and the target app under test. We have to retrieve the target app's app support directory using UI elements and store it here for usage.
+    var appSupportDirectory: String?
     
     override func setUp() {
         super.setUp()
@@ -11,27 +16,19 @@ class UserFeedbackUITests: BaseUITest {
         app.launchArguments.append(contentsOf: [
             "--io.sentry.feedback.auto-inject-widget",
             "--io.sentry.feedback.no-animations",
+            "--io.sentry.wipe-data",
             
-            // since the goal of these tests is only to exercise the UI of the widget and form, disable as much as possible from the SDK to avoid any confounding factors that might fail or crash a test case
-            "--disable-spotlight",
-            "--disable-automatic-session-tracking",
-            "--disable-metrickit-integration",
-            "--disable-session-replay",
-            "--disable-watchdog-tracking",
-            "--disable-tracing",
-            "--disable-swizzling",
-            "--disable-network-breadcrumbs",
-            "--disable-core-data-tracing",
-            "--disable-network-tracking",
-            "--disable-uiviewcontroller-tracing",
-            "--disable-automatic-breadcrumbs",
-            "--disable-anr-tracking",
-            "--disable-auto-performance-tracing",
-            "--disable-ui-tracing"
+            // since the goal of these tests is only to exercise the UI of the widget and form, disable other SDK features to avoid any confounding factors that might fail or crash a test case
+            "--io.sentry.disable-everything",
+            
+            // write base64-encoded data into the envelope file for attachments instead of raw bytes, specifically for images. this way the entire envelope contents can be more easily passed as a string through the text field in the app to this process for validation.
+            "--io.sentry.base64-attachment-data"
         ])
         continueAfterFailure = true
     }
-    
+}
+
+extension UserFeedbackUITests {
     // MARK: Tests ensuring correct appearance
     
     func testUIElementsWithDefaults() {
@@ -111,9 +108,15 @@ class UserFeedbackUITests: BaseUITest {
     // MARK: Tests validating happy path / successful submission
     
     func testSubmitFullyFilledForm() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults", "--io.sentry.disable-everything", "--io.sentry.wipe-data", "--io.sentry.base64-attachment-data"])
+        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
         
         widgetButton.tap()
+        
+        XCTAssert(nameField.waitForExistence(timeout: 1))
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         nameField.tap()
         let testName = "Andrew"
@@ -129,6 +132,11 @@ class UserFeedbackUITests: BaseUITest {
         
         sendButton.tap()
         
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
+        try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": "andrew.mcknight@sentry.io", "name": "Andrew"])
+        
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
         
@@ -140,9 +148,9 @@ class UserFeedbackUITests: BaseUITest {
         
         cancelButton.tap()
         
-        app.buttons["Extra"].tap()
+        extrasAreaTabBarButton.tap()
         app.buttons["io.sentry.ui-test.button.get-latest-envelope"].tap()
-        let marshaledDataBase64 = try XCTUnwrap(app.textFields["io.sentry.ui-test.text-field.data-marshaling.latest-envelope"].value as? String)
+        let marshaledDataBase64 = try XCTUnwrap(dataMarshalingField.value as? String)
         let data = try XCTUnwrap(Data(base64Encoded: marshaledDataBase64))
         let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(dict["event_type"] as? String), "feedback")
@@ -154,23 +162,49 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(dict["item_header_type"] as? String), "feedback")
     }
     
-    func testSubmitWithOnlyRequiredFieldsFilled() {
+    func dictionaryFromSuccessHookFile() throws -> [String: String] {
+        let actual = try getMarkerFileContents(type: .onSubmitSuccess)
+        let data = try XCTUnwrap(Data(base64Encoded: actual))
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: String])
+    }
+    
+    func base64Representation(of dict: [String: Any]) throws -> String {
+        let jsonData = try JSONSerialization.data(withJSONObject: dict, options: .sortedKeys)
+        return jsonData.base64EncodedString()
+    }
+    
+    func testSubmitWithOnlyRequiredFieldsFilled() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        
         widgetButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
         sendButton.tap()
         
+        try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
+        
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
     
     // MARK: Tests validating cancellation functions correctly
     
-    func testCancelFromFormByButton() {
+    func testCancelFromFormByButton() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        
         widgetButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
         nameField.tap()
@@ -185,6 +219,8 @@ class UserFeedbackUITests: BaseUITest {
         let cancelButton: XCUIElement = app.staticTexts["Cancel"]
         cancelButton.tap()
         
+        try assertOnlyHookMarkersExist(names: [.onFormClose])
+        
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
         
@@ -195,9 +231,15 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
-    func testCancelFromFormBySwipeDown() {
+    func testCancelFromFormBySwipeDown() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        
         widgetButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
         nameField.tap()
@@ -208,7 +250,7 @@ class UserFeedbackUITests: BaseUITest {
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
-
+        
         // first swipe down dismisses the keyboard that's still visible from typing the above inputs
         app.swipeDown(velocity: .fast)
         
@@ -217,6 +259,8 @@ class UserFeedbackUITests: BaseUITest {
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
+        try assertOnlyHookMarkersExist(names: [.onFormClose])
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
@@ -245,10 +289,17 @@ class UserFeedbackUITests: BaseUITest {
     
     func testSubmitWithNoFieldsFilledDefault() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
         
         widgetButton.tap()
         
         sendButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
@@ -256,8 +307,11 @@ class UserFeedbackUITests: BaseUITest {
         app.buttons["OK"].tap()
     }
     
-    func testSubmitWithNoFieldsFilledEmailAndMessageRequired() {
+    func testSubmitWithNoFieldsFilledEmailAndMessageRequired() throws {
         launchApp(args: ["--io.sentry.feedback.require-email"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
         
         widgetButton.tap()
         
@@ -267,6 +321,9 @@ class UserFeedbackUITests: BaseUITest {
         XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
         
         sendButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thine email and thy complaint."].exists)
@@ -279,6 +336,9 @@ class UserFeedbackUITests: BaseUITest {
             "--io.sentry.feedback.require-email",
             "--io.sentry.feedback.require-name"
         ])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
         
         widgetButton.tap()
         
@@ -288,25 +348,8 @@ class UserFeedbackUITests: BaseUITest {
         
         sendButton.tap()
         
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
-        
-        app.buttons["OK"].tap()
-    }
-    
-    func testSubmitWithNoFieldsFilledAllRequiredCustomLabels() throws {
-        launchApp(args: [
-            "--io.sentry.feedback.require-email",
-            "--io.sentry.feedback.require-name"
-        ])
-        
-        widgetButton.tap()
-        
-        XCTAssert(app.staticTexts["Thine email (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy name (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
-        
-        sendButton.tap()
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint;thy name")
         
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
@@ -316,6 +359,9 @@ class UserFeedbackUITests: BaseUITest {
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
         
         widgetButton.tap()
         
@@ -327,17 +373,27 @@ class UserFeedbackUITests: BaseUITest {
         
         sendButton.tap()
         
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
+        
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
     }
     
-    func testSubmissionErrorThenSuccessAfterFixingIssues() {
+    func testSubmissionErrorThenSuccessAfterFixingIssues() throws {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        
         widgetButton.tap()
         
         sendButton.tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
         
@@ -348,11 +404,15 @@ class UserFeedbackUITests: BaseUITest {
         
         sendButton.tap()
         
+        try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
+        
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
-    
-    // MARK: Private
-    
+}
+
+// MARK: UI Element access
+extension UserFeedbackUITests {
     var cancelButton: XCUIElement {
         app.buttons["io.sentry.feedback.form.cancel"]
     }
@@ -384,6 +444,61 @@ class UserFeedbackUITests: BaseUITest {
     var removeScreenshotButton: XCUIElement {
         app.buttons["io.sentry.feedback.form.remove-screenshot"]
     }
+    
+    var extrasAreaTabBarButton: XCUIElement {
+        app.buttons["Extra"]
+    }
+    
+    var dataMarshalingField: XCUIElement {
+        app.textFields["io.sentry.ui-test.text-field.data-marshaling.extras"]
+    }
 }
 
-//swiftlint:enable todo
+// MARK: Form hook test helpers
+extension UserFeedbackUITests {
+    func path(for marker: HookMarkerFile) throws -> String {
+        let appSupportDirectory = try XCTUnwrap(appSupportDirectory)
+        return "\(appSupportDirectory)/io.sentry/feedback/\(marker.rawValue)"
+    }
+    
+    func assertFormHookFile(type: HookMarkerFile, exists: Bool) throws {
+        let path = try path(for: type)
+        if exists {
+            XCTAssert(fm.fileExists(atPath: path), "Expected file to exist at \(path)")
+        } else {
+            XCTAssertFalse(fm.fileExists(atPath: path), "Expected file to not exist at \(path)")
+        }
+    }
+    
+    enum HookMarkerFile: String {
+        case onFormOpen
+        case onFormClose
+        case onSubmitSuccess
+        case onSubmitError
+    }
+    static let allHookMarkers: [HookMarkerFile] = [.onFormOpen, .onFormClose, .onSubmitSuccess, .onSubmitError]
+    
+    func assertOnlyHookMarkersExist(names: [HookMarkerFile]) throws {
+        try names.forEach { try assertFormHookFile(type: $0, exists: true) }
+        try Set(names).symmetricDifference(UserFeedbackUITests.allHookMarkers).forEach { try assertFormHookFile(type: $0, exists: false) }
+    }
+    
+    func getMarkerFileContents(type: HookMarkerFile) throws -> String {
+        let path = try path(for: type)
+        return try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
+    }
+    
+    func assertHookMarkersNotExist(names: [HookMarkerFile] = allHookMarkers) throws {
+        try names.forEach { try assertFormHookFile(type: $0, exists: false) }
+    }
+    
+    func retrieveAppUnderTestApplicationSupportDirectory() throws {
+        guard appSupportDirectory == nil else { return }
+        
+        extrasAreaTabBarButton.tap()
+        app.buttons["io.sentry.ui-test.button.get-application-support-directory"].tap()
+        appSupportDirectory = try XCTUnwrap(dataMarshalingField.value as? String)
+    }
+}
+
+//swiftlint:enable file_length
