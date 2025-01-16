@@ -773,7 +773,7 @@ class SentryFileManagerTests: XCTestCase {
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
-            NSMultipleUnderlyingErrorsKey: [],
+            NSMultipleUnderlyingErrorsKey: [Any](),
             NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
         ])
         // -- Act --
