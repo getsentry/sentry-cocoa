@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <Sentry/Sentry-Swift.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
@@ -55,5 +57,31 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 - (void)popActiveSpan;
 
 @end
+
+//@interface SentrySpanOperation : NSObject
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull appLifecycle;
+//+ (NSString * _Nonnull)appLifecycle;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull coredataFetchOperation;
+//+ (NSString * _Nonnull)coredataFetchOperation;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull coredataSaveOperation;
+//+ (NSString * _Nonnull)coredataSaveOperation;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull fileRead;
+//+ (NSString * _Nonnull)fileRead;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull fileWrite;
+//+ (NSString * _Nonnull)fileWrite;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull networkRequestOperation;
+//+ (NSString * _Nonnull)networkRequestOperation;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiAction;
+//+ (NSString * _Nonnull)uiAction;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiActionClick;
+//+ (NSString * _Nonnull)uiActionClick;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoad;
+//+ (NSString * _Nonnull)uiLoad;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoadInitialDisplay;
+//+ (NSString * _Nonnull)uiLoadInitialDisplay;
+//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoadFullDisplay;
+//+ (NSString * _Nonnull)uiLoadFullDisplay;
+// - (nonnull instancetype)init __attribute__((objc_designated_initializer));
+//@end
 
 NS_ASSUME_NONNULL_END
