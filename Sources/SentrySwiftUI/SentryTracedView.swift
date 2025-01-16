@@ -135,7 +135,8 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        self.viewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false)
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false)
+        _viewModel = State(initialValue: initialViewModel)
     }
 #endif
     
