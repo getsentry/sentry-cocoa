@@ -1,4 +1,4 @@
-//swiftlint:disable type_body_length file_length
+//swiftlint:disable file_length
 
 import XCTest
 
@@ -504,4 +504,4 @@ extension UserFeedbackUITests {
     }
 }
 
-//swiftlint:enable file_length type_body_length
+//swiftlint:enable file_length
