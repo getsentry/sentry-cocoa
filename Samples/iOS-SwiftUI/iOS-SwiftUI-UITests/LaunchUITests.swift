@@ -20,7 +20,7 @@ class LaunchUITests: XCTestCase {
         let childParentId = app.staticTexts["CHILD_PARENT_SPANID"]
         let childName = app.staticTexts["CHILD_NAME"]
         
-        XCTAssertEqual(childName.label, "Child Span")
+        XCTAssertEqual(childName.label, "Child Span - body")
         XCTAssertEqual(transactionName.label, "Content View Body")
         XCTAssertEqual(childParentId.label, transactionId.label)
         XCTAssertEqual("auto.ui.swift_ui", app.staticTexts["TRACE_ORIGIN"].label)
