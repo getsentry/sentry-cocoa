@@ -133,7 +133,7 @@ class SentryUserFeedbackForm: UIViewController {
         addScreenshotButton.isHidden = false
     }
     
-    func validate() -> String? {
+    func validate() -> [String]? {
         var missing = [String]()
         
         if config.formConfig.isNameRequired && !fullNameTextField.hasText {
@@ -148,17 +148,21 @@ class SentryUserFeedbackForm: UIViewController {
             missing.append(config.formConfig.messageLabel.lowercased())
         }
         
-        guard missing.isEmpty else {
-            let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
-            return "You must provide all required information. Please check the following field\(missing.count > 1 ? "s" : ""): \(list)."
+        guard !missing.isEmpty else {
+            return nil
         }
         
-        return nil
+        return missing
+    }
+
+    func message(for missingFields: [String]) -> String {
+        let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
+        return "You must provide all required information. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
     }
      
     func submitFeedbackButtonTapped() {
-        if let message = validate() {
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        if let missing = validate() {
+            let alert = UIAlertController(title: "Error", message: message(for: missing), preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: config.animations) {
                 if let block = self.config.onSubmitError {
@@ -398,8 +402,8 @@ class SentryUserFeedbackForm: UIViewController {
     }()
     
     lazy var submitAccessibilityHint = {
-        if let message = validate() {
-            return message
+        if let missing = validate() {
+            return message(for: missing)
         }
         
         var hint = "Will submit feedback "
