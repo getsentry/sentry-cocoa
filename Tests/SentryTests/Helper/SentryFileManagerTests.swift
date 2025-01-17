@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -69,7 +71,27 @@ class SentryFileManagerTests: XCTestCase {
             sut.setDelegate(delegate)
             return sut
         }
-        
+
+        func getValidPath() -> String {
+            URL(fileURLWithPath: NSTemporaryDirectory())
+                .appendingPathComponent("SentryTest")
+                .path
+        }
+
+        func getTooLongPath() -> String {
+            var url = URL(fileURLWithPath: NSTemporaryDirectory())
+            for element in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] {
+                url = url.appendingPathComponent(Array(
+                    repeating: element,
+                    count: Int(NAME_MAX)
+                ).joined())
+            }
+            return url.path
+        }
+
+        func getInvalidPath() -> String {
+            URL(fileURLWithPath: "/dev/null").path
+        }
     }
     
     private var fixture: Fixture!
@@ -722,6 +744,181 @@ class SentryFileManagerTests: XCTestCase {
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsGiven_shouldUseErrorInUserInfo() throws {
+        // -- Arrange --
+        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
+            throw XCTSkip("This test is only for macOS 11 and above")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSMultipleUnderlyingErrorsKey: [
+                NSError(domain: NSCocoaErrorDomain, code: 2, userInfo: nil)
+            ],
+            NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsEmpty_shouldUseErrorInUserInfo() throws {
+        // -- Arrange --
+        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSMultipleUnderlyingErrorsKey: [Any](),
+            NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsNotSet_shouldUseErrorInUserInfo() throws {
+        // -- Arrange --
+        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsAvailableAndOnlyMultipleErrorsGiven_shouldUseErrorFirstError() throws {
+        // -- Arrange --
+        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSMultipleUnderlyingErrorsKey: [
+                NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil),
+                NSError(domain: NSCocoaErrorDomain, code: 2, userInfo: nil)
+            ]
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorNotInUserInfo_shouldNotCheckError() throws {
+        // -- Arrange --
+        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [:])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndNonErrorInUserInfo_shouldNotCheckError() throws {
+        // -- Arrange --
+        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSUnderlyingErrorKey: "This is not an error"
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
+    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorInUserInfo_shouldNotCheckError() throws {
+        // -- Arrange --
+        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+        // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
+        // This test asserts if that behavior changes.
+        let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
+            NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
+        ])
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsErrorPathTooLong_errorIsEnameTooLong_shouldReturnTrue() throws {
+        // -- Arrange --
+        let error = NSError(domain: NSPOSIXErrorDomain, code: Int(ENAMETOOLONG), userInfo: nil)
+        // -- Act --
+        let result = isErrorPathTooLong(error)
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testCreateDirectoryIfNotExists_successful_shouldNotLogError() throws {
+        // -- Arrange -
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configureLog(true, diagnosticLevel: .debug)
+
+        let path = fixture.getValidPath()
+        var error: NSError?
+        // -- Act --
+        let result = createDirectoryIfNotExists(path, &error)
+        // -- Assert -
+        XCTAssertTrue(result)
+        XCTAssertEqual(logOutput.loggedMessages.count, 0)
+    }
+
+    func testCreateDirectoryIfNotExists_pathTooLogError_shouldLogError() throws {
+        // -- Arrange -
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configureLog(true, diagnosticLevel: .debug)
+
+        let path = fixture.getTooLongPath()
+        var error: NSError?
+        // -- Act --
+        let result = createDirectoryIfNotExists(path, &error)
+        // -- Assert -
+        XCTAssertFalse(result)
+        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.code, 108)
+        XCTAssertEqual(logOutput.loggedMessages.count, 1)
+    }
+
+    func testCreateDirectoryIfNotExists_otherError_shouldNotLogError() throws {
+        // -- Arrange -
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        SentryLog.configureLog(true, diagnosticLevel: .debug)
+
+        let path = fixture.getInvalidPath()
+        var error: NSError?
+        // -- Act --
+        let result = createDirectoryIfNotExists(path, &error)
+        // -- Assert -
+        XCTAssertFalse(result)
+        XCTAssertEqual(error?.domain, SentryErrorDomain)
+        XCTAssertEqual(error?.code, 108)
+        XCTAssertEqual(logOutput.loggedMessages.count, 0)
     }
 }
 
