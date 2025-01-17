@@ -199,7 +199,7 @@ extension SentrySDKWrapper {
             return
         }
         
-        config.useSentryUser = args.contains("--io.sentry.feedback.use-sentry-user")
+        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
         config.animations = !args.contains("--io.sentry.feedback.no-animations")
         config.useShakeGesture = true
         config.showFormForScreenshots = true

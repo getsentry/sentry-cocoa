@@ -95,7 +95,9 @@ extension UserFeedbackUITests {
     }
     
     func testPrefilledUserInformation() throws {
-        launchApp(args: ["--io.sentry.feedback.use-sentry-user"], env: [
+        launchApp(args: [
+            "--io.sentry.feedback.all-defaults"
+        ], env: [
             "--io.sentry.user.name": "ui test user",
             "--io.sentry.user.email": "ui-testing@sentry.io"
         ])
@@ -105,10 +107,25 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "ui-testing@sentry.io")
     }
     
+    func testNoPrefilledUserInformation() throws {
+        launchApp(args: [
+            "--io.sentry.feedback.dont-use-sentry-user"
+        ], env: [
+            "--io.sentry.user.name": "ui test user",
+            "--io.sentry.user.email": "ui-testing@sentry.io"
+        ])
+        
+        widgetButton.tap()
+        
+        // XCUIElement.value returns the placeholder value when empty, which they should be here
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Yo name")
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "Yo email")
+    }
+    
     // MARK: Tests validating happy path / successful submission
     
-    func testSubmitFullyFilledForm() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+    func testSubmitFullyFilledCustomForm() throws {
+        launchApp(args: ["--io.sentry.feedback.dont-use-sentry-user"])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -123,8 +140,8 @@ extension UserFeedbackUITests {
         nameField.typeText(testName)
         
         emailField.tap()
-        let testContactEmail = "andrew.mcknight@sentry.io"
-        emailField.typeText(testContactEmail)
+        let testEmail = "custom@email.com"
+        emailField.typeText(testEmail)
         
         messageTextView.tap()
         let testMessage = "UITest user feedback"
@@ -135,14 +152,67 @@ extension UserFeedbackUITests {
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": "andrew.mcknight@sentry.io", "name": "Andrew"])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": testEmail, "name": testName])
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
         
-        // the placeholder text is returned for XCUIElement.value
-        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
-        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
+        // these will be prefilled by default
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Yo name")
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "Yo email")
+        
+        XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
+        
+        cancelButton.tap()
+        
+        extrasAreaTabBarButton.tap()
+        app.buttons["io.sentry.ui-test.button.get-latest-envelope"].tap()
+        let marshaledDataBase64 = try XCTUnwrap(dataMarshalingField.value as? String)
+        let data = try XCTUnwrap(Data(base64Encoded: marshaledDataBase64))
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["event_type"] as? String), "feedback")
+        XCTAssertEqual(try XCTUnwrap(dict["message"] as? String), testMessage)
+        XCTAssertEqual(try XCTUnwrap(dict["contact_email"] as? String), testEmail)
+        XCTAssertEqual(try XCTUnwrap(dict["source"] as? String), "widget")
+        XCTAssertEqual(try XCTUnwrap(dict["name"] as? String), testName)
+        XCTAssertNotNil(dict["event_id"])
+        XCTAssertEqual(try XCTUnwrap(dict["item_header_type"] as? String), "feedback")
+    }
+    
+    func testSubmitFullyFilledForm() throws {
+        let testName = "Andrew"
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        
+        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
+            "--io.sentry.user.name": testName,
+            "--io.sentry.user.email": testContactEmail
+        ])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        
+        widgetButton.tap()
+        
+        XCTAssert(nameField.waitForExistence(timeout: 1))
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
+        
+        messageTextView.tap()
+        let testMessage = "UITest user feedback"
+        messageTextView.typeText(testMessage)
+        
+        sendButton.tap()
+        
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
+        try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": testContactEmail, "name": testName])
+        
+        // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
+        widgetButton.tap()
+        
+        // these will be prefilled by default
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), testName)
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), testContactEmail)
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
         
@@ -174,7 +244,13 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitWithOnlyRequiredFieldsFilled() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        let testName = "Andrew"
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        
+        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
+            "--io.sentry.user.name": testName,
+            "--io.sentry.user.email": testContactEmail
+        ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -189,7 +265,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
@@ -197,7 +273,13 @@ extension UserFeedbackUITests {
     // MARK: Tests validating cancellation functions correctly
     
     func testCancelFromFormByButton() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        let testName = "Andrew"
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        
+        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
+            "--io.sentry.user.name": testName,
+            "--io.sentry.user.email": testContactEmail
+        ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -205,13 +287,6 @@ extension UserFeedbackUITests {
         widgetButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
-        
-        // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
-        nameField.tap()
-        nameField.typeText("Andrew")
-        
-        emailField.tap()
-        emailField.typeText("andrew.mcknight@sentry.io")
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
@@ -224,15 +299,24 @@ extension UserFeedbackUITests {
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
         
-        // the placeholder text is returned for XCUIElement.value
-        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
-        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), testName)
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), testContactEmail)
         
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
     func testCancelFromFormBySwipeDown() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            throw XCTSkip("Swipe down to cancel not applicable on iPad")
+        }
+        
+        let testName = "Andrew"
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        
+        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
+            "--io.sentry.user.name": testName,
+            "--io.sentry.user.email": testContactEmail
+        ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -240,13 +324,6 @@ extension UserFeedbackUITests {
         widgetButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
-        
-        // fill out the fields; we'll assert later that the entered data does not reappear on subsequent displays
-        nameField.tap()
-        nameField.typeText("Andrew")
-        
-        emailField.tap()
-        emailField.typeText("andrew.mcknight@sentry.io")
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
@@ -265,10 +342,9 @@ extension UserFeedbackUITests {
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
         widgetButton.tap()
         
-        // the placeholder text is returned for XCUIElement.value
-        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), "Your Name")
-        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), "your.email@example.org")
-        
+        XCTAssertEqual(try XCTUnwrap(nameField.value as? String), testName)
+        XCTAssertEqual(try XCTUnwrap(emailField.value as? String), testContactEmail)
+
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
@@ -308,7 +384,7 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitWithNoFieldsFilledEmailAndMessageRequired() throws {
-        launchApp(args: ["--io.sentry.feedback.require-email"])
+        launchApp(args: ["--io.sentry.feedback.require-email", "--io.sentry.feedback.dont-use-sentry-user"])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -334,7 +410,8 @@ extension UserFeedbackUITests {
     func testSubmitWithNoFieldsFilledAllRequired() throws {
         launchApp(args: [
             "--io.sentry.feedback.require-email",
-            "--io.sentry.feedback.require-name"
+            "--io.sentry.feedback.require-name",
+            "--io.sentry.feedback.dont-use-sentry-user"
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -365,12 +442,6 @@ extension UserFeedbackUITests {
         
         widgetButton.tap()
         
-        nameField.tap()
-        nameField.typeText("Andrew")
-        
-        emailField.tap()
-        emailField.typeText("andrew.mcknight@sentry.io")
-        
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
@@ -383,8 +454,14 @@ extension UserFeedbackUITests {
     }
     
     func testSubmissionErrorThenSuccessAfterFixingIssues() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
-
+        let testName = "Andrew"
+        let testContactEmail = "andrew.mcknight@sentry.io"
+        
+        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
+            "--io.sentry.user.name": testName,
+            "--io.sentry.user.email": testContactEmail
+        ])
+        
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
         
@@ -405,7 +482,7 @@ extension UserFeedbackUITests {
         sendButton.tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
-        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": "", "message": "UITest user feedback", "email": ""])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
         
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
