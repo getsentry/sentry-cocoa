@@ -80,7 +80,7 @@ class SentryFileManagerTests: XCTestCase {
 
         func getTooLongPath() -> String {
             var url = URL(fileURLWithPath: NSTemporaryDirectory())
-            for element in ["A", "B", "C", "D", "E"] {
+            for element in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] {
                 url = url.appendingPathComponent(Array(
                     repeating: element,
                     count: Int(NAME_MAX)
@@ -904,7 +904,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(logOutput.loggedMessages.count, 1)
     }
 
-    func testCreateDirectoryIfNotExists_otherError_shouldLNotLogError() throws {
+    func testCreateDirectoryIfNotExists_otherError_shouldNotLogError() throws {
         // -- Arrange -
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)

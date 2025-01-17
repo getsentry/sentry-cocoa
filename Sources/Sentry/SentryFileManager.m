@@ -36,10 +36,14 @@ isErrorPathTooLong(NSError *error)
     if (underlyingError == NULL) {
         underlyingError = error;
     }
-    if (underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG) {
-        return YES;
-    }
-    return NO;
+    BOOL isEnameTooLong
+        = underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG;
+    // On older OS versions the error code is NSFileWriteUnknown
+    // Reference: https://developer.apple.com/forums/thread/128927?answerId=631839022#631839022
+    BOOL isUnknownError = underlyingError.domain == NSCocoaErrorDomain
+        && underlyingError.code == NSFileWriteUnknownError;
+
+    return isEnameTooLong || isUnknownError;
 }
 
 BOOL
