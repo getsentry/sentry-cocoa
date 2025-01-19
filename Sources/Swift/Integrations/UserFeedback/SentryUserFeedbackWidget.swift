@@ -19,7 +19,7 @@ struct SentryUserFeedbackWidget {
             
             lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { _ in
                 self.setWidget(visible: false)
-                let form = SentryUserFeedbackForm(config: self.config, delegate: self)
+                let form = SentryUserFeedbackFormController(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
                 self.present(form, animated: self.config.animations) {  
                     self.config.onFormOpen?()
