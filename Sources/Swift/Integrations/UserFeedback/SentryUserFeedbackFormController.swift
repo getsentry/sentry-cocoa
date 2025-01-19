@@ -197,6 +197,10 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        viewModel.updateSubmitButtonAccessibilityHint()
+    }
 }
 
 // MARK: UITextViewDelegate
@@ -204,6 +208,7 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
 extension SentryUserFeedbackFormController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
+        viewModel.updateSubmitButtonAccessibilityHint()
     }
 }
 
