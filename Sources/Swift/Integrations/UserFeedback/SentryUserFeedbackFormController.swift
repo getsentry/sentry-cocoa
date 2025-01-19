@@ -80,7 +80,10 @@ extension SentryUserFeedbackFormController {
     }
     
     func showedKeyboard(note: Notification) {
-        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+            SentryLog.warning("Received a keyboard display notification with no frame information.")
+            return
+        }
         let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
         viewModel.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
     }
