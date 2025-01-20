@@ -87,7 +87,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                            dispatchQueueWrapper:dispatchQueue
                                                                           error:&error];
     if (error != nil) {
-        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
+        SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;
     }
     return [self initWithOptions:options

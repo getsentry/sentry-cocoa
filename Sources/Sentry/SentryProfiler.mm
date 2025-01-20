@@ -42,7 +42,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = options.profilesSampleRate != nil;
 #    if SENTRY_HAS_UIKIT
-        if (SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay) {
+        if (SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
             shouldStopAndTransmitLaunchProfile = NO;
         }
 #    endif // SENTRY_HAS_UIKIT

@@ -8,10 +8,14 @@
 
 ### Features
 
+- SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
 
+### Improvements
+
+- Add error logging for invalid `cacheDirectoryPath` (#4693)
 ### Internal
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
