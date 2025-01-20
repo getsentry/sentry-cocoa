@@ -53,13 +53,6 @@
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay
-{
-    return [self initWithName:name
-           waitForFullDisplay:waitForFullDisplay
-         dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
-}
-
 - (BOOL)startForTracer:(SentryTracer *)tracer
 {
     if (SentryDependencyContainer.sharedInstance.framesTracker.isRunning == NO) {
