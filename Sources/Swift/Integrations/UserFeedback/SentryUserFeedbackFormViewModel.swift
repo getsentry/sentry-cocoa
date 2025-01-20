@@ -251,7 +251,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
     lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
     lazy var messagePlaceholderTrailingConstraint = messageTextViewPlaceholder.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: messageTextView.textContainerInset.right - 5)
     lazy var messagePlaceholderTopConstraint = messageTextViewPlaceholder.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: messageTextView.textContainerInset.top)
-    lazy var messagePlaceholderBottomConstraint = messageTextViewPlaceholder.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: messageTextView.textContainerInset.bottom)
+    lazy var messagePlaceholderBottomConstraint = messageTextViewPlaceholder.bottomAnchor.constraint(lessThanOrEqualTo: messageTextView.bottomAnchor, constant: messageTextView.textContainerInset.bottom)
     
     func allConstraints(view: UIView) -> [NSLayoutConstraint] {
         [
