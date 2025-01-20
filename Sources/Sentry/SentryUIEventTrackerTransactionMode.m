@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryTransactionContext alloc] initWithName:action
                                             nameSource:kSentryTransactionNameSourceComponent
                                              operation:operation
-                                                origin:SentryTraceOrigin.uiEventTracker];
+                                                origin:SentryTraceOrigin.autoUiEventTracker];
 
     __block SentryTracer *transaction;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
