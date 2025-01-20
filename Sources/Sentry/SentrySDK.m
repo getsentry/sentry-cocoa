@@ -206,7 +206,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
                     //Using NSLog because SentryLog was not initialized yet.
-                    NSLog(@"[SENTRY] SentrySDK not started. Running from Xcode preview.");
+                    NSLog(@"[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.");
         return;
     }
 
