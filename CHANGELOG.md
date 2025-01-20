@@ -9,6 +9,7 @@
 ### Fixes
 
 - Don't start the SDK inside Xcode preview (#4601)
+
 ### Improvements
 
 - Add native SDK information in the replay option event (#4663)
