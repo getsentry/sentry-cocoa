@@ -7,14 +7,27 @@
 
 #import <Foundation/Foundation.h>
 
-#import <Sentry/Sentry-Swift.h>
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/Sentry.h>
+#elif __has_include("Sentry.h")
+#    import "Sentry.h"
+#endif
+
+#if SENTRY_TEST
+#    import "SentrySpan.h"
+#    import "SentryTracer.h"
+#else
+@class SentrySpan;
+@interface SentryTracer : NSObject <SentrySpan>
+@end
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
-@protocol SentrySpan;
+@class SentryDispatchQueueWrapper;
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -58,30 +71,46 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-//@interface SentrySpanOperation : NSObject
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull appLifecycle;
-//+ (NSString * _Nonnull)appLifecycle;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull coredataFetchOperation;
-//+ (NSString * _Nonnull)coredataFetchOperation;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull coredataSaveOperation;
-//+ (NSString * _Nonnull)coredataSaveOperation;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull fileRead;
-//+ (NSString * _Nonnull)fileRead;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull fileWrite;
-//+ (NSString * _Nonnull)fileWrite;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull networkRequestOperation;
-//+ (NSString * _Nonnull)networkRequestOperation;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiAction;
-//+ (NSString * _Nonnull)uiAction;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiActionClick;
-//+ (NSString * _Nonnull)uiActionClick;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoad;
-//+ (NSString * _Nonnull)uiLoad;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoadInitialDisplay;
-//+ (NSString * _Nonnull)uiLoadInitialDisplay;
-//@property (nonatomic, class, readonly, copy) NSString * _Nonnull uiLoadFullDisplay;
-//+ (NSString * _Nonnull)uiLoadFullDisplay;
-// - (nonnull instancetype)init __attribute__((objc_designated_initializer));
-//@end
+@interface SentryTimeToDisplayTracker : NSObject
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+
+@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+
+@property (nonatomic, readonly) BOOL waitForFullDisplay;
+
+- (instancetype)initWithName:(NSString *)name
+          waitForFullDisplay:(BOOL)waitForFullDisplay
+        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+
+- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay;
+
+- (BOOL)startForTracer:(SentryTracer *)tracer;
+
+- (void)reportInitialDisplay;
+
+- (void)reportFullyDisplayed;
+
+- (void)finishSpansIfNotFinished;
+
+@end
+
+@interface SentryUIViewControllerPerformanceTracker : NSObject
+
+@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
+
+- (void)reportFullyDisplayed;
+
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
+
+@end
+
+@interface SentrySDK ()
+@property (nonatomic, nullable, readonly, class) SentryOptions *options;
+@end
 
 NS_ASSUME_NONNULL_END

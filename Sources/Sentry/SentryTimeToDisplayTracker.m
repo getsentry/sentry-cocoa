@@ -35,15 +35,15 @@
     BOOL _waitForFullDisplay;
     BOOL _initialDisplayReported;
     BOOL _fullyDisplayedReported;
-    NSString *_controllerName;
+    NSString *_name;
 }
 
-- (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay
-             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (instancetype)initWithName:(NSString *)name
+          waitForFullDisplay:(BOOL)waitForFullDisplay
+        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        _controllerName = [SwiftDescriptor getViewControllerClassName:controller];
+        _name = name;
         _waitForFullDisplay = waitForFullDisplay;
         _dispatchQueueWrapper = dispatchQueueWrapper;
         _initialDisplayReported = NO;
@@ -61,17 +61,16 @@
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan = [tracer
-        startChildWithOperation:SentrySpanOperation.uiLoadInitialDisplay
-                    description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
+    self.initialDisplaySpan =
+        [tracer startChildWithOperation:SentrySpanOperation
+                            description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
         self.fullDisplaySpan =
-            [tracer startChildWithOperation:SentrySpanOperation.uiLoadFullDisplay
-                                description:[NSString stringWithFormat:@"%@ full display",
-                                                _controllerName]];
+            [tracer startChildWithOperation:SentrySpanOperation
+                                description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
@@ -145,7 +144,7 @@
     if (self.fullDisplaySpan.isFinished == NO) {
         SENTRY_LOG_WARN(@"You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: "
                         @"%@. Finishing full display span with status: %@.",
-            _controllerName, nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
+            _name, nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
 
         [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
     }

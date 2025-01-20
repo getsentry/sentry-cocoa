@@ -529,6 +529,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sut.sessionReplay?.breadcrumbConverter is CustomBreadcrumbConverter)
     }
     
+    func testSetCustomOptions() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        
+        let sut = try getSut()
+        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
+        
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+    
     func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
