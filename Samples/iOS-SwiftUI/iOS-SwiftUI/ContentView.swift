@@ -239,7 +239,7 @@ struct ContentView: View {
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                 }
-        }
+            }
         }
     }
 }
