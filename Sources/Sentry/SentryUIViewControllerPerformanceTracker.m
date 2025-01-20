@@ -163,12 +163,10 @@
         return;
     }
 
-    [self.currentTTDTracker finishSpansIfNotFinished];
-
-    SentryTimeToDisplayTracker *ttdTracker = [[SentryTimeToDisplayTracker alloc]
-                initWithName:[SwiftDescriptor getObjectClassName:controller]
-          waitForFullDisplay:self.alwaysWaitForFullDisplay
-        dispatchQueueWrapper:_dispatchQueueWrapper];
+    SentryTimeToDisplayTracker *ttdTracker =
+        [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
+                              waitForFullDisplay:self.alwaysWaitForFullDisplay
+                                          tracer:(SentryTracer *)vcSpan];
 
     if (ttdTracker) {
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
@@ -179,22 +177,17 @@
 - (void)reportFullyDisplayed
 {
     SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;
-    if (tracker) {
-        if (tracker.waitForFullDisplay) {
-            [self.currentTTDTracker reportFullyDisplayed];
-        } else {
-            SENTRY_LOG_DEBUG(@"Transaction is not waiting for full display report. You can enable "
-                             @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
-                             @"property in our `SentryTracedView` view for SwiftUI.");
-        }
-    } else {
+    if (tracker == nil) {
         SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
+        return;
     }
-}
-
-- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker
-{
-    self.currentTTDTracker = ttdTracker;
+    if (!tracker.waitForFullDisplay) {
+        SENTRY_LOG_WARN(@"Transaction is not waiting for full display report. You can enable "
+                        @"`enableTimeToFullDisplay` option, or use the waitForFullDisplay "
+                        @"property in our `SentryTracedView` view for SwiftUI.");
+        return;
+    }
+    [self.currentTTDTracker reportFullyDisplayed];
 }
 
 - (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
