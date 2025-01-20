@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 @available(*, deprecated)
@@ -71,6 +72,17 @@ class SentryUserTests: XCTestCase {
         let actual = user.serialize()
 
         XCTAssertNil(actual["id"] as? String)
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        let user = TestData.user
+        
+        let actual = user.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        let decoded = decodeFromJSONData(jsonData: data) as User?
+        
+        XCTAssertEqual(user, decoded)
     }
     
     func testHash() {
