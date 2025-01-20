@@ -16,7 +16,7 @@ class SentryTraceViewModel {
     let name: String
     let nameSource: SentryTransactionNameSource
     let waitForFullDisplay: Bool
-    let traceOrigin = SentryTraceOrigin.autoUITimeToDisplay
+    let traceOrigin = SentryTraceOrigin.autoUISwiftUI
     
     init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name

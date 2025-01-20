@@ -17,5 +17,6 @@
 //   - Issue: Internal class is public for SDK users, which is not desired
 
 enum SentryTraceOrigin {
+    static let autoUISwiftUI = "auto.ui.swift_ui"
     static let autoUITimeToDisplay = "auto.ui.time_to_display"
 }
