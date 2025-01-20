@@ -3,13 +3,18 @@
 // As the main file is internal in `Sentry`, it can not be exposed to the `SentrySwiftUI` module.
 // This file is a workaround to expose the `SentrySpanOperation` class to the `SentrySwiftUI` module.
 //
-// Discarded approach:
-//   - Swift files are public, the auto-generated `Sentry-Swift.h` includes the `SentrySpanOperation` class.
-//   - `Sentry-Swift.h` is manually imported to `SentrySwift.h`
-//   -
-//
 // ATTENTION: This file should be kept in sync with the main file.
 //            Please add new fields or methods in the main file if possible.
+//
+// Discarded Approach 1:
+//   - Define `@interface SentrySpanOperation` in `SentryInternal.h`
+//   - Swift class is exposed to Objective-C in auto-generated `Sentry-Swift.h`
+//   - Conflict: Duplicate interface definition
+//
+// Discarded Approach 2:
+//   - Declare Swift class `SentrySpanOperation` in main file as `public`.
+//   - Auto-generated `Sentry-Swift.h` is manually imported to `SentrySwift.h`
+//   - Issue: Internal class is public for SDK users, which is not desired
 
 class SentrySpanOperation {
     static let uiLoad = "ui.load"
