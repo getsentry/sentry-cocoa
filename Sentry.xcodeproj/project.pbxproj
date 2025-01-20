@@ -3775,6 +3775,7 @@
 				D8199DB529376ECC0074249E /* SentrySwiftUI.h */,
 				D88D25E92B8E0BAC0073C3D5 /* module.modulemap */,
 				D8199DB629376ECC0074249E /* SentryTracedView.swift */,
+				D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */,
 				D8A65B5C2C98656000974B74 /* SentryReplayView.swift */,
 			);
 			path = SentrySwiftUI;
@@ -3783,7 +3784,6 @@
 		D8199DB429376ECC0074249E /* SentryInternal */ = {
 			isa = PBXGroup;
 			children = (
-				D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */,
 				D8199DB829376ECC0074249E /* SentryInternal.h */,
 				D8199DB929376ECC0074249E /* SentryInternal.m */,
 			);
