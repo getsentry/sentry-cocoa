@@ -98,7 +98,7 @@ sentry_context(NSNumber *tracesRate)
     SentryTransactionContext *context =
         [[SentryTransactionContext alloc] initWithName:@"launch"
                                             nameSource:kSentryTransactionNameSourceCustom
-                                             operation:@"app.lifecycle"
+                                             operation:SentrySpanOperation.appLifecycle
                                                 origin:SentryTraceOriginAutoAppStartProfile
                                                sampled:kSentrySampleDecisionYes];
     context.sampleRate = tracesRate;
