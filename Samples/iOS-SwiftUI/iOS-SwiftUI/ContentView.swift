@@ -4,17 +4,17 @@ import SwiftUI
 
 //This is for test purpose
 class DataBag {
-
+    
     static let shared = DataBag()
-
+    
     var info = [String: Any]()
-
+    
     private init() {
     }
 }
 
 struct ContentView: View {
-
+    
     @State var TTDInfo: String = ""
     
     var addBreadcrumbAction: () -> Void = {
@@ -90,7 +90,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     func showTTD() {
         guard let tracer = getCurrentTracer() else { return }
         
@@ -119,22 +119,22 @@ struct ContentView: View {
     func hasTTFD(tracer: SentryTracer?) -> Bool {
         tracer?.children.contains { $0.spanDescription?.contains("full display") == true } == true
     }
-
+    
     func getCurrentSpan() -> Span? {
-
+        
         let tracker = SentryPerformanceTracker.shared
         guard let currentSpanId = tracker.activeSpanId() else {
             return DataBag.shared.info["lastSpan"] as? Span
         }
-
+        
         if DataBag.shared.info["lastSpan"] == nil {
             let span = tracker.getSpan(currentSpanId)
-
+            
             if !(span is SentryTracer) {
                 DataBag.shared.info["lastSpan"] = span
             }
         }
-
+        
         return DataBag.shared.info["lastSpan"] as? Span
     }
     
@@ -145,7 +145,7 @@ struct ContentView: View {
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
-                            
+                        
                         Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
@@ -169,27 +169,27 @@ struct ContentView: View {
                     }
                     HStack (spacing: 30) {
                         VStack(spacing: 16) {
-
+                            
                             Button(action: addBreadcrumbAction) {
                                 Text("Add Breadcrumb")
                             }
-
+                            
                             Button(action: captureMessageAction) {
                                 Text("Capture Message")
                             }
-
+                            
                             Button(action: captureUserFeedbackAction) {
                                 Text("Capture User Feedback")
                             }
-
+                            
                             Button(action: captureErrorAction) {
                                 Text("Capture Error")
                             }
-
+                            
                             Button(action: captureNSExceptionAction) {
                                 Text("Capture NSException")
                             }
-
+                            
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
                             }
@@ -239,7 +239,7 @@ struct ContentView: View {
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                 }
-        }
+            }
         }
     }
 }
