@@ -6,6 +6,7 @@
 @class SentryInAppLogic;
 @class SentryTimeToDisplayTracker;
 @class UIViewController;
+@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,7 +103,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
 
 - (void)reportFullyDisplayed;
 
-- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker;
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
 
 @end
 

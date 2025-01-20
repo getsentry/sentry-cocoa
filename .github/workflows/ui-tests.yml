@@ -117,7 +117,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.0"
+      - run: ./scripts/ci-select-xcode.sh "16.2"
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift6
 
@@ -136,7 +136,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.0"
+      - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
       - name: Run Fastlane
         run: fastlane duplication_test

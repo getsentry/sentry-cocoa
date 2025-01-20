@@ -111,6 +111,13 @@
 			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
 			remoteInfo = SentryTests;
 		};
+		D833D61A2D13216300961E7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D833D60D2D1320B500961E7A;
+			remoteInfo = SentrySwiftUITests;
+		};
 		D8BBD38A2901AE400011F850 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
@@ -206,6 +213,7 @@
 				8425DE232B52241000113FEF /* SentryProfilerTests.xctest */,
 				8425DE252B52241000113FEF /* libSentryTestUtils.a */,
 				8425DE272B52241000113FEF /* SentryTestUtilsDynamic.framework */,
+				D833D61B2D13216300961E7A /* libSentrySwiftUITests.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -478,6 +486,13 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 84D4FEB328ECD52E00EDAAFE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D833D61B2D13216300961E7A /* libSentrySwiftUITests.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentrySwiftUITests.a;
+			remoteRef = D833D61A2D13216300961E7A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */ = {

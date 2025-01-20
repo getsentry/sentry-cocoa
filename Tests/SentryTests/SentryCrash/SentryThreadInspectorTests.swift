@@ -303,10 +303,10 @@ class SentryThreadInspectorTests: XCTestCase {
 private class TestSentryStacktraceBuilder: SentryStacktraceBuilder {
     
     var stackTraces = [SentryCrashThread: SentryStacktrace]()
-    override func buildStacktrace(forThread thread: SentryCrashThread, context: OpaquePointer) -> SentryStacktrace {
+
+    override func buildStacktrace(forThread thread: SentryCrashThread, context: UnsafeMutablePointer<SentryCrashMachineContext>) -> SentryStacktrace {
         return stackTraces[thread] ?? SentryStacktrace(frames: [], registers: [:])
     }
-        
 }
 
 private struct ThreadInfo {
@@ -316,17 +316,17 @@ private struct ThreadInfo {
 
 private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrapper {
         
-    func fillContext(forCurrentThread context: OpaquePointer) {
+    func fillContext(forCurrentThread context: UnsafeMutablePointer<SentryCrashMachineContext>) {
         // Do nothing
     }
     
     var threadCount: Int32 = 0
-    func getThreadCount(_ context: OpaquePointer) -> Int32 {
+    func getThreadCount(_ context: UnsafeMutablePointer<SentryCrashMachineContext>) -> Int32 {
         threadCount
     }
     
     var mockThreads: [ThreadInfo]?
-    func getThread(_ context: OpaquePointer, with index: Int32) -> SentryCrashThread {
+    func getThread(_ context: UnsafeMutablePointer<SentryCrashMachineContext>, with index: Int32) -> SentryCrashThread {
         mockThreads?[Int(index)].threadId ?? 0
     }
     

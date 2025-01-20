@@ -83,7 +83,12 @@ platform :ios do
     sync_code_signing(
       type: "appstore",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"]
+      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -107,7 +112,12 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -129,11 +139,16 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing | xcpretty"
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
@@ -147,7 +162,13 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"]
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
+      
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -258,7 +279,12 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(
@@ -283,7 +309,12 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
+      
+      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+      git_branch: "master",
+      clone_branch_directly: true
     )
 
     build_app(

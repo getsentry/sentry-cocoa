@@ -126,7 +126,7 @@
             [self.currentTTDTracker finishSpansIfNotFinished];
         }
 
-        NSString *name = [SwiftDescriptor getObjectClassName:controller];
+        NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUILoad
@@ -170,12 +170,9 @@
           waitForFullDisplay:self.alwaysWaitForFullDisplay
         dispatchQueueWrapper:_dispatchQueueWrapper];
 
-    if ([ttdTracker startForTracer:(SentryTracer *)vcSpan]) {
+    if (ttdTracker) {
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
             OBJC_ASSOCIATION_ASSIGN);
-        self.currentTTDTracker = ttdTracker;
-    } else {
-        self.currentTTDTracker = nil;
     }
 }
 
@@ -198,6 +195,26 @@
 - (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker
 {
     self.currentTTDTracker = ttdTracker;
+}
+
+- (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                            tracer:(SentryTracer *)tracer
+{
+    [self.currentTTDTracker finishSpansIfNotFinished];
+
+    SentryTimeToDisplayTracker *ttdTracker =
+        [[SentryTimeToDisplayTracker alloc] initWithName:screenName
+                                      waitForFullDisplay:waitForFullDisplay
+                                    dispatchQueueWrapper:_dispatchQueueWrapper];
+
+    if ([ttdTracker startForTracer:tracer] == NO) {
+        self.currentTTDTracker = nil;
+        return nil;
+    }
+
+    self.currentTTDTracker = ttdTracker;
+    return ttdTracker;
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
@@ -245,10 +262,10 @@
 
 /**
  * According to the apple docs, see
- * https://developer.apple.com/documentation/uikit/uiviewcontroller: Not all ‘will’ callback methods
- * are paired with only a ‘did’ callback method. You need to ensure that if you start a process in a
- * ‘will’ callback method, you end the process in both the corresponding ‘did’ and the opposite
- * ‘will’ callback method.
+ * https://developer.apple.com/documentation/uikit/uiviewcontroller: Not all ‘will’ callback
+ * methods are paired with only a ‘did’ callback method. You need to ensure that if you start a
+ * process in a ‘will’ callback method, you end the process in both the corresponding ‘did’ and
+ * the opposite ‘will’ callback method.
  *
  * As stated above @c viewWillAppear doesn't need to be followed by a @c viewDidAppear. A
  * @c viewWillAppear can also be followed by a @c viewWillDisappear. Therefore, we finish the
@@ -348,8 +365,9 @@
         // (https://developer.apple.com/documentation/uikit/uiviewcontroller/1621510-viewwillappear),
         // viewWillAppear should be called for before the UIViewController is added to the view
         // hierarchy. There are some edge cases, though, when this doesn't happen, and we saw
-        // customers' transactions also proofing this. Therefore, we must also report the initial
-        // display here, as the customers' transactions had spans for `viewWillLayoutSubviews`.
+        // customers' transactions also proofing this. Therefore, we must also report the
+        // initial display here, as the customers' transactions had spans for
+        // `viewWillLayoutSubviews`.
 
         [self reportInitialDisplay:controller];
     };
@@ -403,9 +421,10 @@
 }
 
 /**
- * When a custom UIViewController is a subclass of another custom UIViewController, the SDK swizzles
- * both functions, which would create one span for each UIViewController leading to duplicate spans
- * in the transaction. To fix this, we only allow one span per lifecycle method at a time.
+ * When a custom UIViewController is a subclass of another custom UIViewController, the SDK
+ * swizzles both functions, which would create one span for each UIViewController leading to
+ * duplicate spans in the transaction. To fix this, we only allow one span per lifecycle method
+ * at a time.
  */
 - (void)limitOverride:(NSString *)description
                target:(UIViewController *)viewController

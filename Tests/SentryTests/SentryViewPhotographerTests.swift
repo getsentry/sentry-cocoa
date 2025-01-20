@@ -19,7 +19,7 @@ class SentryViewPhotographerTests: XCTestCase {
         return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
     }
     
-    private func prepare(views: [UIView], options: any SentryRedactOptions = RedactOptions()) -> UIImage? {
+    private func prepare(views: [UIView]) -> UIImage? {
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         rootView.backgroundColor = .white
         views.forEach(rootView.addSubview(_:))
@@ -28,7 +28,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let expect = expectation(description: "Image rendered")
         var result: UIImage?
              
-        sut.image(view: rootView, options: options) { image in
+        sut.image(view: rootView) { image in
             result = image
             expect.fulfill()
         }
@@ -266,6 +266,32 @@ class SentryViewPhotographerTests: XCTestCase {
             CGPoint(x: 22, y: 3),
             CGPoint(x: 22, y: 22)
         ])
+    }
+    
+    func testLabelRedactedStackedHierarchy() throws {
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        label.text = "Test"
+        
+        let bottomView = UIView(frame: CGRect(x: 5, y: 5, width: 40, height: 40))
+        bottomView.clipsToBounds = true
+        bottomView.backgroundColor = .white
+        
+        let middleView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        middleView.clipsToBounds = true
+        middleView.backgroundColor = .white
+        
+        let topView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        topView.clipsToBounds = true
+        topView.backgroundColor = .white
+                
+        bottomView.addSubview(middleView)
+        middleView.addSubview(topView)
+        topView.addSubview(label)
+        
+        let image = try XCTUnwrap(prepare(views: [bottomView]))
+        let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
+        
+        assertColor(pixel, .black)
     }
     
     private func assertColor(_ color: UIColor, in image: UIImage, at points: [CGPoint]) {

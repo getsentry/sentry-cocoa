@@ -1,9 +1,15 @@
+//swiftlint:disable todo
+
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
 import UIKit
 
 var displayingForm = false
+
+protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
+    func capture(feedback: SentryFeedback)
+}
 
 @available(iOS 13.0, *)
 struct SentryUserFeedbackWidget {
@@ -15,13 +21,18 @@ struct SentryUserFeedbackWidget {
                 self.setWidget(visible: false)
                 let form = SentryUserFeedbackForm(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
-                self.present(form, animated: self.config.widgetConfig.animations)
+                self.present(form, animated: self.config.animations) {  
+                    self.config.onFormOpen?()
+                }
             })
             
             let config: SentryUserFeedbackConfiguration
             
-            init(config: SentryUserFeedbackConfiguration) {
+            weak var delegate: (any SentryUserFeedbackWidgetDelegate)?
+            
+            init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate) {
                 self.config = config
+                self.delegate = delegate
                 super.init(nibName: nil, bundle: nil)
                 view.addSubview(button)
                 
@@ -48,7 +59,7 @@ struct SentryUserFeedbackWidget {
             // MARK: Helpers
             
             func setWidget(visible: Bool) {
-                if config.widgetConfig.animations {
+                if config.animations {
                     UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                         self.button.alpha = visible ? 1 : 0
                     }
@@ -61,32 +72,32 @@ struct SentryUserFeedbackWidget {
             
             func closeForm() {
                 setWidget(visible: true)
-                dismiss(animated: config.widgetConfig.animations)
+                dismiss(animated: config.animations, completion: {
+                    self.config.onFormClose?()
+                })
             }
             
             // MARK: SentryUserFeedbackFormDelegate
             
-            func cancelled() {
+            func finished(with feedback: SentryFeedback?) {
                 closeForm()
+                
+                if let feedback = feedback {
+                    delegate?.capture(feedback: feedback)
+                }
             }
-            
-//swiftlint:disable todo
-            func confirmed() {
-                // TODO: submit
-                closeForm()
-            }
-//swiftlint:enable todo
             
             // MARK: UIAdaptivePresentationControllerDelegate
             
             func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
                 setWidget(visible: true)
+                self.config.onFormClose?()
             }
         }
         
-        init(config: SentryUserFeedbackConfiguration) {
+        init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate) {
             super.init(frame: UIScreen.main.bounds)
-            rootViewController = RootViewController(config: config)
+            rootViewController = RootViewController(config: config, delegate: delegate)
             windowLevel = config.widgetConfig.windowLevel
         }
         
@@ -111,3 +122,5 @@ struct SentryUserFeedbackWidget {
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
+
+//swiftlint:enable todo

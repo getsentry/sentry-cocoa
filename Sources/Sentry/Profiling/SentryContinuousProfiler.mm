@@ -218,13 +218,13 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 #    pragma mark - Testing
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 + (nullable SentryProfiler *)profiler
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler;
 }
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
 

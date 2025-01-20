@@ -13,6 +13,15 @@
 #    import "Sentry.h"
 #endif
 
+#if SENTRY_TEST
+#    import "SentrySpan.h"
+#    import "SentryTracer.h"
+#else
+@class SentrySpan;
+@interface SentryTracer : NSObject <SentrySpan>
+@end
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
@@ -20,11 +29,7 @@ extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
-@class SentrySpan;
 @class SentryDispatchQueueWrapper;
-
-@interface SentryTracer : NSObject <SentrySpan>
-@end
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -100,7 +105,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (void)reportFullyDisplayed;
 
-- (void)setTimeToDisplayTracker:(SentryTimeToDisplayTracker *)ttdTracker;
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
 
 @end
 

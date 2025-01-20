@@ -2,7 +2,8 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-@class SentryProfiler, SentryId;
+@class SentryId;
+@class SentryProfiler;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -30,10 +31,10 @@ void sentry_discardProfilerForTracer(SentryId *internalTraceId);
  */
 SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void sentry_resetConcurrencyTracking(void);
 NSUInteger sentry_currentProfiledTracers(void);
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 SENTRY_EXTERN_C_END
 

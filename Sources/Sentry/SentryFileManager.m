@@ -21,18 +21,48 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const EnvelopesPathComponent = @"envelopes";
 
 BOOL
+isErrorPathTooLong(NSError *error)
+{
+    NSError *underlyingError = NULL;
+    if (@available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *)) {
+        underlyingError = error.underlyingErrors.firstObject;
+    }
+    if (underlyingError == NULL) {
+        id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
+        if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {
+            underlyingError = errorInUserInfo;
+        }
+    }
+    if (underlyingError == NULL) {
+        underlyingError = error;
+    }
+    BOOL isEnameTooLong
+        = underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG;
+    // On older OS versions the error code is NSFileWriteUnknown
+    // Reference: https://developer.apple.com/forums/thread/128927?answerId=631839022#631839022
+    BOOL isUnknownError = underlyingError.domain == NSCocoaErrorDomain
+        && underlyingError.code == NSFileWriteUnknownError;
+
+    return isEnameTooLong || isUnknownError;
+}
+
+BOOL
 createDirectoryIfNotExists(NSString *path, NSError **error)
 {
-    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
-                                   withIntermediateDirectories:YES
-                                                    attributes:nil
-                                                         error:error]) {
-        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
-            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
-            *error);
-        return NO;
+    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                             withIntermediateDirectories:YES
+                                                              attributes:nil
+                                                                   error:error];
+    if (success) {
+        return YES;
     }
-    return YES;
+
+    if (isErrorPathTooLong(*error)) {
+        SENTRY_LOG_FATAL(@"Failed to create directory, path is too long: %@", path);
+    }
+    *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+        [NSString stringWithFormat:@"Failed to create the directory at path %@.", path], *error);
+    return NO;
 }
 
 /**
@@ -45,15 +75,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 {
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager removeItemAtPath:path error:&error]) {
-        if (error.code == NSFileNoSuchFileError) {
-            SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
-        } else {
-            SENTRY_LOG_ERROR(
-                @"Error occurred while deleting file at %@ because of %@", path, error);
-        }
-    } else {
+    if ([fileManager removeItemAtPath:path error:&error]) {
         SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
+    } else if (error.code == NSFileNoSuchFileError) {
+        SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
+    } else if (isErrorPathTooLong(error)) {
+        SENTRY_LOG_FATAL(@"Failed to remove file, path is too long: %@", path);
+    } else {
+        SENTRY_LOG_ERROR(@"Error occurred while deleting file at %@ because of %@", path, error);
     }
 }
 
@@ -102,9 +131,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.eventsPath];
 
         if (!createDirectoryIfNotExists(self.sentryPath, error)) {
+            SENTRY_LOG_FATAL(@"Failed to create Sentry SDK working directory: %@", self.sentryPath);
             return nil;
         }
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
+            SENTRY_LOG_FATAL(
+                @"Failed to create Sentry SDK envelopes directory: %@", self.envelopesPath);
             return nil;
         }
 

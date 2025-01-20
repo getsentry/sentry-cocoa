@@ -8,9 +8,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope,
-    SentryReplayOptions;
+@class SentryDsn;
 @class SentryExperimentalOptions;
+@class SentryHttpStatusCodeRange;
+@class SentryMeasurementValue;
+@class SentryReplayOptions;
+@class SentryScope;
+@class SentryReplayOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -366,6 +370,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
 #endif // SENTRY_UIKIT_AVAILABLE
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+
+/**
+ * Settings to configure the session replay.
+ */
+@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
+
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and

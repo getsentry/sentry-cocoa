@@ -269,9 +269,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     BOOL shouldRecord = [SentryTraceProfiler isCurrentlyProfiling] ||
         [SentryContinuousProfiler isCurrentlyProfiling];
-#        if defined(TEST) || defined(TESTCI)
+#        if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     shouldRecord = YES;
-#        endif // defined(TEST) || defined(TESTCI)
+#        endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     if (shouldRecord) {
         [array addObject:@{ @"timestamp" : timestamp, @"value" : value }];
     }

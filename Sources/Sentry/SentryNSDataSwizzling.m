@@ -1,21 +1,11 @@
 #import "SentryNSDataSwizzling.h"
-#import "SentryCrashDefaultMachineContextWrapper.h"
-#import "SentryCrashMachineContextWrapper.h"
-#import "SentryCrashStackEntryMapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryInAppLogic.h"
-#import "SentryNSDataTracker.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentryOptions+Private.h"
-#import "SentryStacktraceBuilder.h"
+#import "SentryLog.h"
 #import "SentrySwizzle.h"
-#import "SentryThreadInspector.h"
-#import <SentryLog.h>
 #import <objc/runtime.h>
 
 @interface SentryNSDataSwizzling ()
 
-@property (nonatomic, strong) SentryNSDataTracker *dataTracker;
+@property (nonatomic, strong) SentryFileIOTracker *tracker;
 
 @end
 
@@ -29,31 +19,29 @@
     return instance;
 }
 
-- (void)startWithOptions:(SentryOptions *)options
+- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker
 {
-    self.dataTracker = [[SentryNSDataTracker alloc]
-        initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
-             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
-    [self.dataTracker enable];
-    [SentryNSDataSwizzling swizzleNSData];
+    self.tracker = tracker;
+
+    [SentryNSDataSwizzling swizzle];
 }
 
 - (void)stop
 {
-    [self.dataTracker disable];
+    [SentryNSDataSwizzling unswizzle];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-+ (void)swizzleNSData
++ (void)swizzle
 {
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
         SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
         SentrySWReplacement({
-            return [SentryNSDataSwizzling.shared.dataTracker
+            return [SentryNSDataSwizzling.shared.tracker
                 measureNSData:self
                   writeToFile:path
                    atomically:useAuxiliaryFile
@@ -68,7 +56,7 @@
         SentrySWReturnType(BOOL),
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataSwizzling.shared.dataTracker
+            return [SentryNSDataSwizzling.shared.tracker
                 measureNSData:self
                   writeToFile:path
                       options:writeOptionsMask
@@ -86,7 +74,7 @@
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataSwizzling.shared.dataTracker
+            return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromFile:path
                               options:options
                                 error:error
@@ -101,7 +89,7 @@
     SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
     SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfFileSelector,
         SentrySWReturnType(NSData *), SentrySWArguments(NSString * path), SentrySWReplacement({
-            return [SentryNSDataSwizzling.shared.dataTracker
+            return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromFile:path
                                method:^NSData *(
                                    NSString *filePath) { return SentrySWCallOriginal(filePath); }];
@@ -114,7 +102,7 @@
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataSwizzling.shared.dataTracker
+            return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromURL:url
                              options:options
                                error:error
@@ -125,6 +113,34 @@
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses,
         (void *)initWithContentsOfURLOptionsErrorSelector);
+}
+
++ (void)unswizzle
+{
+#if SENTRY_TEST || SENTRY_TEST_CI
+    // Unswizzling is only supported in test targets as it is considered unsafe for production.
+    SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, writeToFileAtomicallySelector, (void *)writeToFileAtomicallySelector);
+
+    SEL writeToFileOptionsErrorSelector = NSSelectorFromString(@"writeToFile:options:error:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, writeToFileOptionsErrorSelector, (void *)writeToFileOptionsErrorSelector);
+
+    SEL initWithContentOfFileOptionsErrorSelector
+        = NSSelectorFromString(@"initWithContentsOfFile:options:error:");
+    SentryUnswizzleInstanceMethod(NSData.class, initWithContentOfFileOptionsErrorSelector,
+        (void *)initWithContentOfFileOptionsErrorSelector);
+
+    SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
+    SentryUnswizzleInstanceMethod(
+        NSData.class, initWithContentsOfFileSelector, (void *)initWithContentsOfFileSelector);
+
+    SEL initWithContentsOfURLOptionsErrorSelector
+        = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
+    SentryUnswizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
+        (void *)initWithContentsOfURLOptionsErrorSelector);
+#endif // SENTRY_TEST || SENTRY_TEST_CI
 }
 #pragma clang diagnostic pop
 @end

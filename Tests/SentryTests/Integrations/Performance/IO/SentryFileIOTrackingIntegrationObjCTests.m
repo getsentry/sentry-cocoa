@@ -1,10 +1,11 @@
 #import "SentryByteCountFormatter.h"
-#import "SentryNSDataTracker.h"
+#import "SentryFileIOTracker.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
+#import <SentrySwift.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase
@@ -53,6 +54,8 @@
         options.enableAutoPerformanceTracing = YES;
         options.enableFileIOTracing = YES;
         options.tracesSampleRate = @1;
+
+        options.experimental.enableFileManagerSwizzling = YES;
     }];
 }
 

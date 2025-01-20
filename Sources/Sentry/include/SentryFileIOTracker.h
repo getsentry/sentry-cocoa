@@ -6,9 +6,10 @@ static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
 
 static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
-@class SentryThreadInspector, SentryNSProcessInfoWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentryThreadInspector;
 
-@interface SentryNSDataTracker : NSObject
+@interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
@@ -58,6 +59,16 @@ SENTRY_NO_INIT
                                     error:(NSError **)error
                                    method:(NSData *_Nullable (^)(
                                               NSURL *, NSDataReadingOptions, NSError **))method;
+
+/**
+ * Measure NSFileManager 'createFileAtPath:contents:attributes::' method.
+ */
+- (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
+                                        data:(NSData *)data
+                                  attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
+                                      method:(BOOL (^)(NSString *, NSData *,
+                                                 NSDictionary<NSFileAttributeKey, id> *))method;
+
 @end
 
 NS_ASSUME_NONNULL_END

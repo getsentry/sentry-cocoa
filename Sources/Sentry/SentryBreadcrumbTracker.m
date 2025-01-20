@@ -253,12 +253,12 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     SentrySwizzleMode mode = SentrySwizzleModeOncePerClassAndSuperclasses;
 
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // some tests need to swizzle multiple times, once for each test case. but since they're in the
     // same process, if they set something other than "always", subsequent swizzles fail. override
     // it here for tests
     mode = SentrySwizzleModeAlways;
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -304,7 +304,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SwiftDescriptor getObjectClassName:controller];
+    info[@"screen"] = [SwiftDescriptor getViewControllerClassName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -316,12 +316,12 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     if (controller.presentingViewController != nil) {
         info[@"presentingViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.presentingViewController];
+            [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
         info[@"parentViewController"] =
-            [SwiftDescriptor getObjectClassName:controller.parentViewController];
+            [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
@@ -335,6 +335,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     return info;
 }
+
 #endif // SENTRY_HAS_UIKIT
 
 @end

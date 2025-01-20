@@ -59,16 +59,19 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
     NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_TARGET_REPLAY_SUPPORTED
             [SentrySessionReplayIntegration class],
-#endif
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
         [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class], [SentryScreenshotIntegration class],
-        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
+        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
+        [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        [SentryScreenshotIntegration class],
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
@@ -136,6 +139,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTrackingV2 = NO;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        self.sessionReplay = [[SentryReplayOptions alloc] init];
+#endif
+
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
@@ -464,6 +472,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
 
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
+        self.sessionReplay =
+            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+    }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     [self setBool:options[@"enableAppHangTracking"]
             block:^(BOOL value) { self->_enableAppHangTracking = value; }];
@@ -813,7 +828,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 - (NSString *)debugDescription
 {
     NSMutableString *propertiesDescription = [NSMutableString string];
@@ -835,5 +850,5 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     }
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
-#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 @end

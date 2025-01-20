@@ -150,7 +150,7 @@ class UIRedactBuilder {
         redactClassesIdentifiers.insert(id)
     }
 
-#if TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
     func isIgnoreContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isIgnoreContainerClass(containerClass)
     }
@@ -264,8 +264,8 @@ class UIRedactBuilder {
         }
         
         guard let subLayers = layer.sublayers, subLayers.count > 0 else { return }
-        
-        if view.clipsToBounds {
+        let clipToBounds = view.clipsToBounds
+        if clipToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
@@ -273,7 +273,7 @@ class UIRedactBuilder {
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
             mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
-        if view.clipsToBounds {
+        if clipToBounds {
             redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
         }
     }

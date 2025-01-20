@@ -209,7 +209,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
 
-        assertEventAndSesionAreSentInOneEnvelope()
+        assertEventAndSessionAreSentInOneEnvelope()
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
@@ -1079,7 +1079,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
     }
 
-    private func assertEventAndSesionAreSentInOneEnvelope() {
+    private func assertEventAndSessionAreSentInOneEnvelope() {
         let actualEventRequest = fixture.requestManager.requests.last
         XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
     }

@@ -80,10 +80,16 @@
                   Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
                </Test>
                <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()">
+               </Test>
+               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
                </Test>
                <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_CompareSentryTraceHeader()">
+               </Test>
+               <Test
+                  Identifier = "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">

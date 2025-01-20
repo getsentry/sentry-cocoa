@@ -43,6 +43,9 @@
 		84BA72DE2C9391920045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
+		84DBC6252CE6D321000C4904 /* UserFeedbackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */; };
+		84EEE6632D28B35700010A9D /* SentrySDKWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */; };
+		84EEE6642D2CABF500010A9D /* SentrySDKWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
@@ -288,6 +291,8 @@
 		84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKPerformanceBenchmarkTests.m; sourceTree = "<group>"; };
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
+		84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFeedbackUITests.swift; sourceTree = "<group>"; };
+		84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKWrapper.swift; sourceTree = "<group>"; };
 		84FB8125284001B800F3A94A /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -481,6 +486,7 @@
 				D8DBDA73274D4DF900007380 /* ViewControllers */,
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
+				84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */,
 				637AFDAD243B02760034958B /* TransactionsViewController.swift */,
 				84AB90782A50031B0054C99A /* Profiling */,
 				D80D021229EE93630084393D /* ErrorsViewController.swift */,
@@ -505,6 +511,7 @@
 				D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */,
 				84A5D72C29D2708D00388BFA /* UITestHelpers.swift */,
 				84A5D72529D2705000388BFA /* ProfilingUITests.swift */,
+				84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */,
 				84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */,
 				84B527BB28DD25E400475E8D /* SentryDevice.h */,
 				84B527BC28DD25E400475E8D /* SentryDevice.mm */,
@@ -1130,6 +1137,7 @@
 				84BA71F12C8BC55A0045B828 /* Toasts.swift in Sources */,
 				629EC8AD2B0B537400858855 /* TriggerAppHang.swift in Sources */,
 				D8AE48C92C57DC2F0092A2A6 /* WebViewController.swift in Sources */,
+				84EEE6632D28B35700010A9D /* SentrySDKWrapper.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
 				84ACC43C2A73CB5900932A18 /* ProfilingNetworkScanner.swift in Sources */,
 				D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */,
@@ -1144,6 +1152,7 @@
 				62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */,
 				84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */,
 				84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */,
+				84DBC6252CE6D321000C4904 /* UserFeedbackUITests.swift in Sources */,
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 				84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */,
@@ -1178,6 +1187,7 @@
 				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,
+				84EEE6642D2CABF500010A9D /* SentrySDKWrapper.swift in Sources */,
 				D8269A58274C0FC700BD5BD5 /* TransactionsViewController.swift in Sources */,
 				844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */,
 				D8444E55275F79570042F4DE /* SpanExtension.swift in Sources */,
@@ -1657,6 +1667,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SENTRY_TEST;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALIDATE_PRODUCT = YES;
@@ -1895,6 +1906,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SENTRY_TEST_CI;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALIDATE_PRODUCT = YES;

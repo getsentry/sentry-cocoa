@@ -51,6 +51,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             try? FileManager.default.removeItem(at: fixture.fileDirectory)
         }
         clearTestState()
+        SentrySDK.close()
     }
     
     func test_WritingTrackingDisabled_forIOOption() {
@@ -77,14 +78,20 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_Writing_Tracking() {
+    func test_Writing_Tracking() throws {
+        if #available(iOS 18, macOS 15, tvOS 15, *) {
+            throw XCTSkip("File IO tracking for Swift.Data is disabled for this OS version")
+        }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
         }
     }
     
-    func test_WritingWithOption_Tracking() {
+    func test_WritingWithOption_Tracking() throws {
+        if #available(iOS 18, macOS 15, tvOS 15, *) {
+            throw XCTSkip("File IO tracking for Swift.Data is disabled for this OS version")
+        }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.write") {
             try? fixture.data.write(to: fixture.fileURL, options: .atomic)
@@ -115,14 +122,20 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_ReadingURL_Tracking() {
+    func test_ReadingURL_Tracking() throws {
+        if #available(iOS 18, macOS 15, tvOS 15, *) {
+            throw XCTSkip("File IO tracking for Swift.Data is disabled for this OS version")
+        }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
             let _ = try? Data(contentsOf: fixture.fileURL)
         }
     }
     
-    func test_ReadingURLWithOption_Tracking() {
+    func test_ReadingURLWithOption_Tracking() throws {
+        if #available(iOS 18, macOS 15, tvOS 15, *) {
+            throw XCTSkip("File IO tracking for Swift.Data is disabled for this OS version")
+        }
         SentrySDK.start(options: fixture.getOptions())
         assertSpans(1, "file.read") {
             let data = try? Data(contentsOf: fixture.fileURL, options: .uncached)
