@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Features
-
-- SwiftUI time for initial display and time for full display (#4596)
-
 ### Fixes
 
 - Don't start the SDK inside Xcode preview (#4601)
@@ -13,6 +9,7 @@
 ### Improvements
 
 - Add native SDK information in the replay option event (#4663)
+- Add error logging for invalid `cacheDirectoryPath` (#4693)
 
 ### Features
 
@@ -21,9 +18,6 @@
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
 
-### Improvements
-
-- Add error logging for invalid `cacheDirectoryPath` (#4693)
 ### Internal
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
