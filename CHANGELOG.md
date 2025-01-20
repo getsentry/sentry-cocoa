@@ -16,9 +16,11 @@
 ### Improvements
 
 - Add error logging for invalid `cacheDirectoryPath` (#4693)
+
 ### Internal
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
+- Deserializing SentryEvents with Decodable (#4724)
 
 ## 8.43.1-beta.0
 
