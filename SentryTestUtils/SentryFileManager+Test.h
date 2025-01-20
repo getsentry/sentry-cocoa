@@ -2,6 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+BOOL isErrorPathTooLong(NSError *error);
+BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
+
 SENTRY_EXTERN NSURL *launchProfileConfigFileURL(void);
 SENTRY_EXTERN NSURL *_Nullable sentryLaunchConfigFileURL;
 

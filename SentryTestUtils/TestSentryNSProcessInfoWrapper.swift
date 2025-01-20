@@ -5,6 +5,7 @@ public class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
         public var processorCount: UInt?
         public var processDirectoryPath: String?
         public var thermalState: ProcessInfo.ThermalState?
+        public var environment: [String: String]?
     }
 
     public var overrides = Override()
@@ -19,5 +20,9 @@ public class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
 
     public override var thermalState: ProcessInfo.ThermalState {
         overrides.thermalState ?? super.thermalState
+    }
+    
+    public override var environment: [String: String] {
+        overrides.environment ?? super.environment
     }
 }

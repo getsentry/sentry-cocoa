@@ -130,12 +130,20 @@ class SentryUserFeedbackForm: UIViewController {
             let list = missing.count == 1 ? missing[0] : missing[0 ..< missing.count - 1].joined(separator: ", ") + " and " + missing[missing.count - 1]
             let alert = UIAlertController(title: "Error", message: "You must provide all required information. Please check the following field\(missing.count > 1 ? "s" : ""): \(list).", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: config.animations)
+            present(alert, animated: config.animations) {
+                if let block = self.config.onSubmitError {
+                    // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                    block(NSError(domain: "io.sentry.error", code: 1, userInfo: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."]))
+                }
+            }
             return
         }
 
         let feedback = SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
         SentryLog.log(message: "Sending user feedback", andLevel: .debug)
+        if let block = config.onSubmitSuccess {
+            block(feedback.dataDictionary())
+        }
         delegate?.finished(with: feedback)
     }
     

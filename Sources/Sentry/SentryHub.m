@@ -749,11 +749,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reportFullyDisplayed
 {
 #if SENTRY_HAS_UIKIT
-    if (_client.options.enableTimeToFullDisplayTracing) {
-        [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
-    } else {
-        SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
-    }
+    [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
 #endif // SENTRY_HAS_UIKIT
 }
 
