@@ -17,6 +17,9 @@
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
 #else
+
+#    import <Sentry/SentrySwift.h>
+
 @class SentrySpan;
 @interface SentryTracer : NSObject <SentrySpan>
 @end
