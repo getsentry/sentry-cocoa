@@ -413,7 +413,7 @@ extension SentryUserFeedbackFormViewModel {
     
     func message(for missingFields: [String]) -> String {
         let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
-        return "You must provide all required information. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
+        return "You must provide all required information before submitting. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
     }
     
     func feedbackObject() -> SentryFeedback {
