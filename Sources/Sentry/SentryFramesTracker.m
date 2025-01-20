@@ -20,6 +20,7 @@
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 #        import "SentryContinuousProfiler.h"
 #        import "SentryTraceProfiler.h"
+
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

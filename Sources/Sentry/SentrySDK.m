@@ -205,6 +205,8 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
+                    //Using NSLog because SentryLog was not initialized yet.
+                    NSLog(@"[SENTRY] SentrySDK not started. Running from Xcode preview.");
         return;
     }
 
@@ -626,21 +628,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-#if TEST || TESTCI
-static NSDictionary<NSString *, NSString *> *_processInfoEnvironment;
-
-+ (void)setProcessInfoEnvironment:(NSDictionary<NSString *, NSString *> *)dictionary
-{
-    _processInfoEnvironment = dictionary;
-}
-
-+ (NSDictionary<NSString *, NSString *> *)processInfoEnvironment
-{
-    return _processInfoEnvironment;
-}
-
-#endif
 
 @end
 
