@@ -39,7 +39,7 @@ class SentryTraceViewModel {
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
-            origin: traceOrigin.rawValue
+            origin: traceOrigin
         )
         SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
         self.transactionId = transactionId
@@ -57,7 +57,7 @@ class SentryTraceViewModel {
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
-            origin: traceOrigin.rawValue
+            origin: traceOrigin
         )
         SentryPerformanceTracker.shared.pushActiveSpan(spanId)
         return spanId

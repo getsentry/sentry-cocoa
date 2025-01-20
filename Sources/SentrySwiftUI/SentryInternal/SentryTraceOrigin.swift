@@ -16,6 +16,6 @@
 //   - Auto-generated `Sentry-Swift.h` is manually imported to `SentrySwift.h`
 //   - Issue: Internal class is public for SDK users, which is not desired
 
-enum SentryTraceOrigin: String {
-    case autoUITimeToDisplay = "auto.ui.time_to_display"
+enum SentryTraceOrigin {
+    static let autoUITimeToDisplay = "auto.ui.time_to_display"
 }
