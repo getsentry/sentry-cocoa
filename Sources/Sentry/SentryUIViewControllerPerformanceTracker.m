@@ -13,7 +13,6 @@
 #    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTracer.h"
 #    import <SentryInAppLogic.h>
-#    import <SentrySpanOperations.h>
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
@@ -128,7 +127,7 @@
         NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
-                                       operation:SentrySpanOperationUILoad
+                                       operation:SentrySpanOperation.uiLoad
                                           origin:SentryTraceOrigin.autoUIViewController];
 
         // Use the target itself to store the spanId to avoid using a global mapper.
@@ -227,7 +226,7 @@
             SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewWillAppear");
             [self.tracker measureSpanWithDescription:@"viewWillAppear"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperationUILoad
+                                           operation:SentrySpanOperation.uiLoad
                                               origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
         };
@@ -293,7 +292,7 @@
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:lifecycleMethod
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperationUILoad
+                                           operation:SentrySpanOperation.uiLoad
                                               origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
         };
@@ -337,14 +336,14 @@
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperationUILoad
+                                           operation:SentrySpanOperation.uiLoad
                                               origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
 
             SentrySpanId *layoutSubViewId =
                 [self.tracker startSpanWithName:@"layoutSubViews"
                                      nameSource:kSentryTransactionNameSourceComponent
-                                      operation:SentrySpanOperationUILoad
+                                      operation:SentrySpanOperation.uiLoad
                                          origin:SentryTraceOrigin.autoUIViewController];
 
             objc_setAssociatedObject(controller,
@@ -394,7 +393,7 @@
 
             [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperationUILoad
+                                           operation:SentrySpanOperation.uiLoad
                                               origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
 
@@ -457,7 +456,7 @@
     } else {
         [self.tracker measureSpanWithDescription:description
                                       nameSource:kSentryTransactionNameSourceComponent
-                                       operation:SentrySpanOperationUILoad
+                                       operation:SentrySpanOperation.uiLoad
                                           origin:SentryTraceOrigin.autoUIViewController
                                     parentSpanId:spanId
                                          inBlock:callbackToOrigin];

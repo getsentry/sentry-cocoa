@@ -9,7 +9,6 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
-#    import <SentrySpanOperations.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 
@@ -71,10 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
     __block SentryTracer *transaction;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         BOOL ongoingScreenLoadTransaction
-            = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
+            = span != nil && [span.operation isEqualToString:SentrySpanOperation.uiLoad];
         BOOL ongoingManualTransaction = span != nil
-            && ![span.operation isEqualToString:SentrySpanOperationUILoad]
-            && ![span.operation containsString:SentrySpanOperationUIAction];
+            && ![span.operation isEqualToString:SentrySpanOperation.uiLoad]
+            && ![span.operation containsString:SentrySpanOperation.uiAction];
 
         BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
 

@@ -1,4 +1,5 @@
 import CoreData
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -46,12 +47,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-    }
-    
-    func testConstants() {
-        //Test constants to make sure we don't accidentally change it
-        XCTAssertEqual(SENTRY_COREDATA_FETCH_OPERATION, "db.sql.query")
-        XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.sql.transaction")
     }
     
     func testFetchRequest() throws {
@@ -307,7 +302,12 @@ private extension SentryCoreDataTrackerTests {
 
         let dbSpan = try XCTUnwrap(transaction.children.first)
         
-        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_SAVE_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
+        assertDataAndFrames(
+            dbSpan: dbSpan,
+            expectedOperation: SentrySpanOperation.coredataSaveOperation,
+            expectedDescription: expectedDescription,
+            mainThread: mainThread
+        )
     }
     
     func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) throws {
@@ -327,7 +327,12 @@ private extension SentryCoreDataTrackerTests {
         let dbSpan = try XCTUnwrap(transaction.children.first)
         XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
 
-        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_FETCH_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
+        assertDataAndFrames(
+            dbSpan: dbSpan,
+            expectedOperation: SentrySpanOperation.coredataFetchOperation,
+            expectedDescription: expectedDescription,
+            mainThread: mainThread
+        )
     }
 
     func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool) {

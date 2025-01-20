@@ -186,7 +186,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
             if (innerSpan != nil) {
                 span = innerSpan;
-                netSpan = [span startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
                                             description:[NSString stringWithFormat:@"%@ %@",
                                                             sessionTask.currentRequest.HTTPMethod,
                                                             safeUrl.sanitizedUrl]];

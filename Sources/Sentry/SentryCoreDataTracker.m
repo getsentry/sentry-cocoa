@@ -38,7 +38,7 @@
 {
     __block id<SentrySpan> fetchSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
+        fetchSpan = [span startChildWithOperation:SentrySpanOperation.coredataFetchOperation
                                       description:[self descriptionFromRequest:request]];
         fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
     }];
@@ -76,7 +76,7 @@
             [self groupEntitiesOperations:context];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            saveSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
+            saveSpan = [span startChildWithOperation:SentrySpanOperation.coredataSaveOperation
                                          description:[self descriptionForOperations:operations
                                                                           inContext:context]];
             saveSpan.origin = SentryTraceOrigin.autoDBCoreData;

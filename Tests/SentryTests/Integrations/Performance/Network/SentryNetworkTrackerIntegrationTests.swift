@@ -1,4 +1,4 @@
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import SwiftUI
 import XCTest
@@ -178,7 +178,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
         let networkSpan = try XCTUnwrap(children?.first)
         XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
-        XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.operation)
+        XCTAssertEqual(SentrySpanOperation.networkRequestOperation, networkSpan.operation)
         XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
         
         XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
