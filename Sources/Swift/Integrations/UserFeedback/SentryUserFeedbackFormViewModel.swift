@@ -314,7 +314,7 @@ extension SentryUserFeedbackFormViewModel {
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
-        submitButton.accessibilityHint = submitAccessibilityHint()
+        submitButton.accessibilityHint = validate().accessibilityHint
     }
     
     func themeElements() {
@@ -378,37 +378,67 @@ extension SentryUserFeedbackFormViewModel {
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
     }
     
-    func setScreenshotImageAccessibilityLabel(_ value: String) {
+    func setScreenshotImageAccessibilityLabel(value: String) {
         screenshotImageView.accessibilityLabel = value
     }
     
     func updateScreenshotImageViewAspectRatioConstraint(image: UIImage) {
         // you cannot dynamically change the multiplier on a constraint. you must deactivate the old instance, create a new instance, and then activate that one
         screenshotImageAspectRatioConstraint.isActive = false
-        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: image.size.width / image.size.height)
+        let aspectRatio: CGFloat
+        if image.size.height == 0 {
+            #if !SENTRY_TEST
+            SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
+            #endif // !SENTRY_TEST
+            aspectRatio = 1
+        } else {
+            aspectRatio = image.size.width / image.size.height
+        }
+        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: aspectRatio)
         screenshotImageAspectRatioConstraint.isActive = true
     }
     
-    func validate() -> [String]? {
+    func validate() -> (missingFields: [String]?, accessibilityHint: String) {
         var missing = [String]()
+        var hint = "Will submit feedback "
+        
+        // reminder that with UITextField.text is null-resettable (https://medium.com/@thanyalukj/nullability-keywords-and-interoperability-between-objective-c-and-swift-220338af958b), if .text is optional but always returns an empty string, so you can't test equality with `nil` to decide if the user has input anything or not
         
         if config.formConfig.isNameRequired && !fullNameTextField.hasText {
             missing.append(config.formConfig.nameLabel.lowercased())
+        } else {
+            if fullNameTextField.hasText, let name = fullNameTextField.text {
+                hint += "for \(name) "
+            } else {
+                hint += "with no name "
+            }
         }
         
         if config.formConfig.isEmailRequired && !emailTextField.hasText {
             missing.append(config.formConfig.emailLabel.lowercased())
+        } else {
+            if emailTextField.hasText, let email = emailTextField.text {
+                hint += "at \(email) "
+            } else {
+                if fullNameTextField.hasText {
+                    hint += "with no email address "
+                } else {
+                    hint += "or email address "
+                }
+            }
         }
         
         if !messageTextView.hasText {
             missing.append(config.formConfig.messageLabel.lowercased())
+        } else if let message = messageTextView.text {
+            hint += "with message: \(message)"
         }
         
-        guard !missing.isEmpty else {
-            return nil
+        guard missing.isEmpty else {
+            return (missing, message(for: missing))
         }
         
-        return missing
+        return (nil, hint)
     }
     
     func message(for missingFields: [String]) -> String {
@@ -418,50 +448,6 @@ extension SentryUserFeedbackFormViewModel {
     
     func feedbackObject() -> SentryFeedback {
         SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, screenshot: screenshotImageView.image?.pngData())
-    }
-}
-
-// MARK: Accessibility
-
-@available(iOS 13.0, *)
-extension SentryUserFeedbackFormViewModel {
-    func submitAccessibilityHint() -> String {
-        if let missing = validate() {
-            return message(for: missing)
-        }
-        
-        var hint = "Will submit feedback "
-        
-        if let name = fullNameTextField.text {
-            hint += "for \(name) "
-        } else {
-            hint += "with no name "
-        }
-        
-        if let email = emailTextField.text {
-            hint += "at \(email) "
-        } else {
-            if fullNameTextField.text != nil {
-                hint += "with no email "
-            } else {
-                hint += "or email "
-            }
-        }
-        
-        if screenshotImageView.image != nil {
-            if let imageDescription = screenshotImageView.accessibilityLabel {
-                hint += "and \(imageDescription)"
-            } else {
-                SentryLog.warning("Expected screenshot image view to have accessibility label containing image metadata")
-                hint += "and attached image"
-            }
-        }
-        
-        if let message = messageTextView.text {
-            hint += "with message: \(message)"
-        }
-        
-        return hint
     }
 }
 

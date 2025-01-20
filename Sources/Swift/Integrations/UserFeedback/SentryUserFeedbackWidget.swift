@@ -19,6 +19,10 @@ struct SentryUserFeedbackWidget {
             
             lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { _ in
                 self.setWidget(visible: false)
+                #if SENTRY_UI_TEST
+                // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it
+                config.formConfig.photoPicker = TestSentryPhotoPicker()
+                #endif // SENTRY_UI_TEST
                 let form = SentryUserFeedbackFormController(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
                 self.present(form, animated: self.config.animations) {  

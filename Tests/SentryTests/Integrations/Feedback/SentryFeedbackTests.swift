@@ -6,13 +6,12 @@ class SentryFeedbackTests: XCTestCase {
     class Fixture {
         class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
             func finished(with feedback: Sentry.SentryFeedback?) {
-                
+                // no-op
             }
         }
         let config: SentryUserFeedbackConfiguration
         let delegate = TestFormDelegate()
         lazy var controller = SentryUserFeedbackFormController(config: config, delegate: delegate)
-        lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: controller)
         
         init(config: SentryUserFeedbackConfiguration) {
             self.config = config
@@ -130,16 +129,18 @@ class SentryFeedbackTests: XCTestCase {
             config.configureForm = {
                 $0.isNameRequired = input.config.requiresName
                 $0.isEmailRequired = input.config.requiresEmail
+                $0.photoPicker = TestSentryPhotoPicker()
             }
             let fixture = Fixture(config: config)
-            fixture.viewModel.fullNameTextField.text = input.config.nameInput
-            fixture.viewModel.emailTextField.text = input.config.emailInput
-            fixture.viewModel.messageTextView.text = input.config.messageInput
+            let viewModel = fixture.controller.viewModel
+            viewModel.fullNameTextField.text = input.config.nameInput
+            viewModel.emailTextField.text = input.config.emailInput
+            viewModel.messageTextView.text = input.config.messageInput
             if input.config.includeScreenshot {
-                fixture.viewModel.screenshotImageView.image = UIImage(data: Data())
+                fixture.controller.addScreenshotTapped()
             }
-            let actual = fixture.viewModel.submitAccessibilityHint()
-            XCTAssertEqual(actual, input.expectedSubmitButtonAccessibilityHint)
+            let actual = viewModel.validate().accessibilityHint
+            XCTAssertEqual(actual, input.expectedSubmitButtonAccessibilityHint, "(config: (requiresName: \(input.config.requiresName), requiresEmail: \(input.config.requiresEmail), nameInput: \(input.config.nameInput == nil ? "nil" : input.config.nameInput!), emailInput: \(input.config.emailInput == nil ? "nil" : input.config.emailInput!)), messageInput: \(input.config.messageInput == nil ? "nil" : input.config.messageInput!)), includeScreenshot: \(input.config.includeScreenshot)), expectedSubmitButtonAccessibilityHint: \(actual)")
         }
     }
 }

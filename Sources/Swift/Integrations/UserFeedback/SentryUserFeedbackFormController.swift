@@ -3,7 +3,6 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
-import PhotosUI
 import UIKit
 
 @available(iOS 13.0, *)
@@ -42,37 +41,9 @@ class SentryUserFeedbackFormController: UIViewController {
     }
 }
 
-// MARK: Private
-
+// MARK: Layout
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController {
-    func addedScreenshot(info: [UIImagePickerController.InfoKey: Any]) {
-        guard let photo = info[.editedImage] as? UIImage else {
-            SentryLog.warning("Could not get edited image from photo picker.")
-            return
-        }
-        
-        viewModel.screenshotImageView.image = photo
-        viewModel.updateScreenshotImageViewAspectRatioConstraint(image: photo)
-        viewModel.addScreenshotButton.isHidden = true
-        viewModel.removeScreenshotStack.isHidden = false
-        viewModel.updateSubmitButtonAccessibilityHint()
-        
-        guard let asset = info[.phAsset] as? PHAsset else {
-            SentryLog.warning("Could not get edited image asset information from photo picker.")
-            viewModel.setScreenshotImageAccessibilityLabel("Image")
-            return
-        }
-        guard let date = asset.creationDate else {
-            SentryLog.warning("Could not get creation date from edited image from photo picker.")
-            viewModel.setScreenshotImageAccessibilityLabel("Image")
-            return
-        }
-        viewModel.setScreenshotImageAccessibilityLabel("Image taken \(SentryUserFeedbackFormController.formatter.string(from: date))")
-    }
- 
-    // MARK: Layout
-    
     func initLayout() {
         viewModel.setScrollViewBottomInset(0)
         view.addSubview(viewModel.scrollView)
@@ -90,69 +61,26 @@ extension SentryUserFeedbackFormController {
     }
 }
 
+// MARK: SentryPhotoPickerDelegate
+@available(iOS 13.0, *)
+extension SentryUserFeedbackFormController: SentryPhotoPickerDelegate {
+    func chose(image: UIImage, accessibilityInfo: String) {
+        viewModel.screenshotImageView.image = image
+        viewModel.updateScreenshotImageViewAspectRatioConstraint(image: image)
+        viewModel.addScreenshotButton.isHidden = true
+        viewModel.removeScreenshotStack.isHidden = false
+        
+        // these need to happen in this order, because updateSubmitButtonAccessibilityHint uses the value of screenshotImageView.accessibilityLabel
+        viewModel.setScreenshotImageAccessibilityLabel(value: accessibilityInfo)
+        viewModel.updateSubmitButtonAccessibilityHint()
+    }
+}
+
 // MARK: SentryUserFeedbackFormViewModelDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
-    
-#if SENTRY_TEST || SENTRY_TEST_CI
-    class TestPHAsset: PHAsset, @unchecked Sendable {
-        let testCreationDate: Date
-        
-        init(testCreationDate: Date) {
-            self.testCreationDate = testCreationDate
-            super.init()
-        }
-        
-        override var creationDate: Date? {
-            testCreationDate
-        }
-    }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
-    
     public func addScreenshotTapped() {
-        // the iOS photo picker UI doesn't play nicely with XCUITest, so we'll just mock the selection here
-#if SENTRY_TEST || SENTRY_TEST_CI
-        //swiftlint:disable force_try force_unwrapping
-        let url = Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!
-        let image = try! UIImage(data: Data(contentsOf: url))!
-        //swiftlint:ensable force_try force_unwrapping
-        let phasset = TestPHAsset(testCreationDate: Date())
-        addedScreenshot(info: [
-            .editedImage: image,
-            .phAsset: phasset
-        ])
-        return
-#else
-        
-        func presentPicker() {
-            let imagePickerController = UIImagePickerController()
-            imagePickerController.delegate = self
-            imagePickerController.sourceType = .photoLibrary
-            imagePickerController.allowsEditing = true
-            DispatchQueue.main.async {
-                self.present(imagePickerController, animated: self.config.animations)
-            }
-        }
-        
-        let status = PHPhotoLibrary.authorizationStatus()
-        switch status {
-        case .notDetermined:
-            if #available(iOS 14, *) {
-                PHPhotoLibrary.requestAuthorization(for: .readWrite) {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
-                }
-            } else {
-                PHPhotoLibrary.requestAuthorization {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
-                }
-            }
-        default:
-            SentryLog.debug("Photos authorization level: \(status)")
-            presentPicker()
-        }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
+        config.formConfig.photoPicker?.display(config: config, presenter: self)
     }
     
     func removeScreenshotTapped() {
@@ -162,7 +90,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
     }
     
     func submitFeedback() {
-        if let missing = viewModel.validate() {
+        if let missing = viewModel.validate().missingFields {
             let alert = UIAlertController(title: "Error", message: viewModel.message(for: missing), preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: config.animations) {
@@ -201,25 +129,6 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
 extension SentryUserFeedbackFormController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
-    }
-}
-
-// MARK: UIImagePickerControllerDelegate & UINavigationControllerDelegate
-@available(iOS 13.0, *)
-extension SentryUserFeedbackFormController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-    static let formatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .medium
-        return formatter
-    }()
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        defer {
-            dismiss(animated: config.animations)
-        }
-        
-        addedScreenshot(info: info)
     }
 }
 
