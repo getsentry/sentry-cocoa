@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryNSErrorTests: XCTestCase {
@@ -9,6 +10,30 @@ class SentryNSErrorTests: XCTestCase {
         
         XCTAssertEqual(error.domain, actual["domain"] as? String)
         XCTAssertEqual(error.code, actual["code"] as? Int)
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let error = SentryNSError(domain: "domain", code: 10)
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: error.serialize()))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSError?)
+        
+        // Assert
+        XCTAssertEqual(error.code, decoded.code)
+        XCTAssertEqual(error.domain, decoded.domain)
+    }
+    
+    func testDecode_WithRemovedDomain() throws {
+        // Arrange
+        let error = SentryNSError(domain: "domain", code: 10)
+        var serialized = error.serialize()
+        serialized.removeValue(forKey: "domain")
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        
+        // Act & Assert
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSError?)
     }
 
     func testSerializeWithUnderlyingNSError() {
