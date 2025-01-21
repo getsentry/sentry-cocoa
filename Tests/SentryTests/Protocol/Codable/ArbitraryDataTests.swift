@@ -114,7 +114,7 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_DateValue() throws {
         // Arrange
-        let date = TestCurrentDateProvider().date().advanced(by: 0.001)
+        let date = TestCurrentDateProvider().date().addingTimeInterval(0.001)
         let jsonData = #"""
         {
             "data": {
@@ -173,9 +173,9 @@ class ArbitraryDataTests: XCTestCase {
     }
 
     func testDecode_ArrayOfDicts() throws {
-       // Arrange
-       let date = TestCurrentDateProvider().date().advanced(by: 0.001)
-       let jsonData = #"""
+        // Arrange
+        let date = TestCurrentDateProvider().date().addingTimeInterval(0.001)
+        let jsonData = #"""
        {
            "data": {
                "array": [
