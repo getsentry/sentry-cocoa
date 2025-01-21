@@ -1254,11 +1254,11 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
             if (machExceptionName != NULL) {
                 writer->addStringElement(writer, SentryCrashField_ExceptionName, machExceptionName);
             }
-            writer->addUIntegerElement(writer, SentryCrashField_Code, (unsigned)crash->mach.code);
+            writer->addIntegerElement(writer, SentryCrashField_Code, crash->mach.code);
             if (machCodeName != NULL) {
                 writer->addStringElement(writer, SentryCrashField_CodeName, machCodeName);
             }
-            writer->addUIntegerElement(
+            writer->addIntegerElement(
                 writer, SentryCrashField_Subcode, (size_t)crash->mach.subcode);
         }
         writer->endContainer(writer);

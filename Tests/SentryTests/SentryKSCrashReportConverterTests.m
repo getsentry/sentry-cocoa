@@ -470,6 +470,23 @@
     [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }
 
+- (void)testMachExceptionWithNegativeCodes
+{
+    NSDictionary *report = [self getCrashReport:@"Resources/crash-negative-mach-code-and-subcode"];
+
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(@"Exception 1, Code -122323, Subcode -5365848110", exception.value);
+
+    XCTAssertEqualObjects(@"EXC_BAD_ACCESS", exception.mechanism.meta.machException[@"name"]);
+    XCTAssertEqualObjects(@1, exception.mechanism.meta.machException[@"exception"]);
+    XCTAssertEqualObjects(@-122323, exception.mechanism.meta.machException[@"code"]);
+    XCTAssertEqualObjects(@-5365848110, exception.mechanism.meta.machException[@"subcode"]);
+}
+
 #pragma mark private helper
 
 - (void)isValidReport:(NSString *)path

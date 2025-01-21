@@ -169,6 +169,60 @@ class SentryCrashReportTests: XCTestCase {
         XCTAssertNil(mach.code_name)
         XCTAssertEqual(0, mach.subcode)
     }
+
+    func testCrashReportContains_MachInfoWithNegativeCodes() throws {
+        serializeToCrashReport(scope: fixture.scope)
+        
+        var monitorContext = SentryCrash_MonitorContext()
+        monitorContext.mach.type = EXC_BAD_ACCESS
+        monitorContext.mach.code = -1
+        monitorContext.mach.subcode = -1
+        
+        writeCrashReport(monitorContext: monitorContext)
+        
+        let crashReportContents = try XCTUnwrap(FileManager.default.contents(atPath: fixture.reportPath))
+        let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+        
+        let mach = try XCTUnwrap(crashReport.crash.error.mach)
+        XCTAssertEqual(-1, mach.code)
+        XCTAssertEqual(-1, mach.subcode)
+    }
+    
+    func testCrashReportContains_MachInfoWithMaxIntNumbers() throws {
+        serializeToCrashReport(scope: fixture.scope)
+        
+        var monitorContext = SentryCrash_MonitorContext()
+        monitorContext.mach.type = EXC_BAD_ACCESS
+        monitorContext.mach.code = Int64.max
+        monitorContext.mach.subcode = Int64.max
+        
+        writeCrashReport(monitorContext: monitorContext)
+        
+        let crashReportContents = try XCTUnwrap(FileManager.default.contents(atPath: fixture.reportPath))
+        let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+        
+        let mach = try XCTUnwrap(crashReport.crash.error.mach)
+        XCTAssertEqual(Int64.max, mach.code)
+        XCTAssertEqual(Int64.max, mach.subcode)
+    }
+    
+    func testCrashReportContains_MachInfoWithMinIntNumbers() throws {
+        serializeToCrashReport(scope: fixture.scope)
+        
+        var monitorContext = SentryCrash_MonitorContext()
+        monitorContext.mach.type = EXC_BAD_ACCESS
+        monitorContext.mach.code = Int64.min
+        monitorContext.mach.subcode = Int64.min
+        
+        writeCrashReport(monitorContext: monitorContext)
+        
+        let crashReportContents = try XCTUnwrap(FileManager.default.contents(atPath: fixture.reportPath))
+        let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+        
+        let mach = try XCTUnwrap(crashReport.crash.error.mach)
+        XCTAssertEqual(Int64.min, mach.code)
+        XCTAssertEqual(Int64.min, mach.subcode)
+    }
     
     private func writeCrashReport(monitorContext: SentryCrash_MonitorContext? = nil) {
         var localMonitorContext = monitorContext ?? SentryCrash_MonitorContext()
@@ -231,9 +285,9 @@ class SentryCrashReportTests: XCTestCase {
     struct Mach: Decodable, Equatable {
         let exception: Int?
         let exception_name: String?
-        let code: Int?
+        let code: Int64?
         let code_name: String?
-        let subcode: Int?
+        let subcode: Int64?
     }
 
     struct CrashReportUserInfo: Decodable, Equatable {
