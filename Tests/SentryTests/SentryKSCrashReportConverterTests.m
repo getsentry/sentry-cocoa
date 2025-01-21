@@ -306,7 +306,7 @@
 - (void)testFatalErrorBinaryiPhone
 {
     [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-iphone"
-                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
 - (void)testFatalErrorBinaryMac
@@ -318,13 +318,13 @@
 - (void)testFatalErrorBinarySimulator
 {
     [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-simulator"
-                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
 - (void)testFatalErrorBinaryMessage2
 {
     [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-message2"
-                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"];
 }
 
 - (void)testFatalErrorBinary:(NSString *)reportPath expectedValue:(NSString *)expectedValue
