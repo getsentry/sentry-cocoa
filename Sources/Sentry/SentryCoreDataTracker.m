@@ -13,7 +13,6 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
-#import "SentryTraceOrigins.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
@@ -39,9 +38,9 @@
 {
     __block id<SentrySpan> fetchSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
+        fetchSpan = [span startChildWithOperation:SentrySpanOperation.coredataFetchOperation
                                       description:[self descriptionFromRequest:request]];
-        fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
+        fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
     }];
 
     if (fetchSpan) {
@@ -77,10 +76,10 @@
             [self groupEntitiesOperations:context];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            saveSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
+            saveSpan = [span startChildWithOperation:SentrySpanOperation.coredataSaveOperation
                                          description:[self descriptionForOperations:operations
                                                                           inContext:context]];
-            saveSpan.origin = SentryTraceOriginAutoDBCoreData;
+            saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
         }];
 
         if (saveSpan) {

@@ -1953,6 +1953,26 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(replayEvent.debugMeta)
     }
     
+    func testCaptureReplayEvent_overrideEnvelopeHeaderSDKInfo() throws {
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
+        replayEvent.sdk = ["name": "Test SDK", "version": "1.0.0"]
+        let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
+        
+        //Not a video url, but its ok for test the envelope
+        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        
+        let scope = Scope()
+        scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
+        
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: scope)
+        
+        let header = try XCTUnwrap(self.fixture.transport.sentEnvelopes.first?.header)
+        
+        XCTAssertEqual(header.sdkInfo?.name, "Test SDK")
+        XCTAssertEqual(header.sdkInfo?.version, "1.0.0")
+    }
+    
     func testCaptureCrashEventSetReplayInScope() {
         let sut = fixture.getSut()
         let event = Event()

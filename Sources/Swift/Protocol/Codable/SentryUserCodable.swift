@@ -14,9 +14,16 @@ extension User: Decodable {
         case data
     }
     
-    @available(*, deprecated, message: "Segment is deprecated, but we still need decode it.")
+     @available(*, deprecated, message: """
+     This method is only deprecated to silence the deprecation warning of the property \
+     segment. Our Xcode project has deprecations as warnings and warnings as errors \
+     configured. Therefore, compilation fails without marking this init method as \
+     deprecated. It is safe to use this deprecated init method. Instead of turning off \
+     deprecation warnings for the whole project, we accept the tradeoff of marking this \
+     init method as deprecated because we don't expect many users to use it. Sadly, \
+     Swift doesn't offer a better way of silencing a deprecation warning.
+     """)
     required convenience public init(from decoder: any Decoder) throws {
-        
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init()
         self.userId = try container.decodeIfPresent(String.self, forKey: .userId)

@@ -3354,7 +3354,7 @@
             "major_version": 1300,
             "minor_version": 0,
             "revision_version": 46,
-            "crash_info_message": "iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"
+            "crash_info_message": "iOS_Swift/ViewController.swift:53: FatalX error: Hello fatal\n"
         },
         {
             "image_addr": 6855647232,

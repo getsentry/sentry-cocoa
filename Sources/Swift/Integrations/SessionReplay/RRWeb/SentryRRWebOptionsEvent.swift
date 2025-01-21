@@ -13,7 +13,9 @@ import Foundation
             "errorSampleRate": options.onErrorSampleRate,
             "maskAllText": options.maskAllText,
             "maskAllImages": options.maskAllImages,
-            "quality": String(describing: options.quality)
+            "quality": String(describing: options.quality),
+            "nativeSdkName": SentryMeta.sdkName,
+            "nativeSdkVersion": SentryMeta.versionString
         ]
         
         if !options.maskedViewClasses.isEmpty {

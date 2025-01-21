@@ -7,12 +7,27 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/Sentry.h>
+#elif __has_include("Sentry.h")
+#    import "Sentry.h"
+#endif
+
+#if SENTRY_TEST
+#    import "SentrySpan.h"
+#    import "SentryTracer.h"
+#else
+@class SentrySpan;
+@interface SentryTracer : NSObject <SentrySpan>
+@end
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
-@protocol SentrySpan;
+@class SentryDispatchQueueWrapper;
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -54,6 +69,48 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (void)popActiveSpan;
 
+@end
+
+@interface SentryTimeToDisplayTracker : NSObject
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+
+@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+
+@property (nonatomic, readonly) BOOL waitForFullDisplay;
+
+- (instancetype)initWithName:(NSString *)name
+          waitForFullDisplay:(BOOL)waitForFullDisplay
+        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+
+- (instancetype)initWithName:(NSString *)name waitForFullDisplay:(BOOL)waitForFullDisplay;
+
+- (BOOL)startForTracer:(SentryTracer *)tracer;
+
+- (void)reportInitialDisplay;
+
+- (void)reportFullyDisplayed;
+
+- (void)finishSpansIfNotFinished;
+
+@end
+
+@interface SentryUIViewControllerPerformanceTracker : NSObject
+
+@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
+
+- (void)reportFullyDisplayed;
+
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
+
+@end
+
+@interface SentrySDK ()
+@property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 
 NS_ASSUME_NONNULL_END
