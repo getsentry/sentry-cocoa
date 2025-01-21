@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.44.0-beta.1
 
 ### Fixes
 
