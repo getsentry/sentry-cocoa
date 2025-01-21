@@ -11,7 +11,6 @@
 #    import "SentrySpanId.h"
 #    import "SentrySwift.h"
 #    import "SentryTimeToDisplayTracker.h"
-#    import "SentryTraceOrigins.h"
 #    import "SentryTracer.h"
 #    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
@@ -129,7 +128,7 @@
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperation.uiLoad
-                                          origin:SentryTraceOriginAutoUIViewController];
+                                          origin:SentryTraceOrigin.autoUIViewController];
 
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
@@ -228,7 +227,7 @@
             [self.tracker measureSpanWithDescription:@"viewWillAppear"
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOriginAutoUIViewController
+                                              origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
         };
 
@@ -294,7 +293,7 @@
             [self.tracker measureSpanWithDescription:lifecycleMethod
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOriginAutoUIViewController
+                                              origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
         };
 
@@ -338,14 +337,14 @@
             [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOriginAutoUIViewController
+                                              origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
 
             SentrySpanId *layoutSubViewId =
                 [self.tracker startSpanWithName:@"layoutSubViews"
                                      nameSource:kSentryTransactionNameSourceComponent
                                       operation:SentrySpanOperation.uiLoad
-                                         origin:SentryTraceOriginAutoUIViewController];
+                                         origin:SentryTraceOrigin.autoUIViewController];
 
             objc_setAssociatedObject(controller,
                 &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, layoutSubViewId,
@@ -395,7 +394,7 @@
             [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOriginAutoUIViewController
+                                              origin:SentryTraceOrigin.autoUIViewController
                                              inBlock:callbackToOrigin];
 
             objc_setAssociatedObject(controller,
@@ -458,7 +457,7 @@
         [self.tracker measureSpanWithDescription:description
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperation.uiLoad
-                                          origin:SentryTraceOriginAutoUIViewController
+                                          origin:SentryTraceOrigin.autoUIViewController
                                     parentSpanId:spanId
                                          inBlock:callbackToOrigin];
     }

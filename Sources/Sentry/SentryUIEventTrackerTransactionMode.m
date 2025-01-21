@@ -9,7 +9,6 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
-#    import <SentryTraceOrigins.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 
@@ -66,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryTransactionContext alloc] initWithName:action
                                             nameSource:kSentryTransactionNameSourceComponent
                                              operation:operation
-                                                origin:SentryTraceOriginUIEventTracker];
+                                                origin:SentryTraceOrigin.autoUiEventTracker];
 
     __block SentryTracer *transaction;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {

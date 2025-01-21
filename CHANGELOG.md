@@ -22,6 +22,7 @@
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
 - Convert constants SentrySpanOperation to Swift (#4718)
+- Convert constants SentryTraceOrigins to Swift (#4717)
 
 ## 8.43.1-beta.0
 

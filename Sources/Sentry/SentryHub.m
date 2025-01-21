@@ -23,7 +23,6 @@
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySwift.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
@@ -345,7 +344,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOriginManual]];
+                                                       origin:SentryTraceOrigin.manual]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -356,7 +355,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOriginManual]
+                                                       origin:SentryTraceOrigin.manual]
                                  bindToScope:bindToScope];
 }
 
