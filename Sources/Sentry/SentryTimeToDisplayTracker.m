@@ -82,7 +82,7 @@
     [SentryDependencyContainer.sharedInstance.framesTracker addListener:self];
 
     [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
-        if (span.origin == SentryTraceOrigin.autoUITimeToDisplay) {
+        if ([span.origin isEqualToString:SentryTraceOrigin.autoUITimeToDisplay]) {
             return YES;
         } else {
             return NO;
