@@ -7,9 +7,10 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     private class Fixture {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         let options: Options
-        let coreDataStack = TestCoreDataStack()
-        
-        init() {
+        let coreDataStack: TestCoreDataStack
+
+        init(testName: String) {
+            coreDataStack = TestCoreDataStack(databaseFilename: "db-\(testName.hashValue).sqlite")
             options = Options()
             options.enableCoreDataTracing = true
             options.tracesSampleRate = 1
@@ -25,7 +26,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        fixture = Fixture()
+        fixture = Fixture(testName: self.name)
     }
     
     override func tearDown() {
@@ -108,12 +109,12 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    private func assert_DontInstall(_ confOptions: ((Options) -> Void)) {
+    private func assert_DontInstall(_ confOptions: ((Options) -> Void), file: StaticString = #file, line: UInt = #line) {
         let sut = fixture.getSut()
         confOptions(fixture.options)
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker, file: file, line: line)
         sut.install(with: fixture.options)
-        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
+        XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker, file: file, line: line)
     }
     
     private func startTransaction() throws -> SentryTracer {

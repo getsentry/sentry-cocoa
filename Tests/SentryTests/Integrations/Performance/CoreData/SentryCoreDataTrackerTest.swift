@@ -1,17 +1,24 @@
 import CoreData
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentryCoreDataTrackerTests: XCTestCase {
     
     private class Fixture {
-        let coreDataStack = TestCoreDataStack()
+        let coreDataStack: TestCoreDataStack
         lazy var context: TestNSManagedObjectContext = {
             coreDataStack.managedObjectContext
         }()
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
-        
+
+        init(testName: String) {
+            coreDataStack = TestCoreDataStack(
+                databaseFilename: "db-\(testName.hashValue).sqlite"
+            )
+        }
+
         func getSut() -> SentryCoreDataTracker {
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
@@ -34,13 +41,17 @@ class SentryCoreDataTrackerTests: XCTestCase {
             entityDescription.name = "SecondTestEntity"
             return SecondTestEntity(entity: entityDescription, insertInto: context)
         }
+
+        var databaseFilename: String {
+            coreDataStack.databaseFilename
+        }
     }
     
     private var fixture: Fixture!
     
     override func setUp() {
         super.setUp()
-        fixture = Fixture()
+        fixture = Fixture(testName: self.name)
     }
     
     override func tearDown() {
@@ -48,22 +59,25 @@ class SentryCoreDataTrackerTests: XCTestCase {
         clearTestState()
     }
     
-    func testConstants() {
-        //Test constants to make sure we don't accidentally change it
-        XCTAssertEqual(SENTRY_COREDATA_FETCH_OPERATION, "db.sql.query")
-        XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.sql.transaction")
-    }
-    
     func testFetchRequest() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'")
+        try assertRequest(
+            fetch,
+            expectedDescription: "SELECT 'TestEntity'",
+            databaseFilename: fixture.databaseFilename
+        )
     }
 
     func testFetchRequestBackgroundThread() {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-            try? self.assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'", mainThread: false)
+            try? self.assertRequest(
+                fetch,
+                expectedDescription: "SELECT 'TestEntity'",
+                mainThread: false,
+                databaseFilename: self.fixture.databaseFilename
+            )
             expect.fulfill()
         }
 
@@ -73,44 +87,48 @@ class SentryCoreDataTrackerTests: XCTestCase {
     func test_FetchRequest_WithPredicate() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@ and field2 = %@", argumentArray: ["First Argument", 2])
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ AND field2 == %@")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ AND field2 == %@", databaseFilename: fixture.databaseFilename)
     }
     
     func test_FetchRequest_WithSortAscending() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: true)]
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1", databaseFilename: fixture.databaseFilename)
     }
     
     func test_FetchRequest_WithSortDescending() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING", databaseFilename: fixture.databaseFilename)
     }
     
     func test_FetchRequest_WithSortTwoFields() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false), NSSortDescriptor(key: "field2", ascending: true)]
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING, field2")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING, field2", databaseFilename: fixture.databaseFilename)
     }
     
     func test_FetchRequest_WithPredicateAndSort() throws {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@", argumentArray: ["First Argument"])
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ SORT BY field1 DESCENDING")
+        try assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ SORT BY field1 DESCENDING", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_1Insert_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity()]
-        try assertSave("INSERTED 1 'TestEntity'")
+        try assertSave("INSERTED 1 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
 
     func testSaveBackgroundThread() {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             self.fixture.context.inserted = [self.fixture.testEntity()]
-            try? self.assertSave("INSERTED 1 'TestEntity'", mainThread: false)
+            try? self.assertSave(
+                "INSERTED 1 'TestEntity'",
+                mainThread: false,
+                databaseFilename: self.fixture.databaseFilename
+            )
             expect.fulfill()
         }
 
@@ -119,56 +137,56 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func test_Save_2Insert_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.testEntity()]
-        try assertSave("INSERTED 2 'TestEntity'")
+        try assertSave("INSERTED 2 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_2Insert_2Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.secondTestEntity()]
-        try assertSave("INSERTED 2 items")
+        try assertSave("INSERTED 2 items", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_1Update_1Entity() throws {
         fixture.context.updated = [fixture.testEntity()]
-        try assertSave("UPDATED 1 'TestEntity'")
+        try assertSave("UPDATED 1 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_2Update_1Entity() throws {
         fixture.context.updated = [fixture.testEntity(), fixture.testEntity()]
-        try assertSave("UPDATED 2 'TestEntity'")
+        try assertSave("UPDATED 2 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_2Update_2Entity() throws {
         fixture.context.updated = [fixture.testEntity(), fixture.secondTestEntity()]
-        try assertSave("UPDATED 2 items")
+        try assertSave("UPDATED 2 items", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_1Delete_1Entity() throws {
         fixture.context.deleted = [fixture.testEntity()]
-        try assertSave("DELETED 1 'TestEntity'")
+        try assertSave("DELETED 1 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_2Delete_1Entity() throws {
         fixture.context.deleted = [fixture.testEntity(), fixture.testEntity()]
-        try assertSave("DELETED 2 'TestEntity'")
+        try assertSave("DELETED 2 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_2Delete_2Entity() throws {
         fixture.context.deleted = [fixture.testEntity(), fixture.secondTestEntity()]
-        try assertSave("DELETED 2 items")
+        try assertSave("DELETED 2 items", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_Insert_Update_Delete_1Entity() throws {
         fixture.context.inserted = [fixture.testEntity()]
         fixture.context.updated = [fixture.testEntity()]
         fixture.context.deleted = [fixture.testEntity()]
-        try assertSave("INSERTED 1 'TestEntity', UPDATED 1 'TestEntity', DELETED 1 'TestEntity'")
+        try assertSave("INSERTED 1 'TestEntity', UPDATED 1 'TestEntity', DELETED 1 'TestEntity'", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Save_Insert_Update_Delete_2Entity() throws {
         fixture.context.inserted = [fixture.testEntity(), fixture.secondTestEntity()]
         fixture.context.updated = [fixture.testEntity(), fixture.secondTestEntity()]
         fixture.context.deleted = [fixture.testEntity(), fixture.secondTestEntity()]
-        try assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items")
+        try assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items", databaseFilename: fixture.databaseFilename)
     }
     
     func test_Operation_InData() throws {
@@ -296,21 +314,29 @@ class SentryCoreDataTrackerTests: XCTestCase {
 
 private extension SentryCoreDataTrackerTests {
 
-    func assertSave(_ expectedDescription: String, mainThread: Bool = true) throws {
+    func assertSave(_ expectedDescription: String, mainThread: Bool = true, databaseFilename: String, file: StaticString = #file, line: UInt = #line) throws {
         let sut = fixture.getSut()
         
         let transaction = try startTransaction()
         
         XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
             return true
-        })
+        }, file: file, line: line)
 
         let dbSpan = try XCTUnwrap(transaction.children.first)
         
-        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_SAVE_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
+        assertDataAndFrames(
+            dbSpan: dbSpan,
+            expectedOperation: SentrySpanOperation.coredataSaveOperation,
+            expectedDescription: expectedDescription,
+            mainThread: mainThread,
+            databaseFilename: databaseFilename,
+            file: file,
+            line: line
+        )
     }
     
-    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) throws {
+    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true, databaseFilename: String, file: StaticString = #file, line: UInt = #line) throws {
         let transaction = try startTransaction()
         let sut = fixture.getSut()
         
@@ -322,31 +348,39 @@ private extension SentryCoreDataTrackerTests {
             return [someEntity]
         }
 
-        XCTAssertEqual(result?.count, 1)
+        XCTAssertEqual(result?.count, 1, file: file, line: line)
 
-        let dbSpan = try XCTUnwrap(transaction.children.first)
-        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
+        let dbSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
+        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1, file: file, line: line)
 
-        assertDataAndFrames(dbSpan: dbSpan, expectedOperation: SENTRY_COREDATA_FETCH_OPERATION, expectedDescription: expectedDescription, mainThread: mainThread)
+        assertDataAndFrames(
+            dbSpan: dbSpan,
+            expectedOperation: SentrySpanOperation.coredataFetchOperation,
+            expectedDescription: expectedDescription,
+            mainThread: mainThread,
+            databaseFilename: databaseFilename,
+            file: file,
+            line: line
+        )
     }
 
-    func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool) {
-        XCTAssertEqual(dbSpan.operation, expectedOperation)
-        XCTAssertEqual(dbSpan.origin, "auto.db.core_data")
-        XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
-        XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
-        XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite")
-        XCTAssert(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(TestCoreDataStack.databaseFilename))
+    func assertDataAndFrames(dbSpan: Span, expectedOperation: String, expectedDescription: String, mainThread: Bool, databaseFilename: String, file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(dbSpan.operation, expectedOperation, file: file, line: line)
+        XCTAssertEqual(dbSpan.origin, "auto.db.core_data", file: file, line: line)
+        XCTAssertEqual(dbSpan.spanDescription, expectedDescription, file: file, line: line)
+        XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread, file: file, line: line)
+        XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite", file: file, line: line)
+        XCTAssert(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(databaseFilename), file: file, line: line)
 
         if mainThread {
             guard let frames = (dbSpan as? SentrySpan)?.frames else {
-                XCTFail("File IO Span in the main thread has no frames")
+                XCTFail("File IO Span in the main thread has no frames", file: file, line: line)
                 return
             }
-            XCTAssertEqual(frames.first, TestData.mainFrame)
-            XCTAssertEqual(frames.last, TestData.testFrame)
+            XCTAssertEqual(frames.first, TestData.mainFrame, file: file, line: line)
+            XCTAssertEqual(frames.last, TestData.testFrame, file: file, line: line)
         } else {
-            XCTAssertNil((dbSpan as? SentrySpan)?.frames)
+            XCTAssertNil((dbSpan as? SentrySpan)?.frames, file: file, line: line)
         }
     }
     

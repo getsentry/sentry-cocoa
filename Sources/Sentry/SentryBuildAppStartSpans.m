@@ -2,7 +2,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
-#import "SentryTraceOrigins.h"
+#import "SentrySwift.h"
 #import "SentryTracer.h"
 #import <Foundation/Foundation.h>
 #import <SentryBuildAppStartSpans.h>
@@ -19,7 +19,7 @@ sentryBuildAppStartSpan(
                                           parentId:parentId
                                          operation:operation
                                    spanDescription:description
-                                            origin:SentryTraceOriginAutoAppStart
+                                            origin:SentryTraceOrigin.autoAppStart
                                            sampled:tracer.sampled];
 
     return [[SentrySpan alloc] initWithTracer:tracer context:context framesTracker:nil];

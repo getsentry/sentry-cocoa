@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+### Fixes
+
+- Don't start the SDK inside Xcode preview (#4601)
+
 ### Improvements
 
 - Add native SDK information in the replay option event (#4663)
+- Add error logging for invalid `cacheDirectoryPath` (#4693)
 
 ### Features
 
@@ -21,6 +26,11 @@
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
 - Deserializing SentryEvents with Decodable (#4724)
+### Internal
+
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
+- Convert constants SentrySpanOperation to Swift (#4718)
+- Convert constants SentryTraceOrigins to Swift (#4717)
 
 ## 8.43.1-beta.0
 

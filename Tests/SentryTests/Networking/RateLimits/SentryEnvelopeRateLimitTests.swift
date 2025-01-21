@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryEnvelopeRateLimitTests: XCTestCase {

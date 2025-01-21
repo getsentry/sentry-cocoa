@@ -487,8 +487,8 @@
 		};
 		D833D61B2D13216300961E7A /* libSentrySwiftUITests.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSentrySwiftUITests.a;
+			fileType = wrapper.cfbundle;
+			path = SentrySwiftUITests.xctest;
 			remoteRef = D833D61A2D13216300961E7A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
