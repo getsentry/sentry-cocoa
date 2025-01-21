@@ -12,7 +12,10 @@ extension Frame: Decodable {
         case imageAddress = "image_addr"
         case platform
         case instructionAddress = "instruction_addr"
-        case instruction
+        // Leaving out instruction on purpose. The event payload does not contain this field
+        // and SentryFrame.serialize doesn't add it to the serialized dict.
+        // We will remove the property in the next major see:
+        // https://github.com/getsentry/sentry-cocoa/issues/4738
         case lineNumber = "lineno"
         case columnNumber = "colno"
         case inApp = "in_app"
@@ -31,7 +34,6 @@ extension Frame: Decodable {
         self.imageAddress = try container.decodeIfPresent(String.self, forKey: .imageAddress)
         self.platform = try container.decodeIfPresent(String.self, forKey: .platform)
         self.instructionAddress = try container.decodeIfPresent(String.self, forKey: .instructionAddress)
-        self.instruction = try container.decode(UInt.self, forKey: .instruction)
         self.lineNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .lineNumber))?.value
         self.columnNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .columnNumber))?.value
         self.inApp = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .inApp))?.value
