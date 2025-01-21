@@ -1,5 +1,22 @@
 @_implementationOnly import _SentryPrivate
 
+/// Represents arbitrary data that can be decoded from JSON with Decodable.
+///
+/// - Note: Some classes on the protocol allow adding extra data in a dictionary of type String:Any.
+/// Users can put anything in there that can be serialized to JSON. The SDK uses JSONSerialization to
+/// serialize these dictionaries. At first glance, you could assume that we can use JSONSerialization.jsonObject(with:options)
+/// to deserialize these dictionaries, but we can't. When using Decodable, you don't have access to the raw
+/// data of the JSON. The Decoder and the DecodingContainers don't offer methods to access the underlying
+/// data. The Swift Decodable converts the raw data to a JSON object and then casts the JSON object to the
+/// class that implements the Decodable protocol, see:
+///  https://github.com/swiftlang/swift-foundation/blob/e9d59b6065ad909fee15f174bd5ca2c580490388/Sources/FoundationEssentials/JSON/JSONDecoder.swift#L360-L386
+/// https://github.com/swiftlang/swift-foundation/blob/e9d59b6065ad909fee15f174bd5ca2c580490388/Sources/FoundationEssentials/JSON/JSONScanner.swift#L343-L383
+
+/// Therefore, we have to implement decoding the arbitrary dictionary manually.
+///
+/// A discarded option is to decode the JSON raw data twice: once with Decodable and once with the JSONSerialization.
+/// This has two significant downsides: First, we deserialize the JSON twice, which is a performance overhead. Second,
+/// we don't conform to the Decodable protocol, which could lead to unwanted hard-to-detect problems in the future.
 enum ArbitraryData: Decodable {
     case string(String)
     case int(Int)
