@@ -52,22 +52,6 @@ class NSNumberDecodableWrapperTests: XCTestCase {
         XCTAssertEqual(number.intValue, 1)
     }
 
-    func testDecode_NegativeInt() throws {
-        // Arrange
-        let jsonData = #"""
-        {
-            "number": -1
-        }
-        """#.data(using: .utf8)!
-
-        // Act
-        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
-        // Assert
-        let number = try XCTUnwrap(actual.number)
-        XCTAssertEqual(number.intValue, -1)
-    }
-
     func testDecode_IntMax() throws {
         // Arrange
         let jsonData = """

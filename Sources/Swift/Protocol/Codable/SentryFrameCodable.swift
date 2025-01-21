@@ -23,9 +23,9 @@ extension Frame: Decodable {
     }
     
     required convenience public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
         self.init()
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
         self.symbolAddress = try container.decodeIfPresent(String.self, forKey: .symbolAddress)
         self.fileName = try container.decodeIfPresent(String.self, forKey: .fileName)
         self.function = try container.decodeIfPresent(String.self, forKey: .function)
