@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-protocol ViewRenderer {
+public protocol ViewRenderer {
     func render(view: UIView) -> UIImage
 }
 
@@ -20,24 +20,24 @@ class DefaultViewRenderer: ViewRenderer {
 }
 
 @objcMembers
-class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let redactBuilder: UIRedactBuilder
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: ViewRenderer
         
-    init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
+    public init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
         self.renderer = renderer
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
     
-    init(redactOptions: SentryRedactOptions) {
+    public init(redactOptions: SentryRedactOptions) {
         self.renderer = DefaultViewRenderer()
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
     
-    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+    public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
         let viewSize = view.bounds.size
