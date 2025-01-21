@@ -28,7 +28,7 @@ extension User: Decodable {
         self.geo = try container.decodeIfPresent(Geo.self, forKey: .geo)
         
         self.data = decodeArbitraryData {
-            try container.decodeIfPresent([String: SentryArbitraryData].self, forKey: .data)
+            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)
         }
     }
 }
