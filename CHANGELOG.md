@@ -17,7 +17,7 @@
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
-- Masking preview for SwiftUI ()
+- Session replay masking preview for SwiftUI (#4737)
 
 ### Internal
 
