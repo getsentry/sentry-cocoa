@@ -75,13 +75,28 @@ class SentryUserTests: XCTestCase {
     }
     
     func testDecode_WithAllProperties() throws {
+        // Arrange
         let user = TestData.user
-        
         let actual = user.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
         
+        // Act
         let decoded = decodeFromJSONData(jsonData: data) as User?
         
+        // Assert
+        XCTAssertEqual(user, decoded)
+    }
+
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let user = User()
+        let actual = user.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = decodeFromJSONData(jsonData: data) as User?
+        
+        // Assert
         XCTAssertEqual(user, decoded)
     }
     
