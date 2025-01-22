@@ -8,7 +8,6 @@ import UIKit
 
 protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     func addScreenshotTapped()
-    func removeScreenshotTapped()
     func submitFeedback()
     func cancel()
 }
@@ -19,6 +18,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
+    var lastValidation: SentryUserFeedbackFormValidation?
     
     init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController) {
         self.config = config
@@ -298,7 +298,9 @@ extension SentryUserFeedbackFormViewModel {
     }
     
     func removeScreenshotTapped() {
-        delegate?.removeScreenshotTapped()
+        screenshotImageView.image = nil
+        removeScreenshotStack.isHidden = true
+        addScreenshotButton.isHidden = false
     }
     
     func submitFeedback() {
@@ -315,7 +317,7 @@ extension SentryUserFeedbackFormViewModel {
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
-        submitButton.accessibilityHint = submitAccessibilityHint()
+        
     }
     
     func themeElements() {
@@ -379,42 +381,98 @@ extension SentryUserFeedbackFormViewModel {
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
     }
     
-    func setScreenshotImageAccessibilityLabel(_ value: String) {
+    func updateScreenshot(image: UIImage, accessibilityInfo value: String) {
+        screenshotImageView.image = image
         screenshotImageView.accessibilityLabel = value
-    }
-    
-    func updateScreenshotImageViewAspectRatioConstraint(image: UIImage) {
+        addScreenshotButton.isHidden = true
+        removeScreenshotStack.isHidden = false
+        
+        let aspectRatio: CGFloat
+        if image.size.height == 0 {
+            #if !SENTRY_TEST
+            SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
+            #endif // !SENTRY_TEST
+            aspectRatio = 1
+        } else {
+            aspectRatio = image.size.width / image.size.height
+        }
+        
         // you cannot dynamically change the multiplier on a constraint. you must deactivate the old instance, create a new instance, and then activate that one
         screenshotImageAspectRatioConstraint.isActive = false
-        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: image.size.width / image.size.height)
+        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: aspectRatio)
         screenshotImageAspectRatioConstraint.isActive = true
+        
+        switch validate() {
+        case .success(let hint):
+            submitButton.accessibilityHint = hint
+        case .failure(let error):
+            submitButton.accessibilityHint = error.description
+        }
     }
     
-    func validate() -> [String]? {
+    typealias SentryUserFeedbackFormValidation = Result<String, InputError>
+    func validate() -> SentryUserFeedbackFormValidation {
         var missing = [String]()
+        var hint = ["Will submit feedback"]
         
-        if config.formConfig.isNameRequired && !fullNameTextField.hasText {
+        if let name = fullNameTextField.textOrNil {
+            hint.append("for \(name)")
+        } else if config.formConfig.isNameRequired {
             missing.append(config.formConfig.nameLabel.lowercased())
+        } else {
+            hint.append("with no name")
         }
         
-        if config.formConfig.isEmailRequired && !emailTextField.hasText {
+        if let email = emailTextField.textOrNil {
+            hint.append("at \(email)")
+        } else if config.formConfig.isEmailRequired {
             missing.append(config.formConfig.emailLabel.lowercased())
+        } else {
+            if fullNameTextField.hasText {
+                hint.append("with no email address")
+            } else {
+                hint.append("or email address")
+            }
         }
         
-        if !messageTextView.hasText {
+        // include the message they'll submit
+        if let message = messageTextView.textOrNil {
+            hint.append("with message: \(message)")
+        } else {
             missing.append(config.formConfig.messageLabel.lowercased())
         }
         
-        guard !missing.isEmpty else {
-            return nil
+        // include any details available for a screenshot, if included
+        if screenshotImageView.image != nil {
+            if let accessibilityInfo = screenshotImageView.accessibilityLabel {
+                hint.append("including \(accessibilityInfo.lowercased())")
+            } else {
+                hint.append("including screenshot")
+                SentryLog.warning("Required screenshot accessibility info but it was not set.")
+            }
         }
         
-        return missing
+        guard missing.isEmpty else {
+            let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing))
+            lastValidation = result
+            return result
+        }
+        
+        let result = SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
+        lastValidation = result
+        return result
     }
     
-    func message(for missingFields: [String]) -> String {
-        let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
-        return "You must provide all required information. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
+    enum InputError: Error {
+        case validationError(missingFields: [String])
+        
+        var description: String {
+            switch self {
+            case .validationError(let missingFields):
+                let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
+                return "You must provide all required information before submitting. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
+            }
+        }
     }
     
     func feedbackObject() -> SentryFeedback {
@@ -422,47 +480,25 @@ extension SentryUserFeedbackFormViewModel {
     }
 }
 
-// MARK: Accessibility
+extension UITextField {
+    var textOrNil: String? {
+        guard hasText else { return nil }
+        guard let text = text else {
+            SentryLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
+            return nil
+        }
+        return text
+    }
+}
 
-@available(iOS 13.0, *)
-extension SentryUserFeedbackFormViewModel {
-    func submitAccessibilityHint() -> String {
-        if let missing = validate() {
-            return message(for: missing)
+extension UITextView {
+    var textOrNil: String? {
+        guard hasText else { return nil }
+        guard let text = text else {
+            SentryLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
+            return nil
         }
-        
-        var hint = "Will submit feedback "
-        
-        if let name = fullNameTextField.text {
-            hint += "for \(name) "
-        } else {
-            hint += "with no name "
-        }
-        
-        if let email = emailTextField.text {
-            hint += "at \(email) "
-        } else {
-            if fullNameTextField.text != nil {
-                hint += "with no email "
-            } else {
-                hint += "or email "
-            }
-        }
-        
-        if screenshotImageView.image != nil {
-            if let imageDescription = screenshotImageView.accessibilityLabel {
-                hint += "and \(imageDescription)"
-            } else {
-                SentryLog.warning("Expected screenshot image view to have accessibility label containing image metadata")
-                hint += "and attached image"
-            }
-        }
-        
-        if let message = messageTextView.text {
-            hint += "with message: \(message)"
-        }
-        
-        return hint
+        return text
     }
 }
 
