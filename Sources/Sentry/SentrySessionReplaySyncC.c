@@ -20,9 +20,15 @@ sentrySessionReplaySync_start(const char *const path)
     if (crashReplay.path != NULL) {
         free(crashReplay.path);
     }
-
-    crashReplay.path = malloc(strlen(path));
-    strcpy(crashReplay.path, path);
+    
+    size_t buffer_size = strlen(path) + sizeof(char); //Add a byte for the null-terminator.
+    crashReplay.path = malloc(buffer_size);
+    if (crashReplay.path) {
+        strlcpy(crashReplay.path, path, buffer_size);
+    } else {
+        crashReplay.path = NULL;
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not copy the path to save session replay in case of an error. File path: %s", path);
+    }
 }
 
 void
@@ -35,6 +41,11 @@ sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd
 void
 sentrySessionReplaySync_writeInfo(void)
 {
+    if (crashReplay.path == NULL){
+        SENTRY_ASYNC_SAFE_LOG_ERROR("There is no path to write replay information");
+        return;
+    }
+    
     int fd = open(crashReplay.path, O_RDWR | O_CREAT | O_TRUNC, 0644);
 
     if (fd < 1) {
