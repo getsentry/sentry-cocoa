@@ -21,7 +21,7 @@ sentrySessionReplaySync_start(const char *const path)
         free(crashReplay.path);
     }
     
-    size_t buffer_size = strlen(path) + sizeof(char); //Add a byte for the null-terminator.
+    size_t buffer_size = sizeof(char) * (strlen(path) + 1); //Add a byte for the null-terminator.
     crashReplay.path = malloc(buffer_size);
     if (crashReplay.path) {
         strlcpy(crashReplay.path, path, buffer_size);
