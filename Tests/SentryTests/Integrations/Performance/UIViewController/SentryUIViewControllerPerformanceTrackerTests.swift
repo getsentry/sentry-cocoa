@@ -356,7 +356,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var tracer: SentryTracer?
@@ -661,7 +661,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         var tracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
 
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
@@ -678,7 +678,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         var tracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = false
+        sut.alwaysWaitForFullDisplay = false
 
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
@@ -711,7 +711,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     func test_OnlyViewDidLoadTTFDEnabled_CreatesTTIDAndTTFDSpans() throws {
         let sut = fixture.getSut()
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         let tracker = fixture.tracker
 
         var tracer: SentryTracer!
@@ -776,7 +776,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
 
@@ -823,7 +823,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
 
         sut.viewControllerLoadView(firstController) {
             firstTracer = self.getStack(tracker).first as? SentryTracer
@@ -863,7 +863,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var firstTracer: SentryTracer?
         var secondTracer: SentryTracer?
 
-        sut.enableWaitForFullDisplay = true
+        sut.alwaysWaitForFullDisplay = true
         
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
         sut.viewControllerLoadView(firstController) {
@@ -940,17 +940,17 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(children?.count, 6)
     }
 
-    private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {
-        let span = try XCTUnwrap(span)
-        let timestamp = try XCTUnwrap(span.timestamp)
-        let startTimestamp = try XCTUnwrap(span.startTimestamp)
+    private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval, file: StaticString = #file, line: UInt = #line) throws {
+        let span = try XCTUnwrap(span, file: file, line: line)
+        let timestamp = try XCTUnwrap(span.timestamp, file: file, line: line)
+        let startTimestamp = try XCTUnwrap(span.startTimestamp, file: file, line: line)
         let duration = timestamp.timeIntervalSince(startTimestamp)
-        XCTAssertEqual(duration, expectedDuration, accuracy: 0.001)
+        XCTAssertEqual(duration, expectedDuration, accuracy: 0.001, file: file, line: line)
     }
     
-    private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker) {
-        XCTAssertEqual(0, getStack(tracker).count)
-        XCTAssertEqual(0, getSpans(tracker).count)
+    private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker, file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(0, getStack(tracker).count, file: file, line: line)
+        XCTAssertEqual(0, getSpans(tracker).count, file: file, line: line)
     }
 
     private func getStack(_ tracker: SentryPerformanceTracker) -> [Span] {

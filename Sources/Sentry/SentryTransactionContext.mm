@@ -2,9 +2,9 @@
 #import "SentryLog.h"
 #include "SentryProfilingConditionals.h"
 #import "SentrySpanContext+Private.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
-#import "SentryTraceOrigins.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,7 +27,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
-                       origin:SentryTraceOriginManual
+                       origin:SentryTraceOrigin.manual
                       sampled:sampled];
 }
 
@@ -41,7 +41,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
-                       origin:SentryTraceOriginManual
+                       origin:SentryTraceOrigin.manual
                       traceId:traceId
                        spanId:spanId
                  parentSpanId:parentSpanId

@@ -194,6 +194,19 @@ class SentrySDKTests: XCTestCase {
         XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
     }
     
+    func testDontStartInsideXcodePreview() {
+        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
+        testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
+        
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
+        
+        SentrySDK.start { options in
+            options.debug = true
+        }
+
+        XCTAssertFalse(SentrySDK.isEnabled)
+    }
+    
     func testCrashedLastRun() {
         XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
     }
@@ -688,8 +701,8 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: fixture.options)
 
-        let testTTDTracker = TestTimeToDisplayTracker()
-
+        let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
+        
         Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
 
         SentrySDK.reportFullyDisplayed()

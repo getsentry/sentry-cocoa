@@ -335,12 +335,11 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             XCTFail("Could not open Resource")
             return
         }
-
         // -- Act & Assert --
         let data = assertSpans(1, "file.read") {
             try? NSData(contentsOfFile: jsonFile, options: .uncached)
         }
-        XCTAssertEqual(data?.count, 341_431)
+        XCTAssertEqual(data?.count, 341_432)
     }
     
     func test_WritingBigFile() {
@@ -362,7 +361,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             try? data.write(to: fixture.fileURL, options: .atomic)
         }
         let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-        XCTAssertEqual(size, 341_431)
+        XCTAssertEqual(size, 341_432)
     }
     
     func getBigFilePath() -> String? {

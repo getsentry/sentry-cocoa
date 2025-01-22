@@ -14,6 +14,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryTracer.h"

@@ -15,6 +15,7 @@ COMMAND="${4:-test}"
 DEVICE=${5:-iPhone 14}
 CONFIGURATION_OVERRIDE="${6:-}"
 DERIVED_DATA_PATH="${7:-}"
+TEST_SCHEME="${8:-Sentry}"
 
 case $PLATFORM in
 
@@ -80,7 +81,7 @@ esac
 if [ $RUN_BUILD == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
-        -scheme Sentry \
+        -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
@@ -93,7 +94,7 @@ fi
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
-        -scheme Sentry \
+        -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -quiet \
@@ -105,7 +106,7 @@ fi
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
-        -scheme Sentry \
+        -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         test-without-building 2>&1 |

@@ -22,7 +22,9 @@ public class SecondTestEntity: NSManagedObject {
 }
 
 class TestCoreDataStack {
-    
+
+    let databaseFilename: String
+
     lazy var managedObjectModel: NSManagedObjectModel = {
         let model = NSManagedObjectModel()
         
@@ -57,32 +59,34 @@ class TestCoreDataStack {
         return model
     }()
 
-    static let databaseFilename = "SingleViewCoreData.sqlite"
-
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
         guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
-        
+
         if !FileManager.default.fileExists(atPath: tempDir.path) {
             try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true, attributes: nil)
         }
-            
+
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
-        let url = tempDir.appendingPathComponent(TestCoreDataStack.databaseFilename)
-        
+        let url = tempDir.appendingPathComponent(databaseFilename)
+
         let _ = try? coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: nil)
-        
+
         return coordinator
     }()
-    
+
     lazy var managedObjectContext: TestNSManagedObjectContext = {
         var managedObjectContext = TestNSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = self.persistentStoreCoordinator
         return managedObjectContext
     }()
-    
+
+    init(databaseFilename: String) {
+        self.databaseFilename = databaseFilename
+    }
+
     func reset() {
         guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
-        let url = tempDir.appendingPathComponent(TestCoreDataStack.databaseFilename)
+        let url = tempDir.appendingPathComponent(databaseFilename)
         try? FileManager.default.removeItem(at: url)
     }
     
