@@ -65,13 +65,8 @@ extension SentryUserFeedbackFormController {
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: SentryPhotoPickerDelegate {
     func chose(image: UIImage, accessibilityInfo: String) {
-        viewModel.screenshotImageView.image = image
-        viewModel.updateScreenshotImageViewAspectRatioConstraint(image: image)
-        viewModel.addScreenshotButton.isHidden = true
-        viewModel.removeScreenshotStack.isHidden = false
-        
         // these need to happen in this order, because updateSubmitButtonAccessibilityHint uses the value of screenshotImageView.accessibilityLabel
-        viewModel.setScreenshotImageAccessibilityLabel(value: accessibilityInfo)
+        viewModel.updateScreenshot(image: image, accessibilityInfo: accessibilityInfo)
         viewModel.updateSubmitButtonAccessibilityHint()
     }
 }
@@ -83,31 +78,35 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
         config.formConfig.photoPicker?.display(config: config, presenter: self)
     }
     
-    func removeScreenshotTapped() {
-        viewModel.screenshotImageView.image = nil
-        viewModel.removeScreenshotStack.isHidden = true
-        viewModel.addScreenshotButton.isHidden = false
-    }
-    
     func submitFeedback() {
-        if let missing = viewModel.validate().missingFields {
-            let alert = UIAlertController(title: "Error", message: viewModel.message(for: missing), preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: config.animations) {
-                if let block = self.config.onSubmitError {
-                    // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
-                    block(NSError(domain: "io.sentry.error", code: 1, userInfo: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."]))
+        switch viewModel.lastValidation ?? viewModel.validate() {
+        case .success(_):
+            let feedback = viewModel.feedbackObject()
+            SentryLog.debug("Sending user feedback")
+            if let block = config.onSubmitSuccess {
+                block(feedback.dataDictionary())
+            }
+            delegate?.finished(with: feedback)
+        case .failure(let error):
+            func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
+                let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: config.animations) {
+                    if let block = self.config.onSubmitError {
+                        // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                        block(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
+                    }
                 }
             }
-            return
+            
+            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing) = error else {
+                SentryLog.warning("Unexpected error type.")
+                presentAlert(message: "Unexpected client error.", errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
+                return
+            }
+            
+            presentAlert(message: description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
-        
-        let feedback = viewModel.feedbackObject()
-        SentryLog.debug("Sending user feedback")
-        if let block = config.onSubmitSuccess {
-            block(feedback.dataDictionary())
-        }
-        delegate?.finished(with: feedback)
     }
     
     func cancel() {
