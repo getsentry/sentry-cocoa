@@ -360,8 +360,8 @@ static SentryTouchTracker *_touchTracker;
     }
     [data writeToFile:infoPath atomically:YES];
 
-    NSString* crashInfoPath = [path stringByAppendingPathComponent:@"crashInfo"];
-    sentrySessionReplaySync_start([crashInfoPath cStringUsingEncoding:NSUTF8StringEncoding]);
+    sentrySessionReplaySync_start([[path stringByAppendingPathComponent:@"crashInfo"]
+        cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)moveCurrentReplay
