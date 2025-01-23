@@ -6,6 +6,10 @@
 
 - Use strlcpy to save session replay info path (#4740)
 
+### Features
+
+- Add manual file IO tracking methods for Swift.Data (#4605)
+
 ## 8.44.0-beta.1
 
 ### Fixes
@@ -21,7 +25,6 @@
 
 - SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
-- Add manual file IO tracking methods for Swift.Data (#4605)
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
 
