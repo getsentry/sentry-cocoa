@@ -239,10 +239,15 @@ struct ContentView: View {
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                     
+                    TextField("DAE", text: $dae)
+                        .background(Color.red)
+                    TextField("Ola", text: $dae).sentryReplayUnmask()
                 }
             }
         }
     }
+    
+    @State var dae: String = ""
 }
 
 struct SecondView: View {
@@ -257,6 +262,5 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .sentryReplayPreviewMask(opacity: 0.3)
-            
     }
 }

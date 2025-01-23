@@ -7,10 +7,16 @@ import UIKit
 @_implementationOnly import SentryInternal
 #endif
 
+class PreviewImageView: UIImageView {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        return nil
+    }
+}
+
 class SentryReplayMaskPreviewUIView: UIView {
     private let photographer: SentryViewPhotographer
     private var displayLink: CADisplayLink?
-    private var imageView = UIImageView()
+    private var imageView = PreviewImageView()
     
     var opacity: Float {
         get { return Float(imageView.alpha) }
@@ -55,6 +61,10 @@ class SentryReplayMaskPreviewUIView: UIView {
         }
         imageView.image = image
         imageView.frame = window.bounds
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        return nil
     }
 }
 
