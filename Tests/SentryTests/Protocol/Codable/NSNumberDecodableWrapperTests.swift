@@ -117,7 +117,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
     }
     
     func testDecode_UInt128Max_UsesDouble() throws {
-        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2, *) {
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, *) {
             // Arrange
             let jsonData = """
             {
