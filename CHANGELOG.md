@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed
+
+- Use strlcpy to save session replay info path (#4740)
+
+## 8.44.0-beta.1
+
 ### Fixes
 
 - Don't start the SDK inside Xcode preview (#4601)

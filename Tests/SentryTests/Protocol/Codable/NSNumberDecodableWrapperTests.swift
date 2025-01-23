@@ -116,22 +116,25 @@ class NSNumberDecodableWrapperTests: XCTestCase {
         XCTAssertEqual(number.uint64Value, UInt64.max)
     }
     
-    func testDecode_UInt128Max_UsesDouble() throws {
-        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2, *) {
-            // Arrange
-            let jsonData = """
-            {
-                "number": \(UInt128.max)
-            }
-            """.data(using: .utf8)!
-            
-            // Act
-            let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-            
-            // Assert
-            let number = try XCTUnwrap(actual.number)
-            XCTAssertEqual(number.doubleValue, Double(UInt128.max))
+    // We can't use UInt128.max is only available on iOS 18 and above.
+    // Still we would like to test if a max value bigger than UInt64.max is decoded correctly.
+    func testDecode_UInt64MaxPlusOne_UsesDouble() throws {
+        let UInt64MaxPlusOne = Double(UInt64.max) + 1
+        
+        // Arrange
+        let jsonData = """
+        {
+            "number": \(UInt64MaxPlusOne)
         }
+        """.data(using: .utf8)!
+        
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
+        
+        // Assert
+        let number = try XCTUnwrap(actual.number)
+        XCTAssertEqual(number.doubleValue, UInt64MaxPlusOne)
+        
     }
 
     func testDecode_Zero() throws {
