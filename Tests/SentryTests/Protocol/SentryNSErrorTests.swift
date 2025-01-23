@@ -25,7 +25,7 @@ class SentryNSErrorTests: XCTestCase {
         XCTAssertEqual(error.domain, decoded.domain)
     }
     
-    func testDecode_WithRemovedDomain() throws {
+    func testDecode_WithRemovedDomain_ReturnsNil() throws {
         // Arrange
         let error = SentryNSError(domain: "domain", code: 10)
         var serialized = error.serialize()
