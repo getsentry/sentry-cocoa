@@ -15,13 +15,18 @@ public extension Data {
         let tracker = SentryFileIOTracker.sharedInstance()
         // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
         // Therefore we do not use the `measureNSData` method.
-        self = try tracker
-            .measureReadingData(
-                from: url,
-                options: options,
-                origin: SentryTraceOrigin.manualData) { url, options in
-                    try Data(contentsOf: url, options: options)
-            }
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            self = try tracker
+                .measureReadingData(
+                    from: url,
+                    options: options,
+                    origin: SentryTraceOrigin.manualFileData) { url, options in
+                        try Data(contentsOf: url, options: options)
+                }
+        } else {
+            SentryLog.debug("Data is traced automatically on this platform version.")
+            self = try Data(contentsOf: url, options: options)
+        }
     }
 
     /// Write the contents of the `Data` to a location, automatically tracking the operation with Sentry.
@@ -33,13 +38,18 @@ public extension Data {
         let tracker = SentryFileIOTracker.sharedInstance()
         // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
         // Therefore we do not use the `measureNSData` method.
-        try tracker
-            .measureWritingData(
-                self,
-                to: url,
-                options: options,
-                origin: SentryTraceOrigin.manualData) { data, url, options in
-                    try data.write(to: url, options: options)
-            }
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            try tracker
+                .measureWritingData(
+                    self,
+                    to: url,
+                    options: options,
+                    origin: SentryTraceOrigin.manualFileData) { data, url, options in
+                        try data.write(to: url, options: options)
+                }
+        } else {
+            SentryLog.debug("Data is traced automatically on this platform version.")
+            try self.write(to: url, options: options)
+        }
     }
 }
