@@ -5,6 +5,7 @@
 ### Fixed
 
 - Use strlcpy to save session replay info path (#4740)
+- `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 
 ## 8.44.0-beta.1
 

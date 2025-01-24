@@ -19,13 +19,11 @@ struct SentryReplayView: UIViewRepresentable {
     class SentryRedactView: UIView {
     }
     
-    func makeUIView(context: Context) -> UIView {
-        let view = SentryRedactView()
-        view.isUserInteractionEnabled = false
-        return view
+    func makeUIView(context: Context) -> SentryRedactView {
+        return SentryRedactView()
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {
+    func updateUIView(_ uiView: SentryRedactView, context: Context) {
         switch maskBehavior {
             case .mask: SentryRedactViewHelper.maskSwiftUI(uiView)
             case .unmask: SentryRedactViewHelper.clipOutView(uiView)
@@ -37,7 +35,7 @@ struct SentryReplayView: UIViewRepresentable {
 struct SentryReplayModifier: ViewModifier {
     let behavior: MaskBehavior
     func body(content: Content) -> some View {
-        content.overlay(SentryReplayView(maskBehavior: behavior))
+        content.overlay(SentryReplayView(maskBehavior: behavior).disabled(true))
     }
 }
 
