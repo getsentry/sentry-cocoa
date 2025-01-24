@@ -195,7 +195,7 @@ struct ContentView: View {
                             }
                             Button(action: showTTD) {
                                 Text("Show TTD")
-                            }
+                            }.sentryReplayUnmask()
                         }
                         VStack(spacing: 16) {
                             Button(action: {
