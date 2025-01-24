@@ -203,7 +203,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    // We save the options before checking for xcode preview because
+    // We save the options before checking for Xcode preview because
     // we will use this options in the preview
     startOption = options;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
