@@ -435,13 +435,6 @@ extension SentryUserFeedbackFormViewModel {
             }
         }
         
-        // include the message they'll submit
-        if let message = messageTextView.textOrNil {
-            hint.append("with message: \(message)")
-        } else {
-            missing.append(config.formConfig.messageLabel.lowercased())
-        }
-        
         // include any details available for a screenshot, if included
         if screenshotImageView.image != nil {
             if let accessibilityInfo = screenshotImageView.accessibilityLabel {
@@ -450,6 +443,13 @@ extension SentryUserFeedbackFormViewModel {
                 hint.append("including screenshot")
                 SentryLog.warning("Required screenshot accessibility info but it was not set.")
             }
+        }
+        
+        // include the message they'll submit
+        if let message = messageTextView.textOrNil {
+            hint.append("with message: \(message)")
+        } else {
+            missing.append(config.formConfig.messageLabel.lowercased())
         }
         
         guard missing.isEmpty else {
