@@ -30,9 +30,7 @@ struct SentryReplayPreviewView: UIViewRepresentable {
     let opacity: Float
     
     func makeUIView(context: Context) -> SentryReplayMaskPreviewUIView {
-        let view = SentryReplayMaskPreviewUIView(redactOptions: redactOptions)
-        view.isUserInteractionEnabled = false
-        return view
+        return SentryReplayMaskPreviewUIView(redactOptions: redactOptions)
     }
     
     func updateUIView(_ uiView: SentryReplayMaskPreviewUIView, context: Context) {
