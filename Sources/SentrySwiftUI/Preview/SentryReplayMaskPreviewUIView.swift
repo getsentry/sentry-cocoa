@@ -1,6 +1,5 @@
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
 import Sentry
-import SwiftUI
 import UIKit
 
 #if CARTHAGE || SWIFT_PACKAGE
@@ -29,6 +28,10 @@ class SentryReplayMaskPreviewUIView: UIView {
         self.isUserInteractionEnabled = false
         imageView.isUserInteractionEnabled = false
         imageView.sentryReplayUnmask()
+    }
+    
+    deinit {
+        displayLink?.invalidate()
     }
     
     required init?(coder: NSCoder) {

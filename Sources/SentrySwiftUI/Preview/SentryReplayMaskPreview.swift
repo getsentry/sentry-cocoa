@@ -12,7 +12,7 @@ struct SentryReplayMaskPreview: ViewModifier {
     let redactOptions: SentryRedactOptions
     let opacity: Float
     func body(content: Content) -> some View {
-        content.overlay(SentryReplayPreviewView(redactOptions: redactOptions, opacity: opacity))
+        content.overlay(SentryReplayPreviewView(redactOptions: redactOptions, opacity: opacity).disabled(true))
     }
 }
 
