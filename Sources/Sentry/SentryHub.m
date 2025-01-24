@@ -203,10 +203,8 @@ NS_ASSUME_NONNULL_BEGIN
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                   [self createSessionDebugString:session]]
-                      andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"Capturing session with status: %@", [self createSessionDebugString:session]);
         }
         [client captureSession:session];
     }
@@ -688,10 +686,8 @@ NS_ASSUME_NONNULL_BEGIN
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
                 if (_client.options.diagnosticLevel == kSentryLevelDebug) {
-                    [SentryLog
-                        logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
-                                           [self createSessionDebugString:currentSession]]
-                              andLevel:kSentryLevelDebug];
+                    SENTRY_LOG_DEBUG(@"Ending session with status: %@",
+                        [self createSessionDebugString:currentSession]);
                 }
                 if (startNewSession) {
                     // Setting _session to nil so startSession doesn't capture it again
