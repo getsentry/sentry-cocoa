@@ -138,7 +138,6 @@ extension SentrySDKWrapper {
             } else {
                 config.labelText = "Report Jank"
             }
-            config.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
             config.layoutUIOffset = layoutOffset
         } else {
             config.autoInject = false

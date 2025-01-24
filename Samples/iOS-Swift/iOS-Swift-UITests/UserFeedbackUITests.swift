@@ -34,7 +34,7 @@ extension UserFeedbackUITests {
     func testUIElementsWithDefaults() {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
         // widget button text
-        XCTAssert(app.staticTexts["Report a Bug"].exists)
+        XCTAssert(app.otherElements["Report a Bug"].exists)
         
         widgetButton.tap()
         
@@ -63,10 +63,10 @@ extension UserFeedbackUITests {
     }
     
     func testUIElementsWithCustomizations() {
-        launchApp()
+        launchApp(args: ["--io.sentry.feedback.auto-inject-widget"])
         
         // widget button text
-        XCTAssert(app.staticTexts["Report Jank"].exists)
+        XCTAssert(app.otherElements["Report Jank"].exists)
         
         widgetButton.tap()
         

@@ -51,7 +51,10 @@ extension SentryUserFeedbackFormController {
     }
     
     func showedKeyboard(note: Notification) {
-        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+            SentryLog.warning("Received a keyboard display notification with no frame information.")
+            return
+        }
         let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
         viewModel.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
     }
@@ -121,6 +124,10 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        viewModel.updateSubmitButtonAccessibilityHint()
+    }
 }
 
 // MARK: UITextViewDelegate
@@ -128,6 +135,7 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
 extension SentryUserFeedbackFormController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
+        viewModel.updateSubmitButtonAccessibilityHint()
     }
 }
 
