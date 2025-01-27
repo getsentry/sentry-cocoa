@@ -134,7 +134,6 @@ class SentryFeedbackTests: XCTestCase {
             config.configureForm = {
                 $0.isNameRequired = input.config.requiresName
                 $0.isEmailRequired = input.config.requiresEmail
-                $0.photoPicker = TestSentryPhotoPicker()
             }
             let fixture = Fixture(config: config)
             let viewModel = fixture.controller.viewModel

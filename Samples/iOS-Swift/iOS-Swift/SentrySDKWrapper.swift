@@ -233,6 +233,7 @@ extension SentrySDKWrapper {
         }
     }
     
+    // swiftlint:disable cyclomatic_complexity
     func createHookFile(name: String, with contents: String? = nil) {
         guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
             print("[iOS-Swift] Couldn't retrieve path to application support directory.")
@@ -241,11 +242,13 @@ extension SentrySDKWrapper {
         
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/feedback"
-        do {
-            try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
-        } catch {
-            print("[iOS-Swift] Couldn't create directory structure for user feedback form hook marker files: \(error).")
-            return
+        if !fm.fileExists(atPath: dir) {
+            do {
+                try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            } catch {
+                print("[iOS-Swift] Couldn't create directory structure for user feedback form hook marker files: \(error).")
+                return
+            }
         }
         
         let path = "\(dir)/\(name)"
@@ -278,6 +281,7 @@ extension SentrySDKWrapper {
         default: fatalError("Unexpected marker file name")
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 }
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable

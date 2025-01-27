@@ -3,6 +3,7 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
+import PhotosUI
 import UIKit
 
 @available(iOS 13.0, *)
@@ -64,25 +65,48 @@ extension SentryUserFeedbackFormController {
     }
 }
 
-// MARK: SentryPhotoPickerDelegate
-@available(iOS 13.0, *)
-extension SentryUserFeedbackFormController: SentryPhotoPickerDelegate {
-    func chose(image: UIImage, accessibilityInfo: String) {
-        // these need to happen in this order, because updateSubmitButtonAccessibilityHint uses the value of screenshotImageView.accessibilityLabel
-        viewModel.updateScreenshot(image: image, accessibilityInfo: accessibilityInfo)
-        viewModel.updateSubmitButtonAccessibilityHint()
-    }
-}
-
 // MARK: SentryUserFeedbackFormViewModelDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     public func addScreenshotTapped() {
-        config.formConfig.photoPicker?.display(config: config, presenter: self)
+        
+#if SENTRY_TEST || SENTRY_TEST_CI || TEST || TESTCI
+        // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it. we also mock it for unit tests
+        set(image: UIImage(), accessibilityInfo: "test image accessibility info")
+#else
+        func presentPicker() {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.sourceType = .photoLibrary
+            imagePickerController.allowsEditing = true
+            DispatchQueue.main.async {
+                self.present(imagePickerController, animated: self.config.animations)
+            }
+        }
+        
+        let status = PHPhotoLibrary.authorizationStatus()
+        switch status {
+        case .notDetermined:
+            if #available(iOS 14, *) {
+                PHPhotoLibrary.requestAuthorization(for: .readWrite) {
+                    SentryLog.debug("Photos authorization level: \($0)")
+                    presentPicker()
+                }
+            } else {
+                PHPhotoLibrary.requestAuthorization {
+                    SentryLog.debug("Photos authorization level: \($0)")
+                    presentPicker()
+                }
+            }
+        default:
+            SentryLog.debug("Photos authorization level: \(status)")
+            presentPicker()
+        }
+#endif // SENTRY_TEST || SENTRY_TEST_CI
     }
     
     func submitFeedback() {
-        switch viewModel.lastValidation ?? viewModel.validate() {
+        switch viewModel.validate() {
         case .success(_):
             let feedback = viewModel.feedbackObject()
             SentryLog.debug("Sending user feedback")
@@ -108,12 +132,48 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                 return
             }
             
-            presentAlert(message: description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            presentAlert(message: error.description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
     }
     
     func cancel() {
         delegate?.finished(with: nil)
+    }
+}
+
+// MARK: UIImagePickerControllerDelegate & UINavigationControllerDelegate
+@available(iOS 13.0, *)
+extension SentryUserFeedbackFormController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        guard let photo = info[.editedImage] as? UIImage else {
+            SentryLog.warning("Could not get edited image from photo picker.")
+            return
+        }
+        
+        let formatter = {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .medium
+            return formatter
+        }()
+        
+        let accessibilityInfo = {
+            guard let asset = info[.phAsset] as? PHAsset else {
+                SentryLog.warning("Could not get edited image asset information from photo picker.")
+                return "Image"
+            }
+            guard let date = asset.creationDate else {
+                SentryLog.warning("Could not get creation date from edited image from photo picker.")
+                return "Image"
+            }
+            return "Image taken \(formatter.string(from: date))"
+        }()
+        
+        set(image: photo, accessibilityInfo: accessibilityInfo)
+    }
+    
+    private func set(image: UIImage, accessibilityInfo: String) {
+        viewModel.updateScreenshot(image: image, accessibilityInfo: accessibilityInfo)
     }
 }
 

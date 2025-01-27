@@ -172,8 +172,6 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     func fullLabelText(labelText: String, required: Bool) -> String {
         required ? labelText + " " + isRequiredLabel : labelText
     }
-    
-    var photoPicker: SentryPhotoPicker?
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT

@@ -18,7 +18,6 @@ class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
-    var lastValidation: SentryUserFeedbackFormValidation?
     
     init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController) {
         self.config = config
@@ -317,7 +316,10 @@ extension SentryUserFeedbackFormViewModel {
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
-        
+        switch validate() {
+        case .success(let hint): submitButton.accessibilityHint = hint
+        case .failure(let error): submitButton.accessibilityHint = error.description
+        }
     }
     
     func themeElements() {
@@ -402,12 +404,7 @@ extension SentryUserFeedbackFormViewModel {
         screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: aspectRatio)
         screenshotImageAspectRatioConstraint.isActive = true
         
-        switch validate() {
-        case .success(let hint):
-            submitButton.accessibilityHint = hint
-        case .failure(let error):
-            submitButton.accessibilityHint = error.description
-        }
+        updateSubmitButtonAccessibilityHint()
     }
     
     typealias SentryUserFeedbackFormValidation = Result<String, InputError>
@@ -454,13 +451,10 @@ extension SentryUserFeedbackFormViewModel {
         
         guard missing.isEmpty else {
             let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing))
-            lastValidation = result
             return result
         }
         
-        let result = SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
-        lastValidation = result
-        return result
+        return SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
     }
     
     enum InputError: Error {

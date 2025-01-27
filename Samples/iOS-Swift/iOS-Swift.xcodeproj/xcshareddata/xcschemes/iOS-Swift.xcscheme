@@ -128,7 +128,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.all-defaults"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--skip-sentry-init"
