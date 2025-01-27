@@ -90,10 +90,13 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySession *lastSession = nil;
     SentryScope *scope = self.scope;
     SentryOptions *options = [_client options];
-    if (options == nil || options.releaseName == nil) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLevelError];
+    if (options == nil) {
+        SENTRY_LOG_ERROR(@"Options of the client are nil. Not starting a session.");
+        return;
+    }
+    if (options.releaseName == nil) {
+        SENTRY_LOG_ERROR(
+            @"Release name of the options of the client is nil. Not starting a session.");
         return;
     }
 

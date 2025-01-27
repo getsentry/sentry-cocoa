@@ -10,6 +10,7 @@
 ### Improvments
 
 - Add SentryHub to all log messages in the Hub (#4753)
+- More detailed log message when can't start session in SentryHub (#4752)
 
 ## 8.44.0-beta.1
 
