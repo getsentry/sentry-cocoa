@@ -7,6 +7,10 @@
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 
+### Improvements
+
+- More detailed log message when can't start session in SentryHub (#4752)
+
 ## 8.44.0-beta.1
 
 ### Fixes
