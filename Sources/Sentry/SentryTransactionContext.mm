@@ -141,6 +141,9 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
+               parentSampled:(SentrySampleDecision)parentSampled
+            parentSampleRate:(nullable NSNumber *)parentSampleRate
+            parentSampleRand:(nullable NSNumber *)parentSampleRand;
 {
     if (self = [super initWithTraceId:traceId
                                spanId:spanId

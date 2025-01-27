@@ -24,7 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
                       origin:(NSString *)origin
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
-                parentSpanId:(nullable SentrySpanId *)parentSpanId;
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
+               parentSampled:(SentrySampleDecision)parentSampled
+            parentSampleRate:(nullable NSNumber *)parentSampleRate
+            parentSampleRand:(nullable NSNumber *)parentSampleRand;
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
