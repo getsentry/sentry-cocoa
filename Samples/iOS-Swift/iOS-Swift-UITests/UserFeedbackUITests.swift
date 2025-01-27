@@ -327,9 +327,12 @@ extension UserFeedbackUITests {
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
-        
+
+        // dismiss the onscreen keyboard
+        app.swipeDown(velocity: .fast)
+
         // the modal cancel gesture
-        nameField.press(forDuration: 0.1, thenDragTo: cancelButton)
+        app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
         XCTAssert(widgetButton.waitForExistence(timeout: 1))
