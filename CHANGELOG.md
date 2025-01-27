@@ -6,11 +6,16 @@
 
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
+- Fix missing `sample_rate` in baggage (#4751)
 
 ### Improvements
 
 - Add SentryHub to all log messages in the Hub (#4753)
 - More detailed log message when can't start session in SentryHub (#4752)
+
+### Features
+
+- Add `sample_rand` to baggage (#4751)
 
 ## 8.44.0-beta.1
 

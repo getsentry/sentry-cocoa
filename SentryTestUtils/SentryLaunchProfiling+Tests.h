@@ -39,7 +39,7 @@ BOOL sentry_willProfileNextLaunch(SentryOptions *options);
  */
 void _sentry_nondeduplicated_startLaunchProfile(void);
 
-SentryTransactionContext *sentry_context(NSNumber *tracesRate);
+SentryTransactionContext *sentry_context(NSNumber *tracesRate, NSNumber *tracesRand);
 
 NS_ASSUME_NONNULL_END
 

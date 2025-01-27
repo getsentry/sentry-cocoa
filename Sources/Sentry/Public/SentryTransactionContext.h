@@ -27,9 +27,14 @@ SENTRY_NO_INIT
 @property (nonatomic) SentrySampleDecision parentSampled;
 
 /**
- * Sample rate used for this transaction
+ * Parent sample rate used for this transaction
  */
-@property (nonatomic, strong, nullable) NSNumber *sampleRate;
+@property (nonatomic, strong, nullable) NSNumber *parentSampleRate;
+
+/**
+ * Parent random value used to determine if the trace is sampled.
+ */
+@property (nonatomic, strong, nullable) NSNumber *parentSampleRand;
 
 /**
  * If app launch profiling is enabled via @c SentryOptions.enableAppLaunchProfiling and
@@ -59,6 +64,17 @@ SENTRY_NO_INIT
 /**
  * @param name Transaction name
  * @param operation The operation this span is measuring.
+ * @param sampled Determines whether the trace should be sampled.
+ */
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
+                     sampled:(SentrySampleDecision)sampled
+                  sampleRate:(nullable NSNumber *)sampleRate
+                  sampleRand:(nullable NSNumber *)sampleRand;
+
+/**
+ * @param name Transaction name
+ * @param operation The operation this span is measuring.
  * @param traceId Trace Id
  * @param spanId Span Id
  * @param parentSpanId Parent span id
@@ -70,6 +86,23 @@ SENTRY_NO_INIT
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled;
+
+/**
+ * @param name Transaction name
+ * @param operation The operation this span is measuring.
+ * @param traceId Trace Id
+ * @param spanId Span Id
+ * @param parentSpanId Parent span id
+ * @param parentSampled Whether the parent is sampled
+ */
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
+                     traceId:(SentryId *)traceId
+                      spanId:(SentrySpanId *)spanId
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
+               parentSampled:(SentrySampleDecision)parentSampled
+            parentSampleRate:(nullable NSNumber *)parentSampleRate
+            parentSampleRand:(nullable NSNumber *)parentSampleRand;
 
 @end
 

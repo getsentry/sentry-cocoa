@@ -372,26 +372,62 @@ class SentryHubTests: XCTestCase {
     
     func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
-        
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 1)
         XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
-    
+
+    func testCaptureTransaction_withSampleRateRand_CapturesEventAsync() throws {
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .yes,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        
+        XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 1)
+        XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+    }
+
     func testCaptureSampledTransaction_DoesNotCaptureEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
-        
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
+    func testCaptureSampledTransaction_withSampleRateRand_DoesNotCaptureEvent() throws {
+        // Arrange
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .no,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+        // Act
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        
+        // Assert
+        XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
+    }
+    
     func testCaptureSampledTransaction_RecordsLostEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
-        
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         
@@ -399,6 +435,28 @@ class SentryHubTests: XCTestCase {
         let lostEvent = fixture.client.recordLostEvents.first
         XCTAssertEqual(.transaction, lostEvent?.category)
         XCTAssertEqual(.sampleRate, lostEvent?.reason)
+    }
+    
+    func testCaptureSampledTransaction_withSampleRateRand_RecordsLostEvent() throws {
+        // Arrange
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .no,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+        // Act
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        
+        // Assert
+        XCTAssertEqual(1, fixture.client.recordLostEvents.count)
+        let lostEvent = fixture.client.recordLostEvents.first
+        XCTAssertEqual(lostEvent?.category, .transaction)
+        XCTAssertEqual(lostEvent?.reason, .sampleRate)
     }
     
     func testCaptureSampledTransaction_RecordsLostSpans() throws {
@@ -421,16 +479,74 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(.sampleRate, lostEvent?.reason)
         XCTAssertEqual(4, lostEvent?.quantity)
     }
+
+    func testCaptureSampledTransaction_withSampleRateRand_RecordsLostSpans() throws {
+        // Arrange
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .no,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+        // Act
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        
+        if let tracer = transaction as? SentryTracer {
+            (trans as? Transaction)?.spans = [
+                tracer.startChild(operation: "child1"),
+                tracer.startChild(operation: "child2"),
+                tracer.startChild(operation: "child3")
+            ]
+        }
+        
+        sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
+        
+        // Assert
+        XCTAssertEqual(1, fixture.client.recordLostEventsWithQauntity.count)
+        let lostEvent = fixture.client.recordLostEventsWithQauntity.first
+        XCTAssertEqual(lostEvent?.category, .span)
+        XCTAssertEqual(lostEvent?.reason, .sampleRate)
+        XCTAssertEqual(lostEvent?.quantity, 4)
+    }
     
     func testSaveCrashTransaction_SavesTransaction() throws {
         let scope = fixture.scope
         let sut = SentryHub(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
-        
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.saveCrash(try XCTUnwrap(trans as? Transaction))
         
+        let client = fixture.client
+        XCTAssertEqual(1, client.saveCrashTransactionInvocations.count)
+        XCTAssertEqual(scope, client.saveCrashTransactionInvocations.first?.scope)
+        XCTAssertEqual(0, client.recordLostEvents.count)
+    }
+    
+    func testSaveCrashTransaction_withSampleRateRand_SavesTransaction() throws {
+        // Arrange
+        let scope = fixture.scope
+        let sut = SentryHub(client: fixture.client, andScope: scope)
+        
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .yes,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+
+        // Act
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.saveCrash(try XCTUnwrap(trans as? Transaction))
+        
+        // Assert
         let client = fixture.client
         XCTAssertEqual(1, client.saveCrashTransactionInvocations.count)
         XCTAssertEqual(scope, client.saveCrashTransactionInvocations.first?.scope)
@@ -442,7 +558,27 @@ class SentryHubTests: XCTestCase {
         let sut = SentryHub(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.saveCrash(try XCTUnwrap(trans as? Transaction))
         
+        XCTAssertEqual(self.fixture.client.saveCrashTransactionInvocations.count, 0)
+    }
+
+    func testSaveCrashTransaction_NotSampledWithSampleRateRand_DoesNotSaveTransaction() throws {
+        let scope = fixture.scope
+        let sut = SentryHub(client: fixture.client, andScope: scope)
+        
+        let transaction = sut.startTransaction(
+            transactionContext: TransactionContext(
+                name: fixture.transactionName,
+                operation: fixture.transactionOperation,
+                sampled: .no,
+                sampleRate: 0.123456789,
+                sampleRand: 0.987654321
+            )
+        )
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.saveCrash(try XCTUnwrap(trans as? Transaction))
         

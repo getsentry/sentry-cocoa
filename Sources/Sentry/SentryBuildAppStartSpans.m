@@ -20,7 +20,9 @@ sentryBuildAppStartSpan(
                                          operation:operation
                                    spanDescription:description
                                             origin:SentryTraceOrigin.autoAppStart
-                                           sampled:tracer.sampled];
+                                           sampled:tracer.sampled
+                                        sampleRate:tracer.sampleRate
+                                        sampleRand:tracer.sampleRand];
 
     return [[SentrySpan alloc] initWithTracer:tracer context:context framesTracker:nil];
 }

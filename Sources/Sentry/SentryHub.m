@@ -393,8 +393,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
                                      withSampled:(SentrySampleDecision)sampleDecision
+                                      sampleRate:(NSNumber *)sampleRate
+                                      sampleRand:(NSNumber *)sampleRand
 {
-
     return [[SentryTransactionContext alloc] initWithName:context.name
                                                nameSource:context.nameSource
                                                 operation:context.operation
@@ -403,7 +404,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                    spanId:context.spanId
                                              parentSpanId:context.parentSpanId
                                                   sampled:sampleDecision
-                                            parentSampled:context.parentSampled];
+                                            parentSampled:context.parentSampled
+                                               sampleRate:sampleRate
+                                         parentSampleRate:context.parentSampleRate
+                                               sampleRand:sampleRand
+                                         parentSampleRand:context.parentSampleRand];
 }
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -418,8 +423,9 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySamplerDecision *tracesSamplerDecision
         = sentry_sampleTrace(samplingContext, self.client.options);
     transactionContext = [self transactionContext:transactionContext
-                                      withSampled:tracesSamplerDecision.decision];
-    transactionContext.sampleRate = tracesSamplerDecision.sampleRate;
+                                      withSampled:tracesSamplerDecision.decision
+                                       sampleRate:tracesSamplerDecision.sampleRate
+                                       sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentrySamplerDecision *profilesSamplerDecision
@@ -689,8 +695,10 @@ NS_ASSUME_NONNULL_BEGIN
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
                 if (_client.options.diagnosticLevel == kSentryLevelDebug) {
-                    SENTRY_LOG_DEBUG(@"Ending session with status: %@",
-                        [self createSessionDebugString:currentSession]);
+                    [SentryLog
+                        logWithMessage:[NSString stringWithFormat:@"Ending session with status: %@",
+                                           [self createSessionDebugString:currentSession]]
+                              andLevel:kSentryLevelDebug];
                 }
                 if (startNewSession) {
                     // Setting _session to nil so startSession doesn't capture it again

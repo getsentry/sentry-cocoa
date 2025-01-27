@@ -6,7 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithOperation:(NSString *)operation
                            origin:(NSString *)origin
-                          sampled:(SentrySampleDecision)sampled;
+                          sampled:(SentrySampleDecision)sampled
+                       sampleRate:(nullable NSNumber *)sampleRate
+                       sampleRand:(nullable NSNumber *)sampleRand;
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
@@ -14,7 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
                       operation:(NSString *)operation
                 spanDescription:(nullable NSString *)description
                          origin:(NSString *)origin
-                        sampled:(SentrySampleDecision)sampled;
+                        sampled:(SentrySampleDecision)sampled
+                     sampleRate:(nullable NSNumber *)sampleRate
+                     sampleRand:(nullable NSNumber *)sampleRand;
 
 @end
 

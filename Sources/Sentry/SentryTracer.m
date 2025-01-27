@@ -383,7 +383,9 @@ static BOOL appStartMeasurementRead;
                                           parentId:parentId
                                          operation:operation
                                    spanDescription:description
-                                           sampled:self.sampled];
+                                           sampled:self.sampled
+                                        sampleRate:nil
+                                        sampleRand:nil];
 
     SentrySpan *child =
         [[SentrySpan alloc] initWithTracer:self

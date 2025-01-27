@@ -34,12 +34,13 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_config(NSNumber *profilesRate)
+sentry_config(NSNumber *profilesRate, NSNumber *profilesRand)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
         [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                          forSampleRate:profilesRate];
+                                          forSampleRate:profilesRate
+                                         withSampleRand:profilesRand];
     return config;
 }
 
@@ -92,15 +93,16 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
 }
 
 SentryTransactionContext *
-sentry_context(NSNumber *tracesRate)
+sentry_context(NSNumber *tracesRate, NSNumber *tracesRand)
 {
     SentryTransactionContext *context =
         [[SentryTransactionContext alloc] initWithName:@"launch"
                                             nameSource:kSentryTransactionNameSourceCustom
                                              operation:SentrySpanOperation.appLifecycle
                                                 origin:SentryTraceOrigin.autoAppStartProfile
-                                               sampled:kSentrySampleDecisionYes];
-    context.sampleRate = tracesRate;
+                                               sampled:kSentrySampleDecisionYes
+                                            sampleRate:tracesRate
+                                            sampleRand:tracesRand];
     return context;
 }
 
@@ -153,9 +155,9 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
     sentry_isTracingAppLaunch = YES;
     sentry_launchTracer =
-        [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate)
+        [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate, @1.0)
                                                      hub:nil
-                                           configuration:sentry_config(profilesRate)];
+                                           configuration:sentry_config(profilesRate, @1.0)];
 }
 
 #    pragma mark - Public
