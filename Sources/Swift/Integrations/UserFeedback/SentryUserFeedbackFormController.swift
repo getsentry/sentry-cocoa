@@ -70,7 +70,7 @@ extension SentryUserFeedbackFormController {
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     public func addScreenshotTapped() {
         
-#if SENTRY_TEST || SENTRY_TEST_CI || TEST || TESTCI
+#if SENTRY_TEST || SENTRY_TEST_CI
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it. we also mock it for unit tests
         set(image: UIImage(), accessibilityInfo: "test image accessibility info")
 #else

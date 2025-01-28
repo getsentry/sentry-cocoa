@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Sentry
 import UIKit
 
@@ -241,7 +243,18 @@ extension SentrySDKWrapper {
         
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/feedback"
-        if !fm.fileExists(atPath: dir) {
+        let isDirectory = UnsafeMutablePointer<ObjCBool>.allocate(capacity: 1)
+        isDirectory.initialize(to: ObjCBool(false))
+        let exists = fm.fileExists(atPath: dir, isDirectory: isDirectory)
+        if exists, !isDirectory.pointee.boolValue {
+            print("[iOS-Swift] Found a file named \(dir) which is not a directory. Removing it...")
+            do {
+                try fm.removeItem(atPath: dir)
+            } catch {
+                print("[iOS-Swift] Couldn't remove existing file \(dir): \(error).")
+                return
+            }
+        } else if !exists {
             do {
                 try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
             } catch {
@@ -397,3 +410,5 @@ extension SentrySDKWrapper {
     
     var enableAppLaunchProfiling: Bool { args.contains("--profile-app-launches") }
 }
+
+// swiftlint:enable file_length

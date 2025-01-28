@@ -52,7 +52,6 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     typealias FeedbackAccessibilityHintTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
-    typealias FeedbackAccessibilityHintTestCaseExpectations = (expectedSubmitButtonAccessibilityHint: String, missingFieldsListing: [String]?, onSubmitSuccessInfoDictionary: [String: String]?, onSubmitErrorParameter: NSError?)
     typealias FeedbackAccessibilityHintTestCase = (config: FeedbackAccessibilityHintTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
     let inputCombinations: [FeedbackAccessibilityHintTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot

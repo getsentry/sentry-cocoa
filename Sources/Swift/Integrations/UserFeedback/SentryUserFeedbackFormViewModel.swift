@@ -424,12 +424,10 @@ extension SentryUserFeedbackFormViewModel {
             hint.append("at \(email)")
         } else if config.formConfig.isEmailRequired {
             missing.append(config.formConfig.emailLabel.lowercased())
+        } else if fullNameTextField.hasText {
+            hint.append("with no email address")
         } else {
-            if fullNameTextField.hasText {
-                hint.append("with no email address")
-            } else {
-                hint.append("or email address")
-            }
+            hint.append("or email address")
         }
         
         // include any details available for a screenshot, if included
