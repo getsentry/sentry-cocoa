@@ -30,7 +30,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 {
     return [self initWithName:name
                     operation:operation
-                      sampled:kSentrySampleDecisionUndecided
+                      sampled:sampled
                    sampleRate:nil
                    sampleRand:nil];
 }
@@ -156,9 +156,9 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
                            sampleRand:nil]) {
         [self commonInitWithName:name
                           source:source
-                   parentSampled:kSentrySampleDecisionUndecided
-                parentSampleRate:nil
-                parentSampleRand:nil];
+                   parentSampled:parentSampled
+                parentSampleRate:parentSampleRate
+                parentSampleRand:parentSampleRand];
     }
     return self;
 }

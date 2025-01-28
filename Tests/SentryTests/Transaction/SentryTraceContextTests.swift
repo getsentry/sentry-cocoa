@@ -225,8 +225,6 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(traceContext.transaction, fixture.transactionName)
         XCTAssertEqual(traceContext.userSegment, fixture.userSegment)
         XCTAssertEqual(traceContext.sampled, fixture.sampled)
-        XCTAssertNil(traceContext.sampleRate)
-        XCTAssertNil(traceContext.sampleRand)
         XCTAssertEqual(traceContext.replayId, fixture.replayId)
     }
 

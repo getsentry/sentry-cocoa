@@ -115,9 +115,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: .undecided,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -137,9 +137,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -164,9 +164,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -192,9 +192,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -215,16 +215,16 @@ class SentryTransactionContextTests: XCTestCase {
         // Assert
         assertFullContext(
             context: context,
-            expectedParentSpanId: nil,
+            expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: nil,
             expectedSampled: sampled,
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -247,13 +247,13 @@ class SentryTransactionContextTests: XCTestCase {
             expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
+            expectedSpanDescription: spanDescription,
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -282,9 +282,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
-            expectedName: nil,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -307,8 +307,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: nil,
             expectedSampleRand: nil,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -329,8 +329,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: nil,
             expectedSampleRand: nil,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -357,8 +357,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -384,9 +384,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -412,9 +412,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -442,9 +442,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
-            expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -472,9 +472,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedName: "",
+            expectedNameSource: SentryTransactionNameSource.custom,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -502,8 +502,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: nil,
             expectedSampleRand: nil,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: nameSource,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -532,8 +532,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: sampleRate,
             expectedSampleRand: sampleRand,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: nameSource,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -562,8 +562,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRate: nil,
             expectedSampleRand: nil,
             expectedName: transactionName,
-            expectedNameSource: nil,
-            expectedParentSampled: nil,
+            expectedNameSource: nameSource,
+            expectedParentSampled: .undecided,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -591,9 +591,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: origin,
             expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
+            expectedSampled: .undecided,
+            expectedSampleRate: nil,
+            expectedSampleRand: nil,
             expectedName: transactionName,
             expectedNameSource: nameSource,
             expectedParentSampled: parentSampled,
@@ -624,9 +624,9 @@ class SentryTransactionContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: origin,
             expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
+            expectedSampled: .undecided,
+            expectedSampleRate: nil,
+            expectedSampleRand: nil,
             expectedName: transactionName,
             expectedNameSource: nameSource,
             expectedParentSampled: parentSampled,
@@ -701,7 +701,7 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampleRand: nil,
             expectedName: transactionName,
             expectedNameSource: nameSource,
-            expectedParentSampled: nil,
+            expectedParentSampled: parentSampled,
             expectedParentSampleRate: nil,
             expectedParentSampleRand: nil
         )
@@ -780,7 +780,7 @@ class SentryTransactionContextTests: XCTestCase {
         XCTAssertEqual(data["trace_id"] as? String, TransactionContext.traceId.sentryIdString)
         XCTAssertEqual(data["span_id"] as? String, TransactionContext.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
-        XCTAssertNil(data["origin"])
+        XCTAssertEqual(data["origin"] as? String, "manual")
         XCTAssertNil(data["sampled"])
         XCTAssertNil(data["sample_rate"])
         XCTAssertNil(data["sample_rand"])
@@ -877,35 +877,35 @@ class SentryTransactionContextTests: XCTestCase {
         expectedSampleRate: NSNumber?,
         expectedSampleRand: NSNumber?,
 
-        expectedName: String?,
+        expectedName: String,
         expectedNameSource: SentryTransactionNameSource?,
-        expectedParentSampled: SentrySampleDecision?,
+        expectedParentSampled: SentrySampleDecision,
         expectedParentSampleRate: NSNumber?,
         expectedParentSampleRand: NSNumber?,
 
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        XCTAssertNotNil(context.traceId, file: file, line: line)
-        XCTAssertNotNil(context.spanId, file: file, line: line)
+        XCTAssertNotNil(context.traceId, "Trace ID is nil", file: file, line: line)
+        XCTAssertNotNil(context.spanId, "Span ID is nil", file: file, line: line)
         if let expectedParentSpanId = expectedParentSpanId {
-            XCTAssertEqual(context.parentSpanId, expectedParentSpanId, file: file, line: line)
+            XCTAssertEqual(context.parentSpanId, expectedParentSpanId, "Parent Span ID is nil", file: file, line: line)
         } else {
-            XCTAssertNil(context.parentSpanId, file: file, line: line)
+            XCTAssertNil(context.parentSpanId, "Parent Span ID is not nil", file: file, line: line)
         }
 
-        XCTAssertEqual(context.sampled, expectedSampled, file: file, line: line)
-        XCTAssertEqual(context.sampleRate, expectedSampleRate, file: file, line: line)
-        XCTAssertEqual(context.sampleRand, expectedSampleRand, file: file, line: line)
+        XCTAssertEqual(context.sampled, expectedSampled, "Sampled is not equal", file: file, line: line)
+        XCTAssertEqual(context.sampleRate, expectedSampleRate, "Sample Rate is not equal", file: file, line: line)
+        XCTAssertEqual(context.sampleRand, expectedSampleRand, "Sample Rand is not equal", file: file, line: line)
 
-        XCTAssertEqual(context.operation, expectedOperation, file: file, line: line)
-        XCTAssertEqual(context.spanDescription, expectedSpanDescription, file: file, line: line)
-        XCTAssertEqual(context.origin, expectedOrigin, file: file, line: line)
+        XCTAssertEqual(context.operation, expectedOperation, "Operation is not equal", file: file, line: line)
+        XCTAssertEqual(context.spanDescription, expectedSpanDescription, "Span Description is not equal", file: file, line: line)
+        XCTAssertEqual(context.origin, expectedOrigin, "Origin is not equal", file: file, line: line)
 
-        XCTAssertEqual(context.name, expectedName, file: file, line: line)
-        XCTAssertEqual(context.nameSource, expectedNameSource, file: file, line: line)
-        XCTAssertEqual(context.parentSampled, expectedParentSampled, file: file, line: line)
-        XCTAssertEqual(context.parentSampleRate, expectedParentSampleRate, file: file, line: line)
-        XCTAssertEqual(context.parentSampleRand, expectedParentSampleRand, file: file, line: line)
+        XCTAssertEqual(context.name, expectedName, "Name is not equal", file: file, line: line)
+        XCTAssertEqual(context.nameSource, expectedNameSource, "Name Source is not equal", file: file, line: line)
+        XCTAssertEqual(context.parentSampled, expectedParentSampled, "Parent Sampled is not equal", file: file, line: line)
+        XCTAssertEqual(context.parentSampleRate, expectedParentSampleRate, "Parent Sample Rate is not equal", file: file, line: line)
+        XCTAssertEqual(context.parentSampleRand, expectedParentSampleRand, "Parent Sample Rand is not equal", file: file, line: line)
     }
 }

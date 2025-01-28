@@ -207,7 +207,7 @@ class SentrySpanContextTests: XCTestCase {
         // Assert
         assertContext(
             context: context,
-            expectedParentSpanId: nil,
+            expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: nil,
@@ -234,7 +234,7 @@ class SentrySpanContextTests: XCTestCase {
             expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
+            expectedSpanDescription: spanDescription,
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil
@@ -274,7 +274,7 @@ class SentrySpanContextTests: XCTestCase {
         let spanContext = SpanContext(
             trace: traceID,
             spanId: spanID,
-            parentId: parentSpanID,
+            parentId: nil,
             operation: operation,
             spanDescription: nil,
             sampled: .undecided,
@@ -307,9 +307,9 @@ class SentrySpanContextTests: XCTestCase {
         // Assert
         XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(data["trace_id"] as? String, spanContext.traceId.sentryIdString)
-        XCTAssertEqual(data["span_id"] as? String, spanContext.traceId.sentryIdString)
+        XCTAssertEqual(data["span_id"] as? String, spanContext.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
-        XCTAssertNil(data["origin"])
+        XCTAssertEqual(data["origin"] as? String, "manual")
         XCTAssertNil(data["sampled"])
         XCTAssertNil(data["sample_rate"])
         XCTAssertNil(data["sample_rand"])
@@ -389,20 +389,20 @@ class SentrySpanContextTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        XCTAssertNotNil(context.traceId, file: file, line: line)
-        XCTAssertNotNil(context.spanId, file: file, line: line)
+        XCTAssertNotNil(context.traceId, "Trace ID is nil", file: file, line: line)
+        XCTAssertNotNil(context.spanId, "Span ID is nil", file: file, line: line)
         if let expectedParentSpanId = expectedParentSpanId {
-            XCTAssertEqual(context.parentSpanId, expectedParentSpanId, file: file, line: line)
+            XCTAssertEqual(context.parentSpanId, expectedParentSpanId, "Parent span ID does not match", file: file, line: line)
         } else {
-            XCTAssertNil(context.parentSpanId, file: file, line: line)
+            XCTAssertNil(context.parentSpanId, "Parent span ID is not nil", file: file, line: line)
         }
 
-        XCTAssertEqual(context.sampled, expectedSampled, file: file, line: line)
-        XCTAssertEqual(context.sampleRate, expectedSampleRate, file: file, line: line)
-        XCTAssertEqual(context.sampleRand, expectedSampleRand, file: file, line: line)
+        XCTAssertEqual(context.sampled, expectedSampled, "Sample ID does not match", file: file, line: line)
+        XCTAssertEqual(context.sampleRate, expectedSampleRate, "Sample rate does not match", file: file, line: line)
+        XCTAssertEqual(context.sampleRand, expectedSampleRand, "Sample rand does not match", file: file, line: line)
 
-        XCTAssertEqual(context.operation, expectedOperation, file: file, line: line)
-        XCTAssertEqual(context.spanDescription, expectedSpanDescription, file: file, line: line)
-        XCTAssertEqual(context.origin, expectedOrigin, file: file, line: line)
+        XCTAssertEqual(context.operation, expectedOperation, "Operation does not match", file: file, line: line)
+        XCTAssertEqual(context.spanDescription, expectedSpanDescription, "Span description does not match", file: file, line: line)
+        XCTAssertEqual(context.origin, expectedOrigin, "Origin does not match", file: file, line: line)
     }
 }
