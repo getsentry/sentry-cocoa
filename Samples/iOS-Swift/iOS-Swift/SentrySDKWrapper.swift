@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Sentry
 import UIKit
 
@@ -138,7 +140,6 @@ extension SentrySDKWrapper {
             } else {
                 config.labelText = "Report Jank"
             }
-            config.widgetAccessibilityLabel = "io.sentry.iOS-Swift.button.report-jank"
             config.layoutUIOffset = layoutOffset
         } else {
             config.autoInject = false
@@ -211,10 +212,10 @@ extension SentrySDKWrapper {
     
     func configureHooks(config: SentryUserFeedbackConfiguration) {
         config.onFormOpen = {
-            createHookFile(name: "onFormOpen")
+            updateHookMarkers(forEvent: "onFormOpen")
         }
         config.onFormClose = {
-            createHookFile(name: "onFormClose")
+            updateHookMarkers(forEvent: "onFormClose")
         }
         config.onSubmitSuccess = { info in
             let name = info["name"] ?? "$shakespearean_insult_name"
@@ -222,7 +223,7 @@ extension SentrySDKWrapper {
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
             let jsonData = (try? JSONSerialization.data(withJSONObject: info, options: .sortedKeys)) ?? Data()
-            createHookFile(name: "onSubmitSuccess", with: jsonData.base64EncodedString())
+            updateHookMarkers(forEvent: "onSubmitSuccess", with: jsonData.base64EncodedString())
         }
         config.onSubmitError = { error in
             let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
@@ -230,11 +231,11 @@ extension SentrySDKWrapper {
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
             let nserror = error as NSError
             let missingFieldsSorted = (nserror.userInfo["missing_fields"] as? [String])?.sorted().joined(separator: ";") ?? ""
-            createHookFile(name: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(missingFieldsSorted)")
+            updateHookMarkers(forEvent: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(missingFieldsSorted)")
         }
     }
     
-    func createHookFile(name: String, with contents: String? = nil) {
+    func updateHookMarkers(forEvent name: String, with contents: String? = nil) {
         guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
             print("[iOS-Swift] Couldn't retrieve path to application support directory.")
             return
@@ -242,41 +243,56 @@ extension SentrySDKWrapper {
         
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/feedback"
-        do {
-            try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
-        } catch {
-            print("[iOS-Swift] Couldn't create directory structure for user feedback form hook marker files: \(error).")
-            return
+        let isDirectory = UnsafeMutablePointer<ObjCBool>.allocate(capacity: 1)
+        isDirectory.initialize(to: ObjCBool(false))
+        let exists = fm.fileExists(atPath: dir, isDirectory: isDirectory)
+        if exists, !isDirectory.pointee.boolValue {
+            print("[iOS-Swift] Found a file named \(dir) which is not a directory. Removing it...")
+            do {
+                try fm.removeItem(atPath: dir)
+            } catch {
+                print("[iOS-Swift] Couldn't remove existing file \(dir): \(error).")
+                return
+            }
+        } else if !exists {
+            do {
+                try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+            } catch {
+                print("[iOS-Swift] Couldn't create directory structure for user feedback form hook marker files: \(error).")
+                return
+            }
         }
         
-        let path = "\(dir)/\(name)"
+        createHookFile(path: "\(dir)/\(name)", contents: contents)
+        
+        switch name {
+        case "onFormOpen": removeHookFile(path: "\(dir)/onFormClose")
+        case "onFormClose": removeHookFile(path: "\(dir)/onFormOpen")
+        case "onSubmitSuccess": removeHookFile(path: "\(dir)/onSubmitError")
+        case "onSubmitError": removeHookFile(path: "\(dir)/onSubmitSuccess")
+        default: fatalError("Unexpected marker file name")
+        }
+    }
+    
+    func createHookFile(path: String, contents: String?) {
         if let contents = contents {
             do {
                 try contents.write(to: URL(fileURLWithPath: path), atomically: false, encoding: .utf8)
             } catch {
                 print("[iOS-Swift] Couldn't write contents into user feedback form hook marker file at \(path).")
             }
-        } else if !fm.createFile(atPath: path, contents: nil) {
+        } else if !FileManager.default.createFile(atPath: path, contents: nil) {
             print("[iOS-Swift] Couldn't create user feedback form hook marker file at \(path).")
         } else {
             print("[iOS-Swift] Created user feedback form hook marker file at \(path).")
         }
-        
-        func removeHookFile(name: String) {
-            let path = "\(dir)/\(name)"
-            do {
-                try fm.removeItem(atPath: path)
-            } catch {
-                print("[iOS-Swift] Couldn't remove user feedback form hook marker file \(path): \(error).")
-            }
-        }
-        
-        switch name {
-        case "onFormOpen": removeHookFile(name: "onFormClose")
-        case "onFormClose": removeHookFile(name: "onFormOpen")
-        case "onSubmitSuccess": removeHookFile(name: "onSubmitError")
-        case "onSubmitError": removeHookFile(name: "onSubmitSuccess")
-        default: fatalError("Unexpected marker file name")
+    }
+    
+    func removeHookFile(path: String) {
+        do {
+            try FileManager.default.removeItem(atPath: path)
+        } catch {
+            print("[iOS-Swift] Couldn't remove user feedback form hook marker file \(path): \(error).")
         }
     }
 }
@@ -394,3 +410,5 @@ extension SentrySDKWrapper {
     
     var enableAppLaunchProfiling: Bool { args.contains("--profile-app-launches") }
 }
+
+// swiftlint:enable file_length
