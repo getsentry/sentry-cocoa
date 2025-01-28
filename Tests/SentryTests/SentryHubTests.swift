@@ -372,6 +372,7 @@ class SentryHubTests: XCTestCase {
     
     func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
         

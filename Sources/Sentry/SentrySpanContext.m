@@ -224,7 +224,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     return mutabledictionary;
 }
-
 @end
 
 NS_ASSUME_NONNULL_END
