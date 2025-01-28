@@ -6,7 +6,7 @@
 
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
-- missing `SentryCrashExceptionApplication` implementation for non-macOS target ()
+- Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
 
 ### Improvements
 
