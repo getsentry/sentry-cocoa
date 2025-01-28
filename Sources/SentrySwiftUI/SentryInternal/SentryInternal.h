@@ -24,8 +24,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
-
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
