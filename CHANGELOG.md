@@ -9,7 +9,7 @@
 
 ### Features
 
-- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking ()
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
 
 ## 8.44.0-beta.1
 
