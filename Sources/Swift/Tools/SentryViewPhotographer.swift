@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-public protocol ViewRenderer {
+protocol ViewRenderer {
     func render(view: UIView) -> UIImage
 }
 
@@ -20,7 +20,7 @@ class DefaultViewRenderer: ViewRenderer {
 }
 
 @objcMembers
-public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let redactBuilder: UIRedactBuilder
     private let dispatchQueue = SentryDispatchQueueWrapper()
 

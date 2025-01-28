@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start;
 
+- (void)showMaskPreview:(CGFloat)opacity;
+
 @end
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 NS_ASSUME_NONNULL_END

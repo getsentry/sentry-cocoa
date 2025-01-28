@@ -8,7 +8,8 @@
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 
 ### Features
-- Session replay masking preview for SwiftUI (#4737)
+
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking ()
 
 ## 8.44.0-beta.1
 

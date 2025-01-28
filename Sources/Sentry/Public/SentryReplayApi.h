@@ -56,6 +56,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)stop;
 
+/**
+ * Shows a overlay on the app the debug session replay masking.
+ */
+- (void)showMaskPreview;
+
+/**
+ * Shows a overlay on the app to debug session replay masking
+ * with given overlay opacity.
+ */
+- (void)showMaskPreview:(CGFloat)opacity;
+
 @end
 
 NS_ASSUME_NONNULL_END

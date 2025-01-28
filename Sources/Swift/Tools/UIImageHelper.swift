@@ -25,9 +25,8 @@ final class UIImageHelper {
         let blue = CGFloat(data[0]) / 255.0
         let green = CGFloat(data[1]) / 255.0
         let red = CGFloat(data[2]) / 255.0
-        let alpha = CGFloat(data[3]) / 255.0
         
-        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        return UIColor(red: red, green: green, blue: blue, alpha: 1)
     }
 
 }

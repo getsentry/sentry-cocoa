@@ -239,7 +239,7 @@ class UIRedactBuilder {
     }
     
     private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
-        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else { return }
+        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView, !(view is SentryMaskingPreviewView) else { return }
         
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         
