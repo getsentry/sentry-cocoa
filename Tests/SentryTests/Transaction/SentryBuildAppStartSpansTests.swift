@@ -1,6 +1,7 @@
 @testable import Sentry
 import XCTest
 
+#if canImport(UIKit)
 class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNil_shouldNotReturnAnySpans() {
@@ -325,3 +326,4 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         XCTAssertEqual(span.sampleRand, expectedSampleRand, "SampleRand does not match", file: file, line: line)
     }
 }
+#endif
