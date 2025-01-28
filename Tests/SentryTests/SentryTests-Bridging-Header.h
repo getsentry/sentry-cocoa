@@ -146,6 +146,8 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataUtils.h"
+#import "SentryNSDictionarySanitize+Tests.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"

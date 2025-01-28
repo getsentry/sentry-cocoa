@@ -8,6 +8,10 @@ NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)
         return nil;
     }
 
+    if ([dictionary isEqual:[NSNull null]]) {
+        return nil;
+    }
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     for (id rawKey in dictionary.allKeys) {
         id rawValue = [dictionary objectForKey:rawKey];
