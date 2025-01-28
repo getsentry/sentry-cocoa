@@ -73,15 +73,17 @@
     [replayIntegration stop];
 }
 
-- (void)showMaskPreview {
+- (void)showMaskPreview
+{
     [self showMaskPreview:1];
 }
 
-- (void)showMaskPreview:(CGFloat)opacity {
+- (void)showMaskPreview:(CGFloat)opacity
+{
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
-    
+
     [replayIntegration showMaskPreview:opacity];
 }
 
