@@ -578,7 +578,10 @@ class SentryTransactionContextTests: XCTestCase {
             origin: origin,
             trace: traceID,
             spanId: spanID,
-            parentSpanId: parentSpanID
+            parentSpanId: parentSpanID,
+            parentSampled: parentSampled,
+            parentSampleRate: parentSampleRate,
+            parentSampleRand: parentSampleRand
         )
 
         // Assert
@@ -608,7 +611,10 @@ class SentryTransactionContextTests: XCTestCase {
             origin: origin,
             trace: traceID,
             spanId: spanID,
-            parentSpanId: nil
+            parentSpanId: nil,
+            parentSampled: parentSampled,
+            parentSampleRate: nil,
+            parentSampleRand: nil
         )
 
         // Assert
@@ -624,8 +630,8 @@ class SentryTransactionContextTests: XCTestCase {
             expectedName: transactionName,
             expectedNameSource: nameSource,
             expectedParentSampled: parentSampled,
-            expectedParentSampleRate: parentSampleRate,
-            expectedParentSampleRand: parentSampleRand
+            expectedParentSampleRate: nil,
+            expectedParentSampleRand: nil
         )
     }
 
@@ -772,7 +778,7 @@ class SentryTransactionContextTests: XCTestCase {
         // Assert
         XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(data["trace_id"] as? String, TransactionContext.traceId.sentryIdString)
-        XCTAssertEqual(data["span_id"] as? String, TransactionContext.spanId.sentryIdString)
+        XCTAssertEqual(data["span_id"] as? String, TransactionContext.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
         XCTAssertNil(data["origin"])
         XCTAssertNil(data["sampled"])
