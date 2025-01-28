@@ -828,7 +828,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 - (NSString *)debugDescription
 {
     NSMutableString *propertiesDescription = [NSMutableString string];
@@ -850,5 +850,5 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     }
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
-#endif // defined(DEBUG) || defined(TEST) || defined(TESTCI)
+#endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 @end

@@ -9,13 +9,13 @@ extension Sentry.SentryLog {
     }
     
     static func setLogOutput(_ output: SentryLogOutput) {
-        #if TEST || TESTCI
+        #if SENTRY_TEST || SENTRY_TEST_CI
         SentryLog.setOutput(output)
         #endif
     }
     
     static func getLogOutput() -> SentryLogOutput {
-        #if TEST || TESTCI
+        #if SENTRY_TEST || SENTRY_TEST_CI
         return SentryLog.getOutput()
         #else
         SentryLogOutput()

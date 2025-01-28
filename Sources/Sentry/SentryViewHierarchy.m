@@ -144,7 +144,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
-                [[SwiftDescriptor getObjectClassName:vc] UTF8String];
+                [[SwiftDescriptor getViewControllerClassName:vc] UTF8String];
             tryJson(sentrycrashjson_addStringElement(context, "view_controller",
                 viewControllerClassName, SentryCrashJSON_SIZE_AUTOMATIC));
         }

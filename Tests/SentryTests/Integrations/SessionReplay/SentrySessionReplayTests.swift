@@ -253,6 +253,25 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertFalse(fixture.displayLink.isRunning())
     }
     
+    func testSdkInfoIsSet() throws {
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.sdkInfo = ["version": "6.0.1", "name": "sentry.test"]
+        
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        
+        let event = try XCTUnwrap(fixture.lastReplayEvent)
+        
+        XCTAssertEqual(event.sdk?["version"] as? String, "6.0.1")
+        XCTAssertEqual(event.sdk?["name"] as? String, "sentry.test")
+    }
+    
     func testSaveScreenShotInBufferMode() {
         let fixture = Fixture()
         
@@ -428,6 +447,8 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNil(options["maskedViewClasses"])
         XCTAssertNil(options["unmaskedViewClasses"])
         XCTAssertEqual(options["quality"] as? String, "medium")
+        XCTAssertEqual(options["nativeSdkName"] as? String, SentryMeta.sdkName)
+        XCTAssertEqual(options["nativeSdkVersion"] as? String, SentryMeta.versionString)
     }
     
     func testOptionsInTheEventAllChanged() throws {
@@ -458,6 +479,26 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(options["maskedViewClasses"] as? String, "UIView")
         XCTAssertEqual(options["unmaskedViewClasses"] as? String, "UITextField, UITextView")
         XCTAssertEqual(options["quality"] as? String, "high")
+    }
+    
+    func testCustomOptionsInTheEvent() throws {
+        let fixture = Fixture()
+        
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        sut.replayTags = ["SomeOption": "SomeValue", "AnotherOption": "AnotherValue"]
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+
+        let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
+        XCTAssertEqual(breadCrumbRREvents.count, 1)
+        
+        let options = try XCTUnwrap(breadCrumbRREvents.first?.data?["payload"] as? [String: Any])
+        
+        XCTAssertEqual(options["SomeOption"] as? String, "SomeValue")
+        XCTAssertEqual(options["AnotherOption"] as? String, "AnotherValue")
     }
     
     func testOptionsNotInSegmentsOtherThanZero() throws {

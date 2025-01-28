@@ -486,6 +486,11 @@ static SentryTouchTracker *_touchTracker;
     }
 }
 
+- (void)setReplayTags:(NSDictionary<NSString *, id> *)tags
+{
+    self.sessionReplay.replayTags = [tags copy];
+}
+
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionEnableReplay;
@@ -522,7 +527,7 @@ static SentryTouchTracker *_touchTracker;
 #    pragma clang diagnostic pop
 }
 
-#    if TEST || TESTCI
+#    if SENTRY_TEST || SENTRY_TEST_CI
 - (SentryTouchTracker *)getTouchTracker
 {
     return _touchTracker;
