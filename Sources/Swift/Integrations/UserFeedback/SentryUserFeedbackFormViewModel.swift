@@ -290,11 +290,11 @@ class SentryUserFeedbackFormViewModel: NSObject {
             messagePlaceholderLeadingConstraint,
             messagePlaceholderTopConstraint,
             messagePlaceholderTrailingConstraint,
-            messagePlaceholderBottomConstraint,
-            
+            messagePlaceholderBottomConstraint
+        ] + (canRequestAuthorizationToAttachPhotos ? [
             screenshotImageView.heightAnchor.constraint(equalTo: addScreenshotButton.heightAnchor),
             screenshotImageAspectRatioConstraint
-        ]
+        ] : [])
     }
 }
 

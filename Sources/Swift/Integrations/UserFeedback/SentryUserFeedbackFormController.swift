@@ -155,6 +155,10 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        defer {
+            dismiss(animated: config.animations)
+        }
+        
         guard let photo = info[.editedImage] as? UIImage else {
             SentryLog.warning("Could not get edited image from photo picker.")
             return
