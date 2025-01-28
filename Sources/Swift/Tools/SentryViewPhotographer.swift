@@ -26,18 +26,18 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
 
     var renderer: ViewRenderer
         
-    public init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
+    init(renderer: ViewRenderer, redactOptions: SentryRedactOptions) {
         self.renderer = renderer
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
     
-    public init(redactOptions: SentryRedactOptions) {
+    init(redactOptions: SentryRedactOptions) {
         self.renderer = DefaultViewRenderer()
         self.redactBuilder = UIRedactBuilder(options: redactOptions)
     }
     
-    public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let redact = redactBuilder.redactRegionsFor(view: view)
         let image = renderer.render(view: view)
         let viewSize = view.bounds.size

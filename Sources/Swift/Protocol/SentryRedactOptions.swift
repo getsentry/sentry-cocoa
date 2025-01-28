@@ -10,8 +10,8 @@ public protocol SentryRedactOptions {
 
 @objcMembers
 final class SentryRedactDefaultOptions: NSObject, SentryRedactOptions {
-    public var maskAllText: Bool = true
-    public var maskAllImages: Bool = true
-    public var maskedViewClasses: [AnyClass] = []
-    public var unmaskedViewClasses: [AnyClass] = []
+    var maskAllText: Bool = true
+    var maskAllImages: Bool = true
+    var maskedViewClasses: [AnyClass] = []
+    var unmaskedViewClasses: [AnyClass] = []
 }
