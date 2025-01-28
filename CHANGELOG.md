@@ -6,6 +6,7 @@
 
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
+- Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
 - Fix missing `sample_rate` in baggage (#4751)
 
 ### Improvements
