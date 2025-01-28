@@ -11,5 +11,3 @@
 @interface SentryCrashExceptionApplication : NSApplication
 @end
 #endif
-
-
