@@ -19,9 +19,11 @@
 @class SentryEnvelope;
 @class SentryId;
 @class SentrySessionReplayIntegration;
+@class UIView;
 
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryViewScreenshotProvider;
+@protocol SentryRedactOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -179,6 +181,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Allow Hybrids SDKs to set the current Screen.
  */
 + (void)setCurrentScreen:(NSString *)screenName;
+
+/**
+ * Return an instance of SentryRedactOptions with given option
+ */
++ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options;
 
 #endif // SENTRY_UIKIT_AVAILABLE
 

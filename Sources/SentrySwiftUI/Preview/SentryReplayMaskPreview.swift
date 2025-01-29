@@ -34,7 +34,7 @@ struct SentryReplayPreviewView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: SentryReplayMaskPreviewUIView, context: Context) {
-        uiView.opacity = opacity
+        uiView.opacity = CGFloat(opacity)
     }
 }
 

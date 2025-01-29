@@ -6,6 +6,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #if __has_include(<Sentry/Sentry.h>)
 #    import <Sentry/Sentry.h>
