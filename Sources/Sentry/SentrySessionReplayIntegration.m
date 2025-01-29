@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
+#    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
@@ -618,6 +619,10 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)showMaskPreview:(CGFloat)opacity
 {
+    if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced] == NO) {
+        return;
+    }
+
     UIWindow *window = SentryDependencyContainer.sharedInstance.application.windows.firstObject;
     if (window == nil) {
         SENTRY_LOG_WARN(@"There is no UIWindow available to display preview");
