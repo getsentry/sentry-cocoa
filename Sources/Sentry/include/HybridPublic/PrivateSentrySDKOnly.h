@@ -184,7 +184,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
  * Return an instance of SentryRedactOptions with given option
@@ -192,10 +192,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * `SentryRedactOptions` class.
  */
 + (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options;
-
-#endif
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
  * Configure session replay with different breadcrumb converter

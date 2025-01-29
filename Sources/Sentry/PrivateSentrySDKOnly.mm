@@ -320,16 +320,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 + (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options
 {
     return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
 }
 
-#endif
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
