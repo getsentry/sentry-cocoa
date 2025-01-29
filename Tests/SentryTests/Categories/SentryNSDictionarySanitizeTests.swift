@@ -101,7 +101,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         XCTAssertEqual(sanitized?["key"] as? String, "value")
     }
 
-    func testSentrySanitize_dictionaryValueIsNumber_shouldUseValueDescription() {
+    func testSentrySanitize_dictionaryValueIsNumber_shouldUseValue() {
         // Arrange
         let dict = ["key": 123]
         // Act
