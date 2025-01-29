@@ -69,7 +69,8 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithName:(NSString *)name
                    operation:(NSString *)operation
-                     sampled:(SentrySampleDecision)sampled;
+                     sampled:(SentrySampleDecision)sampled
+    DEPRECATED_MSG_ATTRIBUTE("Use initWithName:operation:sampled:sampleRate:sampleRand instead");
 
 /**
  * @param name Transaction name
@@ -95,7 +96,10 @@ SENTRY_NO_INIT
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
-               parentSampled:(SentrySampleDecision)parentSampled;
+               parentSampled:(SentrySampleDecision)parentSampled
+    DEPRECATED_MSG_ATTRIBUTE("Use "
+                             "initWithName:operation:traceId:spanId:parentSpanId:parentSampled:"
+                             "parentSampleRate:parentSampleRand instead");
 
 /**
  * @param name Transaction name
