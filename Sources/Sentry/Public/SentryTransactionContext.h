@@ -22,6 +22,16 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) SentryTransactionNameSource nameSource;
 
 /**
+ * Rate of sampling
+ */
+@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
+
+/**
+ * Random value used to determine if the span is sampled.
+ */
+@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRand;
+
+/**
  * Parent sampled
  */
 @property (nonatomic) SentrySampleDecision parentSampled;

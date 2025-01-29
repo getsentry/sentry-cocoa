@@ -17,21 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled
 {
-    return [self initWithOperation:operation sampled:sampled sampleRate:nil sampleRand:nil];
-}
-
-- (instancetype)initWithOperation:(NSString *)operation
-                          sampled:(SentrySampleDecision)sampled
-                       sampleRate:(nullable NSNumber *)sampleRate
-                       sampleRand:(nullable NSNumber *)sampleRand
-{
     return [self initWithTraceId:[[SentryId alloc] init]
                           spanId:[[SentrySpanId alloc] init]
                         parentId:nil
                        operation:operation
-                         sampled:sampled
-                      sampleRate:sampleRate
-                      sampleRand:sampleRand];
+                         sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -39,32 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
                        parentId:(nullable SentrySpanId *)parentId
                       operation:(NSString *)operation
                         sampled:(SentrySampleDecision)sampled
-{
-    return [self initWithTraceId:traceId
-                          spanId:spanId
-                        parentId:parentId
-                       operation:operation
-                         sampled:sampled
-                      sampleRate:nil
-                      sampleRand:nil];
-}
-
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                       parentId:(nullable SentrySpanId *)parentId
-                      operation:(NSString *)operation
-                        sampled:(SentrySampleDecision)sampled
-                     sampleRate:(nullable NSNumber *)sampleRate
-                     sampleRand:(nullable NSNumber *)sampleRand
 {
     return [self initWithTraceId:traceId
                           spanId:spanId
                         parentId:parentId
                        operation:operation
                  spanDescription:nil
-                         sampled:sampled
-                      sampleRate:sampleRate
-                      sampleRand:sampleRand];
+                         sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -80,29 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                        operation:operation
                  spanDescription:description
                           origin:SentryTraceOrigin.manual
-                         sampled:sampled
-                      sampleRate:nil
-                      sampleRand:nil];
-}
-
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                       parentId:(nullable SentrySpanId *)parentId
-                      operation:(NSString *)operation
-                spanDescription:(nullable NSString *)description
-                        sampled:(SentrySampleDecision)sampled
-                     sampleRate:(nullable NSNumber *)sampleRate
-                     sampleRand:(nullable NSNumber *)sampleRand
-{
-    return [self initWithTraceId:traceId
-                          spanId:spanId
-                        parentId:parentId
-                       operation:operation
-                 spanDescription:description
-                          origin:SentryTraceOrigin.manual
-                         sampled:sampled
-                      sampleRate:sampleRate
-                      sampleRand:sampleRand];
+                         sampled:sampled];
 }
 
 #pragma mark - Private
@@ -117,26 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
                        operation:operation
                  spanDescription:nil
                           origin:origin
-                         sampled:sampled
-                      sampleRate:nil
-                      sampleRand:nil];
-}
-
-- (instancetype)initWithOperation:(NSString *)operation
-                           origin:(NSString *)origin
-                          sampled:(SentrySampleDecision)sampled
-                       sampleRate:(nullable NSNumber *)sampleRate
-                       sampleRand:(nullable NSNumber *)sampleRand
-{
-    return [self initWithTraceId:[[SentryId alloc] init]
-                          spanId:[[SentrySpanId alloc] init]
-                        parentId:nil
-                       operation:operation
-                 spanDescription:nil
-                          origin:origin
-                         sampled:sampled
-                      sampleRate:sampleRate
-                      sampleRand:sampleRand];
+                         sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -146,35 +76,12 @@ NS_ASSUME_NONNULL_BEGIN
                 spanDescription:(nullable NSString *)description
                          origin:(NSString *)origin
                         sampled:(SentrySampleDecision)sampled
-{
-    return [self initWithTraceId:traceId
-                          spanId:spanId
-                        parentId:parentId
-                       operation:operation
-                 spanDescription:description
-                          origin:origin
-                         sampled:sampled
-                      sampleRate:nil
-                      sampleRand:nil];
-}
-
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                       parentId:(nullable SentrySpanId *)parentId
-                      operation:(NSString *)operation
-                spanDescription:(nullable NSString *)description
-                         origin:(NSString *)origin
-                        sampled:(SentrySampleDecision)sampled
-                     sampleRate:(nullable NSNumber *)sampleRate
-                     sampleRand:(nullable NSNumber *)sampleRand
 {
     if (self = [super init]) {
         _traceId = traceId;
         _spanId = spanId;
         _parentSpanId = parentId;
         _sampled = sampled;
-        _sampleRate = sampleRate;
-        _sampleRand = sampleRand;
         _operation = operation;
         _spanDescription = description;
         _origin = origin;
@@ -202,16 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
     // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided) {
         [mutabledictionary setValue:valueForSentrySampleDecision(self.sampled) forKey:@"sampled"];
-    }
-
-    if (self.sampleRate != nil) {
-        [mutabledictionary setValue:[NSString stringWithFormat:@"%f", self.sampleRate.floatValue]
-                             forKey:@"sample_rate"];
-    }
-
-    if (self.sampleRand != nil) {
-        [mutabledictionary setValue:[NSString stringWithFormat:@"%f", self.sampleRate.floatValue]
-                             forKey:@"sample_rand"];
     }
 
     if (self.spanDescription != nil) {

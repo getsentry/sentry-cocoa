@@ -43,16 +43,6 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) SentrySampleDecision sampled;
 
 /**
- * Rate of sampling
- */
-@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
-
-/**
- * Random value used to determine if the span is sampled.
- */
-@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRand;
-
-/**
  * Short code identifying the type of operation the span is measuring.
  */
 @property (nonatomic, copy, readonly) NSString *operation;
@@ -89,19 +79,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
 /**
- * Init a @c SentryContext with an operation code and mark it as sampled or not.
- * TraceId and SpanId with be randomly created.
- * @param operation The operation this span is measuring.
- * @param sampled Determines whether the trace should be sampled.
- * @param sampleRate Rate of sampling
- * @param sampleRand Random value used to determine if the trace is sampled.
- */
-- (instancetype)initWithOperation:(NSString *)operation
-                          sampled:(SentrySampleDecision)sampled
-                       sampleRate:(nullable NSNumber *)sampleRate
-                       sampleRand:(nullable NSNumber *)sampleRand;
-
-/**
  * @param traceId Determines which trace the Span belongs to.
  * @param spanId The Span Id.
  * @param operation The operation this span is measuring.
@@ -119,23 +96,6 @@ SENTRY_NO_INIT
  * @param spanId The Span Id.
  * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
- * @param sampled Determines whether the trace should be sampled.
- * @param sampleRate Rate of sampling
- * @param sampleRand Random value used to determine if the trace is sampled.
- */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                       parentId:(nullable SentrySpanId *)parentId
-                      operation:(NSString *)operation
-                        sampled:(SentrySampleDecision)sampled
-                     sampleRate:(nullable NSNumber *)sampleRate
-                     sampleRand:(nullable NSNumber *)sampleRand;
-
-/**
- * @param traceId Determines which trace the Span belongs to.
- * @param spanId The Span Id.
- * @param operation The operation this span is measuring.
- * @param parentId Id of a parent span.
  * @param description The span description.
  * @param sampled Determines whether the trace should be sampled.
  */
@@ -145,25 +105,6 @@ SENTRY_NO_INIT
                       operation:(NSString *)operation
                 spanDescription:(nullable NSString *)description
                         sampled:(SentrySampleDecision)sampled;
-
-/**
- * @param traceId Determines which trace the Span belongs to.
- * @param spanId The Span Id.
- * @param operation The operation this span is measuring.
- * @param parentId Id of a parent span.
- * @param description The span description.
- * @param sampled Determines whether the trace should be sampled.
- * @param sampleRate Rate of sampling
- * @param sampleRand Random value used to determine if the trace is sampled.
- */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                       parentId:(nullable SentrySpanId *)parentId
-                      operation:(NSString *)operation
-                spanDescription:(nullable NSString *)description
-                        sampled:(SentrySampleDecision)sampled
-                     sampleRate:(nullable NSNumber *)sampleRate
-                     sampleRand:(nullable NSNumber *)sampleRand;
 
 @end
 

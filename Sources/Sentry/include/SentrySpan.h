@@ -38,16 +38,6 @@ SENTRY_NO_INIT
 @property (nonatomic) SentrySampleDecision sampled;
 
 /**
- * Rate of sampling
- */
-@property (nullable, nonatomic, strong) NSNumber *sampleRate;
-
-/**
- * Random value used to determine if the span is sampled.
- */
-@property (nullable, nonatomic, strong) NSNumber *sampleRand;
-
-/**
  * Short code identifying the type of operation the span is measuring.
  */
 @property (nonatomic, copy) NSString *operation;
