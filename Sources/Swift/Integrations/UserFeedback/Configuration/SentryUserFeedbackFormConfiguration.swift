@@ -52,31 +52,31 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     public var successMessageText: String = "Thank you for your report!"
     
     // MARK: Screenshots
-    
-    /**
-     * Allows the user to send a screenshot attachment with their feedback.
-     * - note: Default: `true`
-     */
-    public var enableScreenshot: Bool = true
-    
-    /**
-     * The label of the button to add a screenshot to the form.
-     * - note: Default: `"Add a screenshot"`
-     * - note: ignored if `enableScreenshot` is `false`.`
-     * - warning: If you support adding screenshots using the button, you need to add `NSPhotoLibraryUsageDescription` to your app's Info.plist.
-     */
-    public var addScreenshotButtonLabel: String = "Add a screenshot"
-    
-    public lazy var addScreenshotButtonAccessibilityLabel = addScreenshotButtonLabel
-    
-    /**
-     * The label of the button to remove the screenshot from the form.
-     * - note: Default: `"Remove screenshot"`
-     * - note: ignored if `enableScreenshot` is `false`.
-     */
-    public var removeScreenshotButtonLabel: String = "Remove screenshot"
-    
-    public lazy var removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonLabel
+//    
+//    /**
+//     * Allows the user to send a screenshot attachment with their feedback.
+//     * - note: Default: `true`
+//     */
+//    public var enableScreenshot: Bool = true
+//    
+//    /**
+//     * The label of the button to add a screenshot to the form.
+//     * - note: Default: `"Add a screenshot"`
+//     * - note: ignored if `enableScreenshot` is `false`.`
+//     * - warning: If you support adding screenshots using the button, you need to add `NSPhotoLibraryUsageDescription` to your app's Info.plist.
+//     */
+//    public var addScreenshotButtonLabel: String = "Add a screenshot"
+//    
+//    public lazy var addScreenshotButtonAccessibilityLabel = addScreenshotButtonLabel
+//    
+//    /**
+//     * The label of the button to remove the screenshot from the form.
+//     * - note: Default: `"Remove screenshot"`
+//     * - note: ignored if `enableScreenshot` is `false`.
+//     */
+//    public var removeScreenshotButtonLabel: String = "Remove screenshot"
+//    
+//    public lazy var removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonLabel
     
     // MARK: Name
     
