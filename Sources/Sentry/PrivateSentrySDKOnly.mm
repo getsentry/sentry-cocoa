@@ -320,7 +320,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 
 + (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options
 {

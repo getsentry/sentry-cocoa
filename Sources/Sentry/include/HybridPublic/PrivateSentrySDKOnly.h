@@ -182,6 +182,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (void)setCurrentScreen:(NSString *)screenName;
 
+#endif // SENTRY_UIKIT_AVAILABLE
+
+
+#if SENTRY_HAS_UIKIT
+
 /**
  * Return an instance of SentryRedactOptions with given option
  * To be used from SentrySwiftUI, which cannot access the private
@@ -189,7 +194,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options;
 
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
