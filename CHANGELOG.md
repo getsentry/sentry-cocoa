@@ -13,6 +13,10 @@
 - Add SentryHub to all log messages in the Hub (#4753)
 - More detailed log message when can't start session in SentryHub (#4752)
 
+### Features
+
+- Add manual file IO tracking methods for Swift.Data (#4605)
+
 ## 8.44.0-beta.1
 
 ### Fixes
