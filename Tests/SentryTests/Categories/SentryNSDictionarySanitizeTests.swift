@@ -19,6 +19,13 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         XCTAssertNil(sanitized)
     }
 
+    func testSentrySanitize_parameterIsNotNSDictionary_shouldReturnNil() {
+        // Act
+        let sanitized = sentry_sanitize_with_non_dictionary()
+        // Assert
+        XCTAssertNil(sanitized)
+    }
+
     func testSentrySanitize_dictionaryIsEmpty_shouldReturnEmptyDictionary() {
         // Arrange
         let dict = [String: Any]()

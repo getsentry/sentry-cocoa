@@ -8,7 +8,7 @@ NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)
         return nil;
     }
 
-    if ([dictionary isEqual:[NSNull null]]) {
+    if (![[dictionary class] isSubclassOfClass:[NSDictionary class]]) {
         return nil;
     }
 
