@@ -74,8 +74,8 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it. we also mock it for unit tests
         set(image: UIImage(), accessibilityInfo: "test image accessibility info")
 #else
-        guard viewModel.canRequestAuthorizationToAttachPhotos else {
-            SentryLog.warning("Photos authorization wasn't granted, but the user was still able to attempt to add a screenshot.")
+        guard Bundle.main.canRequestAuthorizationToAttachPhotos else {
+            SentryLog.warning("Photos usage was not configured in the info plist with NSPhotoLibraryUsageDescription, but the user was still able to attempt to add a screenshot.")
             return
         }
         
