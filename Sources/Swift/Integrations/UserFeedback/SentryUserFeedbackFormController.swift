@@ -74,12 +74,22 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
         // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it. we also mock it for unit tests
         set(image: UIImage(), accessibilityInfo: "test image accessibility info")
 #else
+        guard viewModel.canRequestAuthorizationToAttachPhotos else {
+            SentryLog.warning("Photos authorization wasn't granted, but the user was still able to attempt to add a screenshot.")
+            return
+        }
+        
         func presentPicker() {
-            let imagePickerController = UIImagePickerController()
-            imagePickerController.delegate = self
-            imagePickerController.sourceType = .photoLibrary
-            imagePickerController.allowsEditing = true
             DispatchQueue.main.async {
+                let imagePickerController = UIImagePickerController()
+                imagePickerController.delegate = self
+                imagePickerController.sourceType = .photoLibrary
+                imagePickerController.allowsEditing = true
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    imagePickerController.modalPresentationStyle = .popover
+                    // docs state that accessing the `popoverPresentationController` creates one if one doesn't already exist as long as `modalPresentationStyle = .popover`. it's a readonly property so you can't instantiate a new `UIPopoverPresentationController` and assign it.
+                    imagePickerController.popoverPresentationController?.sourceView = self.viewModel.addScreenshotButton
+                }
                 self.present(imagePickerController, animated: self.config.animations)
             }
         }
@@ -145,6 +155,10 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        defer {
+            dismiss(animated: config.animations)
+        }
+        
         guard let photo = info[.editedImage] as? UIImage else {
             SentryLog.warning("Could not get edited image from photo picker.")
             return

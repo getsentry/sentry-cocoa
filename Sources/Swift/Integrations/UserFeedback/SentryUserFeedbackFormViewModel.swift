@@ -19,6 +19,11 @@ class SentryUserFeedbackFormViewModel: NSObject {
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
     
+    /// Checks to make sure the app provides the necessary Info plist key to request authorization. If the key is not present, trying to interact with certain Photos APIs will crash the app.
+    var canRequestAuthorizationToAttachPhotos = {
+        Bundle.main.infoDictionary?["NSPhotoLibraryUsageDescription"] != nil
+    }()
+    
     init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController) {
         self.config = config
         self.controller = controller
@@ -201,10 +206,15 @@ class SentryUserFeedbackFormViewModel: NSObject {
         messageAndScreenshotStack.axis = .vertical
         
         if self.config.formConfig.enableScreenshot {
-            messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
-            messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
-            self.removeScreenshotStack.isHidden = true
+            if canRequestAuthorizationToAttachPhotos {
+                messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
+                messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
+                self.removeScreenshotStack.isHidden = true
+            } else {
+                SentryLog.warning("User feedback was configured to allow attaching images, but the required info plist key `NSPhotoLibraryUsageDescription` to request photos access was not included.")
+            }
         }
+        
         messageAndScreenshotStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
         
         inputStack.addArrangedSubview(messageAndScreenshotStack)
@@ -280,11 +290,11 @@ class SentryUserFeedbackFormViewModel: NSObject {
             messagePlaceholderLeadingConstraint,
             messagePlaceholderTopConstraint,
             messagePlaceholderTrailingConstraint,
-            messagePlaceholderBottomConstraint,
-            
+            messagePlaceholderBottomConstraint
+        ] + (canRequestAuthorizationToAttachPhotos ? [
             screenshotImageView.heightAnchor.constraint(equalTo: addScreenshotButton.heightAnchor),
             screenshotImageAspectRatioConstraint
-        ]
+        ] : [])
     }
 }
 

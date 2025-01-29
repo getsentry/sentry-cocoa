@@ -56,7 +56,10 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     /**
      * Allows the user to send a screenshot attachment with their feedback.
      * - note: Default: `true`
-     * - warning: Your app must provide a value in its Info plist for the `NSPhotoLibraryUsageDescription` key, or the app will crash upon requesting the necessary `PHPhotoLibrary` authorization.
+     * - warning: Your app must provide a value in its Info plist for the
+     * `NSPhotoLibraryUsageDescription` key, or the button to attach screenshots to feedback will
+     * not be displayed, as interacting with certain Photos APIs without that key present will crash
+     * the application.
      */
     public var enableScreenshot: Bool = true
     

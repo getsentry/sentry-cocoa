@@ -222,7 +222,14 @@ extension SentrySDKWrapper {
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
-            let jsonData = (try? JSONSerialization.data(withJSONObject: info, options: .sortedKeys)) ?? Data()
+            
+            // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
+            var infoToWriteToFile = info
+            if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
+                infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
+            }
+            
+            let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()
             updateHookMarkers(forEvent: "onSubmitSuccess", with: jsonData.base64EncodedString())
         }
         config.onSubmitError = { error in
