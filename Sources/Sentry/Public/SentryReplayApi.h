@@ -60,8 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Shows a overlay on the app to debug session replay masking.
  *
  * By calling this function an overlay will appear covering the parts
- * of the app that will be masked for the session replay. This should
- * be used for debug purposes only, it will cause some slow frames.
+ * of the app that will be masked for the session replay.
+ * This will only work if the debbuger is attached and it will
+ * cause some slow frames.
  *
  * @warning This is an experimental feature and may still have bugs.
  * Do not use this is production.
@@ -72,8 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Shows a overlay on the app to debug session replay masking.
  *
  * By calling this function an overlay will appear covering the parts
- * of the app that will be masked for the session replay. This should
- * be used for debug purposes only, it will cause some slow frames.
+ * of the app that will be masked for the session replay.
+ * This will only work if the debbuger is attached and it will
+ * cause some slow frames.
  *
  * @param opacity The opacity of the overlay.
  *

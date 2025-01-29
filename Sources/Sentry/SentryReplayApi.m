@@ -9,6 +9,8 @@
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
+#    import "SentryDependencyContainer.h"
+#    import "SentryCrashWrapper.h"
 
 @implementation SentryReplayApi
 
@@ -80,11 +82,13 @@
 
 - (void)showMaskPreview:(CGFloat)opacity
 {
-    SentrySessionReplayIntegration *replayIntegration
+    if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
+        SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-
-    [replayIntegration showMaskPreview:opacity];
+                                             getInstalledIntegration:SentrySessionReplayIntegration.class];
+        
+        [replayIntegration showMaskPreview:opacity];
+    }
 }
 
 @end
