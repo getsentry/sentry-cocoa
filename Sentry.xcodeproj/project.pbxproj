@@ -3002,18 +3002,18 @@
 		7B6C5ED4264E62B60010D138 /* Transaction */ = {
 			isa = PBXGroup;
 			children = (
-				7B6C5ED5264E62CA0010D138 /* SentryTransactionTests.swift */,
+				D880E3A628573E87008A90DB /* SentryBaggageTests.swift */,
+				D42E48562D48DF1600D251BC /* SentryBuildAppStartSpansTests.swift */,
+				7BE912AE272166DD00E49E62 /* SentryNoOpSpanTests.swift */,
 				8EC4CF4F25C3A0070093DEE9 /* SentrySpanContextTests.swift */,
 				8E70B0FC25CB72BE002B3155 /* SentrySpanTests.swift */,
 				D88817DB26D72B7B00BF2251 /* SentryTraceContextTests.swift */,
-				D42E48562D48DF1600D251BC /* SentryBuildAppStartSpansTests.swift */,
-				7BE912AE272166DD00E49E62 /* SentryNoOpSpanTests.swift */,
-				D880E3A628573E87008A90DB /* SentryBaggageTests.swift */,
-				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
 				7BBEB16026AEE5EF00C06C03 /* SentryTracer+Test.h */,
+				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
+				62950F0F29E7FE0100A42624 /* SentryTransactionContextTests.swift */,
+				7B6C5ED5264E62CA0010D138 /* SentryTransactionTests.swift */,
 				D8137D52272B53070082656C /* TestSentrySpan.h */,
 				D8137D53272B53070082656C /* TestSentrySpan.m */,
-				62950F0F29E7FE0100A42624 /* SentryTransactionContextTests.swift */,
 			);
 			path = Transaction;
 			sourceTree = "<group>";

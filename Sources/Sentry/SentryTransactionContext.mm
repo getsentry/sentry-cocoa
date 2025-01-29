@@ -120,13 +120,11 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
                   sampleRate:(nullable NSNumber *)sampleRate
                   sampleRand:(nullable NSNumber *)sampleRand
 {
-    if (self = [super initWithOperation:operation
-                                 origin:origin
-                                sampled:sampled
-                             sampleRate:sampleRate
-                             sampleRand:sampleRand]) {
+    if (self = [super initWithOperation:operation origin:origin sampled:sampled]) {
         [self commonInitWithName:name
                           source:source
+                      sampleRate:sampleRate
+                      sampleRand:sampleRand
                    parentSampled:kSentryDefaultSamplingDecision
                 parentSampleRate:NULL
                 parentSampleRand:NULL];
@@ -151,11 +149,11 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
                             operation:operation
                       spanDescription:nil
                                origin:origin
-                              sampled:kSentrySampleDecisionUndecided
-                           sampleRate:nil
-                           sampleRand:nil]) {
+                              sampled:kSentrySampleDecisionUndecided]) {
         [self commonInitWithName:name
                           source:source
+                      sampleRate:nil
+                      sampleRand:nil
                    parentSampled:parentSampled
                 parentSampleRate:parentSampleRate
                 parentSampleRand:parentSampleRand];
@@ -183,11 +181,11 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
                             operation:operation
                       spanDescription:nil
                                origin:origin
-                              sampled:sampled
-                           sampleRate:sampleRate
-                           sampleRand:sampleRand]) {
+                              sampled:sampled]) {
         [self commonInitWithName:name
                           source:source
+                      sampleRate:sampleRate
+                      sampleRand:sampleRand
                    parentSampled:parentSampled
                 parentSampleRate:parentSampleRate
                 parentSampleRand:parentSampleRand];
@@ -212,12 +210,16 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source
+                sampleRate:(nullable NSNumber *)sampleRate
+                sampleRand:(nullable NSNumber *)sampleRand
              parentSampled:(SentrySampleDecision)parentSampled
           parentSampleRate:(nullable NSNumber *)parentSampleRate
           parentSampleRand:(nullable NSNumber *)parentSampleRand
 {
     _name = [NSString stringWithString:name];
     _nameSource = source;
+    self.sampleRate = sampleRate;
+    self.sampleRand = sampleRand;
     self.parentSampled = parentSampled;
     self.parentSampleRate = parentSampleRate;
     self.parentSampleRand = parentSampleRand;

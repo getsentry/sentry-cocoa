@@ -10,8 +10,6 @@ class SentrySpanContextTests: XCTestCase {
     let spanID = SpanId()
     let parentSpanID = SpanId()
     let sampled = SentrySampleDecision.yes
-    let sampleRate = NSNumber(value: 0.123456789)
-    let sampleRand = NSNumber(value: 0.333)
 
     // MARK: - Legacy Tests
 
@@ -124,9 +122,7 @@ class SentrySpanContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: nil,
-            expectedSampled: .undecided,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil
+            expectedSampled: .undecided
         )
     }
 
@@ -141,31 +137,7 @@ class SentrySpanContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithOperationSampledSampleRateSampleRand() {
-        // Act
-        let context = SpanContext(
-            operation: operation,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertContext(
-            context: context,
-            expectedParentSpanId: nil,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand
+            expectedSampled: sampled
         )
     }
 
@@ -186,34 +158,7 @@ class SentrySpanContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithTraceIdSpanIdParentIdOperationSampledSampleRateSampleRand() {
-        // Act
-        let context = SpanContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand
+            expectedSampled: sampled
         )
     }
 
@@ -235,35 +180,7 @@ class SentrySpanContextTests: XCTestCase {
             expectedOperation: operation,
             expectedOrigin: SentryTraceOrigin.manual,
             expectedSpanDescription: spanDescription,
-            expectedSampled: sampled,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithTraceIdSpanIdParentIdOperationSpanDescriptionSampledSampleRateSampleRand() {
-        // Act
-        let context = SpanContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            spanDescription: spanDescription,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: spanDescription,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand
+            expectedSampled: sampled
         )
     }
 
@@ -277,9 +194,7 @@ class SentrySpanContextTests: XCTestCase {
             parentId: nil,
             operation: operation,
             spanDescription: nil,
-            sampled: .undecided,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .undecided
         )
 
         // Act
@@ -291,8 +206,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(data["span_id"] as? String, spanID.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
         XCTAssertNil(data["sampled"])
-        XCTAssertNil(data["sample_rate"])
-        XCTAssertNil(data["sample_rand"])
         XCTAssertNil(data["description"])
         XCTAssertNil(data["parent_span_id"])
     }
@@ -311,8 +224,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(data["op"] as? String, operation)
         XCTAssertEqual(data["origin"] as? String, "manual")
         XCTAssertNil(data["sampled"])
-        XCTAssertNil(data["sample_rate"])
-        XCTAssertNil(data["sample_rand"])
         XCTAssertNil(data["description"])
         XCTAssertNil(data["parent_span_id"])
     }
@@ -324,10 +235,7 @@ class SentrySpanContextTests: XCTestCase {
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            spanDescription: nil,
-            sampled: .yes,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .yes
         )
 
         // Act
@@ -344,9 +252,7 @@ class SentrySpanContextTests: XCTestCase {
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            sampled: .no,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .no
         )
 
         // Act
@@ -363,9 +269,7 @@ class SentrySpanContextTests: XCTestCase {
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            sampled: .undecided,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .undecided
         )
 
         // Act
@@ -384,8 +288,6 @@ class SentrySpanContextTests: XCTestCase {
         expectedOrigin: String?,
         expectedSpanDescription: String?,
         expectedSampled: SentrySampleDecision,
-        expectedSampleRate: NSNumber?,
-        expectedSampleRand: NSNumber?,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -398,8 +300,6 @@ class SentrySpanContextTests: XCTestCase {
         }
 
         XCTAssertEqual(context.sampled, expectedSampled, "Sample ID does not match", file: file, line: line)
-        XCTAssertEqual(context.sampleRate, expectedSampleRate, "Sample rate does not match", file: file, line: line)
-        XCTAssertEqual(context.sampleRand, expectedSampleRand, "Sample rand does not match", file: file, line: line)
 
         XCTAssertEqual(context.operation, expectedOperation, "Operation does not match", file: file, line: line)
         XCTAssertEqual(context.spanDescription, expectedSpanDescription, "Span description does not match", file: file, line: line)

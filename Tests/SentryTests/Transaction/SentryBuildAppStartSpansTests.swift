@@ -69,9 +69,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Cold Start",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[1],
@@ -81,9 +79,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Pre Runtime Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_300),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[2],
@@ -93,9 +89,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Runtime Init to Pre Main Initializers",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_300),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_400),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[3],
@@ -105,9 +99,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "UIKit Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[4],
@@ -117,9 +109,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[5],
@@ -129,9 +119,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
     }
 
@@ -164,9 +152,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Warm Start",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[1],
@@ -176,9 +162,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Pre Runtime Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_300),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[2],
@@ -188,9 +172,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Runtime Init to Pre Main Initializers",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_300),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_400),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[3],
@@ -200,9 +182,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "UIKit Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[4],
@@ -212,9 +192,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[5],
@@ -224,9 +202,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
     }
 
@@ -259,9 +235,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Warm Start",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[1],
@@ -271,9 +245,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "UIKit Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[2],
@@ -283,9 +255,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
         assertSpan(
             span: result[3],
@@ -295,9 +265,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled,
-            expectedSampleRate: tracer.sampleRate,
-            expectedSampleRand: tracer.sampleRand
+            expectedSampled: tracer.sampled
         )
     }
 
@@ -310,8 +278,6 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         expectedStartTimestamp: Date,
         expectedEndTimestamp: Date,
         expectedSampled: SentrySampleDecision,
-        expectedSampleRate: NSNumber?,
-        expectedSampleRand: NSNumber?,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -322,8 +288,6 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         XCTAssertEqual(span.startTimestamp, expectedStartTimestamp, "StartTimestamp does not match", file: file, line: line)
         XCTAssertEqual(span.timestamp, expectedEndTimestamp, "EndTimestamp does not match", file: file, line: line)
         XCTAssertEqual(span.sampled, expectedSampled, "Sampled does not match", file: file, line: line)
-        XCTAssertEqual(span.sampleRate, expectedSampleRate, "SampleRate does not match", file: file, line: line)
-        XCTAssertEqual(span.sampleRand, expectedSampleRand, "SampleRand does not match", file: file, line: line)
     }
 }
 #endif

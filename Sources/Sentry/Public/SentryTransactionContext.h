@@ -24,12 +24,12 @@ SENTRY_NO_INIT
 /**
  * Rate of sampling
  */
-@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
+@property (nonatomic, strong, nullable) NSNumber *sampleRate;
 
 /**
  * Random value used to determine if the span is sampled.
  */
-@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRand;
+@property (nonatomic, strong, nullable) NSNumber *sampleRand;
 
 /**
  * Parent sampled

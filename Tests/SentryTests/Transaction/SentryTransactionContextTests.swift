@@ -145,33 +145,6 @@ class SentryTransactionContextTests: XCTestCase {
         )
     }
 
-    func testPublicInit_WithOperationSampledSampleRateSampleRand() {
-        // Act
-        let context = TransactionContext(
-            operation: operation,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: nil,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
     func testPublicInit_WithTraceIdSpanIdParentIdOperationSampled() {
         // Act
         let context = TransactionContext(
@@ -192,96 +165,6 @@ class SentryTransactionContextTests: XCTestCase {
             expectedSampled: sampled,
             expectedSampleRate: nil,
             expectedSampleRand: nil,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithTraceIdSpanIdParentIdOperationSampledSampleRateSampleRand() {
-        // Act
-        let context = TransactionContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithTraceIdSpanIdParentIdOperationSpanDescriptionSampled() {
-        // Act
-        let context = TransactionContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            spanDescription: spanDescription,
-            sampled: sampled
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: spanDescription,
-            expectedSampled: sampled,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithTraceIdSpanIdParentIdOperationSpanDescriptionSampledSampleRateSampleRand() {
-        // Act
-        let context = TransactionContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            spanDescription: spanDescription,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: spanDescription,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
             expectedName: "",
             expectedNameSource: SentryTransactionNameSource.custom,
             expectedParentSampled: .undecided,
@@ -367,11 +250,12 @@ class SentryTransactionContextTests: XCTestCase {
     func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampled() {
         // Act
         let context = TransactionContext(
+            name: transactionName,
+            operation: operation,
             trace: traceID,
             spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            sampled: sampled
+            parentSpanId: parentSpanID,
+            parentSampled: parentSampled
         )
 
         // Assert
@@ -392,74 +276,17 @@ class SentryTransactionContextTests: XCTestCase {
         )
     }
 
-    func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampled_withNilValues() {
+    func testPublicInit_WithNameOperationTraceIdSpanIdParentSpanIdParentSampled_withNilValues() {
         // Act
         let context = TransactionContext(
+            name: transactionName,
+            operation: operation,
             trace: traceID,
             spanId: spanID,
-            parentId: nil,
-            operation: operation,
-            sampled: sampled
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: nil,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: nil,
-            expectedSampleRand: nil,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampledSampleRateSampleRand() {
-        // Act
-        let context = TransactionContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: parentSpanID,
-            operation: operation,
-            sampled: sampled,
-            sampleRate: sampleRate,
-            sampleRand: sampleRand
-        )
-
-        // Assert
-        assertFullContext(
-            context: context,
-            expectedParentSpanId: parentSpanID,
-            expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
-            expectedSpanDescription: nil,
-            expectedSampled: sampled,
-            expectedSampleRate: sampleRate,
-            expectedSampleRand: sampleRand,
-            expectedName: "",
-            expectedNameSource: SentryTransactionNameSource.custom,
-            expectedParentSampled: .undecided,
-            expectedParentSampleRate: nil,
-            expectedParentSampleRand: nil
-        )
-    }
-
-    func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampledSampleRateSampleRand_withNilValues() {
-        // Act
-        let context = TransactionContext(
-            trace: traceID,
-            spanId: spanID,
-            parentId: nil,
-            operation: operation,
-            sampled: sampled,
-            sampleRate: nil,
-            sampleRand: nil
+            parentSpanId: parentSpanID,
+            parentSampled: parentSampled,
+            parentSampleRate: parentSampleRate,
+            parentSampleRand: parentSampleRand
         )
 
         // Assert
@@ -742,19 +569,24 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testSerializationWithSampleRand_minimalData_shouldNotIncludeNilValues() {
         // Arrange
-        let TransactionContext = TransactionContext(
+        let context = TransactionContext(
+            name: transactionName,
+            nameSource: nameSource,
+            operation: operation,
+            origin: origin,
             trace: traceID,
             spanId: spanID,
-            parentId: nil,
-            operation: operation,
-            spanDescription: nil,
-            sampled: .undecided,
+            parentSpanId: nil,
+            sampled: sampled,
+            parentSampled: parentSampled,
             sampleRate: nil,
-            sampleRand: nil
+            parentSampleRate: nil,
+            sampleRand: nil,
+            parentSampleRand: nil
         )
 
         // Act
-        let data = TransactionContext.serialize()
+        let data = context.serialize()
 
         // Assert
         XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
@@ -770,15 +602,15 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testSerializationWithSampleRand_NotSettingProperties_PropertiesNotSerialized() {
         // Arrange
-        let TransactionContext = TransactionContext(operation: operation)
+        let context = TransactionContext(operation: operation)
 
         // Act
-        let data = TransactionContext.serialize()
+        let data = context.serialize()
 
         // Assert
         XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
-        XCTAssertEqual(data["trace_id"] as? String, TransactionContext.traceId.sentryIdString)
-        XCTAssertEqual(data["span_id"] as? String, TransactionContext.spanId.sentrySpanIdString)
+        XCTAssertEqual(data["trace_id"] as? String, context.traceId.sentryIdString)
+        XCTAssertEqual(data["span_id"] as? String, context.spanId.sentrySpanIdString)
         XCTAssertEqual(data["op"] as? String, operation)
         XCTAssertEqual(data["origin"] as? String, "manual")
         XCTAssertNil(data["sampled"])
@@ -790,19 +622,16 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testSerializationWithSampleRand_sampledDecisionYes_shouldSerializeToTrue() {
         // Arrange
-        let TransactionContext = TransactionContext(
+        let context = TransactionContext(
             trace: traceID,
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            spanDescription: nil,
-            sampled: .yes,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .yes
         )
 
         // Act
-        let data = TransactionContext.serialize()
+        let data = context.serialize()
 
         // Assert
         XCTAssertEqual(data["sampled"] as? Bool, true)
@@ -810,18 +639,16 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testSerializationWithSampleRand_sampledDecisionNo_shouldSerializeToFalse() {
         // Arrange
-        let TransactionContext = TransactionContext(
+        let context = TransactionContext(
             trace: traceID,
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            sampled: .no,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .no
         )
 
         // Act
-        let data = TransactionContext.serialize()
+        let data = context.serialize()
 
         // Assert
         XCTAssertEqual(data["sampled"] as? Bool, false)
@@ -829,18 +656,16 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testSerializationWithSampleRand_sampledDecisionUndecided_shouldNotSerialize() {
         // Arrange
-        let TransactionContext = TransactionContext(
+        let context = TransactionContext(
             trace: traceID,
             spanId: spanID,
             parentId: parentSpanID,
             operation: operation,
-            sampled: .undecided,
-            sampleRate: nil,
-            sampleRand: nil
+            sampled: .undecided
         )
 
         // Act
-        let data = TransactionContext.serialize()
+        let data = context.serialize()
 
         // Assert
         XCTAssertNil(data["sampled"])
