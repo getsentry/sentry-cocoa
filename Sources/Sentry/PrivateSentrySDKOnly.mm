@@ -322,7 +322,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #if SENTRY_UIKIT_AVAILABLE
 
-+ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options {
++ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options
+{
     return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
 }
 

@@ -33,5 +33,4 @@ class SentryReplayMaskPreviewUIView: UIView {
     }
 }
 
-
 #endif
