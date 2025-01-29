@@ -184,7 +184,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-
 #if SENTRY_HAS_UIKIT
 
 /**
