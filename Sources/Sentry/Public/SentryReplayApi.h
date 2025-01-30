@@ -84,6 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)showMaskPreview:(CGFloat)opacity;
 
+/**
+ * Removes the overlay that shows replay masking.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ * Do not use this is production.
+ */
+- (void)hideMaskPreview;
+
 @end
 
 NS_ASSUME_NONNULL_END
