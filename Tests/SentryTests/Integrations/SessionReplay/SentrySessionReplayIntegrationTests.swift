@@ -22,10 +22,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     private class TestCrashWrapper: SentryCrashWrapper {
-        var traced = true
+        let traced: Bool
         
         init(traced: Bool = true) {
             self.traced = traced
+            // not calling super.init() here as we don't actually want to install crash reporter machinery
         }
         
         override func isBeingTraced() -> Bool {
