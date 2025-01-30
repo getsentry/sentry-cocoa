@@ -23,6 +23,7 @@
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
+- HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
 
 ### Internal
 
