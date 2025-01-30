@@ -19,5 +19,5 @@ Pod::Spec.new do |s|
   s.watchos.framework = 'WatchKit'
 
   s.source_files = "Sources/SentrySwiftUI/**/*.{swift,h,m}"
-  s.dependency 'Sentry', "8.44.0-beta.1"
+  s.dependency 'Sentry/HybridSDK', "8.44.0-beta.1"
 end
