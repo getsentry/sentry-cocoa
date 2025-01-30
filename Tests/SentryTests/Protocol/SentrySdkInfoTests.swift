@@ -5,7 +5,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     private let sdkName = "sentry.cocoa"
 
-    func cleanUp() {
+    private func cleanUp() {
         SentrySdkPackage.resetPackageManager()
         SentryExtraPackages.clear()
     }

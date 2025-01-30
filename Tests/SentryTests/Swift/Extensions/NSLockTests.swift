@@ -46,7 +46,7 @@ final class NSLockTests: XCTestCase {
         wait(for: [expectation], timeout: 0.1)
     }
 
-    enum NSLockError: Error {
+    private enum NSLockError: Error {
         case runtimeError(String)
     }
 }

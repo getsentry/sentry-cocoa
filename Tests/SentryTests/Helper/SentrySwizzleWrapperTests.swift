@@ -26,7 +26,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     private var sut: SentrySwizzleWrapper!
     
     @objc
-    func someMethod() {
+    private func someMethod() {
         // Empty on purpose
     }
     

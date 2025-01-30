@@ -79,7 +79,7 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
         XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
-    func assertNoInstallation(_ integration: SentryUIEventTrackingIntegration) {
+    private func assertNoInstallation(_ integration: SentryUIEventTrackingIntegration) {
         XCTAssertNil(Dynamic(integration).uiEventTracker as SentryUIEventTracker?)
     }
     

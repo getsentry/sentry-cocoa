@@ -97,7 +97,7 @@ class SentrySessionTestsSwift: XCTestCase {
         withValue { $0["status"] = "20" }
     }
     
-    func withValue(setValue: (inout [String: Any]) -> Void) {
+    private func withValue(setValue: (inout [String: Any]) -> Void) {
         let expected = SentrySession(releaseName: "release", distinctId: "some-id")
         var serialized = expected.serialize()
         setValue(&serialized)

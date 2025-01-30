@@ -28,11 +28,11 @@ class SentryUIEventTrackerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryUIEventTracker!
     
-    let operation = "ui.action"
-    let operationClick = "ui.action.click"
-    let action = "SomeAction:"
-    let expectedAction = "SomeAction"
-    let accessibilityIdentifier = "accessibilityIdentifier"
+    private let operation = "ui.action"
+    private let operationClick = "ui.action.click"
+    private let action = "SomeAction:"
+    private let expectedAction = "SomeAction"
+    private let accessibilityIdentifier = "accessibilityIdentifier"
     
     override func setUp() {
         super.setUp()
@@ -261,7 +261,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unknown"))
     }
         
-    func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
+    private func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
         fixture.swizzleWrapper.execute(action: action, target: target, sender: sender, event: event)
     }
     
