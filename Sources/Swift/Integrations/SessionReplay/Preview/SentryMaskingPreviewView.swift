@@ -26,7 +26,7 @@ class SentryMaskingPreviewView: UIView {
     
     init(redactOptions: SentryRedactOptions) {
         self.photographer = SentryViewPhotographer(renderer: PreviewRederer(), redactOptions: redactOptions)
-        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        super.init(frame: .zero)
         self.isUserInteractionEnabled = false
         
         imageView.sentryReplayUnmask()
