@@ -7,24 +7,28 @@ import XCTest
 class SentryOnDemandReplayTests: XCTestCase {
     
     private let dateProvider = TestCurrentDateProvider()
-    private var outputPath: URL = {
-        let temp = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
-        try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
-        return temp
-    }()
+    private var outputPath = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
+    
+    override func setUpWithError() throws {
+        try removeDirectoryIfExists(at: outputPath)
+        try FileManager.default.createDirectory(at: outputPath, withIntermediateDirectories: true)
+    }
     
     override func tearDownWithError() throws {
-        let files = try FileManager.default.contentsOfDirectory(atPath: outputPath.path)
-        for file in files {
-            try? FileManager.default.removeItem(at: outputPath.appendingPathComponent(file))
+        try removeDirectoryIfExists(at: outputPath)
+    }
+    
+    private func removeDirectoryIfExists(at path: URL) throws {
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: path.path) {
+            try fileManager.removeItem(at: path)
         }
     }
     
     private func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
-                                       workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
-                                       dateProvider: dateProvider)
-        return sut
+        return SentryOnDemandReplay(outputPath: outputPath.path,
+                                    workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
+                                    dateProvider: dateProvider)
     }
     
     func testAddFrame() {
