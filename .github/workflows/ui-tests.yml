@@ -62,8 +62,13 @@ jobs:
             ]
             const retryReason = retryReasonRegexs.find(regex => lastLogContent.match(regex));
             if (retryReason) {
+              core.warning("Retry condition found, retrying...");
               core.setOutput('RETRY_TEST', 'true');
+              
+              return;
             }
+
+            core.setFailed('Retry condition not found, failing!');
       
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
@@ -143,8 +148,13 @@ jobs:
             ]
             const retryReason = retryReasonRegexs.find(regex => lastLogContent.match(regex));
             if (retryReason) {
+              core.warning("Retry condition found, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            } 
+              
+              return;
+            }
+
+            core.setFailed('Retry condition not found, failing!');
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
@@ -230,8 +240,13 @@ jobs:
             ]
             const retryReason = retryReasonRegexs.find(regex => lastLogContent.match(regex));
             if (retryReason) {
+              core.warning("Retry condition found, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            } 
+              
+              return;
+            }
+
+            core.setFailed('Retry condition not found, failing!');
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
@@ -302,8 +317,13 @@ jobs:
             ]
             const retryReason = retryReasonRegexs.find(regex => lastLogContent.match(regex));
             if (retryReason) {
+              core.warning("Retry condition found, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            } 
+              
+              return;
+            }
+
+            core.setFailed('Retry condition not found, failing!');
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
@@ -375,8 +395,13 @@ jobs:
             ]
             const retryReason = retryReasonRegexs.find(regex => lastLogContent.match(regex));
             if (retryReason) {
+              core.warning("Retry condition found, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            } 
+              
+              return;
+            }
+
+            core.setFailed('Retry condition not found, failing!');
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
