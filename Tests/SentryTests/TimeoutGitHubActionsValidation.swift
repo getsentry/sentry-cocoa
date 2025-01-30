@@ -3,6 +3,8 @@ import XCTest
 // swiftlint:disable file_length
 
 final class TimeoutGitHubActionsValidation: XCTestCase {
+    
+    private let timeout = 0.1
 
     func testTimeout1() throws {
         
@@ -13,7 +15,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -26,7 +28,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -39,7 +41,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -52,7 +54,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -65,7 +67,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -78,7 +80,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -91,7 +93,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -104,7 +106,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -117,7 +119,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -130,7 +132,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -143,7 +145,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -156,7 +158,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -169,7 +171,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -182,7 +184,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -195,7 +197,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -208,7 +210,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -221,7 +223,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -234,7 +236,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -247,7 +249,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -260,7 +262,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -273,7 +275,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -286,7 +288,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -299,7 +301,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -312,7 +314,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -325,7 +327,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -338,7 +340,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -351,7 +353,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -364,7 +366,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -377,7 +379,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -390,7 +392,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -403,7 +405,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -416,7 +418,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -429,7 +431,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -442,7 +444,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -455,7 +457,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -468,7 +470,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -481,7 +483,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -494,7 +496,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -507,7 +509,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -520,7 +522,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -533,7 +535,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -546,7 +548,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -559,7 +561,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -572,7 +574,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -585,7 +587,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -598,7 +600,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -611,7 +613,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -624,7 +626,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -637,7 +639,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -650,7 +652,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -663,7 +665,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -676,7 +678,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -689,7 +691,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -702,7 +704,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -715,7 +717,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -728,7 +730,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -741,7 +743,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -754,7 +756,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -767,7 +769,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -780,7 +782,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -793,7 +795,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -806,7 +808,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -819,7 +821,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -832,7 +834,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -845,7 +847,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -858,7 +860,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -871,7 +873,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -884,7 +886,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -897,7 +899,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -910,7 +912,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -923,7 +925,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -936,7 +938,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -949,7 +951,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -962,7 +964,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -975,7 +977,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -988,7 +990,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -1001,7 +1003,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -1014,7 +1016,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -1027,7 +1029,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }
     
@@ -1040,7 +1042,7 @@ final class TimeoutGitHubActionsValidation: XCTestCase {
                 expect.fulfill()
             }
             
-            wait(for: [expect], timeout: 0.5)
+            wait(for: [expect], timeout: timeout)
         }
     }        
 
