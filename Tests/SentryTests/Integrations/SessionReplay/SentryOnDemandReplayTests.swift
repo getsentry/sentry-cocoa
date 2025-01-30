@@ -6,8 +6,8 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentryOnDemandReplayTests: XCTestCase {
     
-    let dateProvider = TestCurrentDateProvider()
-    var outputPath: URL = {
+    private let dateProvider = TestCurrentDateProvider()
+    private var outputPath: URL = {
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("replayTest")
         try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
         return temp
@@ -20,7 +20,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
     }
     
-    func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
+    private func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
         let sut = SentryOnDemandReplay(outputPath: outputPath.path,
                                        workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
                                        dateProvider: dateProvider)

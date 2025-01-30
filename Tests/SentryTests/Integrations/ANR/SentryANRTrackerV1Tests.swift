@@ -49,7 +49,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         clearTestState()
     }
     
-    func start() {
+    private func start() {
         sut.add(listener: self)
     }
     
@@ -205,6 +205,9 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         XCTAssertEqual(1, fixture.threadWrapper.threadFinishedInvocations.count)
     }
     
+    // swiftlint:disable test_case_accessibility
+    // Protocl implementation can't be private
+    
     func anrDetected(type: Sentry.SentryANRType) {
         anrDetectedExpectation.fulfill()
     }
@@ -212,6 +215,8 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     func anrStopped() {
         anrStoppedExpectation.fulfill()
     }
+    
+    // swiftlint:enable file_length
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))

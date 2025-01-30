@@ -237,7 +237,7 @@ class SentryCrashCTests: XCTestCase {
 
     // MARK: - Helper
 
-    func readFirstReportFromDisk(reportsDir: URL) throws -> NSDictionary {
+    private func readFirstReportFromDisk(reportsDir: URL) throws -> NSDictionary {
         let reportUrls = try FileManager.default.contentsOfDirectory(atPath: reportsDir.path)
         XCTAssertEqual(reportUrls.count, 1)
         XCTAssertTrue(reportUrls[0].hasPrefix("SentryCrashCTests-report-"))

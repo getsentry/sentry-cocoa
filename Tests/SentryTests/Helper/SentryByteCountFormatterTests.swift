@@ -18,7 +18,7 @@ class SentryByteCountFormatterTests: XCTestCase {
         assertDescription(baseValue: 1_024 * 1_024 * 1_024, unitName: "GB")
     }
     
-    func assertDescription(baseValue: UInt, unitName: String) {
+    private func assertDescription(baseValue: UInt, unitName: String) {
         XCTAssertEqual("1 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue))
         XCTAssertEqual("512 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue * 512))
         XCTAssertEqual("1,023 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue * 1_024 - 1))

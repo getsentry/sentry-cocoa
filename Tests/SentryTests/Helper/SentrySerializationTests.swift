@@ -539,7 +539,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext) {
+    private func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)
