@@ -20,7 +20,7 @@ final class UIImageHelper {
         context.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
         guard let pixelBuffer = context.data else { return .black }
         
-        let data = pixelBuffer.bindMemory(to: UInt8.self, capacity: 4)
+        let data = pixelBuffer.bindMemory(to: UInt8.self, capacity: 3)
         
         let blue = CGFloat(data[0]) / 255.0
         let green = CGFloat(data[1]) / 255.0

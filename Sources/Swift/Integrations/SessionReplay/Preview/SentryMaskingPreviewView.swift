@@ -17,6 +17,7 @@ class SentryMaskingPreviewView: UIView {
     private let photographer: SentryViewPhotographer
     private var displayLink: CADisplayLink?
     private var imageView = UIImageView()
+    private var idle = true
     
     var opacity: Float {
         get { return Float(imageView.alpha) }
@@ -55,10 +56,12 @@ class SentryMaskingPreviewView: UIView {
     
     @objc
     private func update() {
-        guard let superview = self.superview else { return }
+        guard let superview = self.superview, idle else { return }
+        idle = false
         self.photographer.image(view: superview) { image in
             DispatchQueue.main.async {
                 self.imageView.image = image
+                self.idle = true
             }
         }
     }
