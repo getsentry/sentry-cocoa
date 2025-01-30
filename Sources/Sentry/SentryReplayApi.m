@@ -87,7 +87,8 @@
     [replayIntegration showMaskPreview:opacity];
 }
 
-- (void)hideMaskPreview {
+- (void)hideMaskPreview
+{
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
