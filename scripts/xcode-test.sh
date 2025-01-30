@@ -114,3 +114,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         xcbeautify --quieter --renderer github-actions &&
         slather coverage --configuration "$CONFIGURATION"
 fi
+
+# DELETE THIS COMMENT
