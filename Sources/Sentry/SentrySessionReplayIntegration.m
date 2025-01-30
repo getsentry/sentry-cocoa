@@ -51,7 +51,7 @@ static SentryTouchTracker *_touchTracker;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
-    SentryMaskingPreviewView *previewView;
+    SentryMaskingPreviewView *_previewView;
     // We need to use this variable to identify whether rate limiting was ever activated for session
     // replay in this session, instead of always looking for the rate status in `SentryRateLimits`
     // This is the easiest way to ensure segment 0 will always reach the server, because session
@@ -629,19 +629,19 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    if (previewView == nil) {
-        previewView = [[SentryMaskingPreviewView alloc] initWithRedactOptions:_replayOptions];
+    if (_previewView == nil) {
+        _previewView = [[SentryMaskingPreviewView alloc] initWithRedactOptions:_replayOptions];
     }
 
-    previewView.opacity = opacity;
-    [previewView setFrame:window.bounds];
-    [window addSubview:previewView];
+    _previewView.opacity = opacity;
+    [_previewView setFrame:window.bounds];
+    [window addSubview:_previewView];
 }
 
 - (void)hideMaskPreview
 {
-    [previewView removeFromSuperview];
-    previewView = nil;
+    [_previewView removeFromSuperview];
+    _previewView = nil;
 }
 
 #    pragma mark - SentryReachabilityObserver
