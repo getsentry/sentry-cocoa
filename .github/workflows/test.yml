@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - ci/validate-test-timeouts
 
   pull_request:
     paths:
