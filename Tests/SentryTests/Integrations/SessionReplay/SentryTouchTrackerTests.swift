@@ -52,7 +52,7 @@ class SentryTouchTrackerTests: XCTestCase {
         }
     }
     
-    var dateprovider = TestCurrentDateProvider()
+    private var dateprovider = TestCurrentDateProvider()
     
     override func setUp() {
         super.setUp()
@@ -66,7 +66,7 @@ class SentryTouchTrackerTests: XCTestCase {
     
     private var referenceDate = Date(timeIntervalSinceReferenceDate: 0)
     
-    func getSut(dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()) -> SentryTouchTracker {
+    private func getSut(dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()) -> SentryTouchTracker {
         return SentryTouchTracker(dateProvider: dateprovider, scale: 1, dispatchQueue: dispatchQueue)
     }
     

@@ -551,7 +551,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
     }
-    
+
     func testShowMaskPreviewForDebug() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
         let window = UIWindow()
@@ -577,7 +577,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(window.subviews.count, 0, "Mask preview should not appear in production")
     }
     
-    func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
+    private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
@@ -605,7 +605,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     }
     
-    func replayFolder() -> String {
+    private func replayFolder() -> String {
         let options = Options()
         options.dsn = "https://user@test.com/test"
         options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path

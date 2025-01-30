@@ -484,7 +484,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
     }
 
-    func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {
+    private func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {
         XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration))
         XCTAssertEqual(tracer.measurements[name]?.unit?.unit, "millisecond")
     }

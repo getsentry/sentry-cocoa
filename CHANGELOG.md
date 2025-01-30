@@ -6,6 +6,13 @@
 
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
+- Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
+- Add `NSNull` handling to `sentry_sanitize` (#4760)
+
+### Improvements
+
+- Add SentryHub to all log messages in the Hub (#4753)
+- More detailed log message when can't start session in SentryHub (#4752)
 
 ### Features
 

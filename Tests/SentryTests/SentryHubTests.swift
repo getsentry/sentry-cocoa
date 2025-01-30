@@ -752,6 +752,19 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
+    func testCaptureCrashEvent_ClientHasNoReleaseName() {
+        sut = fixture.getSut()
+        let options = fixture.options
+        options.releaseName = nil
+        let client = SentryClient(options: options)
+        sut.bindClient(client)
+        
+        givenCrashedSession()
+        sut.captureCrash(fixture.event)
+        
+        assertNoEventsSent()
+    }
+    
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         

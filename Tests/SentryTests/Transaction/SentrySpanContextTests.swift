@@ -1,7 +1,7 @@
 import XCTest
 
 class SentrySpanContextTests: XCTestCase {
-    let someOperation = "Some Operation"
+    private let someOperation = "Some Operation"
     
     func testInit() {
         let spanContext = SpanContext(operation: someOperation)

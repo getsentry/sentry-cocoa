@@ -99,7 +99,7 @@ class SentryBreadcrumbTests: XCTestCase {
         testIsNotEqual { breadcrumb in breadcrumb.setValue(nil, forKey: "unknown") }
     }
     
-    func testIsNotEqual(block: (Breadcrumb) -> Void ) {
+    private func testIsNotEqual(block: (Breadcrumb) -> Void ) {
         let breadcrumb = Fixture().breadcrumb
         block(breadcrumb)
         XCTAssertNotEqual(fixture.breadcrumb, breadcrumb)

@@ -4,15 +4,15 @@ import XCTest
 
 class SentryTransactionContextTests: XCTestCase {
     
-    let operation = "ui.load"
-    let transactionName = "Screen Load"
-    let origin = "auto.ui.swift_ui"
-    let traceID = SentryId()
-    let spanID = SpanId()
-    let parentSpanID = SpanId()
-    let nameSource = SentryTransactionNameSource.route
-    let sampled = SentrySampleDecision.yes
-    let parentSampled = SentrySampleDecision.no
+    private let operation = "ui.load"
+    private let transactionName = "Screen Load"
+    private let origin = "auto.ui.swift_ui"
+    private let traceID = SentryId()
+    private let spanID = SpanId()
+    private let parentSpanID = SpanId()
+    private let nameSource = SentryTransactionNameSource.route
+    private let sampled = SentrySampleDecision.yes
+    private let parentSampled = SentrySampleDecision.no
     
     func testPublicInit_WithOperation() {
         let context = TransactionContext(operation: operation)
