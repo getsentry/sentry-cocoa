@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-## Improvements
+### Improvements
 
+- Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
 
 ## Fixes
