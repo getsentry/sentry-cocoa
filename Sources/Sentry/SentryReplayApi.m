@@ -73,6 +73,29 @@
     [replayIntegration stop];
 }
 
+- (void)showMaskPreview
+{
+    [self showMaskPreview:1];
+}
+
+- (void)showMaskPreview:(CGFloat)opacity
+{
+    SentrySessionReplayIntegration *replayIntegration
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:SentrySessionReplayIntegration.class];
+
+    [replayIntegration showMaskPreview:opacity];
+}
+
+- (void)hideMaskPreview
+{
+    SentrySessionReplayIntegration *replayIntegration
+        = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
+            getInstalledIntegration:SentrySessionReplayIntegration.class];
+
+    [replayIntegration hideMaskPreview];
+}
+
 @end
 
 #endif
