@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.44.0
 
 ### Fixes
 
@@ -19,6 +19,8 @@
 
 ### Features
 
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
+- Session replay masking preview for SwiftUI (#4737)
 - SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)

@@ -21,6 +21,19 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     }
     
+    private class TestCrashWrapper: SentryCrashWrapper {
+        let traced: Bool
+        
+        init(traced: Bool = true) {
+            self.traced = traced
+            // not calling super.init() here as we don't actually want to install crash reporter machinery
+        }
+        
+        override func isBeingTraced() -> Bool {
+            traced
+        }
+    }
+    
     override func setUpWithError() throws {
         guard #available(iOS 16.0, tvOS 16.0, *)  else {
             throw XCTSkip("iOS version not supported")
@@ -537,6 +550,31 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
+    }
+
+    func testShowMaskPreviewForDebug() throws {
+        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
+        let window = UIWindow()
+        uiApplication.windowsMock = [window]
+        
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        sut.showMaskPreview(1)
+        
+        XCTAssertEqual(window.subviews.count, 1, "Mask preview did not appear in production" )
+        XCTAssertTrue(window.subviews.first is SentryMaskingPreviewView)
+    }
+    
+    func testDontShowMaskPreviewForRelese() throws {
+        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
+        let window = UIWindow()
+        uiApplication.windowsMock = [window]
+        
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        sut.showMaskPreview(1)
+        
+        XCTAssertEqual(window.subviews.count, 0, "Mask preview should not appear in production")
     }
     
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
