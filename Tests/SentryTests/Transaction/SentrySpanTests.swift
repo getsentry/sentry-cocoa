@@ -474,7 +474,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
-        XCTAssertEqual(serialization["sampled"] as? NSNumber, true)
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         

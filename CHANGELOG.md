@@ -2,9 +2,18 @@
 
 ## Unreleased
 
+
 ### Features
 
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
+
+## Improvements
+
+- Add `sample_rand` to baggage (#4751)
+
+## Fixes
+
+- Fix missing `sample_rate` in baggage (#4751)
 
 ## 8.44.0
 

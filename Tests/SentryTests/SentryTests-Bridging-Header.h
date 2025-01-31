@@ -60,6 +60,7 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryBuildAppStartSpans.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClassRegistrator.h"
 #import "SentryClient+Private.h"
