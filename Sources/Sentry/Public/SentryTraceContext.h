@@ -48,12 +48,12 @@ NS_SWIFT_NAME(TraceContext)
 @property (nullable, nonatomic, readonly) NSString *userSegment;
 
 /**
- * Sample rate used for this trace.
+ * Serialized sample rate used for this trace.
  */
 @property (nullable, nonatomic, readonly) NSString *sampleRate;
 
 /**
- * Random value used to determine if the trace is sampled.
+ * Serialized random value used to determine if the trace is sampled.
  */
 @property (nullable, nonatomic, readonly) NSString *sampleRand;
 
