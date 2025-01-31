@@ -40,7 +40,7 @@ _sentry_calcSample(NSNumber *rate)
         = random <= rate.doubleValue ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
     return [[SentrySamplerDecision alloc] initWithDecision:decision
                                              forSampleRate:rate
-                                            withSampleRand:[NSNumber numberWithDouble:random]];
+                                            withSampleRand:@(random)];
 }
 
 SentrySamplerDecision *

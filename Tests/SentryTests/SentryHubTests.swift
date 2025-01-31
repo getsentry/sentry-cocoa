@@ -370,7 +370,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
 
@@ -399,7 +399,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_DoesNotCaptureEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
 
@@ -428,7 +428,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_RecordsLostEvent() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
 
@@ -463,7 +463,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(lostEvent?.reason, .sampleRate)
     }
     
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_RecordsLostSpans() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         let trans = Dynamic(transaction).toTransaction().asAnyObject
@@ -517,7 +517,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(lostEvent?.quantity, 4)
     }
     
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testSaveCrashTransaction_SavesTransaction() throws {
         let scope = fixture.scope
         let sut = SentryHub(client: fixture.client, andScope: scope)
@@ -559,7 +559,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(0, client.recordLostEvents.count)
     }
     
-    @available(*, deprecated) // The test is marked as deprecated to silence the deprecation warning of the initializer
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testSaveCrashTransaction_NotSampled_DoesNotSaveTransaction() throws {
         let scope = fixture.scope
         let sut = SentryHub(client: fixture.client, andScope: scope)
