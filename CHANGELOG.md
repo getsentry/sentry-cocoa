@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-
 ### Features
 
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
 
-## Improvements
+### Improvements
 
+- Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
 
 ## Fixes
