@@ -7,10 +7,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) SentrySampleDecision decision;
 
+@property (nonatomic, nullable, strong, readonly) NSNumber *sampleRand;
+
 @property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
 
 - (instancetype)initWithDecision:(SentrySampleDecision)decision
-                   forSampleRate:(nullable NSNumber *)sampleRate;
+                   forSampleRate:(nullable NSNumber *)sampleRate
+                  withSampleRand:(nullable NSNumber *)sampleRand;
 
 @end
 

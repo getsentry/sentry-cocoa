@@ -13,7 +13,7 @@ class SentryProfileTestFixture {
     }
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
-    
+
     let options: Options
     let client: TestClient?
     let hub: SentryHub
@@ -21,7 +21,9 @@ class SentryProfileTestFixture {
     let message = "some message"
     let transactionName = "Some Transaction"
     let transactionOperation = "Some Operation"
-    
+
+    let fixedRandomValue = 0.5
+
     let systemWrapper = TestSentrySystemWrapper()
     let processInfoWrapper = TestSentryNSProcessInfoWrapper()
     let dispatchFactory = TestDispatchFactory()
@@ -40,7 +42,7 @@ class SentryProfileTestFixture {
     init() {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
-        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: fixedRandomValue)
         SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory

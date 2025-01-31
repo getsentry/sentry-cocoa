@@ -16,7 +16,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
     }
     
     func testContentsOfLaunchTraceProfileTransactionContext() {
-        let context = sentry_context(NSNumber(value: 1))
+        let context = sentry_context(NSNumber(value: 1), NSNumber(value: 1))
         XCTAssertEqual(context.nameSource.rawValue, 0)
         XCTAssertEqual(context.origin, "auto.app.start.profile")
         XCTAssertEqual(context.sampled, .yes)
@@ -116,18 +116,29 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
     }
    
     func testLaunchTraceProfileConfiguration() throws {
+        // -- Arrange --
         let expectedProfilesSampleRate: NSNumber = 0.567
+        let expectedProfilesSampleRand: NSNumber = fixture.fixedRandomValue as NSNumber
         let expectedTracesSampleRate: NSNumber = 0.789
+        let expectedTracesSampleRand: NSNumber = fixture.fixedRandomValue as NSNumber
+
+        // -- Act --
         let options = Options()
         options.enableAppLaunchProfiling = true 
         options.profilesSampleRate = expectedProfilesSampleRate
         options.tracesSampleRate = expectedTracesSampleRate
+
+        // Smoke test that the file doesn't exist yet
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], expectedTracesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand], expectedTracesSampleRand)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], expectedProfilesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand], expectedProfilesSampleRand)
     }
 
     // test that after configuring for a launch profile, a subsequent
@@ -176,23 +187,37 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
     // the next launch, configuring profiling for continuous mode, that the
     // configuration file switches from trace-based to continuous-style config
     func testSwitchFromTraceBasedToContinuousLaunchProfileConfiguration() throws {
+        // -- Arrange --
         let options = Options()
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
         options.tracesSampleRate = 0.789
+
+        // Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // -- Act --
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
-        
-        options.profilesSampleRate = nil     
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
+
+        // -- Act --
+        options.profilesSampleRate = nil
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
         let newDict = try XCTUnwrap(appLaunchProfileConfiguration())
         XCTAssertEqual(newDict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyTracesSampleRand])
         XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
+        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
     }
  
     func testTraceProfilerStartsWhenBothSampleRatesAreSetAboveZero() {

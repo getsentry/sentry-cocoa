@@ -25,7 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 BOOL isProfilingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
+NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand = @"traces.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
+NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand = @"profiles.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
 static SentryTracer *_Nullable launchTracer;
 
@@ -34,12 +36,13 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_config(NSNumber *profilesRate)
+sentry_config(NSNumber *profilesRate, NSNumber *profilesRand)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
         [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                          forSampleRate:profilesRate];
+                                          forSampleRate:profilesRate
+                                         withSampleRand:profilesRand];
     return config;
 }
 
@@ -92,15 +95,16 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
 }
 
 SentryTransactionContext *
-sentry_context(NSNumber *tracesRate)
+sentry_context(NSNumber *tracesRate, NSNumber *tracesRand)
 {
     SentryTransactionContext *context =
         [[SentryTransactionContext alloc] initWithName:@"launch"
                                             nameSource:kSentryTransactionNameSourceCustom
                                              operation:SentrySpanOperation.appLifecycle
                                                 origin:SentryTraceOrigin.autoAppStartProfile
-                                               sampled:kSentrySampleDecisionYes];
-    context.sampleRate = tracesRate;
+                                               sampled:kSentrySampleDecisionYes
+                                            sampleRate:tracesRate
+                                            sampleRand:tracesRand];
     return context;
 }
 
@@ -143,6 +147,13 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
+    NSNumber *profilesRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
+    if (profilesRate == nil) {
+        SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rand, will not "
+                         @"start trace profiler for launch.");
+        return;
+    }
+
     NSNumber *tracesRate = launchConfig[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (tracesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rate, will not start "
@@ -150,12 +161,19 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
+    NSNumber *tracesRand = launchConfig[kSentryLaunchProfileConfigKeyTracesSampleRand];
+    if (tracesRate == nil) {
+        SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rand, will not start "
+                         @"trace profiler for launch.");
+        return;
+    }
+
     SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
     sentry_isTracingAppLaunch = YES;
     sentry_launchTracer =
-        [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate)
+        [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate, tracesRand)
                                                      hub:nil
-                                           configuration:sentry_config(profilesRate)];
+                                           configuration:sentry_config(profilesRate, profilesRand)];
 }
 
 #    pragma mark - Public
@@ -179,8 +197,12 @@ sentry_configureLaunchProfiling(SentryOptions *options)
         } else {
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
                 = config.tracesDecision.sampleRate;
+            configDict[kSentryLaunchProfileConfigKeyTracesSampleRand]
+                = config.tracesDecision.sampleRand;
             configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
                 = config.profilesDecision.sampleRate;
+            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand]
+                = config.profilesDecision.sampleRand;
         }
         writeAppLaunchProfilingConfigFile(configDict);
     }];
