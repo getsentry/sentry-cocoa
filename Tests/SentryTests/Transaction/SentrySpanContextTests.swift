@@ -2,18 +2,18 @@
 import XCTest
 
 class SentrySpanContextTests: XCTestCase {
-    let operation = "ui.load"
-    let transactionName = "Screen Load"
-    let origin = "auto.ui.swift_ui"
-    let spanDescription = "span description"
-    let traceID = SentryId()
-    let spanID = SpanId()
-    let parentSpanID = SpanId()
-    let sampled = SentrySampleDecision.yes
+    private let operation = "ui.load"
+    private let transactionName = "Screen Load"
+    private let origin = "auto.ui.swift_ui"
+    private let spanDescription = "span description"
+    private let traceID = SentryId()
+    private let spanID = SpanId()
+    private let parentSpanID = SpanId()
+    private let sampled = SentrySampleDecision.yes
 
     // MARK: - Legacy Tests
 
-    let someOperation = "Some Operation"
+    private let someOperation = "Some Operation"
 
     func testInit() {
         let spanContext = SpanContext(operation: someOperation)

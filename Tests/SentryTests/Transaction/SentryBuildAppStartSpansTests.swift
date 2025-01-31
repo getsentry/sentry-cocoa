@@ -269,7 +269,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
     }
 
-    func assertSpan(
+    private func assertSpan(
         span: Span,
         expectedTraceId: String,
         expectedParentSpanId: String,

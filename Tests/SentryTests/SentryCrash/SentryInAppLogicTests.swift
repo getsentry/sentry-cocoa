@@ -176,7 +176,7 @@ class SentryInAppLogicTests: XCTestCase {
         testWithImages(images: images, inAppIncludes: ["watchOS-Swift WatchKit Extension"])
     }
     
-    func testWithImages(images: Images, inAppIncludes: [String], inAppExcludes: [String] = []) {
+    private func testWithImages(images: Images, inAppIncludes: [String], inAppExcludes: [String] = []) {
         let sut = fixture.getSut(inAppIncludes: inAppIncludes, inAppExcludes: inAppExcludes)
         XCTAssertTrue(sut.is(inApp: images.bundleExecutable))
         images.privateFrameworks.forEach {
@@ -190,7 +190,7 @@ class SentryInAppLogicTests: XCTestCase {
         }
     }
     
-    struct Images {
+    private struct Images {
         let bundleExecutable: String
         /**
          Private frameworks embedded in the application bundle. These frameworks are embedded, but are part of the app and should me marked as inApp.

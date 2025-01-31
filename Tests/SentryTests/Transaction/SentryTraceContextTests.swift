@@ -216,8 +216,8 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(baggage.sampleRand, fixture.sampleRand)
         XCTAssertEqual(baggage.replayId, fixture.replayId)
     }
-
-    func assertTraceState(traceContext: TraceContext) {
+        
+    private func assertTraceState(traceContext: TraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)
         XCTAssertEqual(traceContext.publicKey, fixture.publicKey)
         XCTAssertEqual(traceContext.releaseName, fixture.releaseName)
@@ -228,7 +228,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(traceContext.replayId, fixture.replayId)
     }
 
-    func assertFullTraceState(
+    private func assertFullTraceState(
         traceContext: TraceContext,
         expectedTraceId: SentryId,
         expectedPublicKey: String,

@@ -85,7 +85,7 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
     
-    func withValue(setValue: (inout [String: Any]) -> Void) {
+    private func withValue(setValue: (inout [String: Any]) -> Void) {
         let expected = TestData.appState
         var serialized = expected.serialize()
         setValue(&serialized)

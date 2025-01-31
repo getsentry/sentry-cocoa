@@ -449,7 +449,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 
-    let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
+    private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
 
     private class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
         static var captureReplayCalledTimes = 0
@@ -469,7 +469,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     #endif
     
-    func getUnhandledExceptionEnvelope() -> SentryEnvelope {
+    private func getUnhandledExceptionEnvelope() -> SentryEnvelope {
         let event = Event()
         event.message = SentryMessage(formatted: "Test Event with unhandled exception")
         event.level = .error

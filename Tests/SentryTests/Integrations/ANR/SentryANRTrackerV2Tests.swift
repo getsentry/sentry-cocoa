@@ -403,9 +403,10 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: self.waitTimeout)
         
-        XCTAssertEqual(0, threadWrapper.threads.count)
-        XCTAssertEqual(1, threadWrapper.threadStartedInvocations.count)
-        XCTAssertEqual(1, threadWrapper.threadFinishedInvocations.count)
+        XCTAssertEqual(0, threadWrapper.threads.count)        
+        // As it can take a while until a new thread is started, the thread tracker may start
+        // and finish multiple times. Most importantly, the code covers every start with one finish.
+        XCTAssertEqual(threadWrapper.threadStartedInvocations.count, threadWrapper.threadFinishedInvocations.count, "The number of started and finished threads should be equal, otherwise the ANR tracker could run.")
     }
     
     func testNoFrameDelayData_FullyBlocking_NotReported() throws {

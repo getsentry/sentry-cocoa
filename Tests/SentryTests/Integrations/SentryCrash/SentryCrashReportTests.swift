@@ -205,30 +205,30 @@ class SentryCrashReportTests: XCTestCase {
     
     // We parse JSON so it's fine to disable identifier_name
     // swiftlint:disable identifier_name
-    struct CrashReport: Decodable {
+    private struct CrashReport: Decodable {
         let user: CrashReportUserInfo?
         let sentry_sdk_scope: CrashReportUserInfo?
         let crash: Crash
     }
     
-    struct Crash: Decodable, Equatable {
+    private struct Crash: Decodable, Equatable {
         let error: ErrorContext
     }
     
-    struct ErrorContext: Decodable, Equatable {
+    private struct ErrorContext: Decodable, Equatable {
         let type: String?
         let reason: String?
         let nsexception: NSException?
         let mach: Mach?
     }
     
-    struct NSException: Decodable, Equatable {
+    private struct NSException: Decodable, Equatable {
         let name: String?
         let userInfo: String?
         let reason: String?
     }
     
-    struct Mach: Decodable, Equatable {
+    private struct Mach: Decodable, Equatable {
         let exception: Int?
         let exception_name: String?
         let code: Int?
@@ -236,7 +236,7 @@ class SentryCrashReportTests: XCTestCase {
         let subcode: Int?
     }
 
-    struct CrashReportUserInfo: Decodable, Equatable {
+    private struct CrashReportUserInfo: Decodable, Equatable {
         let user: CrashReportUser?
         let dist: String?
         let context: [String: [String: String]]?
@@ -249,7 +249,7 @@ class SentryCrashReportTests: XCTestCase {
         let breadcrumbs: [CrashReportCrumb]?
     }
     
-    struct CrashReportUser: Decodable, Equatable {
+    private struct CrashReportUser: Decodable, Equatable {
         let id: String
         let email: String
         let username: String
@@ -257,7 +257,7 @@ class SentryCrashReportTests: XCTestCase {
         let data: [String: [String: String]]
     }
 
-    struct CrashReportCrumb: Decodable, Equatable {
+    private struct CrashReportCrumb: Decodable, Equatable {
         let category: String
         let data: [String: [String: String]]
         let level: String

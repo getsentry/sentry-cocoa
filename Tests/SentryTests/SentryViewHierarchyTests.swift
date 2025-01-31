@@ -220,7 +220,7 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "appViewHierarchy is not using the main thread to get UI windows")
     }
 
-    class TestSentryUIApplication: SentryUIApplication {
+    private class TestSentryUIApplication: SentryUIApplication {
         private var _windows: [UIWindow]?
         private var _calledOnMainThread = true
 

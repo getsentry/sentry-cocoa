@@ -46,7 +46,7 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
         testWith(header: httpDateAsString, expected: expected)
     }
     
-    func testWith(header: String?, expected: Date?) {
+    private func testWith(header: String?, expected: Date?) {
         let actual = sut.parse(header)
         XCTAssertEqual(expected, actual)
     }

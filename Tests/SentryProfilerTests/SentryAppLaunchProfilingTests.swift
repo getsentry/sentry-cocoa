@@ -3,7 +3,7 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
-    var fixture: SentryProfileTestFixture!
+    private var fixture: SentryProfileTestFixture!
     
     override func setUp() {
         super.setUp()

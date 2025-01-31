@@ -536,7 +536,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
     }
 
-    func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
+    private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         XCTAssertEqual(sessionReplay.isFullSession, expected)
     }
 }

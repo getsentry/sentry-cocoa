@@ -5,20 +5,20 @@ import XCTest
 
 class SentryTransactionContextTests: XCTestCase {
     
-    let operation = "ui.load"
-    let transactionName = "Screen Load"
-    let origin = "auto.ui.swift_ui"
-    let spanDescription = "span description"
-    let traceID = SentryId()
-    let spanID = SpanId()
-    let parentSpanID = SpanId()
-    let nameSource = SentryTransactionNameSource.route
-    let sampled = SentrySampleDecision.yes
-    let parentSampled = SentrySampleDecision.no
-    let sampleRate = NSNumber(value: 0.123456789)
-    let parentSampleRate = NSNumber(value: 0.987654321)
-    let sampleRand = NSNumber(value: 0.333)
-    let parentSampleRand = NSNumber(value: 0.666)
+    private let operation = "ui.load"
+    private let transactionName = "Screen Load"
+    private let origin = "auto.ui.swift_ui"
+    private let spanDescription = "span description"
+    private let traceID = SentryId()
+    private let spanID = SpanId()
+    private let parentSpanID = SpanId()
+    private let nameSource = SentryTransactionNameSource.route
+    private let sampled = SentrySampleDecision.yes
+    private let parentSampled = SentrySampleDecision.no
+    private let sampleRate = NSNumber(value: 0.123456789)
+    private let parentSampleRate = NSNumber(value: 0.987654321)
+    private let sampleRand = NSNumber(value: 0.333)
+    private let parentSampleRand = NSNumber(value: 0.666)
 
     // MARK: - Legacy Tests
 

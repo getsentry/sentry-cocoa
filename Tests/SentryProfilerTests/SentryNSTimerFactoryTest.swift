@@ -1,10 +1,11 @@
 import XCTest
 
 class SentryNSTimerFactoryTests: XCTestCase {
-    struct Fixture {
+    
+    private struct Fixture {
         lazy var timerFactory = SentryNSTimerFactory()
     }
-    lazy var fixture = Fixture()
+    private lazy var fixture = Fixture()
 
     func testNonrepeatingTimer() {
         let exp = expectation(description: "timer fires exactly once")

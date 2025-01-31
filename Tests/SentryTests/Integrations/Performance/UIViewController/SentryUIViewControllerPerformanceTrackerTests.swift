@@ -10,19 +10,19 @@ class TestViewController: UIViewController {
 
 class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
-    let loadView = "loadView"
-    let viewWillLoad = "viewWillLoad"
-    let viewDidLoad = "viewDidLoad"
-    let viewWillAppear = "viewWillAppear"
-    let viewDidAppear = "viewDidAppear"
-    let viewWillDisappear = "viewWillDisappear"
-    let viewWillLayoutSubviews = "viewWillLayoutSubviews"
-    let viewDidLayoutSubviews = "viewDidLayoutSubviews"
-    let layoutSubviews = "layoutSubViews"
-    let spanName = "spanName"
-    let spanOperation = "spanOperation"
-    let origin = "auto.ui.view_controller"
-    let frameDuration = 0.0016
+    private let loadView = "loadView"
+    private let viewWillLoad = "viewWillLoad"
+    private let viewDidLoad = "viewDidLoad"
+    private let viewWillAppear = "viewWillAppear"
+    private let viewDidAppear = "viewDidAppear"
+    private let viewWillDisappear = "viewWillDisappear"
+    private let viewWillLayoutSubviews = "viewWillLayoutSubviews"
+    private let viewDidLayoutSubviews = "viewDidLayoutSubviews"
+    private let layoutSubviews = "layoutSubViews"
+    private let spanName = "spanName"
+    private let spanOperation = "spanOperation"
+    private let origin = "auto.ui.view_controller"
+    private let frameDuration = 0.0016
     
     private class Fixture {
         

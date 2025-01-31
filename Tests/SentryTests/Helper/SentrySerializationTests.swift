@@ -576,7 +576,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo, file: file, line: line)
     }
     
-    func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext, file: StaticString = #file, line: UInt = #line) {
+    private func assertTraceState(firstTrace: TraceContext, secondTrace: TraceContext, file: StaticString = #file, line: UInt = #line) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId, "Trace ID is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey, "Public key is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName, "Release name is not equal", file: file, line: line)

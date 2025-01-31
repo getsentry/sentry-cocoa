@@ -975,12 +975,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
-    func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) throws {
+    private func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) throws {
         fixture.getSut().urlSessionTask(try XCTUnwrap(task as? URLSessionTask), setState: state)
         task.state = state
     }
 
-    func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) {
+    private func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) {
         let sut = fixture.getSut()
         configSut?(sut)
 
@@ -1066,7 +1066,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(duration, expectedDuration)
     }
 
-    func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
+    private func createDataTask(method: String = "GET", modifyRequest: ((URLRequest) -> (URLRequest))? = nil) -> URLSessionDataTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         request.httpBody = fixture.nsUrlRequest.httpBody
@@ -1080,19 +1080,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         return URLSessionDataTaskMock(request: request)
     }
 
-    func createDownloadTask(method: String = "GET") -> URLSessionDownloadTaskMock {
+    private func createDownloadTask(method: String = "GET") -> URLSessionDownloadTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionDownloadTaskMock(request: request)
     }
 
-    func createUploadTask(method: String = "GET") -> URLSessionUploadTaskMock {
+    private func createUploadTask(method: String = "GET") -> URLSessionUploadTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionUploadTaskMock(request: request)
     }
 
-    func createStreamTask(method: String = "GET") -> URLSessionStreamTaskMock {
+    private func createStreamTask(method: String = "GET") -> URLSessionStreamTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
