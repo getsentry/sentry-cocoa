@@ -17,7 +17,9 @@ typedef struct {
 } SentryLaunchProfileConfig;
 
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
 
 SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
