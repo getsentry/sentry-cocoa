@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add more debug logs for SentryViewHierarchy (#4780)
+
 ## 8.44.0
 
 ### Fixes
