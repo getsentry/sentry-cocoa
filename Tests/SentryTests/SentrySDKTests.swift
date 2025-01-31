@@ -195,10 +195,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testDontStartInsideXcodePreview() {
-        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
-        testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
-        
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
+        startprocessInfoWrapperForPreview()
         
         SentrySDK.start { options in
             options.debug = true
@@ -558,6 +555,13 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testGlobalOptions() {
+        SentrySDK.start(options: fixture.options)
+        XCTAssertEqual(SentrySDK.options, fixture.options)
+    }
+    
+    func testGlobalOptionsForPreview() {
+        startprocessInfoWrapperForPreview()
+        
         SentrySDK.start(options: fixture.options)
         XCTAssertEqual(SentrySDK.options, fixture.options)
     }
@@ -973,6 +977,12 @@ class SentrySDKTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    }
+    
+    private func startprocessInfoWrapperForPreview() {
+        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
+        testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
 }
 

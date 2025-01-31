@@ -203,6 +203,9 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+    // We save the options before checking for Xcode preview because
+    // we will use this options in the preview
+    startOption = options;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
         // Using NSLog because SentryLog was not initialized yet.
@@ -210,7 +213,6 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    startOption = options;
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
