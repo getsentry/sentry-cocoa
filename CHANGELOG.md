@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+## Improvements
+
+- Add `sample_rand` to baggage (#4751)
+
+## Fixes
+
+- Fix missing `sample_rate` in baggage (#4751)
+
 ## 8.44.0
 
 ### Fixes
@@ -8,7 +18,6 @@
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 - Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
-- Fix missing `sample_rate` in baggage (#4751)
 - Add `NSNull` handling to `sentry_sanitize` (#4760)
 
 ### Improvements
@@ -20,7 +29,6 @@
 
 ### Features
 
-- Add `sample_rand` to baggage (#4751)
 - SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)

@@ -162,24 +162,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
-
-    func testInitSentryEnvelopeHeader_withSampleRand_SetIdAndTraceState() {
-        // -- Arrange --
-        let eventId = SentryId()
-        let traceContext = TraceContext(
-            trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment",
-            transaction: "transaction", userSegment: nil,
-            sampleRate: nil, sampleRand: nil, sampled: nil, 
-            replayId: nil
-        )
-
-        // -- Act --
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
-
-        // -- Assert --
-        XCTAssertEqual(eventId, envelopeHeader.eventId)
-        XCTAssertEqual(traceContext, envelopeHeader.traceContext)
-    }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
