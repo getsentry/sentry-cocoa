@@ -492,7 +492,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     NSDate *requestStart
         = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE);
 
-    SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
+    NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+    SentryLevel breadcrumbLevel = [self getBreadcrumbLevel:sessionTask
+                                        responseStatusCode:responseStatusCode];
+
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
@@ -507,7 +510,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     breadcrumbData[@"response_body_size"] =
         [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
-    NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
         breadcrumbData[@"status_code"] = statusCode;
@@ -599,6 +602,23 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return kSentrySpanStatusDeadlineExceeded;
     }
     return kSentrySpanStatusUndefined;
+}
+
+- (SentryLevel)getBreadcrumbLevel:(NSURLSessionTask *)sessionTask
+               responseStatusCode:(NSInteger)responseStatusCode
+{
+    SentryLevel breadcrumbLevel = kSentryLevelInfo;
+    if (responseStatusCode >= 400 && responseStatusCode < 500) {
+        breadcrumbLevel = kSentryLevelWarning;
+    } else if (responseStatusCode >= 500 && responseStatusCode < 600) {
+        breadcrumbLevel = kSentryLevelError;
+    }
+
+    if (sessionTask.error != nil) {
+        breadcrumbLevel = kSentryLevelError;
+    }
+
+    return breadcrumbLevel;
 }
 
 @end

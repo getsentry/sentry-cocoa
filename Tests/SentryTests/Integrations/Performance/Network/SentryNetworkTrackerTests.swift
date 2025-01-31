@@ -578,6 +578,147 @@ class SentryNetworkTrackerTests: XCTestCase {
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
+    
+    func test_Breadcrumb_HTTP400_HasLevelWarning() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 400))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .warning)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(400, data["status_code"] as? Int)
+        XCTAssertEqual("bad request", data["reason"] as? String)
+    }
+    
+    func test_Breadcrumb_HTTP499_HasLevelWarning() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 499))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .warning)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(499, data["status_code"] as? Int)
+        XCTAssertEqual("client error", data["reason"] as? String)
+    }
+    
+    func testBreadcrumb_SessionTaskError_HTTP400_HasLevelError() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 400))
+        task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .error)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(400, data["status_code"] as? Int)
+        XCTAssertEqual("bad request", data["reason"] as? String)
+    }
+    
+    func test_Breadcrumb_HTTP500_HasLevelError() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .error)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(500, data["status_code"] as? Int)
+        XCTAssertEqual("internal server error", data["reason"] as? String)
+    }
+    
+    func test_Breadcrumb_HTTP599_HasLevelError() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 599))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .error)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(599, data["status_code"] as? Int)
+        XCTAssertEqual("server error", data["reason"] as? String)
+    }
 
     func testResumeAfterCompleted_OnlyOneSpanCreated() throws {
         let task = createDataTask()
