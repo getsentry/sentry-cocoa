@@ -5,6 +5,7 @@
 ## Improvements
 
 - Add `sample_rand` to baggage (#4751)
+- Add uptime to log messages (#4781)
 
 ## Fixes
 

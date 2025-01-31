@@ -13,6 +13,7 @@ class SentryLog: NSObject {
     static let alwaysLevel = SentryLevel.fatal
     private static var logOutput = SentryLogOutput()
     private static var logConfigureLock = NSLock()
+    private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     @objc
     static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
@@ -26,7 +27,14 @@ class SentryLog: NSObject {
     @objc
     static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
-        logOutput.log("[Sentry] [\(level)] \(message)")
+        
+        // We use the uptime because it's guaranteed to be linear even when the
+        // date time changes. Furthermore, initializing date objects and using the
+        // date format adds some overhead. The uptime shows the time difference
+        // between the logs. If we ever need the actual date and time, we can
+        // reconsider.
+        let uptime = nanosecondsToTimeInterval(self.dateProvider.systemTime())
+        logOutput.log("[Sentry] [\(level)] [uptime:\(uptime)] \(message)")
     }
 
     /**
@@ -52,6 +60,10 @@ class SentryLog: NSObject {
     
     static func getOutput() -> SentryLogOutput {
         return logOutput
+    }
+    
+    static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
     }
     
     #endif
