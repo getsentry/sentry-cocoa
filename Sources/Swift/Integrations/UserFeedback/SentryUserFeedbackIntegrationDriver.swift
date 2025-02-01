@@ -28,9 +28,14 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
             widgetConfigBuilder(configuration.widgetConfig)
             validate(configuration.widgetConfig)
         }
+        
         if let uiFormConfigBuilder = configuration.configureForm {
             uiFormConfigBuilder(configuration.formConfig)
         }
+        if configuration.formConfig.enableScreenshot && !Bundle.main.canRequestAuthorizationToAttachPhotos {
+            SentryLog.warning("User feedback was configured to allow attaching images, but the required info plist key NSPhotoLibraryUsageDescription to request photos access was not included. The button to add a screenshot to user feedback will be hidden from end users.")
+        }
+        
         if let themeOverrideBuilder = configuration.configureTheme {
             themeOverrideBuilder(configuration.theme)
         }

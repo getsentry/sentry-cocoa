@@ -57,7 +57,6 @@
                 config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
                     if ([args containsObject:@"--io.sentry.feedback.auto-inject-widget"]) {
                         widget.labelText = @"Report Jank";
-                        widget.widgetAccessibilityLabel = @"io.sentry.iOS-Swift.button.report-jank";
                         widget.layoutUIOffset = layoutOffset;
                     } else {
                         widget.autoInject = NO;

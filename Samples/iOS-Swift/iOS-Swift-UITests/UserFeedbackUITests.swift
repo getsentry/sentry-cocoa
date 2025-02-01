@@ -34,7 +34,7 @@ extension UserFeedbackUITests {
     func testUIElementsWithDefaults() {
         launchApp(args: ["--io.sentry.feedback.all-defaults"])
         // widget button text
-        XCTAssert(app.staticTexts["Report a Bug"].exists)
+        XCTAssert(app.otherElements["Report a Bug"].exists)
         
         widgetButton.tap()
         
@@ -63,10 +63,10 @@ extension UserFeedbackUITests {
     }
     
     func testUIElementsWithCustomizations() {
-        launchApp()
+        launchApp(args: ["--io.sentry.feedback.auto-inject-widget"])
         
         // widget button text
-        XCTAssert(app.staticTexts["Report Jank"].exists)
+        XCTAssert(app.otherElements["Report Jank"].exists)
         
         widgetButton.tap()
         
@@ -327,10 +327,10 @@ extension UserFeedbackUITests {
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
-        
-        // first swipe down dismisses the keyboard that's still visible from typing the above inputs
+
+        // dismiss the onscreen keyboard
         app.swipeDown(velocity: .fast)
-        
+
         // the modal cancel gesture
         app.swipeDown(velocity: .fast)
         
@@ -378,7 +378,7 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
+        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
     }
@@ -402,7 +402,7 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint")
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thine email and thy complaint."].exists)
+        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following fields: thine email and thy complaint."].exists)
         
         app.buttons["OK"].tap()
     }
@@ -429,7 +429,7 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint;thy name")
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following fields: thy name, thine email and thy complaint."].exists)
+        XCTAssert(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You must provide all required information before submitting. Please check the following fields: thy name, thine email and thy complaint.'")).exists)
         
         app.buttons["OK"].tap()
     }
@@ -448,7 +448,7 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information. Please check the following field: description."].exists)
+        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
     }

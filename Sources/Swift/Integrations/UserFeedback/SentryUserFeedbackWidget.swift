@@ -19,7 +19,7 @@ struct SentryUserFeedbackWidget {
             
             lazy var button = SentryUserFeedbackWidgetButtonView(config: config, action: { _ in
                 self.setWidget(visible: false)
-                let form = SentryUserFeedbackForm(config: self.config, delegate: self)
+                let form = SentryUserFeedbackFormController(config: self.config, delegate: self)
                 form.presentationController?.delegate = self
                 self.present(form, animated: self.config.animations) {  
                     self.config.onFormOpen?()
@@ -54,6 +54,11 @@ struct SentryUserFeedbackWidget {
             
             required init?(coder: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
+            }
+            
+            override func viewDidLayoutSubviews() {
+                super.viewDidLayoutSubviews()
+                button.updateAccessibilityFrame()
             }
             
             // MARK: Helpers
