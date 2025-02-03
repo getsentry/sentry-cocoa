@@ -1,5 +1,6 @@
 module.exports = ({ github, context, core }) => {
   const fs = require("fs");
+  const path = require("path");
 
   try {
     const logsDir = path.join("~/Library/Logs/scan");
