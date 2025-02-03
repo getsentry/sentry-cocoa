@@ -32,8 +32,8 @@ class SentryLog: NSObject {
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
-        let time = self.dateProvider.date().timeIntervalSinceReferenceDate
-        logOutput.log("[Sentry] [\(level)] [timeIntervalSinceReferenceDate:\(time)] \(message)")
+        let time = self.dateProvider.date().timeIntervalSince1970
+        logOutput.log("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
     }
 
     /**
