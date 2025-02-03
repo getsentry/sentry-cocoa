@@ -11,6 +11,10 @@
 - Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
 
+### Internal 
+
+- Deserializing SentryEvents with Decodable (#4724)
+
 ## Fixes
 
 - Fix missing `sample_rate` in baggage (#4751)
@@ -65,14 +69,6 @@
 - Allow hybrid SDK to set replay options tags information (#4710)
 - Add threshold to always log fatal logs (#4707)
 
-### Improvements
-
-- Add error logging for invalid `cacheDirectoryPath` (#4693)
-
-### Internal
-
-- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
-- Deserializing SentryEvents with Decodable (#4724)
 ### Internal
 
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
