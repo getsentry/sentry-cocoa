@@ -6,18 +6,24 @@ class SentryLogTests: XCTestCase {
     private var oldDebug: Bool!
     private var oldLevel: SentryLevel!
     private var oldOutput: SentryLogOutput!
+    private let time: TimeInterval = 0.1234
 
     override func setUp() {
         super.setUp()
         oldDebug = SentryLog.isDebug
         oldLevel = SentryLog.diagnosticLevel
         oldOutput = SentryLog.getLogOutput()
+        
+        let currentDateProvider = TestCurrentDateProvider()
+        currentDateProvider.advance(by: time)
+        SentryLog.setCurrentDateProvider(currentDateProvider)
     }
 
     override func tearDown() {
         super.tearDown()
         SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
         SentryLog.setLogOutput(oldOutput)
+        SentryLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
 
     func testDefault_PrintsFatalAndError() {
@@ -30,7 +36,7 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(message: "2", andLevel: SentryLevel.warning)
         SentryLog.log(message: "3", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["[Sentry] [fatal] 0", "[Sentry] [error] 1"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] [timeIntervalSinceReferenceDate:\(time)] 0", "[Sentry] [error] [timeIntervalSinceReferenceDate:\(time)] 1"], logOutput.loggedMessages)
     }
     
     func testDefaultInitOfLogoutPut() {
@@ -53,7 +59,7 @@ class SentryLogTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(1, logOutput.loggedMessages.count)
-        XCTAssertEqual("[Sentry] [fatal] fatal", logOutput.loggedMessages.first)
+        XCTAssertEqual("[Sentry] [fatal] [timeIntervalSinceReferenceDate:\(time)] fatal", logOutput.loggedMessages.first)
     }
     
     func testLevelNone_PrintsEverythingExceptNone() {
@@ -68,11 +74,11 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(message: "4", andLevel: SentryLevel.debug)
         SentryLog.log(message: "5", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["[Sentry] [fatal] 0",
-                        "[Sentry] [error] 1",
-                        "[Sentry] [warning] 2",
-                        "[Sentry] [info] 3",
-                        "[Sentry] [debug] 4"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] [timeIntervalSinceReferenceDate:\(time)] 0",
+                        "[Sentry] [error] [timeIntervalSinceReferenceDate:\(time)] 1",
+                        "[Sentry] [warning] [timeIntervalSinceReferenceDate:\(time)] 2",
+                        "[Sentry] [info] [timeIntervalSinceReferenceDate:\(time)] 3",
+                        "[Sentry] [debug] [timeIntervalSinceReferenceDate:\(time)] 4"], logOutput.loggedMessages)
     }
     
     func testMacroLogsErrorMessage() {
@@ -82,7 +88,7 @@ class SentryLogTests: XCTestCase {
         
         sentryLogErrorWithMacro("error")
         
-        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [error] [timeIntervalSinceReferenceDate:\(time)] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
@@ -101,7 +107,7 @@ class SentryLogTests: XCTestCase {
         SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
         let line = #line + 1
         SentryLog.debug("Debug Log")
-        XCTAssertEqual(["[Sentry] [debug] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [debug] [timeIntervalSinceReferenceDate:\(time)] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
     }
     
 }

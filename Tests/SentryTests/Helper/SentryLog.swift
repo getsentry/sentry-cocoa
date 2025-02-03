@@ -21,4 +21,10 @@ extension Sentry.SentryLog {
         SentryLogOutput()
         #endif
     }
+    
+    static func setCurrentDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+        #if SENTRY_TEST || SENTRY_TEST_CI
+        SentryLog.setDateProvider(dateProvider)
+        #endif
+    }
 }
