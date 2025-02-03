@@ -10,7 +10,7 @@
 
 - Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
-- Add uptime to log messages (#4781)
+- Add time to log messages (#4781)
 
 ## Fixes
 

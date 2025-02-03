@@ -28,13 +28,12 @@ class SentryLog: NSObject {
     static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
-        // We use the uptime because it's guaranteed to be linear even when the
-        // date time changes. Furthermore, initializing date objects and using the
-        // date format adds some overhead. The uptime shows the time difference
-        // between the logs. If we ever need the actual date and time, we can
-        // reconsider.
-        let uptime = nanosecondsToTimeInterval(self.dateProvider.systemTime())
-        logOutput.log("[Sentry] [\(level)] [uptime:\(uptime)] \(message)")
+        // We use the timeIntervalSinceReferenceDate because date format is
+        // expensive and we only care about the time difference between the
+        // log messages. We don't use system uptime because of privacy concerns
+        // see: NSPrivacyAccessedAPICategorySystemBootTime.
+        let time = self.dateProvider.date().timeIntervalSinceReferenceDate
+        logOutput.log("[Sentry] [\(level)] [timeIntervalSinceReferenceDate:\(time)] \(message)")
     }
 
     /**
