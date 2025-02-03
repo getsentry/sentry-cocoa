@@ -85,7 +85,7 @@ class SentryGeoTests: XCTestCase {
         try testIsNotEqual { geo in geo.region = "" }
     }
     
-    func testIsNotEqual(block: (Geo) -> Void) throws {
+    private func testIsNotEqual(block: (Geo) -> Void) throws {
         let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         block(geo)
         XCTAssertNotEqual(TestData.geo, geo)

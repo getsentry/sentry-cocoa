@@ -142,11 +142,11 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
-    class func dsn() throws -> SentryDsn {
+    private class func dsn() throws -> SentryDsn {
         try TestConstants.dsn(username: "SentryHttpTransportTests")
     }
 
-    class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
+    private class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
         let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
         return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
     }
@@ -1021,7 +1021,7 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
-    func givenFirstRateLimitGetsActiveWithSecondResponse() {
+    private func givenFirstRateLimitGetsActiveWithSecondResponse() {
         var i = -1
         fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
             i += 1

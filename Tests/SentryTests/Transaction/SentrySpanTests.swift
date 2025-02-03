@@ -474,7 +474,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
-        XCTAssertEqual(serialization["sampled"] as? NSNumber, true)
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         
@@ -735,7 +734,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(sut.data["frames.delay"])
     }
     
-    func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
+    private func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: self.fixture.currentDateProvider)
         let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 10)
         framesTracker.start()

@@ -132,7 +132,7 @@ class SentryUserTests: XCTestCase {
         try testIsNotEqual { user in user.data?.removeAll() }
     }
     
-    func testIsNotEqual(block: (User) -> Void ) throws {
+    private func testIsNotEqual(block: (User) -> Void ) throws {
         let user = try XCTUnwrap(TestData.user.copy() as? User)
         block(user)
         XCTAssertNotEqual(TestData.user, user)

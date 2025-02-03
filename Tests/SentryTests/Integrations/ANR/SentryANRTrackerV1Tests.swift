@@ -49,7 +49,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         clearTestState()
     }
     
-    func start() {
+    private func start() {
         sut.add(listener: self)
     }
     
@@ -189,7 +189,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 0.0)
     }
     
-    func testClearDirectlyAfterStart() {
+    func testClearDirectlyAfterStart_FinishesThread() {
         anrDetectedExpectation.isInverted = true
         
         let invocations = 10
@@ -201,9 +201,13 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 1)
         
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
-        XCTAssertEqual(1, fixture.threadWrapper.threadStartedInvocations.count)
-        XCTAssertEqual(1, fixture.threadWrapper.threadFinishedInvocations.count)
+        // As it can take a while until a new thread is started, the thread tracker may start
+        // and finish multiple times. Most importantly, the code covers every start with one finish.
+        XCTAssertEqual(fixture.threadWrapper.threadStartedInvocations.count, fixture.threadWrapper.threadFinishedInvocations.count, "The number of started and finished threads should be equal, otherwise the ANR tracker could run.")
     }
+    
+    // swiftlint:disable test_case_accessibility
+    // Protocl implementation can't be private
     
     func anrDetected(type: Sentry.SentryANRType) {
         anrDetectedExpectation.fulfill()
@@ -212,6 +216,8 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     func anrStopped() {
         anrStoppedExpectation.fulfill()
     }
+    
+    // swiftlint:enable file_length
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))

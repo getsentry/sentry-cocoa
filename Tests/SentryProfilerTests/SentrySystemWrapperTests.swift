@@ -1,10 +1,10 @@
 import XCTest
 
 class SentrySystemWrapperTests: XCTestCase {
-    struct Fixture {
+    private struct Fixture {
         lazy var systemWrapper = SentrySystemWrapper()
     }
-    lazy var fixture = Fixture()
+    lazy private var fixture = Fixture()
 
     func testCPUUsageReportsData() throws {
         XCTAssertNoThrow({

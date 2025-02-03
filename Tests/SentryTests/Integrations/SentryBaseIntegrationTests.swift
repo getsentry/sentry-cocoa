@@ -8,10 +8,10 @@ class MyTestIntegration: SentryBaseIntegration {
 }
 
 class SentryBaseIntegrationTests: XCTestCase {
-    var logOutput: TestLogOutput!
-    var oldDebug: Bool!
-    var oldLevel: SentryLevel!
-    var oldOutput: SentryLogOutput!
+    private var logOutput: TestLogOutput!
+    private var oldDebug: Bool!
+    private var oldLevel: SentryLevel!
+    private var oldOutput: SentryLogOutput!
 
     override func setUp() {
         super.setUp()

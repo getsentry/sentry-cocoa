@@ -769,7 +769,7 @@ class SentryScopeSwiftTests: XCTestCase {
         })
     }
     
-    class TestScopeObserver: NSObject, SentryScopeObserver {
+    private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
             self.tags = tags

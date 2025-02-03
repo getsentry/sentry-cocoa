@@ -71,7 +71,7 @@ class SentryTransportFactoryTests: XCTestCase {
         })
     }
 
-    func rateLimiting() -> RateLimits {
+    private func rateLimiting() -> RateLimits {
         let dateProvider = TestCurrentDateProvider()
         let retryAfterHeaderParser = RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: dateProvider)
         let rateLimitParser = RateLimitParser(currentDateProvider: dateProvider)

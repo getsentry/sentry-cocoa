@@ -1,8 +1,20 @@
+@testable import Sentry
 import XCTest
 
 class SentrySpanContextTests: XCTestCase {
-    let someOperation = "Some Operation"
-    
+    private let operation = "ui.load"
+    private let transactionName = "Screen Load"
+    private let origin = "auto.ui.swift_ui"
+    private let spanDescription = "span description"
+    private let traceID = SentryId()
+    private let spanID = SpanId()
+    private let parentSpanID = SpanId()
+    private let sampled = SentrySampleDecision.yes
+
+    // MARK: - Legacy Tests
+
+    private let someOperation = "Some Operation"
+
     func testInit() {
         let spanContext = SpanContext(operation: someOperation)
         XCTAssertEqual(spanContext.sampled, SentrySampleDecision.undecided)
@@ -96,5 +108,201 @@ class SentrySpanContextTests: XCTestCase {
         
         XCTAssertNil(data["sampled"] )
     }
-    
+
+    // MARK: - SentrySpanContext - Public Initializers
+
+    func testPublicInit_WithOperation() {
+        // Act
+        let context = SpanContext(operation: operation)
+
+        // Assert
+        assertContext(
+            context: context,
+            expectedParentSpanId: nil,
+            expectedOperation: operation,
+            expectedOrigin: SentryTraceOrigin.manual,
+            expectedSpanDescription: nil,
+            expectedSampled: .undecided
+        )
+    }
+
+    func testPublicInit_WithOperationSampled() {
+        // Act
+        let context = SpanContext(operation: operation, sampled: sampled)
+
+        // Assert
+        assertContext(
+            context: context,
+            expectedParentSpanId: nil,
+            expectedOperation: operation,
+            expectedOrigin: SentryTraceOrigin.manual,
+            expectedSpanDescription: nil,
+            expectedSampled: sampled
+        )
+    }
+
+    func testPublicInit_WithTraceIdSpanIdParentIdOperationSampled() {
+        // Act
+        let context = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: parentSpanID,
+            operation: operation,
+            sampled: sampled
+        )
+
+        // Assert
+        assertContext(
+            context: context,
+            expectedParentSpanId: parentSpanID,
+            expectedOperation: operation,
+            expectedOrigin: SentryTraceOrigin.manual,
+            expectedSpanDescription: nil,
+            expectedSampled: sampled
+        )
+    }
+
+    func testPublicInit_WithTraceIdSpanIdParentIdOperationSpanDescriptionSampled() {
+        // Act
+        let context = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: parentSpanID,
+            operation: operation,
+            spanDescription: spanDescription,
+            sampled: sampled
+        )
+
+        // Assert
+        assertContext(
+            context: context,
+            expectedParentSpanId: parentSpanID,
+            expectedOperation: operation,
+            expectedOrigin: SentryTraceOrigin.manual,
+            expectedSpanDescription: spanDescription,
+            expectedSampled: sampled
+        )
+    }
+
+    // MARK: - Serialization
+
+    func testSerialization_minimalData_shouldNotIncludeNilValues() {
+        // Arrange
+        let spanContext = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: nil,
+            operation: operation,
+            spanDescription: nil,
+            sampled: .undecided
+        )
+
+        // Act
+        let data = spanContext.serialize()
+
+        // Assert
+        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["trace_id"] as? String, traceID.sentryIdString)
+        XCTAssertEqual(data["span_id"] as? String, spanID.sentrySpanIdString)
+        XCTAssertEqual(data["op"] as? String, operation)
+        XCTAssertNil(data["sampled"])
+        XCTAssertNil(data["description"])
+        XCTAssertNil(data["parent_span_id"])
+    }
+
+    func testSerialization_notSettingProperties_shouldNotSerialize() {
+        // Arrange
+        let spanContext = SpanContext(operation: operation)
+
+        // Act
+        let data = spanContext.serialize()
+
+        // Assert
+        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
+        XCTAssertEqual(data["trace_id"] as? String, spanContext.traceId.sentryIdString)
+        XCTAssertEqual(data["span_id"] as? String, spanContext.spanId.sentrySpanIdString)
+        XCTAssertEqual(data["op"] as? String, operation)
+        XCTAssertEqual(data["origin"] as? String, "manual")
+        XCTAssertNil(data["sampled"])
+        XCTAssertNil(data["description"])
+        XCTAssertNil(data["parent_span_id"])
+    }
+
+    func testSerialization_sampledDecisionYes_shouldSerializeToTrue() {
+        // Arrange
+        let spanContext = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: parentSpanID,
+            operation: operation,
+            sampled: .yes
+        )
+
+        // Act
+        let data = spanContext.serialize()
+
+        // Assert
+        XCTAssertEqual(data["sampled"] as? Bool, true)
+    }
+
+    func testSerialization_sampledDecisionNo_shouldSerializeToFalse() {
+        // Arrange
+        let spanContext = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: parentSpanID,
+            operation: operation,
+            sampled: .no
+        )
+
+        // Act
+        let data = spanContext.serialize()
+
+        // Assert
+        XCTAssertEqual(data["sampled"] as? Bool, false)
+    }
+
+    func testSerialization_sampledDecisionUndecided_shouldNotSerialize() {
+        // Arrange
+        let spanContext = SpanContext(
+            trace: traceID,
+            spanId: spanID,
+            parentId: parentSpanID,
+            operation: operation,
+            sampled: .undecided
+        )
+
+        // Act
+        let data = spanContext.serialize()
+
+        // Assert
+        XCTAssertNil(data["sampled"])
+    }
+
+    // MARK: - Assertion Helper
+
+    private func assertContext(
+        context: SpanContext,
+        expectedParentSpanId: SpanId?,
+        expectedOperation: String,
+        expectedOrigin: String?,
+        expectedSpanDescription: String?,
+        expectedSampled: SentrySampleDecision,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        XCTAssertNotNil(context.traceId, "Trace ID is nil", file: file, line: line)
+        XCTAssertNotNil(context.spanId, "Span ID is nil", file: file, line: line)
+        if let expectedParentSpanId = expectedParentSpanId {
+            XCTAssertEqual(context.parentSpanId, expectedParentSpanId, "Parent span ID does not match", file: file, line: line)
+        } else {
+            XCTAssertNil(context.parentSpanId, "Parent span ID is not nil", file: file, line: line)
+        }
+
+        XCTAssertEqual(context.sampled, expectedSampled, "Sample ID does not match", file: file, line: line)
+
+        XCTAssertEqual(context.operation, expectedOperation, "Operation does not match", file: file, line: line)
+        XCTAssertEqual(context.spanDescription, expectedSpanDescription, "Span description does not match", file: file, line: line)
+        XCTAssertEqual(context.origin, expectedOrigin, "Origin does not match", file: file, line: line)
+    }
 }

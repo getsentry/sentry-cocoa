@@ -106,7 +106,7 @@ class SentryScreenShotTests: XCTestCase {
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero height.")
     }
     
-    class TestSentryUIApplication: SentryUIApplication {
+    private class TestSentryUIApplication: SentryUIApplication {
         private var _windows: [UIWindow]?
         
         override var windows: [UIWindow]? {
@@ -119,7 +119,7 @@ class SentryScreenShotTests: XCTestCase {
         }
     }
 
-    class TestWindow: UIWindow {
+    private class TestWindow: UIWindow {
         var onDrawHierarchy: (() -> Void)?
         
         override func drawHierarchy(in rect: CGRect, afterScreenUpdates afterUpdates: Bool) -> Bool {

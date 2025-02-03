@@ -938,14 +938,30 @@ extension SentryFileManagerTests {
     }
     
     func testAppLaunchProfileConfiguration() throws {
+        // -- Assert --
         let expectedTracesSampleRate = 0.12
+        let expectedTracesSampleRand = 0.55
         let expectedProfilesSampleRate = 0.34
-        try ensureAppLaunchProfileConfig(tracesSampleRate: expectedTracesSampleRate, profilesSampleRate: expectedProfilesSampleRate)
+        let expectedProfilesSampleRand = 0.66
+
+        // -- Act --
+        try ensureAppLaunchProfileConfig(
+            tracesSampleRate: expectedTracesSampleRate,
+            tracesSampleRand: expectedTracesSampleRand,
+            profilesSampleRate: expectedProfilesSampleRate,
+            profilesSampleRand: expectedProfilesSampleRand
+        )
         let config = appLaunchProfileConfiguration()
+
+        // -- Assert --
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand]).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate]).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand]).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRand, expectedProfilesSampleRand)
     }
     
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
@@ -955,40 +971,61 @@ extension SentryFileManagerTests {
     }
     
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {
+        // -- Arrange --
         try ensureAppLaunchProfileConfig(exists: false)
         
         let expectedTracesSampleRate = 0.12
+        let expectedTracesSampleRand = 0.55
         let expectedProfilesSampleRate = 0.34
+        let expectedProfilesSampleRand = 0.66
         writeAppLaunchProfilingConfigFile([
             kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate
+            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
         ])
         
         let config = NSDictionary(contentsOf: launchProfileConfigFileURL())
         
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRand, expectedProfilesSampleRand)
     }
     
     // if a file is still present in the primary location, like if a crash occurred before it could be removed, or an error occurred when trying to remove it or move it to the backup location, make sure we overwrite it
     func testWriteAppLaunchProfilingConfigFile_fileAlreadyExists() throws {
-        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.75, profilesSampleRate: 0.75)
-        
+        // -- Arrange --
+        try ensureAppLaunchProfileConfig(exists: true, tracesSampleRate: 0.75, tracesSampleRand: 0.25, profilesSampleRate: 0.75, profilesSampleRand: 0.35)
+
         let expectedTracesSampleRate = 0.12
+        let expectedTracesSampleRand = 0.55
         let expectedProfilesSampleRate = 0.34
+        let expectedProfilesSampleRand = 0.66
+
+        // -- Act --
         writeAppLaunchProfilingConfigFile([
             kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate
+            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
         ])
         
+        // -- Assert --
         let config = NSDictionary(contentsOf: launchProfileConfigFileURL())
         
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
+        XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
+        XCTAssertEqual(actualProfilesSampleRand, expectedProfilesSampleRand)
     }
     
     func testRemoveAppLaunchProfilingConfigFile() throws {
@@ -1023,11 +1060,16 @@ extension SentryFileManagerTests {
 
 // MARK: Private profiling tests
 private extension SentryFileManagerTests {
-    func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, profilesSampleRate: Double = 1) throws {
+    func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, tracesSampleRand: Double = 1.0, profilesSampleRate: Double = 1, profilesSampleRand: Double = 1.0) throws {
         let url = launchProfileConfigFileURL()
         
         if exists {
-            let dict = [kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate, kSentryLaunchProfileConfigKeyProfilesSampleRate: profilesSampleRate]
+            let dict = [
+                kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate,
+                kSentryLaunchProfileConfigKeyTracesSampleRand: tracesSampleRand,
+                kSentryLaunchProfileConfigKeyProfilesSampleRate: profilesSampleRate,
+                kSentryLaunchProfileConfigKeyProfilesSampleRand: profilesSampleRand
+            ]
             try (dict as NSDictionary).write(to: url)
         } else {
             let fm = FileManager.default

@@ -15,7 +15,7 @@ class SentryViewPhotographerTests: XCTestCase {
         }
     }
     
-    func sut() -> SentryViewPhotographer {
+    private func sut() -> SentryViewPhotographer {
         return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
     }
     
