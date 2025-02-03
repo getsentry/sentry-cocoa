@@ -2,8 +2,24 @@
 
 ## Unreleased
 
-### Fixed
+### Features
 
+- HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
+
+### Improvements
+
+- Add more debug logs for SentryViewHierarchy (#4780)
+- Add `sample_rand` to baggage (#4751)
+
+## Fixes
+
+- Fix missing `sample_rate` in baggage (#4751)
+
+## 8.44.0
+
+### Fixes
+
+- Don't start the SDK inside Xcode preview (#4601)
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 - Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
@@ -11,8 +27,25 @@
 
 ### Improvements
 
+- Add native SDK information in the replay option event (#4663)
+- Add error logging for invalid `cacheDirectoryPath` (#4693)
 - Add SentryHub to all log messages in the Hub (#4753)
 - More detailed log message when can't start session in SentryHub (#4752)
+
+### Features
+
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
+- Session replay masking preview for SwiftUI (#4737)
+- SwiftUI time for initial display and time for full display (#4596)
+- Add protocol for custom screenName for UIViewControllers (#4646)
+- Allow hybrid SDK to set replay options tags information (#4710)
+- Add threshold to always log fatal logs (#4707)
+
+### Internal
+
+- Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
+- Convert constants SentrySpanOperation to Swift (#4718)
+- Convert constants SentryTraceOrigins to Swift (#4717)
 
 ## 8.44.0-beta.1
 
