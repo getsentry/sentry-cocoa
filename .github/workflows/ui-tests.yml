@@ -47,12 +47,12 @@ jobs:
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
             script({ github, context, core });
 
-      - name: Capture Spindump on Failure
+      - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
-      - name: Upload Spindump (if available)
+      - name: Recovery - Upload Spindump (if available)
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
@@ -90,6 +90,7 @@ jobs:
       
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
+        id: run-fastlane
         run: fastlane ui_tests_ios_swiftui device:"${{matrix.device}}"
         continue-on-error: true
 
@@ -102,12 +103,12 @@ jobs:
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
             script({ github, context, core });
 
-      - name: Capture Spindump on Failure
+      - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
-      - name: Upload Spindump (if available)
+      - name: Recovery - Upload Spindump (if available)
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
@@ -151,6 +152,7 @@ jobs:
         run: ./scripts/create-simulator.sh 14.3.1 16.4 "iPhone 14" true
 
       - name: Run Fastlane
+        id: run-fastlane
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
         continue-on-error: true
 
@@ -163,12 +165,12 @@ jobs:
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
             script({ github, context, core });
 
-      - name: Capture Spindump on Failure
+      - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
-      - name: Upload Spindump (if available)
+      - name: Recovery - Upload Spindump (if available)
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
@@ -197,6 +199,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - name: Run Fastlane
+        id: run-fastlane
         run: fastlane ui_tests_ios_swift6
         continue-on-error: true
 
@@ -209,12 +212,12 @@ jobs:
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
             script({ github, context, core });
 
-      - name: Capture Spindump on Failure
+      - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
-      - name: Upload Spindump (if available)
+      - name: Recovery - Upload Spindump (if available)
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
@@ -244,6 +247,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
       - name: Run Fastlane
+        id: run-fastlane
         run: fastlane duplication_test
         continue-on-error: true
 
@@ -256,12 +260,12 @@ jobs:
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
             script({ github, context, core });
 
-      - name: Capture Spindump on Failure
+      - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
-      - name: Upload Spindump (if available)
+      - name: Recovery - Upload Spindump (if available)
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
