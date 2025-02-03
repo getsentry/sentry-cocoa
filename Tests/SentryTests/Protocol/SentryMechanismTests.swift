@@ -1,3 +1,4 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -42,5 +43,41 @@ class SentryMechanismTests: XCTestCase {
     
     func testSerialize_Bools() {
         SentryBooleanSerialization.test(Mechanism(type: ""), property: "handled")
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let expected = TestData.mechanism
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: expected.serialize()))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Mechanism?)
+        
+        // Assert
+        XCTAssertEqual(expected.type, decoded.type)
+        XCTAssertEqual(expected.desc, decoded.desc)
+        XCTAssertEqual(expected.handled, decoded.handled)
+        XCTAssertEqual(expected.synthetic, decoded.synthetic)
+        XCTAssertEqual(expected.helpLink, decoded.helpLink)
+        
+        XCTAssertEqual(expected.meta?.error?.code, decoded.meta?.error?.code)
+        XCTAssertEqual(expected.meta?.error?.domain, decoded.meta?.error?.domain)
+    }
+    
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let expected = Mechanism(type: "type")
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: expected.serialize()))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Mechanism?)
+        
+        // Assert
+        XCTAssertEqual(expected.type, decoded.type)
+        XCTAssertNil(decoded.desc)
+        XCTAssertNil(decoded.handled)
+        XCTAssertNil(decoded.synthetic)
+        XCTAssertNil(decoded.helpLink)
+        XCTAssertNil(decoded.meta?.error)
     }
 }

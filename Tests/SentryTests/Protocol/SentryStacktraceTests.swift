@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryStacktraceTests: XCTestCase {
@@ -35,5 +36,68 @@ class SentryStacktraceTests: XCTestCase {
     
     func testSerialize_Bools() {
         SentryBooleanSerialization.test(SentryStacktrace(frames: [], registers: [:]), property: "snapshot")
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let stacktrace = TestData.stacktrace
+        let serialized = stacktrace.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        
+        // Assert
+        XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
+        XCTAssertEqual(stacktrace.registers, decoded.registers)
+        XCTAssertEqual(stacktrace.snapshot, decoded.snapshot)
+    }
+    
+    func testDecode_MissingSnapshot() throws {
+        // Arrange
+        let stacktrace = TestData.stacktrace
+        stacktrace.snapshot = nil
+        let serialized = stacktrace.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        
+        // Assert
+        XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
+        XCTAssertEqual(stacktrace.registers, decoded.registers)
+        XCTAssertNil(decoded.snapshot)
+    }
+    
+    func testDecode_EmptyFrames() throws {
+        // Arrange
+        let stacktrace = TestData.stacktrace
+        stacktrace.frames = []
+        let serialized = stacktrace.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        
+        // Assert
+        XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
+        XCTAssertEqual(stacktrace.registers, decoded.registers)
+        XCTAssertEqual(stacktrace.snapshot, decoded.snapshot)
+    }
+    
+    func testDecode_EmptyRegisters() throws {
+        // Arrange
+        let stacktrace = TestData.stacktrace
+        stacktrace.registers = [:]
+        let serialized = stacktrace.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        
+        // Assert
+        XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
+        XCTAssertEqual(stacktrace.registers, decoded.registers)
+        XCTAssertEqual(stacktrace.snapshot, decoded.snapshot)
     }
 }

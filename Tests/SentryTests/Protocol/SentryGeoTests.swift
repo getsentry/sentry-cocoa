@@ -1,6 +1,8 @@
+@testable import Sentry
 import XCTest
 
 class SentryGeoTests: XCTestCase {
+    
     func testSerializationWithAllProperties() throws {
         let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         let actual = geo.serialize()
@@ -13,6 +15,47 @@ class SentryGeoTests: XCTestCase {
         XCTAssertEqual(TestData.geo.city, actual["city"] as? String)
         XCTAssertEqual(TestData.geo.countryCode, actual["country_code"] as? String)
         XCTAssertEqual(TestData.geo.region, actual["region"] as? String)
+    }
+    
+    func testSerialization_WithAllPropertiesNil() throws {
+        let geo = Geo()
+        
+        let actual = geo.serialize()
+        
+        XCTAssertNil(actual["city"])
+        XCTAssertNil(actual["country_code"])
+        XCTAssertNil(actual["region"])
+    }
+    
+    func testSerialization_WithEmptyString() throws {
+        let geo = Geo()
+        geo.city = ""
+        
+        let actual = geo.serialize()
+        
+        XCTAssertEqual("", actual["city"] as? String)
+        XCTAssertNil(actual["country_code"])
+        XCTAssertNil(actual["region"])
+    }
+    
+    func testDecodeWithAllProperties() throws {
+        let geo = TestData.geo
+        let actual = geo.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        let decoded = decodeFromJSONData(jsonData: data) as Geo?
+        
+        XCTAssertEqual(geo, decoded)
+    }
+    
+    func testDecode_WithAllPropertiesNil() throws {
+        let geo = Geo()
+        let actual = geo.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        let decoded = decodeFromJSONData(jsonData: data) as Geo?
+        
+        XCTAssertEqual(geo, decoded)
     }
     
     func testHash() {

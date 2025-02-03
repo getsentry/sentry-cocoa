@@ -1,9 +1,10 @@
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentryMechanismMetaTests: XCTestCase {
 
-    func testSerialize() {
+    func testSerialize() throws {
         let sut = TestData.mechanismMeta
         
         let actual = sut.serialize()
@@ -15,31 +16,15 @@ class SentryMechanismMetaTests: XCTestCase {
         
         let expected = TestData.mechanismMeta
         
-        guard let error = actual["ns_error"] as? [String: Any] else {
-            XCTFail("The serialization doesn't contain ns_error")
-            return
-        }
-        let nsError = expected.error! as SentryNSError
-        XCTAssertEqual(Dynamic(nsError).domain, error["domain"] as? String)
-        XCTAssertEqual(Dynamic(nsError).code, error["code"] as? Int)
+        let error = try XCTUnwrap(actual["ns_error"] as? [String: Any])
         
-        guard let signal = actual["signal"] as? [String: Any] else {
-            XCTFail("The serialization doesn't contain signal")
-            return
-        }
-        XCTAssertEqual(try XCTUnwrap(expected.signal?["number"] as? Int), try XCTUnwrap(signal["number"] as? Int))
-        XCTAssertEqual(try XCTUnwrap(expected.signal?["code"] as? Int), try XCTUnwrap(signal["code"] as? Int))
-        XCTAssertEqual(try XCTUnwrap(expected.signal?["name"] as? String), try XCTUnwrap(signal["name"] as? String))
-        XCTAssertEqual(try XCTUnwrap(expected.signal?["code_name"] as? String), try XCTUnwrap(signal["code_name"] as? String))
-        
-        guard let machException = actual["mach_exception"] as? [String: Any] else {
-            XCTFail("The serialization doesn't contain mach_exception")
-            return
-        }
-        XCTAssertEqual(try XCTUnwrap(expected.machException?["name"] as? String), try XCTUnwrap(machException["name"] as? String))
-        XCTAssertEqual(try XCTUnwrap(expected.machException?["exception"] as? Int), try XCTUnwrap(machException["exception"] as? Int))
-        XCTAssertEqual(try XCTUnwrap(expected.machException?["subcode"] as? Int), try XCTUnwrap(machException["subcode"] as? Int))
-        XCTAssertEqual(try XCTUnwrap(expected.machException?["code"] as? Int), try XCTUnwrap(machException["code"] as? Int))
+        let nsError = try XCTUnwrap(expected.error)
+        XCTAssertEqual(nsError.domain, error["domain"] as? String)
+        XCTAssertEqual(nsError.code, error["code"] as? Int)
+    
+        try assertSignal(actual: actual["signal"] as? [String: Any], expected: expected.signal)
+
+        try assertMachException(actual: actual["mach_exception"] as? [String: Any], expected: expected.machException)
     }
     
     func testSerialize_CallsSanitize() {
@@ -56,6 +41,58 @@ class SentryMechanismMetaTests: XCTestCase {
         
         let signal = actual["signal"] as? [String: Any]
         XCTAssertEqual(self.description, try XCTUnwrap(signal?["a"]  as? String))
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let sut = TestData.mechanismMeta
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: sut.serialize()))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)
+        
+        // Assert
+        try assertSignal(actual: decoded.signal, expected: sut.signal)
+        try assertMachException(actual: decoded.machException, expected: sut.machException)
+        XCTAssertEqual(sut.error?.code, decoded.error?.code)
+    }
+    
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let sut = TestData.mechanismMeta
+        sut.signal = nil
+        sut.machException = nil
+        sut.error = nil
+
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: sut.serialize()))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)   
+
+        // Assert
+        XCTAssertNil(decoded.signal)
+        XCTAssertNil(decoded.machException)
+        XCTAssertNil(decoded.error)
+    }
+    
+    private func assertSignal(actual: [String: Any]?, expected: [String: Any]?) throws {
+        let actualNonNil = try XCTUnwrap(actual)
+        let expectedNonNil = try XCTUnwrap(expected)
+        
+        XCTAssertEqual(expectedNonNil["number"] as? Int, actualNonNil["number"] as? Int)
+        XCTAssertEqual(expectedNonNil["code"] as? Int, actualNonNil["code"] as? Int)
+        XCTAssertEqual(expectedNonNil["name"] as? String, actualNonNil["name"] as? String)
+        XCTAssertEqual(expectedNonNil["code_name"] as? String, actualNonNil["code_name"] as? String)
+    }
+    
+    private func assertMachException(actual: [String: Any]?, expected: [String: Any]?) throws {
+        let actualNonNil = try XCTUnwrap(actual)
+        let expectedNonNil = try XCTUnwrap(expected)
+        
+        XCTAssertEqual(expectedNonNil["name"] as? String, actualNonNil["name"] as? String)
+        XCTAssertEqual(expectedNonNil["exception"] as? Int, actualNonNil["exception"] as? Int)
+        XCTAssertEqual(expectedNonNil["subcode"] as? Int, actualNonNil["subcode"] as? Int)
+        XCTAssertEqual(expectedNonNil["code"] as? Int, actualNonNil["code"] as? Int)
     }
 
 }
