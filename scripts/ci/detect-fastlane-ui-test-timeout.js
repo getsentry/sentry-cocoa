@@ -3,7 +3,7 @@ module.exports = ({ github, context, core }) => {
   const path = require("path");
 
   try {
-    const logsDir = path.resolve("~/Library/Logs/scan");
+    const logsDir = path.join(process.env.HOME, "Library", "Logs", "scan");
     console.log("Checking logs directory:", logsDir);
     if (!fs.existsSync(logsDir)) {
       throw new Error("No logs directory found");
