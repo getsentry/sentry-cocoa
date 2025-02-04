@@ -156,7 +156,9 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(crumb.message, decoded.message)
         
         let crumbData = try XCTUnwrap(crumb.data as? NSDictionary)
-        XCTAssertTrue((crumbData.isEqual(to: decoded.data as NSDictionary?)))
+        let decodedData = try XCTUnwrap(decoded.data as? NSDictionary)
+
+        XCTAssertEqual(crumbData, decodedData)
         XCTAssertEqual(crumb.origin, decoded.origin)
         
         // We don't decode unknown on purpose, because it's complicated to decode with
