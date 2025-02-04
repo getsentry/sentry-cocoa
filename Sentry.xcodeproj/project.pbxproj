@@ -108,6 +108,8 @@
 		628094742D39584C00B3F18B /* SentryUserCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 628094732D39584700B3F18B /* SentryUserCodable.swift */; };
 		6281C5722D3E4F12009D0978 /* DecodeArbitraryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6281C5712D3E4F06009D0978 /* DecodeArbitraryData.swift */; };
 		6281C5742D3E50DF009D0978 /* ArbitraryDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6281C5732D3E50D8009D0978 /* ArbitraryDataTests.swift */; };
+		628308612D50ADAC00EAEF77 /* SentryRequestCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 628308602D50ADAC00EAEF77 /* SentryRequestCodable.swift */; };
+		6283085F2D50AA8C00EAEF77 /* SentryMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6283085E2D50AA8C00EAEF77 /* SentryMessage.swift */; };
 		62862B1C2B1DDBC8009B16E3 /* SentryDelayedFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 62862B1B2B1DDBC8009B16E3 /* SentryDelayedFrame.h */; };
 		62862B1E2B1DDC35009B16E3 /* SentryDelayedFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 62862B1D2B1DDC35009B16E3 /* SentryDelayedFrame.m */; };
 		62872B5F2BA1B7F300A4FA7D /* NSLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62872B5E2BA1B7F300A4FA7D /* NSLock.swift */; };
@@ -1158,6 +1160,8 @@
 		628094732D39584700B3F18B /* SentryUserCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUserCodable.swift; sourceTree = "<group>"; };
 		6281C5712D3E4F06009D0978 /* DecodeArbitraryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodeArbitraryData.swift; sourceTree = "<group>"; };
 		6281C5732D3E50D8009D0978 /* ArbitraryDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitraryDataTests.swift; sourceTree = "<group>"; };
+		628308602D50ADAC00EAEF77 /* SentryRequestCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRequestCodable.swift; sourceTree = "<group>"; };
+		6283085E2D50AA8C00EAEF77 /* SentryMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMessage.swift; sourceTree = "<group>"; };
 		62862B1B2B1DDBC8009B16E3 /* SentryDelayedFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDelayedFrame.h; path = include/SentryDelayedFrame.h; sourceTree = "<group>"; };
 		62862B1D2B1DDC35009B16E3 /* SentryDelayedFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDelayedFrame.m; sourceTree = "<group>"; };
 		62872B5E2BA1B7F300A4FA7D /* NSLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLock.swift; sourceTree = "<group>"; };
@@ -2218,7 +2222,9 @@
 				620078712D38F00D0022CB67 /* SentryGeoCodable.swift */,
 				628094732D39584700B3F18B /* SentryUserCodable.swift */,
 				627C77882D50B6840055E966 /* SentryBreadcrumbCodable.swift */,
+				628308602D50ADAC00EAEF77 /* SentryRequestCodable.swift */,
 				620078732D38F0DF0022CB67 /* SentryCodable.swift */,
+				6283085E2D50AA8C00EAEF77 /* SentryMessage.swift */,
 			);
 			path = Codable;
 			sourceTree = "<group>";
@@ -4939,6 +4945,7 @@
 				62F70E952D423BCD00634054 /* SentryMechanismCodable.swift in Sources */,
 				0AAE201E28ED9B9400D0CD80 /* SentryReachability.m in Sources */,
 				7B0A54282521C22C00A71716 /* SentryFrameRemover.m in Sources */,
+				6283085F2D50AA8C00EAEF77 /* SentryMessage.swift in Sources */,
 				7BC63F0A28081288009D9E37 /* SentrySwizzleWrapper.m in Sources */,
 				7B6C5EDC264E8DA80010D138 /* SentryFramesTrackingIntegration.m in Sources */,
 				849B8F9A2C6E906900148E1F /* SentryUserFeedbackConfiguration.swift in Sources */,
@@ -4962,6 +4969,7 @@
 				7B6D1261265F784000C9BE4B /* PrivateSentrySDKOnly.mm in Sources */,
 				63BE85711ECEC6DE00DC44F5 /* SentryDateUtils.m in Sources */,
 				7BD4BD4927EB2A5D0071F4FF /* SentryDiscardedEvent.m in Sources */,
+				628308612D50ADAC00EAEF77 /* SentryRequestCodable.swift in Sources */,
 				03F84D3827DD4191008FE43F /* SentryBacktrace.cpp in Sources */,
 				D8739D182BEEA33F007D2F66 /* SentryLevelHelper.m in Sources */,
 				63FE712720DA4C1000CDBAE8 /* SentryCrashThread.c in Sources */,
