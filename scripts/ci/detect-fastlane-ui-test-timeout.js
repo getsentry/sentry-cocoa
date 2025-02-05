@@ -1,3 +1,7 @@
+/**
+ * Detects if the UI tests failed because of a timeout.
+ * If not, this method will throw an error, causing a non-zero exit code.
+ */
 module.exports = ({ github, context, core }, pathToLogFile) => {
   const fs = require("fs");
   const path = require("path");
@@ -29,7 +33,6 @@ module.exports = ({ github, context, core }, pathToLogFile) => {
     }
 
     core.warning("Retry condition found, retrying...");
-    core.setOutput("RETRY_TEST", "true");
   } catch (error) {
     core.setFailed(error.message);
   }
