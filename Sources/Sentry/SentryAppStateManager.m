@@ -151,7 +151,7 @@
 {
     // The app is terminating so it is fine to do this on the main thread.
     // Furthermore, so users can manually post UIApplicationWillTerminateNotification and then call
-    // exit(0), to avoid getting false OOM when using exit(0), see GH-1252.
+    // exit(0), to avoid getting false watchdog terminations when using exit(0), see GH-1252.
     [self updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
 }
 

@@ -36,7 +36,7 @@
     return self;
 }
 
-- (void)endCurrentSessionAsCrashedWhenCrashOrOOM
+- (void)endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination
 {
     if (self.crashWrapper.crashedLastLaunch
 #if SENTRY_HAS_UIKIT
