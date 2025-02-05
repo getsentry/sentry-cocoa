@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <Foundation/Foundation.h>
 #    import <SentryAppState.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>

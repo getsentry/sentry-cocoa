@@ -6,7 +6,6 @@
 #    import "SentryClient+Private.h"
 #    import "SentryScreenshot.h"
 #    import "SentrySwift.h"
-#    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

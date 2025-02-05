@@ -4,7 +4,6 @@
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import <Foundation/Foundation.h>
 #import <SentryBuildAppStartSpans.h>
 
 #if SENTRY_HAS_UIKIT
