@@ -12,8 +12,8 @@ protocol ViewRenderer {
 
 class DefaultViewRenderer: ViewRenderer {
     func render(view: UIView) -> UIImage {
-        let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
-            view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
+        let image = UIGraphicsImageRenderer(size: view.bounds.size).image { context in
+            view.layer.render(in: context.cgContext)
         }
         return image
     }
