@@ -1,5 +1,6 @@
 #import "SentryLevelHelper.h"
 #import "SentryBreadcrumb+Private.h"
+#import "SentryEvent.h"
 
 @implementation SentryLevelBridge : NSObject
 + (NSUInteger)breadcrumbLevel:(SentryBreadcrumb *)breadcrumb
@@ -11,4 +12,10 @@
 {
     breadcrumb.level = level;
 }
+
++ (void)setBreadcrumbLevelOnEvent:(SentryEvent *)event level:(NSUInteger)level
+{
+    event.level = level;
+}
+
 @end

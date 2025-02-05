@@ -58,7 +58,30 @@ enum ArbitraryData: Decodable {
 func decodeArbitraryData(decode: () throws -> [String: ArbitraryData]?) -> [String: Any]? {
     do {
         let rawData = try decode()
+        if rawData == nil {
+            return nil
+        }
+        
         return unwrapArbitraryDict(rawData)
+    } catch {
+        SentryLog.error("Failed to decode raw data: \(error)")
+        return nil
+    }
+}
+
+func decodeArbitraryData(decode: () throws -> [String: [String: ArbitraryData]]?) -> [String: [String: Any]]? {
+    do {
+        let rawData = try decode()
+        if rawData == nil {
+            return nil
+        }
+        
+        var newData = [String: [String: Any]]()
+        for (key, value) in rawData ?? [:] {
+            newData[key] = unwrapArbitraryDict(value)
+        }
+        
+        return newData
     } catch {
         SentryLog.error("Failed to decode raw data: \(error)")
         return nil
