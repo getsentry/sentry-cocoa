@@ -35,11 +35,10 @@ jobs:
       - name: Run Fastlane
         id: run-fastlane
         run: fastlane ui_tests_${{matrix.target}} 2>&1 | tee fastlane.log
-        continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
-        if: ${{ steps.run-fastlane.outcome == 'failure' }}
+        if: ${{ failure() }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -47,12 +46,12 @@ jobs:
             script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
       - name: Recovery - Upload Spindump (if available)
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: ui-tests-${{matrix.target}}-spindump
@@ -60,7 +59,7 @@ jobs:
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: fastlane ui_tests_${{matrix.target}}
 
       - name: Archiving Raw Test Logs
@@ -91,11 +90,10 @@ jobs:
       - name: Run Fastlane
         id: run-fastlane
         run: fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" 2>&1 | tee fastlane.log
-        continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
-        if: ${{ steps.run-fastlane.outcome == 'failure' }}
+        if: ${{ failure() }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -103,12 +101,12 @@ jobs:
             script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
       - name: Recovery - Upload Spindump (if available)
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: ui-tests-swift-ui-${{matrix.xcode}}-${{matrix.device}}-spindump
@@ -116,7 +114,7 @@ jobs:
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: fastlane ui_tests_ios_swiftui device:"${{matrix.device}}"
 
       - name: Archiving Raw Test Logs
@@ -153,11 +151,10 @@ jobs:
       - name: Run Fastlane
         id: run-fastlane
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}" 2>&1 | tee fastlane.log
-        continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
-        if: ${{ steps.run-fastlane.outcome == 'failure' }}
+        if: ${{ failure() }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -165,12 +162,12 @@ jobs:
             script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
       - name: Recovery - Upload Spindump (if available)
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: ui-tests-swift-${{matrix.xcode}}-${{matrix.device}}-spindump
@@ -178,7 +175,7 @@ jobs:
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
 
       - name: Archiving Raw Test Logs
@@ -200,11 +197,10 @@ jobs:
       - name: Run Fastlane
         id: run-fastlane
         run: fastlane ui_tests_ios_swift6 2>&1 | tee fastlane.log
-        continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
-        if: ${{ steps.run-fastlane.outcome == 'failure' }}
+        if: ${{ failure() }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -212,12 +208,12 @@ jobs:
             script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
       - name: Recovery - Upload Spindump (if available)
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: ui-tests-swift6-spindump
@@ -225,7 +221,7 @@ jobs:
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: fastlane ui_tests_ios_swift6
 
       - name: Archiving Raw Test Logs
@@ -248,11 +244,10 @@ jobs:
       - name: Run Fastlane
         id: run-fastlane
         run: fastlane duplication_test 2>&1 | tee fastlane.log
-        continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
-        if: ${{ steps.run-fastlane.outcome == 'failure' }}
+        if: ${{ failure() }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -260,12 +255,12 @@ jobs:
             script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: |
           ./scripts/ci/create-xctest-spindump.sh
 
       - name: Recovery - Upload Spindump (if available)
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: duplication-test-spindump
@@ -273,7 +268,7 @@ jobs:
 
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
-        if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
+        if: ${{ failure() && steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
         run: fastlane duplication_test
 
       - name: Archiving Raw Test Logs
