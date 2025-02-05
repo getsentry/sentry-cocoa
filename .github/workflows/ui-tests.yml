@@ -6,14 +6,13 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - '.github/workflows/ui-tests.yml'
-      - 'fastlane/**'
-      - '.sauce/config.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Samples/iOS-Swift/**'
-
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/**"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -35,9 +34,9 @@ jobs:
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         id: run-fastlane
-        run: fastlane ui_tests_${{matrix.target}}
+        run: fastlane ui_tests_${{matrix.target}} 2>&1 | tee fastlane.log
         continue-on-error: true
-      
+
       - name: Recovery - Check if the test runner never began executing
         id: check-if-test-should-be-retried
         if: ${{ steps.run-fastlane.outcome == 'failure' }}
@@ -45,7 +44,7 @@ jobs:
         with:
           script: |
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
-            script({ github, context, core });
+            script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
@@ -58,7 +57,7 @@ jobs:
         with:
           name: ui-tests-${{matrix.target}}-spindump
           path: spindump.txt
-      
+
       - name: Recovery - Run Fastlane again
         id: run-fastlane-retry-1
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
@@ -87,11 +86,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         id: run-fastlane
-        run: fastlane ui_tests_ios_swiftui device:"${{matrix.device}}"
+        run: fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" 2>&1 | tee fastlane.log
         continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
@@ -101,7 +100,7 @@ jobs:
         with:
           script: |
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
-            script({ github, context, core });
+            script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
@@ -153,7 +152,7 @@ jobs:
 
       - name: Run Fastlane
         id: run-fastlane
-        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
+        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}" 2>&1 | tee fastlane.log
         continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
@@ -163,7 +162,7 @@ jobs:
         with:
           script: |
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
-            script({ github, context, core });
+            script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
@@ -190,7 +189,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-   
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
     runs-on: macos-15
@@ -200,7 +199,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - name: Run Fastlane
         id: run-fastlane
-        run: fastlane ui_tests_ios_swift6
+        run: fastlane ui_tests_ios_swift6 2>&1 | tee fastlane.log
         continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
@@ -210,7 +209,7 @@ jobs:
         with:
           script: |
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
-            script({ github, context, core });
+            script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}
@@ -237,7 +236,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated
     runs-on: macos-15
@@ -248,7 +247,7 @@ jobs:
       - run: ./scripts/build-xcframework.sh gameOnly
       - name: Run Fastlane
         id: run-fastlane
-        run: fastlane duplication_test
+        run: fastlane duplication_test 2>&1 | tee fastlane.log
         continue-on-error: true
 
       - name: Recovery - Check if the test runner never began executing
@@ -258,7 +257,7 @@ jobs:
         with:
           script: |
             const script = require('./scripts/ci/detect-fastlane-ui-test-timeout.js');
-            script({ github, context, core });
+            script({ github, context, core }, 'fastlane.log');
 
       - name: Recovery - Capture Spindump on Failure
         if: ${{ steps.check-if-test-should-be-retried.outputs.RETRY_TEST == 'true' }}

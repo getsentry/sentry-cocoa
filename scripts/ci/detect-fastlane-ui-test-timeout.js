@@ -1,39 +1,35 @@
-module.exports = ({ github, context, core }) => {
+module.exports = ({ github, context, core }, pathToLogFile) => {
   const fs = require("fs");
   const path = require("path");
 
   try {
-    const logsDir = path.join(process.env.HOME, "Library", "Logs", "scan");
-    console.log("Checking logs directory:", logsDir);
-    if (!fs.existsSync(logsDir)) {
-      throw new Error("No logs directory found");
+    core.info("Checking if log file exists:", pathToLogFile);
+    if (!fs.existsSync(pathToLogFile)) {
+      throw new Error("Log file does not exist");
     }
-    console.log("Logs directory exists, looking for logs...");
-    const logs = fs.readdirSync(logsDir);
-    console.log(`Found ${logs.length} logs`);
-    const lastLog = logs[logs.length - 1];
-    if (!lastLog) {
-      throw new Error("No logs found");
-    }
-    const lastLogPath = path.join(logsDir, lastLog);
-    console.log("Last log path:", lastLogPath);
 
-    const lastLogContent = fs.readFileSync(lastLogPath, "utf8");
+    core.info("Reading log file:", pathToLogFile);
+    const lastLogContent = fs.readFileSync(pathToLogFile, "utf8");
+
+    if (core.isDebug()) {
+      core.debug("Log file content:");
+      core.debug(lastLogContent);
+    }
+
     const retryReasonRegexs = [
       /Test\srunner\snever\sbegan\sexecuting\stests\safter\slaunching/,
     ];
-    console.log("Checking for retry reason...");
+
+    core.info("Checking log content for retry reason...");
     const retryReason = retryReasonRegexs.find((regex) =>
       lastLogContent.match(regex)
     );
-    if (retryReason) {
-      core.warning("Retry condition found, retrying...");
-      core.setOutput("RETRY_TEST", "true");
-
-      return;
+    if (!retryReason) {
+      throw new Error("Retry condition not found!");
     }
 
-    throw new Error("Retry condition not found!");
+    core.warning("Retry condition found, retrying...");
+    core.setOutput("RETRY_TEST", "true");
   } catch (error) {
     core.setFailed(error.message);
   }
