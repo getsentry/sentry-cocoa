@@ -82,7 +82,7 @@ class SentryLogTests: XCTestCase {
         
         sentryLogErrorWithMacro("error")
         
-        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:20] error"], logOutput.loggedMessages)
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {

@@ -6,7 +6,6 @@
 
 #        import "SentryDefines.h"
 #        import "SentryProfiler+Private.h"
-#        import <Foundation/Foundation.h>
 
 @class SentryDebugMeta;
 @class SentryHub;

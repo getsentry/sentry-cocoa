@@ -8,7 +8,6 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentrySysctl.h"
-#    import <Foundation/Foundation.h>
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>

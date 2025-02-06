@@ -1,5 +1,4 @@
 #import "SentryLevelMapper.h"
-#import <Foundation/Foundation.h>
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>

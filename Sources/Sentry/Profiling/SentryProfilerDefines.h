@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
     SentryProfilerModeTrace,

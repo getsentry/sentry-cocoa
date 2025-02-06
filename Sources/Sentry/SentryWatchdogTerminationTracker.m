@@ -1,7 +1,6 @@
 #import "SentryDateUtils.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
-#import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>

@@ -6,7 +6,6 @@
 #import "SentryCrashMonitor_System.h"
 #import "SentryScope.h"
 #import "SentryUIDeviceWrapper.h"
-#import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
 #import <SentryCrashMonitor_System.h>

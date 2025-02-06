@@ -1,6 +1,5 @@
 #import "SentryInAppLogic.h"
 #import "SentryLog.h"
-#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 NS_ASSUME_NONNULL_BEGIN
