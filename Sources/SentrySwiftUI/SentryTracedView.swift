@@ -171,10 +171,20 @@ public struct SentryTracedView<Content: View>: View {
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
+
+#if canImport(UIKit) && os(iOS) || os(tvOS)
+    func sentryTrace(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil) -> some View {
+        return SentryTracedView(viewName, waitForFullDisplay: waitForFullDisplay) {
+            return self
+        }
+    }
+#else
     func sentryTrace(_ viewName: String? = nil) -> some View {
         return SentryTracedView(viewName) {
             return self
         }
     }
+#endif
+
 }
 #endif
