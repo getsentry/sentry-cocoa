@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import <Foundation/Foundation.h>
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;

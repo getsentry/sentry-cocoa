@@ -10,8 +10,6 @@
 #    import "SentryDefines.h"
 #endif
 
-#import <Foundation/Foundation.h>
-
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 

@@ -1,5 +1,4 @@
 #import "SentryRateLimits.h"
-#import <Foundation/Foundation.h>
 
 @protocol SentryEnvelopeRateLimitDelegate;
 

@@ -4,7 +4,6 @@
 
 #    import "SentryDefines.h"
 #    import "SentryTraceProfiler.h"
-#    import <Foundation/Foundation.h>
 
 @class SentryProfiler;
 
