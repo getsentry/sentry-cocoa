@@ -39,7 +39,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     private lazy var fixture = Fixture()
     private var sut: SentrySystemEventBreadcrumbs!
     
-    internal class MyUIDevice: UIDevice {
+    private class MyUIDevice: UIDevice {
         private var _batteryLevel: Float
         private var _batteryState: UIDevice.BatteryState
         private var _orientation: UIDeviceOrientation

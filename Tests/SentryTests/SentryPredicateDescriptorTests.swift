@@ -145,11 +145,11 @@ class SentryPredicateDescriptorTests: XCTestCase {
     }
     
     @objc
-    func compareFunction(_ item1: AnyObject, _ item2: AnyObject) -> Bool {
+    private func compareFunction(_ item1: AnyObject, _ item2: AnyObject) -> Bool {
         return item1 === item2
     }
     
-    func assertPredicate(predicate: NSPredicate, expectedResult: String ) {
+    private func assertPredicate(predicate: NSPredicate, expectedResult: String ) {
         let sut = fixture.getSut()
         XCTAssertEqual(sut.predicateDescription(predicate), expectedResult)
     }

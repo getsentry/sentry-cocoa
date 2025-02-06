@@ -5,7 +5,6 @@
 #    import "SentryAppStartTracker.h"
 #    import "SentryLog.h"
 #    import "SentryOptions.h"
-#    import <Foundation/Foundation.h>
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>

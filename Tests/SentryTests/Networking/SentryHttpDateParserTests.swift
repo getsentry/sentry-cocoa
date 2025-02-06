@@ -36,7 +36,7 @@ class SentryHttpDateParserTests: XCTestCase {
         group.waitWithTimeout()
     }
     
-    func startWorkItemTest(i: Int, queue: DispatchQueue, group: DispatchGroup) {
+    private func startWorkItemTest(i: Int, queue: DispatchQueue, group: DispatchGroup) {
         group.enter()
         queue.async {
             let expected = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))

@@ -11,7 +11,7 @@ class SentryCrashTestInstallation: SentryCrashInstallation {
 
 class SentryCrashInstallationTests: XCTestCase {
 
-    var notificationCenter: TestNSNotificationCenterWrapper!
+    private var notificationCenter: TestNSNotificationCenterWrapper!
 
     override func tearDown() {
         super.tearDown()

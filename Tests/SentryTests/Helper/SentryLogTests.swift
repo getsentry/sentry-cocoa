@@ -3,9 +3,9 @@ import SentryTestUtils
 import XCTest
 
 class SentryLogTests: XCTestCase {
-    var oldDebug: Bool!
-    var oldLevel: SentryLevel!
-    var oldOutput: SentryLogOutput!
+    private var oldDebug: Bool!
+    private var oldLevel: SentryLevel!
+    private var oldOutput: SentryLogOutput!
 
     override func setUp() {
         super.setUp()
@@ -82,7 +82,7 @@ class SentryLogTests: XCTestCase {
         
         sentryLogErrorWithMacro("error")
         
-        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [error] [SentryLogTestHelper:20] error"], logOutput.loggedMessages)
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {

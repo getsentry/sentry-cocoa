@@ -4,7 +4,6 @@
 #import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
-#import <Foundation/Foundation.h>
 
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;

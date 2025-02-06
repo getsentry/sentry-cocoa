@@ -4,7 +4,7 @@ import XCTest
 final class SentryInstallationTests: XCTestCase {
     
     // FileManager().temporaryDirectory already has a trailing slash
-    let basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
+    private let basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
     
     override func setUpWithError() throws {
         try super.setUpWithError()

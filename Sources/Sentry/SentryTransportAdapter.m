@@ -3,7 +3,6 @@
 #import "SentryEvent.h"
 #import "SentryOptions.h"
 #import "SentryUserFeedback.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

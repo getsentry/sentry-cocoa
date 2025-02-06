@@ -25,7 +25,6 @@
 //
 
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_REACHABILITY
 #    import <SystemConfiguration/SystemConfiguration.h>

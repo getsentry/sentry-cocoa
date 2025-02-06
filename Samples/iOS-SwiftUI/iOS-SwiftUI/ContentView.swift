@@ -137,7 +137,7 @@ struct ContentView: View {
 
         return DataBag.shared.info["lastSpan"] as? Span
     }
-    
+ 
     var body: some View {
         return SentryTracedView("Content View Body", waitForFullDisplay: true) {
             NavigationView {
@@ -195,7 +195,7 @@ struct ContentView: View {
                             }
                             Button(action: showTTD) {
                                 Text("Show TTD")
-                            }
+                            }.sentryReplayUnmask()
                         }
                         VStack(spacing: 16) {
                             Button(action: {
@@ -235,7 +235,7 @@ struct ContentView: View {
                         .background(Color.white)
                     }
                     SecondView()
-                    
+
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                 }
@@ -255,5 +255,6 @@ struct SecondView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .sentryReplayPreviewMask(opacity: 0.3)
     }
 }

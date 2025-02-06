@@ -5,16 +5,11 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
 
-@interface SentryBreadcrumb ()
-@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
-@end
-
 @implementation SentryBreadcrumb
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
     if (self = [super init]) {
-        NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
         for (id key in dictionary) {
             id value = [dictionary valueForKey:key];
             if (value == nil) {
@@ -37,12 +32,7 @@
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
                 self.data = value;
-            } else {
-                unknown[key] = value;
             }
-        }
-        if (unknown.count > 0) {
-            self.unknown = [unknown copy];
         }
     }
     return self;
@@ -75,12 +65,6 @@
     [serializedData setValue:self.origin forKey:@"origin"];
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
-    NSDictionary<NSString *, id> *unknown = self.unknown;
-    if (unknown != nil) {
-        for (id key in unknown) {
-            [serializedData setValue:unknown[key] forKey:key];
-        }
-    }
     return serializedData;
 }
 
@@ -116,9 +100,6 @@
         return NO;
     if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
         return NO;
-    if (self.unknown != breadcrumb.unknown
-        && ![self.unknown isEqualToDictionary:breadcrumb.unknown])
-        return NO;
     return YES;
 }
 
@@ -132,7 +113,6 @@
     hash = hash * 23 + [self.origin hash];
     hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
-    hash = hash * 23 + [self.unknown hash];
     return hash;
 }
 

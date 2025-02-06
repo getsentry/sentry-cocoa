@@ -78,7 +78,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(SentryEnvelopeItemTypeEvent, try XCTUnwrap(actual.items.first).header.type)
     }
     
-    func getEnvelope() -> SentryEnvelope {
+    private func getEnvelope() -> SentryEnvelope {
         var envelopeItems = [SentryEnvelopeItem]()
         for _ in 0...2 {
             let event = Event()

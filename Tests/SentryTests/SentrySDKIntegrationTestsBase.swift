@@ -3,6 +3,8 @@ import Foundation
 import SentryTestUtils
 import XCTest
 
+// swiftlint:disable test_case_accessibility
+// This is a base test class, so we can't keep all methods private.
 class SentrySDKIntegrationTestsBase: XCTestCase {
     
     var currentDate = TestCurrentDateProvider()
@@ -107,7 +109,9 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         callback(capture?.event, capture?.scope)
     }
     
-    func advanceTime(bySeconds: TimeInterval) {
+    private func advanceTime(bySeconds: TimeInterval) {
         currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }
 }
+
+// swiftlint:enable test_case_accessibility

@@ -218,6 +218,10 @@ class ExtraViewController: UIViewController {
         displayStringForUITest(string: appSupportDirectory)
     }
     
+    @IBAction func showMaskingPreview(_ sender: Any) {
+        SentrySDK.replay.showMaskPreview(0.5)
+    }
+    
     func displayStringForUITest(string: String) {
         dataMarshalingField.text = string
         dataMarshalingField.isHidden = false

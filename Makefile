@@ -48,7 +48,12 @@ test:
 run-test-server:
 	cd ./test-server && swift build
 	cd ./test-server && swift run &
-.PHONY: run-test-server
+
+run-test-server-sync:
+	cd ./test-server && swift build
+	cd ./test-server && swift run
+
+.PHONY: run-test-server run-test-server-sync
 
 test-alamofire:
 	./scripts/test-alamofire.sh

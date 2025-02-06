@@ -40,7 +40,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    var deleteFileDirectory = false
+    private var deleteFileDirectory = false
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -364,7 +364,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(size, 341_432)
     }
     
-    func getBigFilePath() -> String? {
+    private func getBigFilePath() -> String? {
         let bundle = Bundle(for: type(of: self))
         
         return bundle.path(forResource: "Resources/fatal-error-binary-images-message2", ofType: "json")

@@ -39,7 +39,6 @@
 #import "SentryDefines.h"
 
 #import <CommonCrypto/CommonDigest.h>
-#import <Foundation/Foundation.h>
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 

@@ -4,7 +4,6 @@
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import <Foundation/Foundation.h>
 #import <SentryBuildAppStartSpans.h>
 
 #if SENTRY_HAS_UIKIT
@@ -26,7 +25,8 @@ sentryBuildAppStartSpan(
 }
 
 NSArray<SentrySpan *> *
-sentryBuildAppStartSpans(SentryTracer *tracer, SentryAppStartMeasurement *appStartMeasurement)
+sentryBuildAppStartSpans(
+    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
 {
 
     if (appStartMeasurement == nil) {

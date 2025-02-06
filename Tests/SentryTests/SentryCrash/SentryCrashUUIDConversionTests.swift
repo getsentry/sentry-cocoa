@@ -28,7 +28,7 @@ class SentryCrashUUIDConversionTests: XCTestCase {
         )
     }
     
-    func testWith(expected: String, uuidAsCharArray: [UInt8]) {
+    private func testWith(expected: String, uuidAsCharArray: [UInt8]) {
         var dst: [Int8] = Array(repeating: Int8.random(in: 0..<50), count: 37)
         sentrycrashdl_convertBinaryImageUUID(uuidAsCharArray, &dst)
         

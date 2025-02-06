@@ -8,18 +8,21 @@ import UIKit
 class NotificationCenterTestCase: XCTestCase {
 
     #if os(tvOS) || os(iOS) 
-    let willEnterForegroundNotification = UIApplication.willEnterForegroundNotification
-    let didBecomeActiveNotification = UIApplication.didBecomeActiveNotification
-    let willResignActiveNotification = UIApplication.willResignActiveNotification
-    let didEnterBackgroundNotification = UIApplication.didEnterBackgroundNotification
-    let willTerminateNotification = UIApplication.willTerminateNotification
-    let didFinishLaunchingNotification = UIApplication.didFinishLaunchingNotification
+    private let willEnterForegroundNotification = UIApplication.willEnterForegroundNotification
+    private let didBecomeActiveNotification = UIApplication.didBecomeActiveNotification
+    private let willResignActiveNotification = UIApplication.willResignActiveNotification
+    private let didEnterBackgroundNotification = UIApplication.didEnterBackgroundNotification
+    private let willTerminateNotification = UIApplication.willTerminateNotification
+    private let didFinishLaunchingNotification = UIApplication.didFinishLaunchingNotification
     #elseif os(macOS)
-    let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification
-    let willResignActiveNotification = NSApplication.willResignActiveNotification
-    let willTerminateNotification = NSApplication.willTerminateNotification
-    let didFinishLaunchingNotification = NSApplication.didFinishLaunchingNotification
+    private let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification
+    private let willResignActiveNotification = NSApplication.willResignActiveNotification
+    private let willTerminateNotification = NSApplication.willTerminateNotification
+    private let didFinishLaunchingNotification = NSApplication.didFinishLaunchingNotification
     #endif
+    
+    // swiftlint:disable test_case_accessibility
+    // This is a base test class, so it's methods can't be private
     
     func goToForeground() {
         willEnterForeground()
@@ -85,6 +88,8 @@ class NotificationCenterTestCase: XCTestCase {
     func localeDidChange() {
         post(name: NSLocale.currentLocaleDidChangeNotification)
     }
+    
+    // swiftlint:enable test_case_accessibility
     
     private func post(name: Notification.Name) {
         NotificationCenter.default.post(Notification(name: name))

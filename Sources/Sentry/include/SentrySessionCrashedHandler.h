@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
@@ -22,6 +21,6 @@
  * location and the current session is deleted. Checkout SentryHub where most of the session logic
  * is implemented for more details about sessions.
  */
-- (void)endCurrentSessionAsCrashedWhenCrashOrOOM;
+- (void)endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination;
 
 @end
