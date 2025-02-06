@@ -4,6 +4,8 @@
 
 ### Features
 
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
+- Session replay masking preview for SwiftUI (#4737)
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
 
 ### Improvements
@@ -19,7 +21,6 @@
 ### Internal
 
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
-
 
 ## 8.44.0
 
@@ -40,8 +41,6 @@
 
 ### Features
 
-- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
-- Session replay masking preview for SwiftUI (#4737)
 - SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
