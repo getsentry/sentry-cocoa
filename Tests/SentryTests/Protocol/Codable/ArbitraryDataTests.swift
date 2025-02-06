@@ -238,14 +238,103 @@ class ArbitraryDataTests: XCTestCase {
         // Act & Assert
         XCTAssertNil(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
     }
+    
+    func testDecode_Null() throws {
+        // Arrange
+        let jsonData = #"""
+       {
+           "data": null
+       }
+       """#.data(using: .utf8)!
+
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
+
+        // Assert
+        XCTAssertNil(actual.data)
+    }
+    
+    func testDecodeNestedData_Values() throws {
+        // Arrange
+        let jsonData = #"""
+        {
+            "nestedData": { 
+                "value": {
+                    "key1": "value1",
+                    "key2": 2,
+                } 
+            }
+        }
+        """#.data(using: .utf8)!
+
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
+
+        // Assert
+        let nested = try XCTUnwrap(actual.nestedData?["value"] as? [String: Any])
+        XCTAssertEqual("value1", nested["key1"] as? String)
+        XCTAssertEqual(2, nested["key2"] as? Int)
+    }
+    
+    func testDecodeNestedData_Empty() throws {
+        // Arrange
+        let jsonData = #"""
+        {
+            "nestedData": { 
+                "value": {
+                } 
+            }
+        }
+        """#.data(using: .utf8)!
+
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
+
+        // Assert
+        let nested = try XCTUnwrap(actual.nestedData?["value"] as? [String: Any])
+        XCTAssertTrue(nested.isEmpty)
+    }
+    
+    func testDecodeNestedData_Null() throws {
+        // Arrange
+        let jsonData = #"""
+        {
+            "nestedData": { "value": {"nested": null} }
+        }
+        """#.data(using: .utf8)!
+
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
+
+        // Assert
+        let nested = try XCTUnwrap(actual.nestedData?["value"] as? [String: Any])
+        XCTAssertEqual(NSNull(), nested["nested"] as? NSNull)
+    }
+    
+    func testDecodeNestedData_Garbage() throws {
+        // Arrange
+        let jsonData = #"""
+        {
+            "nestedData": { "value": "wrong" }
+        }
+        """#.data(using: .utf8)!
+
+        // Act
+        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
+
+        // Assert
+        XCTAssertNil(actual.nestedData)
+    }
 }
 
 class DataWrapper: Decodable {
     
     var data: [String: Any]?
+    var nestedData: [String: [String: Any]]?
     
     enum CodingKeys: String, CodingKey {
         case data
+        case nestedData
     }
     
     required convenience public init(from decoder: any Decoder) throws {
@@ -255,5 +344,9 @@ class DataWrapper: Decodable {
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data) as [String: ArbitraryData]?
         }
+        self.nestedData = decodeArbitraryData {
+            try container.decodeIfPresent([String: [String: ArbitraryData]].self, forKey: .nestedData)
+        }
+            
     }
 }
