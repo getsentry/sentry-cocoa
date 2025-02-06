@@ -31,9 +31,5 @@ extension Breadcrumb: Decodable {
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)
         }
-        
-        // We leave out unknown on purpose, because it's complicated to decode.
-        // We either are going to add unkown for all classes or remove it for
-        // breadcrumbs.
     }
 }

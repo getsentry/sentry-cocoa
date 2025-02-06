@@ -154,10 +154,6 @@ class SentryBreadcrumbTests: XCTestCase {
 
         XCTAssertEqual(crumbData, decodedData)
         XCTAssertEqual(crumb.origin, decoded.origin)
-        
-        // We don't decode unknown on purpose, because it's complicated to decode with
-        // Swift decodable. We might fix this in the future.
-        XCTAssertNil(decoded.value(forKey: "unknown"))
     }
 
     func testDecode_WithAllPropertiesNil() throws {
