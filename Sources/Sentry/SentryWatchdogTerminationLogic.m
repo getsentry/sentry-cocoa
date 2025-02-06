@@ -72,7 +72,7 @@
     }
 
     // Restarting the app in development is a termination we can't catch and would falsely
-    // report OOMs.
+    // report watchdog termiations.
     if (previousAppState.isDebugging) {
         return NO;
     }
