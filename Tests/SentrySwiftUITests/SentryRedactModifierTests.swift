@@ -16,17 +16,16 @@ class SentryRedactModifierTests: XCTestCase {
 
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
+        let expected: String
         if #available(iOS 18.0, *) {
-            XCTAssertTrue(
-                typeOfRedactedText.contains("ModifiedContent<Text, SentryReplayModifier>"),
-                "The redacted text should contain ModifiedContent<Text, SentryReplayModifier> but was: \(typeOfRedactedText)"
-            )
+            expected = "ModifiedContent<Text, SentryReplayModifier>"
         } else {
-            XCTAssertTrue(
-                typeOfRedactedText.contains("SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"),
-                "The redacted text should contain ModifiedContent<Text, SentryReplayModifier> but was: \(typeOfRedactedText)"
-            )
+            expected = "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
         }
+        XCTAssertTrue(
+            typeOfRedactedText.contains(expected),
+            "Expected type to contain '\(expected)' but was: \(typeOfRedactedText)"
+        )
     }
     
     func testViewUnmask() throws {
@@ -39,17 +38,16 @@ class SentryRedactModifierTests: XCTestCase {
         let typeOfRedactedText = String(describing: redactedText)
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
+        let expected: String
         if #available(iOS 18.0, *) {
-            XCTAssertTrue(
-                typeOfRedactedText.contains("ModifiedContent<Text, SentryReplayModifier>"),
-                "The redacted text should contain ModifiedContent<Text, SentryReplayModifier> but was: \(typeOfRedactedText)"
-            )
+            expected = "ModifiedContent<Text, SentryReplayModifier>"
         } else {
-            XCTAssertTrue(
-                typeOfRedactedText.contains("SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"),
-                "The redacted text should contain ModifiedContent<Text, SentryReplayModifier> but was: \(typeOfRedactedText)"
-            )
+            expected = "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
         }
+        XCTAssertTrue(
+            typeOfRedactedText.contains(expected),
+            "Expected type to contain '\(expected)' but was: \(typeOfRedactedText)"
+        )
     }
 }
 
