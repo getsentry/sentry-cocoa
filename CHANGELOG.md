@@ -19,6 +19,11 @@
 
 - Fix missing `sample_rate` in baggage (#4751)
 
+### Internal
+
+- Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
+
+
 ## 8.44.0
 
 ### Fixes
