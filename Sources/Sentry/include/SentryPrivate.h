@@ -17,4 +17,3 @@
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
-#import "SentryTracer.h"
