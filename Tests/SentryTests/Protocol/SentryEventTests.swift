@@ -109,7 +109,6 @@ class SentryEventTests: XCTestCase {
 
     func testDecode_WithAllProperties() throws {
         // Arrange
-        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         let event = TestData.event
         // Start timestamp is only serialized if event type is transaction
         event.type = "transaction"
@@ -130,8 +129,8 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(eventMessage.message, decodedMessage.message)
         XCTAssertEqual(eventMessage.params, decodedMessage.params)
         
-        XCTAssertEqual(event.timestamp, decoded.timestamp)
-        XCTAssertEqual(event.startTimestamp, decoded.startTimestamp)
+        XCTAssertEqual(event.timestamp?.timeIntervalSince1970, decoded.timestamp?.timeIntervalSince1970)
+        XCTAssertEqual(event.startTimestamp?.timeIntervalSince1970, decoded.startTimestamp?.timeIntervalSince1970)
         XCTAssertEqual(event.level, decoded.level)
         
         XCTAssertEqual(event.platform, decoded.platform)
@@ -239,7 +238,6 @@ class SentryEventTests: XCTestCase {
 
     func testDecode_WithAllPropertiesNil() throws {
         // Arrange
-        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         let event = Event()
         let actual = event.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
@@ -251,7 +249,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(event.eventId, decoded.eventId)
         XCTAssertNil(decoded.message)
         XCTAssertNil(decoded.error)
-        XCTAssertEqual(event.timestamp, decoded.timestamp)
+        XCTAssertEqual(event.timestamp?.timeIntervalSince1970, decoded.timestamp?.timeIntervalSince1970)
         XCTAssertNil(decoded.startTimestamp)
         XCTAssertEqual(.none, decoded.level)
         XCTAssertEqual(event.platform, decoded.platform)

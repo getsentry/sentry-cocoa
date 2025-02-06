@@ -41,8 +41,8 @@ extension SentryEventDecodable: Decodable {
         let eventIdAsString = try container.decode(String.self, forKey: .eventId)
         self.eventId = SentryId(uuidString: eventIdAsString)
         self.message = try container.decodeIfPresent(SentryMessage.self, forKey: .message)
-        self.timestamp = try self.decodeTimeIntervalSince1970(from: container, forKey: .timestamp)
-        self.startTimestamp = try self.decodeTimeIntervalSince1970(from: container, forKey: .startTimestamp)
+        self.timestamp = try container.decode(Date.self, forKey: .timestamp)
+        self.startTimestamp = try container.decodeIfPresent(Date.self, forKey: .startTimestamp)
 
         if let rawLevel = try container.decodeIfPresent(String.self, forKey: .level) {
             let level = SentryLevelHelper.levelForName(rawLevel)
@@ -93,15 +93,5 @@ extension SentryEventDecodable: Decodable {
         
         self.breadcrumbs = try container.decodeIfPresent([Breadcrumb].self, forKey: .breadcrumbs)
         self.request = try container.decodeIfPresent(SentryRequest.self, forKey: .request)
-    }
-    
-    private func decodeTimeIntervalSince1970(
-        from container: KeyedDecodingContainer<SentryEventDecodable.CodingKeys>,
-        forKey key: CodingKeys
-    ) throws -> Date? {
-        if let timestampAsTimeIntervalSince1970 = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: key)?.value {
-            return Date(timeIntervalSince1970: timestampAsTimeIntervalSince1970.doubleValue)
-        }
-        return nil
     }
 }
