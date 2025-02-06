@@ -1,9 +1,9 @@
 @_implementationOnly import _SentryPrivate
 
-/// A `Data` extension that automatically tracks read and write operations with Sentry.
+/// A `Data` extension that tracks read and write operations with Sentry.
 ///
 /// - Note: Methods provided by this extension reflect the same functionality as the original `Data` methods,
-///         but they automatically track the operation with Sentry.
+///         but they track the operation with Sentry.
 public extension Data {
 
     /// Initialize a `Data` with the contents of a `URL`, automatically tracking the operation with Sentry.
