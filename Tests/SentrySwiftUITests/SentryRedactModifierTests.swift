@@ -16,15 +16,13 @@ class SentryRedactModifierTests: XCTestCase {
 
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
-        let expected: String
-        if #available(iOS 18.0, *) {
-            expected = "ModifiedContent<Text, SentryReplayModifier>"
-        } else {
-            expected = "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
-        }
+        let candidates = [
+            "ModifiedContent<Text, SentryReplayModifier>",
+            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+        ]
         XCTAssertTrue(
-            typeOfRedactedText.contains(expected),
-            "Expected type to contain '\(expected)' but was: \(typeOfRedactedText)"
+            candidates.contains(where: { typeOfRedactedText.contains($0) }),
+            "Type did not match candidates: \(typeOfRedactedText)"
         )
     }
     
@@ -38,15 +36,13 @@ class SentryRedactModifierTests: XCTestCase {
         let typeOfRedactedText = String(describing: redactedText)
         // As the actual type is part of SwiftUI and somewhat unpredictable, we need to have multiple assertions.
         // Eventually this can be replaced with a more stable solution.
-        let expected: String
-        if #available(iOS 18.0, *) {
-            expected = "ModifiedContent<Text, SentryReplayModifier>"
-        } else {
-            expected = "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
-        }
+        let candidates = [
+            "ModifiedContent<Text, SentryReplayModifier>",
+            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+        ]
         XCTAssertTrue(
-            typeOfRedactedText.contains(expected),
-            "Expected type to contain '\(expected)' but was: \(typeOfRedactedText)"
+            candidates.contains(where: { typeOfRedactedText.contains($0) }),
+            "Type did not match candidates: \(typeOfRedactedText)"
         )
     }
 }
