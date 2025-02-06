@@ -42,7 +42,7 @@ while [[ $# -gt 0 ]]; do
             OS="$2"
             shift 2
             ;;
-        -r|--ref-name)
+        -r|--ref)
             REF_NAME="$2"
             shift 2
             ;;
