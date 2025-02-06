@@ -1,7 +1,6 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDataCategory.h"
 #import "SentryEnvelopeItemType.h"
-#import <Foundation/Foundation.h>
 
 // While these data categories names might look similar to the envelope item types, they are not
 // identical, and have slight differences. Just open them side by side and you'll see the

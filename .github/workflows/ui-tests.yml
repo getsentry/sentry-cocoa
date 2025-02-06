@@ -87,7 +87,8 @@ jobs:
             xcode: "15.2"
             device: "iPhone 14 (16.4)"
 
-          - runs-on: macos-14
+          # We only use large to investigate if UI tests are less flaky there.
+          - runs-on: macos-14-large
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
 

@@ -1,5 +1,4 @@
 #import "SentryConcurrentRateLimitsDictionary.h"
-#import <Foundation/Foundation.h>
 
 @interface SentryConcurrentRateLimitsDictionary ()
 

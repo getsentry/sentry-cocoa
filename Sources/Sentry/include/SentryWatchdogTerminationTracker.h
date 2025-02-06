@@ -14,9 +14,10 @@ static NSString *const SentryWatchdogTerminationExceptionValue
 static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termination";
 
 /**
- * Detect OOMs based on heuristics described in a blog post:
- * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a OOM is
- * detected, the SDK sends it as crash event. Only works for iOS, tvOS and macCatalyst.
+ * Detect watchdog terminations based on heuristics described in a blog post:
+ * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a watchdog
+ * termination is detected, the SDK sends it as crash event. Only works for iOS, tvOS and
+ * macCatalyst.
  */
 @interface SentryWatchdogTerminationTracker : NSObject
 SENTRY_NO_INIT

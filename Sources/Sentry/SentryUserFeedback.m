@@ -1,6 +1,5 @@
 #import "SentryUserFeedback.h"
 #import "SentrySwift.h"
-#import <Foundation/Foundation.h>
 
 @implementation SentryUserFeedback
 

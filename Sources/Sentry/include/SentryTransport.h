@@ -1,6 +1,5 @@
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
-#import <Foundation/Foundation.h>
 
 @class SentryEnvelope;
 

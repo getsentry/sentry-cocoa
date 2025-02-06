@@ -1,7 +1,6 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryFrame;
 @class SentryInAppLogic;
