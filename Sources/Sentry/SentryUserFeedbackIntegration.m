@@ -1,6 +1,8 @@
 #import "SentryUserFeedbackIntegration.h"
+#import "SentryDependencyContainer.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
+#import "SentryScreenshot.h"
 #import "SentrySwift.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
@@ -20,7 +22,8 @@
 
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:options.userFeedbackConfiguration
-                     delegate:self];
+                     delegate:self
+           screenshotProvider:SentryDependencyContainer.sharedInstance.screenshot];
     return YES;
 }
 

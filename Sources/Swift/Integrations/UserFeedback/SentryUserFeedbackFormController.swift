@@ -3,7 +3,6 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
-import PhotosUI
 import UIKit
 
 @available(iOS 13.0, *)
@@ -16,7 +15,8 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
-    lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self)
+    let screenshot: UIImage?
+    lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
@@ -24,9 +24,10 @@ class SentryUserFeedbackFormController: UIViewController {
         viewModel.updateLayout()
     }
     
-    init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate) {
+    init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate, screenshot: UIImage?) {
         self.config = config
         self.delegate = delegate
+        self.screenshot = screenshot
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = config.theme.background
         initLayout()
@@ -68,53 +69,6 @@ extension SentryUserFeedbackFormController {
 // MARK: SentryUserFeedbackFormViewModelDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
-    public func addScreenshotTapped() {
-        
-#if SENTRY_TEST || SENTRY_TEST_CI
-        // the iOS photo picker UI doesn't play nicely with XCUITest, so we need to mock it. we also mock it for unit tests
-        set(image: UIImage(), accessibilityInfo: "test image accessibility info")
-#else
-        guard Bundle.main.canRequestAuthorizationToAttachPhotos else {
-            SentryLog.warning("Photos usage was not configured in the info plist with NSPhotoLibraryUsageDescription, but the user was still able to attempt to add a screenshot.")
-            return
-        }
-        
-        func presentPicker() {
-            DispatchQueue.main.async {
-                let imagePickerController = UIImagePickerController()
-                imagePickerController.delegate = self
-                imagePickerController.sourceType = .photoLibrary
-                imagePickerController.allowsEditing = true
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    imagePickerController.modalPresentationStyle = .popover
-                    // docs state that accessing the `popoverPresentationController` creates one if one doesn't already exist as long as `modalPresentationStyle = .popover`. it's a readonly property so you can't instantiate a new `UIPopoverPresentationController` and assign it.
-                    imagePickerController.popoverPresentationController?.sourceView = self.viewModel.addScreenshotButton
-                }
-                self.present(imagePickerController, animated: self.config.animations)
-            }
-        }
-        
-        let status = PHPhotoLibrary.authorizationStatus()
-        switch status {
-        case .notDetermined:
-            if #available(iOS 14, *) {
-                PHPhotoLibrary.requestAuthorization(for: .readWrite) {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
-                }
-            } else {
-                PHPhotoLibrary.requestAuthorization {
-                    SentryLog.debug("Photos authorization level: \($0)")
-                    presentPicker()
-                }
-            }
-        default:
-            SentryLog.debug("Photos authorization level: \(status)")
-            presentPicker()
-        }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
-    }
-    
     func submitFeedback() {
         switch viewModel.validate() {
         case .success(_):
@@ -148,46 +102,6 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
     
     func cancel() {
         delegate?.finished(with: nil)
-    }
-}
-
-// MARK: UIImagePickerControllerDelegate & UINavigationControllerDelegate
-@available(iOS 13.0, *)
-extension SentryUserFeedbackFormController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        defer {
-            dismiss(animated: config.animations)
-        }
-        
-        guard let photo = info[.editedImage] as? UIImage else {
-            SentryLog.warning("Could not get edited image from photo picker.")
-            return
-        }
-        
-        let formatter = {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .medium
-            return formatter
-        }()
-        
-        let accessibilityInfo = {
-            guard let asset = info[.phAsset] as? PHAsset else {
-                SentryLog.warning("Could not get edited image asset information from photo picker.")
-                return "Image"
-            }
-            guard let date = asset.creationDate else {
-                SentryLog.warning("Could not get creation date from edited image from photo picker.")
-                return "Image"
-            }
-            return "Image taken \(formatter.string(from: date))"
-        }()
-        
-        set(image: photo, accessibilityInfo: accessibilityInfo)
-    }
-    
-    private func set(image: UIImage, accessibilityInfo: String) {
-        viewModel.updateScreenshot(image: image, accessibilityInfo: accessibilityInfo)
     }
 }
 

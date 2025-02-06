@@ -671,7 +671,6 @@
 		8459FCBE2BD73E820038E9C9 /* SentryProfilerSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 8459FCBD2BD73E810038E9C9 /* SentryProfilerSerialization.h */; };
 		8459FCC02BD73EB20038E9C9 /* SentryProfilerSerialization.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.mm */; };
 		845C16D52A622A5B00EC9519 /* SentryTracer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */; };
-		846F8F9E2D4AC05C009E86C1 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846F8F9D2D4AC05C009E86C1 /* Bundle.swift */; };
 		848A45192BBF8D33006AAAEC /* SentryContinuousProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 848A45182BBF8D33006AAAEC /* SentryContinuousProfiler.mm */; };
 		848A451A2BBF8D33006AAAEC /* SentryContinuousProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 848A45172BBF8D33006AAAEC /* SentryContinuousProfiler.h */; };
 		848A451D2BBF9504006AAAEC /* SentryProfilerTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 848A451C2BBF9504006AAAEC /* SentryProfilerTestHelpers.m */; };
@@ -1758,7 +1757,6 @@
 		8459FCBF2BD73EB20038E9C9 /* SentryProfilerSerialization.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryProfilerSerialization.mm; sourceTree = "<group>"; };
 		8459FCC12BD73EEF0038E9C9 /* SentryProfilerSerialization+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryProfilerSerialization+Test.h"; sourceTree = "<group>"; };
 		845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryTracer+Private.h"; path = "include/SentryTracer+Private.h"; sourceTree = "<group>"; };
-		846F8F9D2D4AC05C009E86C1 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		848A45172BBF8D33006AAAEC /* SentryContinuousProfiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryContinuousProfiler.h; path = ../include/SentryContinuousProfiler.h; sourceTree = "<group>"; };
 		848A45182BBF8D33006AAAEC /* SentryContinuousProfiler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryContinuousProfiler.mm; sourceTree = "<group>"; };
 		848A451B2BBF9504006AAAEC /* SentryProfilerTestHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerTestHelpers.h; path = ../include/SentryProfilerTestHelpers.h; sourceTree = "<group>"; };
@@ -2139,7 +2137,6 @@
 			isa = PBXGroup;
 			children = (
 				84B0E0062CD963F9007FB332 /* SentryIconography.swift */,
-				846F8F9D2D4AC05C009E86C1 /* Bundle.swift */,
 				D8739CF62BECFF86007D2F66 /* Log */,
 				621F61F02BEA073A005E654F /* SentryEnabledFeaturesBuilder.swift */,
 				621D9F2E2B9B0320003D94DE /* SentryCurrentDateProvider.swift */,
@@ -4629,7 +4626,6 @@
 				63AA76A31EB9CBAA00D153DE /* SentryDsn.m in Sources */,
 				84DBC62C2CE82F12000C4904 /* SentryFeedback.swift in Sources */,
 				63B818FA1EC34639002FDF4C /* SentryDebugMeta.m in Sources */,
-				846F8F9E2D4AC05C009E86C1 /* Bundle.swift in Sources */,
 				7B98D7D325FB65AE00C5A389 /* SentryWatchdogTerminationTracker.m in Sources */,
 				8E564AE8267AF22600FE117D /* SentryNetworkTrackingIntegration.m in Sources */,
 				63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */,
