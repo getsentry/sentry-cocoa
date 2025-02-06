@@ -13,7 +13,6 @@ extension SentryNSError: Decodable {
         
         let domain = try container.decode(String.self, forKey: .domain)
         let code = try container.decode(Int.self, forKey: .code)
-        
         self.init(domain: domain, code: code)
     }
 }

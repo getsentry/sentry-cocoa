@@ -14,11 +14,11 @@ extension Mechanism: Decodable {
     }
     
     required convenience public init(from decoder: any Decoder) throws {
-    
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let type = try container.decode(String.self, forKey: .type)
         self.init(type: type)
+        
         self.desc = try container.decodeIfPresent(String.self, forKey: .desc)
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)

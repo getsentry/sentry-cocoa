@@ -11,6 +11,7 @@ extension Geo: Decodable {
     
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        
         self.init()
         self.city = try container.decodeIfPresent(String.self, forKey: .city)
         self.countryCode = try container.decodeIfPresent(String.self, forKey: .countryCode)

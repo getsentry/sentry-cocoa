@@ -9,7 +9,7 @@
 /// data of the JSON. The Decoder and the DecodingContainers don't offer methods to access the underlying
 /// data. The Swift Decodable converts the raw data to a JSON object and then casts the JSON object to the
 /// class that implements the Decodable protocol, see:
-///  https://github.com/swiftlang/swift-foundation/blob/e9d59b6065ad909fee15f174bd5ca2c580490388/Sources/FoundationEssentials/JSON/JSONDecoder.swift#L360-L386
+/// https://github.com/swiftlang/swift-foundation/blob/e9d59b6065ad909fee15f174bd5ca2c580490388/Sources/FoundationEssentials/JSON/JSONDecoder.swift#L360-L386
 /// https://github.com/swiftlang/swift-foundation/blob/e9d59b6065ad909fee15f174bd5ca2c580490388/Sources/FoundationEssentials/JSON/JSONScanner.swift#L343-L383
 
 /// Therefore, we have to implement decoding the arbitrary dictionary manually.
@@ -30,6 +30,12 @@ enum ArbitraryData: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
+        // The order here matters as we're dealing with arbitrary data.
+        // We have to check the double before the Date, because otherwise
+        // a double value could turn into a Date. So only ISO 8601 string formatted
+        // dates work, which sanitizeArray and sentry_sanitize use.
+        // We must check String after Date, because otherwise we would turn a ISO 8601
+        // string into a string and not a date.
         if let intValue = try? container.decode(Int.self) {
             self = .int(intValue)
         } else if let numberValue = try? container.decode(Double.self) {
