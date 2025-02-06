@@ -11,7 +11,7 @@
 - Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
 
-## Fixes
+### Fixes
 
 - Fix missing `sample_rate` in baggage (#4751)
 
