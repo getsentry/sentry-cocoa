@@ -109,6 +109,7 @@ class SentryEventTests: XCTestCase {
 
     func testDecode_WithAllProperties() throws {
         // Arrange
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         let event = TestData.event
         // Start timestamp is only serialized if event type is transaction
         event.type = "transaction"
@@ -238,6 +239,7 @@ class SentryEventTests: XCTestCase {
 
     func testDecode_WithAllPropertiesNil() throws {
         // Arrange
+        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         let event = Event()
         let actual = event.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
