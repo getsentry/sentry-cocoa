@@ -30,16 +30,16 @@ enum ArbitraryData: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
-        if let dateValue = try? container.decode(Date.self) {
-            self = .date(dateValue)
-        } else if let stringValue = try? container.decode(String.self) {
-            self = .string(stringValue)
-        } else if let intValue = try? container.decode(Int.self) {
+        if let intValue = try? container.decode(Int.self) {
             self = .int(intValue)
         } else if let numberValue = try? container.decode(Double.self) {
             self = .number(numberValue)
         } else if let boolValue = try? container.decode(Bool.self) {
             self = .boolean(boolValue)
+        } else if let dateValue = try? container.decode(Date.self) {
+            self = .date(dateValue)
+        } else if let stringValue = try? container.decode(String.self) {
+            self = .string(stringValue)
         } else if let objectValue = try? container.decode([String: ArbitraryData].self) {
             self = .dict(objectValue)
         } else if let arrayValue = try? container.decode([ArbitraryData].self) {
