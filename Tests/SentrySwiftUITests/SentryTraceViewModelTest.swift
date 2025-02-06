@@ -1,5 +1,4 @@
 #if canImport(UIKit) && canImport(SwiftUI)
-@testable import _SentryPrivate
 @testable import Sentry
 @_implementationOnly import SentryInternal
 @testable import SentrySwiftUI
