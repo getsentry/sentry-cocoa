@@ -15,17 +15,13 @@
 - Add timeIntervalSince1970 to log messages (#4781)
 - Add `waitForFullDisplay` to `sentryTrace` view modifier (#4797)
 
-### Internal 
-
-- Deserializing SentryEvents with Decodable (#4724)
-
-## Fixes
 ### Fixes
 
 - Fix missing `sample_rate` in baggage (#4751)
 
-### Internal
+### Internal 
 
+- Deserializing SentryEvents with Decodable (#4724)
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0
