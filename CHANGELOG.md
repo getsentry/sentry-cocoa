@@ -12,6 +12,7 @@
 
 - Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
+- Add timeIntervalSince1970 to log messages (#4781)
 - Add `waitForFullDisplay` to `sentryTrace` view modifier (#4797)
 
 ### Fixes
