@@ -13,6 +13,7 @@ class SentryLog: NSObject {
     static let alwaysLevel = SentryLevel.fatal
     private static var logOutput = SentryLogOutput()
     private static var logConfigureLock = NSLock()
+    private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     @objc
     static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
@@ -26,7 +27,13 @@ class SentryLog: NSObject {
     @objc
     static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
-        logOutput.log("[Sentry] [\(level)] \(message)")
+        
+        // We use the timeIntervalSinceReferenceDate because date format is
+        // expensive and we only care about the time difference between the
+        // log messages. We don't use system uptime because of privacy concerns
+        // see: NSPrivacyAccessedAPICategorySystemBootTime.
+        let time = self.dateProvider.date().timeIntervalSince1970
+        logOutput.log("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
     }
 
     /**
@@ -52,6 +59,10 @@ class SentryLog: NSObject {
     
     static func getOutput() -> SentryLogOutput {
         return logOutput
+    }
+    
+    static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
     }
     
     #endif
