@@ -42,13 +42,9 @@ extension UserFeedbackUITests {
         XCTAssert(app.staticTexts["Report a Bug"].exists)
         
         // form buttons
-        XCTAssert(app.staticTexts["Add a screenshot"].exists)
         XCTAssert(app.staticTexts["Cancel"].exists)
         XCTAssert(app.staticTexts["Send Bug Report"].exists)
-        
-        addScreenshotButton.tap()
-        XCTAssert(app.staticTexts["Remove screenshot"].exists)
-        
+                
         // Input field placeholders
         XCTAssertEqual(try XCTUnwrap(nameField.placeholderValue), "Your Name")
         XCTAssertEqual(try XCTUnwrap(emailField.placeholderValue), "your.email@example.org")
@@ -75,12 +71,8 @@ extension UserFeedbackUITests {
         
         // form buttons
         XCTAssert(app.staticTexts["Report that jank"].exists)
-        XCTAssert(app.staticTexts["Show us the jank"].exists)
         XCTAssert(app.staticTexts["What, me worry?"].exists)
-        
-        addScreenshotButton.tap()
-        XCTAssert(app.staticTexts["Oof too nsfl"].exists)
-        
+                
         // Input field placeholders
         XCTAssertEqual(try XCTUnwrap(nameField.placeholderValue), "Yo name")
         XCTAssertEqual(try XCTUnwrap(emailField.placeholderValue), "Yo email")
@@ -351,13 +343,9 @@ extension UserFeedbackUITests {
     // MARK: Tests validating screenshot functionality
     
     func testAddingAndRemovingScreenshots() {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
-        widgetButton.tap()
-        addScreenshotButton.tap()
+        launchApp(args: ["--io.sentry.feedback.all-defaults", "--io.sentry.feedback.inject-screenshot"])
         XCTAssert(removeScreenshotButton.isHittable)
-        XCTAssertFalse(addScreenshotButton.isHittable)
         removeScreenshotButton.tap()
-        XCTAssert(addScreenshotButton.isHittable)
         XCTAssertFalse(removeScreenshotButton.isHittable)
     }
     
@@ -512,10 +500,6 @@ extension UserFeedbackUITests {
     
     var messageTextView: XCUIElement {
         app.textViews["io.sentry.feedback.form.message"]
-    }
-    
-    var addScreenshotButton: XCUIElement {
-        app.buttons["io.sentry.feedback.form.add-screenshot"]
     }
     
     var removeScreenshotButton: XCUIElement {

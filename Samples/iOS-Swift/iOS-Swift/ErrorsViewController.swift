@@ -13,6 +13,10 @@ class ErrorsViewController: UIViewController {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
         addDSNDisplay(self, vcview: dsnView)
+        
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.inject-screenshot") {
+            NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        }
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
