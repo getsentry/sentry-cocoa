@@ -3,15 +3,19 @@ init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	pre-commit install
-	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
-	swiftlint version > scripts/.swiftlint-version
-	
-# installs the tools needed to test various CI tasks locally
-init-ci: init
-	brew bundle --file Brewfile-ci
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
+	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
+	swiftlint version > scripts/.swiftlint-version
+	
+# installs the tools needed to run CI test tasks locally
+init-ci-test: init
+	brew bundle --file Brewfile-ci-test
+	
+# installs the tools needed to run CI deploy tasks locally (note that carthage is preinstalled in github actions)
+init-ci-test: init
+	brew bundle --file Brewfile-ci-deploy
 
 .PHONY: check-versions
 check-versions:
