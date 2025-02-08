@@ -79,9 +79,9 @@ case $COMMAND in
 esac
 
 if [ "$CI" == true ]; then
-    RUBY_ENV_ARGS="rbenv exec bundle exec"
-else
     RUBY_ENV_ARGS=""
+else
+    RUBY_ENV_ARGS="rbenv exec bundle exec"
 fi
 
 if [ $RUN_BUILD == true ]; then
