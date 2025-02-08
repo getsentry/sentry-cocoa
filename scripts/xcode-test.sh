@@ -11,12 +11,11 @@ set -euxo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
-IS_LOCAL_BUILD="${4:-ci}"
-COMMAND="${5:-test}"
-DEVICE=${6:-iPhone 14}
-CONFIGURATION_OVERRIDE="${7:-}"
-DERIVED_DATA_PATH="${8:-}"
-TEST_SCHEME="${9:-Sentry}"
+COMMAND="${4:-test}"
+DEVICE=${5:-iPhone 14}
+CONFIGURATION_OVERRIDE="${6:-}"
+DERIVED_DATA_PATH="${7:-}"
+TEST_SCHEME="${8:-Sentry}"
 
 case $PLATFORM in
 
@@ -56,15 +55,6 @@ else
     esac
 fi
 
-case $IS_LOCAL_BUILD in
-"ci")
-    RUBY_ENV_ARGS=""
-    ;;
-*)
-    RUBY_ENV_ARGS="rbenv exec bundle exec"
-    ;;
-esac
-
 case $COMMAND in
 "build")
     RUN_BUILD=true
@@ -87,6 +77,12 @@ case $COMMAND in
     RUN_TEST_WITHOUT_BUILDING=true
     ;;
 esac
+
+if [ "$CI" == true ]; then
+    RUBY_ENV_ARGS="rbenv exec bundle exec"
+else
+    RUBY_ENV_ARGS=""
+fi
 
 if [ $RUN_BUILD == true ]; then
     set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
