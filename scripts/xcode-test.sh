@@ -11,11 +11,12 @@ set -euxo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
-COMMAND="${4:-test}"
-DEVICE=${5:-iPhone 14}
-CONFIGURATION_OVERRIDE="${6:-}"
-DERIVED_DATA_PATH="${7:-}"
-TEST_SCHEME="${8:-Sentry}"
+IS_LOCAL_BUILD="${4:-ci}"
+COMMAND="${5:-test}"
+DEVICE=${6:-iPhone 14}
+CONFIGURATION_OVERRIDE="${7:-}"
+DERIVED_DATA_PATH="${8:-}"
+TEST_SCHEME="${9:-Sentry}"
 
 case $PLATFORM in
 
@@ -54,6 +55,15 @@ else
         ;;
     esac
 fi
+
+case $IS_LOCAL_BUILD in
+"ci")
+    RUBY_ENV_ARGS=""
+    ;;
+*)
+    RUBY_ENV_ARGS="rbenv exec bundle exec"
+    ;;
+esac
 
 case $COMMAND in
 "build")
@@ -111,6 +121,6 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -destination "$DESTINATION" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --quieter --renderer github-actions &&
+        $RUBY_ENV_ARGS xcpretty -t &&
         slather coverage --configuration "$CONFIGURATION"
 fi

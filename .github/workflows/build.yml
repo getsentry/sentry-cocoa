@@ -212,7 +212,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" DebugWithoutUIKit uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" DebugWithoutUIKit uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -222,7 +222,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -232,7 +232,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Debug uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Debug uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -242,6 +242,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Release uikit-check-build
+        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME ci build "iPhone 14" Release uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
