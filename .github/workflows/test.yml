@@ -13,7 +13,6 @@ on:
       - "test-server/**"
       - ".github/workflows/test.yml"
       - "fastlane/**"
-      - "scripts/tests-with-thread-sanitizer.sh"
       - "scripts/ci-select-xcode.sh"
       - "scripts/sentry-xcodebuild.sh"
       - ".codecov.yml"
@@ -293,7 +292,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
-        run: ./scripts/tests-with-thread-sanitizer.sh
+        run: ./scripts/sentry-xcodebuild.sh iOS
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v4

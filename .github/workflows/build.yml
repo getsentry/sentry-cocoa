@@ -59,29 +59,30 @@ jobs:
           - scheme: macOS-Swift
             xcode: 15.4
             runs-on: macos-14
+            platform: macOS
+            device: mac
           - scheme: iOS13-Swift
             xcode: 15.4
             runs-on: macos-14
+            platform: iOS
+            device: "iPhone 14"
           - scheme: watchOS-Swift WatchKit App
             xcode: 15.4
             runs-on: macos-14
+            platform: watchOS
+            device: "Apple Watch Ultra 2 (49mm)"
           # Only compiles on Xcode 16+
           - scheme: macOS-SwiftUI
             xcode: 16.2
             runs-on: macos-15
+            platform: macOS
+            device: mac
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}
 
       # Disable code signing. We just want to make sure these compile.
-      - run: >-
-          env NSUnbufferedIO=YES
-          xcodebuild
-          -workspace Sentry.xcworkspace
-          -scheme '${{matrix.scheme}}'
-          -configuration Debug
-          CODE_SIGNING_ALLOWED="NO"
-          build
+      - run: ./scripts/sentry-xcodebuild.sh ${{ matrix.platform }} latest $GITHUB_REF_NAME build ${{ matrix.device }} Debug .derivedData ${{ matrix.scheme }}
 
   build-xcframework:
     name: Build XCFramework

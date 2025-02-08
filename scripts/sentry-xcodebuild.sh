@@ -90,7 +90,9 @@ case $PLATFORM in
 "tvOS")
     DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
     ;;
-
+"watchOS")
+    DESTINATION="platform=watchOS Simulator,OS=$OS,name=Apple Watch"
+    ;;
 *)
     echo "Xcode Test: Can't find destination for platform '$PLATFORM'"
     exit 1
@@ -99,6 +101,10 @@ esac
 
 if [ -n "$CONFIGURATION_OVERRIDE" ]; then
     CONFIGURATION="$CONFIGURATION_OVERRIDE"
+elif [ "$COMMAND" == "build" ]; then
+    CONFIGURATION="Debug"
+elif [ "$COMMAND" == "analyze" ]; then
+    CONFIGURATION="Release"
 else
     case $REF_NAME in
     "main")
@@ -113,60 +119,122 @@ fi
 
 case $COMMAND in
 "build")
+    RUN_ANALYZE=false
     RUN_BUILD=true
     RUN_BUILD_FOR_TESTING=false
     RUN_TEST_WITHOUT_BUILDING=false
+    RUN_TEST_WITH_TSAN=false
     ;;
 "build-for-testing")
+    RUN_ANALYZE=false
     RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=true
     RUN_TEST_WITHOUT_BUILDING=false
+    RUN_TEST_WITH_TSAN=false
     ;;
 "test-without-building")
+    RUN_ANALYZE=false
     RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=false
     RUN_TEST_WITHOUT_BUILDING=true
+    RUN_TEST_WITH_TSAN=false
+    ;;
+"analyze")
+    RUN_ANALYZE=true
+    RUN_BUILD=false
+    RUN_BUILD_FOR_TESTING=false
+    RUN_TEST_WITHOUT_BUILDING=false
+    RUN_TEST_WITH_TSAN=false
+    ;;
+"tsan")
+    RUN_ANALYZE=false
+    RUN_BUILD=false
+    RUN_BUILD_FOR_TESTING=false
+    RUN_TEST_WITHOUT_BUILDING=false
+    RUN_TEST_WITH_TSAN=true
     ;;
 *)
+    RUN_ANALYZE=false
     RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=true
     RUN_TEST_WITHOUT_BUILDING=true
+    RUN_TEST_WITH_TSAN=false
     ;;
 esac
 
+if [ "$CI" == true ]; then
+    RUBY_ENV_ARGS=""
+else
+    RUBY_ENV_ARGS="rbenv exec bundle exec"
+fi
+
+XCODEBUILD_PREAMBLE="set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO xcodebuild -workspace Sentry.xcworkspace"
+
 if [ $RUN_BUILD == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
+    "$XCODEBUILD_PREAMBLE" \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
-        build 2>&1 |
-        tee raw-build-output.log |
+        build \
+        | $RUBY_ENV_ARGS xcpretty
+elif [ $RUN_ANALYZE == true ]; then
+    rm -rf analyzer
+    "$XCODEBUILD_PREAMBLE" \
+        CLANG_ANALYZER_OUTPUT=html \
+        CLANG_ANALYZER_OUTPUT_DIR=analyzer \
+        CODE_SIGNING_ALLOWED="NO" \
+        -scheme "$SENTRY_SCHEME" \
+        -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
+        analyze \
+        2>&1 \
+        | $RUBY_ENV_ARGS xcpretty -t \
+        && [[ -z $(find analyzer -name "*.html") ]]
         xcbeautify
 fi
 
-if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
+elif [ $RUN_TEST_WITH_TSAN == true ]; then
+    # When enableThreadSanitizer is enabled and ThreadSanitizer finds an issue,
+    # the logs only show failing tests, but don't highlight the threading issues.
+    # Therefore we print a hint to find the threading issues. Profiler doesn't
+    # run when it detects TSAN is present, so we skip those tests.
+    "$XCODEBUILD_PREAMBLE" \
+        -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
+        -enableThreadSanitizer YES \
         -destination "$DESTINATION" \
-        -quiet \
-        build-for-testing 2>&1 |
-        tee raw-build-for-testing-output.log |
-        xcbeautify
-fi
-
-if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        test-without-building 2>&1 |
+        -skip-testing:"SentryProfilerTests" \
+        test \
+        | tee thread-sanitizer.log \
         tee raw-test-output.log |
-        xcbeautify --quieter --renderer github-actions &&
-        slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
+
+    testStatus=$?
+
+    if [ $testStatus -eq 0 ]; then
+        echo "ThreadSanitizer didn't find problems."
+    else
+        echo "ThreadSanitizer found problems or one of the tests failed. Search for \"ThreadSanitizer\" in the thread-sanitizer.log artifact for more details."
+    fi
+else
+    if [ $RUN_BUILD_FOR_TESTING == true ]; then
+        "$XCODEBUILD_PREAMBLE" \
+            -scheme "$SENTRY_SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            build-for-testing \
+            | $RUBY_ENV_ARGS xcpretty
+    fi
+
+    if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+        "$XCODEBUILD_PREAMBLE" \
+            -scheme "$SENTRY_SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            test-without-building \
+            | tee raw-test-output.log \
+            | $RUBY_ENV_ARGS xcpretty -t \
+            && slather coverage --configuration "$CONFIGURATION"
+    fi
 fi
