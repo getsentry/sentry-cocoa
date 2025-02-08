@@ -168,11 +168,12 @@ else
     RUBY_ENV_ARGS="rbenv exec bundle exec"
 fi
 
-XCODEBUILD_PREAMBLE="set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO xcodebuild -workspace Sentry.xcworkspace"
+XCODEBUILD_PREAMBLE="set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 if [ $RUN_BUILD == true ]; then
-    "$XCODEBUILD_PREAMBLE" \
-        -scheme "$TEST_SCHEME" \
+    "$XCODEBUILD_PREAMBLE" xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
@@ -181,7 +182,8 @@ if [ $RUN_BUILD == true ]; then
         | $RUBY_ENV_ARGS xcpretty
 elif [ $RUN_ANALYZE == true ]; then
     rm -rf analyzer
-    "$XCODEBUILD_PREAMBLE" \
+    "$XCODEBUILD_PREAMBLE" xcodebuild \
+        -workspace Sentry.xcworkspace \
         CLANG_ANALYZER_OUTPUT=html \
         CLANG_ANALYZER_OUTPUT_DIR=analyzer \
         CODE_SIGNING_ALLOWED="NO" \
@@ -200,7 +202,8 @@ elif [ $RUN_TEST_WITH_TSAN == true ]; then
     # the logs only show failing tests, but don't highlight the threading issues.
     # Therefore we print a hint to find the threading issues. Profiler doesn't
     # run when it detects TSAN is present, so we skip those tests.
-    "$XCODEBUILD_PREAMBLE" \
+    "$XCODEBUILD_PREAMBLE" xcodebuild \
+        -workspace Sentry.xcworkspace \
         -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
         -enableThreadSanitizer YES \
@@ -219,7 +222,8 @@ elif [ $RUN_TEST_WITH_TSAN == true ]; then
     fi
 else
     if [ $RUN_BUILD_FOR_TESTING == true ]; then
-        "$XCODEBUILD_PREAMBLE" \
+        "$XCODEBUILD_PREAMBLE" xcodebuild \
+            -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
             -destination "$DESTINATION" \
@@ -228,7 +232,8 @@ else
     fi
 
     if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-        "$XCODEBUILD_PREAMBLE" \
+        "$XCODEBUILD_PREAMBLE" xcodebuild \
+            -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
             -destination "$DESTINATION" \
