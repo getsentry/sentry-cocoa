@@ -46,7 +46,7 @@ generate_xcframework() {
                 OTHER_LDFLAGS="-Wl,-make_mergeable"
             fi
 
-            set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
+            xcodebuild archive \
                 -project Sentry.xcodeproj/ \
                 -scheme "$scheme" \
                 -configuration "$resolved_configuration" \
@@ -59,7 +59,7 @@ generate_xcframework() {
                 MACH_O_TYPE="$MACH_O_TYPE" \
                 ENABLE_CODE_COVERAGE=NO \
                 GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-                OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | xcbeautify --preserve-unbeautified
+                OTHER_LDFLAGS="$OTHER_LDFLAGS"
                  
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -91,7 +91,7 @@ generate_xcframework() {
 
     if [ "$args" != "iOSOnly" ]; then
         #Create framework for mac catalyst
-        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+        xcodebuild \
             -project Sentry.xcodeproj/ \
             -scheme "$scheme" \
             -configuration "$resolved_configuration" \
@@ -105,7 +105,7 @@ generate_xcframework() {
             SUPPORTS_MACCATALYST=YES \
             ENABLE_CODE_COVERAGE=NO \
             GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-            OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | xcbeautify --preserve-unbeautified
+            OTHER_LDFLAGS="$OTHER_LDFLAGS"
 
         if [ "$MACH_O_TYPE" = "staticlib" ]; then
             local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
