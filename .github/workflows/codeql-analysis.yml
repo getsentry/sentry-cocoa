@@ -34,13 +34,13 @@ jobs:
           languages: ${{ matrix.language }}
 
       - run: |
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+          env NSUnbufferedIO=YES && set -o pipefail && xcodebuild \
           xcodebuild
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
             -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" \
-            xcpretty
+            | xcpretty
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
