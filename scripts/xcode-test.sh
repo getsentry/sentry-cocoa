@@ -89,33 +89,35 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
-        build
+        build \
+        | xcpretty
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    env NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" -quiet \
-        build-for-testing
+        build-for-testing \
+        | xcpretty
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    env NSUnbufferedIO=YES && set -o pipefail && xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES && set -o pipefail && xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        test-without-building |
-        tee raw-test-output.log |
-        $RUBY_ENV_ARGS xcpretty -t &&
-        slather coverage --configuration "$CONFIGURATION"
+        test-without-building \
+        | tee raw-test-output.log \
+        | $RUBY_ENV_ARGS xcpretty -t \
+        && slather coverage --configuration "$CONFIGURATION"
 fi
