@@ -162,16 +162,14 @@ case $COMMAND in
     ;;
 esac
 
-if [ "$CI" == true ]; then
+if [ "${CI-false}" == true ]; then
     RUBY_ENV_ARGS=""
 else
     RUBY_ENV_ARGS="rbenv exec bundle exec"
 fi
 
-XCODEBUILD_PREAMBLE="set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
-
 if [ $RUN_BUILD == true ]; then
-    "$XCODEBUILD_PREAMBLE" xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
@@ -182,7 +180,7 @@ if [ $RUN_BUILD == true ]; then
         | $RUBY_ENV_ARGS xcpretty
 elif [ $RUN_ANALYZE == true ]; then
     rm -rf analyzer
-    "$XCODEBUILD_PREAMBLE" xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
         -workspace Sentry.xcworkspace \
         CLANG_ANALYZER_OUTPUT=html \
         CLANG_ANALYZER_OUTPUT_DIR=analyzer \
@@ -202,7 +200,7 @@ elif [ $RUN_TEST_WITH_TSAN == true ]; then
     # the logs only show failing tests, but don't highlight the threading issues.
     # Therefore we print a hint to find the threading issues. Profiler doesn't
     # run when it detects TSAN is present, so we skip those tests.
-    "$XCODEBUILD_PREAMBLE" xcodebuild \
+    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
@@ -222,7 +220,7 @@ elif [ $RUN_TEST_WITH_TSAN == true ]; then
     fi
 else
     if [ $RUN_BUILD_FOR_TESTING == true ]; then
-        "$XCODEBUILD_PREAMBLE" xcodebuild \
+        set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
@@ -232,7 +230,7 @@ else
     fi
 
     if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-        "$XCODEBUILD_PREAMBLE" xcodebuild \
+        set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
