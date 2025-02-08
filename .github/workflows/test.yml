@@ -87,7 +87,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.configure-matrix.outputs.matrix }}
+      matrix: ${{ fromJson(needs.configure-matrix.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@v4
