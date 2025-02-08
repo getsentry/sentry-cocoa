@@ -131,7 +131,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
         
         if let screenshot = self.screenshot {
             iv.image = screenshot
-            iv.accessibilityLabel = "Screenshot taken at \(SentryUserFeedbackFormViewModel.dateFormatter.string(from: Date()))"
+            iv.accessibilityLabel = "attached screenshot"
         }
         
         return iv
