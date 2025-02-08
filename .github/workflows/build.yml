@@ -213,7 +213,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build for Debug
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os latest \
             --ref ${{ github.ref }} \
@@ -231,7 +231,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build for Release
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os latest \
             --ref ${{ github.ref }} \
@@ -249,7 +249,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build for Debug
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os latest \
             --ref ${{ github.ref }} \
@@ -267,7 +267,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build for Release
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os latest \
             --ref ${{ github.ref }} \
