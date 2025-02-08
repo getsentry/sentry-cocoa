@@ -40,7 +40,7 @@ jobs:
             -scheme Sentry \
             -configuration Release \
             -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" \
-            | xcpretty
+            | bundle exec xcpretty
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
