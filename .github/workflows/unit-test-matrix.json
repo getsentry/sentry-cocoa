@@ -8,5 +8,5 @@
   { "scheme": "Sentry", "platform": "Catalyst", "runs-on": "macos-14", "xcode": "15.4", "test-destination-os": "latest" },
   { "scheme": "Sentry", "platform": "Catalyst", "runs-on": "macos-14", "xcode": "16.2", "test-destination-os": "latest" },
   { "scheme": "Sentry", "platform": "tvOS", "runs-on": "macos-14", "xcode": "15.4", "test-destination-os": "17.5", "device": "iPhone 15" },
-  { "scheme": "Sentry", "platform": "tvOS", "runs-on": "macos-14", "xcode": "16.2", "test-destination-os": "18.1", "device": "iPhone 15" },
+  { "scheme": "Sentry", "platform": "tvOS", "runs-on": "macos-14", "xcode": "16.2", "test-destination-os": "18.1", "device": "iPhone 15" }
 ]}
