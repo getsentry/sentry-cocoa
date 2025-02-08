@@ -10,11 +10,11 @@ init:
 	swiftlint version > scripts/.swiftlint-version
 	
 # installs the tools needed to run CI test tasks locally
-init-ci-test: init
+init-ci-test:
 	brew bundle --file Brewfile-ci-test
 	
 # installs the tools needed to run CI deploy tasks locally (note that carthage is preinstalled in github actions)
-init-ci-test: init
+init-ci-deploy:
 	brew bundle --file Brewfile-ci-deploy
 
 .PHONY: check-versions
