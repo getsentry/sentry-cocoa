@@ -145,12 +145,14 @@ class SentryFeedbackTests: XCTestCase {
             func testCaseDescription() -> String {
                 "(config: (requiresName: \(input.config.requiresName), requiresEmail: \(input.config.requiresEmail), nameInput: \(input.config.nameInput == nil ? "nil" : "\"\(input.config.nameInput!)\""), emailInput: \(input.config.emailInput == nil ? "nil" : "\"\(input.config.emailInput!)\""), messageInput: \(input.config.messageInput == nil ? "nil" : "\"\(input.config.messageInput!)\""), includeScreenshot: \(input.config.includeScreenshot)), expectedSubmitButtonAccessibilityHint: \(input.expectedSubmitButtonAccessibilityHint)"
             }
-            switch viewModel.validate() {
-            case .success(let hint):
-                XCTAssert(input.shouldValidate)
-                XCTAssertEqual(hint, input.expectedSubmitButtonAccessibilityHint, testCaseDescription())
-            case .failure(let error):
-                XCTAssertFalse(input.shouldValidate, error.description + "; " + testCaseDescription())
+            SentryLog.withOutLogs {
+                switch viewModel.validate() {
+                case .success(let hint):
+                    XCTAssert(input.shouldValidate)
+                    XCTAssertEqual(hint, input.expectedSubmitButtonAccessibilityHint, testCaseDescription())
+                case .failure(let error):
+                    XCTAssertFalse(input.shouldValidate, error.description + "; " + testCaseDescription())
+                }
             }
         }
     }

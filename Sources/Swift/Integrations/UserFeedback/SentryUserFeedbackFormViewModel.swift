@@ -249,9 +249,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
         let aspectRatio: CGFloat
         if let screenshot = self.screenshot {
             if screenshot.size.height == 0 {
-#if !SENTRY_TEST
                 SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
-#endif // !SENTRY_TEST
                 aspectRatio = 1
             } else {
                 aspectRatio = screenshot.size.width / screenshot.size.height
