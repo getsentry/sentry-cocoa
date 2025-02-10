@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryThreadTests: XCTestCase {
@@ -34,4 +35,57 @@ class SentryThreadTests: XCTestCase {
         SentryBooleanSerialization.test(thread, property: "current")
         SentryBooleanSerialization.test(thread, property: "isMain", serializedProperty: "main")
     }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let thread = TestData.thread
+        let actual = thread.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        
+        // Assert
+        XCTAssertEqual(thread.threadId, decoded.threadId)
+        XCTAssertEqual(thread.name, decoded.name)
+        XCTAssertEqual(thread.crashed, decoded.crashed)
+        XCTAssertEqual(thread.current, decoded.current)
+        XCTAssertEqual(thread.isMain, decoded.isMain)
+        
+        let decodedStacktrace = try XCTUnwrap(decoded.stacktrace)
+        let threadStacktrace = try XCTUnwrap(thread.stacktrace)
+        XCTAssertEqual(threadStacktrace.frames.count, decodedStacktrace.frames.count)
+        XCTAssertEqual(threadStacktrace.registers, decodedStacktrace.registers)
+        XCTAssertEqual(threadStacktrace.snapshot, decodedStacktrace.snapshot)
+    }
+
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let thread = SentryThread(threadId: 0)
+        let actual = thread.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        
+        // Assert
+        XCTAssertEqual(thread.threadId, decoded.threadId)
+        XCTAssertNil(decoded.name)
+        XCTAssertNil(decoded.stacktrace)
+        XCTAssertNil(decoded.crashed)
+        XCTAssertNil(decoded.current)
+        XCTAssertNil(decoded.isMain)
+    }
+
+    func testDecode_WithWrongThreadId_ReturnsNil () throws {
+        // Arrange
+        let thread = SentryThread(threadId: 10)
+        var actual = thread.serialize()
+        actual["id"] = "nil"
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act & Assert
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryThread?)
+    }
+    
 }

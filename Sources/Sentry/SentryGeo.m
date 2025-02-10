@@ -1,4 +1,5 @@
 #import "SentryGeo.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +20,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    return @{ @"city" : self.city, @"country_code" : self.countryCode, @"region" : self.region };
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
+
+    if (self.city) {
+        [serializedData setValue:self.city forKey:@"city"];
+    }
+
+    if (self.countryCode) {
+        [serializedData setValue:self.countryCode forKey:@"country_code"];
+    }
+
+    if (self.region) {
+        [serializedData setValue:self.region forKey:@"region"];
+    }
+
+    return serializedData;
 }
 
 - (BOOL)isEqual:(id _Nullable)other

@@ -168,5 +168,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --quieter --renderer github-actions &&
-        slather coverage --configuration "$CONFIGURATION"
+        slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
 fi

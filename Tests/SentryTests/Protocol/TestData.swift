@@ -42,7 +42,7 @@ class TestData {
         event.logger = "logger"
         event.message = SentryMessage(formatted: "message")
         event.modules = ["module": "1"]
-        event.platform = "Apple"
+        event.platform = SentryPlatformName
         event.releaseName = SentryMeta.versionString
         event.sdk = sdk
         event.serverName = "serverName"
