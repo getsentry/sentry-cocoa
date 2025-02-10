@@ -102,8 +102,8 @@ jobs:
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
       - name: Check XCFramework
-        #We dont compile the framework during releases to not change the artefact SHA value
-        #instead we use the one archive as an artefact
+        # We dont compile the framework during releases to not change the artefact SHA value
+        # instead we use the one archive as an artefact
         if: startsWith(github.ref, 'refs/heads/release/')
         run: |
           ls -R Carthage
