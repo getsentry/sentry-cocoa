@@ -1,5 +1,6 @@
 #if canImport(UIKit) && canImport(SwiftUI)
 @testable import Sentry
+@_implementationOnly import SentryInternal
 @testable import SentrySwiftUI
 import XCTest
 
@@ -78,7 +79,14 @@ class SentryTraceViewModelTestCase: XCTestCase {
         
         viewModel.finishSpan(spanId)
         viewModel.viewDidAppear()
-        
+
+        // The span is finished in the next main cycle, therefore we need to wait for it.
+        let expectation = XCTestExpectation(description: "Wait for span to be finished.")
+        DispatchQueue.main.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 0.5)
+
         // Verify that the span was popped and finished
         XCTAssertNil(SentryPerformanceTracker.shared.activeSpanId(), "Active span should be nil after finishing the span.")
         
