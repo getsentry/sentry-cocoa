@@ -98,6 +98,11 @@ SENTRY_NO_INIT
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
 
+#pragma mark - AppHangs
+- (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
+- (nullable SentryEvent *)readAppHangEvent;
+- (void)deleteAppHangEvent;
+
 #pragma mark - File Operations
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 - (void)deleteAllFolders;
