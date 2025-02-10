@@ -14,6 +14,7 @@
 - Add `sample_rand` to baggage (#4751)
 - Add timeIntervalSince1970 to log messages (#4781)
 - Add `waitForFullDisplay` to `sentryTrace` view modifier (#4797)
+- Increase continuous profiling buffer size to 60 seconds (#4826)
 
 ### Fixes
 
