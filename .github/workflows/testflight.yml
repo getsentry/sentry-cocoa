@@ -5,21 +5,21 @@ on:
       - main
 
     paths:
-      - 'Sources/**'
-      - 'Samples/iOS-Swift/**'
-      - '.github/workflows/testflight.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
-  
+      - "Sources/**"
+      - "Samples/iOS-Swift/**"
+      - ".github/workflows/testflight.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+
   pull_request:
     paths:
-      - '.github/workflows/testflight.yml'
+      - ".github/workflows/testflight.yml"
   workflow_dispatch:
 
 jobs:
   upload_to_testflight:
     name: Build and Upload iOS-Swift to Testflight
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2

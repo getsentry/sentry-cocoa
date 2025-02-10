@@ -1,4 +1,4 @@
-name: 'CodeQL'
+name: "CodeQL"
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '40 4 * * 6'
+    - cron: "40 4 * * 6"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -17,12 +17,12 @@ concurrency:
 jobs:
   analyze:
     name: Analyze
-    runs-on: macos-13
+    runs-on: macos-15
 
     strategy:
       fail-fast: false
       matrix:
-        language: ['cpp']
+        language: ["cpp"]
 
     steps:
       - name: Checkout repository

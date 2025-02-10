@@ -6,14 +6,13 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - '.github/workflows/ui-tests.yml'
-      - 'fastlane/**'
-      - '.sauce/config.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Samples/iOS-Swift/**'
-
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/**"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -23,7 +22,7 @@ concurrency:
 jobs:
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-13
+    runs-on: macos-15
     strategy:
       matrix:
         target: ["ios_objc", "tvos_swift"]
@@ -61,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
@@ -83,12 +82,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
+          - runs-on: macos-15
             xcode: "15.2"
             device: "iPhone 14 (16.4)"
 
           # We only use large to investigate if UI tests are less flaky there.
-          - runs-on: macos-14-large
+          - runs-on: macos-15-large
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
 
@@ -111,7 +110,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
     runs-on: macos-15
@@ -130,7 +129,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated
     runs-on: macos-15

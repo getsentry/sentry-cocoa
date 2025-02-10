@@ -7,16 +7,16 @@ on:
   pull_request:
     paths:
       # test changes to Sentry SDK sources
-      - 'Sources/**'
+      - "Sources/**"
 
       # test changes to benchmarking implementation
-      - 'Samples/iOS-Swift/**'
-      - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
-      - '.github/workflows/benchmarking.yml'
-      - '.sauce/benchmarking-config.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
-      - 'scripts/build-xcframework.sh'
+      - "Samples/iOS-Swift/**"
+      - "Samples/iOS-Swift/PerformanceBenchmarks/**"
+      - ".github/workflows/benchmarking.yml"
+      - ".sauce/benchmarking-config.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/build-xcframework.sh"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -26,7 +26,7 @@ concurrency:
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ['High-end device', 'Mid-range device', 'Low-end device']
+        suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -118,10 +118,10 @@ jobs:
           script: |
             const fs = require('fs');
             const { execSync } = require('child_process');
-            
+
             console.log("Extracting test ID from output log");
             const outputLog = fs.readFileSync('output.log', 'utf8');
-            
+
             // Lookup for the test ID in the output log
             // Note: The CLI output might change over time, so this might need to be updated.
             const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
@@ -130,10 +130,10 @@ jobs:
             if (!testId) {
               core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            
+
               return;
             }
-            
+
             try {
               console.log(`Checking if the test exists in SauceLabs: ${testId}`);
               execSync(`saucectl jobs get ${testId}`, {
@@ -164,7 +164,7 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13-xlarge
+    runs-on: macos-15-xlarge
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
         run: ./scripts/build-xcframework.sh iOSOnly
-        
+
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
@@ -198,7 +198,7 @@ jobs:
           name: raw-build-output-build-xcframework
           path: |
             build-xcframework.log
-        
+
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:

@@ -27,7 +27,7 @@ concurrency:
 jobs:
   build-test-server:
     name: Build test server
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - name: Cache for Test Server
@@ -79,7 +79,7 @@ jobs:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 16
-          - runs-on: macos-13
+          - runs-on: macos-15
             platform: "iOS"
             xcode: "14.3"
             test-destination-os: "16.4"
@@ -87,7 +87,7 @@ jobs:
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -107,7 +107,7 @@ jobs:
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # macOS 14
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "macOS"
             xcode: "15.4"
             test-destination-os: "latest"
@@ -123,7 +123,7 @@ jobs:
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "Catalyst"
             xcode: "15.4"
             test-destination-os: "latest"
@@ -140,14 +140,14 @@ jobs:
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - runs-on: macos-15
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -252,7 +252,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-13
+    runs-on: macos-15
     timeout-minutes: 20
     needs: [build-test-server]
 

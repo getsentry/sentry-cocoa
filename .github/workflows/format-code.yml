@@ -2,18 +2,18 @@ name: format code
 on:
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/format-code.yml'
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/format-code.yml"
 
 jobs:
   # Formats Swift, Objective-C, C++, and C code and commits the formatted code
   # if necessary
   format-code:
     name: Format Code
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       ## Update internal list of formulae to the latest

@@ -6,10 +6,10 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - '.github/workflows/ui-tests-critical.yml'
-      - 'fastlane/**'
-      - 'TestSamples/**'
+      - "Sources/**"
+      - ".github/workflows/ui-tests-critical.yml"
+      - "fastlane/**"
+      - "TestSamples/**"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -50,7 +50,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
+          - runs-on: macos-15
             xcode: "14.3.1"
             device: "iPhone 14"
             os-version: "16.4"
