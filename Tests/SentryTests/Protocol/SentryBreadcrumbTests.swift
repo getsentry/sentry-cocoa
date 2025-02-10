@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryBreadcrumbTests: XCTestCase {
@@ -130,5 +131,42 @@ class SentryBreadcrumbTests: XCTestCase {
         let serialaziedString = NSString(format: "<SentryBreadcrumb: %p, %@>", crumb, crumb.serialize())
         
         XCTAssertEqual(serialaziedString, actual as NSString)
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let crumb = fixture.breadcrumb
+        let actual = crumb.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)
+        
+        // Assert
+        XCTAssertEqual(crumb.level, decoded.level)
+        XCTAssertEqual(crumb.category, decoded.category)
+        XCTAssertEqual(crumb.timestamp, decoded.timestamp)
+        XCTAssertEqual(crumb.type, decoded.type)
+        XCTAssertEqual(crumb.message, decoded.message)
+        
+        let crumbData = try XCTUnwrap(crumb.data as? NSDictionary)
+        let decodedData = try XCTUnwrap(decoded.data as? NSDictionary)
+
+        XCTAssertEqual(crumbData, decodedData)
+        XCTAssertEqual(crumb.origin, decoded.origin)
+    }
+
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let crumb = Breadcrumb()
+        crumb.timestamp = fixture.date
+        let actual = crumb.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)
+        
+        // Assert
+        XCTAssertEqual(crumb, decoded)
     }
 }

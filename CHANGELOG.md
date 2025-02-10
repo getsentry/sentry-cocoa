@@ -4,22 +4,26 @@
 
 ### Features
 
+- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
+- Session replay masking preview for SwiftUI (#4737)
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
 
 ### Improvements
 
 - Add more debug logs for SentryViewHierarchy (#4780)
 - Add `sample_rand` to baggage (#4751)
+- Add timeIntervalSince1970 to log messages (#4781)
 - Add `waitForFullDisplay` to `sentryTrace` view modifier (#4797)
 
 ### Fixes
 
 - Fix missing `sample_rate` in baggage (#4751)
+- Serializing SentryGeo with `nil` values (#4724)
 
-### Internal
+### Internal 
 
+- Deserializing SentryEvents with Decodable (#4724)
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
-
 
 ## 8.44.0
 
@@ -40,8 +44,6 @@
 
 ### Features
 
-- Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
-- Session replay masking preview for SwiftUI (#4737)
 - SwiftUI time for initial display and time for full display (#4596)
 - Add protocol for custom screenName for UIViewControllers (#4646)
 - Allow hybrid SDK to set replay options tags information (#4710)
