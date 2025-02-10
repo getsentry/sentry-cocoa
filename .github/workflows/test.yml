@@ -185,14 +185,30 @@ jobs:
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME build-for-testing "${{matrix.device}}" TestCI "" ${{matrix.scheme}}
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command build-for-testing \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme ${{matrix.scheme}}
 
       - name: Run tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building "${{matrix.device}}" TestCI "" ${{matrix.scheme}}
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command test-without-building \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme ${{matrix.scheme}}
 
       - name: Slowest Tests
         if: ${{ always() }}
