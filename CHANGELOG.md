@@ -18,9 +18,11 @@
 ### Fixes
 
 - Fix missing `sample_rate` in baggage (#4751)
+- Serializing SentryGeo with `nil` values (#4724)
 
-### Internal
+### Internal 
 
+- Deserializing SentryEvents with Decodable (#4724)
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0

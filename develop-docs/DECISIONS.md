@@ -236,3 +236,153 @@ To enable visionOS support with the Sentry static framework, you need to set the
 
 However, C functions can still be accessed from code that is conditionally compiled using directives, such as `#if os(iOS)`.
 
+## Deserializing Events
+
+Date: January 16, 2025
+Contributors: @brustolin, @philipphofmann, @armcknight, @philprime
+
+Decision: Mutual Agreement on Option B
+
+Comments:
+
+1. @philprime: I would prefer to manually (because automatically is not possible without external tools) write extensions of existing Objective-C classes to conform to Decodable, then use the JSONDecoder. If the variables of the classes/structs do not match the JSON spec (i.e. ipAddress in Swift, but ip_address serialized), we might have to implement custom CodingKeys anyways.
+2. @brustolin: I agree with @philprime , manually writing the Decodable extensions for ObjC classes seems to be the best approach right now.
+3. @armcknight: I think the best bet to get the actual work done that is needed is to go with option B, vs all the refactors that would be needed to use Codable to go with A. Then, protocol APIs could be migrated from ObjC to Swift as-needed and converted to Codable.
+4. @philipphofmann: I think Option B/ manually deserializing is the way to go for now. I actually tried it and it seemed a bit wrong. I evaluated the other options and with all your input, I agree with doing it manually. We do it once and then all good. Thanks everyone.
+
+### Background 
+To report fatal app hangs and measure how long an app hangs lasts ([GH Epic](https://github.com/getsentry/sentry-cocoa/issues/4261)), we need to serialize events to disk, deserialize, modify, and send them to Sentry. As of January 14, 2025, the Cocoa SDK doesn’t support deserializing events. As the fatal app hangs must go through beforeSend, we can’t simply modify the serialized JSON stored on disk. Instead, we must deserialize the event JSON and initialize a SentryEvent so that it can go through beforeSend.
+
+As of January 14, 2025, all the serialization is custom-made with the [SentrySerializable](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/Public/SentrySerializable.h) protocol:
+
+```objectivec
+@protocol SentrySerializable <NSObject>
+
+- (NSDictionary<NSString *, id> *)serialize;
+
+@end 
+```
+
+The SDK manually creates a JSON-like dict:
+
+```objectivec
+- (NSDictionary<NSString *, id> *)serialize
+{
+    return @{ @"city" : self.city, @"country_code" : self.countryCode, @"region" : self.region };
+}
+```
+
+And then the [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) calls serialize on the event and then converts it to JSON data.
+
+```objectivec
+ NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+```
+
+To implement a deserialized method, we would need to manually implement the counterparts, which is plenty of code. As ObjC is slowly dying out and the future is Swift, we would like to avoid writing plenty of ObjC code that we will convert to Swift in the future.
+
+### Option A: Use Swifts Built In Codable and convert Serializable Classes to Swift
+
+As Swift has a built-in [Decoding and Encoding](https://developer.apple.com/documentation/foundation/archives_and_serialization/encoding_and_decoding_custom_types) mechanisms it makes sense to explore this option.
+
+Serializing a struct in Swift to JSON is not much code:
+
+```objectivec
+struct Language: Codable {
+    var name: String
+    var version: Int
+}
+
+let swift = Language(name: "Swift", version: 6)
+
+let encoder = JSONEncoder()
+if let encoded = try? encoder.encode(swift) {
+    // save `encoded` somewhere
+}
+```
+
+The advantage is that we don’t have to manually create the dictionaries in serialize and a potential deserialize method. The problem is that this only works with Swift structs and classes. We can’t use Swift structs, as they’re not working in ObjC. So, we need to convert the classes to serialize and deserialize to Swift.
+
+The major challenge is that doing this without breaking changes for both Swift and ObjC is extremely hard to achieve. One major problem is that some existing classes such as SentryUser overwrite the `- (NSUInteger)hash` method, which is `var hash: [Int](https://developer.apple.com/documentation/swift/int) { get }` in Swift. When converting SentryUser to Swift, calling `user.hash()` converts to `user.hash`. While most of our users don’t call this method, it still is a breaking change. And that’s only one issue we found when converting classes to Swift.
+
+To do this conversion safely, we should do it in a major release. We need to convert all public protocol classes to Swift. Maybe it even makes sense to convert all public classes to Swift to avoid issues with our package managers that get confused when there is a mix of public classes of Swift and ObjC. SPM, for example, doesn’t allow this, and we need to precompile our SDK to be compatible.
+
+The [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) first creates a JSON dict and then converts it to JSON data. Instead, we could directly use the Swift JSONEncoder to save one step in between. This would convert the classes to JSON data directly.
+
+```objectivec
+ NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+```
+
+All that said, I suggest converting all public protocol classes to Swift and switching to Swift Codable for serialization, cause it will be less code and more future-proof. Of course, we will run into problems and challenges on the way, but it’s worth doing it.
+
+#### Pros
+
+1. Less code.
+2. More Swift code is more future-proof.
+
+#### Cons
+
+- Major release
+- Risk of adding bugs
+
+### Option B: Add Deserialize in Swift
+
+We could implement all deserializing code in Swift without requiring a major version. The implementation would be the counterpart of ObjC serialize implementations, but written in Swift. 
+
+#### Pros
+
+1. No major
+2. Low risk of introducing bugs
+3. Full control of serializing and deserializing
+
+#### Cons
+
+1. Potentially slightly higher maintenance effort, which is negligible as we hardly change the protocol classes.
+
+*Sample for implementation of Codable:*
+
+```swift
+@_implementationOnly import _SentryPrivate
+import Foundation
+
+// User is the Swift name of SentryUser
+extension User: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case username
+        case ipAddress
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(userId, forKey: .id)
+        try container.encode(email, forKey: .email)
+        try container.encode(username, forKey: .username)
+        try container.encode(ipAddress, forKey: .ipAddress)
+    }
+
+    public required convenience init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(userId: try container.decode(String.self, forKey: .id))
+        email = try container.decode(String.self, forKey: .email)
+        username = try container.decode(String.self, forKey: .username)
+        ipAddress = try container.decode(String.self, forKey: .ipAddress)
+    }
+}
+```
+
+### Option C: Duplicate protocol classes and use Swift Codable
+
+We do option A, but we keep the public ObjC classes, duplicate them in Swift, and use the internal Swift classes only for serializing and deserializing. Once we have a major release, we replace the ObjC classes with the internal Swift classes.
+
+We can also start with this option to evaluate Swift Codable and switch to option A once we’re confident it’s working correctly.
+
+#### Pros
+
+1. No major.
+2. We can refactor it step by step.
+3. The risk of introducing bugs can be distributed across multiple releases.
+
+#### Cons
+
+1. Duplicate code.

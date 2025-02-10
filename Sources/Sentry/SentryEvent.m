@@ -210,4 +210,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@implementation SentryEventDecodable
+
+@end
+
 NS_ASSUME_NONNULL_END
