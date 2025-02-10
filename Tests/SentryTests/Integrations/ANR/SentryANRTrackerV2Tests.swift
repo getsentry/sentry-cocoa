@@ -37,19 +37,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
             framesTracker: framesTracker), currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
     }
     
-    override func setUp() {
-        super.setUp()
-        
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .warning)
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        
-        SentryLog.setTestDefaultLogLevel()
-    }
-    
     /// When no frame gets rendered its a fully blocking app hang.
     ///
     /// [||||--------------]
@@ -243,7 +230,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
-        wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
+        // This would print thousands of logs so we execute it without
+        // to avoid spamming the test logs.
+        SentryLog.withOutLogs {
+            wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
+        }
     }
     
     func testTwoListeners_FullyBlocking_ReportedToBothListeners() throws {
@@ -280,7 +271,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
-        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        // This would print thousands of logs so we execute it without
+        // to avoid spamming the test logs.
+        SentryLog.withOutLogs {
+            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        }
     }
     
     func testAppSuspended_NoAppHang() throws {
@@ -301,7 +296,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         triggerFullyBlockingAppHang(currentDate)
         
-        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        // This would print thousands of logs so we execute it without
+        // to avoid spamming the test logs.
+        SentryLog.withOutLogs {
+            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        }
     }
     
     func testRemoveListener_StopsReporting() throws {
@@ -421,7 +420,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         triggerFullyBlockingAppHang(currentDate)
         
-        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        // This would print thousands of logs so we execute it without
+        // to avoid spamming the test logs.
+        SentryLog.withOutLogs {
+            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+        }
     }
     
     private func renderNormalFramesToStopAppHang(_ displayLinkWrapper: TestDisplayLinkWrapper) {
