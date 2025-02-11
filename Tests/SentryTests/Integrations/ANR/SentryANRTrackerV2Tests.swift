@@ -67,13 +67,13 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
         
-        let actual = try XCTUnwrap(listener.anrsStoppedResults.last)
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, actual.minDuration)
         XCTAssertGreaterThanOrEqual(4.0, actual.maxDuration)
         XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
     }
     
-    func testFullyBlockingAppHangWithLargeTimeoutInterval_ReportsCorrectErrorMessage() throws {
+    func testFullyBlockingAppHangWithLargeTimeoutInterval_ReportsCorrectResult() throws {
         timeoutInterval = 5.0
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
@@ -98,13 +98,13 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
         
-        let actual = try XCTUnwrap(listener.anrsStoppedResults.last)
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(5.0, actual.minDuration)
         XCTAssertGreaterThanOrEqual(8.0, actual.maxDuration)
         XCTAssertEqual(2.0, actual.maxDuration - actual.minDuration, accuracy: 0.01)
     }
     
-    func testFullyBlockingAppHangWithSmallTimeoutInterval_ReportsCorrectErrorMessage() throws {
+    func testFullyBlockingAppHangWithSmallTimeoutInterval_ReportsCorrectResult() throws {
         timeoutInterval = 0.5
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
@@ -129,7 +129,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
 
-        let actual = try XCTUnwrap(listener.anrsStoppedResults.last)
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(timeoutInterval, actual.minDuration)
         XCTAssertGreaterThanOrEqual(2.0, actual.maxDuration)
         XCTAssertEqual(0.2, actual.maxDuration - actual.minDuration, accuracy: 0.01)
@@ -157,7 +157,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
         
-        let actual = try XCTUnwrap(listener.anrsStoppedResults.last)
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, actual.minDuration)
         XCTAssertGreaterThanOrEqual(4.0, actual.maxDuration)
         XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
@@ -234,7 +234,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
 
-        let actual = try XCTUnwrap(listener.anrsStoppedResults.last)
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(4.0, actual.minDuration)
         XCTAssertGreaterThanOrEqual(6.0, actual.maxDuration)
         XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
@@ -314,17 +314,17 @@ class SentryANRTrackerV2Tests: XCTestCase {
             wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
         }
 
-        let firstActual = try XCTUnwrap(firstListener.anrsStoppedResults.last)
+        let firstActual = try XCTUnwrap(firstListener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, firstActual.minDuration)
         XCTAssertGreaterThanOrEqual(5.0, firstActual.maxDuration)
         XCTAssertEqual(0.8, firstActual.maxDuration - firstActual.minDuration, accuracy: 0.01)
 
-        let secondActual = try XCTUnwrap(secondListener.anrsStoppedResults.last)
+        let secondActual = try XCTUnwrap(secondListener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, secondActual.minDuration)
         XCTAssertGreaterThanOrEqual(5.0, secondActual.maxDuration)
         XCTAssertEqual(0.8, secondActual.maxDuration - secondActual.minDuration, accuracy: 0.01)
 
-        let thirdActual = try XCTUnwrap(thirdListener.anrsStoppedResults.last)
+        let thirdActual = try XCTUnwrap(thirdListener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, thirdActual.minDuration)
         XCTAssertGreaterThanOrEqual(5.0, thirdActual.maxDuration)
         XCTAssertEqual(0.8, thirdActual.maxDuration - thirdActual.minDuration, accuracy: 0.01)
@@ -555,7 +555,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
     let anrsDetected = Invocations<Sentry.SentryANRType>()
-    let anrsStoppedResults = Invocations<SentryANRStoppedResult>()
+    let anrStoppedResults = Invocations<SentryANRStoppedResult>()
     
     init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true) {
         if !shouldANRBeDetected {
@@ -576,7 +576,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
             return
         }
         
-        anrsStoppedResults.record(nonNilResult)
+        anrStoppedResults.record(nonNilResult)
         
         anrStoppedExpectation.fulfill()
     }
