@@ -79,6 +79,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
+    uint64_t sleepIntervalInNanos = timeIntervalToNanoseconds(sleepInterval);
     uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
 
     uint64_t appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2);
@@ -86,6 +87,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2;
 
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
+    uint64_t lastAppHangStartedSystemTime = 0;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
@@ -135,9 +137,21 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             if (appHangStopped) {
                 SENTRY_LOG_DEBUG(@"App hang stopped.");
 
+                // As we check every sleepInterval if the app is hanging, the app could already be
+                // hanging for almost the sleepInterval until we detect it and it could already
+                // stopped hanging almost a sleepInterval until we again detect it's not.
+                uint64_t appHangDurationNanos
+                    = timeoutIntervalInNanos + nowSystemTime - lastAppHangStartedSystemTime;
+                NSTimeInterval appHangDurationMinimum
+                    = nanosecondsToTimeInterval(appHangDurationNanos - sleepIntervalInNanos);
+                NSTimeInterval appHangDurationMaximum
+                    = nanosecondsToTimeInterval(appHangDurationNanos + sleepIntervalInNanos);
+
                 // The App Hang stopped, don't block the App Hangs thread or the main thread with
                 // calling ANRStopped listeners.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
+                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+                    [self ANRStopped:appHangDurationMinimum to:appHangDurationMaximum];
+                }];
 
                 lastAppHangStoppedSystemTime = dateProvider.systemTime;
                 reported = NO;
@@ -173,6 +187,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
             reported = YES;
+            lastAppHangStartedSystemTime = dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeFullyBlocking];
         }
 
@@ -183,6 +198,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
 
             reported = YES;
+            lastAppHangStartedSystemTime = dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeNonFullyBlocking];
         }
     }
@@ -205,15 +221,20 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)ANRStopped
+- (void)ANRStopped:(NSTimeInterval)hangDurationMinimum to:(NSTimeInterval)hangDurationMaximum
 {
     NSArray *targets;
     @synchronized(self.listeners) {
         targets = [self.listeners allObjects];
     }
 
+    // We round to 0.1 seconds accuracy because we can't precicely measure the app hand duration.
+    NSString *errorMessage =
+        [NSString stringWithFormat:@"App hanging between %.1f and %.1f seconds.",
+            hangDurationMinimum, hangDurationMaximum];
+
     for (id<SentryANRTrackerDelegate> target in targets) {
-        [target anrStopped];
+        [target anrStoppedWithErrorMessage:errorMessage];
     }
 }
 

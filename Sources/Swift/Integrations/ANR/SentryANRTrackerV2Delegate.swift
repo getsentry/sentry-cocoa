@@ -4,5 +4,6 @@ import Foundation
 @objc
 protocol SentryANRTrackerDelegate {
     func anrDetected(type: SentryANRType)
-    func anrStopped()
+    
+    func anrStopped(errorMessage: String)
 }

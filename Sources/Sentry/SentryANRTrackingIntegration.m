@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
     [SentrySDK captureEvent:event];
 }
 
-- (void)anrStopped
+- (void)anrStoppedWithErrorMessage:(NSString *)errorMessage
 {
     // We dont report when an ANR ends.
 }
