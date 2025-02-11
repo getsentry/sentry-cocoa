@@ -85,7 +85,7 @@ jobs:
 
   build-xcframework:
     name: Build XCFramework
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.2
@@ -100,8 +100,8 @@ jobs:
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
       - name: Check XCFramework
-        #We dont compile the framework during releases to not change the artefact SHA value
-        #instead we use the one archive as an artefact
+        # We dont compile the framework during releases to not change the artefact SHA value
+        # instead we use the one archive as an artefact
         if: startsWith(github.ref, 'refs/heads/release/')
         run: |
           ls -R Carthage
@@ -210,7 +210,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" DebugWithoutUIKit uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration DebugWithoutUIKit \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -220,7 +228,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration ReleaseWithoutUIKit \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -230,7 +246,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Debug uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration Debug \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -240,6 +264,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Release uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration Release \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
