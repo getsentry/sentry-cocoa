@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
 }
 
-- (void)anrStoppedWithErrorMessage:(NSString *)errorMessage
+- (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
