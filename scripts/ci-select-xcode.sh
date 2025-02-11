@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-XCODE_VERSION="${1:}"
+XCODE_VERSION="${1}"
 
 if [ -z "$XCODE_VERSION" ]; then
   echo "XCODE_VERSION is not set"
