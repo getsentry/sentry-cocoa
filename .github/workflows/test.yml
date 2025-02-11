@@ -274,7 +274,7 @@ jobs:
       - name: Check test-server runs
         run: curl http://localhost:8080/echo-baggage-header
 
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh

@@ -32,7 +32,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -88,7 +88,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v4
@@ -141,7 +141,7 @@ jobs:
         with:
           name: ${{ github.sha }}
           path: Carthage/
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - run: make build-xcframework-sample
         shell: sh
 

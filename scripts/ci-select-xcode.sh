@@ -6,8 +6,12 @@
 
 set -euo pipefail
 
-# 14.3 is the default
-XCODE_VERSION="${1:-14.3}"
+XCODE_VERSION="${1:}"
+
+if [ -z "$XCODE_VERSION" ]; then
+  echo "XCODE_VERSION is not set"
+  exit 1
+fi
 
 sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
 swiftc --version

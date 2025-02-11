@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -53,9 +53,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
-            xcode: "14.3"
-            device: "iPhone 8 (16.1)"
+          - runs-on: macos-15
+            xcode: "16.2"
+            device: "iPhone 16 (18.2)"
 
     steps:
       - uses: actions/checkout@v4
@@ -91,6 +91,11 @@ jobs:
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
 
+          # We only use large to investigate if UI tests are less flaky there.
+          - runs-on: macos-15-large
+            xcode: "16.2"
+            device: "iPhone 16 (18.2)"
+
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -117,13 +122,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.2"
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift6
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
           path: |
@@ -136,14 +141,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh "16.2"
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - run: ./scripts/build-xcframework.sh gameOnly
       - name: Run Fastlane
         run: fastlane duplication_test
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
           path: |
