@@ -209,6 +209,26 @@ jobs:
             --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
+            
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          report_paths: 'build/reports/junit.xml'
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Report
+          path: build/reports/junit.xml
+          reporter: swift-xunit
+          
+      - name: Test Summary
+        uses: test-summary/action@v2
+        if: always()
+        with:
+          paths: "build/reports/junit.xml"
 
       - name: Slowest Tests
         if: ${{ always() }}
