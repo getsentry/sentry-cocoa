@@ -6,6 +6,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
@@ -28,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) id<SentryANRTracker> tracker;
 @property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -50,11 +53,37 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
+    self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
 
+    [self captureStoredAppHangEvent];
+
     return YES;
+}
+
+/**
+ * It can happen that an app crashes while waiting for the app hang to stop. Therefore, we send the
+ * app hang without a duration as it was stored.
+ */
+- (void)captureStoredAppHangEvent
+{
+    __weak SentryANRTrackingIntegration *weakSelf = self;
+    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        if (weakSelf == nil) {
+            return;
+        }
+
+        SentryEvent *event = [weakSelf.fileManager readAppHangEvent];
+        if (event == nil) {
+            return;
+        }
+
+        [weakSelf.fileManager deleteAppHangEvent];
+        [SentrySDK captureEvent:event];
+    }];
 }
 
 - (SentryIntegrationOption)integrationOptions
@@ -131,12 +160,32 @@ NS_ASSUME_NONNULL_BEGIN
     event.exceptions = @[ sentryException ];
     event.threads = threads;
 
-    [SentrySDK captureEvent:event];
+    // We only measure app hang duration for V2.
+    // For V1, we directly capture the app hang event.
+    if (self.options.enableAppHangTrackingV2) {
+        [self.fileManager storeAppHangEvent:event];
+    } else {
+        [SentrySDK captureEvent:event];
+    }
 }
 
 - (void)anrStoppedWithErrorMessage:(NSString *)errorMessage
 {
-    // We dont report when an ANR ends.
+    // We only measure app hang duration for V2, and therefore ignore V1.
+    if (!self.options.enableAppHangTrackingV2) {
+        return;
+    }
+
+    SentryEvent *event = [self.fileManager readAppHangEvent];
+    if (event == nil) {
+        SENTRY_LOG_WARN(@"AppHang stopped but stored app hang event was nil.")
+        return;
+    }
+
+    [self.fileManager deleteAppHangEvent];
+
+    event.exceptions.firstObject.value = errorMessage;
+    [SentrySDK captureEvent:event];
 }
 
 @end
