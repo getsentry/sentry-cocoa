@@ -686,6 +686,60 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
     
+    func testStoreWriteAppHangEvent() throws {
+        // Arrange
+        let event = TestData.event
+        sut.storeAppHang(event)
+        
+        // Act
+        let actualEvent = try XCTUnwrap(sut.readAppHangEvent())
+        
+        // Assert
+        XCTAssertEqual(event.eventId, actualEvent.eventId)
+        XCTAssertEqual(event.timestamp, actualEvent.timestamp)
+        XCTAssertEqual(event.level, actualEvent.level)
+        XCTAssertEqual(event.message?.message, actualEvent.message?.message)
+        XCTAssertEqual(event.platform, actualEvent.platform)
+    }
+
+    func testReadAppHangEvent_WhenNoAppHangEvent_ReturnsNil() {
+        XCTAssertNil(sut.readAppHangEvent())
+    }
+
+    func testReadAppHangEvent_WithGarbage_ReturnsNil() throws {
+        // Arrange
+        let fileManager = FileManager.default
+        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
+        
+        fileManager.createFile(atPath: appHangEventFilePath, contents: "garbage".data(using: .utf8)!, attributes: nil)
+        
+        // Act
+        XCTAssertNil(sut.readAppHangEvent())
+    }
+    
+    func testStoreAppHangEvent_WithInvalidJSON_ReturnsNil() {
+        // Arrange
+        let event = TestData.event
+        event.message = SentryMessage(formatted: SentryInvalidJSONString() as String)
+        
+        // Act
+        sut.storeAppHang(event)
+        
+        // Assert
+        XCTAssertNil(sut.readAppHangEvent())
+    }
+
+    func testDeleteAppHangEvent() {
+        // Arrange
+        sut.storeAppHang(TestData.event)
+        
+        // Act
+        sut.deleteAppHangEvent()
+        
+        // Assert
+        XCTAssertNil(sut.readAppHangEvent())
+    }
+
     func testSentryPathFromOptionsCacheDirectoryPath() {
         fixture.options.cacheDirectoryPath = "/var/tmp"
         sut = fixture.getSut()

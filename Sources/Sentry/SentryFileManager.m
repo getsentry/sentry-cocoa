@@ -107,6 +107,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, copy) NSString *breadcrumbsFilePathTwo;
 @property (nonatomic, copy) NSString *timezoneOffsetFilePath;
+@property (nonatomic, copy) NSString *appHangEventFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 @property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
@@ -177,6 +178,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
     self.timezoneOffsetFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+    self.appHangEventFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
@@ -519,6 +522,43 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 {
     @synchronized(self.timezoneOffsetFilePath) {
         [self removeFileAtPath:self.timezoneOffsetFilePath];
+    }
+}
+
+#pragma mark - AppHangs
+
+- (void)storeAppHangEvent:(SentryEvent *)appHangEvent
+{
+    NSData *jsonData = [SentrySerialization dataWithJSONObject:[appHangEvent serialize]];
+    if (jsonData == nil) {
+        SENTRY_LOG_ERROR(@"Failed to store app hang event, because of an error in serialization.");
+        return;
+    }
+
+    @synchronized(self.appHangEventFilePath) {
+        [self writeData:jsonData toPath:self.appHangEventFilePath];
+    }
+}
+
+- (nullable SentryEvent *)readAppHangEvent
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *appHangEventJSONData = nil;
+    @synchronized(self.appHangEventFilePath) {
+        appHangEventJSONData = [fileManager contentsAtPath:self.appHangEventFilePath];
+    }
+    if (nil == appHangEventJSONData) {
+        SENTRY_LOG_DEBUG(@"No app hang event found.");
+        return nil;
+    }
+
+    return [SentryEventDecoder decodeEventWithJsonData:appHangEventJSONData];
+}
+
+- (void)deleteAppHangEvent
+{
+    @synchronized(self.appHangEventFilePath) {
+        [self removeFileAtPath:self.appHangEventFilePath];
     }
 }
 
