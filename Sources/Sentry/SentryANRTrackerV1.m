@@ -156,7 +156,9 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 
     for (id<SentryANRTrackerDelegate> target in targets) {
-        [target anrStopped];
+        // We intentionally don't measure the ANR duration, because V2 will replace V1, so it's not
+        // worth the effort.
+        [target anrStoppedWithResult:nil];
     }
 }
 

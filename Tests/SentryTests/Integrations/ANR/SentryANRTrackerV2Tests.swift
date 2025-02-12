@@ -6,11 +6,12 @@ import XCTest
 class SentryANRTrackerV2Tests: XCTestCase {
     
     private let waitTimeout: TimeInterval = 1.0
-    private let timeoutInterval: TimeInterval = 2
+    private var timeoutInterval: TimeInterval = 2
         
     private func getSut() throws -> (SentryANRTracker, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryCrashWrapper, SentryTestThreadWrapper, SentryFramesTracker) {
         
         let currentDate = TestCurrentDateProvider()
+        
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
@@ -65,6 +66,73 @@ class SentryANRTrackerV2Tests: XCTestCase {
         }
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(2.0, actual.minDuration)
+        XCTAssertGreaterThanOrEqual(4.0, actual.maxDuration)
+        XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
+    }
+    
+    func testFullyBlockingAppHangWithLargeTimeoutInterval_ReportsCorrectResult() throws {
+        timeoutInterval = 5.0
+        let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
+        defer { sut.clear() }
+        
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+        
+        // The app must hang for slightly over the timeoutInterval to report an app hang
+        var advanced = 0.0
+        while advanced < timeoutInterval + 0.1 {
+            advanced += 0.01
+            currentDate.advance(by: 0.01)
+        }
+        
+        wait(for: [listener.anrDetectedExpectation], timeout: timeoutInterval)
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        
+        for _ in 0..<20 {
+            displayLinkWrapper.normalFrame()
+        }
+        
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(5.0, actual.minDuration)
+        XCTAssertGreaterThanOrEqual(8.0, actual.maxDuration)
+        XCTAssertEqual(2.0, actual.maxDuration - actual.minDuration, accuracy: 0.01)
+    }
+    
+    func testFullyBlockingAppHangWithSmallTimeoutInterval_ReportsCorrectResult() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
+        defer { sut.clear() }
+        
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+        
+        // The app must hang for slightly over the timeoutInterval to report an app hang
+        var advanced = 0.0
+        while advanced < timeoutInterval + 0.1 {
+            advanced += 0.01
+            currentDate.advance(by: 0.01)
+        }
+        
+        wait(for: [listener.anrDetectedExpectation], timeout: timeoutInterval)
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        
+        for _ in 0..<20 {
+            displayLinkWrapper.normalFrame()
+        }
+        
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(timeoutInterval, actual.minDuration)
+        XCTAssertGreaterThanOrEqual(2.0, actual.maxDuration)
+        XCTAssertEqual(0.2, actual.maxDuration - actual.minDuration, accuracy: 0.01)
     }
     
     /// For a non fully blocking app hang at least one frame must be rendered during the hang.
@@ -88,6 +156,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(2.0, actual.minDuration)
+        XCTAssertGreaterThanOrEqual(4.0, actual.maxDuration)
+        XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
     }
     
     /// 3 frozen frames aren't enough for a non fully blocking app hang.
@@ -160,6 +233,11 @@ class SentryANRTrackerV2Tests: XCTestCase {
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(4.0, actual.minDuration)
+        XCTAssertGreaterThanOrEqual(6.0, actual.maxDuration)
+        XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
     }
     
     /// Fully blocking app hang, app hang stops, again fully blocking app hang
@@ -235,6 +313,21 @@ class SentryANRTrackerV2Tests: XCTestCase {
         SentryLog.withOutLogs {
             wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
         }
+
+        let firstActual = try XCTUnwrap(firstListener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(2.0, firstActual.minDuration)
+        XCTAssertGreaterThanOrEqual(5.0, firstActual.maxDuration)
+        XCTAssertEqual(0.8, firstActual.maxDuration - firstActual.minDuration, accuracy: 0.01)
+
+        let secondActual = try XCTUnwrap(secondListener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(2.0, secondActual.minDuration)
+        XCTAssertGreaterThanOrEqual(5.0, secondActual.maxDuration)
+        XCTAssertEqual(0.8, secondActual.maxDuration - secondActual.minDuration, accuracy: 0.01)
+
+        let thirdActual = try XCTUnwrap(thirdListener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(2.0, thirdActual.minDuration)
+        XCTAssertGreaterThanOrEqual(5.0, thirdActual.maxDuration)
+        XCTAssertEqual(0.8, thirdActual.maxDuration - thirdActual.minDuration, accuracy: 0.01)
     }
     
     func testTwoListeners_FullyBlocking_ReportedToBothListeners() throws {
@@ -462,6 +555,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
     let anrsDetected = Invocations<Sentry.SentryANRType>()
+    let anrStoppedResults = Invocations<SentryANRStoppedResult>()
     
     init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true) {
         if !shouldANRBeDetected {
@@ -476,7 +570,14 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.assertForOverFulfill = true
     }
     
-    func anrStopped() {
+    func anrStopped(result: SentryANRStoppedResult?) {
+        guard let nonNilResult = result else {
+            XCTFail("ANRStopped result is nil")
+            return
+        }
+        
+        anrStoppedResults.record(nonNilResult)
+        
         anrStoppedExpectation.fulfill()
     }
     
