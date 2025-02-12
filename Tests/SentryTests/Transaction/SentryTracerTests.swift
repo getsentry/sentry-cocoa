@@ -243,7 +243,6 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testDeadlineTimer_FinishesTransactionAndChildren() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
         let sut = fixture.getSut()
         
         let child1 = sut.startChild(operation: fixture.transactionOperation)
@@ -263,8 +262,6 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testDeadlineTimer_StartedAndCancelledOnMainThread() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
-        
         let sut = fixture.getSut()
         let child1 = sut.startChild(operation: fixture.transactionOperation)
 
@@ -325,8 +322,6 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testDeadlineTimer_WhenCancelling_IsInvalidated() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
-        
         let sut = fixture.getSut()
         let timer: Timer? = Dynamic(sut).deadlineTimer
         _ = sut.startChild(operation: fixture.transactionOperation)
@@ -338,8 +333,6 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testDeadlineTimer_FiresAfterTracerDeallocated() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
-        
         // Added internal function so the tracer gets deallocated after executing this function.
         func startTracer() {
             _ = fixture.getSut()
@@ -1311,8 +1304,6 @@ class SentryTracerTests: XCTestCase {
 #endif
     
     func testFinishShouldBeCalled_Timeout_NotCaptured() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
-        
         let sut = fixture.getSut(finishMustBeCalled: true)
         try fixture.timerFactory.fire()
         assertTransactionNotCaptured(sut)
@@ -1360,8 +1351,6 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testFinishForCrash_DoesNotCancelDeadlineTimer() throws {
-        fixture.dispatchQueue.blockBeforeMainBlock = { true }
-        
         let sut = fixture.getSut()
         _ = sut.startChild(operation: fixture.transactionOperation)
         let timer = try XCTUnwrap(Dynamic(sut).deadlineTimer.asObject as? Timer)
