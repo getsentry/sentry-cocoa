@@ -4,10 +4,10 @@ import Foundation
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
-    typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
-    typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
+    private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
+    private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
     
-    class Fixture {
+    private class Fixture {
         class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
             func finished(with feedback: Sentry.SentryFeedback?) {
                 // no-op
@@ -56,7 +56,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(attachments.count, 0)
     }
         
-    let inputCombinations: [FeedbackTestCase] = [
+    private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
         (config: (requiresName: false, requiresEmail: false, nameInput: nil, emailInput: nil, messageInput: nil, includeScreenshot: false), shouldValidate: false, expectedSubmitButtonAccessibilityHint: "You must provide all required information before submitting. Please check the following field: description."),
         // set a screenshot
