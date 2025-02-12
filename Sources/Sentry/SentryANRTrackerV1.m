@@ -155,13 +155,10 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         targets = [self.listeners allObjects];
     }
 
-    // We don't measure the duration of app hangs for the V1 to minimize the scope, and we will
-    // replace V1 with V2 anyway.
-    NSString *errorMessage = [NSString
-        stringWithFormat:@"App hanging for at least %li ms.", (long)(self.timeoutInterval * 1000)];
-
     for (id<SentryANRTrackerDelegate> target in targets) {
-        [target anrStoppedWithErrorMessage:errorMessage];
+        // We intentionally don't measure the ANR duration, because V2 will replace V1, so it's not
+        // worth the effort.
+        [target anrStoppedWithResult:nil];
     }
 }
 

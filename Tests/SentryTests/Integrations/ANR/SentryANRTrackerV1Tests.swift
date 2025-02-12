@@ -10,7 +10,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     private var anrDetectedExpectation: XCTestExpectation!
     private var anrStoppedExpectation: XCTestExpectation!
     private let waitTimeout: TimeInterval = 2.0
-    private var lastANRStoppedErrorMessage: String?
+    private var lastANRStoppedResult: SentryANRStoppedResult?
     
     private class Fixture {
         let timeoutInterval: TimeInterval = 5
@@ -111,7 +111,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
         XCTAssertEqual(expectedANRStoppedInvocations, fixture.dispatchQueue.dispatchAsyncInvocations.count)
         
-        XCTAssertEqual("App hanging for at least 5000 ms.", lastANRStoppedErrorMessage)
+        XCTAssertNil(lastANRStoppedResult)
     }
     
     func testAppSuspended_NoANR() {
@@ -216,8 +216,8 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         anrDetectedExpectation.fulfill()
     }
     
-    func anrStopped(errorMessage: String) {
-        lastANRStoppedErrorMessage = errorMessage
+    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
+        lastANRStoppedResult = result
         anrStoppedExpectation.fulfill()
     }
     
@@ -237,7 +237,7 @@ class SentryANRTrackerTestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.isInverted = true
     }
     
-    func anrStopped(errorMessage: String) {
+    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
         anrStoppedExpectation.fulfill()
     }
     

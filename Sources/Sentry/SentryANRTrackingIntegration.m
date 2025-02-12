@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)anrStoppedWithErrorMessage:(NSString *)errorMessage
+- (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
 {
     // We only measure app hang duration for V2, and therefore ignore V1.
     if (!self.options.enableAppHangTrackingV2) {

@@ -228,13 +228,11 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         targets = [self.listeners allObjects];
     }
 
-    // We round to 0.1 seconds accuracy because we can't precicely measure the app hand duration.
-    NSString *errorMessage =
-        [NSString stringWithFormat:@"App hanging between %.1f and %.1f seconds.",
-            hangDurationMinimum, hangDurationMaximum];
-
+    SentryANRStoppedResult *result =
+        [[SentryANRStoppedResult alloc] initWithMinDuration:hangDurationMinimum
+                                                maxDuration:hangDurationMaximum];
     for (id<SentryANRTrackerDelegate> target in targets) {
-        [target anrStoppedWithErrorMessage:errorMessage];
+        [target anrStoppedWithResult:result];
     }
 }
 
