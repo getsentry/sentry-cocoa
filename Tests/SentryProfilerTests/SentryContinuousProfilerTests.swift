@@ -118,7 +118,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         // assert that the first chunk was sent
-        fixture.currentDateProvider.advanceBy(interval: kSentryProfilerChunkExpirationInterval)
+        fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
@@ -163,7 +163,7 @@ private extension SentryContinuousProfilerTests {
     func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
         let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
-        for _ in 0..<Int(kSentryProfilerChunkExpirationInterval) {
+        for _ in 0..<Int(60) {
             fixture.currentDateProvider.advanceBy(interval: 1)
             SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
         }
@@ -200,7 +200,7 @@ private extension SentryContinuousProfilerTests {
     
     func assertContinuousProfileStoppage() throws {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        fixture.currentDateProvider.advance(by: kSentryProfilerTimeoutInterval)
+        fixture.currentDateProvider.advance(by: 60)
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
