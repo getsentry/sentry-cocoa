@@ -25,6 +25,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         self.config = config
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
+        isAccessibilityElement = true
         accessibilityLabel = config.widgetConfig.widgetAccessibilityLabel ?? config.widgetConfig.labelText
         accessibilityIdentifier = "io.sentry.feedback.widget"
         
@@ -48,9 +49,9 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             ])
         }
         
+        layer.addSublayer(lozengeLayer)
+        
         if let label = label {
-            let lozengeLayer = lozengeLayer(size: label.intrinsicContentSize)
-            layer.addSublayer(lozengeLayer)
             addSubview(label)
             
             if config.widgetConfig.showIcon {
@@ -71,8 +72,6 @@ class SentryUserFeedbackWidgetButtonView: UIView {
                 label.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
         } else if config.widgetConfig.showIcon {
-            let lozenge = lozengeLayer(size: sizeWithoutLabel)
-            layer.addSublayer(lozenge)
             addSubview(megaphone)
             constraints.append(contentsOf: [
                 megaphone.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -config.padding),
@@ -89,6 +88,14 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func updateAccessibilityFrame() {
+        guard let path = lozengeLayer.path else { return }
+        let x = accessibilityFrame.origin.x - path.boundingBox.origin.x
+        let y = accessibilityFrame.origin.y - path.boundingBox.origin.y
+        let frame = CGRect(x: x, y: y, width: path.boundingBox.size.width, height: path.boundingBox.size.height)
+        accessibilityFrame = CGRectApplyAffineTransform(frame, lozengeLayer.affineTransform())
     }
     
     // MARK: Actions
@@ -114,6 +121,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
             SentryLog.warning("Attempted to show widget button with empty text label. If you don't want to show text, set `SentryUserFeedbackWidgetConfiguration.labelText` to `nil`.")
         }
         
+        label.isAccessibilityElement = false
         label.text = text
         label.translatesAutoresizingMaskIntoConstraints = false
 
@@ -129,8 +137,8 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         return label
     }()
     
-    func lozengeLayer(size: CGSize) -> CAShapeLayer {
-        var finalSize = size
+    lazy var lozengeLayer: CAShapeLayer = {
+        var finalSize = label?.intrinsicContentSize ?? sizeWithoutLabel
         
         let hasText = config.widgetConfig.labelText != nil
         let scaledLeftPadding = (config.padding * config.scaleFactor) / 2
@@ -177,7 +185,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         }
         
         return lozengeLayer
-    }
+    }()
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
