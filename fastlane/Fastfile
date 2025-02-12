@@ -220,11 +220,12 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_swiftui do
+  lane :ui_tests_ios_swiftui do |options|
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
-      configuration: configuration
+      configuration: configuration,
+      testplan: options[:test_plan]
     )
   end
   
@@ -232,15 +233,17 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
-      configuration: configuration
+      configuration: configuration,
+      testplan: options[:test_plan]
     )
   end
 
-  lane :ui_tests_ios_objc do
+  lane :ui_tests_ios_objc do |options|
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
-      configuration: configuration
+      configuration: configuration,
+      testplan: options[:test_plan]
     )
   end
 
@@ -250,15 +253,17 @@ platform :ios do
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
-      configuration: configuration
+      configuration: configuration,
+      testplan: options[:test_plan]
     )
   end
 
-  lane :ui_tests_tvos_swift do
+  lane :ui_tests_tvos_swift do |options|
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
-      configuration: configuration
+      configuration: configuration,
+      testplan: options[:test_plan]
     )
   end
   

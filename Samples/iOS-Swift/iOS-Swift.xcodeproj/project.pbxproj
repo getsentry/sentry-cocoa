@@ -299,6 +299,13 @@
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
 		924857552C89A85F00774AC3 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceContentViewController.swift; sourceTree = "<group>"; };
+		D4D025222D5CA24300B4DFAA /* LaunchUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LaunchUI.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF42D5A4D7800F0E3D3 /* Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Base.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF52D5A4D7800F0E3D3 /* ProfilingUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ProfilingUI.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF62D5A4D7800F0E3D3 /* SentryDevices.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentryDevices.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF72D5A4D7800F0E3D3 /* TopViewControllerTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TopViewControllerTests.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF82D5A4D7800F0E3D3 /* UIEventBreadcrumb.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UIEventBreadcrumb.xctestplan; sourceTree = "<group>"; };
+		D4F9ECF92D5A4D7800F0E3D3 /* UserFeedbackUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UserFeedbackUI.xctestplan; sourceTree = "<group>"; };
 		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -446,6 +453,7 @@
 			isa = PBXGroup;
 			children = (
 				62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */,
+				D4F9ECFA2D5A4D7800F0E3D3 /* TestPlans */,
 				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
@@ -551,6 +559,20 @@
 			);
 			name = Shared;
 			path = ../Shared;
+			sourceTree = "<group>";
+		};
+		D4F9ECFA2D5A4D7800F0E3D3 /* TestPlans */ = {
+			isa = PBXGroup;
+			children = (
+				D4F9ECF42D5A4D7800F0E3D3 /* Base.xctestplan */,
+				D4D025222D5CA24300B4DFAA /* LaunchUI.xctestplan */,
+				D4F9ECF52D5A4D7800F0E3D3 /* ProfilingUI.xctestplan */,
+				D4F9ECF62D5A4D7800F0E3D3 /* SentryDevices.xctestplan */,
+				D4F9ECF72D5A4D7800F0E3D3 /* TopViewControllerTests.xctestplan */,
+				D4F9ECF82D5A4D7800F0E3D3 /* UIEventBreadcrumb.xctestplan */,
+				D4F9ECF92D5A4D7800F0E3D3 /* UserFeedbackUI.xctestplan */,
+			);
+			path = TestPlans;
 			sourceTree = "<group>";
 		};
 		D8269A3A274C095E00BD5BD5 /* iOS13-Swift */ = {
