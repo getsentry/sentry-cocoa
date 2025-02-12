@@ -15,5 +15,6 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryRandom.h"
+#import "SentryScreenshot.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"

@@ -18,24 +18,21 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
+    let screenshotProvider: SentryScreenshot
     
-    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate) {
+    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
         self.delegate = delegate
+        self.screenshotProvider = screenshotProvider
         super.init()
         
         if let widgetConfigBuilder = configuration.configureWidget {
             widgetConfigBuilder(configuration.widgetConfig)
             validate(configuration.widgetConfig)
         }
-        
         if let uiFormConfigBuilder = configuration.configureForm {
             uiFormConfigBuilder(configuration.formConfig)
         }
-        if configuration.formConfig.enableScreenshot && !Bundle.main.canRequestAuthorizationToAttachPhotos {
-            SentryLog.warning("User feedback was configured to allow attaching images, but the required info plist key NSPhotoLibraryUsageDescription to request photos access was not included. The button to add a screenshot to user feedback will be hidden from end users.")
-        }
-        
         if let themeOverrideBuilder = configuration.configureTheme {
             themeOverrideBuilder(configuration.theme)
         }
@@ -61,7 +58,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
      * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
      */
     func createWidget() {
-        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self)
+        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self, screenshotProvider: screenshotProvider)
         window?.isHidden = false
     }
     

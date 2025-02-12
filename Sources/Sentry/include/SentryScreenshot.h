@@ -2,6 +2,8 @@
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
+#    import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScreenshot : NSObject
@@ -20,9 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)saveScreenShots:(NSString *)imagesDirectoryPath;
 
-- (NSArray<NSData *> *)appScreenshots;
+- (NSArray<UIImage *> *)appScreenshots;
+- (NSArray<NSData *> *)appScreenshotsData;
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED

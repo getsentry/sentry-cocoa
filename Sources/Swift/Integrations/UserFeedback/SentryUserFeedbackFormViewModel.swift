@@ -3,11 +3,9 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
-import PhotosUI
 import UIKit
 
 protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
-    func addScreenshotTapped()
     func submitFeedback()
     func cancel()
 }
@@ -18,10 +16,19 @@ class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
+    let screenshot: UIImage?
     
-    init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController) {
+    static let dateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter
+    }()
+    
+    init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController, screenshot: UIImage?) {
         self.config = config
         self.controller = controller
+        self.screenshot = screenshot
         super.init()
         delegate = controller
     }
@@ -121,17 +128,13 @@ class SentryUserFeedbackFormViewModel: NSObject {
     lazy var screenshotImageView = {
         let iv = UIImageView()
         iv.isAccessibilityElement = true
+        
+        if let screenshot = self.screenshot {
+            iv.image = screenshot
+            iv.accessibilityLabel = "attached screenshot"
+        }
+        
         return iv
-    }()
-    
-    lazy var addScreenshotButton = {
-        let button = UIButton(frame: .zero)
-        button.setTitle(config.formConfig.addScreenshotButtonLabel, for: .normal)
-        button.accessibilityLabel = config.formConfig.addScreenshotButtonAccessibilityLabel
-        button.addTarget(self, action: #selector(addScreenshotTapped), for: .touchUpInside)
-        button.accessibilityIdentifier = "io.sentry.feedback.form.add-screenshot"
-        button.accessibilityHint = "Will present the iOS photo picker for you to choose an image to attach to the feedback report."
-        return button
     }()
     
     lazy var removeScreenshotButton = {
@@ -200,14 +203,8 @@ class SentryUserFeedbackFormViewModel: NSObject {
         let messageAndScreenshotStack = UIStackView(arrangedSubviews: [self.messageTextView])
         messageAndScreenshotStack.axis = .vertical
         
-        if self.config.formConfig.enableScreenshot {
-            if Bundle.main.canRequestAuthorizationToAttachPhotos {
-                messageAndScreenshotStack.addArrangedSubview(self.addScreenshotButton)
-                messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
-                self.removeScreenshotStack.isHidden = true
-            } else {
-                SentryLog.warning("User feedback was configured to allow attaching images, but the required info plist key NSPhotoLibraryUsageDescription to request photos access was not included.")
-            }
+        if self.screenshot != nil {
+            messageAndScreenshotStack.addArrangedSubview(removeScreenshotStack)
         }
         
         messageAndScreenshotStack.spacing = config.theme.font.lineHeight - config.theme.font.xHeight
@@ -245,11 +242,25 @@ class SentryUserFeedbackFormViewModel: NSObject {
     lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
     lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var removeScreenshotButtonHeightConstraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var submitButtonHeightConstraint = submitButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var cancelButtonHeightConstraint = cancelButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor)
+    lazy var screenshotImageAspectRatioConstraint = {
+        let aspectRatio: CGFloat
+        if let screenshot = self.screenshot {
+            if screenshot.size.height == 0 {
+                SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
+                aspectRatio = 1
+            } else {
+                aspectRatio = screenshot.size.width / screenshot.size.height
+            }
+        } else {
+            SentryLog.warning("Should not be initializing an aspect ratio constraint without a screenshot")
+            aspectRatio = 1
+        }
+        
+        return screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: aspectRatio)
+    }()
     
     // the extra 5 pixels was observed experimentally and is invariant under changes in dynamic type sizes
     lazy var messagePlaceholderLeadingConstraint = messageTextViewPlaceholder.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: messageTextView.textContainerInset.left + 5)
@@ -277,7 +288,6 @@ class SentryUserFeedbackFormViewModel: NSObject {
             
             fullNameTextFieldHeightConstraint,
             emailTextFieldHeightConstraint,
-            addScreenshotButtonHeightConstraint,
             removeScreenshotButtonHeightConstraint,
             submitButtonHeightConstraint,
             cancelButtonHeightConstraint,
@@ -286,8 +296,8 @@ class SentryUserFeedbackFormViewModel: NSObject {
             messagePlaceholderTopConstraint,
             messagePlaceholderTrailingConstraint,
             messagePlaceholderBottomConstraint
-        ] + (Bundle.main.canRequestAuthorizationToAttachPhotos ? [
-            screenshotImageView.heightAnchor.constraint(equalTo: addScreenshotButton.heightAnchor),
+        ] + (self.screenshot != nil ? [
+            screenshotImageView.heightAnchor.constraint(equalTo: removeScreenshotButton.heightAnchor),
             screenshotImageAspectRatioConstraint
         ] : [])
     }
@@ -297,14 +307,9 @@ class SentryUserFeedbackFormViewModel: NSObject {
 
 @available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
-    func addScreenshotTapped() {
-        delegate?.addScreenshotTapped()
-    }
-    
     func removeScreenshotTapped() {
         screenshotImageView.image = nil
         removeScreenshotStack.isHidden = true
-        addScreenshotButton.isHidden = false
     }
     
     func submitFeedback() {
@@ -349,18 +354,18 @@ extension SentryUserFeedbackFormViewModel {
             $0.adjustsFontForContentSizeCategory = true
         }
         
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+        [submitButton, removeScreenshotButton, cancelButton].forEach {
             $0.titleLabel?.font = config.theme.titleFont
             $0.titleLabel?.adjustsFontForContentSizeCategory = true
         }
         
-        [submitButton, addScreenshotButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
+        [submitButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
             $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
             $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
             $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
         }
         
-        [addScreenshotButton, removeScreenshotButton, cancelButton].forEach {
+        [removeScreenshotButton, cancelButton].forEach {
             $0.backgroundColor = config.theme.buttonBackground
             $0.setTitleColor(config.theme.buttonForeground, for: .normal)
         }
@@ -382,34 +387,9 @@ extension SentryUserFeedbackFormViewModel {
         messagePlaceholderTopConstraint.constant = messageTextView.textContainerInset.top
         fullNameTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
         emailTextFieldHeightConstraint.constant = formElementHeight * config.scaleFactor
-        addScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         removeScreenshotButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         submitButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
         cancelButtonHeightConstraint.constant = formElementHeight * config.scaleFactor
-    }
-    
-    func updateScreenshot(image: UIImage, accessibilityInfo value: String) {
-        screenshotImageView.image = image
-        screenshotImageView.accessibilityLabel = value
-        addScreenshotButton.isHidden = true
-        removeScreenshotStack.isHidden = false
-        
-        let aspectRatio: CGFloat
-        if image.size.height == 0 {
-            #if !SENTRY_TEST
-            SentryLog.warning("Image had 0 height, won't be able to set a reasonable aspect ratio. Defaulting to 1:1.")
-            #endif // !SENTRY_TEST
-            aspectRatio = 1
-        } else {
-            aspectRatio = image.size.width / image.size.height
-        }
-        
-        // you cannot dynamically change the multiplier on a constraint. you must deactivate the old instance, create a new instance, and then activate that one
-        screenshotImageAspectRatioConstraint.isActive = false
-        screenshotImageAspectRatioConstraint = screenshotImageView.widthAnchor.constraint(equalTo: screenshotImageView.heightAnchor, multiplier: aspectRatio)
-        screenshotImageAspectRatioConstraint.isActive = true
-        
-        updateSubmitButtonAccessibilityHint()
     }
     
     typealias SentryUserFeedbackFormValidation = Result<String, InputError>
