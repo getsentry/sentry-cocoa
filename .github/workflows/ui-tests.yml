@@ -6,14 +6,13 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - '.github/workflows/ui-tests.yml'
-      - 'fastlane/**'
-      - '.sauce/config.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Samples/iOS-Swift/**'
-
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/**"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -30,18 +29,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
-        shell: sh
+        run: bundle exec fastlane ui_tests_${{matrix.target}}
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-uitest-output-${{matrix.target}}
+          name: ui-tests-${{matrix.target}}-raw-test-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -60,93 +61,115 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
-        shell: sh
+        run: bundle exec fastlane ui_tests_ios_swiftui device:"${{matrix.device}}"
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-ios-swiftui-test-output-xcode-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-swift-ui-${{matrix.device}}-raw-test-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift ${{matrix.device}} Simulator
-    runs-on: ${{matrix.runs-on}}
+    name: iOS-Swift '${{ matrix.test_plan }}' on ${{matrix.destination.device}}
+    runs-on: ${{matrix.destination.runs-on}}
     strategy:
       fail-fast: false
       matrix:
-        include:
+        destination:
           - runs-on: macos-13
             xcode: "15.2"
             device: "iPhone 14 (16.4)"
-
-          # We only use large to investigate if UI tests are less flaky there.
-          - runs-on: macos-14-large
+          - runs-on: macos-14-large # We only use large to investigate if UI tests are less flaky there.
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
+        test_plan:
+          - "Base"
+          - "LaunchUI"
+          - "ProfilingUI"
+          - "SentryDevices"
+          - "TopViewControllerTests"
+          - "UIEventBreadcrumb"
+          - "UserFeedbackUI"
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.destination.xcode}}
 
       - name: Create iOS 16.4 simulator
-        if: ${{ matrix.device == 'iPhone 14 (16.4)' }}
+        if: ${{ matrix.destination.device == 'iPhone 14 (16.4)' }}
         run: ./scripts/create-simulator.sh 14.3.1 16.4 "iPhone 14" true
 
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
+        run: bundle exec fastlane ui_tests_ios_swift device:"${{matrix.destination.device}}" test_plan:"${{matrix.test_plan}}"
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-swift-${{matrix.test_plan}}-${{matrix.destination.device}}-raw-test-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
     runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh "16.2"
+
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift6
+        run: bundle exec fastlane ui_tests_ios_swift6
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-swift6-raw-test-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated
     runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh "16.2"
+
       - run: ./scripts/build-xcframework.sh gameOnly
       - name: Run Fastlane
-        run: fastlane duplication_test
+        run: bundle exec fastlane duplication_test
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: duplication-tests-raw-test-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
