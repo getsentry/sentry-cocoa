@@ -52,8 +52,6 @@ class SentryTracerTests: XCTestCase {
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         init() {
-            dispatchQueue.blockBeforeMainBlock = { false }
-
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             
@@ -388,9 +386,9 @@ class SentryTracerTests: XCTestCase {
 
         try fixture.timerFactory.fire()
 
-        XCTAssertEqual(sut.status, .undefined)
-        XCTAssertEqual(child1.status, .undefined)
-        XCTAssertEqual(child2.status, .undefined)
+        XCTAssertEqual(sut.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
+        XCTAssertEqual(child2.status, .deadlineExceeded)
         XCTAssertEqual(child3.status, .ok)
     }
 

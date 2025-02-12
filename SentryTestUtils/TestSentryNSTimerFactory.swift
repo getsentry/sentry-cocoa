@@ -5,18 +5,9 @@ import Foundation
 // Therefore we return a NSTimer instance here with TimeInterval.infinity.
 public class TestSentryNSTimerFactory: SentryNSTimerFactory {
     public struct Overrides {
-        private var _timer: Timer?
         private var _interval: TimeInterval?
         
-        public var timer: Timer {
-            get {
-                _timer ?? Timer()
-            }
-            set(newValue) {
-                _timer = newValue
-            }
-        }
-        
+        public var timer: Timer
         var block: ((Timer) -> Void)?
         
         var interval: TimeInterval {
@@ -37,7 +28,7 @@ public class TestSentryNSTimerFactory: SentryNSTimerFactory {
         var invocationInfo: InvocationInfo?
         
         init(timer: Timer, interval: TimeInterval? = nil, block: ((Timer) -> Void)? = nil, lastFireDate: Date, invocationInfo: InvocationInfo? = nil) {
-            self._timer = timer
+            self.timer = timer
             self._interval = interval
             self.block = block
             self.lastFireDate = lastFireDate
