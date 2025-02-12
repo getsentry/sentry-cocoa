@@ -28,7 +28,7 @@ class SentryTracerTests: XCTestCase {
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let debugImageProvider = TestDebugImageProvider()
-        let timerFactory = TestSentryNSTimerFactory()
+        lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDateProvider)
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -244,7 +244,7 @@ class SentryTracerTests: XCTestCase {
         }
     }
 
-    func testDeadlineTimer_FinishesTransactionAndChildren() {
+    func testDeadlineTimer_FinishesTransactionAndChildren() throws {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         let sut = fixture.getSut()
         
@@ -254,7 +254,7 @@ class SentryTracerTests: XCTestCase {
 
         child3.finish()
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
 
         assertOneTransactionCaptured(sut)
 
@@ -264,13 +264,13 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(child3.status, .ok)
     }
     
-    func testDeadlineTimer_StartedAndCancelledOnMainThread() {
+    func testDeadlineTimer_StartedAndCancelledOnMainThread() throws {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         
         let sut = fixture.getSut()
         let child1 = sut.startChild(operation: fixture.transactionOperation)
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
         
         XCTAssertEqual(sut.status, .deadlineExceeded)
         XCTAssertEqual(child1.status, .deadlineExceeded)
@@ -315,7 +315,7 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNil(weakSut, "sut was not deallocated")
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
         
         let invalidateTimerBlock = fixture.dispatchQueue.blockOnMainInvocations.last
         if invalidateTimerBlock != nil {
@@ -326,20 +326,20 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(timer?.isValid ?? false)
     }
     
-    func testDeadlineTimer_WhenCancelling_IsInvalidated() {
+    func testDeadlineTimer_WhenCancelling_IsInvalidated() throws {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         
         let sut = fixture.getSut()
         let timer: Timer? = Dynamic(sut).deadlineTimer
         _ = sut.startChild(operation: fixture.transactionOperation)
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
         
         XCTAssertNil(Dynamic(sut).deadlineTimer.asObject, "DeadlineTimer should be nil.")
         XCTAssertFalse(timer?.isValid ?? true)
     }
     
-    func testDeadlineTimer_FiresAfterTracerDeallocated() {
+    func testDeadlineTimer_FiresAfterTracerDeallocated() throws {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         
         // Added internal function so the tracer gets deallocated after executing this function.
@@ -348,7 +348,7 @@ class SentryTracerTests: XCTestCase {
         }
         startTracer()
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
     }
     
     func testDeadlineTimerForManualTransaction_NoWorkQueuedOnMainQueue() {
@@ -378,7 +378,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, debugImageProvider.getDebugImagesFromCacheForFramesInvocations.count, "Tracer must retrieve debug images from cache.")
     }
 
-    func testDeadlineTimer_OnlyForAutoTransactions() {
+    func testDeadlineTimer_OnlyForAutoTransactions() throws {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
@@ -386,7 +386,7 @@ class SentryTracerTests: XCTestCase {
 
         child3.finish()
 
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
 
         XCTAssertEqual(sut.status, .undefined)
         XCTAssertEqual(child1.status, .undefined)
@@ -398,7 +398,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.finish()
 
-        XCTAssertFalse(fixture.timerFactory.overrides.timer.isValid)
+        XCTAssertFalse(try XCTUnwrap(fixture.timerFactory.overrides).timer.isValid)
     }
     
     func testDeadlineTimer_MultipleSpansFinishedInParallel() {
@@ -412,10 +412,10 @@ class SentryTracerTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
     }
 
-    func testFinish_CheckDefaultStatus() {
+    func testFinish_CheckDefaultStatus() throws {
         let sut = fixture.getSut()
         sut.finish()
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
         XCTAssertEqual(sut.status, .ok)
     }
     
@@ -1295,11 +1295,11 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
-    func testFinishShouldBeCalled_Timeout_NotCaptured() {
+    func testFinishShouldBeCalled_Timeout_NotCaptured() throws {
         fixture.dispatchQueue.blockBeforeMainBlock = { true }
         
         let sut = fixture.getSut(finishMustBeCalled: true)
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
         assertTransactionNotCaptured(sut)
     }
     
