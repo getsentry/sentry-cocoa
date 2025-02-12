@@ -10,6 +10,7 @@ To use Swift in the project take a look at [Swift Usage](Swift-Usage.md) documen
 
 This repository follows the [codesiging.guide](https://codesigning.guide/) in combination with [fastlane match](https://docs.fastlane.tools/actions/match/).
 Therefore the sample apps use manual code signing, see [fastlane docs](https://docs.fastlane.tools/codesigning/xcode-project/):
+
 > In most cases, fastlane will work out of the box with Xcode 9 and up if you selected manual code signing and choose a provisioning profile name for each of your targets.
 
 ### Creating new App Identifiers
@@ -46,15 +47,15 @@ The profiler doesn't work with TSAN attached, so tests that run the profiler wil
 
 ### Further Reading
 
-* [ThreadSanitizerSuppressions](https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
-* [Running Tests with Clang's AddressSanitizer](https://pspdfkit.com/blog/2016/test-with-asan/)
-* [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
-* [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
+- [ThreadSanitizerSuppressions](https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
+- [Running Tests with Clang's AddressSanitizer](https://pspdfkit.com/blog/2016/test-with-asan/)
+- [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
+- [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
 
 ## Test Logs
 
 The [`SentryTestLogConfig`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/Tests/SentryTests/TestUtils/SentryTestLogConfig.m) sets the log level to debug in `load`, so we understand what's going on during out tests.
-The  [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/SentryTestUtils/ClearTestState.swift#L25) method does the same, in case a test changes the log level.
+The [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/SentryTestUtils/ClearTestState.swift#L25) method does the same, in case a test changes the log level.
 
 ## UI Tests
 
@@ -80,8 +81,8 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
 #### Test Plan
 
 - Run the procedure 20 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
-    - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
-    - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
+  - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials.
+  - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
 
 ## Upload iOS-Swift's dSYMs with Xcode Run Script
 
@@ -101,11 +102,12 @@ You can use the `generate-classes.sh` to generate ViewControllers and other clas
 Some customers would like to not link UIKit for various reasons. Either they simply may not want to use our UIKit functionality, or they actually cannot link to it in certain circumstances, like a File Provider app extension.
 
 There are two build configurations they can use for this: `DebugWithoutUIKit` and `ReleaseWithoutUIKit`, that are essentially the same as `Debug` and `Release` with the following differences:
+
 - They set `CLANG_MODULES_AUTOLINK` to `NO`. This avoids a load command being automatically inserted for any UIKit API that make their way into the type system during compilation of SDK sources.
 - `GCC_PREPROCESSOR_DEFINITIONS` has an additional setting `SENTRY_NO_UIKIT=1`. This is now part of the definition of `SENTRY_HAS_UIKIT` in `SentryDefines.h` that is used to conditionally compile out any code that would otherwise use UIKit API and cause UIKit to be automatically linked as described above. There is another macro `SENTRY_UIKIT_AVAILABLE` defined as `SENTRY_HAS_UIKIT` used to be, meaning simply that compilation is targeting a platform where UIKit is available to be used. This is used in headers we deliver in the framework bundle to compile out declarations that rely on UIKit, and their corresponding implementations are switched over `SENTRY_HAS_UIKIT` to either provide the logic for configurations that link UIKit, or to provide a stub delivering a default value (`nil`, `0.0`, `NO` etc) and a warning log for publicly facing things like SentryOptions, or debug log for internal things like SentryDependencyContainer.
 
 There are two jobs in `.github/workflows/build.yml` that will build each of the new configs and use `otool -L` to ensure that UIKit does not appear as a load command in the build products.
- 
+
 This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
@@ -114,28 +116,28 @@ We have a set of macros for logging at various levels defined in SentryLog.h. Th
 
 ## Profiling
 
-The profiler runs on a dedicated thread, and on a predefined interval will enumerate all other threads and gather the backtrace on each non-idle thread. 
+The profiler runs on a dedicated thread, and on a predefined interval will enumerate all other threads and gather the backtrace on each non-idle thread.
 
 The information is stored in deduplicated frame and stack indexed lookups for memory and transmission efficiency. These are maintained in `SentryProfilerState`.
 
-If enabled and sampled in (controlled by `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler`), the profiler will start along with a trace, and the profile information is sliced to the start and end of each transaction and sent with them an envelope attachments. 
+If enabled and sampled in (controlled by `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler`), the profiler will start along with a trace, and the profile information is sliced to the start and end of each transaction and sent with them an envelope attachments.
 
 The profiler will automatically time out if it is not stopped within 30 seconds, and also stops automatically if the app is sent to the background.
 
-There's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`. 
+There's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`.
 
 App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
 
-In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile`  and `iOS-Swift-UITests.ProfilingUITests`.
+In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile` and `iOS-Swift-UITests.ProfilingUITests`.
 
-## Swift and Objective-C Interoperability**
+## Swift and Objective-C Interoperability
 
 When making an Objective-C class public for Swift SDK code, do the following:
 
-* Add it to SentryPrivate.h
-* Remove existing imports from any test bridging headers.
-* Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
-the Objective-C class.
+- Add it to SentryPrivate.h
+- Remove existing imports from any test bridging headers.
+- Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
+  the Objective-C class.
 
 ## Public Protocols
 
@@ -152,14 +154,9 @@ are automatically visible to Swift without imports. Our umbrella header is defin
 Accessing private Objective-C classes doesn't
 work out of the box. One approach to making this work is to define a private module that contains
 all the private ObjC headers. To define such a module, we added a module.modulemap file to our
-project with the name _SentryPrivate. We added the prefix `_` because Xcode autocomplete seems to
-ignore such modules. This modulemap file points to a header called `SentryPrivate.h`, which include
- all private ObjC headers that should be available for Swift. When importing the generated
- _SentryPrivate module we have to use `@_implementationOnly import _SentryPrivate`.
- [@_implementationOnly](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_implementationonly)
- will most likely be superseded by [access level imports](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md)
- in a future Swift version. Not using `@_implementationOnly` leads to errors when including the
- prebuilt XCFramwork into projects, such as:
+project with the name _SentryPrivate. We added the prefix `_`because Xcode autocomplete seems to ignore such modules. This modulemap file points to a header called`SentryPrivate.h`, which include all private ObjC headers that should be available for Swift. When importing the generated _SentryPrivate module we have to use `@\_implementationOnly import \_SentryPrivate`.
+[@_implementationOnly](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md#_implementationonly) will most likely be superseded by [access level imports](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md) in a future Swift version. Not using `@\_implementationOnly` leads to errors when including the
+prebuilt XCFramwork into projects, such as:
 
 ```sh
 Sentry.swiftmodule/arm64-apple-ios.private.swiftinterface:10:8: error: no such module '_SentryPrivate'
@@ -167,10 +164,10 @@ Sentry.swiftmodule/arm64-apple-ios.private.swiftinterface:10:8: error: no such m
 import _SentryPrivate
 ```
 
-Adding Objective-C classes to the _SentryPrivate module also exposes them to test classes written in
+Adding Objective-C classes to the \_SentryPrivate module also exposes them to test classes written in
 Swift. When making an Objective-C class public to SDK Swift code, we must remove it from test
 bridging headers because this can lead to compiler errors. The SentryTests only find the
-_SentryPrivate module when adding setting `HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**`
+\_SentryPrivate module when adding setting `HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**`
 which we must not set for SwiftUI, because this uses its own implementation of SentryInternal.h.
 Setting the `HEADER_SEARCH_PATHS` for SwiftUI breaks the build.
 
@@ -178,7 +175,7 @@ See also [decision to remove SentryPrivate](./DECISIONS.md#removing-sentryprivat
 
 Useful resources:
 
-* [Module Map Syntax](https://clang.llvm.org/docs/Modules.html#module-map-file)
-* Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
-* [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
-* [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
+- [Module Map Syntax](https://clang.llvm.org/docs/Modules.html#module-map-file)
+- Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
+- [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
+- [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
