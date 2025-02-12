@@ -1,55 +1,52 @@
 @_implementationOnly import _SentryPrivate
 
-/// A `Data` extension that tracks read and write operations with Sentry.
+/// A ``Data`` extension that tracks read and write operations with Sentry.
 ///
-/// - Note: Methods provided by this extension reflect the same functionality as the original `Data` methods,
-///         but they track the operation with Sentry.
+/// - Note: Methods provided by this extension reflect the same functionality as the original ``Data`` methods, but they track the operation with Sentry.
 public extension Data {
 
-    /// Initialize a `Data` with the contents of a `URL`, automatically tracking the operation with Sentry.
+    // MARK: - Reading Data from a File
+
+    /// Creates a data object from the data at the specified file URL, tracking the operation with Sentry.
     ///
-    /// - parameter url: The `URL` to read.
-    /// - parameter options: Options for the read operation. Default value is `[]`.
-    /// - throws: An error in the Cocoa domain, if `url` cannot be read.
+    /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
+    ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
+    ///              `options.enableSwizzling` to `false` when initializing Sentry.
+    /// - Parameters:
+    ///   - url: The location on disk of the data to read.
+    ///   - options: The mask specifying the options to use when reading the data. For more information, see ``NSData.ReadingOptions``.
+    /// - Note: See ``Data.init(contentsOf:options:)`` for more information.
     init(contentsOfUrlWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
-        // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
-        // Therefore we do not use the `measureNSData` method.
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            self = try tracker
-                .measureReadingData(
-                    from: url,
-                    options: options,
-                    origin: SentryTraceOrigin.manualFileData) { url, options in
-                        try Data(contentsOf: url, options: options)
-                }
-        } else {
-            SentryLog.debug("Data is traced automatically on this platform version.")
-            self = try Data(contentsOf: url, options: options)
-        }
+        self = try tracker
+            .measureReadingData(
+                from: url,
+                options: options,
+                origin: SentryTraceOrigin.manualFileData) { url, options in
+                    try Data(contentsOf: url, options: options)
+            }
     }
 
-    /// Write the contents of the `Data` to a location, automatically tracking the operation with Sentry.
-    ///
-    /// - parameter url: The location to write the data into.
-    /// - parameter options: Options for writing the data. Default value is `[]`.
-    /// - throws: An error in the Cocoa domain, if there is an error writing to the `URL`.
+    // MARK: - Writing Data to a File
+
+    /// Write the contents of the `Data` to a location, tracking the operation with Sentry.
+    /// 
+    /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
+    ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
+    ///              `options.enableSwizzling` to `false` when initializing Sentry.
+    /// - Parameters:
+    ///   - url: The location to write the data into.
+    ///   - options: Options for writing the data. Default value is `[]`.
+    /// - Note: See ``Data.write(to:options:)`` for more information.
     func writeWithSentryTracing(to url: URL, options: Data.WritingOptions = []) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
-        // Using the bridging of `Data` to `NSData` caused issues on older versions of macOS.
-        // Therefore we do not use the `measureNSData` method.
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            try tracker
-                .measureWritingData(
-                    self,
-                    to: url,
-                    options: options,
-                    origin: SentryTraceOrigin.manualFileData) { data, url, options in
-                        try data.write(to: url, options: options)
-                }
-        } else {
-            SentryLog.debug("Data is traced automatically on this platform version.")
-            try self.write(to: url, options: options)
-        }
+        try tracker
+            .measureWritingData(
+                self,
+                to: url,
+                options: options,
+                origin: SentryTraceOrigin.manualFileData) { data, url, options in
+                    try data.write(to: url, options: options)
+            }
     }
 }

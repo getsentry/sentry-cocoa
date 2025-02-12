@@ -49,18 +49,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         fixture = Fixture()
     }
 
-    override func tearDown() {
-        super.tearDown()
-//        clearTestState()
-    }
-
     // MARK: - Data.init(contentsOfUrlWithSentryTracing:)
 
-    func testInitContentsOfUrlWithSentryTracing_dataBridgedToNSData_shouldNotTraceManually() throws {
+    func testInitContentsOfUrlWithSentryTracing_shouldTraceManually() throws {
         // -- Arrange --
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
@@ -78,11 +70,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToRead.path)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_dataBridgedToNSDataThrowsError_shouldNotTraceManuallyWithErrorRethrow() throws {
+    func testInitContentsOfUrlWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
@@ -97,54 +86,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToRead.path)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_dataNotBridgedToNSData_shouldNotTraceManually() throws {
-        // -- Arrange --
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-        let _ = try fixture.getSut(testName: self.name)
-        let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
-
-        // -- Act --
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.fileUrlToRead)
-
-        // -- Assert --
-        XCTAssertEqual(data, fixture.data)
-
-        XCTAssertEqual(parentTransaction.children.count, 1)
-        let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
-        XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToRead.path)
-    }
-
-    func testInitContentsOfUrlWithSentryTracing_dataNotBridgedToNSDataThrowsError_shouldNotTraceManuallyWithErrorRethrow() throws {
-        // -- Arrange --
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-        let _ = try fixture.getSut(testName: self.name)
-        let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
-
-        // -- Act & Assert --
-        XCTAssertThrowsError(try Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead))
-
-        XCTAssertEqual(parentTransaction.children.count, 1)
-        let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
-        XCTAssertNil(parentTransaction.children.first?.data["file.size"])
-        XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToRead.path)
-    }
-
     // MARK: - Data.writeWithSentryTracing(to:)
 
-    func testWriteWithSentryTracing_dataBridgedToNSData_shouldNotTraceManuallyWithErrorRethrow() throws {
+    func testWriteWithSentryTracing_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
@@ -164,11 +109,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenData, fixture.data)
     }
 
-    func testWriteWithSentryTracing_dataBridgedToNSDataThrowsError_shouldNotTraceManuallyWithErrorRethrow() throws {
+    func testWriteWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
-        if #available(iOS 18, macOS 15, tvOS 18, *) {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
@@ -178,49 +120,6 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
         XCTAssertEqual(span.origin, SentryTraceOrigin.autoNSData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
-        XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToWrite.path)
-    }
-
-    func testWriteWithSentryTracing_dataNotBridgedToNSData_shouldNotTraceManuallyWithErrorRethrow() throws {
-        // -- Arrange --
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-        let _ = try fixture.getSut(testName: self.name)
-        let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
-
-        // -- Act --
-        try fixture.data.writeWithSentryTracing(to: fixture.fileUrlToWrite)
-
-        // -- Assert --
-        XCTAssertEqual(parentTransaction.children.count, 1)
-        let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
-        XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToWrite.path)
-
-        // Reading the written data will create a span, so do it after asserting the transaction
-        let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
-        XCTAssertEqual(writtenData, fixture.data)
-    }
-
-    func testWriteWithSentryTracing_dataNotBridgedToNSDataThrowsError_shouldNotTraceManuallyWithErrorRethrow() throws {
-        // -- Arrange --
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-        let _ = try fixture.getSut(testName: self.name)
-        let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
-        
-        // -- Act & Assert --
-        XCTAssertThrowsError(try fixture.data.writeWithSentryTracing(to: fixture.invalidFileUrlToWrite))
-
-        XCTAssertEqual(parentTransaction.children.count, 1)
-        let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToWrite.path)

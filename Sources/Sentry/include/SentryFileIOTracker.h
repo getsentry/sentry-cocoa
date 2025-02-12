@@ -96,6 +96,10 @@ SENTRY_NO_INIT
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
                                              filePath:(NSString *)path
                                                origin:(NSString *)origin;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size;
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span;
 - (void)endTrackingFile;
 

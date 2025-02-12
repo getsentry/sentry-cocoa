@@ -5,6 +5,7 @@
 ### Features
 
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
+- Add manual file IO tracking methods for Swift.Data (#4605)
 
 ### Improvements
 
@@ -51,10 +52,6 @@
 - Change macros TEST and TESTCI to SENTRY_TEST and SENTRY_TEST_CI (#4712)
 - Convert constants SentrySpanOperation to Swift (#4718)
 - Convert constants SentryTraceOrigins to Swift (#4717)
-
-### Features
-
-- Add manual file IO tracking methods for Swift.Data (#4605)
 
 ## 8.44.0-beta.1
 

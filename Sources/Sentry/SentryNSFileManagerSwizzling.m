@@ -23,8 +23,8 @@
 {
     self.tracker = tracker;
 
-    if (!options.experimental.enableFileManagerSwizzling) {
-        SENTRY_LOG_DEBUG(@"Experimental auto-tracking of FileManager is disabled")
+    if (!options.enableSwizzling || !options.experimental.enableFileManagerSwizzling) {
+        SENTRY_LOG_DEBUG(@"Experimental auto-tracking of NSFileManager is disabled")
         return;
     }
 
