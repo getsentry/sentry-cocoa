@@ -349,14 +349,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
 
         // Act
-        Dynamic(sut).anrStoppedWithErrorMessage("App Hanging")
+        let result = SentryANRStoppedResult(minDuration: 1.851, maxDuration: 2.249)
+        Dynamic(sut).anrStoppedWithResult(result)
 
         // Assert
         try assertEventWithScopeCaptured { event, _, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
             XCTAssertEqual(ex.type, "App Hanging Fully Blocked")
-            XCTAssertEqual(ex.value, "App Hanging")
+            XCTAssertEqual(ex.value, "App hanging between 1.9 and 2.2 seconds.")
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
@@ -380,7 +381,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
-        Dynamic(sut).anrStoppedWithErrorMessage("App Hanging")
+        let result = SentryANRStoppedResult(minDuration: 1.849, maxDuration: 2.251)
+        Dynamic(sut).anrStoppedWithResult(result)
 
         // Act
         sut.install(with: self.options)
@@ -388,7 +390,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Assert
         try assertEventWithScopeCaptured { event, _, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
-            XCTAssertEqual(ex.value, "App Hanging")
+            XCTAssertEqual(ex.value, "App hanging between 1.8 and 2.3 seconds.")
         }
     }
     
@@ -400,7 +402,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentrySDK.currentHub().client()?.fileManager.deleteAppHangEvent()
 
         // Act
-        Dynamic(sut).anrStoppedWithErrorMessage("App Hanging")
+        let result = SentryANRStoppedResult(minDuration: 1.8, maxDuration: 2.2)
+        Dynamic(sut).anrStoppedWithResult(result)
 
         // Assert
         assertNoEventCaptured()
@@ -412,7 +415,20 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
 
         // Act
-        Dynamic(sut).anrStoppedWithErrorMessage("App Hanging")
+        let result = SentryANRStoppedResult(minDuration: 1.8, maxDuration: 2.2)
+        Dynamic(sut).anrStoppedWithResult(result)
+
+        // Assert
+        assertNoEventCaptured()
+    }
+    
+    func testV2_ANRStoppedWithNilResult_DoesNotCaptureEvent() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+
+        // Act
+        Dynamic(sut).anrStoppedWithResult(nil)
 
         // Assert
         assertNoEventCaptured()

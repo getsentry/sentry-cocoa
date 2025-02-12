@@ -176,6 +176,11 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
+    if (result == nil) {
+        SENTRY_LOG_WARN(@"ANR stopped for V2 but result was nil.")
+        return;
+    }
+
     SentryEvent *event = [self.fileManager readAppHangEvent];
     if (event == nil) {
         SENTRY_LOG_WARN(@"AppHang stopped but stored app hang event was nil.")
@@ -183,6 +188,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [self.fileManager deleteAppHangEvent];
+
+    // We round to 0.1 seconds accuracy because we can't precicely measure the app hand duration.
+    NSString *errorMessage =
+        [NSString stringWithFormat:@"App hanging between %.1f and %.1f seconds.",
+            result.minDuration, result.maxDuration];
 
     event.exceptions.firstObject.value = errorMessage;
     [SentrySDK captureEvent:event];
