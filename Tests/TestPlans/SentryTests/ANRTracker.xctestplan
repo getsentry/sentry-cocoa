@@ -1,0 +1,68 @@
+{
+  "configurations" : [
+    {
+      "id" : "628165A7-E9A4-4171-84F6-293E404A4FC7",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "selectedTests" : [
+        "SentryANRTrackerV1Tests\/testANRButAppInBackground_NoANR()",
+        "SentryANRTrackerV1Tests\/testAppSuspended_NoANR()",
+        "SentryANRTrackerV1Tests\/testClearDirectlyAfterStart_FinishesThread()",
+        "SentryANRTrackerV1Tests\/testClear_StopsReportingANRs()",
+        "SentryANRTrackerV1Tests\/testContinuousANR_OneReported()",
+        "SentryANRTrackerV1Tests\/testMultipleANRs_MultipleReported()",
+        "SentryANRTrackerV1Tests\/testMultipleListeners()",
+        "SentryANRTrackerV1Tests\/testNotRemovingDeallocatedListener_DoesNotRetainListener_AndStopsTracking()",
+        "SentryANRTrackerV1Tests\/testRemoveListener_StopsReportingANRs()",
+        "SentryANRTrackerV2Tests\/testAlmostFullyBlockingAppHang_NoneReported()",
+        "SentryANRTrackerV2Tests\/testAlmostNonFullyBlockingAppHang_NoneReported()",
+        "SentryANRTrackerV2Tests\/testAppSuspended_NoAppHang()",
+        "SentryANRTrackerV2Tests\/testClearDirectlyAfterStart_FullyBlocking_NotReported()",
+        "SentryANRTrackerV2Tests\/testClearStopsThread()",
+        "SentryANRTrackerV2Tests\/testClear_StopsReporting()",
+        "SentryANRTrackerV2Tests\/testFullyBlockingAppHang_ButAppInBackground_NoneReported()",
+        "SentryANRTrackerV2Tests\/testFullyBlockingAppHang_Reported()",
+        "SentryANRTrackerV2Tests\/testFullyBlockingFollowedByFullyBlocking_BothReported()",
+        "SentryANRTrackerV2Tests\/testFullyBlockingFollowedByNonFullyBlocking_OnlyFirstReported()",
+        "SentryANRTrackerV2Tests\/testFullyBlockingFollowedByNormalFrames_OneReported()",
+        "SentryANRTrackerV2Tests\/testNoFrameDelayData_FullyBlocking_NotReported()",
+        "SentryANRTrackerV2Tests\/testNonFullyBlockingAppHang_Reported()",
+        "SentryANRTrackerV2Tests\/testNotRemovingDeallocatedListener_DoesNotRetainListener_AndStopsTracking()",
+        "SentryANRTrackerV2Tests\/testRemoveListener_StopsReporting()",
+        "SentryANRTrackerV2Tests\/testTwoListeners_FullyBlocking_ReportedToBothListeners()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_ButBackground_EventNotCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_ButNoThreads_EventNotCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_DetectingPausedResumed_EventCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_DetectingPaused_NoEventCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_EventCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_FullyBlocking_EventCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_NonFullyBlockedDisabled_EventNotCaptured()",
+        "SentryANRTrackingIntegrationTests\/testANRDetected_NonFullyBlocked_EventCaptured()",
+        "SentryANRTrackingIntegrationTests\/testCallPauseResumeOnMultipleThreads_DoesNotCrash()",
+        "SentryANRTrackingIntegrationTests\/testDealloc_CallsUninstall()",
+        "SentryANRTrackingIntegrationTests\/testEventIsNotANR()",
+        "SentryANRTrackingIntegrationTests\/testWhenBeingTraced_TrackerNotInitialized()",
+        "SentryANRTrackingIntegrationTests\/testWhenNoDebuggerAttached_TrackerInitialized()",
+        "SentryANRTrackingIntegrationTests\/test_appHangsTimeoutInterval_Zero()",
+        "SentryANRTrackingIntegrationTests\/test_enableAppHangTrackingV2_UsesV2Tracker()",
+        "SentryANRTrackingIntegrationTests\/test_enableAppHangsTracking_Disabled()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

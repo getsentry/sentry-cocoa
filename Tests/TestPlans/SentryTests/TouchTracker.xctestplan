@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "5C435AE4-EB0D-4994-9AE0-6AD43A78C4A0",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "selectedTests" : [
+        "SentryTouchTrackerTests\/testLock()",
+        "SentryTouchTrackerTests\/testTrackTouchBegan()",
+        "SentryTouchTrackerTests\/testTrackTouchCanceled()",
+        "SentryTouchTrackerTests\/testTrackTouchEnded()",
+        "SentryTouchTrackerTests\/testTrackTouchEventKeepSameIdAccrossEvents()",
+        "SentryTouchTrackerTests\/testTrackTouchFromEvent()",
+        "SentryTouchTrackerTests\/testTrackTouchMoveDebounceStraightLines()",
+        "SentryTouchTrackerTests\/testTrackTouchMoveDontDebounceCurve()",
+        "SentryTouchTrackerTests\/testTrackTouchMoveDontDebouncePauses()",
+        "SentryTouchTrackerTests\/testTrackTouchMoveDontDebounceStraightLinesChangeOfDirection()",
+        "SentryTouchTrackerTests\/testTrackTouchMoveIgnoreSmallMovement()",
+        "SentryTouchTrackerTests\/testTrackTouchMoved()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

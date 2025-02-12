@@ -264,6 +264,125 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
+  segmented-unit-tests:
+    name: Unit Tests - ${{ matrix.test-plan }} - ${{ matrix.destination.platform }} ${{ matrix.destination.test-destination-os }} ${{ matrix.destination.device }}
+    runs-on: ${{matrix.destination.runs-on}}
+    timeout-minutes: 20
+    needs: build-test-server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        destination:
+          - runs-on: macos-15
+            platform: "iOS"
+            xcode: "16.2"
+            test-destination-os: "18.2"
+            device: "iPhone 16"
+            scheme: "SentryTests"
+        test-plan:
+          - "Base"
+          - "ANRTracker"
+          - "HttpTransport"
+          - "SentryCrash"
+          - "SentrySDK"
+          - "TouchTracker"
+          - "Tracer"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-server
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
+      - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.destination.xcode}}
+
+      - name: Install Slather
+        run: gem install slather
+
+      # We split building and running tests in two steps so we know how long running the tests takes.
+      - name: Build tests
+        id: build_tests
+        run: ./scripts/xcode-test.sh
+          --platform ${{matrix.destination.platform}}
+          --os ${{matrix.destination.test-destination-os}}
+          --ref ${{ github.ref_name }}
+          --command build-for-testing
+          --device "${{matrix.destination.device}}"
+          --configuration TestCI
+          --scheme ${{matrix.destination.scheme}}
+          --test-plan "${{matrix.test-plan}}"
+
+      - name: Run Tests
+        run: ./scripts/xcode-test.sh
+          --platform ${{matrix.destination.platform}}
+          --os ${{matrix.destination.test-destination-os}}
+          --ref ${{ github.ref_name }}
+          --command test-without-building
+          --device "${{matrix.destination.device}}"
+          --configuration TestCI
+          --scheme ${{matrix.destination.scheme}}
+          --test-plan "${{matrix.test-plan}}"
+
+      # We can upload all coverage reports, because codecov merges them.
+      # See https://docs.codecov.io/docs/merging-reports
+      # Checkout .codecov.yml to see the config of Codecov
+      # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
+      # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
+      - name: Push code coverage to codecov
+        id: codecov_1
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # pin@v5.3.1
+        if: ${{ contains(matrix.destination.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        with:
+          # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
+          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
+
+      # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
+      - name: Push code coverage to codecov
+        id: codecov_2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # pin@v5.3.1
+        if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.destination.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@v4
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-segmented-test-output-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          path: |
+            raw-test-output.log
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
   thread-sanitizer:

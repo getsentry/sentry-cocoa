@@ -1952,9 +1952,16 @@
 		D48724E12D354D16005DE483 /* SentryTraceOriginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceOriginTests.swift; sourceTree = "<group>"; };
 		D48E8B8A2D3E79610032E35E /* SentryTraceOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceOrigin.swift; sourceTree = "<group>"; };
 		D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySpanOperation.swift; sourceTree = "<group>"; };
+		D49A1A862D5A2572008E6A0A /* Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Base.xctestplan; sourceTree = "<group>"; };
+		D49A1A872D5A2572008E6A0A /* ANRTracker.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ANRTracker.xctestplan; sourceTree = "<group>"; };
+		D49A1A882D5A2572008E6A0A /* HttpTransport.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = HttpTransport.xctestplan; sourceTree = "<group>"; };
+		D49A1A892D5A2572008E6A0A /* TouchTracker.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TouchTracker.xctestplan; sourceTree = "<group>"; };
+		D49A1AA92D5A30EC008E6A0A /* Tracer.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Tracer.xctestplan; sourceTree = "<group>"; };
+		D49A1AAA2D5A3B46008E6A0A /* SentrySDK.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentrySDK.xctestplan; sourceTree = "<group>"; };
 		D4AF00202D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzling.m; sourceTree = "<group>"; };
 		D4AF00222D2E931000F5F3D7 /* SentryNSFileManagerSwizzling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSFileManagerSwizzling.h; path = include/SentryNSFileManagerSwizzling.h; sourceTree = "<group>"; };
 		D4AF00242D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzlingTests.m; sourceTree = "<group>"; };
+		D4D025112D5C972500B4DFAA /* SentryCrash.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentryCrash.xctestplan; sourceTree = "<group>"; };
 		D4F2B5342D0C69D100649E42 /* SentryCrashCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashCTests.swift; sourceTree = "<group>"; };
 		D800942628F82F3A005D3943 /* SwiftDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDescriptor.swift; sourceTree = "<group>"; };
 		D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashReportSinkTests.swift; sourceTree = "<group>"; };
@@ -2653,6 +2660,7 @@
 				8431EFDB29B27B3D00D8DC56 /* SentryProfilerTests */,
 				D8F01DE32A125D7B008F4996 /* HybridSDKTest */,
 				D833D60F2D1320DF00961E7A /* SentrySwiftUITests */,
+				D49A1A8A2D5A2572008E6A0A /* TestPlans */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -3794,12 +3802,34 @@
 			path = Transactions;
 			sourceTree = "<group>";
 		};
+		D49A1A8A2D5A2572008E6A0A /* TestPlans */ = {
+			isa = PBXGroup;
+			children = (
+				D4F9ECF22D5A4AF600F0E3D3 /* SentryTests */,
+			);
+			path = TestPlans;
+			sourceTree = "<group>";
+		};
 		D4F2B5332D0C69CC00649E42 /* Recording */ = {
 			isa = PBXGroup;
 			children = (
 				D4F2B5342D0C69D100649E42 /* SentryCrashCTests.swift */,
 			);
 			path = Recording;
+			sourceTree = "<group>";
+		};
+		D4F9ECF22D5A4AF600F0E3D3 /* SentryTests */ = {
+			isa = PBXGroup;
+			children = (
+				D49A1A872D5A2572008E6A0A /* ANRTracker.xctestplan */,
+				D49A1A862D5A2572008E6A0A /* Base.xctestplan */,
+				D49A1A882D5A2572008E6A0A /* HttpTransport.xctestplan */,
+				D49A1AAA2D5A3B46008E6A0A /* SentrySDK.xctestplan */,
+				D49A1A892D5A2572008E6A0A /* TouchTracker.xctestplan */,
+				D49A1AA92D5A30EC008E6A0A /* Tracer.xctestplan */,
+				D4D025112D5C972500B4DFAA /* SentryCrash.xctestplan */,
+			);
+			path = SentryTests;
 			sourceTree = "<group>";
 		};
 		D800942328F82E8D005D3943 /* Swift */ = {
