@@ -265,21 +265,87 @@ jobs:
           verbose: true
 
   segmented-unit-tests:
-    name: Unit Tests - ${{ matrix.test-plan }} - ${{ matrix.destination.platform }} ${{ matrix.destination.test-destination-os }} ${{ matrix.destination.device }}
+    name: Unit Tests - ${{ matrix.test-plan }} - ${{ matrix.destination.platform }} ${{ matrix.destination.test-destination-os }}
     runs-on: ${{matrix.destination.runs-on}}
     timeout-minutes: 20
     needs: build-test-server
-
     strategy:
       fail-fast: false
       matrix:
         destination:
-          - runs-on: macos-15
+          # === iOS ===
+
+          # iOS 16
+          - runs-on: macos-13
+            xcode: "14.3.1"
             platform: "iOS"
+            test-destination-os: "16.4"
+            device: "iPhone 14"
+
+          # iOS 17
+          - runs-on: macos-15
+            xcode: "15.4"
+            platform: "iOS"
+            test-destination-os: "17.5"
+            device: "iPhone 15"
+
+          # iOS 18
+          - runs-on: macos-15
             xcode: "16.2"
+            platform: "iOS"
             test-destination-os: "18.2"
             device: "iPhone 16"
-            scheme: "SentryTests"
+
+          # === macOS ===
+
+          # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
+          # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
+
+          # macOS 14
+          - runs-on: macos-14
+            xcode: "15.4"
+            platform: "macOS"
+            test-destination-os: "latest"
+
+          # macOS 15
+          - runs-on: macos-15
+            platform: "macOS"
+            test-destination-os: "latest"
+            xcode: "16.2"
+
+          # === macOS Catalyst ===
+
+          # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
+          # on an older iOS or macOS version is low.
+          # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
+          - runs-on: macos-14
+            platform: "Catalyst"
+            xcode: "15.4"
+            test-destination-os: "latest"
+
+          - runs-on: macos-15
+            platform: "Catalyst"
+            xcode: "16.2"
+            test-destination-os: "latest"
+
+          # === tvOS ===
+
+          # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
+          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
+          # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
+
+          # tvOS 17
+          - runs-on: macos-14
+            xcode: "15.4"
+            platform: "tvOS"
+            test-destination-os: "17.5"
+
+          # tvOS 18
+          - runs-on: macos-15
+            xcode: "16.2"
+            platform: "tvOS"
+            test-destination-os: "18.1"
         test-plan:
           - "Base"
           - "ANRTracker"
@@ -319,7 +385,7 @@ jobs:
           --command build-for-testing
           --device "${{matrix.destination.device}}"
           --configuration TestCI
-          --scheme ${{matrix.destination.scheme}}
+          --scheme SentryTests
           --test-plan "${{matrix.test-plan}}"
 
       - name: Run Tests
@@ -330,7 +396,7 @@ jobs:
           --command test-without-building
           --device "${{matrix.destination.device}}"
           --configuration TestCI
-          --scheme ${{matrix.destination.scheme}}
+          --scheme SentryTests
           --test-plan "${{matrix.test-plan}}"
 
       # We can upload all coverage reports, because codecov merges them.
@@ -363,7 +429,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          name: derived-data-${{matrix.test-plan}}-${{matrix.destination.platform}}-${{matrix.destination.test-destination-os}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -371,7 +437,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-segmented-test-output-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          name: raw-segmented-test-output-${{matrix.test-plan}}-${{matrix.destination.platform}}-${{matrix.destination.test-destination-os}}
           path: |
             raw-test-output.log
 
@@ -379,7 +445,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{matrix.destination.scheme}}-${{matrix.destination.platform}}-xcode-${{matrix.destination.xcode}}-os-${{matrix.destination.test-destination-os}}
+          name: crash-logs-${{matrix.test-plan}}-${{matrix.destination.platform}}-${{matrix.destination.test-destination-os}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
