@@ -276,7 +276,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         assertNoEventCaptured()
     }
-#endif
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testDealloc_CallsUninstall() throws {
         givenInitializedTracker()
@@ -297,6 +297,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, listeners.count)
     }
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {
         // Arrange
         givenInitializedTracker(enableV2: true)
@@ -393,6 +394,19 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
     
+    func testV2_ANRStoppedWithNilResult_DoesNotCaptureEvent() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+
+        // Act
+        Dynamic(sut).anrStoppedWithResult(nil)
+
+        // Assert
+        assertNoEventCaptured()
+    }
+#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
     func testV1_ANRStopped_DoesNotCaptureEvent() throws {
         // Arrange
         givenInitializedTracker()
@@ -401,18 +415,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Act
         let result = SentryANRStoppedResult(minDuration: 1.8, maxDuration: 2.2)
         Dynamic(sut).anrStoppedWithResult(result)
-
-        // Assert
-        assertNoEventCaptured()
-    }
-    
-    func testV2_ANRStoppedWithNilResult_DoesNotCaptureEvent() throws {
-        // Arrange
-        givenInitializedTracker(enableV2: true)
-        setUpThreadInspector()
-
-        // Act
-        Dynamic(sut).anrStoppedWithResult(nil)
 
         // Assert
         assertNoEventCaptured()
@@ -426,9 +428,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenSdkWithHub()
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if enableV2 {
             self.options.enableAppHangTrackingV2 = true
         }
+#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         sut.install(with: self.options)
     }
     
