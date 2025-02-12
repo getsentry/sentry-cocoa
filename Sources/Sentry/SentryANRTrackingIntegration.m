@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
     if (type == SentryANRTypeNonFullyBlocking
         && !self.options.enableReportNonFullyBlockingAppHangs) {
         SENTRY_LOG_DEBUG(@"Ignoring non fully blocking app hang.")
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
         != UIApplicationStateActive) {
         return;
     }
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
@@ -160,22 +160,22 @@ NS_ASSUME_NONNULL_BEGIN
     event.exceptions = @[ sentryException ];
     event.threads = threads;
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
     // We only measure app hang duration for V2.
     // For V1, we directly capture the app hang event.
     if (self.options.enableAppHangTrackingV2) {
         [self.fileManager storeAppHangEvent:event];
     } else {
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
         [SentrySDK captureEvent:event];
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
     }
 #endif // SENTRY_UIKIT_AVAILABLE
 }
 
 - (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
 {
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
     // We only measure app hang duration for V2, and therefore ignore V1.
     if (!self.options.enableAppHangTrackingV2) {
         return;
@@ -201,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     event.exceptions.firstObject.value = errorMessage;
     [SentrySDK captureEvent:event];
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
 }
 
 @end
