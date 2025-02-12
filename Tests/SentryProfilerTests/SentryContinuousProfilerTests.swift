@@ -23,7 +23,11 @@ final class SentryContinuousProfilerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
+    func testSentryProfilerChunkExpirationInterval() {
+        XCTAssertEqual(60, kSentryProfilerChunkExpirationInterval)
+    }
+
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }

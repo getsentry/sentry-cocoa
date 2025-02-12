@@ -23,6 +23,10 @@ class SentryTraceProfilerTests: XCTestCase {
         clearTestState()
     }
 
+    func testSentryProfilerTimoutInterval() {
+        XCTAssertEqual(30, kSentryProfilerTimeoutInterval)
+    }
+
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
