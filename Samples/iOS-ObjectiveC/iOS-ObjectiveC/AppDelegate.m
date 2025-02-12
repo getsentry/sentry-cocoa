@@ -72,7 +72,6 @@
                 config.configureForm = ^(SentryUserFeedbackFormConfiguration *_Nonnull uiForm) {
                     uiForm.formTitle = @"Jank Report";
                     uiForm.submitButtonLabel = @"Report that jank";
-                    uiForm.addScreenshotButtonLabel = @"Show us the jank";
                     uiForm.messagePlaceholder
                         = @"Describe the nature of the jank. Its essence, if you will.";
                 };

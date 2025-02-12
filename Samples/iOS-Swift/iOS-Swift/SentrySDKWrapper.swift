@@ -157,7 +157,6 @@ extension SentrySDKWrapper {
         config.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
         config.isNameRequired = args.contains("--io.sentry.feedback.require-name")
         config.submitButtonLabel = "Report that jank"
-        config.addScreenshotButtonLabel = "Show us the jank"
         config.removeScreenshotButtonLabel = "Oof too nsfl"
         config.cancelButtonLabel = "What, me worry?"
         config.messagePlaceholder = "Describe the nature of the jank. Its essence, if you will."

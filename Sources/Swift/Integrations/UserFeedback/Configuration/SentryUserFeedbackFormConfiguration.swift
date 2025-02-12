@@ -54,29 +54,9 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: Screenshots
     
     /**
-     * Allows the user to send a screenshot attachment with their feedback.
-     * - note: Default: `true`
-     * - warning: Your app must provide a value in its Info plist for the
-     * `NSPhotoLibraryUsageDescription` key, or the button to attach screenshots to feedback will
-     * not be displayed, as interacting with certain Photos APIs without that key present will crash
-     * the application.
-     */
-    public var enableScreenshot: Bool = true
-    
-    /**
-     * The label of the button to add a screenshot to the form.
-     * - note: Default: `"Add a screenshot"`
-     * - note: ignored if `enableScreenshot` is `false`.`
-     * - warning: If you support adding screenshots using the button, you need to add `NSPhotoLibraryUsageDescription` to your app's Info.plist.
-     */
-    public var addScreenshotButtonLabel: String = "Add a screenshot"
-    
-    public lazy var addScreenshotButtonAccessibilityLabel = addScreenshotButtonLabel
-    
-    /**
      * The label of the button to remove the screenshot from the form.
      * - note: Default: `"Remove screenshot"`
-     * - note: ignored if `enableScreenshot` is `false`.
+     * - note: ignored if `SentryUserFeedbackConfiguration.showFormForScreenshots` is `false`.
      */
     public var removeScreenshotButtonLabel: String = "Remove screenshot"
     

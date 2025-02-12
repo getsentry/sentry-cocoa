@@ -343,7 +343,7 @@ extension UserFeedbackUITests {
     // MARK: Tests validating screenshot functionality
     
     func testAddingAndRemovingScreenshots() {
-        launchApp(args: ["--io.sentry.feedback.all-defaults", "--io.sentry.feedback.inject-screenshot"])
+        launchApp(args: ["--io.sentry.feedback.inject-screenshot"])
         XCTAssert(removeScreenshotButton.isHittable)
         removeScreenshotButton.tap()
         XCTAssertFalse(removeScreenshotButton.isHittable)

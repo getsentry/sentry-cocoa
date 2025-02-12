@@ -48,7 +48,7 @@ struct SentryUserFeedbackWidget {
                 }
                 NSLayoutConstraint.activate(constraints)
                 
-                NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+                observeScreenshots()
             }
             
             required init?(coder: NSCoder) {
@@ -63,11 +63,22 @@ struct SentryUserFeedbackWidget {
             // MARK: Actions
             
             @objc func userCapturedScreenshot() {
+                stopObservingScreenshots()
                 let image = screenshotProvider.appScreenshots().first
                 displayForm(screenshot: image)
             }
             
             // MARK: Helpers
+            
+            func observeScreenshots() {
+                if config.showFormForScreenshots {
+                    NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+                }
+            }
+            
+            func stopObservingScreenshots() {
+                NotificationCenter.default.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            }
             
             func displayForm(screenshot: UIImage?) {
                 let form = SentryUserFeedbackFormController(config: self.config, delegate: self, screenshot: screenshot)
@@ -94,6 +105,7 @@ struct SentryUserFeedbackWidget {
                 setWidget(visible: true)
                 dismiss(animated: config.animations, completion: {
                     self.config.onFormClose?()
+                    self.observeScreenshots()
                 })
             }
             
