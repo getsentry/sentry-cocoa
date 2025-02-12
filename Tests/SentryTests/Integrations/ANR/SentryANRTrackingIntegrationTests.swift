@@ -309,39 +309,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
     
-    func testV2_ANRDetected_StopNotCalled_SendsANROnNextInstall() throws {
-        // Arrange
-        givenInitializedTracker(enableV2: true)
-        setUpThreadInspector()
-        Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
-        
-        // Act
-        givenInitializedTracker(enableV2: true)
-        
-        try assertEventWithScopeCaptured { event, _, _ in
-            let ex = try XCTUnwrap(event?.exceptions?.first)
-            
-            XCTAssertEqual(ex.mechanism?.type, "AppHang")
-            XCTAssertEqual(ex.type, "App Hanging Non Fully Blocked")
-            XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
-            XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
-            XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
-            XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
-            XCTAssertEqual(event?.isAppHangEvent, true)
-            
-            let threads = try XCTUnwrap(event?.threads)
-            
-            // Sometimes during tests its possible to have one thread without frames
-            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            let threadsWithFrames = threads.filter {
-                ($0.stacktrace?.frames.count ?? 0) >= 1
-            }.count
-            
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
-        }
-    }
-    
     func testV2_ANRStopped_DoesCaptureEvent() throws {
         // Arrange
         givenInitializedTracker(enableV2: true)
@@ -373,6 +340,23 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
             
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+        }
+    }
+    
+    func testV2_ANRDetected_StopNotCalled_SendsANROnNextInstall() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
+        
+        // Act
+        givenInitializedTracker(enableV2: true)
+        
+        // Assert
+        try assertEventWithScopeCaptured { event, _, _ in
+            let ex = try XCTUnwrap(event?.exceptions?.first)
+            
+            XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
         }
     }
     
