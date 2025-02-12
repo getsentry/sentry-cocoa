@@ -19,7 +19,7 @@ Contributors: @marandaneto, @brustolin and @philipphofmann
 
 We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
 
-## Manually installing iOS 12 simulators  <a name="ios-12-simulators"></a>
+## Manually installing iOS 12 simulators <a name="ios-12-simulators"></a>
 
 Date: October 21st 2022
 Contributors: @philipphofmann
@@ -44,10 +44,9 @@ Contributors: @brustolin
 A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.0 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
 This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
 SwiftUI support will be available through an additional library, but to support it, we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
-Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library. 
+Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library.
 With this approach, classes from SentryPrivate will not be available when users import Sentry.
 We don't mind breaking changes in SentryPrivate, because this is not meant to be use by the user, we going to point this out in the docs.
-
 
 ## Writing breadcrumbs to disk in the main thread
 
@@ -86,7 +85,7 @@ With 8.0.0, we rename the default branch from `master` to `main`. We will keep t
 Date: January 18th, 2023
 Contributors: @brustolin and @philipphofmann
 
-We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version. 
+We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version.
 
 ## Tracking package managers
 
@@ -113,17 +112,17 @@ on specific iOS versions. If we have functionality that risks breaking on older 
 For the swizzling of UIViewControllers and NSURLSession, we have UI tests running on iOS 12. Therefore, dropping running unit
 tests on iOS 12 simulators is acceptable. This decision reverts [manually installing iOS 12 simulators](#ios-12-simulators).
 
-Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and 
+Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and
 
 ## Remove integration tests from CI <a name="remove-integration-tests-from-ci"></a>
 
 Date: April 17th 2023
 Contributors: @brustolin @philipphofmann
 
-Both Alamofire and Home Assistance integration tests are no longer reliable as they keep failing and causing more problems than adding value. 
-These tests used to work for a while, and we know that the Sentry SDK was not breaking these projects. 
-Therefore, we have decided to remove the tests and add some key files to our list of risk files. 
-This way, if these files are changed, we will be reminded to test the changes with other projects. 
+Both Alamofire and Home Assistance integration tests are no longer reliable as they keep failing and causing more problems than adding value.
+These tests used to work for a while, and we know that the Sentry SDK was not breaking these projects.
+Therefore, we have decided to remove the tests and add some key files to our list of risk files.
+This way, if these files are changed, we will be reminded to test the changes with other projects.
 Additionally, two new 'make' commands(test-alamofire, test-homekit) are being added to the project to assist in testing the Sentry SDK in third-party projects.
 
 Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)
@@ -140,7 +139,6 @@ thread because scheduling the init synchronously on the main thread could lead t
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/3291
-
 
 ## Dependency Injection Strategy
 
@@ -176,18 +174,17 @@ As of February 20, 2024, we have severe problems with the UI tests on SauceLabs:
 08:43:59 WRN unable to report result to insights error="internal server error" action=parsingXML jobID=92e4f31ed2e0464caa069ac36fed4a1a
 ```
 
-2. The test runs for iOS 17 keep hanging forever and frequently time out. 
+2. The test runs for iOS 17 keep hanging forever and frequently time out.
 3. Until February 19, 2024 we had a retry mechanism for running SauceLabs UI tests because they
-frequently failed to tun.
+   frequently failed to tun.
 
 Working with such an unreliable tool in CI is a killer for developer productivity. When looking at
-our UI test suite, we currently have one UI test that should run on an actual device:  . This test
+our UI test suite, we currently have one UI test that should run on an actual device: . This test
 validates the data from our screen frames logic, and validating that it works correctly on an iPhone
 Pro with 120 fps makes sense. Apart from that, running all the UI tests on different simulators in
 CI should be enough to surface most of our bugs. Fighting against SauceLabs and not relying on it is
 worse than running UI tests on simulators and accepting the fact that they might not capture 100% of
 bugs and regressions.
-
 
 Another major reason why we chose SauceLabs in the past was the support of running UI tests on older
 iOS versions, which are not supported on GH action simulators. This was vital when we dealt with
@@ -195,7 +192,6 @@ severe bugs when swizzling UIViewControllers. We don’t face that challenge any
 solution is stable, and we don’t receive any bugs anymore. The lowest supported simulator version on
 GH actions is currently iOS 13. Given the low market share of iOS 12, it’s acceptable to not run our
 UI tests on iOS 12 and lower even though we support them.
-
 
 All that said, we should replace running UI tests in SauceLabs with running them on different iOS
 versions with GH actions.
@@ -207,23 +203,24 @@ It’s worth noting that we want to keep running benchmark tests on SauceLabs as
 Date: March 4th 2024
 Contributors: @brustolin, @philipphofmann, @kahest
 
-With the necessity of using Swift, we introduced a secondary framework that was a Sentry dependency. 
-That means we could not write a public API in Swift or access the core classes from Swift code. 
+With the necessity of using Swift, we introduced a secondary framework that was a Sentry dependency.
+That means we could not write a public API in Swift or access the core classes from Swift code.
 Another problem is that some users were experiencing issues when compiling the framework in CI.
 
-Swift is the present and has a long future ahead of it for Apple development. It's less verbose, 
+Swift is the present and has a long future ahead of it for Apple development. It's less verbose,
 requires fewer files, and is more powerful when it comes to language features.
 
-Because of all of this, we decided that we want Swift for the core framework. The only obstacle 
-is that SPM doesn't support two languages for the same target. To solve this, we exposed 
-Sentry as a pre-built binary for SPM. This adds the benefit of Sentry not being 
+Because of all of this, we decided that we want Swift for the core framework. The only obstacle
+is that SPM doesn't support two languages for the same target. To solve this, we exposed
+Sentry as a pre-built binary for SPM. This adds the benefit of Sentry not being
 compiled with the project, which speeds up build time.
 
-Another challenge we face with this decision is where to host the pre-compiled framework. 
+Another challenge we face with this decision is where to host the pre-compiled framework.
 We choose to use git release assets. To understand CI changes needed to publish the framework
-please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623). 
+please refer to this [PR](https://github.com/getsentry/sentry-cocoa/pull/3623).
 
 When coding with Swift be aware of two things:
+
 1. If you want to use swift code in an Objc file: `#import "SentrySwift.h"`
 2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
 
@@ -250,7 +247,8 @@ Comments:
 3. @armcknight: I think the best bet to get the actual work done that is needed is to go with option B, vs all the refactors that would be needed to use Codable to go with A. Then, protocol APIs could be migrated from ObjC to Swift as-needed and converted to Codable.
 4. @philipphofmann: I think Option B/ manually deserializing is the way to go for now. I actually tried it and it seemed a bit wrong. I evaluated the other options and with all your input, I agree with doing it manually. We do it once and then all good. Thanks everyone.
 
-### Background 
+### Background
+
 To report fatal app hangs and measure how long an app hangs lasts ([GH Epic](https://github.com/getsentry/sentry-cocoa/issues/4261)), we need to serialize events to disk, deserialize, modify, and send them to Sentry. As of January 14, 2025, the Cocoa SDK doesn’t support deserializing events. As the fatal app hangs must go through beforeSend, we can’t simply modify the serialized JSON stored on disk. Instead, we must deserialize the event JSON and initialize a SentryEvent so that it can go through beforeSend.
 
 As of January 14, 2025, all the serialization is custom-made with the [SentrySerializable](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/Public/SentrySerializable.h) protocol:
@@ -260,7 +258,7 @@ As of January 14, 2025, all the serialization is custom-made with the [SentrySer
 
 - (NSDictionary<NSString *, id> *)serialize;
 
-@end 
+@end
 ```
 
 The SDK manually creates a JSON-like dict:
@@ -326,7 +324,7 @@ All that said, I suggest converting all public protocol classes to Swift and swi
 
 ### Option B: Add Deserialize in Swift
 
-We could implement all deserializing code in Swift without requiring a major version. The implementation would be the counterpart of ObjC serialize implementations, but written in Swift. 
+We could implement all deserializing code in Swift without requiring a major version. The implementation would be the counterpart of ObjC serialize implementations, but written in Swift.
 
 #### Pros
 
@@ -338,7 +336,7 @@ We could implement all deserializing code in Swift without requiring a major ver
 
 1. Potentially slightly higher maintenance effort, which is negligible as we hardly change the protocol classes.
 
-*Sample for implementation of Codable:*
+_Sample for implementation of Codable:_
 
 ```swift
 @_implementationOnly import _SentryPrivate
