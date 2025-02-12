@@ -256,6 +256,8 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
         
@@ -361,14 +363,14 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
-        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
-        
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
     }
     
     func testSubmitWithNoFieldsFilledEmailAndMessageRequired() throws {
@@ -386,13 +388,13 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
-        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint")
-        
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following fields: thine email and thy complaint."].exists)
         
         app.buttons["OK"].tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint")
     }
     
     func testSubmitWithNoFieldsFilledAllRequired() throws {
@@ -413,13 +415,13 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
-        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint;thy name")
-        
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You must provide all required information before submitting. Please check the following fields: thy name, thine email and thy complaint.'")).exists)
         
         app.buttons["OK"].tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;thine email;thy complaint;thy name")
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
@@ -432,13 +434,13 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
-        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
-        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
-        
         XCTAssert(app.staticTexts["Error"].exists)
         XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
+        
+        try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
+        XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
     }
     
     func testSubmissionErrorThenSuccessAfterFixingIssues() throws {
@@ -457,22 +459,21 @@ extension UserFeedbackUITests {
         
         sendButton.tap()
         
+        XCTAssert(app.staticTexts["Error"].exists)
+        app.buttons["OK"].tap()
+        
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
         XCTAssertEqual(try getMarkerFileContents(type: .onSubmitError), "io.sentry.error;1;The user did not complete the feedback form.;description")
-        
-        XCTAssert(app.staticTexts["Error"].exists)
-        
-        app.buttons["OK"].tap()
         
         messageTextView.tap()
         messageTextView.typeText("UITest user feedback")
         
         sendButton.tap()
         
+        XCTAssert(widgetButton.waitForExistence(timeout: 1))        
+        
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
-        
-        XCTAssert(widgetButton.waitForExistence(timeout: 1))
     }
 }
 

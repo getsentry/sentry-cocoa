@@ -295,8 +295,10 @@ extension SentrySDKWrapper {
     }
     
     func removeHookFile(path: String) {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: path) else { return }
         do {
-            try FileManager.default.removeItem(atPath: path)
+            try fm.removeItem(atPath: path)
         } catch {
             print("[iOS-Swift] Couldn't remove user feedback form hook marker file \(path): \(error).")
         }
