@@ -376,7 +376,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, debugImageProvider.getDebugImagesFromCacheForFramesInvocations.count, "Tracer must retrieve debug images from cache.")
     }
 
-    func testDeadlineTimer_OnlyForAutoTransactions() throws {
+    func testDeadlineTimer_ForAutoTransaction_FinishesChildSpans() throws {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
@@ -384,11 +384,28 @@ class SentryTracerTests: XCTestCase {
 
         child3.finish()
 
+        XCTAssertTrue(fixture.timerFactory.isTimerInitialized())
         try fixture.timerFactory.fire()
 
         XCTAssertEqual(sut.status, .deadlineExceeded)
         XCTAssertEqual(child1.status, .deadlineExceeded)
         XCTAssertEqual(child2.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .ok)
+    }
+    
+    func testDeadlineTimer_ForManualTransactions_DoesNotFinishChildSpans() throws {
+        let sut = fixture.getSut(waitForChildren: false)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        XCTAssertFalse(fixture.timerFactory.isTimerInitialized())
+
+        XCTAssertEqual(sut.status, .undefined)
+        XCTAssertEqual(child1.status, .undefined)
+        XCTAssertEqual(child2.status, .undefined)
         XCTAssertEqual(child3.status, .ok)
     }
 

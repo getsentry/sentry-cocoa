@@ -89,4 +89,8 @@ public extension TestSentryNSTimerFactory {
             try Invocation(target: invocationInfo.target, selector: invocationInfo.selector).invoke()
         }
     }
+    
+    func isTimerInitialized() -> Bool {
+        return overrides != nil
+    }
 }
