@@ -10,7 +10,6 @@ class SentryHttpTransportTests: XCTestCase {
     private class Fixture {
         let event: Event
         let eventEnvelope: SentryEnvelope
-        let eventRequest: SentryNSURLRequest
         let attachmentEnvelopeItem: SentryEnvelopeItem
         let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
@@ -53,8 +52,6 @@ class SentryHttpTransportTests: XCTestCase {
 
             event = Event()
             event.message = SentryMessage(formatted: "Some message")
-            
-            eventRequest = buildRequest(SentryEnvelope(event: event))
             
             attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
             
@@ -109,13 +106,20 @@ class SentryHttpTransportTests: XCTestCase {
         
         func getTransactionEnvelope() -> SentryEnvelope {
             let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+            
+            let child1 = tracer.startChild(operation: "child1")
+            let child2 = tracer.startChild(operation: "child2")
+            let child3 = tracer.startChild(operation: "child3")
+            
+            child1.finish()
+            child2.finish()
+            child3.finish()
+            
+            tracer.finish()
+            
             let transaction = Transaction(
                 trace: tracer,
-                children: [
-                    tracer.startChild(operation: "child1"),
-                    tracer.startChild(operation: "child2"),
-                    tracer.startChild(operation: "child3")
-                ]
+                children: [child1, child2, child3]
             )
             
             let transactionEnvelope = SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction), attachmentEnvelopeItem])

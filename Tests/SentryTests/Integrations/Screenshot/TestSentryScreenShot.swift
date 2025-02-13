@@ -5,7 +5,7 @@ class TestSentryScreenshot: SentryScreenshot {
     var result: [Data] = []
     var processScreenshotsCallback: (() -> Void)?
         
-    override func appScreenshots() -> [Data] {
+    override func appScreenshotsData() -> [Data] {
         processScreenshotsCallback?()
         return result
     }

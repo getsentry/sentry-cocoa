@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryMessageTests: XCTestCase {
@@ -73,5 +74,37 @@ class SentryMessageTests: XCTestCase {
         let beginning = String(format: "<SentryMessage: %p, ", message)
         let expected = "\(beginning){\n    formatted = \"\(message.formatted)\";\n}>"
         XCTAssertEqual(expected, actual)
+    }
+    
+    func testDecode_WithAllProperties() throws {
+        // Arrange
+        let message = fixture.message
+        let actual = message.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)
+        
+        // Assert
+        XCTAssertEqual(message.formatted, decoded.formatted)
+        XCTAssertEqual(message.message, decoded.message)
+        XCTAssertEqual(message.params, decoded.params)
+    }
+
+    func testDecode_WithAllPropertiesNil() throws {
+        // Arrange
+        let message = fixture.message
+        message.message = nil
+        message.params = nil
+        let actual = message.serialize()
+        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+
+        // Act
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)
+
+        // Assert
+        XCTAssertEqual(message.formatted, decoded.formatted)
+        XCTAssertNil(decoded.message)
+        XCTAssertNil(decoded.params)
     }
 }

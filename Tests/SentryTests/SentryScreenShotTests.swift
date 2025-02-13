@@ -62,7 +62,7 @@ class SentryScreenShotTests: XCTestCase {
         
         fixture.uiApplication.windows = [firstWindow, secondWindow]
         
-        self.fixture.sut.appScreenshots()
+        self.fixture.sut.appScreenshotsData()
         
         XCTAssertTrue(drawFirstWindow)
         XCTAssertTrue(drawSecondWindow)
@@ -72,7 +72,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [testWindow]
         
-        let data = self.fixture.sut.appScreenshots()
+        let data = self.fixture.sut.appScreenshotsData()
         let image = UIImage(data: try XCTUnwrap(data.first))
         
         XCTAssertEqual(image?.size.width, 10)
@@ -83,7 +83,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
-        let data = self.fixture.sut.appScreenshots()
+        let data = self.fixture.sut.appScreenshotsData()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero size.")
     }
@@ -92,7 +92,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 1_000))
         fixture.uiApplication.windows = [testWindow]
 
-        let data = self.fixture.sut.appScreenshots()
+        let data = self.fixture.sut.appScreenshotsData()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero width.")
     }
@@ -101,7 +101,7 @@ class SentryScreenShotTests: XCTestCase {
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 1_000, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
-        let data = self.fixture.sut.appScreenshots()
+        let data = self.fixture.sut.appScreenshotsData()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero height.")
     }

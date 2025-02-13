@@ -15,6 +15,13 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryOptions;
 @class SentrySession;
 
+@protocol SentryFileManagerDelegate <NSObject>
+
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
+
+@end
+
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
@@ -34,30 +41,9 @@ SENTRY_NO_INIT
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
 
+#pragma mark - Envelope
+
 - (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope;
-
-- (void)storeCurrentSession:(SentrySession *)session;
-- (void)storeCrashedSession:(SentrySession *)session;
-- (SentrySession *_Nullable)readCurrentSession;
-- (SentrySession *_Nullable)readCrashedSession;
-- (void)deleteCurrentSession;
-- (void)deleteCrashedSession;
-
-- (void)storeTimestampLastInForeground:(NSDate *)timestamp;
-- (NSDate *_Nullable)readTimestampLastInForeground;
-- (void)deleteTimestampLastInForeground;
-
-+ (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
-
-/**
- * Only used for teting.
- */
-- (void)deleteAllEnvelopes;
-
-- (void)deleteAllFolders;
-
-- (void)deleteOldEnvelopeItems;
-
 /**
  * Only used for testing.
  */
@@ -75,22 +61,55 @@ SENTRY_NO_INIT
  */
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 
-- (void)removeFileAtPath:(NSString *)path;
+- (void)deleteOldEnvelopeItems;
 
+/**
+ * Only used for teting.
+ */
+- (void)deleteAllEnvelopes;
+
+#pragma mark - Session
+- (void)storeCurrentSession:(SentrySession *)session;
+- (SentrySession *_Nullable)readCurrentSession;
+- (void)deleteCurrentSession;
+
+- (void)storeCrashedSession:(SentrySession *)session;
+- (SentrySession *_Nullable)readCrashedSession;
+- (void)deleteCrashedSession;
+
+#pragma mark - LastInForeground
+- (void)storeTimestampLastInForeground:(NSDate *)timestamp;
+- (NSDate *_Nullable)readTimestampLastInForeground;
+- (void)deleteTimestampLastInForeground;
+
+#pragma mark - App State
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;
 - (SentryAppState *_Nullable)readAppState;
 - (SentryAppState *_Nullable)readPreviousAppState;
 - (void)deleteAppState;
 
+#pragma mark - Breadcrumbs
 - (void)moveBreadcrumbsToPreviousBreadcrumbs;
 - (NSArray *)readPreviousBreadcrumbs;
 
+#pragma mark - TimezoneOffset
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
+
+#pragma mark - AppHangs
+- (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
+- (nullable SentryEvent *)readAppHangEvent;
+- (void)deleteAppHangEvent;
+
+#pragma mark - File Operations
++ (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
+- (void)deleteAllFolders;
+- (void)removeFileAtPath:(NSString *)path;
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 - (BOOL)isDirectory:(NSString *)path;
+
 BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
 
 /**
@@ -102,6 +121,8 @@ BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
  * @c SentrySDK.startWithOptions .
  */
 SENTRY_EXTERN NSString *_Nullable sentryStaticCachesPath(void);
+
+#pragma mark - Profiling
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
@@ -135,13 +156,6 @@ SENTRY_EXTERN void writeAppLaunchProfilingConfigFile(
 SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-@end
-
-@protocol SentryFileManagerDelegate <NSObject>
-
-- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
-               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

@@ -7,17 +7,17 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'test-server/**'
-      - 'Samples/**'
-      - '.github/workflows/build.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
+      - "Sources/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/build.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - Gemfile.lock
-      - 'Package.swift'
-      - 'scripts/build-xcframework.sh'
+      - "Package.swift"
+      - "scripts/build-xcframework.sh"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -85,14 +85,14 @@ jobs:
 
   build-xcframework:
     name: Build XCFramework
-    # The macos-13 uses an Intel processor and doesn't compile the XCFramework for visionOS. 
+    # The macos-13 uses an Intel processor and doesn't compile the XCFramework for visionOS.
     # The large image compiles on arm64 and successfully creates the XCFramework for visionOS.
     runs-on: macos-13-xlarge
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
-      
+
       - uses: actions/download-artifact@v4
         if: startsWith(github.ref, 'refs/heads/release/')
         with:
@@ -100,18 +100,18 @@ jobs:
           path: Carthage/
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
-      
+
       - name: Check XCFramework
-       #We dont compile the framework during releases to not change the artefact SHA value
-       #instead we use the one archive as an artefact
-        if: startsWith(github.ref, 'refs/heads/release/') 
+        # We dont compile the framework during releases to not change the artefact SHA value
+        # instead we use the one archive as an artefact
+        if: startsWith(github.ref, 'refs/heads/release/')
         run: |
           ls -R Carthage
           if [ ! -f Carthage/Sentry.xcframework.zip ]; then
             echo "XCFramework is not available"
             exit 1
           fi
-      
+
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false
         run: make build-xcframework
@@ -212,7 +212,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" DebugWithoutUIKit uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration DebugWithoutUIKit \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -222,7 +230,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" ReleaseWithoutUIKit uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration ReleaseWithoutUIKit \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -232,7 +248,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Debug uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration Debug \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -242,6 +266,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
-        run: ./scripts/xcode-test.sh "iOS" "latest" $GITHUB_REF_NAME build "iPhone 14" Release uikit-check-build
+        run: |
+          ./scripts/xcode-test.sh \
+            --platform iOS \
+            --os latest \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 14" \
+            --configuration Release \
+            --derived-data uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry

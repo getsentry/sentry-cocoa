@@ -281,7 +281,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
+    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "

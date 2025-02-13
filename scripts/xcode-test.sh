@@ -8,14 +8,70 @@ set -euxo pipefail
 # To fix this, we specify a readable platform in the matrix and then call
 # this script to map the platform to the destination.
 
-PLATFORM="${1}"
-OS=${2:-latest}
-REF_NAME="${3-HEAD}"
-COMMAND="${4:-test}"
-DEVICE=${5:-iPhone 14}
-CONFIGURATION_OVERRIDE="${6:-}"
-DERIVED_DATA_PATH="${7:-}"
-TEST_SCHEME="${8:-Sentry}"
+# Parse named arguments
+PLATFORM=""
+OS="latest"
+REF_NAME="HEAD"
+COMMAND="test"
+DEVICE="iPhone 14"
+CONFIGURATION_OVERRIDE=""
+DERIVED_DATA_PATH=""
+TEST_SCHEME="Sentry"
+
+usage() {
+    echo "Usage: $0"
+    echo "  -p|--platform <platform>        Platform (macOS/Catalyst/iOS/tvOS)"
+    echo "  -o|--os <os>                    OS version (default: latest)"
+    echo "  -r|--ref <ref>                  Reference name (default: HEAD)"
+    echo "  -c|--command <command>          Command (build/build-for-testing/test-without-building/test)"
+    echo "  -d|--device <device>            Device name (default: iPhone 14)"
+    echo "  -C|--configuration <config>     Configuration override"
+    echo "  -D|--derived-data <path>        Derived data path"
+    echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    exit 1
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p|--platform)
+            PLATFORM="$2"
+            shift 2
+            ;;
+        -o|--os)
+            OS="$2"
+            shift 2
+            ;;
+        -r|--ref)
+            REF_NAME="$2"
+            shift 2
+            ;;
+        -c|--command)
+            COMMAND="$2"
+            shift 2
+            ;;
+        -d|--device)
+            DEVICE="$2"
+            shift 2
+            ;;
+        -C|--configuration)
+            CONFIGURATION_OVERRIDE="$2"
+            shift 2
+            ;;
+        -D|--derived-data)
+            DERIVED_DATA_PATH="$2"
+            shift 2
+            ;;
+        -s|--scheme)
+            TEST_SCHEME="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
 
 case $PLATFORM in
 
@@ -112,5 +168,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --quieter --renderer github-actions &&
-        slather coverage --configuration "$CONFIGURATION"
+        slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
 fi
