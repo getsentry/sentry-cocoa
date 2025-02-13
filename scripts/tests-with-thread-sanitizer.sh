@@ -14,7 +14,7 @@ set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRE
     -skip-testing:"SentryProfilerTests" \
     test 2>&1 |
     tee thread-sanitizer.log |
-    xcbeautify
+    xcbeautify --report junit
 
 testStatus=$?
 
