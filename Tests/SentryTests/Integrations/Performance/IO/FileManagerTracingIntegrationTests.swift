@@ -25,14 +25,17 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
             // Initialize the SDK after files are written, so preparations are not traced
             SentrySDK.start { options in
+                // Configure options required by File I/O tracking integration
+                options.enableAutoPerformanceTracing = true
+                options.enableFileIOTracing = true
+                options.setIntegrations([SentryFileIOTrackingIntegration.self])
+
+                // Configure the tracing sample rate to record all traces
+                options.tracesSampleRate = 1.0
+
                 // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
                 // Instead we are recommending to disable swizzling and use manual tracing.
                 options.enableSwizzling = false
-
-                options.enableAutoPerformanceTracing = true
-                options.enableFileIOTracing = true
-                options.tracesSampleRate = 1.0
-                options.setIntegrations([SentryFileIOTrackingIntegration.self])
             }
 
             return FileManager.default
@@ -51,9 +54,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         var invalidUrlToDelete: URL { invalidSrcUrl }
         var invalidPathToDelete: String { invalidSrcPath }
 
-        var fileUrlToCreate: URL { fileDestUrl }
-        var filePathToCreate: String { fileUrlToCreate.path }
-        var invalidUrlToCreate: URL { invalidDestUrl }
+        var filePathToCreate: String { fileDestUrl.path }
         var invalidPathToCreate: String { invalidDestPath }
     }
 
