@@ -47,7 +47,7 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
 test:
 	@echo "--> Running all tests"
-	./scripts/xcode-test.sh --platform iOS --os latest --ref $(GIT-REF) --command test --configuration Test
+	./scripts/sentry-xcodebuild.sh --platform iOS --os latest --ref $(GIT-REF) --command test --configuration Test
 	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 
