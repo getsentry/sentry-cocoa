@@ -165,6 +165,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        -testBundlePath TestResults \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit &&

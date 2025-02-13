@@ -12,6 +12,7 @@ set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRE
     -enableThreadSanitizer YES \
     -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
     -skip-testing:"SentryProfilerTests" \
+    -testBundlePath TestResults \
     test 2>&1 |
     tee thread-sanitizer.log |
     xcbeautify --report junit
