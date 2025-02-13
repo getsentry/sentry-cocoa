@@ -3,6 +3,7 @@
 class TestSentryScreenshot: SentryScreenshot {
     
     var result: [Data] = []
+    var images: [UIImage] = []
     var processScreenshotsCallback: (() -> Void)?
         
     override func appScreenshotsData() -> [Data] {
@@ -10,8 +11,8 @@ class TestSentryScreenshot: SentryScreenshot {
         return result
     }
  
-    override func appScreenshotsFromMainThread() -> [Data] {
-        return result
+    override func appScreenshotsFromMainThread() -> [UIImage] {
+        return images
     }
 }
 

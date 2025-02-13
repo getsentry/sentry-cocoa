@@ -26,6 +26,7 @@ class SentryScreenShotTests: XCTestCase {
     }
     
     func test_IsMainThread() {
+        // -- Arrange --
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         var isMainThread = false
         
@@ -35,15 +36,16 @@ class SentryScreenShotTests: XCTestCase {
         
         fixture.uiApplication.windows = [testWindow]
         
-        let queue = DispatchQueue(label: "TestQueue")
-        
+        // -- Act --
         let expect = expectation(description: "Screenshot")
+        let queue = DispatchQueue(label: "TestQueue")
         let _ = queue.async {
             self.fixture.sut.appScreenshotsFromMainThread()
             expect.fulfill()
         }
-                
         wait(for: [expect], timeout: 1)
+
+        // -- Assert --
         XCTAssertTrue(isMainThread)
     }
     

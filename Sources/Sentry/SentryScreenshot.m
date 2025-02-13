@@ -21,11 +21,23 @@
     return self;
 }
 
-- (NSArray<NSData *> *)appScreenshotsFromMainThread
+- (NSArray<UIImage *> *)appScreenshotsFromMainThread
 {
-    __block NSArray *result;
+    __block NSArray<UIImage *> *result;
 
     void (^takeScreenShot)(void) = ^{ result = [self appScreenshots]; };
+
+    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
+        dispatchSyncOnMainQueue:takeScreenShot];
+
+    return result;
+}
+
+- (NSArray<NSData *> *)appScreenshotDatasFromMainThread
+{
+    __block NSArray<NSData *> *result;
+
+    void (^takeScreenShot)(void) = ^{ result = [self appScreenshotsData]; };
 
     [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
         dispatchSyncOnMainQueue:takeScreenShot];
