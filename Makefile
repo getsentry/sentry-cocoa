@@ -5,7 +5,8 @@ init:
 	pre-commit install
 	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
 	swiftlint version > scripts/.swiftlint-version
-	
+	corepack enable && yarn install
+
 # installs the tools needed to test various CI tasks locally
 init-ci: init
 	brew bundle --file Brewfile-ci
@@ -23,7 +24,7 @@ lint:
 	swiftlint --strict
 .PHONY: lint
 
-format: format-clang format-swift
+format: format-clang format-swift format-markdown format-json
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
@@ -35,6 +36,13 @@ format-clang:
 format-swift:
 	swiftlint --fix
 
+# Format Markdown
+format-markdown:
+	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.md"
+
+# Format JSON
+format-json:
+	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.json"
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
