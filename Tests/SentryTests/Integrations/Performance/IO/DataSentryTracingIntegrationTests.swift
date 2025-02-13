@@ -25,9 +25,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
             // Initialize the SDK after files are written, so preparations are not traced
             SentrySDK.start { options in
-                options.enableSwizzling = true
-                // NOTE: We are disabling data swizzling to test the integration on older systems where swizzling of NSData was still supported
-                options.experimental.disableDataSwizzling = true
+                // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
+                // Instead we are recommending to disable swizzling and use manual tracing.
+                options.enableSwizzling = false
+
                 options.enableAutoPerformanceTracing = true
                 options.enableFileIOTracing = true
                 options.tracesSampleRate = 1.0
