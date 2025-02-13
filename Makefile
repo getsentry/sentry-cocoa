@@ -59,10 +59,7 @@ test-alamofire:
 	./scripts/test-alamofire.sh
 
 test-homekit:
-	./scripts/test-homekit.sh
-
-test-ui-critical:
-	./scripts/test-ui-critical.sh
+	./scripts/test-homekit.shz
 
 analyze:
 	rm -rf analyzer
