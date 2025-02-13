@@ -206,7 +206,7 @@ class SentryTracerTests: XCTestCase {
     /// to a crash when spans keep finishing while finishInternal is executed because
     /// shouldIgnoreWaitForChildrenCallback could be then nil in hasUnfinishedChildSpansToWaitFor.
     func testFinish_ShouldIgnoreWaitForChildrenCallback_DoesNotCrash() throws {
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             for _ in 0..<5 {
                 let sut = fixture.getSut()
                 
@@ -1108,7 +1108,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinishAsync() throws {
-        try SentryLog.withOutLogs {
+        try SentryLog.withoutLogs {
             let sut = fixture.getSut()
             let child = sut.startChild(operation: fixture.transactionOperation)
             sut.finish()
@@ -1179,7 +1179,7 @@ class SentryTracerTests: XCTestCase {
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
-        try SentryLog.withOutLogs {
+        try SentryLog.withoutLogs {
             
             let sut = fixture.getSut(waitForChildren: false)
                 
