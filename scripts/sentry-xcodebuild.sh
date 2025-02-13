@@ -168,6 +168,6 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -testBundlePath TestResults \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --report junit &&
+        xcbeautify &&
         slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
 fi
