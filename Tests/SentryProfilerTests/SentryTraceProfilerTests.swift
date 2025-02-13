@@ -23,6 +23,10 @@ class SentryTraceProfilerTests: XCTestCase {
         clearTestState()
     }
 
+    func testSentryProfilerTimoutInterval() {
+        XCTAssertEqual(30, kSentryProfilerTimeoutInterval)
+    }
+
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
@@ -138,7 +142,7 @@ class SentryTraceProfilerTests: XCTestCase {
 
         // time out profiler for span A
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
-        fixture.timeoutTimerFactory.fire()
+        try fixture.timeoutTimerFactory.fire()
 
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
 
@@ -405,7 +409,7 @@ private extension SentryTraceProfilerTests {
         try addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            self.fixture.timeoutTimerFactory.fire()
+            try self.fixture.timeoutTimerFactory.fire()
         }
 
         let exp = expectation(description: "finished span")

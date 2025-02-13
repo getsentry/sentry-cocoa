@@ -15,7 +15,7 @@ on:
       - "fastlane/**"
       - "scripts/tests-with-thread-sanitizer.sh"
       - "scripts/ci-select-xcode.sh"
-      - "scripts/xcode-test.sh"
+      - "scripts/sentry-xcodebuild.sh"
       - ".codecov.yml"
       - Sentry.xcodeproj
 
@@ -186,7 +186,7 @@ jobs:
       - name: Build tests
         id: build_tests
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
@@ -201,7 +201,7 @@ jobs:
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         run: |
-          ./scripts/xcode-test.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \

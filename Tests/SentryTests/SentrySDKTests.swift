@@ -995,7 +995,7 @@ class SentrySDKTests: XCTestCase {
 class SentrySDKWithSetupTests: XCTestCase {
     
     func testAccessingHubAndOptions_NoDeadlock() {
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
             

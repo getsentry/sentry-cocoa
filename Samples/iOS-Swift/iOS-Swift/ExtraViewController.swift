@@ -51,6 +51,22 @@ class ExtraViewController: UIViewController {
         
         addDSNDisplay(self, vcview: dsnView)
     }
+    
+    @IBAction func anrDeadlock(_ sender: UIButton) {
+        highlightButton(sender)
+        let queue1 = DispatchQueue(label: "queue1")
+        let queue2 = DispatchQueue(label: "queue2")
+
+        queue1.async {
+            queue2.sync {
+                DispatchQueue.main.sync {
+                    queue1.sync {
+                        // Queue 2 waits for us, so DEADLOCK on the main thread.
+                    }
+                }
+            }
+        }
+    }
 
     @IBAction func anrFullyBlocking(_ sender: UIButton) {
         highlightButton(sender)

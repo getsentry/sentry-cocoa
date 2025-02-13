@@ -799,7 +799,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenCachedEvents(amount: 30)
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             let beforeFlush = getAbsoluteTime()
             let result = sut.flush(fixture.flushTimeout)
             let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
@@ -814,7 +814,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
         givenCachedEvents(amount: 1)
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             let beforeFlush = getAbsoluteTime()
             XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
@@ -827,7 +827,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_CalledSequentially_BlocksTwice() {
         givenCachedEvents()
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             let beforeFlush = getAbsoluteTime()
             XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
@@ -845,7 +845,7 @@ class SentryHttpTransportTests: XCTestCase {
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
@@ -872,7 +872,7 @@ class SentryHttpTransportTests: XCTestCase {
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             for _ in  0..<flushInvocations {
                 let beforeFlush = getAbsoluteTime()
@@ -890,7 +890,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() {
         let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
         
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             for _ in 0..<10 {
                 sut.send(envelope: fixture.eventEnvelope)
@@ -903,7 +903,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
-        SentryLog.withOutLogs {
+        SentryLog.withoutLogs {
             
             givenCachedEvents(amount: 30)
             

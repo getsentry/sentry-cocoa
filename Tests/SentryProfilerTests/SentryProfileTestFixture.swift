@@ -28,7 +28,7 @@ class SentryProfileTestFixture {
     let processInfoWrapper = TestSentryNSProcessInfoWrapper()
     let dispatchFactory = TestDispatchFactory()
     var metricTimerFactory: TestDispatchSourceWrapper?
-    let timeoutTimerFactory = TestSentryNSTimerFactory()
+    var timeoutTimerFactory: TestSentryNSTimerFactory
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     let notificationCenter = TestNSNotificationCenterWrapper()
     
@@ -46,8 +46,10 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
-        SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+
+        timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
+        SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         
         let image = DebugMeta()
         image.name = "sentrytest"

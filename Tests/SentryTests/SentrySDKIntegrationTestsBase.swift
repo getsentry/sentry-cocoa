@@ -30,6 +30,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         let client = TestClient(options: options ?? self.options)
         let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
         
+        SentrySDK.setStart(self.options)
         SentrySDK.setCurrentHub(hub)
     }
     

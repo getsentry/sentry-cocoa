@@ -18,10 +18,12 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
     let configuration: SentryUserFeedbackConfiguration
     private var window: SentryUserFeedbackWidget.Window?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
+    let screenshotProvider: SentryScreenshot
     
-    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate) {
+    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
         self.delegate = delegate
+        self.screenshotProvider = screenshotProvider
         super.init()
         
         if let widgetConfigBuilder = configuration.configureWidget {
@@ -56,7 +58,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
      * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
      */
     func createWidget() {
-        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self)
+        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self, screenshotProvider: screenshotProvider)
         window?.isHidden = false
     }
     

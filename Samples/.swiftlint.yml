@@ -8,3 +8,8 @@ disabled_rules:
   - object_literal
   - private_outlet
   - unused_optional_binding
+
+  # This rule allows UIViewControllers to have only 250 lines of code. The argument is that you should
+  # extract business logic into extra classes. We deliberately turn this off because the extra classes
+  # could make our samples harder to read, and our business logic is simple.
+  - type_body_length

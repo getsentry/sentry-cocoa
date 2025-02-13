@@ -9,7 +9,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
-        let timerFactory = TestSentryNSTimerFactory()
+        lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: dateProvider)
 
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
@@ -280,7 +280,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
         // Timeout for tracer times out
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
@@ -330,7 +330,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
         // Timeout for tracer times out
-        fixture.timerFactory.fire()
+        try fixture.timerFactory.fire()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
