@@ -2,7 +2,11 @@
 import XCTest
 
 class SentrySpanKeyTests: XCTestCase {
-    func testAppLifecycle_shouldBeExpectedValue() {
+    func testFileSize_shouldBeExpectedValue() {
         XCTAssertEqual(SentrySpanKey.fileSize, "file.size")
+    }
+
+    func testFilePath_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanKey.filePath, "file.path")
     }
 }

@@ -231,7 +231,8 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                                                                           fileSize:size]];
         ioSpan.origin = origin;
         if (size > 0) {
-            [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size] forKey:@"file.size"];
+            [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
+                          forKey:SentrySpanKey.fileSize];
         }
     }];
 
@@ -243,7 +244,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
         ioSpan.description, operation);
 
-    [ioSpan setDataValue:path forKey:@"file.path"];
+    [ioSpan setDataValue:path forKey:SentrySpanKey.filePath];
 
     [self mainThreadExtraInfo:ioSpan];
 
@@ -325,7 +326,8 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
 {
-    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
+    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length]
+                forKey:SentrySpanKey.fileSize];
     [span finish];
 
     SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);
