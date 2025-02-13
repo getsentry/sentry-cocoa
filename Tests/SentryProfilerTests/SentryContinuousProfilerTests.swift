@@ -23,7 +23,11 @@ final class SentryContinuousProfilerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
+    func testSentryProfilerChunkExpirationInterval() {
+        XCTAssertEqual(60, kSentryProfilerChunkExpirationInterval)
+    }
+
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
@@ -94,12 +98,12 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
-    func testClosingSDKStopsProfile() {
+    func testClosingSDKStopsProfile() throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentrySDK.close()
-        assertContinuousProfileStoppage()
+        try assertContinuousProfileStoppage()
     }
     
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
@@ -118,15 +122,15 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
         // assert that the first chunk was sent
-        fixture.currentDateProvider.advanceBy(interval: kSentryProfilerChunkExpirationInterval)
-        fixture.timeoutTimerFactory.fire()
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
         
         // assert that the profiler doesn't stop until after the next timer period elapses
         SentryContinuousProfiler.stop()
-        assertContinuousProfileStoppage()
+        try assertContinuousProfileStoppage()
         
         // check that the last full chunk was sent
         let lastEnvelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
@@ -136,13 +140,34 @@ final class SentryContinuousProfilerTests: XCTestCase {
         // check that two chunks were sent in total
         XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
+    
+    func testChunkSerializationAfterBufferInterval() throws {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Advance time by the buffer interval to trigger chunk serialization
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
+        
+        // Check that a chunk was serialized and sent
+        let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
+        let profileItem = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual("profile_chunk", profileItem.header.type)
+        
+        // Ensure the profiler is still running
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Stop the profiler
+        SentryContinuousProfiler.stop()
+        try assertContinuousProfileStoppage()
+    }
 }
 
 private extension SentryContinuousProfilerTests {
     func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
         let state = try XCTUnwrap(SentryContinuousProfiler.profiler()?.state)
-        for _ in 0..<Int(kSentryProfilerChunkExpirationInterval) {
+        for _ in 0..<Int(60) {
             fixture.currentDateProvider.advanceBy(interval: 1)
             SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
         }
@@ -159,7 +184,7 @@ private extension SentryContinuousProfilerTests {
             try fixture.gatherMockedContinuousProfileMetrics()
             try addMockSamples(mockAddresses: expectedAddresses)
             fixture.currentDateProvider.advanceBy(interval: 1)
-            fixture.timeoutTimerFactory.fire()
+            try fixture.timeoutTimerFactory.check()
             XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
             try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart)
     #if  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -174,13 +199,13 @@ private extension SentryContinuousProfilerTests {
         
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
-        assertContinuousProfileStoppage()
+        try assertContinuousProfileStoppage()
     }
     
-    func assertContinuousProfileStoppage() {
+    func assertContinuousProfileStoppage() throws {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        fixture.currentDateProvider.advance(by: kSentryProfilerTimeoutInterval)
-        fixture.timeoutTimerFactory.fire()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
