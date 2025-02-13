@@ -221,7 +221,8 @@ jobs:
             --command build \
             --device "iPhone 14" \
             --configuration DebugWithoutUIKit \
-            --derived-data uikit-check-build
+            --derived-data uikit-check-build \
+            --signed true
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -239,7 +240,8 @@ jobs:
             --command build \
             --device "iPhone 14" \
             --configuration ReleaseWithoutUIKit \
-            --derived-data uikit-check-build
+            --derived-data uikit-check-build \
+            --signed true
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -257,7 +259,8 @@ jobs:
             --command build \
             --device "iPhone 14" \
             --configuration Debug \
-            --derived-data uikit-check-build
+            --derived-data uikit-check-build \
+            --signed true
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -275,6 +278,7 @@ jobs:
             --command build \
             --device "iPhone 14" \
             --configuration Release \
-            --derived-data uikit-check-build
+            --derived-data uikit-check-build \
+            --signed true
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry

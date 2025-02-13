@@ -16,7 +16,11 @@ COMMAND="test"
 DEVICE="iPhone 14"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
-TEST_SCHEME="Sentry"
+SENTRY_SCHEME="Sentry"
+
+ENV_SIGNED_BINARY="NSUnbufferedIO=YES"
+ENV_UNSIGNED_BINARY="CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO"
+ENVIRONMENT_VARIABLES="$ENV_UNSIGNED_BINARY"
 
 usage() {
     echo "Usage: $0"
@@ -28,6 +32,7 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    echo "  -S|--signed <bool>              Whether or not to allow codesigning the build product (default: false)"
     exit 1
 }
 
@@ -63,7 +68,11 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -s|--scheme)
-            TEST_SCHEME="$2"
+            SENTRY_SCHEME="$2"
+            shift 2
+            ;;
+        -S|--signed)
+            ENVIRONMENT_VARIABLES="$ENV_SIGNED_BINARY"
             shift 2
             ;;
         *)
@@ -169,7 +178,8 @@ else
 fi
 
 if [ $RUN_BUILD == true ]; then
-    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
+    set -o pipefail && xcodebuild \
+        "$ENVIRONMENT_VARIABLES" \
         -workspace Sentry.xcworkspace \
         -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
@@ -180,7 +190,7 @@ if [ $RUN_BUILD == true ]; then
         | $RUBY_ENV_ARGS xcpretty
 elif [ $RUN_ANALYZE == true ]; then
     rm -rf analyzer
-    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
+    set -o pipefail && "$ENVIRONMENT_VARIABLES" xcodebuild \
         -workspace Sentry.xcworkspace \
         CLANG_ANALYZER_OUTPUT=html \
         CLANG_ANALYZER_OUTPUT_DIR=analyzer \
@@ -193,14 +203,12 @@ elif [ $RUN_ANALYZE == true ]; then
         | $RUBY_ENV_ARGS xcpretty -t \
         && [[ -z $(find analyzer -name "*.html") ]]
         xcbeautify
-fi
-
 elif [ $RUN_TEST_WITH_TSAN == true ]; then
     # When enableThreadSanitizer is enabled and ThreadSanitizer finds an issue,
     # the logs only show failing tests, but don't highlight the threading issues.
     # Therefore we print a hint to find the threading issues. Profiler doesn't
     # run when it detects TSAN is present, so we skip those tests.
-    set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
+    set -o pipefail && "$ENVIRONMENT_VARIABLES" xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$SENTRY_SCHEME" \
         -configuration "$CONFIGURATION" \
@@ -213,14 +221,14 @@ elif [ $RUN_TEST_WITH_TSAN == true ]; then
 
     testStatus=$?
 
-    if [ $testStatus -eq 0 ]; then
+    if [ "$testStatus" -eq 0 ]; then
         echo "ThreadSanitizer didn't find problems."
     else
         echo "ThreadSanitizer found problems or one of the tests failed. Search for \"ThreadSanitizer\" in the thread-sanitizer.log artifact for more details."
     fi
 else
     if [ $RUN_BUILD_FOR_TESTING == true ]; then
-        set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
+        set -o pipefail && "$ENVIRONMENT_VARIABLES" xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
@@ -230,7 +238,7 @@ else
     fi
 
     if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-        set -o pipefail && env NSUnbufferedIO=YES CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO xcodebuild \
+        set -o pipefail && "$ENVIRONMENT_VARIABLES" xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme "$SENTRY_SCHEME" \
             -configuration "$CONFIGURATION" \
