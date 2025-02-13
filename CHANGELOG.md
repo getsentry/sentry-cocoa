@@ -21,6 +21,7 @@
 
 - Fix missing `sample_rate` in baggage (#4751)
 - Serializing SentryGeo with `nil` values (#4724)
+- Add type-safety for screenshots result array (#4843)
 
 ### Internal
 
