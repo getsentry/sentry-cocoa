@@ -42,7 +42,7 @@ struct SentrySDKWrapper {
         options.add(inAppInclude: "iOS_External")
         
         options.enableUserInteractionTracing = enableUITracing
-        options.enableAppHangTracking = enableANRTracking
+        options.enableAppHangTrackingV2 = true
         options.enableWatchdogTerminationTracking = enableWatchdogTracking
         options.enableAutoPerformanceTracing = enablePerformanceTracing
         options.enablePreWarmedAppStartTracing = enablePrewarmedAppStartTracing

@@ -17,6 +17,7 @@
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
 #import "SentryUIApplication.h"
+#import <SentryCrashWrapper.h>
 #import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
@@ -31,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -55,6 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
     self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+    self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
@@ -82,13 +85,27 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         [weakSelf.fileManager deleteAppHangEvent];
-        [SentrySDK captureEvent:event];
+
+        if (self.crashWrapper.crashedLastLaunch) {
+            // The app crashed during an ongoing app hang. While we could look at the timestamp of
+            // the crash report and compare it with the stored app hang event, this time difference
+            // doesn't tell us how long the app hang would have lasted. It would make sense, though,
+            // to link the app hang event with the crash event.
+            [SentrySDK captureEvent:event];
+        } else {
+            // Fatal
+
+            NSString *errorMessage = @"Fatal App Hang.";
+
+            event.exceptions.firstObject.value = errorMessage;
+            [SentrySDK captureEvent:event];
+        }
     }];
 }
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAppHangTracking | kIntegrationOptionDebuggerNotAttached;
+    return kIntegrationOptionEnableAppHangTracking;
 }
 
 - (void)pauseAppHangTracking

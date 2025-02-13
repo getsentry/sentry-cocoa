@@ -5,11 +5,13 @@
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFileManager.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentrySwift.h"
 #    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
+#    import "SentryUIApplication.h"
 #    import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
