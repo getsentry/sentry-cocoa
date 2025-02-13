@@ -7,18 +7,21 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ url: URL, _ options: Data.ReadingOptions) throws -> Data
     ) throws -> Data {
+        // We dont track reads from a url that is not a file url
+        // because these reads are handled by NSURLSession and
+        // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
             return try method(url, options)
         }
-        let span = self.startTrackingReadingFilePath(url.path, origin: origin)
+        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperation.fileRead) else {
+            return try method(url, options)
+        }
         defer {
-            self.endTrackingFile()
+            span.finish()
         }
-        let result = try method(url, options)
-        if let span = span {
-            self.finishTrackingNSData(result, span: span)
-        }
-        return result
+        let data = try method(url, options)
+        span.setData(value: data.count, key: SentrySpanKey.fileSize)
+        return data
     }
 
     func measureWritingData(
@@ -28,17 +31,17 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ data: Data, _ url: URL, _ options: Data.WritingOptions) throws -> Void
     ) throws {
+        // We dont track reads from a url that is not a file url
+        // because these reads are handled by NSURLSession and
+        // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
             return try method(data, url, options)
         }
-        let span = self.startTrackingWriting(data, filePath: url.path, origin: origin)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperation.fileWrite, size: UInt(data.count)) else {
+            return try method(data, url, options)
         }
         defer {
-            if let span = span {
-                self.finishTrackingNSData(data, span: span)
-            }
+            span.finish()
         }
         try method(data, url, options)
     }
@@ -48,15 +51,17 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ url: URL) throws -> Void
     ) throws {
+        // We dont track reads from a url that is not a file url
+        // because these reads are handled by NSURLSession and
+        // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
             return try method(url)
         }
-        let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperation.fileDelete, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperation.fileDelete) else {
+            return try method(url)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(url)
     }
@@ -66,12 +71,11 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ path: String) throws -> Void
     ) throws {
-        let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperation.fileDelete, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperation.fileDelete) else {
+            return try method(path)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(path)
     }
@@ -83,14 +87,15 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ path: String, _ data: Data?, _ attributes: [FileAttributeKey: Any]?) -> Bool
     ) -> Bool {
-        let span = self.startTrackingWriting(data ?? Data(), filePath: path, origin: origin)
-        defer {
-            self.endTrackingFile()
+        let size = UInt(data?.count ?? 0)
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperation.fileWrite, size: size) else {
+            return method(path, data, attr)
         }
         defer {
-            if let span = span {
-                self.finishTrackingNSData(data ?? Data(), span: span)
+            if let data = data {
+                span.setData(value: data.count, key: SentrySpanKey.fileSize)
             }
+            span.finish()
         }
         return method(path, data, attr)
     }
@@ -101,15 +106,17 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcUrl: URL, _ dstUrl: URL) throws -> Void
     ) throws {
+        // We dont track reads from a url that is not a file url
+        // because these reads are handled by NSURLSession and
+        // SentryNetworkTracker will create spans in these cases.
         guard srcUrl.scheme == NSURLFileScheme && dstUrl.scheme == NSURLFileScheme else {
             return try method(srcUrl, dstUrl)
         }
-        let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperation.fileCopy, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperation.fileCopy) else {
+            return try method(srcUrl, dstUrl)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(srcUrl, dstUrl)
     }
@@ -120,12 +127,11 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcPath: String, _ dstPath: String) throws -> Void
     ) throws {
-        let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperation.fileCopy, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperation.fileCopy) else {
+            return try method(srcPath, dstPath)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(srcPath, dstPath)
     }
@@ -136,15 +142,17 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcUrl: URL, _ dstUrl: URL) throws -> Void
     ) throws {
+        // We dont track reads from a url that is not a file url
+        // because these reads are handled by NSURLSession and
+        // SentryNetworkTracker will create spans in these cases.
         guard srcUrl.scheme == NSURLFileScheme && dstUrl.scheme == NSURLFileScheme else {
             return try method(srcUrl, dstUrl)
         }
-        let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperation.fileRename, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperation.fileRename) else {
+            return try method(srcUrl, dstUrl)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(srcUrl, dstUrl)
     }
@@ -155,12 +163,11 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcPath: String, _ dstPath: String) throws -> Void
     ) throws {
-        let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperation.fileRename, size: 0)
-        defer {
-            self.endTrackingFile()
+        guard let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperation.fileRename) else {
+            return try method(srcPath, dstPath)
         }
         defer {
-            span?.finish()
+            span.finish()
         }
         try method(srcPath, dstPath)
     }

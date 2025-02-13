@@ -64,10 +64,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.autoNSData)
+        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToRead.path)
+        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
     }
 
     func testInitContentsOfUrlWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
@@ -80,10 +80,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.autoNSData)
+        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
-        XCTAssertEqual(span.data["file.size"] as? Int, 0)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToRead.path)
+        XCTAssertNil(span.data["file.size"])
     }
 
     // MARK: - Data.writeWithSentryTracing(to:)
@@ -99,10 +99,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.autoNSData)
+        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToWrite.path)
+        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
 
         // Reading the written data will create a span, so do it after asserting the transaction
         let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
@@ -119,9 +119,9 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.autoNSData)
+        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
-        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToWrite.path)
+        XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
     }
 }

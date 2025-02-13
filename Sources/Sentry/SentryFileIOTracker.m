@@ -123,7 +123,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                            origin:(NSString *)origin
                            method:(NSData * (^)(NSString *))method
 {
-    id<SentrySpan> span = [self startTrackingReadingFilePath:path origin:origin];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:path
+                                                      origin:origin
+                                                   operation:SentrySpanOperation.fileRead];
 
     NSData *result = method(path);
 
@@ -141,7 +143,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                             error:(NSError **)error
                            method:(NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method
 {
-    id<SentrySpan> span = [self startTrackingReadingFilePath:path origin:origin];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:path
+                                                      origin:origin
+                                                   operation:SentrySpanOperation.fileRead];
 
     NSData *result = method(path, readOptionsMask, error);
 
@@ -166,7 +170,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (![url.scheme isEqualToString:NSURLFileScheme])
         return method(url, readOptionsMask, error);
 
-    id<SentrySpan> span = [self startTrackingReadingFilePath:url.path origin:origin];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:url.path
+                                                      origin:origin
+                                                   operation:SentrySpanOperation.fileRead];
 
     NSData *result = method(url, readOptionsMask, error);
 
@@ -199,6 +205,13 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation
+{
+    return [self spanForPath:path origin:origin operation:operation size:0];
+}
+
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
@@ -217,6 +230,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
         ioSpan.origin = origin;
+        if (size > 0) {
+            [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size] forKey:@"file.size"];
+        }
     }];
 
     if (ioSpan == nil) {
@@ -274,7 +290,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                         size:data.length];
 }
 
-- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path origin:(NSString *)origin
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+                                                 origin:(NSString *)origin
+                                              operation:(NSString *)operation
 {
     // Some iOS versions nest constructors calls. This counter help us avoid create more than one
     // span for the same operation.
@@ -286,7 +304,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (count)
         return nil;
 
-    return [self spanForPath:path origin:origin operation:SentrySpanOperation.fileRead size:0];
+    return [self spanForPath:path origin:origin operation:operation size:0];
 }
 
 - (void)endTrackingFile

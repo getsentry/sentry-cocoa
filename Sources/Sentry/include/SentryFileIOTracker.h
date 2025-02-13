@@ -92,10 +92,15 @@ SENTRY_NO_INIT
 
 // MARK: - Internal Methods available for Swift Extension
 
-- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path origin:(NSString *)origin;
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+                                                 origin:(NSString *)origin
+                                              operation:(NSString *)operation;
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
                                              filePath:(NSString *)path
                                                origin:(NSString *)origin;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation;
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation

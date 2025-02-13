@@ -5,7 +5,7 @@
 ### Features
 
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
-- Add manual file IO tracking methods for Swift.Data (#4605)
+- Add manual file IO tracking methods for Swift.Data and Swift.FileManager (#4605)
 
 ### Improvements
 
