@@ -21,6 +21,11 @@ jobs:
       - name: Install Clang-Format
         run: brew install clang-format
       - run: swiftlint --version
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable
+      - run: yarn install
       - name: Format Code
         run: make format
 

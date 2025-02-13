@@ -94,7 +94,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
       - run: corepack enable
       - run: yarn install
       - run: yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json}"
