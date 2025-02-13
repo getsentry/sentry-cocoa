@@ -1,7 +1,7 @@
 {
-    "employee": {
-        "name": "Max",
-        "salary": 56000,
-        "married": true
-    }
+  "employee": {
+    "name": "Max",
+    "salary": 56000,
+    "married": true
+  }
 }

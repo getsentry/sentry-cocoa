@@ -1,0 +1,9 @@
+{
+  "name": "placeholder_package",
+  "description": "Used to manage npm dependencies in pre-commit",
+  "version": "0.0.0",
+  "packageManager": "yarn@4.6.0",
+  "devDependencies": {
+    "prettier": "3.5.0"
+  }
+}
