@@ -12,7 +12,7 @@ extension SentryLog {
     
     /// SentryLog uses NSLog internally, which can significantly slow down code because it requires
     /// synchronization. Tests that need code to run fast should can turn off logs to avoid flakiness.
-    public static func withOutLogs<T>(_ closure: () throws -> T) rethrows -> T {
+    public static func withoutLogs<T>(_ closure: () throws -> T) rethrows -> T {
         defer { setTestDefaultLogLevel() }
         disable()
         return try closure()
