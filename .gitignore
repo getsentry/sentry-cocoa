@@ -77,7 +77,8 @@ Package.resolved
 /rule_docs/
 
 # Visual Studio Code
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 Cartfile.resolved
 *.log
