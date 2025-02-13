@@ -1,0 +1,93 @@
+{
+  "configurations" : [
+    {
+      "id" : "3ADD995F-6B78-4BD9-BCF8-512A484D2873",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "selectedTests" : [
+        "SentrySDKTests\/testCaptureCrashEvent()",
+        "SentrySDKTests\/testCaptureEnvelope()",
+        "SentrySDKTests\/testCaptureError()",
+        "SentrySDKTests\/testCaptureErrorWithScope()",
+        "SentrySDKTests\/testCaptureErrorWithScopeBlock_CreatesNewScope()",
+        "SentrySDKTests\/testCaptureErrorWithScopeBlock_ScopePassedToHub()",
+        "SentrySDKTests\/testCaptureEvent()",
+        "SentrySDKTests\/testCaptureEventWithScope()",
+        "SentrySDKTests\/testCaptureEventWithScopeBlock_CreatesNewScope()",
+        "SentrySDKTests\/testCaptureEventWithScopeBlock_ScopePassedToHub()",
+        "SentrySDKTests\/testCaptureException()",
+        "SentrySDKTests\/testCaptureExceptionWithScope()",
+        "SentrySDKTests\/testCaptureExceptionWithScopeBlock_CreatesNewScope()",
+        "SentrySDKTests\/testCaptureExceptionWithScopeBlock_ScopePassedToHub()",
+        "SentrySDKTests\/testCaptureMessageWithScopeBlock_CreatesNewScope()",
+        "SentrySDKTests\/testCaptureMessageWithScopeBlock_ScopePassedToHub()",
+        "SentrySDKTests\/testCaptureUserFeedback()",
+        "SentrySDKTests\/testClose_CallsFlushCorrectlyOnTransport()",
+        "SentrySDKTests\/testClose_ClearsIntegrations()",
+        "SentrySDKTests\/testClose_ClosesClient()",
+        "SentrySDKTests\/testClose_ResetsDependencyContainer()",
+        "SentrySDKTests\/testClose_SetsClientToNil()",
+        "SentrySDKTests\/testClose_StopsAppStateManager()",
+        "SentrySDKTests\/testCrashedLastRun()",
+        "SentrySDKTests\/testDetectedStartUpCrash()",
+        "SentrySDKTests\/testDetectedStartUpCrash_DefaultValue()",
+        "SentrySDKTests\/testDontStartInsideXcodePreview()",
+        "SentrySDKTests\/testEndSession()",
+        "SentrySDKTests\/testFlush_CallsFlushCorrectlyOnTransport()",
+        "SentrySDKTests\/testGlobalOptions()",
+        "SentrySDKTests\/testGlobalOptionsForPreview()",
+        "SentrySDKTests\/testInstallIntegrations()",
+        "SentrySDKTests\/testInstallIntegrations_NoIntegrations()",
+        "SentrySDKTests\/testIsEnabled()",
+        "SentrySDKTests\/testMovesBreadcrumbsToPreviousBreadcrumbs()",
+        "SentrySDKTests\/testNotStartingContinuousProfilerWithSampleRateBlock()",
+        "SentrySDKTests\/testNotStartingContinuousProfilerWithSampleRateNonZero()",
+        "SentrySDKTests\/testReportFullyDisplayed()",
+        "SentrySDKTests\/testResumeAndPauseAppHangTracking()",
+        "SentrySDKTests\/testResumeAndPauseAppHangTracking_ANRTrackingNotInstalled()",
+        "SentrySDKTests\/testSDKStartInvocations()",
+        "SentrySDKTests\/testSDKStartTimestamp()",
+        "SentrySDKTests\/testSentryUIDeviceWrapperStarted()",
+        "SentrySDKTests\/testSentryUIDeviceWrapperStopped()",
+        "SentrySDKTests\/testSetAppStartMeasurementConcurrently()",
+        "SentrySDKTests\/testSetAppStartMeasurement_CallsPrivateSDKCallback()",
+        "SentrySDKTests\/testSetAppStartMeasurement_NoCallback_CallbackNotCalled()",
+        "SentrySDKTests\/testSetUser_SetsUserToScopeOfHub()",
+        "SentrySDKTests\/testStartOnTheMainThread()",
+        "SentrySDKTests\/testStartSDK_ScopeContextContainsOSVersion()",
+        "SentrySDKTests\/testStartSDK_WithCorruptedEnvelope()",
+        "SentrySDKTests\/testStartSession()",
+        "SentrySDKTests\/testStartStopBinaryImageCache()",
+        "SentrySDKTests\/testStartTransaction()",
+        "SentrySDKTests\/testStartTransaction_WithBindToScope()",
+        "SentrySDKTests\/testStartWithConfigureOptions()",
+        "SentrySDKTests\/testStartWithConfigureOptions_BeforeSend()",
+        "SentrySDKTests\/testStartWithConfigureOptions_NoDsn()",
+        "SentrySDKTests\/testStartWithConfigureOptions_WrongDsn()",
+        "SentrySDKTests\/testStartWithScope()",
+        "SentrySDKTests\/testStartWithZeroMaxBreadcrumbsOptionsDoesNotCrash()",
+        "SentrySDKTests\/testStartingContinuousProfilerWithSampleRateNil()",
+        "SentrySDKTests\/testStartingContinuousProfilerWithSampleRateZero()",
+        "SentrySDKTests\/testStoreEnvelope()",
+        "SentrySDKTests\/testStoreEnvelope_WhenNoClient_NoCrash()",
+        "SentrySDKWithSetupTests\/testAccessingHubAndOptions_NoDeadlock()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

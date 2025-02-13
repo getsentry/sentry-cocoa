@@ -17,6 +17,7 @@ DEVICE="iPhone 14"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
+TEST_PLAN=""
 
 usage() {
     echo "Usage: $0"
@@ -28,6 +29,7 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    echo "  -t|--test-plan <test-plan>      Test plan"
     exit 1
 }
 
@@ -64,6 +66,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -s|--scheme)
             TEST_SCHEME="$2"
+            shift 2
+            ;;
+        -t|--test-plan)
+            TEST_PLAN="$2"
             shift 2
             ;;
         *)
@@ -148,7 +154,7 @@ if [ $RUN_BUILD == true ]; then
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+    set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
@@ -160,11 +166,19 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    XCODEBUILD_ARGS=(
+        -workspace Sentry.xcworkspace
+        -scheme "$TEST_SCHEME"
+        -configuration "$CONFIGURATION"
+        -destination "$DESTINATION"
+    )
+
+    if [ -n "$TEST_PLAN" ]; then
+        XCODEBUILD_ARGS+=(-testPlan "$TEST_PLAN")
+    fi
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
+        "${XCODEBUILD_ARGS[@]}" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --quieter --renderer github-actions &&

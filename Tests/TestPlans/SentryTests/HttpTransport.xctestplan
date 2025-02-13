@@ -1,0 +1,83 @@
+{
+  "configurations" : [
+    {
+      "id" : "77F908E8-9364-4199-89F8-E07833E09CEF",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "selectedTests" : [
+        "SentryHttpTransportTests",
+        "SentryHttpTransportTests\/testActiveRateLimitForAllCachedEnvelopeItems()",
+        "SentryHttpTransportTests\/testActiveRateLimitForAllEnvelopeItems()",
+        "SentryHttpTransportTests\/testActiveRateLimitForSomeCachedEnvelopeItems()",
+        "SentryHttpTransportTests\/testActiveRateLimitForSomeEnvelopeItems()",
+        "SentryHttpTransportTests\/testAllCachedEnvelopesCantDeserializeEnvelope()",
+        "SentryHttpTransportTests\/testBuildingRequestFailsAndRateLimitActive_RecordsLostEvents()",
+        "SentryHttpTransportTests\/testBuildingRequestFailsReturningNil_DeletesEnvelopeAndSendsNext()",
+        "SentryHttpTransportTests\/testBuildingRequestFails_ClientReportNotRecordedAsLostEvent()",
+        "SentryHttpTransportTests\/testBuildingRequestFails_DeletesEnvelopeAndSendsNext()",
+        "SentryHttpTransportTests\/testBuildingRequestFails_RecordsLostSpans()",
+        "SentryHttpTransportTests\/testCacheFull_RecordsLostEvent()",
+        "SentryHttpTransportTests\/testCacheFull_RecordsLostSpans()",
+        "SentryHttpTransportTests\/testDealloc_StopsReachabilityMonitoring()",
+        "SentryHttpTransportTests\/testDealloc_TriggerNetworkReachable_NoCrash()",
+        "SentryHttpTransportTests\/testDeallocated_CachedEnvelopesNotAllSent()",
+        "SentryHttpTransportTests\/testEventRateLimited_RecordsLostEvent()",
+        "SentryHttpTransportTests\/testFailureToStoreEvenlopeEventStillSendsRequest()",
+        "SentryHttpTransportTests\/testFlush_BlocksCallingThread_FinishesFlushingWhenSent()",
+        "SentryHttpTransportTests\/testFlush_BlocksCallingThread_TimesOut()",
+        "SentryHttpTransportTests\/testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse()",
+        "SentryHttpTransportTests\/testFlush_CalledSequentially_BlocksTwice()",
+        "SentryHttpTransportTests\/testFlush_CallingFlushDirectlyAfterCapture_Flushes()",
+        "SentryHttpTransportTests\/testFlush_WhenNoEnvelopes_BlocksAndFinishes()",
+        "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryHttpTransportTests\/testInitSendsCachedEnvelopes()",
+        "SentryHttpTransportTests\/testRateLimitForEvent()",
+        "SentryHttpTransportTests\/testRateLimitGetsActiveWhileSendAllEvents()",
+        "SentryHttpTransportTests\/testRecordLostEvent_NoInternet_StoredWithEnvelope()",
+        "SentryHttpTransportTests\/testRecordLostEvent_SendingEvent_AttachesClientReport()",
+        "SentryHttpTransportTests\/testRecordLostEvent_SendingEvent_ClearsLostEvents()",
+        "SentryHttpTransportTests\/testRequestManagerReturnsError_ClientReportNotRecordedAsLostEvent()",
+        "SentryHttpTransportTests\/testRequestManagerReturnsError_RecordsLostEvent()",
+        "SentryHttpTransportTests\/testSendAllCachedEnvelopes()",
+        "SentryHttpTransportTests\/testSendAllCachedEvents()",
+        "SentryHttpTransportTests\/testSendAllEventsAllEventsDeletedWhenNotReady()",
+        "SentryHttpTransportTests\/testSendCachedButNotReady()",
+        "SentryHttpTransportTests\/testSendCachedEnvelopesFirst()",
+        "SentryHttpTransportTests\/testSendCachedEventsButRateLimitIsActive()",
+        "SentryHttpTransportTests\/testSendClientReportsDisabled_DoesNotRecordLostEvents()",
+        "SentryHttpTransportTests\/testSendClientReportsDisabled_DoesSendClientReport()",
+        "SentryHttpTransportTests\/testSendEnvelopeWithRateLimitResponse()",
+        "SentryHttpTransportTests\/testSendEnvelopeWithRetryAfterResponse()",
+        "SentryHttpTransportTests\/testSendEnvelopesConcurrent()",
+        "SentryHttpTransportTests\/testSendEventWhenSessionRateLimitActive()",
+        "SentryHttpTransportTests\/testSendEventWithFaultyNSUrlRequest()",
+        "SentryHttpTransportTests\/testSendEventWithMetricBucketRateLimitResponse()",
+        "SentryHttpTransportTests\/testSendEventWithRateLimitResponse()",
+        "SentryHttpTransportTests\/testSendEventWithRetryAfterResponse()",
+        "SentryHttpTransportTests\/testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent()",
+        "SentryHttpTransportTests\/testSendEventWithSession_SentInOneEnvelope()",
+        "SentryHttpTransportTests\/testSendOneEnvelope()",
+        "SentryHttpTransportTests\/testSendOneEvent()",
+        "SentryHttpTransportTests\/testSendUserFeedback()",
+        "SentryHttpTransportTests\/testSendsWhenNetworkComesBack()",
+        "SentryHttpTransportTests\/testTransactionRateLimited_RecordsLostSpans()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}
