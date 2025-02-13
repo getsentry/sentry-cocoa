@@ -19,9 +19,7 @@
         return NO;
     }
 
-    self.tracker = [[SentryFileIOTracker alloc]
-        initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
-             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
+    self.tracker = [[SentryDependencyContainer sharedInstance] fileIOTracker];
     [self.tracker enable];
 
     [SentryNSDataSwizzling.shared startWithOptions:options tracker:self.tracker];
@@ -32,8 +30,8 @@
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableSwizzling | kIntegrationOptionIsTracingEnabled
-        | kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionEnableFileIOTracing;
+    return kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableAutoPerformanceTracing
+        | kIntegrationOptionEnableFileIOTracing;
 }
 
 - (void)uninstall
