@@ -632,6 +632,25 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentryContinuousProfiler stop];
 }
+
++ (void)startProfileSession
+{
+    // TODO: log a debug message and bail if the profiling session is sampled
+    // with respect SentryOptions.profileSessionSampleRate and the profiler is already running
+
+    // TODO: log a debug message and bail if the profile session is not sampled
+
+    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+
+    [SentryContinuousProfiler start];
+}
+
++ (void)stopProfileSession
+{
+    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+
+    [SentryContinuousProfiler stop];
+}
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
