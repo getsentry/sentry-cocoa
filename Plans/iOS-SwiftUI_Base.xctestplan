@@ -19,7 +19,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Samples\/iOS-SwiftUI\/iOS-SwiftUI.xcodeproj",
+        "containerPath" : "container:iOS-SwiftUI.xcodeproj",
         "identifier" : "7B64385626A6C0A6000D0F65",
         "name" : "iOS-SwiftUI-UITests"
       }

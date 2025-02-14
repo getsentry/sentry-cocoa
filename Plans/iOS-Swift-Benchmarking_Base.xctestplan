@@ -19,7 +19,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Samples\/iOS-Swift\/iOS-Swift.xcodeproj",
+        "containerPath" : "container:iOS-Swift.xcodeproj",
         "identifier" : "848A2560286E3351008A8858",
         "name" : "PerformanceBenchmarks"
       }

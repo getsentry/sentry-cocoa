@@ -46,7 +46,7 @@
       </EnvironmentVariables>
       <TestPlans>
          <TestPlanReference
-            reference = "container:Tests/Plans/Sentry.xctestplan"
+            reference = "container:Plans/Sentry_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

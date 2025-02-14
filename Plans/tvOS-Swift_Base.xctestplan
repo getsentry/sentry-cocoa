@@ -19,7 +19,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Samples\/tvOS-Swift\/tvOS-Swift.xcodeproj",
+        "containerPath" : "container:tvOS-Swift.xcodeproj",
         "identifier" : "7B64388526A6C71A000D0F65",
         "name" : "tvOS-SwiftUITests"
       }
