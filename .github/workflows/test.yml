@@ -214,6 +214,7 @@ jobs:
         if: always()
         with:
           path: TestResults.xcresult
+          show-passed-tests: false
 
       - name: Slowest Tests
         if: ${{ always() }}
