@@ -224,7 +224,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
   
@@ -232,7 +233,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
 
@@ -240,7 +242,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
 
@@ -250,7 +253,8 @@ platform :ios do
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
 
@@ -258,7 +262,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
   
@@ -266,7 +271,8 @@ platform :ios do
   lane :duplication_test do
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
-      scheme: "DuplicatedSDKTest"
+      scheme: "DuplicatedSDKTest",
+      xcodebuild_formatter: "xcbeautify --report junit"
     )
   end
 
