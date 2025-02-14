@@ -7,6 +7,7 @@
 - Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
 - Session replay masking preview for SwiftUI (#4737)
 - HTTP Breadcrumb level based on response status code (#4779) 4xx is warning, 5xx is error.
+- Add manual file IO tracking methods for Swift.Data and Swift.FileManager (#4605)
 - Measure app hang duration for AppHangTrackingV2 (#4836)
 
 ### Improvements

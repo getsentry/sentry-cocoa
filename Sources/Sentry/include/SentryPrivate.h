@@ -12,6 +12,7 @@
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryFileIOTracker.h"
 #import "SentryLevelHelper.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
