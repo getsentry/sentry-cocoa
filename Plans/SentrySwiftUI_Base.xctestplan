@@ -14,7 +14,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:..\/..\/Sentry.xcodeproj",
+        "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D833D61E2D1321C100961E7A",
         "name" : "SentrySwiftUITests"
       }
