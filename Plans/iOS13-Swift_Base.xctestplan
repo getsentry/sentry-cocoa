@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "FAE580D4-3ECE-43E4-B68C-99AEF78953B4",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "--io.sentry.profiling.enable",
+        "enabled" : false
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS-Swift.xcodeproj",
+      "identifier" : "D8269A38274C095E00BD5BD5",
+      "name" : "iOS13-Swift"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "identifier" : "D85DAA48274C244F004DF43C",
+        "name" : "iOS13-SwiftTests"
+      }
+    }
+  ],
+  "version" : 1
+}

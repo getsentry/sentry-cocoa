@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "CCABC15F-DEBD-44F1-876F-10F73B7AE508",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS-SwiftUI.xcodeproj",
+      "identifier" : "7BB6224826A56C4E00D0E75E",
+      "name" : "iOS-SwiftUI"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS-SwiftUI.xcodeproj",
+        "identifier" : "7B64385626A6C0A6000D0F65",
+        "name" : "iOS-SwiftUI-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

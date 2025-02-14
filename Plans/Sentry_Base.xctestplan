@@ -1,0 +1,68 @@
+{
+  "configurations" : [
+    {
+      "id" : "9F642BCD-F191-42F8-BC7C-76318A568795",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "TSAN_OPTIONS",
+        "value" : "suppressions=$(PROJECT_DIR)\/Sources\/Resources\/ThreadSanitizer.sup"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Sentry.xcodeproj",
+      "identifier" : "63AA759A1EB8AEF500D153DE",
+      "name" : "Sentry"
+    }
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
+        "SentryANRTrackerTests\/testMultipleListeners()",
+        "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
+        "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
+        "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
+        "SentryCrashReportStore_Tests\/testCrashReportCount1",
+        "SentryCrashReportStore_Tests\/testDeleteAllReports",
+        "SentryCrashReportStore_Tests\/testStoresLoadsMultipleReports",
+        "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryNetworkTrackerIntegrationTests\/testGetCaptureFailedRequestsEnabled()",
+        "SentryNetworkTrackerIntegrationTests\/testGetRequest_CompareSentryTraceHeader()",
+        "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
+        "SentryProfilerSwiftTests\/testConcurrentSpansWithTimeout()",
+        "SentryReachabilityTest\/testMultipleReachabilityObservers",
+        "SentrySDKIntegrationTestsBase",
+        "SentrySDKTests\/testStartOnTheMainThread()",
+        "SentrySessionGeneratorTests\/testSendSessions()",
+        "SentrySubClassFinderTests\/testActOnSubclassesOfViewController()",
+        "SentryThreadInspectorTests\/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
+        "SentryThreadInspectorTests\/testStacktraceHasFrames_forEveryThread()",
+        "SentryThreadWrapperTests\/testOnMainThreadFromNonMainContext()",
+        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    },
+    {
+      "skippedTests" : [
+        "SentryProfilerTests\/testProfilerMutationDuringSlicing"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "8431EECF29B27B1100D8DC56",
+        "name" : "SentryProfilerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
