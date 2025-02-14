@@ -209,12 +209,12 @@ jobs:
             --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
-            
-      - uses: kishikawakatsumi/xcresulttool@v1
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
         if: always()
         with:
-          path: TestResults.xcresult
-          show-passed-tests: false
+          report_paths: 'build/reports/junit.xml'
 
       - name: Slowest Tests
         if: ${{ always() }}
