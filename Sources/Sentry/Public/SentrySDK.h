@@ -378,14 +378,16 @@ SENTRY_NO_INIT
  * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
-+ (void)startProfiler;
++ (void)startProfiler DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. See startProfileSession.");
 
 /**
  * Stop a continuous profiling session if there is one ongoing.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
-+ (void)stopProfiler;
++ (void)stopProfiler DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. See stopProfileSession.");
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
