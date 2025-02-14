@@ -30,7 +30,7 @@
       codeCoverageEnabled = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../../../iOS-Swift.xctestplan"
+            reference = "container:../../../iOS-Swift_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

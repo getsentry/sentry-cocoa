@@ -29,7 +29,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../../tvOS-Swift.xctestplan"
+            reference = "container:../../tvOS-Swift_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

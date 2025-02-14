@@ -30,7 +30,7 @@
       codeCoverageEnabled = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:SentrySwiftUI.xctestplan"
+            reference = "container:SentrySwiftUI_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

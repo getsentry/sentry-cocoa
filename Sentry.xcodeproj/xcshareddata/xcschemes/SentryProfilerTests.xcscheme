@@ -13,7 +13,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:SentryProfilerTests.xctestplan"
+            reference = "container:SentryProfilerTests_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
