@@ -525,7 +525,9 @@ NS_SWIFT_NAME(Options)
  * whether to set this property to @c YES or @c NO .
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. See startProfilerOnAppStart and "
+    "profileLifecycle.");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -550,7 +552,8 @@ NS_SWIFT_NAME(Options)
  * @warning The new continuous profiling mode is experimental and may still contain bugs.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
+@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. See profileSessionSampleRate.");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -562,7 +565,10 @@ NS_SWIFT_NAME(Options)
  * disk for use on the next app launch.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
+@property (nullable, nonatomic)
+    SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE DEPRECATED_MSG_ATTRIBUTE(
+        "This property will be removed in a future version of the SDK. See "
+        "profileSessionSampleRate.");
 
 /**
  * If profiling should be enabled or not.
@@ -574,7 +580,8 @@ NS_SWIFT_NAME(Options)
  * set, otherwise @c NO.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
+@property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. See profileLifecycle.");
 
 /**
  * @brief Whether to enable the sampling profiler.
