@@ -1949,6 +1949,15 @@
 		D41909942D490006002B83D0 /* SentryNSDictionarySanitize+Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SentryNSDictionarySanitize+Tests.m"; sourceTree = "<group>"; };
 		D42E48562D48DF1600D251BC /* SentryBuildAppStartSpansTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryBuildAppStartSpansTests.swift; sourceTree = "<group>"; };
 		D42E48582D48FC8F00D251BC /* SentryNSDictionarySanitizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSDictionarySanitizeTests.swift; sourceTree = "<group>"; };
+		D46D45E12D5F3FD600A1CB35 /* Sentry.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sentry.xctestplan; sourceTree = "<group>"; };
+		D46D45E32D5F402100A1CB35 /* iOS-Swift.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Swift.xctestplan"; sourceTree = "<group>"; };
+		D46D45E42D5F403E00A1CB35 /* iOS-Swift-Benchmarking.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS-Swift-Benchmarking.xctestplan"; path = "Plans/iOS-Swift-Benchmarking.xctestplan"; sourceTree = SOURCE_ROOT; };
+		D46D45E52D5F407200A1CB35 /* iOS-SwiftUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS-SwiftUI.xctestplan"; path = "Plans/iOS-SwiftUI.xctestplan"; sourceTree = SOURCE_ROOT; };
+		D46D45E62D5F407F00A1CB35 /* iOS13-Swift.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS13-Swift.xctestplan"; path = "Plans/iOS13-Swift.xctestplan"; sourceTree = SOURCE_ROOT; };
+		D46D45E72D5F40ED00A1CB35 /* tvOS-Swift.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "tvOS-Swift.xctestplan"; path = "Plans/tvOS-Swift.xctestplan"; sourceTree = SOURCE_ROOT; };
+		D46D45E82D5F40FA00A1CB35 /* SentryProfilerTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentryProfilerTests.xctestplan; path = Plans/SentryProfilerTests.xctestplan; sourceTree = SOURCE_ROOT; };
+		D46D45E92D5F411700A1CB35 /* SentrySwiftUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentrySwiftUI.xctestplan; path = Plans/SentrySwiftUI.xctestplan; sourceTree = SOURCE_ROOT; };
+		D46D45EA2D5F412100A1CB35 /* SentryTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentryTests.xctestplan; path = Plans/SentryTests.xctestplan; sourceTree = SOURCE_ROOT; };
 		D48724DA2D352591005DE483 /* SentryTraceOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceOrigin.swift; sourceTree = "<group>"; };
 		D48724DC2D354934005DE483 /* SentrySpanOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySpanOperation.swift; sourceTree = "<group>"; };
 		D48724DF2D3549C6005DE483 /* SentrySpanOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySpanOperationTests.swift; sourceTree = "<group>"; };
@@ -2460,6 +2469,7 @@
 				D878C6BF2BC803440039D6A3 /* Aux */,
 				D878C6C22BC8066D0039D6A3 /* Docs */,
 				D878C6C32BC807250039D6A3 /* Distribution */,
+				D46D45E22D5F3FD600A1CB35 /* Plans */,
 				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
 				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
@@ -3778,6 +3788,22 @@
 				7BC9A20328F4166D001E7C4C /* SentryMeasurementValue.m */,
 			);
 			name = Transaction;
+			sourceTree = "<group>";
+		};
+		D46D45E22D5F3FD600A1CB35 /* Plans */ = {
+			isa = PBXGroup;
+			children = (
+				D46D45E32D5F402100A1CB35 /* iOS-Swift.xctestplan */,
+				D46D45E42D5F403E00A1CB35 /* iOS-Swift-Benchmarking.xctestplan */,
+				D46D45E52D5F407200A1CB35 /* iOS-SwiftUI.xctestplan */,
+				D46D45E62D5F407F00A1CB35 /* iOS13-Swift.xctestplan */,
+				D46D45E12D5F3FD600A1CB35 /* Sentry.xctestplan */,
+				D46D45E82D5F40FA00A1CB35 /* SentryProfilerTests.xctestplan */,
+				D46D45E92D5F411700A1CB35 /* SentrySwiftUI.xctestplan */,
+				D46D45EA2D5F412100A1CB35 /* SentryTests.xctestplan */,
+				D46D45E72D5F40ED00A1CB35 /* tvOS-Swift.xctestplan */,
+			);
+			path = Plans;
 			sourceTree = "<group>";
 		};
 		D48724D92D35258A005DE483 /* Transactions */ = {
