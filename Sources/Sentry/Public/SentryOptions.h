@@ -13,8 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
 @class SentryReplayOptions;
+@class SentryProfilingOptions;
 @class SentryScope;
-@class SentryReplayOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -515,6 +515,11 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * Configuration for the Sentry profiler.
+ */
+@property (nonatomic, strong) SentryProfilingOptions *profiling;
+
+/**
  * @warning This is an experimental feature and may still have bugs.
  * Set to @c YES to run the profiler as early as possible in an app launch, before you would
  * normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
@@ -526,7 +531,8 @@ NS_SWIFT_NAME(Options)
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See startProfilerOnAppStart and "
+    "This property will be removed in a future version of the SDK. See "
+    "SentryProfilingOptions.startOnAppStart and "
     "profileLifecycle.");
 
 /**
@@ -553,7 +559,8 @@ NS_SWIFT_NAME(Options)
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See profileSessionSampleRate.");
+    "This property will be removed in a future version of the SDK. See "
+    "SentryProfilingOptions.sessionSampleRate.");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -568,7 +575,7 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic)
     SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE DEPRECATED_MSG_ATTRIBUTE(
         "This property will be removed in a future version of the SDK. See "
-        "profileSessionSampleRate.");
+        "SentryProfilingOptions.sessionSampleRate.");
 
 /**
  * If profiling should be enabled or not.
@@ -581,7 +588,8 @@ NS_SWIFT_NAME(Options)
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See profileLifecycle.");
+    "This property will be removed in a future version of the SDK. See "
+    "SentryProfilingOptions.lifecycle.");
 
 /**
  * @brief Whether to enable the sampling profiler.
