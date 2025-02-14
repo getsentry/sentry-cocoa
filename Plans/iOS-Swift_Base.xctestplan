@@ -217,12 +217,8 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "SentryFileIOTrackingIntegrationTests\/test_DataConsistency_readPath_disabled()",
-        "SentryFileIOTrackingIntegrationTests\/test_DataConsistency_readUrl_disabled()"
-      ],
       "target" : {
-        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "containerPath" : "container:Samples\/iOS-Swift\/iOS-Swift.xcodeproj",
         "identifier" : "7B64386726A6C544000D0F65",
         "name" : "iOS-Swift-UITests"
       }

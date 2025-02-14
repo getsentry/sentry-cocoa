@@ -25,7 +25,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "containerPath" : "container:Samples\/iOS-Swift\/iOS-Swift.xcodeproj",
         "identifier" : "D85DAA48274C244F004DF43C",
         "name" : "iOS13-SwiftTests"
       }
