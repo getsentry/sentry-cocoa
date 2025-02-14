@@ -209,14 +209,12 @@ jobs:
             --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
-
-      - name: Test Report
-        uses: dorny/test-reporter@v1
+          
+      - name: Test Summary
+        uses: test-summary/action@v2
         if: always()
         with:
-          name: Test Report
-          path: build/reports/junit.xml
-          reporter: swift-xunit
+          paths: "build/reports/junit.xml"
 
       - name: Slowest Tests
         if: ${{ always() }}
