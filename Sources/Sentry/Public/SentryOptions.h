@@ -13,8 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
 @class SentryReplayOptions;
+@class SentryProfilingOptions;
 @class SentryScope;
-@class SentryReplayOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -514,6 +514,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableCoreDataTracing;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * Configuration for the Sentry profiler.
+ */
+@property (nonatomic, strong) SentryProfilingOptions *profiling;
+
 /**
  * @warning This is an experimental feature and may still have bugs.
  * Set to @c YES to run the profiler as early as possible in an app launch, before you would
