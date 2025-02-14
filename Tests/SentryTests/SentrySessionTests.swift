@@ -49,9 +49,11 @@ class SentrySessionTestsSwift: XCTestCase {
 
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         session.user = user
+        session.abnormalMechanism = "app hang"
         let copiedSession = try XCTUnwrap(session.copy() as? SentrySession)
 
         XCTAssertEqual(session, copiedSession)
+        XCTAssertEqual(session.abnormalMechanism, copiedSession.abnormalMechanism)
 
         // The user is copied as well
         session.user?.email = "someone_else@sentry.io"
@@ -116,7 +118,56 @@ class SentrySessionTestsSwift: XCTestCase {
         
         XCTAssertTrue(result["init"] as? Bool ?? false)
         XCTAssertNotEqual(2, result["init"] as? NSNumber ?? 2)
+    }
+    
+    func testSerializeAbormalMechanism() {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "distinctId")
+        session.abnormalMechanism = "app hang"
         
+        // Act
+        let jsonDict = session.serialize()
+        
+        // Assert
+        XCTAssertEqual(session.abnormalMechanism, jsonDict["abnormal_mechanism"] as? String)
+    }
+    
+    func testSerializeAbormalMechanism_IfNil_NotAddedToDict() {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "distinctId")
+        
+        // Act
+        let jsonDict = session.serialize()
+        
+        // Assert
+        XCTAssertNil(jsonDict["abnormal_mechanism"])
+    }
+    
+    func testInitWithJson_AbnormalMechanism_SetsAbnormalMechanism() throws {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "distinctId")
+        session.abnormalMechanism = "app hang"
+        let jsonDict = session.serialize()
+        
+        // Act
+        let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
+        
+        // Assert
+        XCTAssertEqual(session.abnormalMechanism, actual.abnormalMechanism)
+    }
+    
+    func testInitWithJson_AbnormalMechanismIsInt_DoesNotSetAbnormalMechanism() throws {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "distinctId")
+        session.abnormalMechanism = "app hang"
+        var jsonDict = session.serialize()
+        jsonDict["abnormal_mechanism"] = 1
+        
+        // Act
+        let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
+        
+        // Assert
+        XCTAssertNil(actual.abnormalMechanism)
     }
 }
 
