@@ -7,6 +7,10 @@ class LaunchUITests: XCTestCase {
         try super.setUpWithError()
         continueAfterFailure = false
     }
+    
+    func testFail() {
+        XCTFail("Test failed test")
+    }
 
     func testLaunch() throws {
         let app = XCUIApplication()

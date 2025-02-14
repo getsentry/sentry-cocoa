@@ -11,4 +11,8 @@ class LaunchUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
     }
+    
+    func testFail() {
+        XCTFail("Test failed test")
+    }
 }

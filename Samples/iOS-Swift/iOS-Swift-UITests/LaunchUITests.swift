@@ -1,6 +1,10 @@
 import XCTest
 
 class LaunchUITests: BaseUITest {
+    
+    func testFail() {
+        XCTFail("Test failed test")
+    }
 
     func testBreadcrumbData() {
         app.buttons["Extra"].tap()
