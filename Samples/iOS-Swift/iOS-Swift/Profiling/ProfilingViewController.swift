@@ -108,11 +108,11 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func startContinuousProfiler(_ sender: Any) {
-        SentrySDK.startProfiler()
+        SentrySDK.startProfileSession()
     }
     
     @IBAction func stopContinuousProfiler(_ sender: Any) {
-        SentrySDK.stopProfiler()
+        SentrySDK.stopProfileSession()
     }
     
     @IBAction func viewLastProfile(_ sender: Any) {
