@@ -4,13 +4,13 @@
     "float": 2.4300000000000002,
     "a_thing": 3,
     "react": true,
-    "some_things": {"green": "red"},
+    "some_things": { "green": "red" },
     "foobar": ["a", "b", "c"]
   },
   "message": "Boom promise",
   "project": "148053",
   "timestamp": 1508840416.888,
-  "tags": {"react": true, "environment": "production"},
+  "tags": { "react": true, "environment": "production" },
   "type": "Unhandled Promise Rejection",
   "stacktrace": {
     "frames": [
@@ -101,6 +101,6 @@
     "email": "john@apple.com",
     "username": "username",
     "userID": "12341",
-    "extra": {"is_admin": false}
+    "extra": { "is_admin": false }
   }
 }

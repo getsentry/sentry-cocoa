@@ -3,17 +3,18 @@ init:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	pre-commit install
-	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
-	swiftlint version > scripts/.swiftlint-version
-	corepack enable && yarn install
-
-# installs the tools needed to test various CI tasks locally
-init-ci: init
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
 	swiftlint version > scripts/.swiftlint-version
+	
+	# The node version manager is optional, so we don't fail if it's not installed.
+	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
+	# The corepack is optional, so we don't fail if it's not installed.
+	if ! command -v corepack > /dev/null; then corepack enable; fi
+	
+	yarn install
 	
 # installs the tools needed to run CI test tasks locally
 .PHONY: init-ci-test
