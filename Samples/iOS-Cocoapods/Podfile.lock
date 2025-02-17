@@ -1,0 +1,18 @@
+PODS:
+  - Sentry (8.45.0):
+    - Sentry/Core (= 8.45.0)
+  - Sentry/Core (8.45.0)
+
+DEPENDENCIES:
+  - Sentry (from `../../`)
+
+EXTERNAL SOURCES:
+  Sentry:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  Sentry: f7c0c4b82e2f7e5909a660544dfaff84e35d5e03
+
+PODFILE CHECKSUM: 9a9f415ea1e44905f910ed8df382bf0b0878ed37
+
+COCOAPODS: 1.16.2
