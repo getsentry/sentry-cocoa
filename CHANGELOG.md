@@ -27,7 +27,6 @@
 
 - Deserializing SentryEvents with Decodable (#4724)
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
-- Add prettier to pre-commit for markdown and json files (#4846)
 
 ## 8.44.0
 
