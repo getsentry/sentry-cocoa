@@ -150,7 +150,7 @@ jobs:
         run: fastlane ui_tests_ios_swift6
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@ee6b445351cd81e2f73a16a0e52d598aeac2197f # v5.3.0
         if: always()
         with:
           report_paths: 'build/reports/junit.xml'
@@ -179,7 +179,7 @@ jobs:
         run: fastlane duplication_test
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@ee6b445351cd81e2f73a16a0e52d598aeac2197f # v5.3.0
         if: always()
         with:
           report_paths: 'build/reports/junit.xml'
