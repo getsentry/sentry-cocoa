@@ -11,12 +11,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let fileURL: URL!
         let fileDirectory: URL!
         
-        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
+        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, disableDataSwizzling: Bool = false, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
+            result.experimental.disableDataSwizzling = disableDataSwizzling
             result.setIntegrations([SentryFileIOTrackingIntegration.self])
             return result
         }
@@ -228,7 +229,16 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
-    
+
+    func testDisableDataSwizzling_isSet_shouldNotSwizzleNSDataMethods() {
+        // -- Arrange --
+        let options = fixture.getOptions(disableDataSwizzling: true)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertWriteWithNoSpans()
+    }
+
     private func assertWriteWithNoSpans() {
         assertSpans(0, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
