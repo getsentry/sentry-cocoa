@@ -28,4 +28,15 @@ public class SentryProfilingOptions: NSObject {
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
     public var lifecycle: Lifecycle = .manual
     
+    /// The % of user sessions that in which to enable profiling.
+    /// - note: Whether or not the session is sampled is determined once initially when the SDK is
+    /// configured.
+    /// - note: The profiling session starts when a new user session begins, and stops when the user
+    /// session ends. Backgrounding and foregrounding the app starts a new user session and sampling
+    /// is re-evaluated. If there is no active trace when the app is backgrounded, profiling stops
+    /// before the app backgrounds. If there is an active trace and profiling is in-flight when the
+    /// app is foregrounded again, the same profiling session should continue until the last root
+    /// span in that trace finishes — this means that the re-evaluated sample rate does not actually
+    /// take effect until the profiler is started again.
+    public var sessionSampleRate: Float = 0
 }
