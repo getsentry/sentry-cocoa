@@ -62,3 +62,21 @@ repos:
         types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
         args:
           - "lint"
+
+      - id: format-markdown
+        name: Format Markdown
+        description: 'Format Markdown'
+        language: node
+        files: ^.*\.md$
+        types_or: [markdown]
+        entry: prettier --write --ignore-unknown --config .prettierrc
+        additional_dependencies: ["prettier@3.5.0"]
+
+      - id: format-json
+        name: Format JSON
+        description: 'Format JSON'
+        language: node
+        files: ^.*\.json$
+        types_or: [json]
+        entry: prettier --write --ignore-unknown --config .prettierrc
+        additional_dependencies: ["prettier@3.5.0"]
