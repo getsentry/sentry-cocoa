@@ -210,6 +210,15 @@ jobs:
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@ee6b445351cd81e2f73a16a0e52d598aeac2197f # v5.3.0
+        if: always()
+        with:
+          report_paths: 'build/reports/junit.xml'
+          fail_on_failure: true
+          fail_on_parse_error: true
+          detailed_summary: true
+
       - name: Slowest Tests
         if: ${{ always() }}
         run: ./scripts/xcode-slowest-tests.sh
