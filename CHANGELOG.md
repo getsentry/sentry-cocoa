@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add experimental flag to disable swizzling of `NSData` individually (#4855)
+
 ## 8.45.0
 
 ### Features
