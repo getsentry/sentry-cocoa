@@ -9,6 +9,9 @@ class SentrySpanOperation: NSObject {
 
     static let fileRead = "file.read"
     static let fileWrite = "file.write"
+    static let fileCopy = "file.copy"
+    static let fileRename = "file.rename"
+    static let fileDelete = "file.delete"
 
     static let networkRequestOperation = "http.client"
 

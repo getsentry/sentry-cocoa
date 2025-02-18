@@ -38,6 +38,10 @@ class SentryTraceOriginTestsTests: XCTestCase {
         XCTAssertEqual(SentryTraceOrigin.manual, "manual")
     }
 
+    func testManualFileData_shouldBeExpectedValue() {
+        XCTAssertEqual(SentryTraceOrigin.manualFileData, "manual.file.data")
+    }
+
     func testManualUITimeToDisplay_shouldBeExpectedValue() {
         XCTAssertEqual(SentryTraceOrigin.manualUITimeToDisplay, "manual.ui.time_to_display")
     }

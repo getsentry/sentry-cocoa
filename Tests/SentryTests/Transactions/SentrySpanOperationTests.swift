@@ -22,6 +22,18 @@ class SentrySpanOperationTests: XCTestCase {
         XCTAssertEqual(SentrySpanOperation.fileWrite, "file.write")
     }
 
+    func testFileCopy_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperation.fileCopy, "file.copy")
+    }
+
+    func testFileRename_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperation.fileRename, "file.rename")
+    }
+
+    func testFileDelete_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperation.fileDelete, "file.delete")
+    }
+
     func testNetworkRequestOperation_shouldBeExpectedValue() {
         XCTAssertEqual(SentrySpanOperation.networkRequestOperation, "http.client")
     }
