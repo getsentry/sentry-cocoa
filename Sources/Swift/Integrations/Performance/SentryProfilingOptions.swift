@@ -26,9 +26,6 @@ public class SentryProfilingOptions: NSObject {
     }
     
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
-    public var lifecycle: Lifecycle
+    public var lifecycle: Lifecycle = .manual
     
-    public override init() {
-        self.lifecycle = .manual
-    }
 }
