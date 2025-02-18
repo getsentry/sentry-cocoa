@@ -640,14 +640,24 @@ static NSDate *_Nullable startTimestamp = nil;
 
     // TODO: log a debug message and bail if the profile session is not sampled
 
-    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+    if (currentHub.client.options.profiling.lifecycle == LifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
+            @"manually. See SentryProfilingOptions.Lifecycle for more information.");
+        return;
+    }
 
     [SentryContinuousProfiler start];
 }
 
 + (void)stopProfileSession
 {
-    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+    if (currentHub.client.options.profiling.lifecycle == LifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
+            @"manually. See SentryProfilingOptions.Lifecycle for more information.");
+        return;
+    }
 
     [SentryContinuousProfiler stop];
 }
