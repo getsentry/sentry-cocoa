@@ -8,6 +8,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT
 
+/**
+ * Convenience accessor to the shared instance of the tracker in the dependency container.
+ *
+ * @note Can be used from Swift without import the entire dependency container.
+ *
+ * @return The shared instance of the tracker.
+ */
++ (instancetype)sharedInstance;
+
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
 
@@ -21,6 +30,7 @@ SENTRY_NO_INIT
 - (BOOL)measureNSData:(NSData *)data
           writeToFile:(NSString *)path
            atomically:(BOOL)useAuxiliaryFile
+               origin:(NSString *)origin
                method:(BOOL (^)(NSString *, BOOL))method;
 
 /**
@@ -29,13 +39,25 @@ SENTRY_NO_INIT
 - (BOOL)measureNSData:(NSData *)data
           writeToFile:(NSString *)path
               options:(NSDataWritingOptions)writeOptionsMask
+               origin:(NSString *)origin
                 error:(NSError **)error
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method;
+
+/**
+ * Measure NSData 'writeToFile:options:error:' method.
+ */
+- (BOOL)measureNSData:(NSData *)data
+           writeToURL:(NSURL *)url
+              options:(NSDataWritingOptions)writeOptionsMask
+               origin:(NSString *)origin
+                error:(NSError **)error
+               method:(BOOL (^)(NSURL *, NSDataWritingOptions, NSError **))method;
 
 /**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
 - (nullable NSData *)measureNSDataFromFile:(NSString *)path
+                                    origin:(NSString *)origin
                                     method:(NSData *_Nullable (^)(NSString *))method;
 
 /**
@@ -43,6 +65,7 @@ SENTRY_NO_INIT
  */
 - (nullable NSData *)measureNSDataFromFile:(NSString *)path
                                    options:(NSDataReadingOptions)readOptionsMask
+                                    origin:(NSString *)origin
                                      error:(NSError **)error
                                     method:(NSData *_Nullable (^)(
                                                NSString *, NSDataReadingOptions, NSError **))method;
@@ -52,6 +75,7 @@ SENTRY_NO_INIT
  */
 - (nullable NSData *)measureNSDataFromURL:(NSURL *)url
                                   options:(NSDataReadingOptions)readOptionsMask
+                                   origin:(NSString *)origin
                                     error:(NSError **)error
                                    method:(NSData *_Nullable (^)(
                                               NSURL *, NSDataReadingOptions, NSError **))method;
@@ -62,8 +86,27 @@ SENTRY_NO_INIT
 - (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
                                         data:(NSData *)data
                                   attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
+                                      origin:(NSString *)origin
                                       method:(BOOL (^)(NSString *, NSData *,
                                                  NSDictionary<NSFileAttributeKey, id> *))method;
+
+// MARK: - Internal Methods available for Swift Extension
+
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+                                                 origin:(NSString *)origin
+                                              operation:(NSString *)operation;
+- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
+                                             filePath:(NSString *)path
+                                               origin:(NSString *)origin;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size;
+- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span;
+- (void)endTrackingFile;
 
 @end
 
