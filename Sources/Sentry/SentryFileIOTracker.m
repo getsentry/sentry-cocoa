@@ -204,7 +204,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
         ioSpan.description, operation);
 
-    [ioSpan setDataValue:path forKey:SentrySpanKey.filePath];
+    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
 
     [self mainThreadExtraInfo:ioSpan];
 
@@ -287,7 +287,7 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
 {
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length]
-                forKey:SentrySpanKey.fileSize];
+                forKey:SentrySpanDataKey.fileSize];
     [span finish];
 
     SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);

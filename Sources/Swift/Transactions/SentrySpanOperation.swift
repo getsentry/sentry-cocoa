@@ -1,5 +1,13 @@
 import Foundation
 
+/**
+ * Span operations are short string identifiers that categorize the type of operation a span is measuring.
+ *
+ * They follow a hierarchical dot notation format (e.g. 'ui.load.initial_display') to group related operations.
+ * These identifiers help organize and analyze performance data across different types of operations.
+ *
+ * See [Sentry SDK development documentation](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/) for more information.
+ */
 @objcMembers @objc(SentrySpanOperation)
 class SentrySpanOperation: NSObject {
     static let appLifecycle = "app.lifecycle"
