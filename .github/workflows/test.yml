@@ -18,6 +18,7 @@ on:
       - "scripts/sentry-xcodebuild.sh"
       - ".codecov.yml"
       - Sentry.xcodeproj
+      - "**/*.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
