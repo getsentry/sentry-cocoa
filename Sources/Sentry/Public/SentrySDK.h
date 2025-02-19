@@ -254,8 +254,7 @@ SENTRY_NO_INIT
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
  */
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
++ (void)captureUserFeedback:(SentryFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

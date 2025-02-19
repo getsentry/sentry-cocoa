@@ -70,7 +70,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
         field.delegate = controller
         field.autocapitalizationType = .words
         field.returnKeyType = .done
-        if config.useSentryUser {
+        if config.formConfig.useSentryUser {
             field.text = sentry_getCurrentUser()?.name
         }
         return field
@@ -91,7 +91,7 @@ class SentryUserFeedbackFormViewModel: NSObject {
         field.keyboardType = .emailAddress
         field.autocapitalizationType = .none
         field.returnKeyType = .done
-        if config.useSentryUser {
+        if config.formConfig.useSentryUser {
             field.text = sentry_getCurrentUser()?.email
         }
         return field
@@ -336,18 +336,21 @@ extension SentryUserFeedbackFormViewModel {
         [fullNameTextField, emailTextField].forEach {
             $0.font = config.theme.font
             $0.adjustsFontForContentSizeCategory = true
+            $0.textColor = config.theme.inputForeground
             if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
                 $0.borderStyle = .roundedRect
             } else {
                 $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
                 $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-                $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+                $0.layer.borderColor = config.theme.outlineStyle.color.cgColor
             }
         }
         
         [fullNameTextField, emailTextField, messageTextView].forEach {
             $0.backgroundColor = config.theme.inputBackground
         }
+        
+        messageTextView.textColor = config.theme.inputForeground
         
         [fullNameLabel, emailLabel, messageLabel].forEach {
             $0.font = config.theme.titleFont
@@ -362,7 +365,7 @@ extension SentryUserFeedbackFormViewModel {
         [submitButton, removeScreenshotButton, cancelButton, messageTextView].forEach {
             $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius
             $0.layer.borderWidth = config.theme.outlineStyle.outlineWidth
-            $0.layer.borderColor = config.theme.outlineStyle.outlineColor.cgColor
+            $0.layer.borderColor = config.theme.outlineStyle.color.cgColor
         }
         
         [removeScreenshotButton, cancelButton].forEach {

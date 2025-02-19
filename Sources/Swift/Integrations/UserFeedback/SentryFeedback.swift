@@ -3,7 +3,14 @@ import Foundation
 
 @objcMembers
 class SentryFeedback: NSObject {
-    enum Source: String {
+    @objc enum SentryFeedbackSource: Int, CustomStringConvertible {
+        public var description: String {
+            switch self {
+            case .widget: return "widget"
+            case .custom: return "custom"
+            }
+        }
+        
         case widget
         case custom
     }
@@ -11,7 +18,7 @@ class SentryFeedback: NSObject {
     var name: String?
     var email: String?
     var message: String
-    var source: Source
+    var source: SentryFeedbackSource
     let eventId: SentryId
     
     /// PNG data for the screenshot image
@@ -21,7 +28,7 @@ class SentryFeedback: NSObject {
     var associatedEventId: String?
     
     /// - parameter screenshot Image encoded as PNG data.
-    init(message: String, name: String?, email: String?, source: Source = .widget, associatedEventId: String? = nil, screenshot: Data? = nil) {
+    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: String? = nil, screenshot: Data? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
