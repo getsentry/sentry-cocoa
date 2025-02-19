@@ -38,7 +38,7 @@ jobs:
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
-        # if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           name: ui-tests-${{matrix.target}}.xcresult
           path: fastlane/test_output/ui-tests-${{matrix.target}}.xcresult
@@ -74,14 +74,14 @@ jobs:
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
-        # if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           name: ui-tests-ios-swiftui-${{matrix.device}}.xcresult
           path: fastlane/test_output/ui-tests-ios-swiftui.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: ui-tests-ios-swiftui-raw-output-${{matrix.device}}
           path: |
@@ -116,7 +116,7 @@ jobs:
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
-        # if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           name: ui-tests-ios-swift-${{matrix.device}}.xcresult
           path: fastlane/test_output/ui-tests-ios-swift.xcresult
@@ -136,12 +136,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.2"
+
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift6
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
-        # if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           name: ui-tests-ios-swift6.xcresult
           path: fastlane/test_output/ui-tests-ios-swift6.xcresult
@@ -168,7 +169,7 @@ jobs:
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
-        # if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           name: duplication-test.xcresult
           path: fastlane/test_output/duplication-test.xcresult
