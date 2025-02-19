@@ -30,6 +30,10 @@ class LaunchUITests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
     
+    func testFail() {
+        XCTFail("Test failed test")
+    }
+    
     private func waitForExistenceOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
     }
