@@ -45,6 +45,7 @@
                 measureNSData:self
                   writeToFile:path
                    atomically:useAuxiliaryFile
+                       origin:SentryTraceOrigin.autoNSData
                        method:^BOOL(NSString *_Nonnull filePath, BOOL isAtomically) {
                            return SentrySWCallOriginal(filePath, isAtomically);
                        }];
@@ -60,6 +61,7 @@
                 measureNSData:self
                   writeToFile:path
                       options:writeOptionsMask
+                       origin:SentryTraceOrigin.autoNSData
                         error:error
                        method:^BOOL(
                            NSString *filePath, NSDataWritingOptions options, NSError **outError) {
@@ -77,6 +79,7 @@
             return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromFile:path
                               options:options
+                               origin:SentryTraceOrigin.autoNSData
                                 error:error
                                method:^NSData *(NSString *filePath, NSDataReadingOptions options,
                                    NSError **outError) {
@@ -91,6 +94,7 @@
         SentrySWReturnType(NSData *), SentrySWArguments(NSString * path), SentrySWReplacement({
             return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromFile:path
+                               origin:SentryTraceOrigin.autoNSData
                                method:^NSData *(
                                    NSString *filePath) { return SentrySWCallOriginal(filePath); }];
         }),
@@ -105,6 +109,7 @@
             return [SentryNSDataSwizzling.shared.tracker
                 measureNSDataFromURL:url
                              options:options
+                              origin:SentryTraceOrigin.autoNSData
                                error:error
                               method:^NSData *(NSURL *fileUrl, NSDataReadingOptions options,
                                   NSError **outError) {
