@@ -121,11 +121,25 @@ public struct SentryTracedView<Content: View>: View {
     /// Creates a view that measures the performance of its `content`.
     ///
     /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
+    /// - Parameter content: The content that you want to track the performance
+    public init(_ viewName: String? = nil, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        let name = viewName ?? SentryTracedView.extractName(content: Content.self)
+        let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: nil)
+        _viewModel = State(initialValue: initialViewModel)
+    }
+
+    /// Creates a view that measures the performance of its `content`.
+    ///
+    /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
     /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
     /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
     /// If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
     /// - Parameter content: The content that you want to track the performance
-    public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
+    ///
+    /// - Warning: This initializer is an experimental feature and may still have bugs.
+    public init(_ viewName: String? = nil, waitForFullDisplay: Bool?, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
