@@ -766,6 +766,27 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, readonly) SentryExperimentalOptions *experimental;
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+/**
+ * Block used to configure the user feedback widget, form, behaviors and submission data.
+ */
+API_AVAILABLE(ios(13.0))
+typedef void (^SentryUserFeedbackConfigurationBlock)(
+    SentryUserFeedbackConfiguration *_Nonnull configuration);
+
+/**
+ * A block that can be defined that receives a user feedback configuration object to modify.
+ * @warning This is an experimental feature and may still have bugs.
+ * @note This is unrelated to @c SentrySDK.captureUserFeedback which is a method you can call to
+ * directly submit user feedback that you've already gathered via your own UI. See
+ * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api and (TODO: add link to
+ * new docs) for more information on each approach.
+ */
+@property (nonatomic, copy, nullable)
+    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 @end
 
 NS_ASSUME_NONNULL_END
