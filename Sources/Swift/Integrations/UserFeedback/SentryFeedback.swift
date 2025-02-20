@@ -15,10 +15,10 @@ class SentryFeedback: NSObject {
         case custom
     }
     
-    private var name: String?
-    private var email: String?
-    private var message: String
-    private var source: SentryFeedbackSource
+    var name: String?
+    var email: String?
+    var message: String
+    var source: SentryFeedbackSource
     let eventId: SentryId
     
     /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
