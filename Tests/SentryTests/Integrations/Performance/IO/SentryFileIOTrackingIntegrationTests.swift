@@ -170,7 +170,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         assertSpans(1, "file.read") {
             let data = try? NSData(contentsOfFile: jsonFile, options: .uncached)
-            XCTAssertEqual(data?.count, 341_432)
+            XCTAssertEqual(data?.count, 295_760)
         }
     }
     
@@ -192,7 +192,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
             let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
             
-            XCTAssertEqual(size, 341_432)
+            XCTAssertEqual(size, 295_760)
         }
     }
     
