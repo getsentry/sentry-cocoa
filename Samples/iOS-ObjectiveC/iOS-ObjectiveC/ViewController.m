@@ -63,6 +63,23 @@
 
 - (IBAction)captureUserFeedback:(id)sender
 {
+    NSError *error =
+        [[NSError alloc] initWithDomain:@"UserFeedbackErrorDomain"
+                                   code:0
+                               userInfo:@{ NSLocalizedDescriptionKey : @"This never happens." }];
+    SentryId *eventId = [SentrySDK
+          captureError:error
+        withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
+
+    SentryUserFeedback *userFeedback = [[SentryUserFeedback alloc] initWithEventId:eventId];
+    userFeedback.comments = @"It broke on iOS-ObjectiveC. I don't know why, but this happens.";
+    userFeedback.email = @"john@me.com";
+    userFeedback.name = @"John Me";
+    [SentrySDK captureUserFeedback:userFeedback];
+}
+
+- (IBAction)captureNewUserFeedback:(id)sender
+{
     NSData *data = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"screenshot"
                                                                          withExtension:@"png"]];
     NSArray<NSData *> *attachments = nil;
@@ -80,7 +97,7 @@
                    source:SentryFeedbackSourceCustom
         associatedEventId:errorEventID
               attachments:attachments];
-    [SentrySDK captureUserFeedback:feedback];
+    [SentrySDK captureFeedback:feedback];
 }
 
 - (IBAction)captureError:(id)sender

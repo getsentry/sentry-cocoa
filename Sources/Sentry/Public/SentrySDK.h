@@ -254,7 +254,8 @@ SENTRY_NO_INIT
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
  */
-+ (void)captureUserFeedback:(SentryFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:));
++ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+    NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
