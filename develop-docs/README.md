@@ -52,6 +52,55 @@ The profiler doesn't work with TSAN attached, so tests that run the profiler wil
 - [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
 - [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
 
+## Using Xcode Test Plans
+
+Test plans in Xcode provide a convenient way to organize and configure test execution.
+They allow us to segment tests into different groups and configure specific test environments without creating additional targets or schemes.
+Furthermore, test plans provide additional features such as built-in test repetition and retry on failures, automatic screen capture for debugging UI test failures, and custom test configurations for different scenarios.
+
+Each Xcode scheme can have multiple test plans configured, but only one test plan can be marked as the default test plan.
+When adding new test plans, they must also be added to the relevant schemes.
+
+Some of the features of test plans are:
+
+- Built-in test repetition and retry on failures
+- Automatic screen capture for debugging UI test failures
+- Custom test configurations for different scenarios
+
+Additional outputs are written to the Xcode results (`.xcresult`) files, which can be found in the `~/Library/Developer/Xcode/DerivedData/.../Logs/Test/` directory.
+
+### Base Test Plans
+
+We maintain "base" test plans that automatically include all new tests as they are configured by defining a list skipped tests.
+This prevents tests from being accidentally excluded and provides convenience when adding new test files.
+
+In case a test is manually marked as skipped in the test plan, it should be added to another test plan (which must also be used in the CI workflow).
+When using `xcodebuild` to run tests, only the default test plan is executed unless explicitly specified with the -testPlan argument.
+
+### Test Plan Organization
+
+Test plans are stored in the repository root since they are shared between sample apps and SDK targets.
+This central location makes them easily accessible while maintaining the relationship between plans and schemes.
+
+### UI Test Recording
+
+It is possible to record UI tests by changing the test plan configuration `Automatic Screen Capture` to `On, and keep all` or `On, and delete if test succeeds`.
+
+After running the tests with the configuration set, it is possible to open the test results in Xcode, inspect the tests in detail by double clicking them.
+
+![UI Test Capture Settings](./images/xcode_test_plan_uicapture_settings.png)
+
+The details of the test case will display the UI Test history and also display playback of the screen captures.
+
+![UI Test Capture Playback](./images/xcode_test_plan_uicapture_playback.png)
+
+### Further Resources
+
+For more details on test plans and their capabilities, refer to:
+
+- [WWDC21 video on Test Plans](https://developer.apple.com/videos/play/wwdc2021/10296/)
+- [Apple's documentation on Test Plans](https://developer.apple.com/documentation/xcode/running-tests-and-interpreting-results)
+
 ## Test Logs
 
 The [`SentryTestLogConfig`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/Tests/SentryTests/TestUtils/SentryTestLogConfig.m) sets the log level to debug in `load`, so we understand what's going on during out tests.

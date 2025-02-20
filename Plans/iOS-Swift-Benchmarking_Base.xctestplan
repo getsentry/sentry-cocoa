@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "A5C35F32-9877-4B75-A00C-30C9857AD73D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS-Swift.xcodeproj",
+      "identifier" : "637AFDA5243B02760034958B",
+      "name" : "iOS-Swift"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "identifier" : "848A2560286E3351008A8858",
+        "name" : "PerformanceBenchmarks"
+      }
+    }
+  ],
+  "version" : 1
+}

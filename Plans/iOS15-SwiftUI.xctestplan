@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "92B583F0-C362-48CD-BFDB-A5F962BDD7A2",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:..\/iOS-SwiftUI\/iOS-SwiftUI.xcodeproj",
+        "identifier" : "7B64385626A6C0A6000D0F65",
+        "name" : "iOS-SwiftUI-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}
