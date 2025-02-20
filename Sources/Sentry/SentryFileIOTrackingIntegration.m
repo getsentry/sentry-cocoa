@@ -30,8 +30,8 @@
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableSwizzling | kIntegrationOptionIsTracingEnabled
-        | kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionEnableFileIOTracing;
+    return kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableAutoPerformanceTracing
+        | kIntegrationOptionEnableFileIOTracing;
 }
 
 - (void)uninstall

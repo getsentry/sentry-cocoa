@@ -80,6 +80,24 @@ SENTRY_NO_INIT
                                       method:(BOOL (^)(NSString *, NSData *,
                                                  NSDictionary<NSFileAttributeKey, id> *))method;
 
+// MARK: - Internal Methods available for Swift Extension
+
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+                                                 origin:(NSString *)origin
+                                              operation:(NSString *)operation;
+- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
+                                             filePath:(NSString *)path
+                                               origin:(NSString *)origin;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size;
+- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span;
+- (void)endTrackingFile;
+
 @end
 
 NS_ASSUME_NONNULL_END

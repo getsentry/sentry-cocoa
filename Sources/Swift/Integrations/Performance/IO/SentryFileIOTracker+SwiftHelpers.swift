@@ -20,7 +20,7 @@ extension SentryFileIOTracker {
             span.finish()
         }
         let data = try method(url, options)
-        span.setData(value: data.count, key: SentrySpanKey.fileSize)
+        span.setData(value: data.count, key: SentrySpanDataKey.fileSize)
         return data
     }
 
@@ -93,7 +93,7 @@ extension SentryFileIOTracker {
         }
         defer {
             if let data = data {
-                span.setData(value: data.count, key: SentrySpanKey.fileSize)
+                span.setData(value: data.count, key: SentrySpanDataKey.fileSize)
             }
             span.finish()
         }
