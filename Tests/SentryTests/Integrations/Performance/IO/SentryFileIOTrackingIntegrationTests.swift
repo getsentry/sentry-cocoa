@@ -11,13 +11,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let fileURL: URL!
         let fileDirectory: URL!
         
-        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, disableDataSwizzling: Bool = false, tracesSampleRate: NSNumber = 1) -> Options {
+        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
-            result.experimental.disableDataSwizzling = disableDataSwizzling
+            result.experimental.enableDataSwizzling = enableDataSwizzling
+            result.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
             result.setIntegrations([SentryFileIOTrackingIntegration.self])
             return result
         }
@@ -230,18 +231,18 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
 
-    func testDisableDataSwizzling_isSet_shouldNotSwizzleNSDataMethods() {
+    func testEnableDataSwizzling_isNotEnabled_shouldNotSwizzleNSDataMethods() {
         // -- Arrange --
-        let options = fixture.getOptions(disableDataSwizzling: true)
+        let options = fixture.getOptions(enableDataSwizzling: false)
         SentrySDK.start(options: options)
 
         // -- Act & Assert --
         assertWriteWithNoSpans()
     }
 
-    func testDisableFileManagerSwizzling_isSet_shouldNotSwizzleNSFileManagerMethods() {
+    func testDisableFileManagerSwizzling_isNotEnabled_shouldNotSwizzleNSFileManagerMethods() {
         // -- Arrange --
-        let options = fixture.getOptions(disableFileManagerSwizzling: true)
+        let options = fixture.getOptions(enableFileManagerSwizzling: false)
         SentrySDK.start(options: options)
 
         // -- Act & Assert --
