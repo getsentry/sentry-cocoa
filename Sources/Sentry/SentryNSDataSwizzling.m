@@ -23,8 +23,14 @@
 {
     self.tracker = tracker;
 
-    if (!options.enableSwizzling || options.experimental.disableDataSwizzling) {
-        SENTRY_LOG_DEBUG(@"Auto-tracking of NSData is disabled")
+    if (!options.enableSwizzling) {
+        SENTRY_LOG_DEBUG(@"Auto-tracking of NSData is disabled because enableSwizzling is false");
+        return;
+    }
+
+    if (options.experimental.disableDataSwizzling) {
+        SENTRY_LOG_DEBUG(
+            @"Auto-tracking of NSData is disabled because disableDataSwizzling is true");
         return;
     }
 

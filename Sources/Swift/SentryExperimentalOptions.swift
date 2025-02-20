@@ -7,14 +7,16 @@ public class SentryExperimentalOptions: NSObject {
      *         This option allows you to disable swizzling for `NSData` only, while keeping swizzling enabled for other classes.
      *         This is useful if you want to use manual tracing for file operations.
      */
-    public var disableDataSwizzling = false
+    public var enableDataSwizzling = true
 
     /**
      * Enables swizzling of`NSFileManager` to automatically track file operations.
      *
-     * - Requires: Swizzling must be enabled by setting ``SentryOptions.enableSwizzling`` to `true`.
+     * - Note: Swizzling is enabled by setting ``SentryOptions.enableSwizzling`` to `true`.
+     *         This option allows you to disable swizzling for `NSFileManager` only, while keeping swizzling enabled for other classes.
+     *         This is useful if you want to use manual tracing for file operations.
      */
-    public var enableFileManagerSwizzling = false
+    public var enableFileManagerSwizzling = true
 
     func validateOptions(_ options: [String: Any]?) {
     }

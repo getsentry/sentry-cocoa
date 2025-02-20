@@ -239,6 +239,15 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
 
+    func testDisableFileManagerSwizzling_isSet_shouldNotSwizzleNSFileManagerMethods() {
+        // -- Arrange --
+        let options = fixture.getOptions(disableFileManagerSwizzling: true)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertWriteWithNoSpans()
+    }
+
     private func assertWriteWithNoSpans() {
         assertSpans(0, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
