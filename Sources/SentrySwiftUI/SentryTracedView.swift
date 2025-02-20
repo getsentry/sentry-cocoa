@@ -138,7 +138,7 @@ public struct SentryTracedView<Content: View>: View {
     /// If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
     /// - Parameter content: The content that you want to track the performance
     ///
-    /// - Warning: This initializer is an experimental feature and may still have bugs.
+    /// - Experiment: This initializer is an experimental feature and may still have bugs.
     public init(_ viewName: String? = nil, waitForFullDisplay: Bool?, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
