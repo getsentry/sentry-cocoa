@@ -6,14 +6,14 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - '.github/workflows/ui-tests.yml'
-      - 'fastlane/**'
-      - '.sauce/config.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Samples/iOS-Swift/**'
-      - '**/*.xctestplan'
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/**"
+      - "**/*.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
@@ -129,7 +129,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
     runs-on: macos-15
@@ -155,7 +155,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated
     runs-on: macos-15
