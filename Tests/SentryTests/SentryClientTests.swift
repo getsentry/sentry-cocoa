@@ -1517,7 +1517,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureFeedback_WithEmptyEventId() {
         let sut = fixture.getSut()
         sut.capture(feedback: fixture.feedback, scope: fixture.scope)
-        assertNothingSent()
+        // TODO: SentryFeedback will not require event IDs, so we should assert that is _is_ sent here
     }
 
     func testDistIsSet() throws {
