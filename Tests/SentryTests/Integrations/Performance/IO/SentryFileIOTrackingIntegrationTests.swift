@@ -240,13 +240,34 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
 
-    func testDisableFileManagerSwizzling_isNotEnabled_shouldNotSwizzleNSFileManagerMethods() {
+    func testDisableFileManagerSwizzling_isNotEnabledAndDataSwizzlingIsEnabled_shouldTrackWithSpan() throws {
         // -- Arrange --
-        let options = fixture.getOptions(enableFileManagerSwizzling: false)
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            throw XCTSkip("File manager swizzling is not available for this OS version")
+        }
+        /// Older OS versions use `NSData` inside `NSFileManager`, therefore we need to test both swizzling options.
+        let options = fixture.getOptions(enableDataSwizzling: true, enableFileManagerSwizzling: false)
         SentrySDK.start(options: options)
 
         // -- Act & Assert --
-        assertWriteWithNoSpans()
+        assertSpans(1, "file.write") {
+            FileManager.default.createFile(atPath: fixture.filePath, contents: nil)
+        }
+    }
+
+    func testDisableFileManagerSwizzling_isNotEnabled_shouldNotTrackWithSpan() throws {
+        // -- Arrange --
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            throw XCTSkip("File manager swizzling is not available for this OS version")
+        }
+        /// Older OS versions use `NSData` inside `NSFileManager`, therefore we need to disable both swizzling options.
+        let options = fixture.getOptions(enableDataSwizzling: false, enableFileManagerSwizzling: false)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertSpans(0, "file.write") {
+            FileManager.default.createFile(atPath: fixture.filePath, contents: nil)
+        }
     }
 
     private func assertWriteWithNoSpans() {
