@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "EBB4F92C-3CA9-47E0-8589-7934881F1E4B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D833D61E2D1321C100961E7A",
+        "name" : "SentrySwiftUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

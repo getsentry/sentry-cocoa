@@ -13,6 +13,7 @@ on:
       - '.sauce/config.yml'
       - 'scripts/ci-select-xcode.sh'
       - 'Samples/iOS-Swift/**'
+      - '**/*.xctestplan'
 
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
