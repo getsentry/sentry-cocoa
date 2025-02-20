@@ -21,21 +21,23 @@ class SentryFeedback: NSObject {
     var source: SentryFeedbackSource
     let eventId: SentryId
     
-    /// PNG data for the screenshot image
-    var screenshot: Data?
+    /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
+    var attachments: [Data]?
     
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: String?
     
-    /// - parameter screenshot Image encoded as PNG data.
-    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: String? = nil, screenshot: Data? = nil) {
+    /// - parameters:
+    ///   - associatedEventId The ID for an event you'd like associated with the feedback.
+    ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
+    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: String? = nil, attachments: [Data]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
         self.message = message
         self.source = source
         self.associatedEventId = associatedEventId
-        self.screenshot = screenshot
+        self.attachments = attachments
         super.init()
     }
 }
@@ -73,7 +75,7 @@ extension SentryFeedback {
         if let email = email {
             dict["email"] = email
         }
-        if let screenshot = screenshot {
+        if let screenshot = attachments {
             dict["attachments"] = [screenshot]
         }
         return dict
@@ -82,9 +84,9 @@ extension SentryFeedback {
     /**
      * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
      */
-    func attachments() -> [Attachment] {
+    func attachmentsForEnvelope() -> [Attachment] {
         var items = [Attachment]()
-        if let screenshot = screenshot {
+        if let screenshot = attachments?.first {
             items.append(Attachment(data: screenshot, filename: "screenshot.png", contentType: "application/png"))
         }
         return items
