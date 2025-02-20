@@ -1495,7 +1495,7 @@ class SentryClientTest: XCTestCase {
     @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testCaptureFeedback_WithEmptyEventId when -[SentryClient captureUserFeedback:] is removed.")
     func testCaptureUserFeedback_WithEmptyEventId() {
         let sut = fixture.getSut()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
     }
     
