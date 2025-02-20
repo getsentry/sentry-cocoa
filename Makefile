@@ -11,8 +11,6 @@ init:
 	
 	# The node version manager is optional, so we don't fail if it's not installed.
 	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
-	# The corepack is optional, so we don't fail if it's not installed.
-	if ! command -v corepack > /dev/null; then corepack enable; fi
 	
 	yarn install
 	
