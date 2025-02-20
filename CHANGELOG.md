@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add extension for `FileManager` to track file I/O operations with Sentry (#4862)
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
 
 ## 8.45.0
 
