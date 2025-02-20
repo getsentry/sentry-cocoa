@@ -456,7 +456,7 @@ extension SentryUserFeedbackFormViewModel {
     }
     
     func feedbackObject() -> SentryFeedback {
-        var attachmentDatas: [Data]? = nil
+        var attachmentDatas: [Data]?
         if let image = screenshotImageView.image, let data = image.pngData() {
             attachmentDatas = [data]
         }
