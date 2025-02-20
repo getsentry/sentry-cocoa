@@ -56,7 +56,7 @@ extension SentryFeedback: SentrySerializable {
         if let associatedEventId = associatedEventId {
             dict["associated_event_id"] = associatedEventId.sentryIdString
         }
-        dict["source"] = source.rawValue
+        dict["source"] = source.description
         
         return dict
     }

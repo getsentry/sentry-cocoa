@@ -43,6 +43,39 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
     }
     
+    func testSerializeCustomFeedback() throws {
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, attachments: [Data()])
+        
+        let serialization = sut.serialize()
+        XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
+        XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
+        XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
+        XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
+        
+        let attachments = sut.attachmentsForEnvelope()
+        XCTAssertEqual(attachments.count, 1)
+        XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
+        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
+    }
+    
+    func testSerializeWithAssociatedEventID() throws {
+        let eventID = SentryId()
+        
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, associatedEventId: eventID, attachments: [Data()])
+        
+        let serialization = sut.serialize()
+        XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
+        XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
+        XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
+        XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
+        XCTAssertEqual(try XCTUnwrap(serialization["associated_event_id"] as? String), eventID.sentryIdString)
+        
+        let attachments = sut.attachmentsForEnvelope()
+        XCTAssertEqual(attachments.count, 1)
+        XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
+        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
+    }
+    
     func testSerializeWithNoOptionalFields() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil)
         
