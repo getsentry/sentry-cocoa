@@ -778,10 +778,12 @@ typedef void (^SentryUserFeedbackConfigurationBlock)(
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
- * @note This is unrelated to @c SentrySDK.captureUserFeedback which is a method you can call to
- * directly submit user feedback that you've already gathered via your own UI. See
- * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api and (TODO: add link to
- * new docs) for more information on each approach.
+ * @note This is unrelated to @c SentrySDK.captureUserFeedback which is the old method of submitting
+ * user feedback you've already gathered via your own UI
+ * (see https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api). The new method
+ * uses either this block to configure and a widget and UI form to gather feedback, or directly
+ * submits calling the new method @c SentrySDK.captureFeedback (see
+ * https://docs.sentry.io/platforms/apple/user-feedback/configuration/).
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
