@@ -71,14 +71,11 @@
           captureError:error
         withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
 
-    SentryFeedback *feedback = [[SentryFeedback alloc]
-          initWithMessage:@"It broke on iOS-ObjectiveC. I don't know why, but this happens."
-                     name:@"John Me"
-                    email:@"john@me.com"
-                   source:SentryFeedbackSourceCustom
-        associatedEventId:nil
-               screenshot:nil];
-    [SentrySDK captureUserFeedback:feedback];
+    SentryUserFeedback *userFeedback = [[SentryUserFeedback alloc] initWithEventId:eventId];
+    userFeedback.comments = @"It broke on iOS-ObjectiveC. I don't know why, but this happens.";
+    userFeedback.email = @"john@me.com";
+    userFeedback.name = @"John Me";
+    [SentrySDK captureUserFeedback:userFeedback];
 }
 
 - (IBAction)captureError:(id)sender

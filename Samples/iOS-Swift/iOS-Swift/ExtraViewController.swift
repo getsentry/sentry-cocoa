@@ -143,8 +143,17 @@ class ExtraViewController: UIViewController {
 
     @IBAction func captureUserFeedback(_ sender: UIButton) {
         highlightButton(sender)
-        let feedback = SentryFeedback(message: "It broke on iOS-Swift. I don't know why, but this happens.", name: "John Me", email: "john@me.com", source: .custom, associatedEventId: nil, screenshot: nil)
-        SentrySDK.capture(userFeedback: feedback)
+        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
+
+        let eventId = SentrySDK.capture(error: error) { scope in
+            scope.setLevel(.fatal)
+        }
+
+        let userFeedback = UserFeedback(eventId: eventId)
+        userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        SentrySDK.capture(userFeedback: userFeedback)
     }
 
     @IBAction func permissions(_ sender: UIButton) {
