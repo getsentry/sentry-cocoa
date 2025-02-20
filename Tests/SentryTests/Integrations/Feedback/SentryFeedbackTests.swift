@@ -29,7 +29,7 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     func testSerializeWithAllFields() throws {
-        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", screenshot: Data())
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [Data()])
         
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
@@ -37,7 +37,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
         
-        let attachments = sut.attachments()
+        let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
@@ -52,7 +52,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertNil(serialization["contact_email"])
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
         
-        let attachments = sut.attachments()
+        let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 0)
     }
         
