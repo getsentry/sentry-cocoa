@@ -44,6 +44,16 @@ SENTRY_NO_INIT
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method;
 
 /**
+ * Measure NSData 'writeToFile:options:error:' method.
+ */
+- (BOOL)measureNSData:(NSData *)data
+           writeToURL:(NSURL *)url
+              options:(NSDataWritingOptions)writeOptionsMask
+               origin:(NSString *)origin
+                error:(NSError **)error
+               method:(BOOL (^)(NSURL *, NSDataWritingOptions, NSError **))method;
+
+/**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
 - (nullable NSData *)measureNSDataFromFile:(NSString *)path
@@ -79,6 +89,24 @@ SENTRY_NO_INIT
                                       origin:(NSString *)origin
                                       method:(BOOL (^)(NSString *, NSData *,
                                                  NSDictionary<NSFileAttributeKey, id> *))method;
+
+// MARK: - Internal Methods available for Swift Extension
+
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+                                                 origin:(NSString *)origin
+                                              operation:(NSString *)operation;
+- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
+                                             filePath:(NSString *)path
+                                               origin:(NSString *)origin;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation;
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size;
+- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span;
+- (void)endTrackingFile;
 
 @end
 
