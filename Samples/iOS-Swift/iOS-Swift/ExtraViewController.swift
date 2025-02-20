@@ -143,7 +143,12 @@ class ExtraViewController: UIViewController {
 
     @IBAction func captureUserFeedback(_ sender: UIButton) {
         highlightButton(sender)
-        let feedback = SentryFeedback(message: "It broke on iOS-Swift. I don't know why, but this happens.", name: "John Me", email: "john@me.com", source: .custom, associatedEventId: nil, screenshot: nil)
+        var attachments: [Data]?
+        if let url = Bundle.main.url(forResource: "screenshot", withExtension: "png"), let data = try? Data(contentsOf: url) {
+            attachments = [data]
+        }
+        let errorEventID = SentrySDK.capture(error: NSError(domain: "test-error.user-feedback.iOS-Swift", code: 1))
+        let feedback = SentryFeedback(message: "It broke on iOS-Swift. I don't know why, but this happens.", name: "John Me", email: "john@me.com", source: .custom, associatedEventId: errorEventID, attachments: attachments)
         SentrySDK.capture(userFeedback: feedback)
     }
 
