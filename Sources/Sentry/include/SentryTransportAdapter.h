@@ -51,7 +51,9 @@ SENTRY_NO_INIT
 /**
  * @deprecated Use @c -[SentryClient @c captureFeedback:withScope:] .
  */
-- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(send(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
+- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
+    NS_SWIFT_NAME(send(userFeedback:))
+        DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 

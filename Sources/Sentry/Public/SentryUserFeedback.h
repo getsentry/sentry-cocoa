@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @deprecated Use @c SentryFeedback .
  */
 NS_SWIFT_NAME(UserFeedback) DEPRECATED_MSG_ATTRIBUTE("Use SentryFeedback.")
-@interface SentryUserFeedback : NSObject <SentrySerializable>
+    @interface SentryUserFeedback : NSObject<SentrySerializable>
 SENTRY_NO_INIT
 
 /**
