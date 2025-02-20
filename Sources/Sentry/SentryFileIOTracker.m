@@ -19,8 +19,6 @@
 #import "SentryThreadInspector.h"
 #import "SentryTracer.h"
 
-const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
-
 @interface SentryFileIOTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
@@ -31,6 +29,13 @@ const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 @end
 
 @implementation SentryFileIOTracker
+
+NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
+
++ (instancetype)sharedInstance
+{
+    return SentryDependencyContainer.sharedInstance.fileIOTracker;
+}
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
