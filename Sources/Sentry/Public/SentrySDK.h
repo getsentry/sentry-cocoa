@@ -253,9 +253,13 @@ SENTRY_NO_INIT
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @deprecated Use @c SentrySDK.captureFeedback or use or configure our new managed UX with
+ * @c SentrySDK.showUserFeedbackForm and @c SentryOptions.configureUserFeedback .
  */
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+    NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
+        "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
+        "SentrySDK.showUserFeedbackForm and SentryOptions.configureUserFeedback.");
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
