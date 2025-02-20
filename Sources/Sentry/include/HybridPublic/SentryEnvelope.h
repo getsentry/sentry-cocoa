@@ -98,7 +98,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
     DEPRECATED_MSG_ATTRIBUTE(
         "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient "
-        "captureFeedback:withScope:]."); // TODO: find the right replacement
+        "captureFeedback:withScope:] so there will be no analog to this initializer for "
+        "SentryFeedback at this time..");
 - (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
                            maxAttachmentSize:(NSUInteger)maxAttachmentSize;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
