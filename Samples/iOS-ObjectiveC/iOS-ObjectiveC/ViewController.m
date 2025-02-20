@@ -91,7 +91,7 @@
                                                     code:1
                                                 userInfo:nil]];
     SentryFeedback *feedback = [[SentryFeedback alloc]
-          initWithMessage:@"It broke on iOS-ObjectiveC. I don't know why, but this happens."
+          initWithMessage:@"It broke again on iOS-ObjectiveC. I don't know why, but this happens."
                      name:@"John Me"
                     email:@"john@me.com"
                    source:SentryFeedbackSourceCustom
