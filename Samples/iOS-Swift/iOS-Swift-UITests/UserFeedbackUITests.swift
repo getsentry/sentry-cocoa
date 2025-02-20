@@ -123,7 +123,6 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        
         XCTAssert(nameField.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
@@ -184,7 +183,6 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        
         XCTAssert(nameField.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
@@ -248,7 +246,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        
+        XCTAssert(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
@@ -279,7 +277,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        
+        XCTAssert(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
@@ -316,7 +314,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        
+        XCTAssert(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
