@@ -25,12 +25,12 @@ class SentryFeedback: NSObject {
     var attachments: [Data]?
     
     /// The event id that this feedback is associated with, like a crash report.
-    var associatedEventId: String?
+    var associatedEventId: SentryId?
     
     /// - parameters:
     ///   - associatedEventId The ID for an event you'd like associated with the feedback.
     ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: String? = nil, attachments: [Data]? = nil) {
+    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
@@ -54,7 +54,7 @@ extension SentryFeedback: SentrySerializable {
             dict["contact_email"] = email
         }
         if let associatedEventId = associatedEventId {
-            dict["associated_event_id"] = associatedEventId
+            dict["associated_event_id"] = associatedEventId.sentryIdString
         }
         dict["source"] = source.rawValue
         
