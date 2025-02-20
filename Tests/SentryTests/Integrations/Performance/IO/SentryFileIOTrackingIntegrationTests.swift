@@ -35,6 +35,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             }
             XCTAssertEqual(self.data, data, file: file, line: line)
         }
+
+        var invalidFileUrlToRead: URL {
+            URL(fileURLWithPath: "/dev/null")
+        }
     }
     
     private var fixture: Fixture!
@@ -264,7 +268,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.getOptions())
         // -- Act & Assert --
         let data = assertSpans(1, "file.read") {
-            try? Data(contentsOfUrlWithSentryTracing: fixture.invalidFileURL)
+            try? Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead)
         }
         XCTAssertNil(data)
     }
@@ -297,7 +301,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.getOptions())
         let data = assertSpans(1, "file.read") {
             try? Data(
-                contentsOfUrlWithSentryTracing: fixture.invalidFileURL,
+                contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead,
                 options: .uncached
             )
         }
@@ -357,8 +361,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         // -- Act & Assert --
         assertSpans(1, "file.write") {
             try? data.write(to: fixture.fileURL, options: .atomic)
-
-            let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
         }
         let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
         XCTAssertEqual(size, 295_760)

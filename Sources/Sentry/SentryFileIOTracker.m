@@ -232,7 +232,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         ioSpan.origin = origin;
         if (size > 0) {
             [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
-                          forKey:SentrySpanKey.fileSize];
+                          forKey:SentrySpanDataKey.fileSize];
         }
     }];
 
