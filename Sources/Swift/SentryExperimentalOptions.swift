@@ -1,7 +1,7 @@
 @objcMembers
 public class SentryExperimentalOptions: NSObject {
     /**
-     * Disables swizzling of`NSData` to automatically track file operations.
+     * Enables swizzling of`NSData` to automatically track file operations.
      *
      * - Note: Swizzling is enabled by setting ``SentryOptions.enableSwizzling`` to `true`.
      *         This option allows you to disable swizzling for `NSData` only, while keeping swizzling enabled for other classes.
