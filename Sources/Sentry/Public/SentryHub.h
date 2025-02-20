@@ -10,6 +10,7 @@
 @class SentryBreadcrumb;
 @class SentryClient;
 @class SentryEvent;
+@class SentryFeedback;
 @class SentryId;
 @class SentryMetricsAPI;
 @class SentryScope;
@@ -175,9 +176,16 @@ SENTRY_NO_INIT
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @deprecated Use @c -[SentryHub @c captureFeedback:] .
  */
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:))
+                                DEPRECATED_MSG_ATTRIBUTE("Use -[SentryHub captureFeedback:].");
+
+/**
+ * Captures a new-style user feedback and sends it to Sentry.
+ * @param feedback The user feedback to send to Sentry.
+ */
+- (void)captureFeedback:(SentryFeedback *)feedback;
 
 /**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach

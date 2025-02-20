@@ -34,9 +34,16 @@ class SentryHttpTransportTests: XCTestCase {
 #endif // !os(watchOS)
 
         let flushTimeout: TimeInterval = 2.0
-
-        let userFeedback: UserFeedback
-        let userFeedbackRequest: SentryNSURLRequest
+        
+        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
+        let userFeedback: UserFeedback = TestData.userFeedback
+        let feedback: SentryFeedback = TestData.feedback
+        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:].")
+        lazy var userFeedbackRequest: SentryNSURLRequest = {
+            let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
+            userFeedbackEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            return buildRequest(userFeedbackEnvelope)
+        }()
         
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
@@ -78,11 +85,6 @@ class SentryHttpTransportTests: XCTestCase {
             
             let currentDate = TestCurrentDateProvider()
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
-
-            userFeedback = TestData.userFeedback
-            let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
-            userFeedbackEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
-            userFeedbackRequest = buildRequest(userFeedbackEnvelope)
             
             let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
             let sampleRateTransaction = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 1)
@@ -223,6 +225,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
+    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. This test case can be removed in favor of SentryClientTests.testCaptureFeedback")
     func testSendUserFeedback() {
         let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
         sut.send(envelope: envelope)

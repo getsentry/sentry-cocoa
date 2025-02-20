@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- New user feedback API and Widget (#4874)
+
 ## 8.45.0
 
 ### Features

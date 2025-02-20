@@ -60,6 +60,7 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
     
+    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. This test case can be removed when SentryUserFeedback is removed.")
     func testSendUserFeedback_SendsUserFeedbackEnvelope() throws {
         let userFeedback = TestData.userFeedback
         sut.send(userFeedback: userFeedback)

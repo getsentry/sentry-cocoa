@@ -19,6 +19,7 @@
 		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
 		7B64387A26A6C69F000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64387926A6C69F000D0F65 /* LaunchUITests.swift */; };
 		7B8A5C9E2715B5DE008ACD3B /* InitializerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */; };
+		849C4A6B2D66D05600FA632D /* screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 849C4A6A2D66D05600FA632D /* screenshot.png */; };
 		84BA72AB2C9369A40045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A92C9369A40045B828 /* GitInjections.swift */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDC5243B036B0034958B;
 			remoteInfo = "iOS-ObjectiveC";
+		};
+		849C4A722D66D05600FA632D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 630853352440C45500DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D833D7342D1321C100961E7A;
+			remoteInfo = SentrySwiftUITests;
 		};
 		84BA72732C9367A10045B828 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -116,6 +124,7 @@
 		7B64387B26A6C69F000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B8A5C9C2715B5CF008ACD3B /* InitializerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InitializerViewController.h; sourceTree = "<group>"; };
 		7B8A5C9D2715B5DE008ACD3B /* InitializerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InitializerViewController.m; sourceTree = "<group>"; };
+		849C4A6A2D66D05600FA632D /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
 		84BA72A92C9369A40045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -147,6 +156,7 @@
 				84BA72762C9367A10045B828 /* SentryProfilerTests.xctest */,
 				84BA72782C9367A10045B828 /* libSentryTestUtils.a */,
 				84BA727A2C9367A10045B828 /* SentryTestUtilsDynamic.framework */,
+				849C4A732D66D05600FA632D /* SentrySwiftUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,6 +223,7 @@
 		84BA72AA2C9369A40045B828 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				849C4A6A2D66D05600FA632D /* screenshot.png */,
 				84BA72A92C9369A40045B828 /* GitInjections.swift */,
 			);
 			name = Shared;
@@ -320,6 +331,13 @@
 			remoteRef = 6308533C2440C45500DDE4CE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		849C4A732D66D05600FA632D /* SentrySwiftUITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentrySwiftUITests.xctest;
+			remoteRef = 849C4A722D66D05600FA632D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		84BA72742C9367A10045B828 /* SentrySwiftUI.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -359,6 +377,7 @@
 				637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */,
 				637AFDD4243B036B0034958B /* Main.storyboard in Resources */,
+				849C4A6B2D66D05600FA632D /* screenshot.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

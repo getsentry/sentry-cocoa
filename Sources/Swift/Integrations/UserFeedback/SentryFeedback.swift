@@ -2,8 +2,8 @@
 import Foundation
 
 @objcMembers
-class SentryFeedback: NSObject {
-    @objc enum SentryFeedbackSource: Int, CustomStringConvertible {
+public class SentryFeedback: NSObject {
+    @objc public enum SentryFeedbackSource: Int, CustomStringConvertible {
         public var description: String {
             switch self {
             case .widget: return "widget"
@@ -30,7 +30,7 @@ class SentryFeedback: NSObject {
     /// - parameters:
     ///   - associatedEventId The ID for an event you'd like associated with the feedback.
     ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
+    @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
@@ -43,7 +43,7 @@ class SentryFeedback: NSObject {
 }
 
 extension SentryFeedback: SentrySerializable {
-    func serialize() -> [String: Any] {
+    public func serialize() -> [String: Any] {
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
         var dict = [String: Any](minimumCapacity: 2 + numberOfOptionalItems)
         dict["message"] = message

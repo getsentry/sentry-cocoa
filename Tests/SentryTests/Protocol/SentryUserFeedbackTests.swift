@@ -1,5 +1,6 @@
 import XCTest
 
+@available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. This test suite can be removed when SentryUserFeedback is removed.")
 class SentryUserFeedbackTests: XCTestCase {
     
     func testPropertiesAreSetToEmptyString() {
