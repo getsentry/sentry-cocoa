@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
+
 ### Improvements
 
 - Log message when setting user before starting the SDK (#4882)
