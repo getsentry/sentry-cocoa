@@ -12,7 +12,9 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: General settings
     
     /**
-     * Sets the email and name field text content to `SentryUser.email` and `SentryUser.name`.
+     * Sets the email and name field text content to the values contained in the current scope's
+     * `SentryUser` instance, if any.
+     * - seealso: `- [SentrySDK setUser:]`
      * - note: Default: `true`
      */
     public var useSentryUser: Bool = true
