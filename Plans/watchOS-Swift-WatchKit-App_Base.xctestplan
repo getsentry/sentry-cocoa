@@ -14,7 +14,8 @@
       "containerPath" : "container:watchOS-Swift.xcodeproj",
       "identifier" : "7B82C48224C98A93002CA6D1",
       "name" : "watchOS-Swift WatchKit App"
-    }
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
 

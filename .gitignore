@@ -55,6 +55,7 @@ Pods
 
 # Fastlane
 fastlane/test_output/
+fastlane/test_results/
 fastlane/README.md
 report.xml
 .env

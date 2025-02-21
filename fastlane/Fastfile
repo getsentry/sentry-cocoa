@@ -221,52 +221,82 @@ platform :ios do
   end
 
   lane :ui_tests_ios_swiftui do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swiftui.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
-      configuration: configuration
+      configuration: configuration,
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
   
-    lane :ui_tests_ios_swift6 do |options|
+  lane :ui_tests_ios_swift6 do |options|
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swift6.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
-      configuration: configuration
+      configuration: configuration,
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_ios_objc do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-objc.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
-      configuration: configuration
+      configuration: configuration,
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_ios_swift do |options|
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swift.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
-      configuration: configuration
+      configuration: configuration,
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_tvos_swift do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-tvos-swift.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
-      configuration: configuration
+      configuration: configuration,
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
   
   desc "Run Duplication test"
   lane :duplication_test do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/duplication-test.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
-      scheme: "DuplicatedSDKTest"
+      scheme: "DuplicatedSDKTest", 
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 

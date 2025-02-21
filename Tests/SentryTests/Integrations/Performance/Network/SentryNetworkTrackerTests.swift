@@ -579,6 +579,62 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
     
+    func test_Breadcrumb_HTTP200_HasLevelInfo() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 200))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(200, data["status_code"] as? Int)
+        XCTAssertEqual("no error", data["reason"] as? String)
+    }
+    
+    func test_Breadcrumb_HTTP399_HasLevelInfo() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 399))
+        let _ = spanForTask(task: task)!
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(399, data["status_code"] as? Int)
+        XCTAssertEqual("redirected", data["reason"] as? String)
+    }
+    
     func test_Breadcrumb_HTTP400_HasLevelWarning() throws {
         // Arrange
         fixture.options.enableAutoPerformanceTracing = false

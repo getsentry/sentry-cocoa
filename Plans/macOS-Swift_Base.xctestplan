@@ -20,7 +20,8 @@
       "containerPath" : "container:macOS-Swift.xcodeproj",
       "identifier" : "637AFDEA243B04320034958B",
       "name" : "macOS-Swift"
-    }
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
 
