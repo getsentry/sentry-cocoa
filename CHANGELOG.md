@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
+
 ### Improvements
 
 - Log message when setting user before starting the SDK (#4882)
