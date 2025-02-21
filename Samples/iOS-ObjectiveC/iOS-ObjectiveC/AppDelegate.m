@@ -74,9 +74,14 @@
                     uiForm.submitButtonLabel = @"Report that jank";
                     uiForm.messagePlaceholder
                         = @"Describe the nature of the jank. Its essence, if you will.";
+                    uiForm.useSentryUser = YES;
                 };
                 config.configureTheme = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
                     theme.font = [UIFont fontWithName:@"ChalkboardSE-Regular" size:25];
+                    theme.outlineStyle =
+                        [[SentryFormElementOutlineStyle alloc] initWithColor:UIColor.purpleColor
+                                                                cornerRadius:10
+                                                                outlineWidth:4];
                 };
                 config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
                     NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";

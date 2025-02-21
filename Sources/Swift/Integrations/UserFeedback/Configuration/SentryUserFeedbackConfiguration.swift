@@ -54,12 +54,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
     public var tags: [String: Any]?
     
     /**
-     * Sets the email and name field text content to `SentryUser.email` and `SentryUser.name`.
-     * - note: Default: `true`
-     */
-    public var useSentryUser: Bool = true
-    
-    /**
      * Called when the managed feedback form is opened.
      * - note: Default: `nil`
      */
