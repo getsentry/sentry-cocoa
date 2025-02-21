@@ -6,15 +6,14 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - '.github/workflows/ui-tests.yml'
-      - 'fastlane/**'
-      - '.sauce/config.yml'
-      - 'scripts/ci-select-xcode.sh'
-      - 'Samples/iOS-Swift/**'
-      - '**/*.xctestplan'
-
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/**"
+      - "**/*.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -28,7 +27,6 @@ jobs:
     strategy:
       matrix:
         target: ["ios_objc", "tvos_swift"]
-
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh
@@ -37,6 +35,13 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
+
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ui-tests-${{matrix.target}}.xcresult
+          path: fastlane/test_results/ui-tests-${{matrix.target}}.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
@@ -58,21 +63,27 @@ jobs:
           - runs-on: macos-13
             xcode: "14.3"
             device: "iPhone 8 (16.1)"
-
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
         shell: sh
 
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ui-tests-ios-swiftui-${{matrix.device}}.xcresult
+          path: fastlane/test_results/ui-tests-ios-swiftui.xcresult
+
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
-          name: raw-ios-swiftui-test-output-xcode-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-ios-swiftui-raw-output-${{matrix.device}}
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -88,11 +99,9 @@ jobs:
             xcode: "15.2"
             device: "iPhone 14 (16.4)"
 
-          # We only use large to investigate if UI tests are less flaky there.
-          - runs-on: macos-14-large
+          - runs-on: macos-14
             xcode: "15.4"
             device: "iPhone 15 (17.2)"
-
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -104,34 +113,48 @@ jobs:
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift device:"${{matrix.device}}"
 
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ui-tests-ios-swift-${{matrix.device}}.xcresult
+          path: fastlane/test_results/ui-tests-ios-swift.xcresult
+
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-ios-swift-raw-logs-${{matrix.device}}
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 Simulator
     runs-on: macos-15
-
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.2"
+
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift6
 
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ui-tests-ios-swift6.xcresult
+          path: fastlane/test_results/ui-tests-ios-swift6.xcresult
+
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: ui-tests-ios-swift6-raw-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
-            
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated
     runs-on: macos-15
@@ -143,11 +166,18 @@ jobs:
       - name: Run Fastlane
         run: fastlane duplication_test
 
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: duplication-test.xcresult
+          path: fastlane/test_results/duplication-test.xcresult
+
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{  failure() || cancelled() }}
         with:
-          name: raw-ios-swift-test-output-${{matrix.xcode}}-${{matrix.device}}
+          name: duplication-test-raw-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**

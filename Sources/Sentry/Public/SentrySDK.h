@@ -289,6 +289,8 @@ SENTRY_NO_INIT
 /**
  * Set user to the current Scope of the current Hub.
  * @param user The user to set to the current Scope.
+ *
+ * @note You must start the SDK before calling this method, otherwise it doesn't set the user.
  */
 + (void)setUser:(nullable SentryUser *)user;
 

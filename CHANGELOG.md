@@ -5,6 +5,10 @@
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+### Improvements
+
+- Log message when setting user before starting the SDK (#4882)
+- Add experimental flag to disable swizzling of `NSData` individually (#4859)
 
 ## 8.45.0
 

@@ -420,6 +420,49 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
+    func testSetUserBeforeStartingSDK_LogsFatalMessage() throws {
+        // Arrange
+        let oldOutput = SentryLog.getLogOutput()
+        
+        defer {
+            SentryLog.setLogOutput(oldOutput)
+        }
+        
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        
+        // Act
+        SentrySDK.setUser(nil)
+    
+        // Assert
+        let actualLogMessage = try XCTUnwrap(logOutput.loggedMessages.first)
+        let expectedLogMessage = "The SDK is disabled, so setUser doesn't work. Please ensure to start the SDK before setting the user."
+        
+        XCTAssertTrue(actualLogMessage.contains(expectedLogMessage), "Expected log message to contain '\(expectedLogMessage)', but got '\(actualLogMessage)'")
+    }
+    
+    func testSetUserAFterStartingSDK_DoesNotLogFatalMessage() {
+        // Arrange
+        let oldOutput = SentryLog.getLogOutput()
+        
+        defer {
+            SentryLog.setLogOutput(oldOutput)
+        }
+        
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        
+        givenSdkWithHub()
+        
+        let user = TestData.user
+        
+        // Act
+        SentrySDK.setUser(user)
+        
+        //Assert
+        XCTAssertEqual(0, logOutput.loggedMessages.count, "Expected no log messages, but got \(logOutput.loggedMessages.count)")
+    }
+    
     func testStartTransaction() throws {
         givenSdkWithHub()
         
