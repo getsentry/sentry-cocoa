@@ -88,11 +88,11 @@ It is possible to record UI tests by changing the test plan configuration `Autom
 
 After running the tests with the configuration set, it is possible to open the test results in Xcode, inspect the tests in detail by double clicking them.
 
-![UI Test Capture Settings](./images/xcode_test_plan_uicapture_settings.png)
+![UI Test Capture Settings](./xcode_test_plan_uicapture_settings.png)
 
 The details of the test case will display the UI Test history and also display playback of the screen captures.
 
-![UI Test Capture Playback](./images/xcode_test_plan_uicapture_playback.png)
+![UI Test Capture Playback](./xcode_test_plan_uicapture_playback.png)
 
 ### Further Resources
 

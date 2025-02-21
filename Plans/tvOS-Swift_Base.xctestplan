@@ -14,7 +14,8 @@
       "containerPath" : "container:tvOS-Swift.xcodeproj",
       "identifier" : "7BA61D61247FA32600C130A8",
       "name" : "tvOS-Swift"
-    }
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
     {

@@ -20,7 +20,8 @@
       "containerPath" : "container:iOS-Swift.xcodeproj",
       "identifier" : "D8269A38274C095E00BD5BD5",
       "name" : "iOS13-Swift"
-    }
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
     {
