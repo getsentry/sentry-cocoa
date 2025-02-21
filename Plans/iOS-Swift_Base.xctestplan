@@ -213,7 +213,8 @@
       "containerPath" : "container:iOS-Swift.xcodeproj",
       "identifier" : "637AFDA5243B02760034958B",
       "name" : "iOS-Swift"
-    }
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
     {
