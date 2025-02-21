@@ -75,8 +75,8 @@ extension SentryFeedback {
         if let email = email {
             dict["email"] = email
         }
-        if let screenshot = attachments {
-            dict["attachments"] = [screenshot]
+        if let attachments = attachments {
+            dict["attachments"] = attachments
         }
         return dict
     }
