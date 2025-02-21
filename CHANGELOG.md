@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Log message when setting user before starting the SDK (#4882)
+
 ## 8.45.0
 
 ### Features
