@@ -446,7 +446,7 @@ static NSDate *_Nullable startTimestamp = nil;
         // the SDK, and it confuses them. Ideally, we would do something to store the user and set
         // it once we start the SDK, but this is a breaking change, so we live with the workaround
         // for now.
-        SENTRY_LOG_FATAL(@"The SDK s disabled, so setUser doesn't work. Please ensure to start "
+        SENTRY_LOG_FATAL(@"The SDK is disabled, so setUser doesn't work. Please ensure to start "
                          @"the SDK before setting the user.");
     }
 
