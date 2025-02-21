@@ -3,8 +3,8 @@ import Foundation
 
 @objcMembers
 class SentryFeedback: NSObject {
-    @objc enum SentryFeedbackSource: Int, CustomStringConvertible {
-        public var description: String {
+    @objc enum SentryFeedbackSource: Int {
+        public var serialize: String {
             switch self {
             case .widget: return "widget"
             case .custom: return "custom"
@@ -56,7 +56,7 @@ extension SentryFeedback: SentrySerializable {
         if let associatedEventId = associatedEventId {
             dict["associated_event_id"] = associatedEventId.sentryIdString
         }
-        dict["source"] = source.description
+        dict["source"] = source.serialize
         
         return dict
     }
