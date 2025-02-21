@@ -4,11 +4,7 @@
 
 ### Improvements
 
-> [!WARNING]
-> This release enables the experimental feature `enableFileManagerSwizzling` by default. You can disable it by setting `experimental.enableFileManagerSwizzling` to `false`.
-
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
-- Enable `experimental.enableFileManagerSwizzling` by default (#4859)
 
 ## 8.45.0
 
