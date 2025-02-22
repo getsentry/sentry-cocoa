@@ -12,6 +12,14 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: General settings
     
     /**
+     * Sets the email and name field text content to the values contained in the current scope's
+     * `SentryUser` instance, if any.
+     * - seealso: `- [SentrySDK setUser:]`
+     * - note: Default: `true`
+     */
+    public var useSentryUser: Bool = true
+    
+    /**
      * Displays the Sentry logo inside of the form.
      * - note: Default: `true`
      */
@@ -41,15 +49,9 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     
     /**
      * The label shown next to an input field that is required.
-     * - note: Default: `"(required)"`
+     * - note: Default: `"(Required)"`
      */
     public var isRequiredLabel: String = "(Required)"
-    
-    /**
-     * The message displayed after a successful feedback submission.
-     * - note: Default: `"Thank you for your report!"`
-     */
-    public var successMessageText: String = "Thank you for your report!"
     
     // MARK: Screenshots
     
@@ -124,7 +126,7 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var emailPlaceholder: String = "your.email@example.org"
     
-    public lazy var emailTextFieldAccessibilityLabel = emailPlaceholder
+    public lazy var emailTextFieldAccessibilityLabel = "Your email address"
     
     // MARK: Buttons
     

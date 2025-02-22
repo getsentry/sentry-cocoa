@@ -207,9 +207,14 @@ class ExtraViewController: UIViewController {
     }
     
     enum EnvelopeContent {
-        case image(Data)
+        /// String contents are base64 encoded image data
+        case image(String)
+        
         case rawText(String)
         case json([String: Any])
+        
+        /// String contents are base64 encoded image data
+        case feedbackAttachment(String)
     }
     
     func displayError(message: String) {
@@ -280,18 +285,29 @@ class ExtraViewController: UIViewController {
             displayError(message: "\(envelopePath) had no contents.")
             return nil
         }
+        var waitingForFeedbackAttachment = false
         let parsedEnvelopeContents = envelopeFileContents.split(separator: "\n").map { line in
             if let imageData = Data(base64Encoded: String(line), options: []) {
-                return EnvelopeContent.image(imageData)
+                guard !waitingForFeedbackAttachment else {
+                    waitingForFeedbackAttachment = false
+                    return EnvelopeContent.feedbackAttachment(String(line))
+                }
+                return EnvelopeContent.image(String(line))
             } else if let data = line.data(using: .utf8), let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                if let type = json["attachment_type"] as? String, type == "event.attachment" {
+                    waitingForFeedbackAttachment = true
+                }
                 return EnvelopeContent.json(json)
             } else {
                 return EnvelopeContent.rawText(String(line))
             }
         }
         let contentsForUITest = parsedEnvelopeContents.reduce(into: [String: Any]()) { result, item in
-            if case let .json(json) = item {
-                insertValues(from: json, into: &result)
+            switch item {
+            case let .rawText(text): result["text"] = text
+            case let .image(base64Data): result["scope_images"] = (result["scope_images"] as? [String]) ?? [] + [base64Data]
+            case let .feedbackAttachment(base64Data): result["feedback_attachments"] = (result["feedback_attachments"] as? [String]) ?? [] + [base64Data]
+            case let .json(json): insertValues(from: json, into: &result)
             }
         }
         guard let data = try? JSONSerialization.data(withJSONObject: contentsForUITest) else {
