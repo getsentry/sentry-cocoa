@@ -44,16 +44,6 @@ SENTRY_NO_INIT
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method;
 
 /**
- * Measure NSData 'writeToFile:options:error:' method.
- */
-- (BOOL)measureNSData:(NSData *)data
-           writeToURL:(NSURL *)url
-              options:(NSDataWritingOptions)writeOptionsMask
-               origin:(NSString *)origin
-                error:(NSError **)error
-               method:(BOOL (^)(NSURL *, NSDataWritingOptions, NSError **))method;
-
-/**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
 - (nullable NSData *)measureNSDataFromFile:(NSString *)path

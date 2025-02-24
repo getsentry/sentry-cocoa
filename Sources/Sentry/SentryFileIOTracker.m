@@ -95,30 +95,6 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return result;
 }
 
-- (BOOL)measureNSData:(NSData *)data
-           writeToURL:(NSURL *)url
-              options:(NSDataWritingOptions)writeOptionsMask
-               origin:(NSString *)origin
-                error:(NSError **)error
-               method:(BOOL (^)(NSURL *, NSDataWritingOptions, NSError **))method
-{
-    // We dont track reads from a url that is not a file url
-    // because these reads are handled by NSURLSession and
-    // SentryNetworkTracker will create spans in these cases.
-    if (![url.scheme isEqualToString:NSURLFileScheme])
-        return method(url, writeOptionsMask, error);
-
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:[url path] origin:origin];
-
-    BOOL result = method(url, writeOptionsMask, error);
-
-    if (span != nil) {
-        [self finishTrackingNSData:data span:span];
-    }
-
-    return result;
-}
-
 - (NSData *)measureNSDataFromFile:(NSString *)path
                            origin:(NSString *)origin
                            method:(NSData * (^)(NSString *))method
