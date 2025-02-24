@@ -14,18 +14,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         init() {}
 
         func getSut(testName: String, isEnabled: Bool = true) throws -> Data {
-            let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
-                .appendingPathComponent("test-\(testName.hashValue.description)")
-            try! FileManager.default
-                .createDirectory(at: tempDir, withIntermediateDirectories: true)
-
-            fileUrlToRead = tempDir.appendingPathComponent("file-to-read")
-            try data.write(to: fileUrlToRead)
-
-            fileUrlToWrite = tempDir.appendingPathComponent("file-to-write")
-
-            // Initialize the SDK after files are written, so preparations are not traced
             SentrySDK.start { options in
+                options.dsn = TestConstants.dsnAsString(username: "DataSentryTracingIntegrationTests")
                 options.removeAllIntegrations()
 
                 // Configure options required by File I/O tracking integration
@@ -38,17 +28,29 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
                 // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
                 // Instead we are recommending to disable swizzling and use manual tracing.
-                options.enableSwizzling = false
-
-                // Configure the cache directory to a temporary directory, so we can isolate the test files
-                options.cacheDirectoryPath = tempDir.path
+                options.enableSwizzling = true
+                options.experimental.enableDataSwizzling = false
+                options.experimental.enableFileManagerSwizzling = false
             }
+
+            // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
+            guard let sentryBasePath = SentrySDK.currentHub().getClient()?.fileManager.basePath else {
+                preconditionFailure("Sentry base path is nil, but should be configured for test cases.")
+            }
+            let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
+
+            fileUrlToRead = sentryBasePathUrl.appendingPathComponent("file-to-read")
+            try data.write(to: fileUrlToRead)
+
+            fileUrlToWrite = sentryBasePathUrl.appendingPathComponent("file-to-write")
 
             // Get the working directory of the SDK, as these files are ignored by default
             guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
                 preconditionFailure("Sentry path is nil, but should be configured for test cases.")
             }
-            ignoredFileUrl = URL(fileURLWithPath: sentryPath).appendingPathComponent("ignored-file")
+            let sentryPathUrl = URL(fileURLWithPath: sentryPath)
+
+            ignoredFileUrl = sentryPathUrl.appendingPathComponent("ignored-file")
             try data.write(to: ignoredFileUrl)
 
             return data
