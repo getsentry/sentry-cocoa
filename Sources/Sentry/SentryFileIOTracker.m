@@ -198,7 +198,6 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
-        ioSpan.origin = origin;
     }];
 
     if (ioSpan == nil) {
@@ -209,6 +208,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
         ioSpan.description, operation);
 
+    ioSpan.origin = origin;
     [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
 
     [self mainThreadExtraInfo:ioSpan];
