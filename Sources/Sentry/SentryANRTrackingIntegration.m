@@ -17,6 +17,7 @@
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
 #import "SentryUIApplication.h"
+#import <SentryCrashWrapper.h>
 #import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
@@ -25,12 +26,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_duration";
+
 @interface SentryANRTrackingIntegration ()
 
 @property (nonatomic, strong) id<SentryANRTracker> tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -55,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
     self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+    self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
@@ -62,28 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self captureStoredAppHangEvent];
 
     return YES;
-}
-
-/**
- * It can happen that an app crashes while waiting for the app hang to stop. Therefore, we send the
- * app hang without a duration as it was stored.
- */
-- (void)captureStoredAppHangEvent
-{
-    __weak SentryANRTrackingIntegration *weakSelf = self;
-    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        if (weakSelf == nil) {
-            return;
-        }
-
-        SentryEvent *event = [weakSelf.fileManager readAppHangEvent];
-        if (event == nil) {
-            return;
-        }
-
-        [weakSelf.fileManager deleteAppHangEvent];
-        [SentrySDK captureEvent:event];
-    }];
 }
 
 - (SentryIntegrationOption)integrationOptions
@@ -142,15 +125,17 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
-        (long)(self.options.appHangTimeoutInterval * 1000)];
+    NSString *appHangDurationInfo = [NSString
+        stringWithFormat:@"at least %li ms", (long)(self.options.appHangTimeoutInterval * 1000)];
+    NSString *message = [NSString stringWithFormat:@"App hanging for %@.", appHangDurationInfo];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
     NSString *exceptionType = [SentryAppHangTypeMapper getExceptionTypeWithAnrType:type];
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:exceptionType];
 
-    sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
+    sentryException.mechanism = mechanism;
     sentryException.stacktrace = [threads[0] stacktrace];
     sentryException.stacktrace.snapshot = @(YES);
 
@@ -164,6 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
     // We only measure app hang duration for V2.
     // For V1, we directly capture the app hang event.
     if (self.options.enableAppHangTrackingV2) {
+        mechanism.data = @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
         [self.fileManager storeAppHangEvent:event];
     } else {
 #endif // SENTRY_HAS_UIKIT
@@ -195,13 +181,69 @@ NS_ASSUME_NONNULL_BEGIN
     [self.fileManager deleteAppHangEvent];
 
     // We round to 0.1 seconds accuracy because we can't precicely measure the app hand duration.
-    NSString *errorMessage =
-        [NSString stringWithFormat:@"App hanging between %.1f and %.1f seconds.",
-            result.minDuration, result.maxDuration];
-
+    NSString *appHangDurationInfo = [NSString
+        stringWithFormat:@"between %.1f and %.1f seconds", result.minDuration, result.maxDuration];
+    NSString *errorMessage = [NSString stringWithFormat:@"App hanging %@.", appHangDurationInfo];
     event.exceptions.firstObject.value = errorMessage;
+    event.exceptions.firstObject.mechanism.data =
+        @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
     [SentrySDK captureEvent:event];
 #endif // SENTRY_HAS_UIKIT
+}
+
+- (void)captureStoredAppHangEvent
+{
+    __weak SentryANRTrackingIntegration *weakSelf = self;
+    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        if (weakSelf == nil) {
+            return;
+        }
+
+        SentryEvent *event = [weakSelf.fileManager readAppHangEvent];
+        if (event == nil) {
+            return;
+        }
+
+        [weakSelf.fileManager deleteAppHangEvent];
+
+        if (weakSelf.crashWrapper.crashedLastLaunch) {
+            // The app crashed during an ongoing app hang. Capture the stored app hang as it is.
+            [SentrySDK captureEvent:event];
+        } else {
+            // Fatal App Hang
+            // We can't differ if the watchdog or the user terminated the app, because when the main
+            // thread is blocked we don't receive the applicationWillTerminate notification. Further
+            // investigations are required to validate if we somehow can differ between watchdog or
+            // user terminations; see https://github.com/getsentry/sentry-cocoa/issues/4845.
+
+            if (event.exceptions.count != 1) {
+                SENTRY_LOG_WARN(@"The stored app hang event is expected to have exactly one "
+                                @"exception, so we don't capture it.");
+                return;
+            }
+
+            event.level = kSentryLevelFatal;
+
+            SentryException *exception = event.exceptions.firstObject;
+
+            NSString *exceptionType = exception.type;
+            NSString *fatalExceptionType =
+                [SentryAppHangTypeMapper getFatalExceptionTypeWithNonFatalErrorType:exceptionType];
+
+            event.exceptions.firstObject.type = fatalExceptionType;
+
+            NSString *appHangDurationInfo
+                = exception.mechanism.data[SentryANRMechanismDataAppHangDuration];
+
+            NSString *exceptionValue =
+                [NSString stringWithFormat:@"The user or the OS watchdog terminated your app while "
+                                           @"it blocked the main thread for %@.",
+                    appHangDurationInfo];
+            event.exceptions.firstObject.value = exceptionValue;
+
+            [SentrySDK captureEvent:event];
+        }
+    }];
 }
 
 @end

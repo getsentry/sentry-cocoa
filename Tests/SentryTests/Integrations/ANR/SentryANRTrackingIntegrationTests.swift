@@ -139,7 +139,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }
 
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
-            XCTAssertEqual(ex.type, "App Hanging Fully Blocked")
+            XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
@@ -176,8 +176,47 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }
 
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
-            XCTAssertEqual(ex.type, "App Hanging Non Fully Blocked")
+            XCTAssertEqual(ex.type, "App Hang Non Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+            XCTAssertNil(ex.mechanism?.data)
+            XCTAssertNotNil(ex.stacktrace)
+            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
+            XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
+            XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
+            XCTAssertEqual(event?.isAppHangEvent, true)
+
+            guard let threads = event?.threads else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+
+            // Sometimes during tests its possible to have one thread without frames
+            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
+            let threadsWithFrames = threads.filter {
+                ($0.stacktrace?.frames.count ?? 0) >= 1
+            }.count
+
+            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+        }
+    }
+    
+    func testANRDetectedV1_Unknown_EventCaptured() throws {
+        givenInitializedTracker()
+        setUpThreadInspector()
+
+        Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
+
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNotNil(event)
+            guard let ex = event?.exceptions?.first else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+
+            XCTAssertEqual(ex.mechanism?.type, "AppHang")
+            XCTAssertEqual(ex.type, "App Hanging")
+            XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+            XCTAssertNil(ex.mechanism?.data)
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
@@ -324,8 +363,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try assertEventWithScopeCaptured { event, _, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
-            XCTAssertEqual(ex.type, "App Hanging Fully Blocked")
+            XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging between 1.9 and 2.2 seconds.")
+            let mechanismData = try XCTUnwrap(ex.mechanism?.data)
+            XCTAssertEqual("between 1.9 and 2.2 seconds", mechanismData["app_hang_duration"] as? String)
+            
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
@@ -344,7 +386,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    func testV2_ANRDetected_StopNotCalled_SendsANROnNextInstall() throws {
+    func testV2_ANRDetected_StopNotCalled_SendsFatalANROnNextInstall() throws {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
@@ -355,10 +397,46 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         // Assert
         try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.level, SentryLevel.fatal)
+            
             let ex = try XCTUnwrap(event?.exceptions?.first)
             
+            XCTAssertEqual(ex.type, "Fatal App Hang Non Fully Blocked")
+            XCTAssertEqual(ex.value, "The user or the OS watchdog terminated your app while it blocked the main thread for at least 4500 ms.")
+            let mechanismData = try XCTUnwrap(ex.mechanism?.data)
+            XCTAssertEqual("at least 4500 ms", mechanismData["app_hang_duration"] as? String)
+        }
+    }
+    
+    func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
+        
+        // Act
+        givenInitializedTracker(crashedLastLaunch: true, enableV2: true)
+        
+        // Assert
+        try assertEventWithScopeCaptured { event, _, _ in
+            let ex = try XCTUnwrap(event?.exceptions?.first)
+            
+            XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
         }
+    }
+    
+    func testV2_StoredApHangEventWithNoException_NoEventCaptured() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        let event = Event()
+        SentrySDK.currentHub().client()?.fileManager.storeAppHang(event)
+        
+        // Act
+        givenInitializedTracker(enableV2: true)
+        
+        // Assert
+        assertNoEventCaptured()
     }
     
     func testV2_ANRStopped_DoesDeleteTheAppHangEvent() throws {
@@ -424,9 +502,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(Event().isAppHangEvent)
     }
     
-    private func givenInitializedTracker(isBeingTraced: Bool = false, enableV2: Bool = false) {
+    private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false, enableV2: Bool = false) {
         givenSdkWithHub()
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
+        self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         sut = SentryANRTrackingIntegration()
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if enableV2 {

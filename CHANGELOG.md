@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
+
 ### Improvements
 
 - Log message when setting user before starting the SDK (#4882)
