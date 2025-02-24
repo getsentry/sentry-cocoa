@@ -4,9 +4,15 @@ import XCTest
 
 class DataSentryTracingIntegrationTests: XCTestCase {
     private class Fixture {
+        let mockDateProvider: TestCurrentDateProvider = {
+            let provider = TestCurrentDateProvider()
+            provider.driftTimeForEveryRead = true
+            provider.driftTimeInterval = 0.25
+            return provider
+        }()
 
         let data = "SOME DATA".data(using: .utf8)!
-
+        
         var fileUrlToRead: URL!
         var fileUrlToWrite: URL!
         var ignoredFileUrl: URL!
@@ -14,6 +20,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         init() {}
 
         func getSut(testName: String, isEnabled: Bool = true) throws -> Data {
+            SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
+
             SentrySDK.start { options in
                 options.dsn = TestConstants.dsnAsString(username: "DataSentryTracingIntegrationTests")
                 options.removeAllIntegrations()
@@ -86,21 +94,31 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     func testInitContentsOfUrlWithSentryTracing_shouldTraceManually() throws {
         // -- Arrange --
-        let _ = try fixture.getSut(testName: self.name)
+        let expectedData = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
+        let refTimestamp = fixture.mockDateProvider.date()
         let data = try Data(contentsOfUrlWithSentryTracing: fixture.fileUrlToRead)
 
         // -- Assert --
-        XCTAssertEqual(data, fixture.data)
+        XCTAssertEqual(data, expectedData)
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
+
+        XCTAssertEqual(span.status, SentrySpanStatus.ok)
         XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToRead.path)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
+
+        // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
+        // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        let startTimestamp = try XCTUnwrap(span.startTimestamp)
+        let endTimestamp = try XCTUnwrap(span.timestamp)
+        XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
+        XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
     func testInitContentsOfUrlWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
@@ -109,14 +127,24 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act & Assert --
+        let refTimestamp = fixture.mockDateProvider.date()
         XCTAssertThrowsError(try Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead))
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
+
+        XCTAssertEqual(span.status, SentrySpanStatus.internalError)
         XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToRead.path)
         XCTAssertNil(span.data["file.size"])
+
+        // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
+        // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        let startTimestamp = try XCTUnwrap(span.startTimestamp)
+        let endTimestamp = try XCTUnwrap(span.timestamp)
+        XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
+        XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
     func testInitContentsOfUrlWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
@@ -179,11 +207,14 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
+        let refTimestamp = fixture.mockDateProvider.date()
         try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: .atomic)
 
         // -- Assert --
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
+
+        XCTAssertEqual(span.status, SentrySpanStatus.ok)
         XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToWrite.path)
@@ -192,6 +223,13 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         // Reading the written data will create a span, so do it after asserting the transaction
         let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
         XCTAssertEqual(writtenData, fixture.data)
+
+        // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
+        // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        let startTimestamp = try XCTUnwrap(span.startTimestamp)
+        let endTimestamp = try XCTUnwrap(span.timestamp)
+        XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
+        XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
     func testWriteWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
@@ -200,14 +238,24 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act & Assert --
+        let refTimestamp = fixture.mockDateProvider.date()
         XCTAssertThrowsError(try sut.writeWithSentryTracing(to: fixture.invalidFileUrlToWrite))
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
+
+        XCTAssertEqual(span.status, SentrySpanStatus.internalError)
         XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
         XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToWrite.path)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
+
+        // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
+        // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        let startTimestamp = try XCTUnwrap(span.startTimestamp)
+        let endTimestamp = try XCTUnwrap(span.timestamp)
+        XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
+        XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
     func testWriteWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
