@@ -194,10 +194,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     __block id<SentrySpan> ioSpan;
+    NSString *spanDescription = [self transactionDescriptionForFile:path fileSize:size];
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:operation
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:size]];
+        ioSpan = [span startChildWithOperation:operation description:spanDescription];
     }];
 
     if (ioSpan == nil) {
