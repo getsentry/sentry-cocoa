@@ -145,14 +145,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_Writing_Tracking() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
-        
+
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, "file.write") {
+        assertSpans(expectedSpans, "file.write") {
             try? fixture.data.writeWithSentryTracing(to: fixture.fileURL)
         }
         fixture.assertDataWritten(toUrl: fixture.fileURL)
@@ -161,14 +164,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_WritingWithOption_Tracking() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 15.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
 
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, "file.write") {
+        assertSpans(expectedSpans, "file.write") {
             try? fixture.data.writeWithSentryTracing(to: fixture.fileURL, options: .atomic)
         }
         fixture.assertDataWritten(toUrl: fixture.fileURL)
@@ -248,13 +254,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_ReadingURL_fileExists_shouldBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
         SentrySDK.start(options: fixture.getOptions())
+
         // -- Act & Assert --
-        let data = assertSpans(1, "file.read") {
+        let data = assertSpans(expectedSpans, "file.read") {
             try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL)
         }
         XCTAssertEqual(data?.count, fixture.data.count)
@@ -263,13 +273,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_ReadingURL_fileNotFound_shouldStillBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
         SentrySDK.start(options: fixture.getOptions())
+
         // -- Act & Assert --
-        let data = assertSpans(1, "file.read") {
+        let data = assertSpans(expectedSpans, "file.read") {
             try? Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead)
         }
         XCTAssertNil(data)
@@ -278,14 +292,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_ReadingURLWithOption_fileExists_shouldBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
 
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        let data = assertSpans(1, "file.read") {
+        let data = assertSpans(expectedSpans, "file.read") {
             try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL, options: .uncached)
         }
         XCTAssertEqual(data, fixture.data)
@@ -294,14 +311,17 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func testDataExtension_ReadingURLWithOption_fileNotFound_shouldStillBeTraced() throws {
         // -- Arrange --
         // Automatic tracking of Swift.Data is not available starting with iOS 18, macOS 15, tvOS 18.
-        // Therefore, the extension method is only tested with these OS versions.
-        guard #available(iOS 18, macOS 15, tvOS 18, *) else {
-            throw XCTSkip("Data+SentryTracing is not tested on this OS version")
+        // Therefore, the extension method should not track spans on these OS versions.
+        let expectedSpans: Int
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            expectedSpans = 0
+        } else {
+            expectedSpans = 1
         }
 
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        let data = assertSpans(1, "file.read") {
+        let data = assertSpans(expectedSpans, "file.read") {
             try? Data(
                 contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead,
                 options: .uncached
@@ -446,7 +466,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             try? fixture.data.write(to: fixture.fileURL)
         }
     }
-    
+
+    @discardableResult
     private func assertSpans<ReturnValue>(
         _ spansCount: Int,
         _ operation: String,
