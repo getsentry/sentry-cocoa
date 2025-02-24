@@ -158,6 +158,19 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    func testInitContentsOfUrlWithSentryTracing_SDKIsNotEnabled_shouldReadData() throws {
+        // -- Arrange --
+        let _ = try fixture.getSut(testName: self.name)
+        SentrySDK.close()
+
+        // -- Act --
+        let data = try Data(contentsOfUrlWithSentryTracing: fixture.ignoredFileUrl)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDK.isEnabled)
+        XCTAssertEqual(data, fixture.data)
+    }
+
     // MARK: - Data.writeWithSentryTracing(to:)
 
     func testWriteWithSentryTracing_shouldTraceManuallyWithErrorRethrow() throws {
@@ -234,5 +247,19 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenData, fixture.data)
 
         XCTAssertEqual(parentTransaction.children.count, 0)
+    }
+
+    func testWriteWithSentryTracing_SDKIsNotStarted_shouldWriteFile() throws {
+        // -- Arrange --
+        let sut: Data = try fixture.getSut(testName: self.name)
+        SentrySDK.close()
+
+        // -- Act --
+        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl, options: .atomic)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDK.isEnabled)
+        let writtenData = try Data(contentsOf: fixture.ignoredFileUrl)
+        XCTAssertEqual(writtenData, fixture.data)
     }
 }
