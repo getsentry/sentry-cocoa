@@ -11,7 +11,7 @@ public extension Data {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.enableSwizzling` to `false` when initializing Sentry.
+    ///              `options.experimental.enableDataSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - url: The location on disk of the data to read.
     ///   - options: The mask specifying the options to use when reading the data. For more information, see ``NSData.ReadingOptions``.
@@ -33,7 +33,7 @@ public extension Data {
     /// 
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.enableSwizzling` to `false` when initializing Sentry.
+    ///              `options.experimental.enableDataSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - url: The location to write the data into.
     ///   - options: Options for writing the data. Default value is `[]`.
