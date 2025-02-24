@@ -16,7 +16,7 @@ public extension Data {
     ///   - url: The location on disk of the data to read.
     ///   - options: The mask specifying the options to use when reading the data. For more information, see ``NSData.ReadingOptions``.
     /// - Note: See ``Data.init(contentsOf:options:)`` for more information.
-    init(contentsOfUrlWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
+    init(contentsOfWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
         self = try tracker
             .measureReadingData(

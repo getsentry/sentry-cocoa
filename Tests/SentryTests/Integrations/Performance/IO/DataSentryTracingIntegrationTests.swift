@@ -90,16 +90,16 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         clearTestState()
     }
 
-    // MARK: - Data.init(contentsOfUrlWithSentryTracing:)
+    // MARK: - Data.init(contentsOfWithSentryTracing:)
 
-    func testInitContentsOfUrlWithSentryTracing_shouldTraceManually() throws {
+    func testInitcontentsOfWithSentryTracing_shouldTraceManually() throws {
         // -- Arrange --
         let expectedData = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
         let refTimestamp = fixture.mockDateProvider.date()
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.fileUrlToRead)
+        let data = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead)
 
         // -- Assert --
         XCTAssertEqual(data, expectedData)
@@ -121,14 +121,41 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
+    func testInitcontentsOfWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
+        // -- Arrange --
+        let expectedData = try fixture.getSut(testName: self.name)
+
+        // To verify that the option is passed, we are using the `alwaysMapped` option.
+        // We expect the option to read the data differently when set.
+        //
+        // Due to the current implementation of the `Data(contentsOf:options:)` initializer, it is not possible to detect if the file was mapped or not.
+        // Therefore the mapped and unmapped data will look exactly the same, and no assertions can be made on the data.
+        //
+        // Ref: https://github.com/swiftlang/swift-foundation/blob/c64dcd8347554db347492e0643d1e5fbc4ccfd2b/Sources/FoundationEssentials/Data/Data%2BReading.swift#L333-L337
+
+        // Assert expected implementation behavior by writing the same file twice without the option set.
+        let unmappedData = try Data(contentsOf: fixture.fileUrlToRead)
+        let mappedData = try Data(contentsOf: fixture.fileUrlToRead, options: [.alwaysMapped])
+        XCTAssertEqual(unmappedData, expectedData)
+        XCTAssertEqual(mappedData, expectedData)
+
+        // -- Act --
+        let unmappedSentryData = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead)
+        let mappedSentryData = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead, options: [.alwaysMapped])
+
+        // -- Assert --
+        XCTAssertEqual(unmappedSentryData, expectedData)
+        XCTAssertEqual(mappedSentryData, expectedData)
+    }
+
+    func testInitcontentsOfWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act & Assert --
         let refTimestamp = fixture.mockDateProvider.date()
-        XCTAssertThrowsError(try Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead))
+        XCTAssertThrowsError(try Data(contentsOfWithSentryTracing: fixture.invalidFileUrlToRead))
 
         XCTAssertEqual(parentTransaction.children.count, 1)
         let span = try XCTUnwrap(parentTransaction.children.first)
@@ -147,52 +174,52 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
+    func testInitcontentsOfWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.nonFileUrl)
+        let data = try Data(contentsOfWithSentryTracing: fixture.nonFileUrl)
 
         // -- Assert --
         XCTAssertGreaterThan(data.count, 0)
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
+    func testInitcontentsOfWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name, isEnabled: false)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.fileUrlToRead)
+        let data = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead)
 
         // -- Assert --
         XCTAssertEqual(data, fixture.data)
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
+    func testInitcontentsOfWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.ignoredFileUrl)
+        let data = try Data(contentsOfWithSentryTracing: fixture.ignoredFileUrl)
 
         // -- Assert --
         XCTAssertEqual(data, fixture.data)
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitContentsOfUrlWithSentryTracing_SDKIsNotEnabled_shouldReadData() throws {
+    func testInitcontentsOfWithSentryTracing_SDKIsNotEnabled_shouldReadData() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         SentrySDK.close()
 
         // -- Act --
-        let data = try Data(contentsOfUrlWithSentryTracing: fixture.ignoredFileUrl)
+        let data = try Data(contentsOfWithSentryTracing: fixture.ignoredFileUrl)
 
         // -- Assert --
         XCTAssertFalse(SentrySDK.isEnabled)
@@ -208,7 +235,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         // -- Act --
         let refTimestamp = fixture.mockDateProvider.date()
-        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: .atomic)
+        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite)
 
         // -- Assert --
         XCTAssertEqual(parentTransaction.children.count, 1)
@@ -230,6 +257,33 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
+    }
+
+    func testWriteWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
+        // -- Arrange --
+        let sut: Data = try fixture.getSut(testName: self.name)
+
+        // To verify that the option is passed, we are using the `withoutOverwriting` option.
+        // We expect the default write implementation to not fail when writing the same file twice without the option set.
+        // When setting the option, we expect the write operation to fail as the file is already written.
+
+        // Assert expected implementation behavior by writing the same file twice without the option set.
+        XCTAssertNoThrow(try sut.write(to: fixture.fileUrlToWrite, options: []))
+        XCTAssertNoThrow(try sut.write(to: fixture.fileUrlToWrite, options: []))
+        XCTAssertThrowsError(try sut.write(to: fixture.fileUrlToWrite, options: [.withoutOverwriting]))
+
+        // Cleanup by deleting the file
+        try FileManager.default.removeItem(at: fixture.fileUrlToWrite)
+
+        // -- Act --
+        // The traced implementation should behave the same way as the default implementation.
+        XCTAssertNoThrow(try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: []))
+        XCTAssertNoThrow(try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: []))
+        XCTAssertThrowsError(try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: [.withoutOverwriting]))
+
+        // -- Assert --
+        let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
+        XCTAssertEqual(writtenData, sut)
     }
 
     func testWriteWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
@@ -264,7 +318,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        XCTAssertThrowsError(try sut.writeWithSentryTracing(to: fixture.nonFileUrl, options: .atomic))
+        XCTAssertThrowsError(try sut.writeWithSentryTracing(to: fixture.nonFileUrl))
 
         // -- Assert --
         XCTAssertEqual(parentTransaction.children.count, 0)
@@ -276,7 +330,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite, options: .atomic)
+        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite)
 
         // -- Assert --
         XCTAssertEqual(parentTransaction.children.count, 0)
@@ -288,7 +342,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
 
         // -- Act --
-        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl, options: .atomic)
+        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl)
 
         // -- Assert --
         let writtenData = try Data(contentsOf: fixture.ignoredFileUrl)
@@ -303,7 +357,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         SentrySDK.close()
 
         // -- Act --
-        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl, options: .atomic)
+        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl)
 
         // -- Assert --
         XCTAssertFalse(SentrySDK.isEnabled)

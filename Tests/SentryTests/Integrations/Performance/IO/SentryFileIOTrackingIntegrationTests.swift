@@ -265,7 +265,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
         // -- Act & Assert --
         let data = assertSpans(expectedSpans, "file.read") {
-            try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL)
+            try? Data(contentsOfWithSentryTracing: fixture.fileURL)
         }
         XCTAssertEqual(data?.count, fixture.data.count)
     }
@@ -284,7 +284,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
         // -- Act & Assert --
         let data = assertSpans(expectedSpans, "file.read") {
-            try? Data(contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead)
+            try? Data(contentsOfWithSentryTracing: fixture.invalidFileUrlToRead)
         }
         XCTAssertNil(data)
     }
@@ -303,7 +303,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
         let data = assertSpans(expectedSpans, "file.read") {
-            try? Data(contentsOfUrlWithSentryTracing: fixture.fileURL, options: .uncached)
+            try? Data(contentsOfWithSentryTracing: fixture.fileURL, options: .uncached)
         }
         XCTAssertEqual(data, fixture.data)
     }
@@ -323,7 +323,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.getOptions())
         let data = assertSpans(expectedSpans, "file.read") {
             try? Data(
-                contentsOfUrlWithSentryTracing: fixture.invalidFileUrlToRead,
+                contentsOfWithSentryTracing: fixture.invalidFileUrlToRead,
                 options: .uncached
             )
         }
