@@ -19,48 +19,59 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         init() {}
 
-        func getSut(testName: String, isEnabled: Bool = true) throws -> Data {
-            SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
+        func getSut(testName: String, isSDKEnabled: Bool = true, isEnabled: Bool = true) throws -> Data {
+            if isSDKEnabled {
+                SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
 
-            SentrySDK.start { options in
-                options.dsn = TestConstants.dsnAsString(username: "DataSentryTracingIntegrationTests")
-                options.removeAllIntegrations()
+                SentrySDK.start { options in
+                    options.dsn = TestConstants.dsnAsString(username: "DataSentryTracingIntegrationTests")
+                    options.removeAllIntegrations()
 
-                // Configure options required by File I/O tracking integration
-                options.enableAutoPerformanceTracing = true
-                options.enableFileIOTracing = isEnabled
-                options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
+                    // Configure options required by File I/O tracking integration
+                    options.enableAutoPerformanceTracing = true
+                    options.enableFileIOTracing = isEnabled
+                    options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
 
-                // Configure the tracing sample rate to record all traces
-                options.tracesSampleRate = 1.0
+                    // Configure the tracing sample rate to record all traces
+                    options.tracesSampleRate = 1.0
 
-                // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
-                // Instead we are recommending to disable swizzling and use manual tracing.
-                options.enableSwizzling = true
-                options.experimental.enableDataSwizzling = false
-                options.experimental.enableFileManagerSwizzling = false
+                    // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
+                    // Instead we are recommending to disable swizzling and use manual tracing.
+                    options.enableSwizzling = true
+                    options.experimental.enableDataSwizzling = false
+                    options.experimental.enableFileManagerSwizzling = false
+                }
+
+                // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
+                guard let sentryBasePath = SentrySDK.currentHub().getClient()?.fileManager.basePath else {
+                    preconditionFailure("Sentry base path is nil, but should be configured for test cases.")
+                }
+                let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
+
+                fileUrlToRead = sentryBasePathUrl.appendingPathComponent("file-to-read")
+                try data.write(to: fileUrlToRead)
+
+                fileUrlToWrite = sentryBasePathUrl.appendingPathComponent("file-to-write")
+
+                // Get the working directory of the SDK, as these files are ignored by default
+                guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
+                    preconditionFailure("Sentry path is nil, but should be configured for test cases.")
+                }
+                let sentryPathUrl = URL(fileURLWithPath: sentryPath)
+
+                ignoredFileUrl = sentryPathUrl.appendingPathComponent("ignored-file")
+                try data.write(to: ignoredFileUrl)
+            } else {
+                let basePathUrl = URL(fileURLWithPath: NSTemporaryDirectory())
+                    .appendingPathComponent("test-\(testName.hashValue.description)")
+                try! FileManager.default
+                    .createDirectory(at: basePathUrl, withIntermediateDirectories: true)
+
+                fileUrlToRead = basePathUrl.appendingPathComponent("file-to-read")
+                try data.write(to: fileUrlToRead)
+
+                fileUrlToWrite = basePathUrl.appendingPathComponent("file-to-write")
             }
-
-            // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
-            guard let sentryBasePath = SentrySDK.currentHub().getClient()?.fileManager.basePath else {
-                preconditionFailure("Sentry base path is nil, but should be configured for test cases.")
-            }
-            let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
-
-            fileUrlToRead = sentryBasePathUrl.appendingPathComponent("file-to-read")
-            try data.write(to: fileUrlToRead)
-
-            fileUrlToWrite = sentryBasePathUrl.appendingPathComponent("file-to-write")
-
-            // Get the working directory of the SDK, as these files are ignored by default
-            guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
-                preconditionFailure("Sentry path is nil, but should be configured for test cases.")
-            }
-            let sentryPathUrl = URL(fileURLWithPath: sentryPath)
-
-            ignoredFileUrl = sentryPathUrl.appendingPathComponent("ignored-file")
-            try data.write(to: ignoredFileUrl)
-
             return data
         }
 
@@ -92,7 +103,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     // MARK: - Data.init(contentsOfWithSentryTracing:)
 
-    func testInitcontentsOfWithSentryTracing_shouldTraceManually() throws {
+    func testInitContentsOfWithSentryTracing_shouldTraceManually() throws {
         // -- Arrange --
         let expectedData = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
@@ -121,7 +132,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
-    func testInitcontentsOfWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
+    func testInitContentsOfWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
         // -- Arrange --
         let expectedData = try fixture.getSut(testName: self.name)
 
@@ -148,7 +159,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(mappedSentryData, expectedData)
     }
 
-    func testInitcontentsOfWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
+    func testInitContentsOfWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
@@ -174,7 +185,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
-    func testInitcontentsOfWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
+    func testInitContentsOfWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
@@ -187,7 +198,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitcontentsOfWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
+    func testInitContentsOfWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name, isEnabled: false)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
@@ -200,7 +211,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitcontentsOfWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
+    func testInitContentsOfWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
@@ -213,13 +224,25 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
-    func testInitcontentsOfWithSentryTracing_SDKIsNotEnabled_shouldReadData() throws {
+    func testInitContentsOfWithSentryTracing_SDKIsNotStarted_shouldReadData() throws {
+        // -- Arrange --
+        let _ = try fixture.getSut(testName: self.name, isSDKEnabled: false)
+
+        // -- Act --
+        let data = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDK.isEnabled)
+        XCTAssertEqual(data, fixture.data)
+    }
+
+    func testInitContentsOfWithSentryTracing_SDKIsClosed_shouldReadData() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         SentrySDK.close()
 
         // -- Act --
-        let data = try Data(contentsOfWithSentryTracing: fixture.ignoredFileUrl)
+        let data = try Data(contentsOfWithSentryTracing: fixture.fileUrlToRead)
 
         // -- Assert --
         XCTAssertFalse(SentrySDK.isEnabled)
@@ -353,15 +376,29 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     func testWriteWithSentryTracing_SDKIsNotStarted_shouldWriteFile() throws {
         // -- Arrange --
+        let sut: Data = try fixture.getSut(testName: self.name, isSDKEnabled: false)
+        SentrySDK.close()
+
+        // -- Act --
+        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDK.isEnabled)
+        let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
+        XCTAssertEqual(writtenData, fixture.data)
+    }
+
+    func testWriteWithSentryTracing_SDKIsClosed_shouldWriteFile() throws {
+        // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
         SentrySDK.close()
 
         // -- Act --
-        try sut.writeWithSentryTracing(to: fixture.ignoredFileUrl)
+        try sut.writeWithSentryTracing(to: fixture.fileUrlToWrite)
 
         // -- Assert --
         XCTAssertFalse(SentrySDK.isEnabled)
-        let writtenData = try Data(contentsOf: fixture.ignoredFileUrl)
+        let writtenData = try Data(contentsOf: fixture.fileUrlToWrite)
         XCTAssertEqual(writtenData, fixture.data)
     }
 }
