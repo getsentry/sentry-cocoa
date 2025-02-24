@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "173FBB9B-B4CC-41DC-83E8-5E77057D3191",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS-ObjectiveC.xcodeproj",
+        "identifier" : "7B64387626A6C69F000D0F65",
+        "name" : "iOS-ObjectiveCUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

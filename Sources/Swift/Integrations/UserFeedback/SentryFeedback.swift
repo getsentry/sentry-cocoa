@@ -3,8 +3,8 @@ import Foundation
 
 @objcMembers
 public class SentryFeedback: NSObject {
-    @objc public enum SentryFeedbackSource: Int, CustomStringConvertible {
-        public var description: String {
+    @objc public enum SentryFeedbackSource: Int {
+        public var serialize: String {
             switch self {
             case .widget: return "widget"
             case .custom: return "custom"
@@ -56,7 +56,7 @@ extension SentryFeedback: SentrySerializable {
         if let associatedEventId = associatedEventId {
             dict["associated_event_id"] = associatedEventId.sentryIdString
         }
-        dict["source"] = source.description
+        dict["source"] = source.serialize
         
         return dict
     }
@@ -75,8 +75,8 @@ extension SentryFeedback {
         if let email = email {
             dict["email"] = email
         }
-        if let screenshot = attachments {
-            dict["attachments"] = [screenshot]
+        if let attachments = attachments {
+            dict["attachments"] = attachments
         }
         return dict
     }
