@@ -64,19 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-/**
- * Display a form to gather information from an end user in the app to send to Sentry as a user
- * feedback event.
- * @see @c SentryOptions.configureUserFeedback to customize the experience, currently only on iOS.
- * @warning This is an experimental feature and may still have bugs.
- * @note This is a fully managed user feedback flow; there will be no need to call
- * @c SentrySDK.captureUserFeedback . See
- * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
- */
-+ (void)showUserFeedbackForm;
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
 @end
 
 NS_ASSUME_NONNULL_END

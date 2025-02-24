@@ -3,7 +3,14 @@ import Foundation
 
 @objcMembers
 class SentryFeedback: NSObject {
-    enum Source: String {
+    @objc enum SentryFeedbackSource: Int {
+        public var serialize: String {
+            switch self {
+            case .widget: return "widget"
+            case .custom: return "custom"
+            }
+        }
+        
         case widget
         case custom
     }
@@ -11,24 +18,26 @@ class SentryFeedback: NSObject {
     var name: String?
     var email: String?
     var message: String
-    var source: Source
+    var source: SentryFeedbackSource
     let eventId: SentryId
     
-    /// PNG data for the screenshot image
-    var screenshot: Data?
+    /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
+    private var attachments: [Data]?
     
     /// The event id that this feedback is associated with, like a crash report.
-    var associatedEventId: String?
+    var associatedEventId: SentryId?
     
-    /// - parameter screenshot Image encoded as PNG data.
-    init(message: String, name: String?, email: String?, source: Source = .widget, associatedEventId: String? = nil, screenshot: Data? = nil) {
+    /// - parameters:
+    ///   - associatedEventId The ID for an event you'd like associated with the feedback.
+    ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
+    @objc init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
         self.message = message
         self.source = source
         self.associatedEventId = associatedEventId
-        self.screenshot = screenshot
+        self.attachments = attachments
         super.init()
     }
 }
@@ -45,9 +54,9 @@ extension SentryFeedback: SentrySerializable {
             dict["contact_email"] = email
         }
         if let associatedEventId = associatedEventId {
-            dict["associated_event_id"] = associatedEventId
+            dict["associated_event_id"] = associatedEventId.sentryIdString
         }
-        dict["source"] = source.rawValue
+        dict["source"] = source.serialize
         
         return dict
     }
@@ -66,8 +75,8 @@ extension SentryFeedback {
         if let email = email {
             dict["email"] = email
         }
-        if let screenshot = screenshot {
-            dict["attachments"] = [screenshot]
+        if let attachments = attachments {
+            dict["attachments"] = attachments
         }
         return dict
     }
@@ -75,9 +84,9 @@ extension SentryFeedback {
     /**
      * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
      */
-    func attachments() -> [Attachment] {
+    func attachmentsForEnvelope() -> [Attachment] {
         var items = [Attachment]()
-        if let screenshot = screenshot {
+        if let screenshot = attachments?.first {
             items.append(Attachment(data: screenshot, filename: "screenshot.png", contentType: "application/png"))
         }
         return items

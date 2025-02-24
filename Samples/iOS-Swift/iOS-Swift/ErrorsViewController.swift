@@ -62,15 +62,6 @@ class ErrorsViewController: UIViewController {
                 // It contains all data but mutations only influence the event being sent
                 scope.setTag(value: "value", key: "myTag")
             }
-            
-            if !ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.auto-inject-widget") {
-                let alert = UIAlertController(title: "Uh-oh!", message: "There was an error. Would you like to tell us what happened?", preferredStyle: .alert)
-                alert.addAction(.init(title: "Yes", style: .default, handler: { _ in
-                    SentrySDK.showUserFeedbackForm()
-                }))
-                alert.addAction(.init(title: "No", style: .cancel))
-                self.present(alert, animated: true)
-            }
         }
     }
 
