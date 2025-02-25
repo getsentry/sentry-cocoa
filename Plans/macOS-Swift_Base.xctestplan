@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "B095989B-000C-48E9-BEEF-162E3E4CBECB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "--io.sentry.profiling.enable",
+        "enabled" : false
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:macOS-Swift.xcodeproj",
+      "identifier" : "637AFDEA243B04320034958B",
+      "name" : "macOS-Swift"
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}

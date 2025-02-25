@@ -11,5 +11,6 @@ class SentryTraceOrigin: NSObject {
     static let autoUITimeToDisplay = "auto.ui.time_to_display"
     static let autoUIViewController = "auto.ui.view_controller"
     static let manual = "manual"
+    static let manualFileData = "manual.file.data"
     static let manualUITimeToDisplay = "manual.ui.time_to_display"
 }

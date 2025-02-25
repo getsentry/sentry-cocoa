@@ -153,6 +153,7 @@ extension SentrySDKWrapper {
     }
     
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
+        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
         config.formTitle = "Jank Report"
         config.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
         config.isNameRequired = args.contains("--io.sentry.feedback.require-name")
@@ -181,7 +182,7 @@ extension SentrySDKWrapper {
             fontFamily = "ChalkboardSE-Regular"
         }
         config.fontFamily = fontFamily
-        config.outlineStyle = .init(outlineColor: .purple)
+        config.outlineStyle = .init(color: .purple)
         config.foreground = .purple
         config.background = .init(red: 0.95, green: 0.9, blue: 0.95, alpha: 1)
         config.submitBackground = .orange
@@ -199,7 +200,6 @@ extension SentrySDKWrapper {
             return
         }
         
-        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
         config.animations = !args.contains("--io.sentry.feedback.no-animations")
         config.useShakeGesture = true
         config.showFormForScreenshots = true

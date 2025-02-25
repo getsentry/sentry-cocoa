@@ -1,6 +1,27 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- New user feedback API and Widget (#4874)
+
+### Improvements
+
+- Log message when setting user before starting the SDK (#4882)
+- Add experimental flag to disable swizzling of `NSData` individually (#4859)
+- Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
+
+### Fixes
+
+- fix: move assignment of file IO span origin outside of block (#4888)
+
 ## 8.45.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Features
 
@@ -29,6 +50,11 @@
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Fixes
 

@@ -17,7 +17,8 @@ on:
       - "scripts/ci-select-xcode.sh"
       - "scripts/sentry-xcodebuild.sh"
       - ".codecov.yml"
-      - Sentry.xcodeproj
+      - "Sentry.xcodeproj"
+      - "**/*.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -211,10 +212,10 @@ jobs:
             --scheme ${{matrix.scheme}}
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@ee6b445351cd81e2f73a16a0e52d598aeac2197f # v5.3.0
+        uses: mikepenz/action-junit-report@b14027d33d3a745ccc4d6a12f649e83110b5a373 # v5.4.0
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
