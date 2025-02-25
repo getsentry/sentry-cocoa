@@ -5,6 +5,7 @@
 #endif
 
 @class SentryEvent;
+@class SentryFeedback;
 @class SentryFileManager;
 @class SentryId;
 @class SentryOptions;
@@ -95,9 +96,19 @@ SENTRY_NO_INIT
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @deprecated Use @c -[SentryClient @c captureFeedback:withScope:] .
  */
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+    NS_SWIFT_NAME(capture(userFeedback:))
+        DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
+
+/**
+ * Captures a new-style user feedback and sends it to Sentry.
+ * @param feedback The user feedback to send to Sentry.
+ * @param scope The current scope from which to gather contextual information.
+ */
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

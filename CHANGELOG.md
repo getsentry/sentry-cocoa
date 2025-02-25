@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- New user feedback API and Widget (#4874)
+
 ### Improvements
 
 - Log message when setting user before starting the SDK (#4882)
