@@ -353,12 +353,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
-        SentrySDK.configureScope { scope in
-            scope.setTag(value: "value", key: "key")
-        }
-        let crumb = Breadcrumb()
-        crumb.message = "crumb"
-        SentrySDK.addBreadcrumb(crumb)
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         // This must not impact on the stored event
@@ -371,7 +365,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         Dynamic(sut).anrStoppedWithResult(result)
 
         // Assert
-        try assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, scope, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
@@ -405,6 +399,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            // Ensure we capture the event with an empty scope
+            XCTAssertEqual(scope?.tags.count, 0)
+            XCTAssertEqual(scope?.breadcrumbs().count, 0)
         }
     }
     
@@ -412,12 +410,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
-        SentrySDK.configureScope { scope in
-            scope.setTag(value: "value", key: "key")
-        }
-        let crumb = Breadcrumb()
-        crumb.message = "crumb"
-        SentrySDK.addBreadcrumb(crumb)
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
         
         // This must not impact on the stored event
@@ -429,7 +421,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(enableV2: true)
         
         // Assert
-        try assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, scope, _ in
             XCTAssertEqual(event?.level, SentryLevel.fatal)
             
             let ex = try XCTUnwrap(event?.exceptions?.first)
@@ -449,6 +441,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            // Ensure we capture the event with an empty scope
+            XCTAssertEqual(scope?.tags.count, 0)
+            XCTAssertEqual(scope?.breadcrumbs().count, 0)
         }
     }
     
@@ -462,11 +458,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(crashedLastLaunch: true, enableV2: true)
         
         // Assert
-        try assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, scope, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+            
+            // Ensure we capture the event with an empty scope
+            XCTAssertEqual(scope?.tags.count, 0)
+            XCTAssertEqual(scope?.breadcrumbs().count, 0)
         }
     }
     
@@ -548,6 +548,14 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false, enableV2: Bool = false) {
         givenSdkWithHub()
+        
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value", key: "key")
+        }
+        let crumb = Breadcrumb()
+        crumb.message = "crumb"
+        SentrySDK.addBreadcrumb(crumb)
+        
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         sut = SentryANRTrackingIntegration()

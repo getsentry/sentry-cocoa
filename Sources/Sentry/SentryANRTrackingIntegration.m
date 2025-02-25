@@ -204,7 +204,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     [mechanismData removeObjectForKey:SentryANRMechanismDataAppHangDuration];
     event.exceptions.firstObject.mechanism.data = mechanismData;
 
-    [SentrySDK captureEvent:event];
+    // We already applied the scope. We use an empty scope to avoid overwriting exising fields on
+    // the event.
+    [SentrySDK captureEvent:event withScope:[[SentryScope alloc] init]];
 #endif // SENTRY_HAS_UIKIT
 }
 
@@ -225,7 +227,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
         if (weakSelf.crashWrapper.crashedLastLaunch) {
             // The app crashed during an ongoing app hang. Capture the stored app hang as it is.
-            [SentrySDK captureEvent:event];
+            // We already applied the scope. We use an empty scope to avoid overwriting exising
+            // fields on the event.
+            [SentrySDK captureEvent:event withScope:[[SentryScope alloc] init]];
         } else {
             // Fatal App Hang
             // We can't differ if the watchdog or the user terminated the app, because when the main
@@ -263,7 +267,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
                     appHangDurationInfo];
             event.exceptions.firstObject.value = exceptionValue;
 
-            [SentrySDK captureEvent:event];
+            // We already applied the scope. We use an empty scope to avoid overwriting exising
+            // fields on the event.
+            [SentrySDK captureEvent:event withScope:[[SentryScope alloc] init]];
         }
     }];
 }
