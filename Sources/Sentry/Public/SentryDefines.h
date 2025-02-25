@@ -157,7 +157,8 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
  * Function pointer for span manipulation.
  * @param span The span to be used.
  */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
+typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
+    "See `SentryScope.useSpan` for reasoning of deprecation."));
 
 /**
  * Log level.
