@@ -11,6 +11,10 @@
 - Log message when setting user before starting the SDK (#4882)
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
 
+### Fixes
+
+- fix: move assignment of file IO span origin outside of block (#4888)
+
 ## 8.45.0
 
 ### Features
