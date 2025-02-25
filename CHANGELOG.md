@@ -13,6 +13,11 @@
 
 ## 8.45.0
 
+> [!WARNING]
+> We have been made aware that this version can cause crashes when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
+
 ### Features
 
 - Add `showMaskPreview` to `SentrySDK.replay` api to debug replay masking (#4761)
@@ -40,6 +45,11 @@
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Fixes
 
