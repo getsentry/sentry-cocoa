@@ -185,8 +185,11 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         stringWithFormat:@"between %.1f and %.1f seconds", result.minDuration, result.maxDuration];
     NSString *errorMessage = [NSString stringWithFormat:@"App hanging %@.", appHangDurationInfo];
     event.exceptions.firstObject.value = errorMessage;
-    event.exceptions.firstObject.mechanism.data =
-        @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
+
+    NSMutableDictionary *mechanismData = [event.exceptions.firstObject.mechanism.data mutableCopy];
+    [mechanismData removeObjectForKey:SentryANRMechanismDataAppHangDuration];
+    event.exceptions.firstObject.mechanism.data = mechanismData;
+
     [SentrySDK captureEvent:event];
 #endif // SENTRY_HAS_UIKIT
 }
@@ -232,8 +235,13 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
             event.exceptions.firstObject.type = fatalExceptionType;
 
+            NSMutableDictionary *mechanismData =
+                [event.exceptions.firstObject.mechanism.data mutableCopy];
             NSString *appHangDurationInfo
                 = exception.mechanism.data[SentryANRMechanismDataAppHangDuration];
+
+            [mechanismData removeObjectForKey:SentryANRMechanismDataAppHangDuration];
+            event.exceptions.firstObject.mechanism.data = mechanismData;
 
             NSString *exceptionValue =
                 [NSString stringWithFormat:@"The user or the OS watchdog terminated your app while "

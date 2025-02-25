@@ -365,8 +365,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging between 1.9 and 2.2 seconds.")
+            
+            // We use the mechanism data to temporarily store the duration.
+            // This asserts that we remove the mechanism data before sending the event.
             let mechanismData = try XCTUnwrap(ex.mechanism?.data)
-            XCTAssertEqual("between 1.9 and 2.2 seconds", mechanismData["app_hang_duration"] as? String)
+            XCTAssertTrue(mechanismData.isEmpty)
             
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
@@ -403,8 +406,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             
             XCTAssertEqual(ex.type, "Fatal App Hang Non Fully Blocked")
             XCTAssertEqual(ex.value, "The user or the OS watchdog terminated your app while it blocked the main thread for at least 4500 ms.")
+            
+            // We use the mechanism data to temporarily store the duration.
+            // This asserts that we remove the mechanism data before sending the event.
             let mechanismData = try XCTUnwrap(ex.mechanism?.data)
-            XCTAssertEqual("at least 4500 ms", mechanismData["app_hang_duration"] as? String)
+            XCTAssertTrue(mechanismData.isEmpty)
         }
     }
     
