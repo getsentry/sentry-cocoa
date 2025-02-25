@@ -2,6 +2,7 @@
 #import "SentryCrashInstallationReporter.h"
 
 #import "SentryCrashC.h"
+#import "SentryCrashIntegrationSessionHandler.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -11,7 +12,6 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySessionCrashedHandler.h"
 #import "SentrySpan+Private.h"
 #import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
@@ -53,7 +53,7 @@ sentry_finishAndSaveTransaction(void)
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
-@property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
+@property (nonatomic, strong) SentryCrashIntegrationSessionHandler *sessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
 @end
@@ -95,12 +95,12 @@ sentry_finishAndSaveTransaction(void)
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:self.crashAdapter
                                                 appStateManager:appStateManager];
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
-                                         watchdogTerminationLogic:logic];
+    self.sessionHandler =
+        [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                  watchdogTerminationLogic:logic];
 #else
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter];
+    self.sessionHandler =
+        [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter];
 #endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
@@ -179,7 +179,7 @@ sentry_finishAndSaveTransaction(void)
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination];
+        [self.sessionHandler endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination];
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SenryCrash was deactivated there are no new reports to send. Furthermore, the
