@@ -54,15 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
-/**
- * Captures user feedback that was manually gathered and sends it to Sentry.
- * @param feedback The feedback to send to Sentry.
- * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
- * consider using `showUserFeedbackForm`, which delivers a prepackaged user feedback experience. See
- * @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
- * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
- */
-+ (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
 
 @end
 

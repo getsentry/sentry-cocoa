@@ -113,9 +113,16 @@ public class TestClient: SentryClient {
         saveCrashTransactionInvocations.record((transaction, scope))
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See captureFeedbackInvocations.")
     public var captureUserFeedbackInvocations = Invocations<UserFeedback>()
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See capture(feedback:scope:).")
     public override func capture(userFeedback: UserFeedback) {
         captureUserFeedbackInvocations.record(userFeedback)
+    }
+    
+    public var captureFeedbackInvocations = Invocations<(SentryFeedback, Scope)>()
+    public override func capture(feedback: SentryFeedback, scope: Scope) {
+        captureFeedbackInvocations.record((feedback, scope))
     }
     
     public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
