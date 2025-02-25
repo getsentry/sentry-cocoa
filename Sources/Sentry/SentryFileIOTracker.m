@@ -194,19 +194,24 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     NSString *spanDescription = [self transactionDescriptionForFile:path fileSize:size];
-    id<SentrySpan> span = [SentrySDK.currentHub.scope span];
-    __block id<SentrySpan> ioSpan =
-        [span startChildWithOperation:operation
-                          description:[self transactionDescriptionForFile:path fileSize:size]];
-    ioSpan.origin = origin;
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    if (currentSpan == NULL) {
+        SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
+        return nil;
+    }
 
+    id<SentrySpan> _Nullable ioSpan = [currentSpan startChildWithOperation:operation
+                                                               description:spanDescription];
     if (ioSpan == nil) {
         SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
-        ioSpan.description, operation);
+    ioSpan.origin = origin;
+
+    SENTRY_LOG_DEBUG(
+        @"Automatically started a new span with description: %@, operation: %@, origin: %@",
+        ioSpan.description, operation, origin);
 
     ioSpan.origin = origin;
     [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];

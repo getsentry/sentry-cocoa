@@ -635,9 +635,9 @@ static BOOL appStartMeasurementRead;
     }
 
     if (shouldCleanUp) {
-        id<SentrySpan> _Nullable span = [_hub.scope span];
-        if (span == self) {
-            [self->_hub.scope setSpan:nil];
+        id<SentrySpan> _Nullable currentSpan = [_hub.scope span];
+        if (currentSpan == self) {
+            [_hub.scope setSpan:nil];
         }
     }
 

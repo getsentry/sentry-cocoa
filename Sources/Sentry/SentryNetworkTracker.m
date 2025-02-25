@@ -183,9 +183,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        id<SentrySpan> _Nullable innerSpan = [SentrySDK.currentHub.scope span];
-        if (innerSpan != nil) {
-            span = innerSpan;
+        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        if (currentSpan != nil) {
+            span = currentSpan;
             netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
                                         description:[NSString stringWithFormat:@"%@ %@",
                                                         sessionTask.currentRequest.HTTPMethod,

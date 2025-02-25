@@ -36,16 +36,19 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> span = [SentrySDK.currentHub.scope span];
-    __block id<SentrySpan> fetchSpan =
-        [span startChildWithOperation:SentrySpanOperation.coredataFetchOperation
-                          description:[self descriptionFromRequest:request]];
-    fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    id<SentrySpan> fetchSpan;
+    if (currentSpan) {
+        fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperation.coredataFetchOperation
+                                             description:[self descriptionFromRequest:request]];
+    }
 
     if (fetchSpan) {
+        fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
+
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
-                         @"description: %@, operation: %@",
-            fetchSpan.description, fetchSpan.operation);
+                         @"description: %@, operation: %@, origin: %@",
+            fetchSpan.description, fetchSpan.operation, fetchSpan.origin);
     }
 
     NSArray *result = original(request, error);
@@ -74,16 +77,20 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        id<SentrySpan> _Nullable span = [SentrySDK.currentHub.scope span];
-        saveSpan = [span startChildWithOperation:SentrySpanOperation.coredataSaveOperation
-                                     description:[self descriptionForOperations:operations
-                                                                      inContext:context]];
-        saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
+        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        if (currentSpan) {
+            saveSpan =
+                [currentSpan startChildWithOperation:SentrySpanOperation.coredataSaveOperation
+                                         description:[self descriptionForOperations:operations
+                                                                          inContext:context]];
+        }
 
         if (saveSpan) {
+            saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
+
             SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
-                             @"description: %@, operation: %@",
-                saveSpan.description, saveSpan.operation);
+                             @"description: %@, operation: %@, origin: %@",
+                saveSpan.description, saveSpan.operation, saveSpan.origin);
 
             [saveSpan setDataValue:operations forKey:@"operations"];
         } else {

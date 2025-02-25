@@ -160,6 +160,9 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)useSpan:(SentrySpanCallback)callback DEPRECATED_MSG_ATTRIBUTE("use `span` instead");
 
+/**
+ * Returns the current span.
+ */
 - (id<SentrySpan> _Nullable)span;
 
 @end
