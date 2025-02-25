@@ -353,7 +353,18 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value", key: "key")
+        }
+        let crumb = Breadcrumb()
+        crumb.message = "crumb"
+        SentrySDK.addBreadcrumb(crumb)
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
+        
+        // This must not impact on the stored event
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value2", key: "key")
+        }
 
         // Act
         let result = SentryANRStoppedResult(minDuration: 1.851, maxDuration: 2.249)
@@ -386,6 +397,14 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
             
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+            
+            let tags = try XCTUnwrap(event?.tags)
+            XCTAssertEqual(1, tags.count)
+            XCTAssertEqual("value", tags["key"])
+            
+            let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
+            XCTAssertEqual(1, breadcrumbs.count)
+            XCTAssertEqual("crumb", breadcrumbs.first?.message)
         }
     }
     
@@ -393,7 +412,18 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value", key: "key")
+        }
+        let crumb = Breadcrumb()
+        crumb.message = "crumb"
+        SentrySDK.addBreadcrumb(crumb)
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
+        
+        // This must not impact on the stored event
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value2", key: "key")
+        }
         
         // Act
         givenInitializedTracker(enableV2: true)
@@ -411,6 +441,14 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             // This asserts that we remove the mechanism data before sending the event.
             let mechanismData = try XCTUnwrap(ex.mechanism?.data)
             XCTAssertTrue(mechanismData.isEmpty)
+            
+            let tags = try XCTUnwrap(event?.tags)
+            XCTAssertEqual(1, tags.count)
+            XCTAssertEqual("value", tags["key"])
+            
+            let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
+            XCTAssertEqual(1, breadcrumbs.count)
+            XCTAssertEqual("crumb", breadcrumbs.first?.message)
         }
     }
     

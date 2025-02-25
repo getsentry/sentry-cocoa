@@ -11,6 +11,7 @@
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -153,6 +154,16 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
         // string parsing to retrieve the app hang duration info from the error message.
         mechanism.data = @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
+
+        // We need to apply the scope now because if the app hang turns into a fatal one,
+        // we would lose the scope. Furthermore, we want to know in which state the app was when the
+        // app hang started.
+        SentryScope *scope = [SentrySDK currentHub].scope;
+        SentryOptions *options = SentrySDK.options;
+        if (scope != nil && options != nil) {
+            [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
+        }
+
         [self.fileManager storeAppHangEvent:event];
     } else {
 #endif // SENTRY_HAS_UIKIT
