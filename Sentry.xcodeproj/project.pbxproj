@@ -820,6 +820,24 @@
 		D48724E22D354D16005DE483 /* SentryTraceOriginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48724E12D354D16005DE483 /* SentryTraceOriginTests.swift */; };
 		D48E8B8B2D3E79610032E35E /* SentryTraceOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48E8B8A2D3E79610032E35E /* SentryTraceOrigin.swift */; };
 		D48E8B9D2D3E82AC0032E35E /* SentrySpanOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */; };
+		D4A7CF452D6DE4520005C760 /* DataSentryTracingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7CF442D6DE4520005C760 /* DataSentryTracingTests.swift */; };
+		D4A7CF472D6DE8850005C760 /* MockSentryScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7CF462D6DE8800005C760 /* MockSentryScope.swift */; };
+		D4A7CF4A2D6DFEA30005C760 /* MockSentryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7CF492D6DFE980005C760 /* MockSentryClient.swift */; };
+		D4A7CF4C2D6E00950005C760 /* MockSentrySpan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7CF4B2D6E00920005C760 /* MockSentrySpan.swift */; };
+		D4A7CF4E2D6E01690005C760 /* MockSentrySpanContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7CF4D2D6E01610005C760 /* MockSentrySpanContext.swift */; };
+		D4A8FF4F2D6E16610027E97B /* libSentryTestMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4A8FF442D6E16510027E97B /* libSentryTestMock.a */; };
+		D4A8FF522D6E166A0027E97B /* libSentryTestMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4A8FF442D6E16510027E97B /* libSentryTestMock.a */; };
+		D4A8FF592D6E16A70027E97B /* MockFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF582D6E169A0027E97B /* MockFunction.swift */; };
+		D4A8FF5A2D6E16FC0027E97B /* libSentryTestMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4A8FF442D6E16510027E97B /* libSentryTestMock.a */; };
+		D4A8FF5E2D6E17150027E97B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4A8FF5D2D6E17150027E97B /* XCTest.framework */; };
+		D4A8FF622D6E18330027E97B /* MockSentryHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF612D6E18320027E97B /* MockSentryHub.swift */; };
+		D4A8FF642D6E1AF30027E97B /* MockSentryDateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF632D6E1AEE0027E97B /* MockSentryDateProvider.swift */; };
+		D4A8FF662D6E1BE20027E97B /* CallBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF652D6E1BE00027E97B /* CallBox.swift */; };
+		D4A8FF682D6E1BFC0027E97B /* SentryAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF672D6E1BFA0027E97B /* SentryAssert.swift */; };
+		D4A8FF6A2D6E1C000027E97B /* SentryAssertBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF692D6E1C000027E97B /* SentryAssertBox.swift */; };
+		D4A8FF6C2D6E225B0027E97B /* MockSentryThreadInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF6B2D6E225A0027E97B /* MockSentryThreadInspector.swift */; };
+		D4A8FF6E2D6E22620027E97B /* MockSentryNSProcessInfoWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF6D2D6E22610027E97B /* MockSentryNSProcessInfoWrapper.swift */; };
+		D4A8FF722D6E23150027E97B /* SentryMockable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A8FF712D6E23110027E97B /* SentryMockable.swift */; };
 		D4AF00212D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AF00202D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m */; };
 		D4AF00232D2E931000F5F3D7 /* SentryNSFileManagerSwizzling.h in Headers */ = {isa = PBXBuildFile; fileRef = D4AF00222D2E931000F5F3D7 /* SentryNSFileManagerSwizzling.h */; };
 		D4AF00252D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AF00242D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m */; };
@@ -1017,6 +1035,27 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
 		};
+		D4A8FF502D6E16610027E97B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4A8FF432D6E16510027E97B;
+			remoteInfo = SentryTestMock;
+		};
+		D4A8FF532D6E166A0027E97B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4A8FF432D6E16510027E97B;
+			remoteInfo = SentryTestMock;
+		};
+		D4A8FF5B2D6E16FC0027E97B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4A8FF432D6E16510027E97B;
+			remoteInfo = SentryTestMock;
+		};
 		D8199DC429376FC10074249E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -1041,6 +1080,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		D4A8FF422D6E16510027E97B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D833D7532D13263800961E7A /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1980,6 +2028,22 @@
 		D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestSample_Base.xctestplan; sourceTree = "<group>"; };
 		D4A2360B2D5F853300D55C58 /* visionOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "visionOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A2360C2D5F854C00D55C58 /* watchOS-Swift-WatchKit-App_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "watchOS-Swift-WatchKit-App_Base.xctestplan"; sourceTree = "<group>"; };
+		D4A7CF442D6DE4520005C760 /* DataSentryTracingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSentryTracingTests.swift; sourceTree = "<group>"; };
+		D4A7CF462D6DE8800005C760 /* MockSentryScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryScope.swift; sourceTree = "<group>"; };
+		D4A7CF492D6DFE980005C760 /* MockSentryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryClient.swift; sourceTree = "<group>"; };
+		D4A7CF4B2D6E00920005C760 /* MockSentrySpan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentrySpan.swift; sourceTree = "<group>"; };
+		D4A7CF4D2D6E01610005C760 /* MockSentrySpanContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentrySpanContext.swift; sourceTree = "<group>"; };
+		D4A8FF442D6E16510027E97B /* libSentryTestMock.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSentryTestMock.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4A8FF582D6E169A0027E97B /* MockFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFunction.swift; sourceTree = "<group>"; };
+		D4A8FF5D2D6E17150027E97B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/WatchOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D4A8FF612D6E18320027E97B /* MockSentryHub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryHub.swift; sourceTree = "<group>"; };
+		D4A8FF632D6E1AEE0027E97B /* MockSentryDateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryDateProvider.swift; sourceTree = "<group>"; };
+		D4A8FF652D6E1BE00027E97B /* CallBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallBox.swift; sourceTree = "<group>"; };
+		D4A8FF672D6E1BFA0027E97B /* SentryAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAssert.swift; sourceTree = "<group>"; };
+		D4A8FF692D6E1C000027E97B /* SentryAssertBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAssertBox.swift; sourceTree = "<group>"; };
+		D4A8FF6B2D6E225A0027E97B /* MockSentryThreadInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryThreadInspector.swift; sourceTree = "<group>"; };
+		D4A8FF6D2D6E22610027E97B /* MockSentryNSProcessInfoWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSentryNSProcessInfoWrapper.swift; sourceTree = "<group>"; };
+		D4A8FF712D6E23110027E97B /* SentryMockable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMockable.swift; sourceTree = "<group>"; };
 		D4AF00202D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzling.m; sourceTree = "<group>"; };
 		D4AF00222D2E931000F5F3D7 /* SentryNSFileManagerSwizzling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSFileManagerSwizzling.h; path = include/SentryNSFileManagerSwizzling.h; sourceTree = "<group>"; };
 		D4AF00242D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzlingTests.m; sourceTree = "<group>"; };
@@ -2184,6 +2248,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4A8FF5A2D6E16FC0027E97B /* libSentryTestMock.a in Frameworks */,
 				8431F01C29B2854200D8DC56 /* libSentryTestUtils.a in Frameworks */,
 				D84DAD592B1742C1003CF120 /* SentryTestUtilsDynamic.framework in Frameworks */,
 				63AA766A1EB8CB2F00D153DE /* Sentry.framework in Frameworks */,
@@ -2203,7 +2268,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4A8FF4F2D6E16610027E97B /* libSentryTestMock.a in Frameworks */,
 				84B7FA3529B285FC00AD93B1 /* Sentry.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D4A8FF412D6E16510027E97B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4A8FF5E2D6E17150027E97B /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2226,6 +2300,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4A8FF522D6E166A0027E97B /* libSentryTestMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2470,6 +2545,7 @@
 		6304360C1EC05CEF00C4D3FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D4A8FF5D2D6E17150027E97B /* XCTest.framework */,
 				84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */,
 				84F994E52A6894B500EC0190 /* CoreData.framework */,
 				6387B82F1ED851970045A84C /* libz.tbd */,
@@ -2490,6 +2566,7 @@
 				D46D45E22D5F3FD600A1CB35 /* Plans */,
 				8431F00B29B284F200D8DC56 /* SentryTestUtils */,
 				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
+				D4A8FF562D6E167A0027E97B /* SentryTestMock */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
 				7D826E3C2390840E00EED93D /* Utils */,
@@ -2508,6 +2585,7 @@
 				8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */,
 				D84DAD4D2B17428D003CF120 /* SentryTestUtilsDynamic.framework */,
 				D833D7342D1321C100961E7A /* SentrySwiftUITests.xctest */,
+				D4A8FF442D6E16510027E97B /* libSentryTestMock.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3665,6 +3743,7 @@
 		8431F00B29B284F200D8DC56 /* SentryTestUtils */ = {
 			isa = PBXGroup;
 			children = (
+				D4A7CF482D6DFE880005C760 /* Mocks */,
 				84AEB4682C2F9673007E46E1 /* ArrayAccesses.swift */,
 				D8FC98AA2CD0DAAC0009824C /* BreadcrumbExtension.swift */,
 				841325DE2BFED0510029228F /* TestFramesTracker.swift */,
@@ -3859,6 +3938,33 @@
 				D43647F02D5CFB71001468E0 /* SentrySpanKeyTests.swift */,
 			);
 			path = Transactions;
+			sourceTree = "<group>";
+		};
+		D4A7CF482D6DFE880005C760 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				D4A8FF6D2D6E22610027E97B /* MockSentryNSProcessInfoWrapper.swift */,
+				D4A8FF6B2D6E225A0027E97B /* MockSentryThreadInspector.swift */,
+				D4A8FF632D6E1AEE0027E97B /* MockSentryDateProvider.swift */,
+				D4A8FF612D6E18320027E97B /* MockSentryHub.swift */,
+				D4A7CF4D2D6E01610005C760 /* MockSentrySpanContext.swift */,
+				D4A7CF492D6DFE980005C760 /* MockSentryClient.swift */,
+				D4A7CF4B2D6E00920005C760 /* MockSentrySpan.swift */,
+				D4A7CF462D6DE8800005C760 /* MockSentryScope.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		D4A8FF562D6E167A0027E97B /* SentryTestMock */ = {
+			isa = PBXGroup;
+			children = (
+				D4A8FF712D6E23110027E97B /* SentryMockable.swift */,
+				D4A8FF692D6E1C000027E97B /* SentryAssertBox.swift */,
+				D4A8FF672D6E1BFA0027E97B /* SentryAssert.swift */,
+				D4A8FF652D6E1BE00027E97B /* CallBox.swift */,
+				D4A8FF582D6E169A0027E97B /* MockFunction.swift */,
+			);
+			path = SentryTestMock;
 			sourceTree = "<group>";
 		};
 		D4F2B5332D0C69CC00649E42 /* Recording */ = {
@@ -4074,6 +4180,7 @@
 			isa = PBXGroup;
 			children = (
 				D4C5F5992D4249E0002A9BF6 /* DataSentryTracingIntegrationTests.swift */,
+				D4A7CF442D6DE4520005C760 /* DataSentryTracingTests.swift */,
 				D875ED0A276CC84700422FAC /* SentryFileIOTrackerTests.swift */,
 				D8CE69BB277E39C700C6EC5C /* SentryFileIOTrackingIntegrationObjCTests.m */,
 				D885266327739D01001269FC /* SentryFileIOTrackingIntegrationTests.swift */,
@@ -4637,6 +4744,7 @@
 			dependencies = (
 				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
 				D84DAD5C2B1742C1003CF120 /* PBXTargetDependency */,
+				D4A8FF5C2D6E16FC0027E97B /* PBXTargetDependency */,
 			);
 			name = SentryTests;
 			packageProductDependencies = (
@@ -4677,10 +4785,30 @@
 			);
 			dependencies = (
 				84B7FA3829B2860500AD93B1 /* PBXTargetDependency */,
+				D4A8FF512D6E16610027E97B /* PBXTargetDependency */,
 			);
 			name = SentryTestUtils;
 			productName = SentryTestUtils;
 			productReference = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D4A8FF432D6E16510027E97B /* SentryTestMock */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D4A8FF482D6E16510027E97B /* Build configuration list for PBXNativeTarget "SentryTestMock" */;
+			buildPhases = (
+				D4A8FF402D6E16510027E97B /* Sources */,
+				D4A8FF412D6E16510027E97B /* Frameworks */,
+				D4A8FF422D6E16510027E97B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SentryTestMock;
+			packageProductDependencies = (
+			);
+			productName = SentryTestMock;
+			productReference = D4A8FF442D6E16510027E97B /* libSentryTestMock.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D8199DA929376E9B0074249E /* SentrySwiftUI */ = {
@@ -4735,6 +4863,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D4A8FF542D6E166A0027E97B /* PBXTargetDependency */,
 			);
 			name = SentryTestUtilsDynamic;
 			productName = SentryTestUtilsDynamic;
@@ -4747,7 +4876,7 @@
 		6327C5CA1EB8A783004E799B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1410;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
@@ -4768,6 +4897,9 @@
 						CreatedOnToolsVersion = 14.1;
 						DevelopmentTeam = 97JCY7859U;
 						ProvisioningStyle = Manual;
+					};
+					D4A8FF432D6E16510027E97B = {
+						CreatedOnToolsVersion = 16.2;
 					};
 					D8199DA929376E9B0074249E = {
 						CreatedOnToolsVersion = 14.1;
@@ -4799,6 +4931,7 @@
 				8431F00929B284F200D8DC56 /* SentryTestUtils */,
 				D84DAD4C2B17428D003CF120 /* SentryTestUtilsDynamic */,
 				D833D61E2D1321C100961E7A /* SentrySwiftUITests */,
+				D4A8FF432D6E16510027E97B /* SentryTestMock */,
 			);
 		};
 /* End PBXProject section */
@@ -5386,6 +5519,7 @@
 				7BC8523B2458849E005A70F0 /* SentryDataCategoryMapperTests.swift in Sources */,
 				63FE721220DA66EC00CDBAE8 /* SentryCrashMach_Tests.m in Sources */,
 				0A94158228F6C4C2006A5DD1 /* SentryAppStateManagerTests.swift in Sources */,
+				D4A7CF452D6DE4520005C760 /* DataSentryTracingTests.swift in Sources */,
 				7B6D98E924C6D336005502FA /* SentrySdkInfo+Equality.m in Sources */,
 				62F226B729A37C120038080D /* SentryBooleanSerialization.m in Sources */,
 				7B6438A726A70DDB000D0F65 /* UIViewControllerSentryTests.swift in Sources */,
@@ -5497,11 +5631,15 @@
 			files = (
 				841325DF2BFED0510029228F /* TestFramesTracker.swift in Sources */,
 				8431F01629B2851500D8DC56 /* TestSentryNSProcessInfoWrapper.swift in Sources */,
+				D4A8FF622D6E18330027E97B /* MockSentryHub.swift in Sources */,
+				D4A8FF6E2D6E22620027E97B /* MockSentryNSProcessInfoWrapper.swift in Sources */,
 				841325BC2BF4184B0029228F /* TestHub.swift in Sources */,
+				D4A7CF4A2D6DFEA30005C760 /* MockSentryClient.swift in Sources */,
 				84EB21942BF01C6C00EDDA28 /* TestNSNotificationCenterWrapper.swift in Sources */,
 				84B7FA4229B28CDE00AD93B1 /* TestCurrentDateProvider.swift in Sources */,
 				62C25C862B075F4900C68CBD /* TestOptions.swift in Sources */,
 				62FC69362BEDFF18002D3EF2 /* SentryLogExtensions.swift in Sources */,
+				D4A8FF642D6E1AF30027E97B /* MockSentryDateProvider.swift in Sources */,
 				84AEB46A2C2F97FC007E46E1 /* ArrayAccesses.swift in Sources */,
 				84B7FA3F29B28BAD00AD93B1 /* TestTransport.swift in Sources */,
 				84A5D75B29D5170700388BFA /* TimeInterval+Sentry.swift in Sources */,
@@ -5509,6 +5647,7 @@
 				84AC61D929F7643B009EEF61 /* TestDispatchFactory.swift in Sources */,
 				6205B4A42CE73AA100744684 /* TestDebugImageProvider.swift in Sources */,
 				8431F01929B2852D00D8DC56 /* Invocation.swift in Sources */,
+				D4A8FF6C2D6E225B0027E97B /* MockSentryThreadInspector.swift in Sources */,
 				84B7FA4629B2935F00AD93B1 /* ClearTestState.swift in Sources */,
 				84281C622A579D0700EE88F2 /* SentryProfilerMocksSwiftCompatible.mm in Sources */,
 				8431F01529B2851500D8DC56 /* TestSentryNSTimerFactory.swift in Sources */,
@@ -5518,8 +5657,11 @@
 				62CFD9AE2C99770B00834E1B /* SentryInvalidJSONString.m in Sources */,
 				84B7FA4029B28BAD00AD93B1 /* TestTransportAdapter.swift in Sources */,
 				84B7FA4429B2924000AD93B1 /* TestRandom.swift in Sources */,
+				D4A7CF4E2D6E01690005C760 /* MockSentrySpanContext.swift in Sources */,
+				D4A7CF4C2D6E00950005C760 /* MockSentrySpan.swift in Sources */,
 				8431F01B29B2852D00D8DC56 /* Logger.swift in Sources */,
 				8431F01829B2852D00D8DC56 /* TypeMapping.swift in Sources */,
+				D4A7CF472D6DE8850005C760 /* MockSentryScope.swift in Sources */,
 				84B7FA4529B2926900AD93B1 /* TestDisplayLinkWrapper.swift in Sources */,
 				84AC61DB29F7654A009EEF61 /* TestDispatchSourceWrapper.swift in Sources */,
 				8431F01729B2851500D8DC56 /* TestSentrySystemWrapper.swift in Sources */,
@@ -5527,6 +5669,18 @@
 				D8FC98AB2CD0DAB30009824C /* BreadcrumbExtension.swift in Sources */,
 				84B7FA4129B28CD200AD93B1 /* TestSentryDispatchQueueWrapper.swift in Sources */,
 				84B7FA3E29B28ADD00AD93B1 /* TestClient.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D4A8FF402D6E16510027E97B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4A8FF6A2D6E1C000027E97B /* SentryAssertBox.swift in Sources */,
+				D4A8FF722D6E23150027E97B /* SentryMockable.swift in Sources */,
+				D4A8FF592D6E16A70027E97B /* MockFunction.swift in Sources */,
+				D4A8FF662D6E1BE20027E97B /* CallBox.swift in Sources */,
+				D4A8FF682D6E1BFC0027E97B /* SentryAssert.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5580,6 +5734,21 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 84B7FA3729B2860500AD93B1 /* PBXContainerItemProxy */;
+		};
+		D4A8FF512D6E16610027E97B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4A8FF432D6E16510027E97B /* SentryTestMock */;
+			targetProxy = D4A8FF502D6E16610027E97B /* PBXContainerItemProxy */;
+		};
+		D4A8FF542D6E166A0027E97B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4A8FF432D6E16510027E97B /* SentryTestMock */;
+			targetProxy = D4A8FF532D6E166A0027E97B /* PBXContainerItemProxy */;
+		};
+		D4A8FF5C2D6E16FC0027E97B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4A8FF432D6E16510027E97B /* SentryTestMock */;
+			targetProxy = D4A8FF5B2D6E16FC0027E97B /* PBXContainerItemProxy */;
 		};
 		D8199DC529376FC10074249E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6289,6 +6458,392 @@
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
+			};
+			name = ReleaseWithoutUIKit;
+		};
+		D4A8FF492D6E16510027E97B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D4A8FF4A2D6E16510027E97B /* DebugWithoutUIKit */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DebugWithoutUIKit;
+		};
+		D4A8FF4B2D6E16510027E97B /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Test;
+		};
+		D4A8FF4C2D6E16510027E97B /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = TestCI;
+		};
+		D4A8FF4D2D6E16510027E97B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D4A8FF4E2D6E16510027E97B /* ReleaseWithoutUIKit */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -7126,6 +7681,19 @@
 				8431F01329B284F200D8DC56 /* TestCI */,
 				8431F01429B284F200D8DC56 /* Release */,
 				8483D0702AC7627800143615 /* ReleaseWithoutUIKit */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D4A8FF482D6E16510027E97B /* Build configuration list for PBXNativeTarget "SentryTestMock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D4A8FF492D6E16510027E97B /* Debug */,
+				D4A8FF4A2D6E16510027E97B /* DebugWithoutUIKit */,
+				D4A8FF4B2D6E16510027E97B /* Test */,
+				D4A8FF4C2D6E16510027E97B /* TestCI */,
+				D4A8FF4D2D6E16510027E97B /* Release */,
+				D4A8FF4E2D6E16510027E97B /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
