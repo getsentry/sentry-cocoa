@@ -174,8 +174,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
     @synchronized(sessionTask) {
-        __block id<SentrySpan> span;
-        __block id<SentrySpan> netSpan;
+        __block id<SentrySpan> _Nullable span;
+        __block id<SentrySpan> _Nullable netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
         // The task already has a span. Nothing to do.

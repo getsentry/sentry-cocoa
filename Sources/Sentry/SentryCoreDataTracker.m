@@ -39,8 +39,9 @@
     id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
     id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
+        NSString *spanDescription = [self descriptionFromRequest:request];
         fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperation.coredataFetchOperation
-                                             description:[self descriptionFromRequest:request]];
+                                             description:spanDescription];
     }
 
     if (fetchSpan) {
@@ -72,17 +73,18 @@
                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
 {
 
-    __block id<SentrySpan> saveSpan = nil;
+    __block id<SentrySpan> _Nullable saveSpan = nil;
     if (context.hasChanges) {
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
         id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
         if (currentSpan) {
+            NSString *spanDescription = [self descriptionForOperations:operations
+                                                             inContext:context];
             saveSpan =
                 [currentSpan startChildWithOperation:SentrySpanOperation.coredataSaveOperation
-                                         description:[self descriptionForOperations:operations
-                                                                          inContext:context]];
+                                         description:spanDescription];
         }
 
         if (saveSpan) {
