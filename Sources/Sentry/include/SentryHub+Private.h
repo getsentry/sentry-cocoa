@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
+- (void)captureFatalAppHangEvent:(SentryEvent *)event;
+
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL;

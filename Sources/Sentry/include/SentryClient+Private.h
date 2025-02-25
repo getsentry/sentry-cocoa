@@ -42,6 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
+- (SentryId *)captureFatalAppHangEvent:(SentryEvent *)event;
+
+- (SentryId *)captureFatalAppHangEvent:(SentryEvent *)event withSession:(SentrySession *)session;
+
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));

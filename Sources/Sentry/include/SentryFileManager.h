@@ -77,6 +77,10 @@ SENTRY_NO_INIT
 - (SentrySession *_Nullable)readCrashedSession;
 - (void)deleteCrashedSession;
 
+- (void)storeAbnormalSession:(SentrySession *)session;
+- (SentrySession *_Nullable)readAbnormalSession;
+- (void)deleteAbnormalSession;
+
 #pragma mark - LastInForeground
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp;
 - (NSDate *_Nullable)readTimestampLastInForeground;
@@ -101,6 +105,7 @@ SENTRY_NO_INIT
 #pragma mark - AppHangs
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
 - (nullable SentryEvent *)readAppHangEvent;
+- (BOOL)appHangEventExists;
 - (void)deleteAppHangEvent;
 
 #pragma mark - File Operations

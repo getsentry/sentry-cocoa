@@ -36,7 +36,7 @@
     return self;
 }
 
-- (void)endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination
+- (void)endCurrentSessionIfRequired
 {
     if (self.crashWrapper.crashedLastLaunch
 #if SENTRY_HAS_UIKIT
@@ -61,6 +61,33 @@
         [fileManager storeCrashedSession:session];
         [fileManager deleteCurrentSession];
     }
+#if SENTRY_HAS_UIKIT
+    else {
+        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+
+        if (nil == fileManager) {
+            return;
+        }
+
+        SentrySession *session = [fileManager readCurrentSession];
+        if (session == nil) {
+            return;
+        }
+
+        if (![fileManager appHangEventExists]) {
+            return;
+        }
+
+        SentryEvent *appHangEvent = [fileManager readAppHangEvent];
+        if (appHangEvent == nil) {
+            return;
+        }
+
+        [session endSessionAbnormalWithTimestamp:appHangEvent.timestamp];
+        [fileManager storeAbnormalSession:session];
+        [fileManager deleteCurrentSession];
+    }
+#endif // SENTRY_HAS_UIKIT
 }
 
 @end

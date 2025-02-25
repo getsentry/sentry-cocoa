@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
++ (void)captureFatalAppHangEvent:(SentryEvent *)event;
+
 /**
  * SDK private field to store the state if onCrashedLastRun was called.
  */

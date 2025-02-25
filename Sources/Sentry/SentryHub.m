@@ -261,6 +261,28 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    SentryClient *client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    SentryFileManager *fileManager = [client fileManager];
+    SentrySession *abnormalSession = [fileManager readAbnormalSession];
+    abnormalSession.abnormalMechanism = @"anr_foreground";
+
+    // It can occur that there is no session yet because autoSessionTracking was just enabled or
+    // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
+    // this case,  we just send the fatal app hang event.
+    if (abnormalSession != nil) {
+        [client captureFatalAppHangEvent:event withSession:abnormalSession];
+        [fileManager deleteAbnormalSession];
+    } else {
+        [client captureFatalAppHangEvent:event];
+    }
+}
+
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
     [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];

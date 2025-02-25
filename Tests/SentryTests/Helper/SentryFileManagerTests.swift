@@ -728,6 +728,31 @@ class SentryFileManagerTests: XCTestCase {
         // Assert
         XCTAssertNil(sut.readAppHangEvent())
     }
+    
+    func testAppHangEventExists_WithStoredEvent_ReturnsTrue() throws {
+        // Arrange
+        let event = TestData.event
+        sut.storeAppHang(event)
+        
+        // Act && Assert
+        XCTAssertTrue(sut.appHangEventExists())
+    }
+    
+    func testAppHangEventExists_WithNoStoredEvent_ReturnsFalse() throws {
+        // Act && Assert
+        XCTAssertFalse(sut.appHangEventExists())
+    }
+    
+    func testAppHangEventExists_WithGarage_ReturnsTrue() throws {
+        // Arrange
+        let fileManager = FileManager.default
+        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
+        
+        fileManager.createFile(atPath: appHangEventFilePath, contents: "garbage".data(using: .utf8)!, attributes: nil)
+        
+        // Act && Assert
+        XCTAssertTrue(sut.appHangEventExists())
+    }
 
     func testDeleteAppHangEvent() {
         // Arrange

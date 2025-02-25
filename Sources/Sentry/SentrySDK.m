@@ -284,6 +284,11 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
 }
 
++ (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    [SentrySDK.currentHub captureFatalAppHangEvent:event];
+}
+
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDK captureEvent:event withScope:SentrySDK.currentHub.scope];
