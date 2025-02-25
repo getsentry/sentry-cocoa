@@ -12,8 +12,4 @@ final class UITests: XCTestCase {
         app.launch()
         app.buttons["btError"].tap()
     }
-    
-    func testFail() {
-        XCTFail("Test failed test")
-    }
 }

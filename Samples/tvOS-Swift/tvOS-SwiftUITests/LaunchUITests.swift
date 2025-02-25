@@ -15,10 +15,6 @@ class LaunchUITests: XCTestCase {
         app.terminate()
         super.tearDown()
     }
-    
-    func testFail() {
-        XCTFail("Test failed test")
-    }
 
     func testLaunch() throws {
         app.buttons["captureMessageButton"].waitForExistence("Home Screen doesn't exist.")
