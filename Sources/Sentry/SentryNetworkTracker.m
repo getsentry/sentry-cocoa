@@ -174,8 +174,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
     @synchronized(sessionTask) {
-        __block id<SentrySpan> span;
-        __block id<SentrySpan> netSpan;
+        __block id<SentrySpan> _Nullable span;
+        __block id<SentrySpan> _Nullable netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
         // The task already has a span. Nothing to do.
@@ -183,28 +183,27 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
-            if (innerSpan != nil) {
-                span = innerSpan;
-                netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
-                                            description:[NSString stringWithFormat:@"%@ %@",
-                                                            sessionTask.currentRequest.HTTPMethod,
-                                                            safeUrl.sanitizedUrl]];
-                netSpan.origin = SentryTraceOrigin.autoHttpNSURLSession;
+        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        if (currentSpan != nil) {
+            span = currentSpan;
+            netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
+                                        description:[NSString stringWithFormat:@"%@ %@",
+                                                        sessionTask.currentRequest.HTTPMethod,
+                                                        safeUrl.sanitizedUrl]];
+            netSpan.origin = SentryTraceOrigin.autoHttpNSURLSession;
 
-                [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
-                               forKey:@"http.request.method"];
-                [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
-                [netSpan setDataValue:@"fetch" forKey:@"type"];
+            [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
+                           forKey:@"http.request.method"];
+            [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
+            [netSpan setDataValue:@"fetch" forKey:@"type"];
 
-                if (safeUrl.queryItems && safeUrl.queryItems.count > 0) {
-                    [netSpan setDataValue:safeUrl.query forKey:@"http.query"];
-                }
-                if (safeUrl.fragment != nil) {
-                    [netSpan setDataValue:safeUrl.fragment forKey:@"http.fragment"];
-                }
+            if (safeUrl.queryItems && safeUrl.queryItems.count > 0) {
+                [netSpan setDataValue:safeUrl.query forKey:@"http.query"];
             }
-        }];
+            if (safeUrl.fragment != nil) {
+                [netSpan setDataValue:safeUrl.fragment forKey:@"http.fragment"];
+            }
+        }
 
         // We only create a span if there is a transaction in the scope,
         // otherwise we have nothing else to do here.
