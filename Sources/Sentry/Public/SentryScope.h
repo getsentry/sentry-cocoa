@@ -158,7 +158,9 @@ NS_SWIFT_NAME(Scope)
  * Mutates the current transaction atomically.
  * @param callback the SentrySpanCallback.
  */
-- (void)useSpan:(SentrySpanCallback)callback;
+- (void)useSpan:(SentrySpanCallback)callback DEPRECATED_MSG_ATTRIBUTE("use `span` instead");
+
+- (id<SentrySpan> _Nullable)span;
 
 @end
 

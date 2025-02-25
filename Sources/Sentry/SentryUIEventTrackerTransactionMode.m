@@ -67,30 +67,28 @@ NS_ASSUME_NONNULL_BEGIN
                                              operation:operation
                                                 origin:SentryTraceOrigin.autoUiEventTracker];
 
-    __block SentryTracer *transaction;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        BOOL ongoingScreenLoadTransaction
-            = span != nil && [span.operation isEqualToString:SentrySpanOperation.uiLoad];
-        BOOL ongoingManualTransaction = span != nil
-            && ![span.operation isEqualToString:SentrySpanOperation.uiLoad]
-            && ![span.operation containsString:SentrySpanOperation.uiAction];
+    id<SentrySpan> span = [SentrySDK.currentHub.scope span];
+    BOOL ongoingScreenLoadTransaction
+        = span != nil && [span.operation isEqualToString:SentrySpanOperation.uiLoad];
+    BOOL ongoingManualTransaction = span != nil
+        && ![span.operation isEqualToString:SentrySpanOperation.uiLoad]
+        && ![span.operation containsString:SentrySpanOperation.uiAction];
 
-        BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
+    BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
 
-        transaction = [SentrySDK.currentHub
-            startTransactionWithContext:context
-                            bindToScope:bindToScope
-                  customSamplingContext:@{}
-                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                            SentryTracerConfiguration *config) {
-                              config.idleTimeout = self.idleTimeout;
-                              config.waitForChildren = YES;
-                          }]];
+    __block SentryTracer *transaction = [SentrySDK.currentHub
+        startTransactionWithContext:context
+                        bindToScope:bindToScope
+              customSamplingContext:@{}
+                      configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                        SentryTracerConfiguration *config) {
+                          config.idleTimeout = self.idleTimeout;
+                          config.waitForChildren = YES;
+                      }]];
 
-        SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "
-                         @"%@, bindToScope: %@",
-            action, bindToScope ? @"YES" : @"NO");
-    }];
+    SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "
+                     @"%@, bindToScope: %@",
+        action, bindToScope ? @"YES" : @"NO");
 
     if (accessibilityIdentifier) {
         [transaction setTagValue:accessibilityIdentifier forKey:@"accessibilityIdentifier"];

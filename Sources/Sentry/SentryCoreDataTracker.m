@@ -36,12 +36,11 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    __block id<SentrySpan> fetchSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        fetchSpan = [span startChildWithOperation:SentrySpanOperation.coredataFetchOperation
-                                      description:[self descriptionFromRequest:request]];
-        fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
-    }];
+    id<SentrySpan> span = [SentrySDK.currentHub.scope span];
+    __block id<SentrySpan> fetchSpan =
+        [span startChildWithOperation:SentrySpanOperation.coredataFetchOperation
+                          description:[self descriptionFromRequest:request]];
+    fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
 
     if (fetchSpan) {
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
@@ -75,12 +74,11 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            saveSpan = [span startChildWithOperation:SentrySpanOperation.coredataSaveOperation
-                                         description:[self descriptionForOperations:operations
-                                                                          inContext:context]];
-            saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
-        }];
+        id<SentrySpan> _Nullable span = [SentrySDK.currentHub.scope span];
+        saveSpan = [span startChildWithOperation:SentrySpanOperation.coredataSaveOperation
+                                     description:[self descriptionForOperations:operations
+                                                                      inContext:context]];
+        saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
 
         if (saveSpan) {
             SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
