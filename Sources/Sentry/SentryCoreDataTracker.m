@@ -37,7 +37,7 @@
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
     id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
-    id<SentrySpan> fetchSpan;
+    id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperation.coredataFetchOperation
                                              description:[self descriptionFromRequest:request]];

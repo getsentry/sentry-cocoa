@@ -208,13 +208,11 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     ioSpan.origin = origin;
+    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
 
     SENTRY_LOG_DEBUG(
         @"Automatically started a new span with description: %@, operation: %@, origin: %@",
         ioSpan.description, operation, origin);
-
-    ioSpan.origin = origin;
-    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
 
     [self mainThreadExtraInfo:ioSpan];
 

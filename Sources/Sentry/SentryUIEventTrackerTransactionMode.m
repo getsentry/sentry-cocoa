@@ -68,12 +68,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                 origin:SentryTraceOrigin.autoUiEventTracker];
 
     id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
-    BOOL ongoingScreenLoadTransaction
-        = currentSpan != nil && [currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad];
-    BOOL ongoingManualTransaction = currentSpan != nil
-        && ![currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad]
-        && ![currentSpan.operation containsString:SentrySpanOperation.uiAction];
-
+    BOOL ongoingScreenLoadTransaction = false;
+    BOOL ongoingManualTransaction = false;
+    if (currentSpan != nil) {
+        ongoingScreenLoadTransaction =
+            [currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad];
+        ongoingManualTransaction
+            = ![currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad]
+            && ![currentSpan.operation containsString:SentrySpanOperation.uiAction];
+    }
     BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
 
     __block SentryTracer *transaction = [SentrySDK.currentHub
