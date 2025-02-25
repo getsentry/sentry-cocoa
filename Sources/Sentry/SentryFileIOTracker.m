@@ -200,28 +200,30 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return nil;
     }
 
-    __block id<SentrySpan> ioSpan;
     NSString *spanDescription = [self transactionDescriptionForFile:path fileSize:size];
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        // Keep the logic inside the `useSpan` block to a minimum, as we have noticed memory issues
-        // See: https://github.com/getsentry/sentry-cocoa/issues/4887
-        ioSpan = [span startChildWithOperation:operation description:spanDescription];
-    }];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    if (currentSpan == NULL) {
+        SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
+        return nil;
+    }
 
+    id<SentrySpan> _Nullable ioSpan = [currentSpan startChildWithOperation:operation
+                                                               description:spanDescription];
     if (ioSpan == nil) {
         SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
-        ioSpan.description, operation);
-
+    ioSpan.origin = origin;
+    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
     if (size > 0) {
         [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
                       forKey:SentrySpanDataKey.fileSize];
     }
-    ioSpan.origin = origin;
-    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
+
+    SENTRY_LOG_DEBUG(
+        @"Automatically started a new span with description: %@, operation: %@, origin: %@",
+        ioSpan.description, operation, origin);
 
     [self mainThreadExtraInfo:ioSpan];
 
