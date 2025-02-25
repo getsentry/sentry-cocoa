@@ -1513,12 +1513,19 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotation can go away.")
-    func testCaptureFeedback_WithEmptyEventId() {
+    func testCaptureFeedback_WithEmptyEventId() throws {
         let sut = fixture.getSut()
         XCTAssertTrue(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
         sut.capture(feedback: fixture.feedback, scope: fixture.scope)
         XCTAssertFalse(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
+        let invocation = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event: Event = invocation.0
+        let feedbackContext = try XCTUnwrap(event.context?["feedback"])
+        XCTAssertEqual(feedbackContext["message"] as? String, fixture.feedback.message)
+        XCTAssertEqual(feedbackContext["name"] as? String, fixture.feedback.name)
+        XCTAssertEqual(feedbackContext["contact_email"] as? String, fixture.feedback.email)
+        XCTAssertEqual(feedbackContext["source"] as? String, fixture.feedback.source.serialize)
+        XCTAssertEqual(feedbackContext["associated_event_id"] as? String, fixture.feedback.associatedEventId?.sentryIdString)
     }
 
     func testDistIsSet() throws {

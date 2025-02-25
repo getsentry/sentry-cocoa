@@ -254,35 +254,21 @@ SENTRY_NO_INIT
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
  * @deprecated Use @c SentrySDK.captureFeedback or use or configure our new managed UX with
- * @c SentrySDK.showUserFeedbackForm and @c SentryOptions.configureUserFeedback .
+ * @c SentryOptions.configureUserFeedback .
  */
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
     NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
         "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
-        "SentrySDK.showUserFeedbackForm and SentryOptions.configureUserFeedback.");
+        "SentryOptions.configureUserFeedback.");
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param feedback The feedback to send to Sentry.
  * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
- * consider using `showUserFeedbackForm`, which delivers a prepackaged user feedback experience. See
- * @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
+ * see @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
  * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-/**
- * Display a form to gather information from an end user in the app to send to Sentry as a user
- * feedback event.
- * @see @c SentryOptions.configureUserFeedback to customize the experience, currently only on iOS.
- * @warning This is an experimental feature and may still have bugs.
- * @note This is a fully managed user feedback flow; there will be no need to call
- * @c SentrySDK.captureUserFeedback . See
- * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
- */
-+ (void)showUserFeedbackForm;
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
