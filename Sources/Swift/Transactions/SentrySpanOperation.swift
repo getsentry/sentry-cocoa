@@ -10,23 +10,23 @@ import Foundation
  */
 @objcMembers @objc(SentrySpanOperation)
 class SentrySpanOperation: NSObject {
-    static let appLifecycle = "app.lifecycle"
+    static let appLifecycle: NSString = "app.lifecycle"
 
-    static let coredataFetchOperation = "db.sql.query"
-    static let coredataSaveOperation = "db.sql.transaction"
+    static let coredataFetchOperation: NSString = "db.sql.query"
+    static let coredataSaveOperation: NSString = "db.sql.transaction"
 
-    static let fileRead = "file.read"
-    static let fileWrite = "file.write"
-    static let fileCopy = "file.copy"
-    static let fileRename = "file.rename"
-    static let fileDelete = "file.delete"
+    static let fileRead: NSString = "file.read"
+    static let fileWrite: NSString = "file.write"
+    static let fileCopy: NSString = "file.copy"
+    static let fileRename: NSString = "file.rename"
+    static let fileDelete: NSString = "file.delete"
 
-    static let networkRequestOperation = "http.client"
+    static let networkRequestOperation: NSString = "http.client"
 
-    static let uiAction = "ui.action"
-    static let uiActionClick = "ui.action.click"
+    static let uiAction: NSString = "ui.action"
+    static let uiActionClick: NSString = "ui.action.click"
 
-    static let uiLoad = "ui.load"
-    static let uiLoadInitialDisplay = "ui.load.initial_display"
-    static let uiLoadFullDisplay = "ui.load.full_display"
+    static let uiLoad: NSString = "ui.load"
+    static let uiLoadInitialDisplay: NSString = "ui.load.initial_display"
+    static let uiLoadFullDisplay: NSString = "ui.load.full_display"
 }
