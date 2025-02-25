@@ -201,15 +201,11 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     __block id<SentrySpan> ioSpan;
+    NSString *spanDescription = [self transactionDescriptionForFile:path fileSize:size];
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:operation
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:size]];
-        ioSpan.origin = origin;
-        if (size > 0) {
-            [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
-                          forKey:SentrySpanDataKey.fileSize];
-        }
+        // Keep the logic inside the `useSpan` block to a minimum, as we have noticed memory issues
+        // See: https://github.com/getsentry/sentry-cocoa/issues/4887
+        ioSpan = [span startChildWithOperation:operation description:spanDescription];
     }];
 
     if (ioSpan == nil) {
@@ -220,6 +216,11 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
         ioSpan.description, operation);
 
+    if (size > 0) {
+        [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
+                      forKey:SentrySpanDataKey.fileSize];
+    }
+    ioSpan.origin = origin;
     [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
 
     [self mainThreadExtraInfo:ioSpan];

@@ -594,6 +594,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
     SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
     feedbackEvent.eventId = feedback.eventId;
     feedbackEvent.type = SentryEnvelopeItemTypeFeedback;

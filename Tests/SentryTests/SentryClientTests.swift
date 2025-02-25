@@ -39,6 +39,8 @@ class SentryClientTest: XCTestCase {
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
+        let feedback = SentryFeedback(message: "A test message", name: "Abe Tester", email: "abe.tester@sentry.io", source: .custom, associatedEventId: SentryId())
+        
         init() throws {
             session = SentrySession(releaseName: "release", distinctId: "some-id")
             session.incrementErrors()
@@ -1166,7 +1168,8 @@ class SentryClientTest: XCTestCase {
         let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
         XCTAssertEqual(1, serializedSpans.count)
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(message: fixture.messageAsString)
@@ -1174,27 +1177,31 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testDisabled_MessageNotSent() {
         let sut = fixture.getSutDisabledSdk()
         let eventId = sut.capture(message: fixture.messageAsString)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ExceptionNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(exception: exception)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ErrorNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(error: error)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_SessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         fixture.getSut(configureOptions: { options in
@@ -1203,7 +1210,8 @@ class SentryClientTest: XCTestCase {
 
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_EventWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1213,7 +1221,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ExceptionWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1225,7 +1234,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ErrorWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1238,18 +1248,22 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateNil_EventNotSampled() throws {
         try assertSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateBiggerRandom_EventNotSampled() throws {
         try assertSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateEqualsRandom_EventNotSampled() throws {
         try assertSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateSmallerRandom_EventSampled() throws {
         try assertSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
@@ -1464,23 +1478,54 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.beforeSend)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
-    
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testNoDsn_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testDisabled_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
     func testDisabled_UserFeedbackNotSent() {
         let sut = fixture.getSutDisabledSdk()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testCaptureFeedback_WithEmptyEventId when -[SentryClient captureUserFeedback:] is removed.")
     func testCaptureUserFeedback_WithEmptyEventId() {
         let sut = fixture.getSut()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
+    }
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotation can go away.")
+    func testNoDsn_FeedbackNotSent() {
+        let sut = fixture.getSutWithNoDsn()
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        assertNothingSent()
+    }
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotation can go away.")
+    func testDisabled_FeedbackNotSent() {
+        let sut = fixture.getSutDisabledSdk()
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        assertNothingSent()
+    }
+    
+    func testCaptureFeedback_WithEmptyEventId() throws {
+        let sut = fixture.getSut()
+        XCTAssertTrue(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        XCTAssertFalse(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
+        let invocation = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event: Event = invocation.0
+        let feedbackContext = try XCTUnwrap(event.context?["feedback"])
+        XCTAssertEqual(feedbackContext["message"] as? String, fixture.feedback.message)
+        XCTAssertEqual(feedbackContext["name"] as? String, fixture.feedback.name)
+        XCTAssertEqual(feedbackContext["contact_email"] as? String, fixture.feedback.email)
+        XCTAssertEqual(feedbackContext["source"] as? String, fixture.feedback.source.serialize)
+        XCTAssertEqual(feedbackContext["associated_event_id"] as? String, fixture.feedback.associatedEventId?.sentryIdString)
     }
 
     func testDistIsSet() throws {
@@ -2094,7 +2139,8 @@ private extension SentryClientTest {
     private func shortenIntegrations(_ integrations: [String]?) -> [String]? {
         return integrations?.map { $0.replacingOccurrences(of: "Sentry", with: "").replacingOccurrences(of: "Integration", with: "") }
     }
-
+    
+    @available(*, deprecated, message: "Remove check on transportAdapter.userFeedbackInvocations when SentryUserFeedback is removed in favor of SentryFeedback. Then this deprecation annotation can be removed.")
     private func assertNothingSent() {
         XCTAssertTrue(fixture.transport.sentEnvelopes.isEmpty)
         XCTAssertEqual(0, fixture.transportAdapter.sentEventsWithSessionTraceState.count)
@@ -2154,6 +2200,7 @@ private extension SentryClientTest {
     }
 #endif
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotations can be removed.")
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
         fixture.random.value = randomValue
         

@@ -199,3 +199,14 @@ static NSString *_Nonnull const kSentryFalseString = @"false";
  */
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward declaration, the
                                                          // actual enum is implemented in Swift.
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+/**
+ * Block used to configure the user feedback widget, form, behaviors and submission data.
+ */
+API_AVAILABLE(ios(13.0))
+typedef void (^SentryUserFeedbackConfigurationBlock)(
+    SentryUserFeedbackConfiguration *_Nonnull configuration);
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

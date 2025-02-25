@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -529,7 +528,7 @@
             <objects>
                 <viewController id="ikl-rF-hao" customClass="SplitRootViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="146-N0-BiP">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is Split Root ViewController" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5bi-2z-fqb">
@@ -669,7 +668,7 @@
             <objects>
                 <viewController id="g8o-dT-S6v" customClass="SecondarySplitViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BKf-tT-kLA">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="puK-Su-Cjb"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -920,7 +919,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FfQ-2y-q0S">
-                                                                <rect key="frame" x="0.0" y="34" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="31" width="152" height="28"/>
                                                                 <accessibility key="accessibilityConfiguration" identifier="uiEventTests"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="UI event tests"/>
@@ -929,7 +928,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Did-Hh-ggK">
-                                                                <rect key="frame" x="0.0" y="68.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="61.5" width="152" height="28"/>
                                                                 <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="Message"/>
@@ -938,15 +937,23 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FrJ-bO-5YO">
-                                                                <rect key="frame" x="0.0" y="102.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="92.5" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="User Feedback"/>
                                                                 <connections>
                                                                     <action selector="captureUserFeedback:" destination="VqS-l1-kwe" eventType="touchUpInside" id="SKR-5v-uQQ"/>
                                                                 </connections>
                                                             </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z7p-dN-OxK">
+                                                                <rect key="frame" x="0.0" y="123" width="152" height="28"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <state key="normal" title="New User Feedback"/>
+                                                                <connections>
+                                                                    <action selector="captureUserFeedbackV2:" destination="VqS-l1-kwe" eventType="touchUpInside" id="64f-FC-NEJ"/>
+                                                                </connections>
+                                                            </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7Z-ga-DoR" userLabel="HighCpuLoad">
-                                                                <rect key="frame" x="0.0" y="137" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="154" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="HighCpuLoad"/>
                                                                 <connections>
@@ -954,7 +961,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4G-h5-Sio">
-                                                                <rect key="frame" x="0.0" y="171" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="185" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <state key="normal" title="permissions"/>
                                                                 <connections>
@@ -962,7 +969,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YeN-3i-awu">
-                                                                <rect key="frame" x="0.0" y="205.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="215.5" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Flush"/>
@@ -971,7 +978,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="chU-g8-yNX">
-                                                                <rect key="frame" x="0.0" y="239.5" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="246.5" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Cause frozen frames"/>
@@ -980,7 +987,7 @@
                                                                 </connections>
                                                             </button>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3X-e9-STj">
-                                                                <rect key="frame" x="0.0" y="274" width="152" height="28"/>
+                                                                <rect key="frame" x="0.0" y="277" width="152" height="28"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                 <state key="normal" title="Web View"/>
@@ -1357,7 +1364,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
