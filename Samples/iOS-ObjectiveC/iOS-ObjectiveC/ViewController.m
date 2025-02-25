@@ -78,7 +78,7 @@
     [SentrySDK captureUserFeedback:userFeedback];
 }
 
-- (IBAction)captureNewUserFeedback:(id)sender
+- (IBAction)captureUserFeedbackV2:(id)sender
 {
     NSData *data = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"screenshot"
                                                                          withExtension:@"png"]];
