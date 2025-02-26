@@ -11,17 +11,17 @@
 - Log message when setting user before starting the SDK (#4882)
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
 - Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
-- Change type of Swift String constants to NSString (#4894)
 
 ### Fixes
 
-- fix: move assignment of file IO span origin outside of block (#4888)
+- Fix rare memory access issue for auto tracing (#4894). For more details, see issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887).
+- Move assignment of file IO span origin outside of block (#4888)
 
 ## 8.45.0
 
 > [!WARNING]
 > We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
-> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> We recommend staying on version 8.43.0 or disabling the mentioned features until a fix is released.
 > See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Features
