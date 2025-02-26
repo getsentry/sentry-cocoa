@@ -6,10 +6,10 @@ import SentryTestMock
 /// - Warning: It might be incomplete, so make sure to implement the necessary methods when writing tests.
 public class MockSentrySpan: SentrySpan, SentryMockable {
     public init() {
-        #if SENTRY_HAS_UIKIT
-        super.init(context: MockSpanContext())
-        #else
+        #if canImport(UIKit)
         super.init(context: MockSpanContext(), framesTracker: nil)
+        #else
+        super.init(context: MockSpanContext())
         #endif
     }
 
