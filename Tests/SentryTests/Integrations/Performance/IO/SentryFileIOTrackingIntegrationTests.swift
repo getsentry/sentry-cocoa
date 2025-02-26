@@ -11,12 +11,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let fileURL: URL!
         let fileDirectory: URL!
         
-        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
+        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
+            result.experimental.enableDataSwizzling = enableDataSwizzling
+            result.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
             result.setIntegrations([SentryFileIOTrackingIntegration.self])
             return result
         }
@@ -169,7 +171,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         assertSpans(1, "file.read") {
             let data = try? NSData(contentsOfFile: jsonFile, options: .uncached)
-            XCTAssertEqual(data?.count, 341_432)
+            XCTAssertEqual(data?.count, 295_760)
         }
     }
     
@@ -191,7 +193,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
             let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
             
-            XCTAssertEqual(size, 341_432)
+            XCTAssertEqual(size, 295_760)
         }
     }
     
@@ -228,7 +230,46 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
-    
+
+    func testEnableDataSwizzling_isNotEnabled_shouldNotSwizzleNSDataMethods() {
+        // -- Arrange --
+        let options = fixture.getOptions(enableDataSwizzling: false)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertWriteWithNoSpans()
+    }
+
+    func testDisableFileManagerSwizzling_isNotEnabledAndDataSwizzlingIsEnabled_shouldTrackWithSpan() throws {
+        // -- Arrange --
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            throw XCTSkip("File manager swizzling is not available for this OS version")
+        }
+        /// Older OS versions use `NSData` inside `NSFileManager`, therefore we need to test both swizzling options.
+        let options = fixture.getOptions(enableDataSwizzling: true, enableFileManagerSwizzling: false)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertSpans(1, "file.write") {
+            FileManager.default.createFile(atPath: fixture.filePath, contents: nil)
+        }
+    }
+
+    func testDisableFileManagerSwizzling_isNotEnabled_shouldNotTrackWithSpan() throws {
+        // -- Arrange --
+        if #available(iOS 18, macOS 15, tvOS 18, *) {
+            throw XCTSkip("File manager swizzling is not available for this OS version")
+        }
+        /// Older OS versions use `NSData` inside `NSFileManager`, therefore we need to disable both swizzling options.
+        let options = fixture.getOptions(enableDataSwizzling: false, enableFileManagerSwizzling: false)
+        SentrySDK.start(options: options)
+
+        // -- Act & Assert --
+        assertSpans(0, "file.write") {
+            FileManager.default.createFile(atPath: fixture.filePath, contents: nil)
+        }
+    }
+
     private func assertWriteWithNoSpans() {
         assertSpans(0, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)

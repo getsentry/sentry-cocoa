@@ -1,0 +1,18 @@
+{
+  "configurations" : [
+    {
+      "id" : "232A08C3-49ED-43CF-BE70-9AD86310BF97",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}

@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "159D2CBB-CBB7-44A6-A6EB-1B700C404A45",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "8431EECF29B27B1100D8DC56",
+        "name" : "SentryProfilerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

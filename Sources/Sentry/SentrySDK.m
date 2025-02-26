@@ -421,13 +421,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureFeedback:feedback];
 }
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-+ (void)showUserFeedbackForm
-{
-    // TODO: implement
-}
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentrySDK.currentHub addBreadcrumb:crumb];
@@ -440,6 +433,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)setUser:(SentryUser *_Nullable)user
 {
+    if (![SentrySDK isEnabled]) {
+        // We must log with level fatal because only fatal messages get logged even when the SDK
+        // isn't started. We've seen multiple times that users try to set the user before starting
+        // the SDK, and it confuses them. Ideally, we would do something to store the user and set
+        // it once we start the SDK, but this is a breaking change, so we live with the workaround
+        // for now.
+        SENTRY_LOG_FATAL(@"The SDK is disabled, so setUser doesn't work. Please ensure to start "
+                         @"the SDK before setting the user.");
+    }
+
     [SentrySDK.currentHub setUser:user];
 }
 

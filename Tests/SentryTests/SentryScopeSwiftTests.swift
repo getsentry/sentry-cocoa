@@ -271,7 +271,8 @@ class SentryScopeSwiftTests: XCTestCase {
         
         XCTAssertEqual(event.environment, actual?.environment)
     }
-    
+
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpan() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (span) in
@@ -279,6 +280,7 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
         let scope = fixture.scope
         scope.span = fixture.transaction
@@ -311,6 +313,7 @@ class SentryScopeSwiftTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_IsReentrant() {
         let expect = expectation(description: "finish on time")
         let scope = fixture.scope
@@ -324,6 +327,7 @@ class SentryScopeSwiftTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testSpan_FromMultipleThreads() {
         let scope = fixture.scope
         
@@ -358,6 +362,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(serialized["breadcrumbs"])
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (_) in

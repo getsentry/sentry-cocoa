@@ -253,9 +253,22 @@ SENTRY_NO_INIT
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @deprecated Use @c SentrySDK.captureFeedback or use or configure our new managed UX with
+ * @c SentryOptions.configureUserFeedback .
  */
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+    NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
+        "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
+        "SentryOptions.configureUserFeedback.");
+
+/**
+ * Captures user feedback that was manually gathered and sends it to Sentry.
+ * @param feedback The feedback to send to Sentry.
+ * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
+ * see @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
+ * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
+ */
++ (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
@@ -289,6 +302,8 @@ SENTRY_NO_INIT
 /**
  * Set user to the current Scope of the current Hub.
  * @param user The user to set to the current Scope.
+ *
+ * @note You must start the SDK before calling this method, otherwise it doesn't set the user.
  */
 + (void)setUser:(nullable SentryUser *)user;
 

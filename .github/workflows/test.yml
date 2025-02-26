@@ -17,7 +17,8 @@ on:
       - "scripts/ci-select-xcode.sh"
       - "scripts/sentry-xcodebuild.sh"
       - ".codecov.yml"
-      - Sentry.xcodeproj
+      - "Sentry.xcodeproj"
+      - "**/*.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -209,6 +210,15 @@ jobs:
             --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@b14027d33d3a745ccc4d6a12f649e83110b5a373 # v5.4.0
+        if: always()
+        with:
+          report_paths: "build/reports/junit.xml"
+          fail_on_failure: true
+          fail_on_parse_error: true
+          detailed_summary: true
 
       - name: Slowest Tests
         if: ${{ always() }}

@@ -635,11 +635,10 @@ static BOOL appStartMeasurementRead;
     }
 
     if (shouldCleanUp) {
-        [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            if (span == self) {
-                [self->_hub.scope setSpan:nil];
-            }
-        }];
+        id<SentrySpan> _Nullable currentSpan = [_hub.scope span];
+        if (currentSpan == self) {
+            [_hub.scope setSpan:nil];
+        }
     }
 
     if (self.configuration.finishMustBeCalled && !self.wasFinishCalled) {

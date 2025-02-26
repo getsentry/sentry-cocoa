@@ -594,6 +594,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
     SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
     feedbackEvent.eventId = feedback.eventId;
     feedbackEvent.type = SentryEnvelopeItemTypeFeedback;
@@ -617,7 +622,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              alwaysAttachStacktrace:NO];
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
     NSArray *attachments = [[self attachmentsForEvent:preparedEvent scope:scope]
-        arrayByAddingObjectsFromArray:[feedback attachments]];
+        arrayByAddingObjectsFromArray:[feedback attachmentsForEnvelope]];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
