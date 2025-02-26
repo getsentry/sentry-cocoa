@@ -55,11 +55,11 @@
                 config.useShakeGesture = YES;
                 config.showFormForScreenshots = YES;
                 config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
-                    if ([args containsObject:@"--io.sentry.feedback.auto-inject-widget"]) {
+                    if ([args containsObject:@"--io.sentry.feedback.no-auto-inject-widget"]) {
+                        widget.autoInject = NO;
+                    } else {
                         widget.labelText = @"Report Jank";
                         widget.layoutUIOffset = layoutOffset;
-                    } else {
-                        widget.autoInject = NO;
                     }
 
                     if ([args containsObject:@"--io.sentry.feedback.no-widget-text"]) {

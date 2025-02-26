@@ -67,6 +67,12 @@
             ReferencedContainer = "container:iOS-ObjectiveC.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "--io.sentry.feedback.no-auto-inject-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
