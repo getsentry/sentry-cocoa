@@ -20,12 +20,13 @@ concurrency:
 
 jobs:
   cocoapods:
-    name: Integration Test for Cocoapods Sample ${{ matrix.sample }}
+    name: Integration Test for ${{ matrix.sample.name }}
     runs-on: macos-15
     strategy:
       matrix:
         sample:
-          - "iOS-Cocoapods-Swift6"
+          - name: "iOS-Cocoapods-Swift6"
+            path: Samples/iOS-Cocoapods-Swift6
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -40,10 +41,11 @@ jobs:
 
       - name: Run Integration Test
         run: bundle exec fastlane cocoapods_integration_test
+        working-directory: ${{ matrix.sample.path }}
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: integration-test-${{matrix.sample}}.xcresult
+          name: integration-test-${{matrix.sample.name}}.xcresult
           path: fastlane/test_results/results.xcresult
