@@ -12,6 +12,10 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
+#if defined( __clang__ ) && defined( __clang_major__ ) && __clang_major__ >= 17
+#pragma clang diagnostic ignored "-Wvla-cxx-extension"
+#endif
+
 @interface SentryThreadInspector ()
 
 @property (nonatomic, strong) SentryStacktraceBuilder *stacktraceBuilder;

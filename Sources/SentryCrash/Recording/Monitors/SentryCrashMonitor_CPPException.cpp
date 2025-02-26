@@ -40,6 +40,10 @@
 #include <string.h>
 #include <typeinfo>
 
+#if defined( __clang__ ) && defined( __clang_major__ ) && __clang_major__ >= 17
+#pragma clang diagnostic ignored "-Wvla-cxx-extension"
+#endif
+
 #define STACKTRACE_BUFFER_LENGTH 30
 #define DESCRIPTION_BUFFER_LENGTH 1000
 
