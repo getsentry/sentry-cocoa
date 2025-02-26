@@ -15,7 +15,7 @@
 
 ### Fixes
 
-- fix: move assignment of file IO span origin outside of block (#4888)
+- Move assignment of file IO span origin outside of block (#4888)
 
 ## 8.45.0
 
