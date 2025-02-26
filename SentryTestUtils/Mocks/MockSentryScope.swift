@@ -8,18 +8,14 @@ public class MockSentryScope: Scope, SentryMockable {
     // MARK: - Mock Helpers
 
     public func clearAllMocks() {
-        mockUseSpan.clear()
+        // replace me
     }
 
     // MARK: - Mock Functions
 
-    public var mockUseSpan = MockFunction1<Void, SentrySpanCallback>()
+    // replace me
 
-    // MARK: - Overridden Functions
+    // MARK: - Override Functions
 
-    public override func useSpan(_ callback: @escaping SentrySpanCallback) {
-        mockUseSpan.call(callback, default: { arg1 in
-            super.useSpan(arg1)
-        })
-    }
+    // replace me
 }

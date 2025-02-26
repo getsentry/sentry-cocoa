@@ -70,9 +70,7 @@ class DataSentryTracingTests: XCTestCase {
 
         let mockParentSpan = MockSentrySpan()
         mockParentSpan.mockStartChildWithOperationDescription.returnValue(ioSpan)
-        mockedSentryScope.mockUseSpan.useImplementation { callback in
-            callback(mockParentSpan)
-        }
+        mockedSentryScope.span = mockParentSpan
 
         fileIOTracker.enable()
 
@@ -90,7 +88,6 @@ class DataSentryTracingTests: XCTestCase {
         XCTAssertEqual(ioSpan.startTimestamp, expectedStartTimestamp)
         XCTAssertEqual(ioSpan.timestamp, expectedEndTimestamp)
 
-        sentryExpect(mockedSentryScope.mockUseSpan).toHaveBeenCalled()
         sentryExpect(mockParentSpan.mockStartChildWithOperationDescription)
             .toHaveBeenCalledWith(
                 SentrySpanOperation.fileRead,
