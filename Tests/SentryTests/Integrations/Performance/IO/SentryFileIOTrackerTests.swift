@@ -118,7 +118,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         }
 
         assertSpanDuration(span: span, expectedDuration: 4)
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileWrite, size: fixture.data.count, origin: "custom.origin")
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileWrite as String, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testWriteAtomically_CheckTransaction_DebugImages() {
@@ -177,7 +177,7 @@ class SentryFileIOTrackerTests: XCTestCase {
             }
 
             self.assertSpanDuration(span: span, expectedDuration: 4)
-            self.assertDataSpan(span, path: self.fixture.filePath, operation: SentrySpanOperation.fileWrite, size: self.fixture.data.count, origin: "custom.origin", mainThread: false)
+            self.assertDataSpan(span, path: self.fixture.filePath, operation: SentrySpanOperation.fileWrite as String, size: self.fixture.data.count, origin: "custom.origin", mainThread: false)
             expect.fulfill()
         }
 
@@ -197,7 +197,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         }
 
         assertSpanDuration(span: span, expectedDuration: 3)
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileWrite, size: fixture.data.count, origin: "custom.origin")
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileWrite as String, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testDontTrackSentryFilesWrites() {
@@ -231,7 +231,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(usedPath, fixture.filePath)
         XCTAssertEqual(data?.count, fixture.data.count)
 
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileRead, size: fixture.data.count, origin: "custom.origin")
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileRead as String, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testReadFromStringOptionsError() {
@@ -252,7 +252,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
 
-        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileRead, size: fixture.data.count, origin: "custom.origin")
+        assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperation.fileRead as String, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testReadFromURLOptionsError() {
@@ -274,7 +274,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
 
-        assertDataSpan(span, path: url.path, operation: SentrySpanOperation.fileRead, size: fixture.data.count, origin: "custom.origin")
+        assertDataSpan(span, path: url.path, operation: SentrySpanOperation.fileRead as String, size: fixture.data.count, origin: "custom.origin")
     }
 
     func testCreateFile() {
@@ -308,7 +308,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         assertDataSpan(
             span,
             path: fixture.filePath,
-            operation: SentrySpanOperation.fileWrite,
+            operation: SentrySpanOperation.fileWrite as String,
             size: fixture.data.count, origin: "custom.origin"
         )
     }
@@ -376,7 +376,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
         let lastComponent = (path as NSString).lastPathComponent
 
-        if operation == SentrySpanOperation.fileRead {
+        if operation == SentrySpanOperation.fileRead as String {
             XCTAssertEqual(span?.spanDescription, lastComponent, file: file, line: line)
         } else {
             let bytesDescription = SentryByteCountFormatter.bytesCountDescription( UInt(size))

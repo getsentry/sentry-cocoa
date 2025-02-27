@@ -90,7 +90,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 
-- (void)dispatchIdleTimeout;
+- (void)startIdleTimeout;
 
 /**
  * This method is designed to be used when the app crashes. It finishes the transaction and stores
