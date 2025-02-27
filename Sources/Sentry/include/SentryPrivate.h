@@ -20,3 +20,6 @@
 #import "SentryScreenshot.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
+#import "SentrySpanDataKey.h"
+#import "SentrySpanOperation.h"
+#import "SentryTraceHeader.h"

@@ -15,8 +15,10 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
+#    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
+#    import "SentryTraceOrigin.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext+Private.h"
@@ -100,8 +102,8 @@ sentry_context(NSNumber *tracesRate, NSNumber *tracesRand)
     SentryTransactionContext *context =
         [[SentryTransactionContext alloc] initWithName:@"launch"
                                             nameSource:kSentryTransactionNameSourceCustom
-                                             operation:SentrySpanOperation.appLifecycle
-                                                origin:SentryTraceOrigin.autoAppStartProfile
+                                             operation:SentrySpanOperationAppLifecycle
+                                                origin:SentryTraceOriginAutoAppStartProfile
                                                sampled:kSentrySampleDecisionYes
                                             sampleRate:tracesRate
                                             sampleRand:tracesRand];

@@ -88,8 +88,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttidSpan.timestamp, fixture.dateProvider.date())
         XCTAssertEqual(ttidSpan.isFinished, true)
         XCTAssertEqual(ttidSpan.spanDescription, "UIViewController initial display")
-        XCTAssertEqual(ttidSpan.operation, SentrySpanOperation.uiLoadInitialDisplay as String)
-        XCTAssertEqual(ttidSpan.origin, "auto.ui.time_to_display")
+        XCTAssertEqual(ttidSpan.operation, SentrySpanOperationUiLoadInitialDisplay)
+        XCTAssertEqual(ttidSpan.origin, SentryTraceOriginAutoUITimeToDisplay)
 
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
 
@@ -172,8 +172,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.status, .ok)
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display")
-        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperation.uiLoadFullDisplay as String)
-        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(sut.fullDisplaySpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
         
@@ -294,8 +294,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttfdSpan?.timestamp, ttidSpan?.timestamp)
         XCTAssertEqual(ttfdSpan?.status, .deadlineExceeded)
         XCTAssertEqual(ttfdSpan?.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(ttfdSpan?.operation, SentrySpanOperation.uiLoadFullDisplay as String)
-        XCTAssertEqual(ttfdSpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(ttfdSpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(ttfdSpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
     }
@@ -438,8 +438,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.status, .deadlineExceeded)
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperation.uiLoadFullDisplay as String)
-        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(sut.fullDisplaySpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
@@ -475,8 +475,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(fullDisplaySpan.status, .deadlineExceeded)
 
         XCTAssertEqual(fullDisplaySpan.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(fullDisplaySpan.operation, SentrySpanOperation.uiLoadFullDisplay as String)
-        XCTAssertEqual(fullDisplaySpan.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(fullDisplaySpan.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(fullDisplaySpan.origin, SentryTraceOriginManualUITimeToDisplay)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
         XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
