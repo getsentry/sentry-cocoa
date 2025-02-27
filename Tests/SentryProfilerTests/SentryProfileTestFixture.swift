@@ -108,7 +108,6 @@ class SentryProfileTestFixture {
                         $0.idleTimeout = idleTimeout
                     }
                     $0.waitForChildren = true
-                    $0.timerFactory = self.timeoutTimerFactory
                 }))
         }
         

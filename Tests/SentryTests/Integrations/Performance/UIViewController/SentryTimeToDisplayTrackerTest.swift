@@ -9,20 +9,19 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
-        lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: dateProvider)
-
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
 
         init() {
-            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue,
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
 
         func getSut(name: String, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(name: name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+            return SentryTimeToDisplayTracker(name: name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: dispatchQueue)
         }
         
         func getTracer() throws -> SentryTracer {
@@ -30,7 +29,6 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
             let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
-                $0.timerFactory = self.timerFactory
             }))
         }
     }
@@ -40,7 +38,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     override func setUp() {
         super.setUp()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
     }
 
     override func tearDown() {
@@ -279,8 +277,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
-        // Timeout for tracer times out
-        try fixture.timerFactory.fire()
+        // Deadline timeout for tracer times out
+        fixture.dispatchQueue.invokeLastDispatchAfter()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
@@ -329,8 +327,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
-        // Timeout for tracer times out
-        try fixture.timerFactory.fire()
+        // Deadline timeout for tracer times out
+        fixture.dispatchQueue.invokeLastDispatchAfter()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
