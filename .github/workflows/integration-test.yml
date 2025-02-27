@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   cocoapods:
-    name: IntegrationTest
+    name: Integration Test
     runs-on: macos-15
     steps:
       - name: Checkout Repository
