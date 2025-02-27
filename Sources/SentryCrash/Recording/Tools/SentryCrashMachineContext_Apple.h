@@ -53,6 +53,8 @@ typedef struct SentryCrashMachineContext {
     STRUCT_MCONTEXT_L machineContext;
 } SentryCrashMachineContext;
 
+static const size_t sentrycrashmc_contextSize = sizeof(SentryCrashMachineContext);
+
 #ifdef __cplusplus
 }
 #endif
