@@ -366,7 +366,6 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     // Also look for a UUID command.
     uint64_t imageSize = 0;
     uint64_t imageVmAddr = 0;
-    uint64_t version = 0;
     uint8_t *uuid = NULL;
 
     for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
@@ -393,12 +392,6 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
             uuid = uuidCmd->uuid;
             break;
         }
-        case LC_ID_DYLIB: {
-
-            struct dylib_command *dc = (struct dylib_command *)cmdPtr;
-            version = dc->dylib.current_version;
-            break;
-        }
         }
         cmdPtr += loadCmd->cmdsize;
     }
@@ -410,9 +403,6 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     buffer->uuid = uuid;
     buffer->cpuType = header->cputype;
     buffer->cpuSubType = header->cpusubtype;
-    buffer->majorVersion = version >> 16;
-    buffer->minorVersion = (version >> 8) & 0xff;
-    buffer->revisionVersion = version & 0xff;
     if (isCrash) {
         getCrashInfo(header, buffer);
     }
