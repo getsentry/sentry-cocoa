@@ -1,42 +1,42 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-/*
- * Span operations are short string identifiers that categorize the type of operation a span is
- * measuring.
- *
- * They follow a hierarchical dot notation format (e.g., `ui.load.initial_display`) to group related
- * operations. These identifiers help organize and analyze performance data across different types
- * of operations.
- *
- * - Note: See [Sentry SDK development
- * documentation](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/) for more
- * information.
- * - Remark: These constants were originally implemented as a Swift-like enum with associated String
- * values, but due to potential Swift-to-Objective-C interoperability issues (see
- * [GH-4887](https://github.com/getsentry/sentry-cocoa/issues/4887)), they were moved from Swift to
- * Objective-C.
- */
+// Span operations are short string identifiers that categorize the type of operation a span is
+// measuring.
+//
+// They follow a hierarchical dot notation format (e.g., `ui.load.initial_display`) to group related
+// operations. These identifiers help organize and analyze performance data across different types
+// of operations.
+//
+// - Note: See [Sentry SDK development
+// documentation](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/) for more
+// information.
+// - Remark: These constants were originally implemented as a Swift-like enum with associated String
+// values, but due to potential Swift-to-Objective-C interoperability issues (see
+// [GH-4887](https://github.com/getsentry/sentry-cocoa/issues/4887)), they were moved from Swift to
+// Objective-C.
+//
+// - Note: The following constants are defined as `extern` with an `.m` implementation file, as we
+// did face compliation errors in tests and sample apps not being able to import the constants, i.e.
+// `Undefined symbol: _SentrySpanOperationUiLoad`. We might want to revisit this in the future.
 
-static NSString *const SentrySpanOperationAppLifecycle = @"app.lifecycle";
+SENTRY_EXTERN NSString *const SentrySpanOperationAppLifecycle;
 
-static NSString *const SentrySpanOperationCoredataFetchOperation = @"db.sql.query";
-static NSString *const SentrySpanOperationCoredataSaveOperation = @"db.sql.transaction";
+SENTRY_EXTERN NSString *const SentrySpanOperationCoredataFetchOperation;
+SENTRY_EXTERN NSString *const SentrySpanOperationCoredataSaveOperation;
 
-static NSString *const SentrySpanOperationFileRead = @"file.read";
-static NSString *const SentrySpanOperationFileWrite = @"file.write";
-static NSString *const SentrySpanOperationFileCopy = @"file.copy";
-static NSString *const SentrySpanOperationFileRename = @"file.rename";
-static NSString *const SentrySpanOperationFileDelete = @"file.delete";
+SENTRY_EXTERN NSString *const SentrySpanOperationFileRead;
+SENTRY_EXTERN NSString *const SentrySpanOperationFileWrite;
+SENTRY_EXTERN NSString *const SentrySpanOperationFileCopy;
+SENTRY_EXTERN NSString *const SentrySpanOperationFileRename;
+SENTRY_EXTERN NSString *const SentrySpanOperationFileDelete;
 
-static NSString *const SentrySpanOperationNetworkRequestOperation = @"http.client";
+SENTRY_EXTERN NSString *const SentrySpanOperationNetworkRequestOperation;
 
-static NSString *const SentrySpanOperationUiAction = @"ui.action";
-static NSString *const SentrySpanOperationUiActionClick = @"ui.action.click";
+SENTRY_EXTERN NSString *const SentrySpanOperationUiAction;
+SENTRY_EXTERN NSString *const SentrySpanOperationUiActionClick;
 
-// Note: The operation is used by the is marked as `SENTRY_EXTERN` to resolve this compilation error
-// of the SentryProfilerTests: `Undefined symbol: _SentrySpanOperationUiLoad`
 SENTRY_EXTERN NSString *const SentrySpanOperationUiLoad;
 
-static NSString *const SentrySpanOperationUiLoadInitialDisplay = @"ui.load.initial_display";
-static NSString *const SentrySpanOperationUiLoadFullDisplay = @"ui.load.full_display";
+SENTRY_EXTERN NSString *const SentrySpanOperationUiLoadInitialDisplay;
+SENTRY_EXTERN NSString *const SentrySpanOperationUiLoadFullDisplay;
