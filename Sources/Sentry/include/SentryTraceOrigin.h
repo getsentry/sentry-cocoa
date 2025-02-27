@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-/**
+/*
  * Trace origin indicates what created a trace or a span.
  *
  * The origin is of type string and consists of four parts:
@@ -17,39 +17,17 @@
  * - Remark: Since Objective-C does not have enums with associated string values like Swift, this is
  * implemented as an `NSString` constant list.
  */
-@interface SentryTraceOrigin : NSObject
 
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoAppStart;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoAppStartProfile;
+static NSString *const SentryTraceOriginAutoAppStart = @"auto.app.start";
+static NSString *const SentryTraceOriginAutoAppStartProfile = @"auto.app.start.profile";
 
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoDBCoreData;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoHttpNSURLSession;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoNSData;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoUiEventTracker;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoUITimeToDisplay;
-SENTRY_EXTERN NSString *const SentryTraceOriginAutoUIViewController;
+static NSString *const SentryTraceOriginAutoDBCoreData = @"auto.db.core_data";
+static NSString *const SentryTraceOriginAutoHttpNSURLSession = @"auto.http.ns_url_session";
+static NSString *const SentryTraceOriginAutoNSData = @"auto.file.ns_data";
+static NSString *const SentryTraceOriginAutoUiEventTracker = @"auto.ui.event_tracker";
+static NSString *const SentryTraceOriginAutoUITimeToDisplay = @"auto.ui.time_to_display";
+static NSString *const SentryTraceOriginAutoUIViewController = @"auto.ui.view_controller";
 
-SENTRY_EXTERN NSString *const SentryTraceOriginManual;
-SENTRY_EXTERN NSString *const SentryTraceOriginManualFileData;
-SENTRY_EXTERN NSString *const SentryTraceOriginManualUITimeToDisplay;
-
-// For future maintainers:
-// Constants defined with `extern` or `SENTRY_EXTERN` are not scoped to the interface and can be
-// accessed globally. The following static accessors are for convenience to use the scoped
-// accessors, e.g. `SentryTraceOrigin.autoAppStart`.
-
-@property (class, nonatomic, readonly) NSString *autoAppStart;
-@property (class, nonatomic, readonly) NSString *autoAppStartProfile;
-
-@property (class, nonatomic, readonly) NSString *autoDBCoreData;
-@property (class, nonatomic, readonly) NSString *autoHttpNSURLSession;
-@property (class, nonatomic, readonly) NSString *autoNSData;
-@property (class, nonatomic, readonly) NSString *autoUiEventTracker;
-@property (class, nonatomic, readonly) NSString *autoUITimeToDisplay;
-@property (class, nonatomic, readonly) NSString *autoUIViewController;
-
-@property (class, nonatomic, readonly) NSString *manual;
-@property (class, nonatomic, readonly) NSString *manualFileData;
-@property (class, nonatomic, readonly) NSString *manualUITimeToDisplay;
-
-@end
+static NSString *const SentryTraceOriginManual = @"manual";
+static NSString *const SentryTraceOriginManualFileData = @"manual.file.data";
+static NSString *const SentryTraceOriginManualUITimeToDisplay = @"manual.ui.time_to_display";

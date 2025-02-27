@@ -42,12 +42,12 @@
     id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
-        fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperation.coredataFetchOperation
+        fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataFetchOperation
                                              description:spanDescription];
     }
 
     if (fetchSpan) {
-        fetchSpan.origin = SentryTraceOrigin.autoDBCoreData;
+        fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
                          @"description: %@, operation: %@, origin: %@",
@@ -84,13 +84,12 @@
         if (currentSpan) {
             NSString *spanDescription = [self descriptionForOperations:operations
                                                              inContext:context];
-            saveSpan =
-                [currentSpan startChildWithOperation:SentrySpanOperation.coredataSaveOperation
-                                         description:spanDescription];
+            saveSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataSaveOperation
+                                                description:spanDescription];
         }
 
         if (saveSpan) {
-            saveSpan.origin = SentryTraceOrigin.autoDBCoreData;
+            saveSpan.origin = SentryTraceOriginAutoDBCoreData;
 
             SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
                              @"description: %@, operation: %@, origin: %@",

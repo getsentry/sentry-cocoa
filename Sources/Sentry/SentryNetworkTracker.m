@@ -188,11 +188,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
-            netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
+            netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
                                         description:[NSString stringWithFormat:@"%@ %@",
                                                         sessionTask.currentRequest.HTTPMethod,
                                                         safeUrl.sanitizedUrl]];
-            netSpan.origin = SentryTraceOrigin.autoHttpNSURLSession;
+            netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
             [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
                            forKey:@"http.request.method"];

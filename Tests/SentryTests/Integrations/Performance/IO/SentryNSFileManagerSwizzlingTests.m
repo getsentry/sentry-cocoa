@@ -83,7 +83,7 @@
         XCTSkip("Test only targets pre iOS 18, macOS 15, tvOS 18");
     }
     [self setUpNSFileManagerSwizzlingWithEnabledFlag:NO];
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                               spanCount:0
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
@@ -99,7 +99,7 @@
         XCTSkip("Test only targets pre iOS 18, macOS 15, tvOS 18");
     }
     [self setUpNSFileManagerSwizzlingWithEnabledFlag:YES];
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                               spanCount:0
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
@@ -118,7 +118,7 @@
         XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later");
     }
     [self setUpNSFileManagerSwizzlingWithEnabledFlag:NO];
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                               spanCount:0
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
@@ -136,7 +136,7 @@
         XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later");
     }
     [self setUpNSFileManagerSwizzlingWithEnabledFlag:YES];
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                               spanCount:1
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
@@ -179,7 +179,7 @@
 
         NSString *filename = filePath.lastPathComponent;
 
-        if ([operation isEqualToString:SentrySpanOperation.fileRead]) {
+        if ([operation isEqualToString:SentrySpanOperationFileRead]) {
             XCTAssertEqualObjects(ioSpan.spanDescription, filename);
         } else {
             NSString *expectedString = [NSString stringWithFormat:@"%@ (%@)", filename,

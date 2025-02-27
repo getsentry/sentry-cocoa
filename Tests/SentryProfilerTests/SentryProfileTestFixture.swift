@@ -96,7 +96,7 @@ class SentryProfileTestFixture {
     
     /// Advance the mock date provider, start a new transaction and return its handle.
     func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil) throws -> SentryTracer {
-        let operation = testingAppLaunchSpans ? SentrySpanOperation.uiLoad as String : transactionOperation
+        let operation = testingAppLaunchSpans ? SentrySpanOperationUiLoad : transactionOperation
         
         if automaticTransaction {
             return hub.startTransaction(

@@ -71,7 +71,7 @@
 
 - (void)test_dataWithContentsOfFile
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileRead
+    [self assertTransactionForOperation:SentrySpanOperationFileRead
                                   block:^{
                                       [self assertData:[NSData
                                                            dataWithContentsOfFile:self->filePath]];
@@ -81,7 +81,7 @@
 - (void)test_dataWithContentsOfFileOptionsError
 {
     [self
-        assertTransactionForOperation:SentrySpanOperation.fileRead
+        assertTransactionForOperation:SentrySpanOperationFileRead
                                 block:^{
                                     [self
                                         assertData:[NSData
@@ -94,7 +94,7 @@
 - (void)test_dataWithContentsOfURL
 {
     [self
-        assertTransactionForOperation:SentrySpanOperation.fileRead
+        assertTransactionForOperation:SentrySpanOperationFileRead
                                 block:^{
                                     [self assertData:[NSData dataWithContentsOfURL:self->fileUrl]];
                                 }];
@@ -103,7 +103,7 @@
 - (void)test_dataWithContentsOfURLOptionsError
 {
     [self
-        assertTransactionForOperation:SentrySpanOperation.fileRead
+        assertTransactionForOperation:SentrySpanOperationFileRead
                                 block:^{
                                     [self assertData:[NSData
                                                          dataWithContentsOfURL:self->fileUrl
@@ -114,7 +114,7 @@
 
 - (void)test_initWithContentsOfURL
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileRead
+    [self assertTransactionForOperation:SentrySpanOperationFileRead
                                   block:^{
                                       [self assertData:[[NSData alloc]
                                                            initWithContentsOfURL:self->fileUrl]];
@@ -123,7 +123,7 @@
 
 - (void)test_initWithContentsOfFile
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileRead
+    [self assertTransactionForOperation:SentrySpanOperationFileRead
                                   block:^{
                                       [self assertData:[[NSData alloc]
                                                            initWithContentsOfFile:self->filePath]];
@@ -132,7 +132,7 @@
 
 - (void)test_writeToFileAtomically
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                                   block:^{
                                       [self->someData writeToFile:self->filePath atomically:true];
                                   }];
@@ -141,7 +141,7 @@
 
 - (void)test_writeToUrlAtomically
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                                   block:^{
                                       [self->someData writeToURL:self->fileUrl atomically:true];
                                   }];
@@ -150,7 +150,7 @@
 
 - (void)test_writeToFileOptionsError
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                                   block:^{
                                       [self->someData writeToFile:self->filePath
                                                           options:NSDataWritingAtomic
@@ -161,7 +161,7 @@
 
 - (void)test_writeToUrlOptionsError
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                                   block:^{
                                       [self->someData writeToURL:self->fileUrl
                                                          options:NSDataWritingAtomic
@@ -172,7 +172,7 @@
 
 - (void)test_NSFileManagerContentAtPath
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileRead
+    [self assertTransactionForOperation:SentrySpanOperationFileRead
                                   block:^{
                                       [self assertData:[NSFileManager.defaultManager
                                                            contentsAtPath:self->filePath]];
@@ -181,7 +181,7 @@
 
 - (void)test_NSFileManagerCreateFile
 {
-    [self assertTransactionForOperation:SentrySpanOperation.fileWrite
+    [self assertTransactionForOperation:SentrySpanOperationFileWrite
                                   block:^{
                                       [NSFileManager.defaultManager createFileAtPath:self->filePath
                                                                             contents:self->someData
@@ -220,7 +220,7 @@
 
     NSString *filename = filePath.lastPathComponent;
 
-    if ([operation isEqualToString:SentrySpanOperation.fileRead]) {
+    if ([operation isEqualToString:SentrySpanOperationFileRead]) {
         XCTAssertEqualObjects(ioSpan.spanDescription, filename);
     } else {
         NSString *expectedString = [NSString stringWithFormat:@"%@ (%@)", filename,

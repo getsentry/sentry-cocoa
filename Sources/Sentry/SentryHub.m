@@ -346,7 +346,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOrigin.manual]];
+                                                       origin:SentryTraceOriginManual]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -357,7 +357,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOrigin.manual]
+                                                       origin:SentryTraceOriginManual]
                                  bindToScope:bindToScope];
 }
 
