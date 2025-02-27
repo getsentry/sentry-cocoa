@@ -3,6 +3,7 @@
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigin.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

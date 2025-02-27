@@ -1,6 +1,7 @@
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
+#import "SentryTraceOrigin.h"
 #import <objc/runtime.h>
 
 @interface SentryNSFileManagerSwizzling ()

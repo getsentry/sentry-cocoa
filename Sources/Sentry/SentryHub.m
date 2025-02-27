@@ -23,6 +23,7 @@
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"

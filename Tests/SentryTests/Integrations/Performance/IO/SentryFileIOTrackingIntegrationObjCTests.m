@@ -3,6 +3,7 @@
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
+#import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
 #import <SentrySwift.h>

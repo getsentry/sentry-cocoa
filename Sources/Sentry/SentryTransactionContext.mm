@@ -5,6 +5,7 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
+#import "SentryTraceOrigin.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
