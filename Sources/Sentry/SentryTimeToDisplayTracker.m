@@ -13,7 +13,9 @@
 #    import "SentrySpan.h"
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
+#    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
+#    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 
 #    import <UIKit/UIKit.h>

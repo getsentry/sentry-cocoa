@@ -9,6 +9,8 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
+#    import <SentrySpanOperation.h>
+#    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 

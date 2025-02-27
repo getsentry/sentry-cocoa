@@ -21,6 +21,7 @@
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import "SentryTime.h"

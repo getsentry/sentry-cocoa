@@ -19,11 +19,11 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GIT_BRANCH</key>
-	<string>&lt;branch&gt;</string>
+	<string>philprime/revert-swift-constants-to-objective-c</string>
 	<key>GIT_COMMIT_HASH</key>
-	<string>&lt;sha&gt;</string>
+	<string>4da7d0b0</string>
 	<key>GIT_STATUS_CLEAN</key>
-	<string>&lt;status&gt;</string>
+	<string>0</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

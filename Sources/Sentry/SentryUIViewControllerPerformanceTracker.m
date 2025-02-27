@@ -9,8 +9,10 @@
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
+#    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
 #    import "SentryTimeToDisplayTracker.h"
+#    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 #    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
