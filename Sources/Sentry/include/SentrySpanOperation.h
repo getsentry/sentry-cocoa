@@ -34,6 +34,9 @@ static NSString *const SentrySpanOperationNetworkRequestOperation = @"http.clien
 static NSString *const SentrySpanOperationUiAction = @"ui.action";
 static NSString *const SentrySpanOperationUiActionClick = @"ui.action.click";
 
-static NSString *const SentrySpanOperationUiLoad = @"ui.load";
+// Note: The operation is used by the is marked as `SENTRY_EXTERN` to resolve this compilation error
+// of the SentryProfilerTests: `Undefined symbol: _SentrySpanOperationUiLoad`
+SENTRY_EXTERN NSString *const SentrySpanOperationUiLoad;
+
 static NSString *const SentrySpanOperationUiLoadInitialDisplay = @"ui.load.initial_display";
 static NSString *const SentrySpanOperationUiLoadFullDisplay = @"ui.load.full_display";
