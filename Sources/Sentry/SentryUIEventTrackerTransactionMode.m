@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (sameAction) {
         SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
             currentActiveTransaction.spanId.sentrySpanIdString);
-        [currentActiveTransaction dispatchIdleTimeout];
+        [currentActiveTransaction startIdleTimeout];
         return;
     }
 
