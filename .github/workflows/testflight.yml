@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - impr/speed-up-sdk-start
 
     paths:
       - 'Sources/**'
