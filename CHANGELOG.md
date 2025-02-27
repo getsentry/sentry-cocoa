@@ -16,6 +16,7 @@
 
 - Fix rare memory access issue for auto tracing (#4894). For more details, see issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887).
 - Move assignment of file IO span origin outside of block (#4888)
+- Deadline timeout crash in SentryTracer (#4911)
 
 ## 8.45.0
 
