@@ -18,12 +18,14 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySpanOperation.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
+#import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
 #import <objc/runtime.h>
@@ -186,11 +188,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
-            netSpan = [span startChildWithOperation:SentrySpanOperation.networkRequestOperation
+            netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
                                         description:[NSString stringWithFormat:@"%@ %@",
                                                         sessionTask.currentRequest.HTTPMethod,
                                                         safeUrl.sanitizedUrl]];
-            netSpan.origin = SentryTraceOrigin.autoHttpNSURLSession;
+            netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
             [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
                            forKey:@"http.request.method"];

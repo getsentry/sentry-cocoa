@@ -327,7 +327,7 @@ private extension SentryCoreDataTrackerTests {
         
         assertDataAndFrames(
             dbSpan: dbSpan,
-            expectedOperation: SentrySpanOperation.coredataSaveOperation,
+            expectedOperation: SentrySpanOperationCoredataSaveOperation,
             expectedDescription: expectedDescription,
             mainThread: mainThread,
             databaseFilename: databaseFilename,
@@ -355,7 +355,7 @@ private extension SentryCoreDataTrackerTests {
 
         assertDataAndFrames(
             dbSpan: dbSpan,
-            expectedOperation: SentrySpanOperation.coredataFetchOperation,
+            expectedOperation: SentrySpanOperationCoredataFetchOperation,
             expectedDescription: expectedDescription,
             mainThread: mainThread,
             databaseFilename: databaseFilename,

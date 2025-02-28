@@ -120,7 +120,7 @@ class SentrySpanContextTests: XCTestCase {
             context: context,
             expectedParentSpanId: nil,
             expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
+            expectedOrigin: SentryTraceOriginManual,
             expectedSpanDescription: nil,
             expectedSampled: .undecided
         )
@@ -135,7 +135,7 @@ class SentrySpanContextTests: XCTestCase {
             context: context,
             expectedParentSpanId: nil,
             expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
+            expectedOrigin: SentryTraceOriginManual,
             expectedSpanDescription: nil,
             expectedSampled: sampled
         )
@@ -156,7 +156,7 @@ class SentrySpanContextTests: XCTestCase {
             context: context,
             expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
+            expectedOrigin: SentryTraceOriginManual,
             expectedSpanDescription: nil,
             expectedSampled: sampled
         )
@@ -178,7 +178,7 @@ class SentrySpanContextTests: XCTestCase {
             context: context,
             expectedParentSpanId: parentSpanID,
             expectedOperation: operation,
-            expectedOrigin: SentryTraceOrigin.manual,
+            expectedOrigin: SentryTraceOriginManual,
             expectedSpanDescription: spanDescription,
             expectedSampled: sampled
         )
