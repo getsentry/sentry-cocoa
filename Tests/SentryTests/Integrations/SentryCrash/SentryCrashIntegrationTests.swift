@@ -241,6 +241,29 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readAbnormalSession())
     }
     
+    func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
+        // Arrange
+        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(options: fixture.options)
+        fixture.client.fileManager = fileManager
+        
+        SentrySDK.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        let session = givenCurrentSession()
+        let appHangEvent = Event()
+        fileManager.storeAppHang(appHangEvent)
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        XCTAssertEqual(session, fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
     func testEndSessionAsAbnormal_AppHangEvent_EndsSessionAsAbnormal() throws {
         // Arrange
         SentrySDK.setCurrentHub(fixture.hub)
@@ -658,5 +681,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) throws {
         try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    }
+}
+
+private class DeleteAppHangWhenCheckingExistenceFileManager: SentryFileManager {
+    
+    override func appHangEventExists() -> Bool {
+        let result = super.appHangEventExists()
+        self.deleteAppHangEvent()
+        return result
     }
 }

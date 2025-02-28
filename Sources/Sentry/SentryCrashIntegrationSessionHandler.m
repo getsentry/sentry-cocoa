@@ -38,22 +38,22 @@
 
 - (void)endCurrentSessionIfRequired
 {
+    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+
+    if (nil == fileManager) {
+        return;
+    }
+
+    SentrySession *session = [fileManager readCurrentSession];
+    if (session == nil) {
+        return;
+    }
+
     if (self.crashWrapper.crashedLastLaunch
 #if SENTRY_HAS_UIKIT
         || [self.watchdogTerminationLogic isWatchdogTermination]
 #endif // SENTRY_HAS_UIKIT
     ) {
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-
-        if (nil == fileManager) {
-            return;
-        }
-
-        SentrySession *session = [fileManager readCurrentSession];
-        if (nil == session) {
-            return;
-        }
-
         NSDate *timeSinceLastCrash = [[SentryDependencyContainer.sharedInstance.dateProvider date]
             dateByAddingTimeInterval:-self.crashWrapper.activeDurationSinceLastCrash];
 
@@ -63,22 +63,14 @@
     }
 #if SENTRY_HAS_UIKIT
     else {
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-
-        if (nil == fileManager) {
-            return;
-        }
-
-        SentrySession *session = [fileManager readCurrentSession];
-        if (session == nil) {
-            return;
-        }
-
+        // Checking the file existence is way cheaper than reading the file and parsing its contents
+        // to an SentryEvent.
         if (![fileManager appHangEventExists]) {
             return;
         }
 
         SentryEvent *appHangEvent = [fileManager readAppHangEvent];
+        // Just in case the file was deleted between the check and the read.
         if (appHangEvent == nil) {
             return;
         }
