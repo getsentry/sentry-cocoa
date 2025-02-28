@@ -129,22 +129,24 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        if args.contains("--io.sentry.feedback.auto-inject-widget") {
-            if Locale.current.languageCode == "ar" { // arabic
-                config.labelText = "﷽"
-            } else if Locale.current.languageCode == "ur" { // urdu
-                config.labelText = "نستعلیق"
-            } else if Locale.current.languageCode == "he" { // hebrew
-                config.labelText = "עִבְרִית‎"
-            } else if Locale.current.languageCode == "hi" { // Hindi
-                config.labelText = "नागरि"
-            } else {
-                config.labelText = "Report Jank"
-            }
-            config.layoutUIOffset = layoutOffset
-        } else {
+        guard !args.contains("--io.sentry.feedback.no-auto-inject-widget") else {
             config.autoInject = false
+            return
         }
+        
+        if Locale.current.languageCode == "ar" { // arabic
+            config.labelText = "﷽"
+        } else if Locale.current.languageCode == "ur" { // urdu
+            config.labelText = "نستعلیق"
+        } else if Locale.current.languageCode == "he" { // hebrew
+            config.labelText = "עִבְרִית‎"
+        } else if Locale.current.languageCode == "hi" { // Hindi
+            config.labelText = "नागरि"
+        } else {
+            config.labelText = "Report Jank"
+        }
+        config.layoutUIOffset = layoutOffset
+        
         if args.contains("--io.sentry.feedback.no-widget-text") {
             config.labelText = nil
         }

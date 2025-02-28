@@ -12,6 +12,8 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentrySpanDataKey.h"
+#import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
@@ -101,7 +103,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     id<SentrySpan> span = [self startTrackingReadingFilePath:path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(path);
 
@@ -121,7 +123,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     id<SentrySpan> span = [self startTrackingReadingFilePath:path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(path, readOptionsMask, error);
 
@@ -148,7 +150,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
     id<SentrySpan> span = [self startTrackingReadingFilePath:url.path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(url, readOptionsMask, error);
 
@@ -208,7 +210,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 
     ioSpan.origin = origin;
-    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
+    [ioSpan setDataValue:path forKey:SentrySpanDataKeyFilePath];
 
     SENTRY_LOG_DEBUG(
         @"Automatically started a new span with description: %@, operation: %@, origin: %@",
@@ -255,7 +257,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     return [self spanForPath:path
                       origin:origin
-                   operation:SentrySpanOperation.fileWrite
+                   operation:SentrySpanOperationFileWrite
                         size:data.length];
 }
 
@@ -295,7 +297,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
 {
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length]
-                forKey:SentrySpanDataKey.fileSize];
+                forKey:SentrySpanDataKeyFileSize];
     [span finish];
 
     SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);
