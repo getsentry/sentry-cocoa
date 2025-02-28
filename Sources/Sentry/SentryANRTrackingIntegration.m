@@ -72,7 +72,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAppHangTracking;
+    return kIntegrationOptionEnableAppHangTracking | kIntegrationOptionDebuggerNotAttached;
 }
 
 - (void)pauseAppHangTracking
