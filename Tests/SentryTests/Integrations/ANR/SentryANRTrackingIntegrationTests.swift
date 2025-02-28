@@ -406,6 +406,22 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testV2_ANRStopped_EmptyEventStored_DoesCaptureEvent() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
+        
+        SentrySDK.currentHub().client()?.fileManager.storeAppHang(Event())
+
+        // Act
+        let result = SentryANRStoppedResult(minDuration: 1.851, maxDuration: 2.249)
+        Dynamic(sut).anrStoppedWithResult(result)
+        
+        // Assert
+        assertNoEventCaptured()
+    }
+    
     func testV2_ANRDetected_StopNotCalled_SendsFatalANROnNextInstall() throws {
         // Arrange
         givenInitializedTracker(enableV2: true)

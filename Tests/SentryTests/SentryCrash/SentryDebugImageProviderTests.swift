@@ -387,9 +387,6 @@ class SentryDebugImageProviderTests: XCTestCase {
             uuid: uuidPointer,
             cpuType: 0,
             cpuSubType: 0,
-            majorVersion: 0,
-            minorVersion: 0,
-            revisionVersion: 0,
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )

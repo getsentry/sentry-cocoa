@@ -483,35 +483,33 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             withSession:(SentrySession *)session
               withScope:(SentryScope *)scope
 {
-    if (nil != event) {
-        NSArray *attachments = [self attachmentsForEvent:event scope:scope];
+    if (event == nil) {
+        return SentryId.empty;
+    }
 
-        if (event.isCrashEvent && event.context[@"replay"] &&
-            [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
-            NSDictionary *replay = event.context[@"replay"];
-            scope.replayId = replay[@"replay_id"];
-        }
+    NSArray *attachments = [self attachmentsForEvent:event scope:scope];
 
-        SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
+    if (event.isCrashEvent && event.context[@"replay"] &&
+        [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
+        NSDictionary *replay = event.context[@"replay"];
+        scope.replayId = replay[@"replay_id"];
+    }
 
-        if (nil == session.releaseName || [session.releaseName length] == 0) {
-            SENTRY_LOG_DEBUG(DropSessionLogMessage);
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-            [self.transportAdapter sendEvent:event
-                                traceContext:traceContext
-                                 attachments:attachments];
-            return event.eventId;
-        }
+    if (nil == session.releaseName || [session.releaseName length] == 0) {
+        SENTRY_LOG_DEBUG(DropSessionLogMessage);
 
-        [self.transportAdapter sendEvent:event
-                             withSession:session
-                            traceContext:traceContext
-                             attachments:attachments];
-
+        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
         return event.eventId;
     }
 
-    return SentryId.empty;
+    [self.transportAdapter sendEvent:event
+                         withSession:session
+                        traceContext:traceContext
+                         attachments:attachments];
+
+    return event.eventId;
 }
 
 - (void)captureSession:(SentrySession *)session

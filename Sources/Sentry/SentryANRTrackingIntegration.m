@@ -200,6 +200,13 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     NSString *errorMessage = [NSString stringWithFormat:@"App hanging %@.", appHangDurationInfo];
     event.exceptions.firstObject.value = errorMessage;
 
+    if (event.exceptions.firstObject.mechanism.data == nil) {
+        SENTRY_LOG_WARN(@"Mechanism data of the stored app hang event was nil. This is unexpected, "
+                        @"so it's likely that the app hang event is corrupted. Therefore, dropping "
+                        @"the stored app hang event.");
+        return;
+    }
+
     NSMutableDictionary *mechanismData = [event.exceptions.firstObject.mechanism.data mutableCopy];
     [mechanismData removeObjectForKey:SentryANRMechanismDataAppHangDuration];
     event.exceptions.firstObject.mechanism.data = mechanismData;
