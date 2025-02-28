@@ -4,6 +4,7 @@
 
 ### Features
 
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
 - New user feedback API and Widget (#4874)
 
 ### Improvements
