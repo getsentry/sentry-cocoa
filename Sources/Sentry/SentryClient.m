@@ -352,22 +352,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:preparedEvent withSession:session withScope:scope];
 }
 
-- (SentryId *)captureFatalAppHangEvent:(SentryEvent *)event
-{
-    return SentryId.empty;
-}
-
-- (SentryId *)captureFatalAppHangEvent:(SentryEvent *)event withSession:(SentrySession *)session
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isCrashEvent:YES];
-    return [self sendEvent:preparedEvent withSession:session withScope:scope];
-}
-
 - (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:transaction
