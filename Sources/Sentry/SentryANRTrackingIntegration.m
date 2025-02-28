@@ -150,7 +150,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // We only measure app hang duration for V2.
     // For V1, we directly capture the app hang event.
     if (self.options.enableAppHangTrackingV2) {
-        // We only temporarily stoe the app hang duration info, so we can change the error message
+        // We only temporarily store the app hang duration info, so we can change the error message
         // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
         // string parsing to retrieve the app hang duration info from the error message.
         mechanism.data = @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
