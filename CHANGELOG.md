@@ -11,11 +11,14 @@
 - Log message when setting user before starting the SDK (#4882)
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
 - Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
+- Slightly reduce size of SentryCrashReports (#4915)
 
 ### Fixes
 
-- Fix rare memory access issue for auto tracing (#4894). For more details, see issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887).
+- Fix rare memory access issue for auto tracing (#4894). For more details, see issue (#4887).
 - Move assignment of file IO span origin outside of block (#4888)
+- Deadline timeout crash in SentryTracer (#4911)
+- Improve memory-safety by converting Swift constants to Objective-C (#4910)
 
 ## 8.45.0
 

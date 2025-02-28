@@ -1,0 +1,46 @@
+name: CocoaPods Integration Tests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - ".github/workflows/integration-test.yml"
+      - "*.xcodeproj"
+      - "*.xcworkspace"
+      - "Samples/iOS-Cocoapods-*/**"
+      - "scripts/ci-select-xcode.sh"
+      - "Sources/**"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  cocoapods:
+    name: Integration Test
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@32110d4e311bd8996b2a82bf2a43b714ccc91777 # v1.221.0
+        with:
+          bundler-cache: true
+
+      - name: Run Integration Test
+        run: bundle exec fastlane cocoapods_integration_test
+        working-directory: Samples/iOS-Cocoapods-Swift6
+
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: integration-test-iOS-Cocoapods-Swift6.xcresult
+          path: fastlane/test_results/results.xcresult
