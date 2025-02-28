@@ -12,6 +12,7 @@
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
 - Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
 - Slightly speed up SDK start (#4916)
+- Slightly reduce size of SentryCrashReports (#4915)
 
 ### Fixes
 

@@ -146,9 +146,6 @@ class SentryBinaryImageCacheTests: XCTestCase {
             uuid: nil,
             cpuType: 1,
             cpuSubType: 1,
-            majorVersion: 1,
-            minorVersion: 0,
-            revisionVersion: 0,
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )
@@ -173,9 +170,6 @@ class SentryBinaryImageCacheTests: XCTestCase {
             uuid: nil,
             cpuType: 1,
             cpuSubType: 1,
-            majorVersion: 1,
-            minorVersion: 0,
-            revisionVersion: 0,
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )
@@ -278,9 +272,6 @@ func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0, name: String
         uuid: uuidPointer,
         cpuType: 1,
         cpuSubType: 1,
-        majorVersion: 1,
-        minorVersion: 0,
-        revisionVersion: 0,
         crashInfoMessage: nil,
         crashInfoMessage2: nil
     )
