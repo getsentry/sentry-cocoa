@@ -262,9 +262,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+/**
+ * This method expects an abnormal session already stored to disk. For more info checkout: @c
+ * SentryCrashIntegrationSessionHandler
+ */
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
-    // We tread fatal app hang events exactly similar to crashes.
+    // We tread fatal app hang events similar to crashes.
     event.isCrashEvent = YES;
 
     SentryClient *client = _client;
@@ -277,12 +281,14 @@ NS_ASSUME_NONNULL_BEGIN
 
     // It can occur that there is no session yet because autoSessionTracking was just enabled or
     // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
-    // this case,  we just send the fatal app hang event.
+    // this case, we just send the fatal app hang event.
     if (abnormalSession == nil) {
         [client captureCrashEvent:event withScope:self.scope];
         return;
     }
 
+    // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
+    // health and session statistics as app hangs.
     abnormalSession.abnormalMechanism = @"anr_foreground";
     [client captureCrashEvent:event withSession:abnormalSession withScope:self.scope];
     [fileManager deleteAbnormalSession];

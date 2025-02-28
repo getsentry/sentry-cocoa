@@ -421,7 +421,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(enableV2: true)
         
         // Assert
-        try assertEventWithScopeCaptured { event, scope, _ in
+        try assertCrashEventWithScope { event, _ in
             XCTAssertEqual(event?.level, SentryLevel.fatal)
             
             let ex = try XCTUnwrap(event?.exceptions?.first)
@@ -441,11 +441,57 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
-            
-            // Ensure we capture the event with an empty scope
-            XCTAssertEqual(scope?.tags.count, 0)
-            XCTAssertEqual(scope?.breadcrumbs().count, 0)
         }
+    }
+    
+    func testV2_ANRDetected_StopNotCalledAndAbnormalSession_SendsFatalANROnNextInstall() throws {
+        // Arrange
+        givenInitializedTracker(enableV2: true)
+        setUpThreadInspector()
+        Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
+        
+        // This must not impact on the stored event
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: "value2", key: "key")
+        }
+        
+        let abnormalSession = SentrySession(releaseName: "release", distinctId: "distinct")
+        abnormalSession.endAbnormal(withTimestamp: fixture.currentDate.date())
+        SentrySDK.currentHub().client()?.fileManager.storeAbnormalSession(abnormalSession)
+        
+        // Act
+        givenInitializedTracker(enableV2: true)
+        
+        // Assert
+        let client = try XCTUnwrap(SentrySDK.currentHub().getClient() as? TestClient)
+        
+        XCTAssertEqual(1, client.captureCrashEventWithSessionInvocations.count, "Wrong number of `Crashs` captured.")
+        let capture = try XCTUnwrap(client.captureCrashEventWithSessionInvocations.first)
+        let event = capture.event
+        XCTAssertEqual(event.level, SentryLevel.fatal)
+        
+        let ex = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(ex.type, "Fatal App Hang Non Fully Blocked")
+        XCTAssertEqual(ex.value, "The user or the OS watchdog terminated your app while it blocked the main thread for at least 4500 ms.")
+        
+        // We use the mechanism data to temporarily store the duration.
+        // This asserts that we remove the mechanism data before sending the event.
+        let mechanismData = try XCTUnwrap(ex.mechanism?.data)
+        XCTAssertTrue(mechanismData.isEmpty)
+        
+        let tags = try XCTUnwrap(event.tags)
+        XCTAssertEqual(1, tags.count)
+        XCTAssertEqual("value", tags["key"])
+        
+        let breadcrumbs = try XCTUnwrap(event.breadcrumbs)
+        XCTAssertEqual(1, breadcrumbs.count)
+        XCTAssertEqual("crumb", breadcrumbs.first?.message)
+        
+        let actualSession = try XCTUnwrap(capture.session)
+        XCTAssertEqual("release", actualSession.releaseName)
+        XCTAssertEqual("distinct", actualSession.distinctId)
+        XCTAssertEqual(fixture.currentDate.date(), actualSession.timestamp)
+        XCTAssertEqual("anr_foreground", actualSession.abnormalMechanism)
     }
     
     func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
