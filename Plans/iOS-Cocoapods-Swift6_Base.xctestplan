@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "898A883E-70D0-4C59-A03F-284E6DB0C552",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS-Cocoapods-Swift6.xcodeproj",
+      "identifier" : "D46156842D63555100D7C33D",
+      "name" : "iOS-Cocoapods-Swift6"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:iOS-Cocoapods-Swift6.xcodeproj",
+        "identifier" : "D4DC1E792D6F0FAD00F562AA",
+        "name" : "iOS-Cocoapods-Swift6-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

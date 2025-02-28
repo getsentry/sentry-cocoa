@@ -4,6 +4,7 @@
 
 ### Features
 
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
 - New user feedback API and Widget (#4874)
 
 ### Improvements
@@ -11,6 +12,7 @@
 - Log message when setting user before starting the SDK (#4882)
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
 - Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
+- Slightly reduce size of SentryCrashReports (#4915)
 
 ### Fixes
 
@@ -18,7 +20,7 @@
 - Move assignment of file IO span origin outside of block (#4888)
 - Deadline timeout crash in SentryTracer (#4911)
 - Improve memory-safety by converting Swift constants to Objective-C (#4910)
-- Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917)
+- Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
 
 ## 8.45.0
 
