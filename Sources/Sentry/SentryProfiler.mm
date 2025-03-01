@@ -14,6 +14,7 @@
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
+#    import "SentrySampling.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
@@ -37,7 +38,7 @@ static const int kSentryProfilerFrequencyHz = 101;
 #    pragma mark - Public
 
 void
-sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = options.profilesSampleRate != nil;
@@ -51,7 +52,9 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
                              @"be no automatic trace to attach it to.");
             sentry_stopAndTransmitLaunchProfile(hub);
         }
+
         sentry_configureLaunchProfiling(options);
+        _sentryProfilerSessionSampleDecision = sentry_sampleProfileSession(options);
     }];
 }
 
