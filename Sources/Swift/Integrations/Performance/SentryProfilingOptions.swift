@@ -28,9 +28,13 @@ public class SentryProfilingOptions: NSObject {
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
     public var lifecycle: Lifecycle = .manual
     
-    /// The % of user sessions that in which to enable profiling.
-    /// - note: Whether or not the session is sampled is determined once initially when the SDK is
+    /// The % of user sessions in which to enable profiling.
+    /// - note: Whether or not the session is sampled is determined once, when the SDK is initially
     /// configured.
+    /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
+    /// set to a non-nil value such that transaction-based profiling is being used, then setting
+    /// this property has no effect, and neither do `SentrySDK.startProfileSession()` or
+    /// `SentrySDK.stopProfileSession()`.
     /// - note: The profiling session starts when a new user session begins, and stops when the user
     /// session ends. Backgrounding and foregrounding the app starts a new user session and sampling
     /// is re-evaluated. If there is no active trace when the app is backgrounded, profiling stops

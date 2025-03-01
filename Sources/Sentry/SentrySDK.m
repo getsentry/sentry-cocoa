@@ -20,6 +20,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
+#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -260,7 +261,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageTraceProfilerOnStartSDK(options, hub);
+        sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 
@@ -635,15 +636,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startProfileSession
 {
-    // TODO: log a debug message and bail if the profiling session is sampled
-    // with respect SentryOptions.profileSessionSampleRate and the profiler is already running
-
-    // TODO: log a debug message and bail if the profile session is not sampled
-
     if (currentHub.client.options.profiling.lifecycle == LifecycleTrace) {
         SENTRY_LOG_WARN(
             @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
             @"manually. See SentryProfilingOptions.Lifecycle for more information.");
+        return;
+    }
+
+    if (_sentryProfilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+        SENTRY_LOG_DEBUG(
+            @"The profiling session has been sampled out, no profiling will take place.");
         return;
     }
 
