@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
         activeSpan = [self.activeSpanStack lastObject];
     }
 
-    __block id<SentrySpan> newSpan;
+    id<SentrySpan> newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
         newSpan.origin = origin;
