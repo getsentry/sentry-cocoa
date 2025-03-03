@@ -4,6 +4,7 @@
 
 ### Features
 
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
 - New user feedback API and Widget (#4874)
 
 ### Improvements
@@ -19,6 +20,7 @@
 - Move assignment of file IO span origin outside of block (#4888)
 - Deadline timeout crash in SentryTracer (#4911)
 - Improve memory-safety by converting Swift constants to Objective-C (#4910)
+- Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
 
 ## 8.45.0
 
