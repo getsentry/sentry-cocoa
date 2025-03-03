@@ -97,7 +97,9 @@ platform :ios do
       include_bitcode: false,
       include_symbols: true,
       export_method: "app-store",
-      archive_path: "iOS-Swift"
+      archive_path: "iOS-Swift",
+      output_directory: "./build",
+      output_name: "iOS-Swift.ipa"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -210,6 +212,7 @@ platform :ios do
 
     testflight(
       skip_waiting_for_build_processing: true,
+      ipa: "./build/iOS-Swift.ipa"
     )
 
     sentry_upload_dif(
