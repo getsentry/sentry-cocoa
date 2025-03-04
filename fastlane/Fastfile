@@ -91,6 +91,9 @@ platform :ios do
       clone_branch_directly: true
     )
 
+    # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
+    # The log output will print a warning: "No output path received from gym"
+    # See: https://github.com/fastlane/fastlane/issues/22276#issuecomment-2491517911
     build_ios_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
