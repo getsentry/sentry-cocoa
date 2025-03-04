@@ -43,4 +43,4 @@ jobs:
         if: ${{ failure() }}
         with:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult
-          path: fastlane/test_results/results.xcresult
+          path: Samples/iOS-Cocoapods-Swift6/fastlane/test_results/results.xcresult
