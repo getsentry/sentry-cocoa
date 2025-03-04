@@ -91,7 +91,7 @@ platform :ios do
       clone_branch_directly: true
     )
 
-    build_app(
+    build_ios_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       include_bitcode: false,
