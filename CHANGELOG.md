@@ -28,6 +28,10 @@
 - Improve memory-safety by converting Swift constants to Objective-C (#4910)
 - Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
 
+### Internal
+
+- Add injectable mask and view renderer (#4938)
+
 ## 8.45.0
 
 > [!WARNING]

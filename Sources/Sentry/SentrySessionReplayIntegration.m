@@ -87,8 +87,10 @@ static SentryTouchTracker *_touchTracker;
 - (void)setupWith:(SentryReplayOptions *)replayOptions enableTouchTracker:(BOOL)touchTracker
 {
     _replayOptions = replayOptions;
-    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRedactOptions:replayOptions];
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
+    id<SentryViewRenderer> viewRenderer = [[SentryDefaultViewRenderer alloc] init];
+    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                           redactOptions:replayOptions];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
