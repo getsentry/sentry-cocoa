@@ -189,6 +189,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readAbnormalSession())
     }
     
+    // Abnormal sessions only work when we the SDK can detect fatal app hang events. These only work on iOS, tvOS and macCatalyst
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
     func testEndSessionAsAbnormal_NoHubBound() {
         // Arrange
         let sentryCrash = fixture.sentryCrash
@@ -312,6 +315,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertCrashedSessionStored(expected: expectedCrashedSession)
         XCTAssertNil(fileManager.readAbnormalSession())
     }
+    
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
