@@ -23,3 +23,4 @@
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
 #import "SentryTraceHeader.h"
+#import "SentryTraceOrigin.h"
