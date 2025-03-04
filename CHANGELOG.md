@@ -1,10 +1,15 @@
 # Changelog
 
-## 8.46.0
+## Unreleased
 
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+
+## 8.46.0
+
+### Features
+
 - Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
 - New user feedback API and Widget (#4874)
 
