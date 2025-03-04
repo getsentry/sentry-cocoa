@@ -63,4 +63,42 @@ class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
         XCTAssertEqual(span.timestamp, Date(timeIntervalSince1970: 4_200_000))
         XCTAssertEqual(parentSpan.timestamp, Date(timeIntervalSince1970: 4_300_000))
     }
+
+    func testMeasureReadingData_isEnabled_shouldCallBlockWithParams() throws {
+        // -- Arrange --
+        tracker.enable()
+
+        // -- Act --
+        var callUrl: URL?
+        var callOptions: Data.ReadingOptions?
+        let result = tracker.measureReadingData(from: testUrl, options: testOptions, origin: testOrigin) { url, options in
+            callUrl = url
+            callOptions = options
+            return testData
+        }
+
+        // -- Assert --
+        XCTAssertEqual(callUrl, testUrl)
+        XCTAssertEqual(callOptions, testOptions)
+        XCTAssertEqual(result, testData)
+    }
+
+    func testMeasureReadingData_isNotEnabled_shouldCallBlockWithParams() throws {
+        // -- Arrange --
+        tracker.disable()
+
+        // -- Act --
+        var callUrl: URL?
+        var callOptions: Data.ReadingOptions?
+        let result = tracker.measureReadingData(from: testUrl, options: testOptions, origin: testOrigin) { url, options in
+            callUrl = url
+            callOptions = options
+            return testData
+        }
+
+        // -- Assert --
+        XCTAssertEqual(callUrl, testUrl)
+        XCTAssertEqual(callOptions, testOptions)
+        XCTAssertEqual(result, testData)
+    }
 }
