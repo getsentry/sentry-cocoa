@@ -3825,6 +3825,15 @@
 			name = Transaction;
 			sourceTree = "<group>";
 		};
+		D4009EA02D77196F0007AF30 /* ViewCapture */ = {
+			isa = PBXGroup;
+			children = (
+				D82915622C85EF0C00A6CDD4 /* SentryViewPhotographerTests.swift */,
+				D8F67AF22BE10F7600C9197B /* UIRedactBuilderTests.swift */,
+			);
+			path = ViewCapture;
+			sourceTree = "<group>";
+		};
 		D46D45E22D5F3FD600A1CB35 /* Plans */ = {
 			isa = PBXGroup;
 			children = (
@@ -3978,6 +3987,7 @@
 		D81FDF0F280E9FEC0045E0E4 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				D4009EA02D77196F0007AF30 /* ViewCapture */,
 				D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */,
 				D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */,
 				0A5370A028A3EC2400B2DCDE /* SentryViewHierarchyTests.swift */,
@@ -3989,9 +3999,7 @@
 				D8292D7C2A39A027009872F7 /* UrlSanitizedTests.swift */,
 				D8F8F5562B835BC600AC5465 /* SentryMsgPackSerializerTests.m */,
 				D8F67AEF2BE0D31A00C9197B /* UIImageHelperTests.swift */,
-				D8F67AF22BE10F7600C9197B /* UIRedactBuilderTests.swift */,
 				51B15F7F2BE88D510026A2F2 /* URLSessionTaskHelperTests.swift */,
-				D82915622C85EF0C00A6CDD4 /* SentryViewPhotographerTests.swift */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
