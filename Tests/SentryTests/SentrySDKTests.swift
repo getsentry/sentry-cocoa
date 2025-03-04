@@ -5,10 +5,6 @@ import XCTest
 // swiftlint:disable file_length
 class SentrySDKTests: XCTestCase {
     
-    func testFailingTest() {
-        XCTFail("Test a failure")
-    }
-    
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
     
     private class Fixture {
