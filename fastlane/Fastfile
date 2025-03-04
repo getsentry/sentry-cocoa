@@ -228,7 +228,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
       configuration: configuration,
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -242,7 +241,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
       configuration: configuration,
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -256,7 +254,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
       configuration: configuration,
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -272,7 +269,6 @@ platform :ios do
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
       configuration: configuration,
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -286,7 +282,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
       configuration: configuration,
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -300,7 +295,6 @@ platform :ios do
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
       scheme: "DuplicatedSDKTest",
-      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
