@@ -1169,10 +1169,6 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
         writer->addUUIDElement(writer, SentryCrashField_UUID, image->uuid);
         writer->addIntegerElement(writer, SentryCrashField_CPUType, image->cpuType);
         writer->addIntegerElement(writer, SentryCrashField_CPUSubType, image->cpuSubType);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMajorVersion, image->majorVersion);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image->minorVersion);
-        writer->addUIntegerElement(
-            writer, SentryCrashField_ImageRevisionVersion, image->revisionVersion);
         if (image->crashInfoMessage != NULL) {
             writer->addStringElement(
                 writer, SentryCrashField_ImageCrashInfoMessage, image->crashInfoMessage);

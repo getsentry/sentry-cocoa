@@ -221,8 +221,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.feedback.auto-inject-widget"
-            isEnabled = "YES">
+            argument = "--io.sentry.feedback.no-auto-inject-widget"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>

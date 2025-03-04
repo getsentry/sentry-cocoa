@@ -126,9 +126,6 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
             uuid: nil,
             cpuType: 1,
             cpuSubType: 1,
-            majorVersion: 1,
-            minorVersion: 0,
-            revisionVersion: 0,
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )

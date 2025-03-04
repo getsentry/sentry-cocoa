@@ -3,6 +3,7 @@
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigin.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                         parentId:parentId
                        operation:operation
                  spanDescription:description
-                          origin:SentryTraceOrigin.manual
+                          origin:SentryTraceOriginManual
                          sampled:sampled];
 }
 

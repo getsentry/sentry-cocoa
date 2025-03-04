@@ -9,6 +9,8 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
+#    import <SentrySpanOperation.h>
+#    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 
@@ -49,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (sameAction) {
         SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
             currentActiveTransaction.spanId.sentrySpanIdString);
-        [currentActiveTransaction dispatchIdleTimeout];
+        [currentActiveTransaction startIdleTimeout];
         return;
     }
 
@@ -65,17 +67,17 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryTransactionContext alloc] initWithName:action
                                             nameSource:kSentryTransactionNameSourceComponent
                                              operation:operation
-                                                origin:SentryTraceOrigin.autoUiEventTracker];
+                                                origin:SentryTraceOriginAutoUiEventTracker];
 
     id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
     BOOL ongoingScreenLoadTransaction = false;
     BOOL ongoingManualTransaction = false;
     if (currentSpan != nil) {
         ongoingScreenLoadTransaction =
-            [currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad];
+            [currentSpan.operation isEqualToString:SentrySpanOperationUiLoad];
         ongoingManualTransaction
-            = ![currentSpan.operation isEqualToString:SentrySpanOperation.uiLoad]
-            && ![currentSpan.operation containsString:SentrySpanOperation.uiAction];
+            = ![currentSpan.operation isEqualToString:SentrySpanOperationUiLoad]
+            && ![currentSpan.operation containsString:SentrySpanOperationUiAction];
     }
     BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
 

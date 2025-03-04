@@ -3,58 +3,58 @@ import XCTest
 
 class SentrySpanOperationTests: XCTestCase {
     func testAppLifecycle_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.appLifecycle, "app.lifecycle")
+        XCTAssertEqual(SentrySpanOperationAppLifecycle, "app.lifecycle")
     }
 
     func testCoredataFetchOperation_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.coredataFetchOperation, "db.sql.query")
+        XCTAssertEqual(SentrySpanOperationCoredataFetchOperation, "db.sql.query")
     }
 
     func testCoredataSaveOperation_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.coredataSaveOperation, "db.sql.transaction")
+        XCTAssertEqual(SentrySpanOperationCoredataSaveOperation, "db.sql.transaction")
     }
 
     func testFileRead_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.fileRead, "file.read")
+        XCTAssertEqual(SentrySpanOperationFileRead, "file.read")
     }
 
     func testFileWrite_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.fileWrite, "file.write")
+        XCTAssertEqual(SentrySpanOperationFileWrite, "file.write")
     }
 
     func testFileCopy_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.fileCopy, "file.copy")
+        XCTAssertEqual(SentrySpanOperationFileCopy, "file.copy")
     }
 
     func testFileRename_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.fileRename, "file.rename")
+        XCTAssertEqual(SentrySpanOperationFileRename, "file.rename")
     }
 
     func testFileDelete_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.fileDelete, "file.delete")
+        XCTAssertEqual(SentrySpanOperationFileDelete, "file.delete")
     }
 
     func testNetworkRequestOperation_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.networkRequestOperation, "http.client")
+        XCTAssertEqual(SentrySpanOperationNetworkRequestOperation, "http.client")
     }
 
     func testUILoad_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.uiLoad, "ui.load")
+        XCTAssertEqual(SentrySpanOperationUiLoad, "ui.load")
     }
 
     func testUILoadInitialDisplay_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.uiLoadInitialDisplay, "ui.load.initial_display")
+        XCTAssertEqual(SentrySpanOperationUiLoadInitialDisplay, "ui.load.initial_display")
     }
 
     func testUILoadFullDisplay_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.uiLoadFullDisplay, "ui.load.full_display")
+        XCTAssertEqual(SentrySpanOperationUiLoadFullDisplay, "ui.load.full_display")
     }
 
     func testUIAction_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.uiAction, "ui.action")
+        XCTAssertEqual(SentrySpanOperationUiAction, "ui.action")
     }
 
     func testUIActionClick_shouldBeExpectedValue() {
-        XCTAssertEqual(SentrySpanOperation.uiActionClick, "ui.action.click")
+        XCTAssertEqual(SentrySpanOperationUiActionClick, "ui.action.click")
     }
 }

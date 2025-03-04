@@ -22,7 +22,7 @@ public extension Data {
             .measureReadingData(
                 from: url,
                 options: options,
-                origin: SentryTraceOrigin.manualFileData) { url, options in
+                origin: SentryTraceOriginManualFileData) { url, options in
                     try Data(contentsOf: url, options: options)
             }
     }
@@ -45,7 +45,7 @@ public extension Data {
                 self,
                 to: url,
                 options: options,
-                origin: SentryTraceOrigin.manualFileData) { data, url, options in
+                origin: SentryTraceOriginManualFileData) { data, url, options in
                     try data.write(to: url, options: options)
             }
     }

@@ -1,0 +1,21 @@
+default_platform(:ios)
+
+platform :ios do
+  lane :cocoapods_integration_test do |options|
+    cocoapods(
+      clean_install: true
+    )
+    run_tests(
+      workspace: "iOS-Cocoapods-Swift6.xcworkspace",
+      scheme: "App",
+      build_for_testing: true
+    )
+    run_tests(
+      workspace: "iOS-Cocoapods-Swift6.xcworkspace", 
+      scheme: "App",
+      test_without_building: true,
+      result_bundle: true,
+      result_bundle_path: "fastlane/test_results/results.xcresult"
+    )
+  end
+end
