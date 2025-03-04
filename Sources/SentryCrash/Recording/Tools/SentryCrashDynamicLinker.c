@@ -395,9 +395,9 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
         }
 
         // We have all the info we need. Break out of the loop.
-        //        if (imageSize != 0 && imageVmAddr != 0 && uuid != NULL) {
-        //            break;
-        //        }
+        if (imageSize != 0 && imageVmAddr != 0 && uuid != NULL) {
+            break;
+        }
 
         cmdPtr += loadCmd->cmdsize;
     }
