@@ -97,9 +97,7 @@ platform :ios do
       include_bitcode: false,
       include_symbols: true,
       export_method: "app-store",
-      archive_path: "iOS-Swift",
-      output_directory: "iOS-Swift-TestFlight/",
-      output_name: "iOS-Swift-Upload.ipa"
+      archive_path: "iOS-Swift"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -212,7 +210,6 @@ platform :ios do
 
     testflight(
       skip_waiting_for_build_processing: true,
-      ipa: "iOS-Swift-TestFlight/iOS-Swift-Upload.ipa"
     )
 
     sentry_upload_dif(
@@ -231,6 +228,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
       configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -244,6 +242,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
       configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -257,6 +256,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
       configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -272,6 +272,7 @@ platform :ios do
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
       configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -285,6 +286,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
       configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
@@ -297,7 +299,8 @@ platform :ios do
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
-      scheme: "DuplicatedSDKTest", 
+      scheme: "DuplicatedSDKTest",
+      xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
