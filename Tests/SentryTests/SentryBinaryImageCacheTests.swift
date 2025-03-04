@@ -258,7 +258,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         if #available(tvOS 17.5, iOS 16.4, *) {
             XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 90% of the images should have a vmAddress")
         } else {
-            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 20, "At least 20% of the images should have a vmAddress")
+            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 20% of the images should have a vmAddress")
         }
     }
 }
