@@ -262,13 +262,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+#if SENTRY_HAS_UIKIT
+
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
  * SentryCrashIntegrationSessionHandler
  */
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
-    // We tread fatal app hang events similar to crashes.
+    // We treat fatal app hang events similar to crashes.
     event.isCrashEvent = YES;
 
     SentryClient *client = _client;
@@ -293,6 +295,8 @@ NS_ASSUME_NONNULL_BEGIN
     [client captureCrashEvent:event withSession:abnormalSession withScope:self.scope];
     [fileManager deleteAbnormalSession];
 }
+
+#endif // SENTRY_HAS_UIKIT
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {

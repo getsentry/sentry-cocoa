@@ -38,7 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
+#if SENTRY_HAS_UIKIT
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;
+#endif // SENTRY_HAS_UIKIT
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording

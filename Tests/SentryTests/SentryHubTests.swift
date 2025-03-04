@@ -915,6 +915,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1010,6 +1011,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()

@@ -65,7 +65,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     self.options = options;
     self.reportAppHangs = YES;
 
+#if SENTRY_HAS_UIKIT
     [self captureStoredAppHangEvent];
+#endif // SENTRY_HAS_UIKIT
 
     return YES;
 }
@@ -217,6 +219,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 #endif // SENTRY_HAS_UIKIT
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)captureStoredAppHangEvent
 {
     __weak SentryANRTrackingIntegration *weakSelf = self;
@@ -280,6 +283,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         }
     }];
 }
+
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

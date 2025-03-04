@@ -557,7 +557,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(sut.readAbnormalSession())
     }
     
-    func testDeleteAbnormalSession_WhenNoAbnormalSessionStored() throws {
+    func testDeleteAbnormalSession_WhenNoAbnormalSessionStored_DoesNotCrash() throws {
         sut.deleteAbnormalSession()
     }
     

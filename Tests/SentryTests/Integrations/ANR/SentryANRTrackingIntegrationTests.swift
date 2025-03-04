@@ -460,7 +460,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    func testV2_ANRDetected_StopNotCalledAndAbnormalSession_SendsFatalANROnNextInstall() throws {
+    func testV2_ANRDetected_StopNotCalledAndAbnormalSession_SendsFatalAppHangOnNextInstall() throws {
         // Arrange
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
