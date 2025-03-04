@@ -226,6 +226,41 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
+    
+    func testStartWithSenryCrashBinaryImageCache() {
+        
+        // We have to start the binary image cache of SentryCrash before starting this cache.
+        SentryCrashWrapper.sharedInstance().startBinaryImageCache()
+        defer { SentryCrashWrapper.sharedInstance().stopBinaryImageCache() }
+        
+        sut.start()
+        
+        var imagesWithVmAddressCount = 0
+        
+        let images = sut.getAllBinaryImages()
+        for image in images {
+            XCTAssertNotNil(image.name)
+            XCTAssertGreaterThan(image.size, 0)
+            XCTAssertGreaterThan(image.address, 0)
+            XCTAssertFalse(image.uuid.isEmpty, "Image must have a UUID")
+            
+            // Not all images have a vmAddress
+            if image.vmAddress > 0 {
+                imagesWithVmAddressCount += 1
+            }
+        }
+        
+        let imagesWithVmAddressPercentage = Double(imagesWithVmAddressCount) / Double(images.count) * 100
+        
+        // We only get 90% on tvOS 17.5 and iOS 16.4 and above when running the tests on GH actions.
+        // On older versions we get 20%. The exact percentage doesn't really matter. Instead, this is a smoke test
+        // to ensure that the vmAddress is set for most images.
+        if #available(tvOS 17.5, iOS 16.4, *) {
+            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 90% of the images should have a vmAddress")
+        } else {
+            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 20% of the images should have a vmAddress")
+        }
+    }
 }
 
 func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0, name: String? = nil) -> SentryCrashBinaryImage {
