@@ -119,8 +119,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let span = try XCTUnwrap(parentTransaction.children.first)
 
         XCTAssertEqual(span.status, SentrySpanStatus.ok)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
+        XCTAssertEqual(span.origin, SentryTraceOriginManualFileData)
+        XCTAssertEqual(span.operation, SentrySpanOperationFileRead)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToRead.path)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
 
@@ -172,8 +172,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let span = try XCTUnwrap(parentTransaction.children.first)
 
         XCTAssertEqual(span.status, SentrySpanStatus.internalError)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileRead)
+        XCTAssertEqual(span.origin, SentryTraceOriginManualFileData)
+        XCTAssertEqual(span.operation, SentrySpanOperationFileRead)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToRead.path)
         XCTAssertNil(span.data["file.size"])
 
@@ -265,8 +265,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let span = try XCTUnwrap(parentTransaction.children.first)
 
         XCTAssertEqual(span.status, SentrySpanStatus.ok)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
+        XCTAssertEqual(span.origin, SentryTraceOriginManualFileData)
+        XCTAssertEqual(span.operation, SentrySpanOperationFileWrite)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.fileUrlToWrite.path)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
 
@@ -322,8 +322,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         let span = try XCTUnwrap(parentTransaction.children.first)
 
         XCTAssertEqual(span.status, SentrySpanStatus.internalError)
-        XCTAssertEqual(span.origin, SentryTraceOrigin.manualFileData)
-        XCTAssertEqual(span.operation, SentrySpanOperation.fileWrite)
+        XCTAssertEqual(span.origin, SentryTraceOriginManualFileData)
+        XCTAssertEqual(span.operation, SentrySpanOperationFileWrite)
         XCTAssertEqual(span.data["file.path"] as? String, fixture.invalidFileUrlToWrite.path)
         XCTAssertEqual(span.data["file.size"] as? Int, fixture.data.count)
 
