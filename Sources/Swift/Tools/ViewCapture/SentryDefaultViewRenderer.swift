@@ -1,3 +1,6 @@
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 @objcMembers
@@ -9,3 +12,6 @@ class SentryDefaultViewRenderer: NSObject, SentryViewRenderer {
         return image
     }
 }
+
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit) && !SENTRY_NO_UIKIT

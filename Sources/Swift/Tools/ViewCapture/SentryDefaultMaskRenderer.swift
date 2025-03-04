@@ -1,3 +1,8 @@
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+
+import CoreGraphics
+import Foundation
 import UIKit
 
 class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
@@ -63,3 +68,6 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
         context.clip(using: .evenOdd)
     }
 }
+
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
