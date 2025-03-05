@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Correctly finish TTFD span when no new frame (#4941)
+
 ## 8.46.0
 
 ### Features
