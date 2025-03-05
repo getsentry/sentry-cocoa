@@ -183,6 +183,13 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation
+{
+    return [self spanForPath:path origin:origin operation:operation size:0];
+}
+
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
@@ -211,6 +218,10 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
     ioSpan.origin = origin;
     [ioSpan setDataValue:path forKey:SentrySpanDataKeyFilePath];
+    if (size > 0) {
+        [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
+                      forKey:SentrySpanDataKeyFileSize];
+    }
 
     SENTRY_LOG_DEBUG(
         @"Automatically started a new span with description: %@, operation: %@, origin: %@",

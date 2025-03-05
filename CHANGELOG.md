@@ -5,6 +5,9 @@
 ### Fixes
 
 - Correctly finish TTFD span when no new frame (#4941)
+### Features
+
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
 
 ## 8.46.0
 
