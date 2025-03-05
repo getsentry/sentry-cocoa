@@ -19,6 +19,17 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableFileManagerSwizzling = false
 
+    /**
+     * Enables the experimental view renderer used by the Session Replay integration.
+     *
+     * Rendering the view hierarchy is an expensive operation and can impact the performance of your app.
+     * The experimental view renderer is optimized for performance, but might not render all views correctly.
+     *
+     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa).
+     */
+    public var enableExperimentalViewRenderer = false
+
     func validateOptions(_ options: [String: Any]?) {
     }
 }

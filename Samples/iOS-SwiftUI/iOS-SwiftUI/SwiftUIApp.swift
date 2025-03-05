@@ -15,6 +15,10 @@ struct SwiftUIApp: App {
                 scope.injectGitInformation()
                 return scope
             }
+
+            // Experimental features
+            options.experimental.enableFileManagerSwizzling = true
+            options.experimental.enableExperimentalViewRenderer = true
         }
     }
     

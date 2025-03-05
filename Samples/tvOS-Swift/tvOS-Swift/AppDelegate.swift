@@ -16,8 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.enableAppHangTracking = true
+
+            // Experimental features
             options.experimental.enableFileManagerSwizzling = true
-            
+            options.experimental.enableExperimentalViewRenderer = true
+
             options.initialScope = { scope in
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
                     scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))

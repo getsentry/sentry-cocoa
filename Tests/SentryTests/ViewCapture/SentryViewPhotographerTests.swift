@@ -16,7 +16,11 @@ class SentryViewPhotographerTests: XCTestCase {
     }
     
     private func sut() -> SentryViewPhotographer {
-        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
+        return SentryViewPhotographer(
+            renderer: TestViewRenderer(),
+            redactOptions: RedactOptions(),
+            enableExperimentalMasking: false
+        )
     }
     
     private func prepare(views: [UIView]) -> UIImage? {
@@ -293,7 +297,7 @@ class SentryViewPhotographerTests: XCTestCase {
         
         assertColor(pixel, .black)
     }
-    
+
     private func assertColor(_ color: UIColor, in image: UIImage, at points: [CGPoint]) {
         points.forEach {
             let pixel = self.color(at: $0, in: image)

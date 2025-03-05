@@ -19,6 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 scope.injectGitInformation()
                 return scope
             }
+
+            // Experimental features
+            options.experimental.enableFileManagerSwizzling = true
+            options.experimental.enableExperimentalViewRenderer = true
         }
         
         return true

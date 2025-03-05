@@ -5,6 +5,7 @@
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- Add experimental flag to use a more efficient view renderer for Session Replay (#4940)
 
 ## 8.46.0
 

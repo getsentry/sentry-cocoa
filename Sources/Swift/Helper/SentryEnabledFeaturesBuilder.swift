@@ -45,7 +45,11 @@ import Foundation
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
-        
+
+        if options.experimental.enableExperimentalViewRenderer {
+            features.append("experimentalViewRenderer")
+        }
+
         return features
     }
 }

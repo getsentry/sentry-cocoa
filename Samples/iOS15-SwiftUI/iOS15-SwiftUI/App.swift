@@ -9,7 +9,10 @@ struct SwiftUIApp: App {
             options.debug = true
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
+
+            // Experimental features
             options.experimental.enableFileManagerSwizzling = true
+            options.experimental.enableExperimentalViewRenderer = true
         }
     }
     

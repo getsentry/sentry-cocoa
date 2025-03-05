@@ -28,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             options.sampleRate = 1
             options.tracesSampleRate = 1
+
+            // Experimental features
+            options.experimental.enableFileManagerSwizzling = true
+            options.experimental.enableExperimentalViewRenderer = true
         })
 
     }
