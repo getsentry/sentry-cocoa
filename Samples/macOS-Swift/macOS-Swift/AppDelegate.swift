@@ -38,6 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             options.experimental.enableFileManagerSwizzling = !args.contains("--disable-filemanager-swizzling")
             options.experimental.enableExperimentalViewRenderer = !args.contains("--disable-experimental-view-renderer")
+            options.experimental.enableFastViewRenderer = !args.contains("--disable-fast-view-renderer")
         }
     }
 

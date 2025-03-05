@@ -30,6 +30,19 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableExperimentalViewRenderer = false
 
+    /**
+     * Enables the fast view renderer used by the Session Replay integration.
+     *
+     * This flag can be used to switch between drawing the view hierarchy using `CALayer.render(in:)` or `UIView.drawHierarchy(in:afterScreenUpdates:)`.
+     *
+     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     *              For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
+     *              set this option to `true`.
+     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa).
+     */
+    public var enableFastViewRenderer = false
+
     func validateOptions(_ options: [String: Any]?) {
     }
 }

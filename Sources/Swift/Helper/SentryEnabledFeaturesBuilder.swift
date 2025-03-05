@@ -49,6 +49,9 @@ import Foundation
         if options.experimental.enableExperimentalViewRenderer {
             features.append("experimentalViewRenderer")
         }
+        if options.experimental.enableFastViewRenderer {
+            features.append("enableFastViewRenderer")
+        }
 
         return features
     }
