@@ -5,7 +5,7 @@
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
-- New continuous profiling API
+- New continuous profiling API (#4952)
 
 ### Improvements
 
