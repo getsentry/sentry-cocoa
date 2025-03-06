@@ -12,7 +12,7 @@ else
     sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
 
-rm build-xcframework.log
+rm -f build-xcframework.log
 rm -rf Carthage/
 mkdir Carthage
 
