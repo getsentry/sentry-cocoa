@@ -1,0 +1,6 @@
+Skipping duplicate build file in Copy Headers build phase: /Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Sources/Sentry/include/SentryExtraPackages.h (in target 'Sentry' from project 'Sentry')
+warning: '/Users/andrewmcknight/Library/Developer/Xcode/DerivedData/Sentry-gnnqqmcfqpqmmhcjxfzwadgjajnt/Build/Intermediates.noindex/Sentry.build/Debug/Sentry.build/Objects-normal/arm64e/SentryANRTrackerV2Delegate.o' was not built with class_ro_t pointer signing enabled, but previous .o file was not
+warning: 'enableAppLaunchProfiling' is deprecated: This property will be removed in a future version of the SDK. See SentryProfilingOptions.startOnAppStart and SentryProfilingOptions.lifecycle.
+warning: 'enableAppLaunchProfiling' is deprecated: This property will be removed in a future version of the SDK. See SentryProfilingOptions.startOnAppStart and SentryProfilingOptions.lifecycle. [-Wdeprecated-declarations]
+warning: 'profilesSampleRate' is deprecated: This property will be removed in a future version of the SDK. See SentryProfilingOptions.sessionSampleRate. [-Wdeprecated-declarations]
+warning: 'profilesSampler' is deprecated: This property will be removed in a future version of the SDK. See SentryProfilingOptions.sessionSampleRate. [-Wdeprecated-declarations]

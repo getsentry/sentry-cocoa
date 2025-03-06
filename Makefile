@@ -92,7 +92,7 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	./scripts/build-xcframework.sh | tee build-xcframework.log
+	./scripts/build-xcframework.sh
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 	ditto -c -k -X --rsrc --keepParent Carthage/Sentry.xcframework Carthage/Sentry.xcframework.zip
 	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-Dynamic.xcframework Carthage/Sentry-Dynamic.xcframework.zip
@@ -103,6 +103,12 @@ build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+
+check-xcframework-warnings:
+	./scripts/check-warnings.sh scripts/known-warnings.txt build-xcframework.log
+
+accept-xcframework-warnings:
+	./scripts/check-warnings.sh scripts/known-warnings.txt build-xcframework.log accept_new_baseline
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump

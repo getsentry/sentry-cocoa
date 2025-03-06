@@ -12,6 +12,7 @@ else
     sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
 
+rm build-xcframework.log
 rm -rf Carthage/
 mkdir Carthage
 
@@ -59,7 +60,7 @@ generate_xcframework() {
                 MACH_O_TYPE="$MACH_O_TYPE" \
                 ENABLE_CODE_COVERAGE=NO \
                 GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-                OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | xcbeautify --preserve-unbeautified
+                OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee -a build-xcframework.log | xcbeautify --preserve-unbeautified
                  
             createxcframework+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -105,7 +106,7 @@ generate_xcframework() {
             SUPPORTS_MACCATALYST=YES \
             ENABLE_CODE_COVERAGE=NO \
             GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-            OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | xcbeautify --preserve-unbeautified
+            OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee -a build-xcframework.log | xcbeautify --preserve-unbeautified
 
         if [ "$MACH_O_TYPE" = "staticlib" ]; then
             local infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"

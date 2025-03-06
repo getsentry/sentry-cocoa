@@ -234,3 +234,38 @@ Useful resources:
 - Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
 - [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
 - [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
+
+## Warnings
+
+Previously, we've enabled warnings as errors to prevent certain bugs from shipping in releases. We need to disable this due to the way deprecations behaving in a mixed Objective-C/Swift codebase.
+
+We've added a script to check for warnings in the build log and compare them to a known warnings file.
+If there are new warnings, the script will exit with a non-zero exit code, allowing us to review the new warnings and either fix them or add them to the known warnings file.
+
+The process looks something like this:
+
+```sh
+# Build the project and save the raw build log
+xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Release clean build 2>&1 | tee build.log | xcbeautify
+
+# Check for new warnings
+./scripts/check-warnings.sh scripts/known-warnings.txt build.log
+```
+
+Once resolving all warnings that should be fixed, if there are any left that we will allow to ship in releases, we can add them to the known warnings file thusly:
+
+```sh
+./scripts/check-warnings.sh scripts/known-warnings.txt build.log accept_new_baseline
+```
+
+and commit the changes to `scripts/known-warnings.txt`.
+
+In practice, these are performed via the Makefile:
+
+```sh
+make build-xcframework
+make check-xcframework-warnings
+
+# and optionally
+make accept-xcframework-warnings
+```
