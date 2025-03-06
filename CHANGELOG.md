@@ -5,13 +5,40 @@
 ### Features
 
 - Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
+
+## 8.46.0
+
+### Features
+
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
+- New user feedback API and Widget (#4874)
 
 ### Improvements
 
 - Log message when setting user before starting the SDK (#4882)
 - Add experimental flag to disable swizzling of `NSData` individually (#4859)
+- Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
+- Slightly reduce size of SentryCrashReports (#4915)
+
+### Fixes
+
+- Fix rare memory access issue for auto tracing (#4894). For more details, see issue (#4887).
+- Move assignment of file IO span origin outside of block (#4888)
+- Deadline timeout crash in SentryTracer (#4911)
+- Improve memory-safety by converting Swift constants to Objective-C (#4910)
+- Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
+
+### Internal
+
+- Add injectable mask and view renderer (#4938)
 
 ## 8.45.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disabling the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Features
 
@@ -40,6 +67,11 @@
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Fixes
 

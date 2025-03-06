@@ -1,5 +1,7 @@
 @objc
 enum SentryANRType: Int {
+    case fatalFullyBlocking
+    case fatalNonFullyBlocking
     case fullyBlocking
     case nonFullyBlocking
     case unknown
@@ -9,14 +11,20 @@ enum SentryANRType: Int {
 class SentryAppHangTypeMapper: NSObject {
 
     private enum ExceptionType: String {
-        case fullyBlocking = "App Hanging Fully Blocked"
-        case nonFullyBlocking = "App Hanging Non Fully Blocked"
+        case fatalFullyBlocking = "Fatal App Hang Fully Blocked"
+        case fatalNonFullyBlocking = "Fatal App Hang Non Fully Blocked"
+        case fullyBlocking = "App Hang Fully Blocked"
+        case nonFullyBlocking = "App Hang Non Fully Blocked"
         case unknown = "App Hanging"
     }
 
     @objc
     static func getExceptionType(anrType: SentryANRType) -> String {
         switch anrType {
+        case .fatalFullyBlocking:
+            return ExceptionType.fatalFullyBlocking.rawValue
+        case .fatalNonFullyBlocking:
+            return ExceptionType.fatalNonFullyBlocking.rawValue
         case .fullyBlocking:
             return ExceptionType.fullyBlocking.rawValue
         case .nonFullyBlocking:
@@ -24,6 +32,15 @@ class SentryAppHangTypeMapper: NSObject {
         default:
             return ExceptionType.unknown.rawValue
         }
+    }
+    
+    @objc
+    static func getFatalExceptionType(nonFatalErrorType: String) -> String {
+        if nonFatalErrorType == ExceptionType.nonFullyBlocking.rawValue {
+            return ExceptionType.fatalNonFullyBlocking.rawValue
+        }
+        
+        return ExceptionType.fatalFullyBlocking.rawValue
     }
 
     @objc

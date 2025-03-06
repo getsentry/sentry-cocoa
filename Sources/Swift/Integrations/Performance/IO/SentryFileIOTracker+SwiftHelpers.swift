@@ -13,15 +13,18 @@ extension SentryFileIOTracker {
         guard url.scheme == NSURLFileScheme else {
             return try method(url, options)
         }
-        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperation.fileRead) else {
+        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperationFileRead) else {
             return try method(url, options)
         }
-        defer {
+        do {
+            let data = try method(url, options)
+            span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
             span.finish()
+            return data
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        let data = try method(url, options)
-        span.setData(value: data.count, key: SentrySpanDataKey.fileSize)
-        return data
     }
 
     func measureWritingData(
@@ -170,5 +173,15 @@ extension SentryFileIOTracker {
             span.finish()
         }
         try method(srcPath, dstPath)
+        guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperationFileWrite, size: UInt(data.count)) else {
+            return try method(data, url, options)
+        }
+        do {
+            try method(data, url, options)
+            span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
+        }
     }
 }

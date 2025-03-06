@@ -9,6 +9,8 @@
 #    import <SentrySDK.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
+#    import <SentrySpanOperation.h>
+#    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
 
@@ -49,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (sameAction) {
         SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
             currentActiveTransaction.spanId.sentrySpanIdString);
-        [currentActiveTransaction dispatchIdleTimeout];
+        [currentActiveTransaction startIdleTimeout];
         return;
     }
 
@@ -65,32 +67,33 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryTransactionContext alloc] initWithName:action
                                             nameSource:kSentryTransactionNameSourceComponent
                                              operation:operation
-                                                origin:SentryTraceOrigin.autoUiEventTracker];
+                                                origin:SentryTraceOriginAutoUiEventTracker];
 
-    __block SentryTracer *transaction;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        BOOL ongoingScreenLoadTransaction
-            = span != nil && [span.operation isEqualToString:SentrySpanOperation.uiLoad];
-        BOOL ongoingManualTransaction = span != nil
-            && ![span.operation isEqualToString:SentrySpanOperation.uiLoad]
-            && ![span.operation containsString:SentrySpanOperation.uiAction];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    BOOL ongoingScreenLoadTransaction = false;
+    BOOL ongoingManualTransaction = false;
+    if (currentSpan != nil) {
+        ongoingScreenLoadTransaction =
+            [currentSpan.operation isEqualToString:SentrySpanOperationUiLoad];
+        ongoingManualTransaction
+            = ![currentSpan.operation isEqualToString:SentrySpanOperationUiLoad]
+            && ![currentSpan.operation containsString:SentrySpanOperationUiAction];
+    }
+    BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
 
-        BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
+    __block SentryTracer *transaction = [SentrySDK.currentHub
+        startTransactionWithContext:context
+                        bindToScope:bindToScope
+              customSamplingContext:@{}
+                      configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                        SentryTracerConfiguration *config) {
+                          config.idleTimeout = self.idleTimeout;
+                          config.waitForChildren = YES;
+                      }]];
 
-        transaction = [SentrySDK.currentHub
-            startTransactionWithContext:context
-                            bindToScope:bindToScope
-                  customSamplingContext:@{}
-                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                            SentryTracerConfiguration *config) {
-                              config.idleTimeout = self.idleTimeout;
-                              config.waitForChildren = YES;
-                          }]];
-
-        SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "
-                         @"%@, bindToScope: %@",
-            action, bindToScope ? @"YES" : @"NO");
-    }];
+    SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "
+                     @"%@, bindToScope: %@",
+        action, bindToScope ? @"YES" : @"NO");
 
     if (accessibilityIdentifier) {
         [transaction setTagValue:accessibilityIdentifier forKey:@"accessibilityIdentifier"];

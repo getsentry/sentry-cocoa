@@ -5,6 +5,7 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
+#import "SentryTraceOrigin.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -44,7 +45,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
-                       origin:SentryTraceOrigin.manual
+                       origin:SentryTraceOriginManual
                       sampled:sampled
                    sampleRate:sampleRate
                    sampleRand:sampleRand];
@@ -60,7 +61,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
-                       origin:SentryTraceOrigin.manual
+                       origin:SentryTraceOriginManual
                       traceId:traceId
                        spanId:spanId
                  parentSpanId:parentSpanId
@@ -84,7 +85,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
-                       origin:SentryTraceOrigin.manual
+                       origin:SentryTraceOriginManual
                       traceId:traceId
                        spanId:spanId
                  parentSpanId:parentSpanId

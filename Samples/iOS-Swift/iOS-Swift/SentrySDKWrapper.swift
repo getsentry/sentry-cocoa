@@ -128,22 +128,24 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        if args.contains("--io.sentry.feedback.auto-inject-widget") {
-            if Locale.current.languageCode == "ar" { // arabic
-                config.labelText = "﷽"
-            } else if Locale.current.languageCode == "ur" { // urdu
-                config.labelText = "نستعلیق"
-            } else if Locale.current.languageCode == "he" { // hebrew
-                config.labelText = "עִבְרִית‎"
-            } else if Locale.current.languageCode == "hi" { // Hindi
-                config.labelText = "नागरि"
-            } else {
-                config.labelText = "Report Jank"
-            }
-            config.layoutUIOffset = layoutOffset
-        } else {
+        guard !args.contains("--io.sentry.feedback.no-auto-inject-widget") else {
             config.autoInject = false
+            return
         }
+        
+        if Locale.current.languageCode == "ar" { // arabic
+            config.labelText = "﷽"
+        } else if Locale.current.languageCode == "ur" { // urdu
+            config.labelText = "نستعلیق"
+        } else if Locale.current.languageCode == "he" { // hebrew
+            config.labelText = "עִבְרִית‎"
+        } else if Locale.current.languageCode == "hi" { // Hindi
+            config.labelText = "नागरि"
+        } else {
+            config.labelText = "Report Jank"
+        }
+        config.layoutUIOffset = layoutOffset
+        
         if args.contains("--io.sentry.feedback.no-widget-text") {
             config.labelText = nil
         }
@@ -153,6 +155,7 @@ extension SentrySDKWrapper {
     }
     
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
+        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
         config.formTitle = "Jank Report"
         config.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
         config.isNameRequired = args.contains("--io.sentry.feedback.require-name")
@@ -181,7 +184,7 @@ extension SentrySDKWrapper {
             fontFamily = "ChalkboardSE-Regular"
         }
         config.fontFamily = fontFamily
-        config.outlineStyle = .init(outlineColor: .purple)
+        config.outlineStyle = .init(color: .purple)
         config.foreground = .purple
         config.background = .init(red: 0.95, green: 0.9, blue: 0.95, alpha: 1)
         config.submitBackground = .orange
@@ -199,7 +202,6 @@ extension SentrySDKWrapper {
             return
         }
         
-        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
         config.animations = !args.contains("--io.sentry.feedback.no-animations")
         config.useShakeGesture = true
         config.showFormForScreenshots = true

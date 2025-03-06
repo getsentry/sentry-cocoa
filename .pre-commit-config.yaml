@@ -55,14 +55,6 @@ repos:
         args:
           - "format-swift"
 
-      - id: lint
-        name: Run Linters
-        entry: make
-        language: system
-        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
-        args:
-          - "lint"
-
       - id: format-markdown
         name: Format Markdown
         description: 'Format Markdown'
@@ -80,3 +72,11 @@ repos:
         types_or: [json]
         entry: prettier --write --ignore-unknown --config .prettierrc
         additional_dependencies: ["prettier@3.5.0"]
+
+      - id: lint
+        name: Run Linters
+        entry: make
+        language: system
+        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
+        args:
+          - "lint"
