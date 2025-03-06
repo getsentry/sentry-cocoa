@@ -93,7 +93,7 @@ public extension FileManager {
     ///   - dstPath: The path at which to place the copy of `srcPath`. 
     ///              This path must include the name of the file or directory in its new location. 
     /// - Note: See ``FileManager.copyItem(atPath:toPath:)`` for more information.
-    func copyItemWithSentryTracing(at srcPath: String, to dstPath: String) throws {
+    func copyItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
         try tracker.measureCopyingItem(atPath: srcPath, toPath: dstPath, origin: SentryTraceOrigin.manualFileData) { srcPath, dstPath in
             try self.copyItem(atPath: srcPath, toPath: dstPath)
