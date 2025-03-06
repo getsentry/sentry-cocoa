@@ -68,29 +68,47 @@ static SentryTouchTracker *_touchTracker;
 - (instancetype)initForManualUse:(nonnull SentryOptions *)options
 {
     if (self = [super init]) {
-        [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
+        [self setupWith:options.sessionReplay
+                    enableTouchTracker:options.enableSwizzling
+            enableExperimentalRenderer:options.experimental.enableExperimentalViewRenderer
+                enableFastViewRenderer:options.experimental.enableFastViewRenderer];
         [self startWithOptions:options.sessionReplay fullSession:YES];
     }
     return self;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
+    enableFastViewRenderer:(BOOL)enableFastViewRenderer
 {
     if ([super installWithOptions:options] == NO) {
         return NO;
     }
 
-    [self setupWith:options.sessionReplay enableTouchTracker:options.enableSwizzling];
+    [self setupWith:options.sessionReplay
+                enableTouchTracker:options.enableSwizzling
+        enableExperimentalRenderer:options.experimental.enableExperimentalViewRenderer
+            enableFastViewRenderer:options.experimental.enableFastViewRenderer];
     return YES;
 }
 
-- (void)setupWith:(SentryReplayOptions *)replayOptions enableTouchTracker:(BOOL)touchTracker
+- (void)setupWith:(SentryReplayOptions *)replayOptions
+            enableTouchTracker:(BOOL)touchTracker
+    enableExperimentalRenderer:(BOOL)enableExperimentalRenderer
+        enableFastViewRenderer:(BOOL)enableFastViewRenderer
 {
     _replayOptions = replayOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
-    id<SentryViewRenderer> viewRenderer = [[SentryDefaultViewRenderer alloc] init];
-    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                           redactOptions:replayOptions];
+    id<SentryViewRenderer> viewRenderer;
+    if (enableExperimentalRenderer) {
+        viewRenderer = [[SentryExperimentalViewRenderer alloc]
+            initWithEnableFastViewRenderer:enableFastViewRenderer];
+    } else {
+        viewRenderer = [[SentryDefaultViewRenderer alloc] init];
+    }
+    _viewPhotographer =
+        [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                           redactOptions:replayOptions
+                               enableExperimentalMasking:enableExperimentalRenderer];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
