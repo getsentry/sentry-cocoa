@@ -103,16 +103,14 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileWrite, size: size) else {
             return method(path, data, attr)
         }
-        do {
-            if let data = data {
-                span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
-            }
-            span.finish()
-        } catch {
-            span.finish(status: .internalError)
-            throw error
+        if let data = data {
+            span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
         }
-    }
+        defer {
+            span.finish()
+        }
+        return method(path, data, attr)
+}
 
     func measureCopyingItem(
         at srcUrl: URL,
@@ -186,13 +184,6 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcPath: String, _ dstPath: String) throws -> Void
     ) rethrows {
-        guard let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperationFileRename) else {
-            return try method(srcPath, dstPath)
-        }
-        defer {
-            span.finish()
-        }
-        try method(srcPath, dstPath)
         guard let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperationFileRename) else {
             return try method(srcPath, dstPath)
         }
