@@ -140,6 +140,8 @@
 
 - (void)finishSpansIfNotFinished
 {
+    [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+
     if (self.initialDisplaySpan.isFinished == NO) {
         [self.initialDisplaySpan finish];
     }
@@ -160,8 +162,6 @@
 
         [self.fullDisplaySpan finishWithStatus:kSentrySpanStatusDeadlineExceeded];
     }
-
-    [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 }
 
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate

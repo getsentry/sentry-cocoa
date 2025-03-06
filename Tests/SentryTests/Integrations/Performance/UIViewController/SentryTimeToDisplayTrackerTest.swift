@@ -525,6 +525,25 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
     }
     
+    func testFinishSpansIfNotFinished_FullyDisplayedRecorded_RemovesListener() throws {
+        // Arrange
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
+        let tracer = try fixture.getTracer()
+        
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+
+        sut.start(for: tracer)
+
+        sut.reportFullyDisplayed()
+        
+        // Act
+        sut.finishSpansIfNotFinished()
+
+        // Assert
+        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0, "Frames tracker listener should be removed")
+    }
+    
     func testFinishSpansIfNotFinished_RemovesFramesTrackerListener() throws {
         // Arrange
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
