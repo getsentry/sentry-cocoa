@@ -237,9 +237,9 @@ Useful resources:
 
 ## Warnings
 
-Previously, we've enabled warnings as errors to prevent certain bugs from shipping in releases. We need to disable this due to the way deprecations behaving in a mixed Objective-C/Swift codebase.
+Previously, we've enabled warnings as errors to prevent certain bugs from shipping in releases. We need to disable this check for Swift code due to our inability to granularly work around our own API deprecations in other Swift source code that must still use the deprecated API.
 
-We've added a script to check for warnings in the build log and compare them to a known warnings file.
+To mitigate the relaxation in safety this change represents, we've added a script to check for warnings in the build log and compare them to a known warnings file.
 If there are new warnings, the script will exit with a non-zero exit code, allowing us to review the new warnings and either fix them or add them to the known warnings file.
 
 The process looks something like this:
@@ -269,3 +269,5 @@ make check-xcframework-warnings
 # and optionally
 make accept-xcframework-warnings
 ```
+
+and is run in build.yml directly after the job that builds the xcframework in CI.
