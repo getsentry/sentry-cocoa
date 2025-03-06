@@ -43,10 +43,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperationFileWrite, size: UInt(data.count)) else {
             return try method(data, url, options)
         }
-        defer {
+        do {
+            try method(data, url, options)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(data, url, options)
     }
 
     func measureRemovingItem(
@@ -63,10 +66,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: url.path, origin: origin, operation: SentrySpanOperationFileDelete) else {
             return try method(url)
         }
-        defer {
+        do {
+            try method(url)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(url)
     }
     
     func measureRemovingItem(
@@ -77,10 +83,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileDelete) else {
             return try method(path)
         }
-        defer {
+        do {
+            try method(path)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(path)
     }
 
     func measureCreatingFile(
@@ -94,13 +103,15 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileWrite, size: size) else {
             return method(path, data, attr)
         }
-        defer {
+        do {
             if let data = data {
                 span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
             }
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        return method(path, data, attr)
     }
 
     func measureCopyingItem(
@@ -118,10 +129,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperationFileCopy) else {
             return try method(srcUrl, dstUrl)
         }
-        defer {
+        do {
+            try method(srcUrl, dstUrl)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(srcUrl, dstUrl)
     }
     
     func measureCopyingItem(
@@ -133,10 +147,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: srcPath, origin: origin, operation: SentrySpanOperationFileCopy) else {
             return try method(srcPath, dstPath)
         }
-        defer {
+        do {
+            try method(srcPath, dstPath)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(srcPath, dstPath)
     }
 
     func measureMovingItem(
@@ -154,10 +171,13 @@ extension SentryFileIOTracker {
         guard let span = self.span(forPath: srcUrl.path, origin: origin, operation: SentrySpanOperationFileRename) else {
             return try method(srcUrl, dstUrl)
         }
-        defer {
+        do {
+            try method(srcUrl, dstUrl)
             span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
         }
-        try method(srcUrl, dstUrl)
     }
 
     func measureMovingItem(

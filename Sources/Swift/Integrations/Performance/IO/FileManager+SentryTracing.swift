@@ -16,7 +16,7 @@ public extension FileManager {
     /// - Parameters:
     ///   - path: The path for the new file.
     ///   - data: A data object containing the contents of the new file.
-    ///   - attr: A dictionary containing the attributes to associate with the new file. 
+    ///   - attr: A dictionary containing the attributes to associate with the new file.
     ///           You can use these attributes to set the owner and group numbers, file permissions, and modification date.
     ///           For a list of keys, see ``FileAttributeKey``. If you specify `nil` for attributes, the file is created with a set of default attributes.
     /// - Returns: `true` if the operation was successful or if the item already exists, otherwise `false`.
@@ -30,9 +30,9 @@ public extension FileManager {
                 attributes: attr,
                 origin: SentryTraceOriginManualFileData) { path, data, attr in
                     self.createFile(atPath: path, contents: data, attributes: attr)
-            }
+                }
     }
-    
+
     /// Removes the file or directory at the specified URL, tracking the operation with Sentry.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
@@ -64,7 +64,7 @@ public extension FileManager {
     }
 
     // MARK: - Moving and Copying Items
-    
+
     /// Copies the file at the specified URL to a new location synchronously, tracking the operation with Sentry.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
@@ -82,16 +82,16 @@ public extension FileManager {
             try self.copyItem(at: srcURL, to: dstURL)
         }
     }
-    
+
     /// Copies the item at the specified path to a new location synchronously, tracking the operation with Sentry.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
     ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
-    ///   - srcPath: The path to the file or directory you want to move. 
-    ///   - dstPath: The path at which to place the copy of `srcPath`. 
-    ///              This path must include the name of the file or directory in its new location. 
+    ///   - srcPath: The path to the file or directory you want to move.
+    ///   - dstPath: The path at which to place the copy of `srcPath`.
+    ///              This path must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.copyItem(atPath:toPath:)`` for more information.
     func copyItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
@@ -99,17 +99,17 @@ public extension FileManager {
             try self.copyItem(atPath: srcPath, toPath: dstPath)
         }
     }
-    
+
     /// Moves the file or directory at the specified URL to a new location synchronously, tracking the operation with Sentry.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
     ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
-    ///   - srcURL: The file URL that identifies the file or directory you want to move. 
+    ///   - srcURL: The file URL that identifies the file or directory you want to move.
     ///             The URL in this parameter must not be a file reference URL.
-    ///   - dstURL: The new location for the item in `srcURL`. 
-    ///             The URL in this parameter must not be a file reference URL and must include the name of the file or directory in its new location. 
+    ///   - dstURL: The new location for the item in `srcURL`.
+    ///             The URL in this parameter must not be a file reference URL and must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.moveItem(at:to:)`` for more information.
     func moveItemWithSentryTracing(at srcURL: URL, to dstURL: URL) throws {
         let tracker = SentryFileIOTracker.sharedInstance()
@@ -117,10 +117,10 @@ public extension FileManager {
             at: srcURL,
             to: dstURL,
             origin: SentryTraceOriginManualFileData) { srcURL, dstURL in
-            try self.moveItem(at: srcURL, to: dstURL)
-        }
+                try self.moveItem(at: srcURL, to: dstURL)
+            }
     }
-    
+
     /// Moves the file or directory at the specified path to a new location synchronously, tracking the operation with Sentry.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
@@ -128,7 +128,7 @@ public extension FileManager {
     ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - srcPath: The path to the file or directory you want to move.
-    ///   - dstPath: The new path for the item in `srcPath`. 
+    ///   - dstPath: The new path for the item in `srcPath`.
     ///              This path must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.moveItem(atPath:toPath:)`` for more information.
     func moveItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
