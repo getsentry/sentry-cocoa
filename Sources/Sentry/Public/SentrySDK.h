@@ -377,17 +377,19 @@ SENTRY_NO_INIT
  * SentryOptions.enableAppLaunchProfiling .
  * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ * @warning This property is deprecated and will be removed in a future version of the SDK. See
+ * @c startProfileSession .
  */
-+ (void)startProfiler DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See startProfileSession.");
++ (void)startProfiler;
 
 /**
  * Stop a continuous profiling session if there is one ongoing.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ *  * @warning This property is deprecated and will be removed in a future version of the SDK. See
+ * @c stopProfileSession .
  */
-+ (void)stopProfiler DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See stopProfileSession.");
++ (void)stopProfiler;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
