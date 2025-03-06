@@ -46,6 +46,24 @@ done
 
 if [ "$accept_new_baseline" == "true" ]; then
     echo "Updating known warnings file..."
+
+    pruned_known_warnings=()
+    for known_warning in "${known_warnings[@]}"; do
+        found=false
+        for extracted_warning in "${extracted_warnings[@]}"; do
+            if [[ "$extracted_warning" == "$known_warning" ]]; then
+                found=true
+                break
+            fi
+        done
+        if $found; then
+            pruned_known_warnings+=("$known_warning")
+        else
+            echo "Pruning known warning as it did not appear in the build log: $known_warning"
+        fi
+    done
+    known_warnings=("${pruned_known_warnings[@]}")
+
     printf "%s\n" "${known_warnings[@]}" | sort -u | sed '/^$/d' > "$known_warnings_file"
 fi
 
