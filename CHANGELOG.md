@@ -9,6 +9,9 @@
 ### Fixes
 
 - Correctly finish TTFD span when no new frame (#4941)
+### Improvements
+
+- More debug logs for UIViewController tracing (#4942)
 
 ## 8.46.0
 
