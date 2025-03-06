@@ -4,6 +4,16 @@
 
 ### Features
 
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
+
+### Improvements
+
+- More debug logs for UIViewController tracing (#4942)
+
+## 8.46.0
+
+### Features
+
 - Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 - New user feedback API and Widget (#4874)
@@ -22,6 +32,10 @@
 - Deadline timeout crash in SentryTracer (#4911)
 - Improve memory-safety by converting Swift constants to Objective-C (#4910)
 - Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
+
+### Internal
+
+- Add injectable mask and view renderer (#4938)
 
 ## 8.45.0
 
