@@ -30,7 +30,7 @@ public extension FileManager {
                 attributes: attr,
                 origin: SentryTraceOriginManualFileData) { path, data, attr in
                     self.createFile(atPath: path, contents: data, attributes: attr)
-                }
+            }
     }
 
     /// Removes the file or directory at the specified URL, tracking the operation with Sentry.
@@ -118,7 +118,7 @@ public extension FileManager {
             to: dstURL,
             origin: SentryTraceOriginManualFileData) { srcURL, dstURL in
                 try self.moveItem(at: srcURL, to: dstURL)
-            }
+        }
     }
 
     /// Moves the file or directory at the specified path to a new location synchronously, tracking the operation with Sentry.
