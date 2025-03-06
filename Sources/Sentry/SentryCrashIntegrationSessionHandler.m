@@ -4,6 +4,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub.h"
+#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
@@ -41,11 +42,13 @@
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
 
     if (nil == fileManager) {
+        SENTRY_LOG_DEBUG(@"File manager is nil. Cannot end current session.");
         return;
     }
 
     SentrySession *session = [fileManager readCurrentSession];
     if (session == nil) {
+        SENTRY_LOG_DEBUG(@"No current session found to end.");
         return;
     }
 
@@ -66,12 +69,15 @@
         // Checking the file existence is way cheaper than reading the file and parsing its contents
         // to an SentryEvent.
         if (![fileManager appHangEventExists]) {
+            SENTRY_LOG_DEBUG(@"No app hang event found. Won't end current session.");
             return;
         }
 
         SentryEvent *appHangEvent = [fileManager readAppHangEvent];
         // Just in case the file was deleted between the check and the read.
         if (appHangEvent == nil) {
+            SENTRY_LOG_WARN(
+                @"App hang event deleted between check and read. Cannot end current session.");
             return;
         }
 
