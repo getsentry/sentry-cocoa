@@ -5,6 +5,7 @@
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
 
 ### Improvements
 
