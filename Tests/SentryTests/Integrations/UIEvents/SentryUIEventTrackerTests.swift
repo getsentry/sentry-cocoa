@@ -73,43 +73,43 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     // swiftlint:enable type_name
     
-    func test_NSObject_Transaction() {
+    func test_NSObject_Transaction() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: NSObject(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
+        try  assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
     }
     
-    func test_UIView_Transaction() {
+    func test_UIView_Transaction() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: UIView(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
+        try assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
     }
     
-    func testAction_WithNoArgument() {
+    func testAction_WithNoArgument() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.method", operation: operationClick)
     }
     
-    func testAction_WithOneArgument() {
+    func testAction_WithOneArgument() throws {
         callExecuteAction(action: "method:firstArgument:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.method(firstArgument:)", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.method(firstArgument:)", operation: operationClick)
     }
     
-    func testAction_WithThreeArguments() {
+    func testAction_WithThreeArguments() throws {
         callExecuteAction(action: "method:first:second:third:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.method(first:second:third:)", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.method(first:second:third:)", operation: operationClick)
     }
     
-    func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() {
+    func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() throws {
         let button = fixture.button
         button.accessibilityIdentifier = accessibilityIdentifier
         
         callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
         
-        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let span = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         XCTAssertTrue(span.tags.contains {
             $0.key == "accessibilityIdentifier" && $0.value == accessibilityIdentifier
         })
@@ -132,22 +132,22 @@ class SentryUIEventTrackerTests: XCTestCase {
         })
     }
     
-    func test_SubclassOfUIButton_CreatesTransaction() {
+    func test_SubclassOfUIButton_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: TestUIButton(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
-    func test_UISegmentedControl_CreatesTransaction() {
+    func test_UISegmentedControl_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
-    func test_UIPageControl_CreatesTransaction() {
+    func test_UIPageControl_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
@@ -166,74 +166,74 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertTrue(manualTransaction === SentrySDK.span)
     }
     
-    func test_SameUIElementWithSameEvent_ResetsTimeout() {
+    func test_SameUIElementWithSameEvent_ResetsTimeout() throws {
         let view = fixture.button
         
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let firstTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
 
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
-        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let secondTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         assertResetsTimeout(firstTransaction, secondTransaction)
     }
     
-    func test_SameUIElementWithSameEvent_TransactionFinished_NewTransaction() {
+    func test_SameUIElementWithSameEvent_TransactionFinished_NewTransaction() throws {
         let view = fixture.button
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
         
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let firstTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
         
-        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let secondTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         XCTAssertFalse(firstTransaction === secondTransaction)
     }
     
-    func test_DifferentUIElement_SameAction_ResetsTimeout() {
+    func test_DifferentUIElement_SameAction_ResetsTimeout() throws {
         let view1 = fixture.button
         callExecuteAction(action: action, target: fixture.target, sender: view1, event: TestUIEvent())
         
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let firstTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         let view2 = UIView()
         callExecuteAction(action: action, target: fixture.target, sender: view2, event: TestUIEvent())
-        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let secondTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         assertResetsTimeout(firstTransaction, secondTransaction)
     }
     
-    func test_DifferentUIElement_DifferentAction_FinishesTransaction() {
+    func test_DifferentUIElement_DifferentAction_FinishesTransaction() throws {
         let view1 = fixture.button
         callExecuteAction(action: "otherAction", target: fixture.target, sender: view1, event: TestUIEvent())
         
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let firstTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         let view2 = UIButton()
         callExecuteAction(action: action, target: fixture.target, sender: view2, event: TestUIEvent())
         
-        assertFinishesTransaction(firstTransaction, operationClick)
+        try assertFinishesTransaction(firstTransaction, operationClick)
     }
     
-    func testFinishedTransaction_DoesntFinishImmediately_KeepsTransactionInMemory() {
+    func testFinishedTransaction_DoesntFinishImmediately_KeepsTransactionInMemory() throws {
         
         // We want firstTransaction to be deallocated by ARC
-        func startChild() -> Span {
-            let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        func startChild() throws -> Span {
+            let firstTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
             return firstTransaction.startChild(operation: "some")
         }
         
         callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        let child = startChild()
+        let child = try startChild()
 
         callExecuteAction(action: "otherAction", target: fixture.target, sender: UIView(), event: TestUIEvent())
         
         XCTAssertEqual(2, getInternalTransactions().count)
         
-        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let secondTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         XCTAssertTrue(secondTransaction === getInternalTransactions().last)
         
@@ -269,10 +269,10 @@ class SentryUIEventTrackerTests: XCTestCase {
         return try! XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
     }
     
-    private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) {
-        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+    private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) throws {
+        let span = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
-        let transactions = try! XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
+        let transactions = try XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
         XCTAssertEqual(1, transactions.count)
         XCTAssertTrue(span === transactions.first)
         
@@ -291,10 +291,10 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count, "Expected 3 dispatchAfter invocations. One for the initial timeout, one for the reset and one for the deadline timeout.")
     }
     
-    private func assertFinishesTransaction(_ transaction: SentryTracer, _ operation: String) {
+    private func assertFinishesTransaction(_ transaction: SentryTracer, _ operation: String) throws {
         XCTAssertTrue(transaction.isFinished)
         XCTAssertEqual(.ok, transaction.status)
-        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
+        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
         
         let transactions = getInternalTransactions()
         XCTAssertEqual(1, transactions.count)
