@@ -34,7 +34,7 @@
 #import <SentryMeasurementValue.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryProfilerTracerTracking.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT

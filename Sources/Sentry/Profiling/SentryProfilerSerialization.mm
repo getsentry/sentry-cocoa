@@ -22,7 +22,7 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentryProfilerTracerTracking.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentryScope+Private.h"

@@ -8,7 +8,7 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryProfilerTracerTracking.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    include <mutex>
 
 #    pragma mark - Private

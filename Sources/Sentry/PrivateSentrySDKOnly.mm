@@ -26,7 +26,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfilerSerialization.h"
-#    import "SentryProfilerTracerTracking.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

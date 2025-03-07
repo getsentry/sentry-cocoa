@@ -1,4 +1,4 @@
-#import "SentryProfilerTracerTracking.h"
+#import "SentryProfiledTracerConcurrency.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -22,7 +22,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfilerTracerTracking.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
