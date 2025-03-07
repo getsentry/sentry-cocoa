@@ -32,7 +32,7 @@ struct SentrySDKWrapper {
         options.tracesSampler = tracesSampler
         
         if args.contains("--io.sentry.profile-options-v2") {
-            options.profiling.lifecycle = args.contains("--io.sentry.profile-options-v2") ? .manual : .trace
+            options.profiling.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
         } else {
             options.profilesSampleRate = profilesSampleRate
             options.profilesSampler = profilesSampler
@@ -414,6 +414,10 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampler: ((SamplingContext) -> NSNumber?)? {
+        guard !args.contains("--io.sentry.enableContinuousProfiling") else {
+            return nil
+        }
+        
         guard let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] else {
             return nil
         }
@@ -423,7 +427,7 @@ extension SentrySDKWrapper {
         }
     }
     
-    var enableAppLaunchProfiling: Bool { args.contains("--profile-app-launches") }
+    var enableAppLaunchProfiling: Bool { args.contains("--io.sentry.profile-app-launches") }
 }
 
 // swiftlint:enable file_length
