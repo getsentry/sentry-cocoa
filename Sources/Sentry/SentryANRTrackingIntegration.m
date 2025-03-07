@@ -65,7 +65,9 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     self.options = options;
     self.reportAppHangs = YES;
 
+#if SENTRY_HAS_UIKIT
     [self captureStoredAppHangEvent];
+#endif // SENTRY_HAS_UIKIT
 
     return YES;
 }
@@ -217,6 +219,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 #endif // SENTRY_HAS_UIKIT
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)captureStoredAppHangEvent
 {
     __weak SentryANRTrackingIntegration *weakSelf = self;
@@ -276,10 +279,12 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
             // We already applied the scope. We use an empty scope to avoid overwriting exising
             // fields on the event.
-            [SentrySDK captureEvent:event withScope:[[SentryScope alloc] init]];
+            [SentrySDK captureFatalAppHangEvent:event];
         }
     }];
 }
+
+#endif // SENTRY_HAS_UIKIT
 
 @end
 
