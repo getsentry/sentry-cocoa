@@ -15,6 +15,7 @@
 ### Fixes
 
 - Correctly finish TTFD span when no new frame (#4941)
+- Only delete envelopes when receiving HTTP 200 (#4956)
 
 ### Improvements
 
