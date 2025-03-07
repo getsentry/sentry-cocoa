@@ -114,19 +114,6 @@
     XCTAssertTrue([expected isEqualToDictionary:actual]);
 }
 
-- (void)testRemoveContextForKey
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-    [scope setContextValue:@{ @"AA" : @1 } forKey:@"A"];
-    [scope setContextValue:@{ @"BB" : @"2" } forKey:@"B"];
-
-    [scope removeContextForKey:@"B"];
-
-    NSDictionary *actual = scope.serialize[@"context"];
-    NSDictionary *expected = @{ @"A" : @ { @"AA" : @1 } };
-    XCTAssertTrue([expected isEqualToDictionary:actual]);
-}
-
 - (void)testDistSerializes
 {
     SentryScope *scope = [[SentryScope alloc] init];

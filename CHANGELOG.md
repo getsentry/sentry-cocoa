@@ -11,10 +11,8 @@
 
 - Correctly finish TTFD span when no new frame (#4941)
 - Only delete envelopes when receiving HTTP 200 (#4956)
-
-### Fixes
-
 - Set foreground true for watchdog terminations (#4953)
+- Fix removing value from context not updating observer context (#4960)
 
 ### Improvements
 
