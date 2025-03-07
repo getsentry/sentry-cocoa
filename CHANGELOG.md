@@ -12,6 +12,10 @@
 - New continuous profiling API (#4952)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 
+### Fixes
+
+- Correctly finish TTFD span when no new frame (#4941)
+
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
