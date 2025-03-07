@@ -959,6 +959,35 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
+    func testStartingAndStoppingContinuousProfilerV2() throws {
+        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
+        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
+        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
+        
+        givenSdkWithHub()
+        SentrySDK.startProfileSession()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.stopProfileSession()
+        
+        fixture.currentDate.advance(by: 60)
+        try timerFactory.check()
+        
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
+    }
+    
+    func testStartingContinuousProfilerV2BeforeStartingSDK() {
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
+    func testStartingContinuousProfilerV2AfterStoppingSDK() {
+        givenSdkWithHub()
+        SentrySDK.close()
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+    
 #if SENTRY_HAS_UIKIT
     func testSetAppStartMeasurementConcurrently() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
