@@ -4093,7 +4093,7 @@
 		D8739CF72BECFF92007D2F66 /* Performance */ = {
 			isa = PBXGroup;
 			children = (
-                D468C0602D36699700964230 /* IO */,
+				D468C0602D36699700964230 /* IO */,
 				8497988C2D5FFDA7009AE4B5 /* SentryProfilingOptions.swift */,
 				6294287F2CB3BF4E002C454C /* SwizzleClassNameExclude.swift */,
 				D8739CF82BECFFB5007D2F66 /* SentryTransactionNameSource.swift */,
