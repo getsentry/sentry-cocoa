@@ -568,7 +568,7 @@ NS_SWIFT_NAME(Options)
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c SentryProfilingOptions.sessionSampleRate .
  */
-@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
+@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
 
 /**
  * If profiling should be enabled or not.
