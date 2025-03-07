@@ -378,7 +378,7 @@ SENTRY_NO_INIT
  * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
  * not already running. This includes app launch profiles configured with @c
  * SentryOptions.enableAppLaunchProfiling .
- * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling 
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
 + (void)startProfiler;
 
