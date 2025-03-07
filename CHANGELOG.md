@@ -5,6 +5,7 @@
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 
 ### Improvements
 
@@ -15,7 +16,6 @@
 ### Features
 
 - Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
-- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 - New user feedback API and Widget (#4874)
 
 ### Improvements
