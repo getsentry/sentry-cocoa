@@ -12,6 +12,10 @@
 - Correctly finish TTFD span when no new frame (#4941)
 - Only delete envelopes when receiving HTTP 200 (#4956)
 
+### Fixes
+
+- Set foreground true for watchdog terminations (#4953)
+
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
