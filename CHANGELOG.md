@@ -10,6 +10,7 @@
 ### Fixes
 
 - Correctly finish TTFD span when no new frame (#4941)
+- Fix removing value from context not updating observer context ()
 
 ### Improvements
 
