@@ -12,7 +12,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -465,10 +465,11 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
-
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
+    if (![self.client.options isContinuousProfilingEnabled]) {
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
+            samplingContext, tracesSamplerDecision, self.client.options);
+        configuration.profilesSamplerDecision = profilesSamplerDecision;
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
