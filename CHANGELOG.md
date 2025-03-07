@@ -10,6 +10,7 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 - New continuous profiling API (#4952)
+- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 
 ### Improvements
 
