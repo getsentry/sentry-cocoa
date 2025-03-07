@@ -116,6 +116,7 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
         sut.deleteAppState()
+        sut.deleteAbnormalSession()
     }
     
     func testInitDoesNotOverrideDirectories() {
@@ -525,6 +526,74 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(actualSession)
     }
     
+    func testStoreAbnormalSession() throws {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.abnormalMechanism = "anr_foreground"
+        
+        // Act
+        sut.storeAbnormalSession(session)
+        
+        // Assert
+        let actualSession = try XCTUnwrap(sut.readAbnormalSession())
+        
+        // Only assert a few properties. SentrySessionTests tests the serialization
+        XCTAssertEqual(session.sessionId, actualSession.sessionId)
+        XCTAssertEqual(session.distinctId, actualSession.distinctId)
+        XCTAssertEqual(session.releaseName, actualSession.releaseName)
+        XCTAssertEqual(session.abnormalMechanism, actualSession.abnormalMechanism)
+    }
+    
+    func testDeleteAbnormalSession() throws {
+        // Arrange
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.abnormalMechanism = "anr_foreground"
+        sut.storeAbnormalSession(session)
+        
+        // Act
+        sut.deleteAbnormalSession()
+        
+        // Assert
+        XCTAssertNil(sut.readAbnormalSession())
+    }
+    
+    func testDeleteAbnormalSession_WhenNoAbnormalSessionStored_DoesNotCrash() throws {
+        sut.deleteAbnormalSession()
+    }
+    
+    func testReadAbnormalSession_NoSessionStored () throws {
+        XCTAssertNil(sut.readAbnormalSession())
+    }
+    
+    func testAbnormalSessionAsync_DoesNotCrash() {
+        // Arrange
+        let iterations = 1_000
+        let expectation = expectation(description: "complete all abnormal session interactions")
+        expectation.expectedFulfillmentCount = iterations * 3
+        let dispatchQueue = DispatchQueue(label: "testAbnormalSessionAsync_DoesNotCrash", qos: .userInitiated, attributes: [.concurrent])
+        
+        // Act
+        for _ in 0..<iterations {
+            dispatchQueue.async {
+                self.sut.storeAbnormalSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
+                expectation.fulfill()
+            }
+            
+            dispatchQueue.async {
+                self.sut.readAbnormalSession()
+                expectation.fulfill()
+            }
+            
+            dispatchQueue.async {
+                self.sut.deleteAbnormalSession()
+                expectation.fulfill()
+            }
+        }
+        
+        // Assert
+        waitForExpectations(timeout: 10)
+    }
+    
     func testStoreAndReadTimestampLastInForeground() {
         let expectedTimestamp = TestCurrentDateProvider().date()
         sut.storeTimestampLast(inForeground: expectedTimestamp)
@@ -727,6 +796,31 @@ class SentryFileManagerTests: XCTestCase {
         
         // Assert
         XCTAssertNil(sut.readAppHangEvent())
+    }
+    
+    func testAppHangEventExists_WithStoredEvent_ReturnsTrue() throws {
+        // Arrange
+        let event = TestData.event
+        sut.storeAppHang(event)
+        
+        // Act && Assert
+        XCTAssertTrue(sut.appHangEventExists())
+    }
+    
+    func testAppHangEventExists_WithNoStoredEvent_ReturnsFalse() throws {
+        // Act && Assert
+        XCTAssertFalse(sut.appHangEventExists())
+    }
+    
+    func testAppHangEventExists_WithGarbage_ReturnsTrue() throws {
+        // Arrange
+        let fileManager = FileManager.default
+        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
+        
+        fileManager.createFile(atPath: appHangEventFilePath, contents: "garbage".data(using: .utf8)!, attributes: nil)
+        
+        // Act && Assert
+        XCTAssertTrue(sut.appHangEventExists())
     }
 
     func testDeleteAppHangEvent() {
