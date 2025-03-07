@@ -99,6 +99,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *envelopesPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
+@property (nonatomic, copy) NSString *abnormalSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
@@ -163,6 +164,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"session.current"];
     self.crashedSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
+    self.abnormalSessionFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"session.abnormal"];
     self.lastInForegroundFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
     self.previousAppStateFilePath =
@@ -322,6 +325,21 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 - (void)deleteCrashedSession
 {
     [self deleteSession:self.crashedSessionFilePath];
+}
+
+- (void)storeAbnormalSession:(SentrySession *)session
+{
+    [self storeSession:session sessionFilePath:self.abnormalSessionFilePath];
+}
+
+- (SentrySession *_Nullable)readAbnormalSession
+{
+    return [self readSession:self.abnormalSessionFilePath];
+}
+
+- (void)deleteAbnormalSession
+{
+    [self deleteSession:self.abnormalSessionFilePath];
 }
 
 #pragma mark - LastInForeground
@@ -553,6 +571,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 
     return [SentryEventDecoder decodeEventWithJsonData:appHangEventJSONData];
+}
+
+- (BOOL)appHangEventExists
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    @synchronized(self.appHangEventFilePath) {
+        return [fileManager fileExistsAtPath:self.appHangEventFilePath];
+    }
 }
 
 - (void)deleteAppHangEvent

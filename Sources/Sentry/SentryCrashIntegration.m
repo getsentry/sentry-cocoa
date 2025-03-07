@@ -179,7 +179,7 @@ sentry_finishAndSaveTransaction(void)
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.sessionHandler endCurrentSessionAsCrashedWhenCrashOrWatchdogTermination];
+        [self.sessionHandler endCurrentSessionIfRequired];
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SenryCrash was deactivated there are no new reports to send. Furthermore, the
