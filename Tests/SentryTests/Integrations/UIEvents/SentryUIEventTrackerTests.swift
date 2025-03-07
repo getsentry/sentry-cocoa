@@ -151,19 +151,27 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
+        // Arrange
         let uiLoadTransaction = SentrySDK.startTransaction(name: "test", operation: "ui.load", bindToScope: true)
         
+        // Act
         callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
+        // Assert
         XCTAssertTrue(uiLoadTransaction === SentrySDK.span)
+        XCTAssertEqual(getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
     }
     
     func test_ManualTransactionOnScope_StartNewUIEventTransaction_NotBoundToScope() {
+        // Arrange
         let manualTransaction = SentrySDK.startTransaction(name: "test", operation: "my.operation", bindToScope: true)
         
+        // Act
         callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
+        // Assert
         XCTAssertTrue(manualTransaction === SentrySDK.span)
+        XCTAssertEqual(getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
     }
     
     func test_SameUIElementWithSameEvent_ResetsTimeout() throws {
