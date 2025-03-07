@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Deprecations
+
+- Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling sessions (#4854)
+
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
