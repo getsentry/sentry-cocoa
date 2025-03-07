@@ -191,7 +191,7 @@ With continuous profiling, there's also only ever one profiler instance running 
 
 ### Sample apps
 
-The iOS-Swift sample app has several launch args to switch between the different modes. 
+The iOS-Swift sample app has several launch args to switch between the different modes.
 
 By default, it will use transaction-based profiling with a sample rate of 1, which can be overridden using the environment variable `--io.sentry.profilesSampleRate` (or `--io.sentry.profilesSamplerValue` to return a different value from the sampler function). Either of these can be set to `nil` to enable the first iteration of continuous profiling, which is now deprecated.
 
