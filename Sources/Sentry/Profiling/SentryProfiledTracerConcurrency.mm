@@ -7,7 +7,6 @@
 #    import "SentryLog.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 #    include <mutex>
 
@@ -23,7 +22,6 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfiledTracerConcurrency.h"
-#    import "SentrySDK+Private.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
@@ -142,11 +140,11 @@ sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceI
 }
 
 void
-sentry_discardProfilerForTracer(SentryId *internalTraceId)
+sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         _unsafe_cleanUpProfilerContinuous();
     } else {
         SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
@@ -201,7 +199,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
+sentry_stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
                                      SentryTransaction *transaction,
                                      BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
                                  #   if SENTRY_HAS_UIKIT
@@ -209,8 +207,9 @@ stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper 
                                  #endif // SENTRY_HAS_UIKIT
                                                                            )
 {
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         sentry_stopTrackingRootSpanForContinuousProfiler();
+        [hub captureTransaction:transaction withScope:hub.scope];
     } else if (isProfiling) {
         NSDate *startTimestamp;
 
@@ -273,20 +272,10 @@ stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper 
     }
 }
 
-void
-discardProfiler(SentryId *internalTraceID)
-{
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
-        sentry_stopTrackingRootSpanForContinuousProfiler();
-    } else {
-        sentry_discardProfilerForTracer(internalTraceID);
-    }
-}
-
-SentryId *_Nullable startProfiler(SentryTracerConfiguration *configuration, SentryHub *hub,
+SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuration, SentryHub *hub,
     SentryTransactionContext *transactionContext)
 {
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         sentry_trackRootSpanForContinuousProfiler();
         return [[SentryId alloc] init];
     } else {
