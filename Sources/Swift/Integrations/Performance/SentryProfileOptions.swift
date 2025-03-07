@@ -3,9 +3,9 @@ import Foundation
 
 /// An object containing configuration for the Sentry profiler.
 @objcMembers
-public class SentryProfilingOptions: NSObject {
+public class SentryProfileOptions: NSObject {
     /// Different modes for starting and stopping the profiler.
-    @objc public enum Lifecycle: Int {
+    @objc public enum SentryProfileLifecycle: Int {
         /// Profiling is controlled manually, and is independent of transactions & spans. Developers
         /// must `SentrySDK.startProfileSession()` and `SentrySDK.stopProfileSession()` to control
         /// the lifecycle of the profiler. If the session is sampled,
@@ -15,7 +15,7 @@ public class SentryProfilingOptions: NSObject {
         /// Profiling is automatically started when there is at least 1 active root span, and
         /// automatically stopped when there are 0 root spans.
         /// - note: This mode only works if tracing is enabled.
-        /// - note: Profiling respects both `SentryProfilingOptions.profileSessionSampleRate` and
+        /// - note: Profiling respects both `SentryProfileOptions.profileSessionSampleRate` and
         /// the existing sampling configuration for tracing
         /// (`SentryOptions.tracesSampleRate`/`SentryOptions.tracesSampler`). Sampling will be
         /// re-evaluated on a per root span basis.
@@ -26,6 +26,6 @@ public class SentryProfilingOptions: NSObject {
     }
     
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
-    public var lifecycle: Lifecycle = .manual
+    public var lifecycle: SentryProfileLifecycle = .manual
     
 }

@@ -30,9 +30,14 @@ struct SentrySDKWrapper {
         
         options.tracesSampleRate = tracesSampleRate
         options.tracesSampler = tracesSampler
-        options.profilesSampleRate = profilesSampleRate
-        options.profilesSampler = profilesSampler
-        options.enableAppLaunchProfiling = enableAppLaunchProfiling
+        
+        if args.contains("--io.sentry.profile-options-v2") {
+            options.profiling.lifecycle = args.contains("--io.sentry.profile-options-v2") ? .manual : .trace
+        } else {
+            options.profilesSampleRate = profilesSampleRate
+            options.profilesSampler = profilesSampler
+            options.enableAppLaunchProfiling = enableAppLaunchProfiling
+        }
         
         options.enableAutoSessionTracking = enableSessionTracking
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
