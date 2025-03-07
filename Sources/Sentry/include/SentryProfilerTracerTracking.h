@@ -1,6 +1,7 @@
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryProfiler;
 
@@ -11,7 +12,9 @@
 @class SentryDispatchQueueWrapper;
 @class SentryTracerConfiguration;
 @class SentryId;
+#   if SENTRY_HAS_UIKIT
 @class SentryAppStartMeasurement;
+#endif // SENTRY_HAS_UIKIT
 @class SentryTransactionContext;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -28,9 +31,13 @@ SentryId *_Nullable startProfiler(SentryTracerConfiguration *configuration, Sent
 
 void discardProfiler(SentryId *internalTraceID);
 
-void stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
-    SentryTransaction *transaction, SentryAppStartMeasurement *appStartMeasurement,
-    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime);
+SENTRY_EXTERN void stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
+    SentryTransaction *transaction,
+    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
+#   if SENTRY_HAS_UIKIT
+                                          , SentryAppStartMeasurement *appStartMeasurement
+#endif // SENTRY_HAS_UIKIT
+                                          );
 
 /**
  * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer

@@ -11,7 +11,6 @@
 #    import "SentrySwift.h"
 #    include <mutex>
 
-#    import "SentryAppStartMeasurement.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryEvent+Private.h"
@@ -32,6 +31,7 @@
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
+#    import "SentryAppStartMeasurement.h"
 #        import "SentryDependencyContainer.h"
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
@@ -202,8 +202,12 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 
 void
 stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
-    SentryTransaction *transaction, SentryAppStartMeasurement *appStartMeasurement,
-    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime)
+                                     SentryTransaction *transaction,
+                                     BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
+                                 #   if SENTRY_HAS_UIKIT
+                                                                           , SentryAppStartMeasurement *appStartMeasurement
+                                 #endif // SENTRY_HAS_UIKIT
+                                                                           )
 {
     if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
         sentry_stopTrackingRootSpanForContinuousProfiler();

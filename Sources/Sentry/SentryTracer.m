@@ -528,8 +528,12 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    stopProfilerDueToFinishedTransaction(_hub, _dispatchQueue, transaction, appStartMeasurement,
-        _isProfiling, self.startTimestamp, _startSystemTime);
+    stopProfilerDueToFinishedTransaction(_hub, _dispatchQueue, transaction,
+        _isProfiling, self.startTimestamp, _startSystemTime
+#   if SENTRY_HAS_UIKIT
+                                    , appStartMeasurement
+#endif // SENTRY_HAS_UIKIT
+                                         );
 #else
     [_hub captureTransaction:transaction withScope:_hub.scope];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
