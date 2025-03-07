@@ -14,6 +14,7 @@
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
+- Avoid creating unnecessary User Interaction transactions (#4957)
 
 ## 8.46.0
 
