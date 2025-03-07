@@ -6,6 +6,10 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 
+### Fixes 
+
+- Set foreground true for watchdog terminations (#4953)
+
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
