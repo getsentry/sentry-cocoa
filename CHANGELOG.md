@@ -6,7 +6,7 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 
-### Fixes 
+### Fixes
 
 - Set foreground true for watchdog terminations (#4953)
 
