@@ -49,7 +49,6 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                     options.experimental.enableFileManagerSwizzling = false
                 }
 
-
                 // The base path is not unique for the DSN, therefore we need to make it unique
                 fileUrlToRead = tempDirUrl.appendingPathComponent("test-\(testName.hashValue.description)--file-to-read")
                 try data.write(to: fileUrlToRead)
