@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
     // We treat fatal app hang events similar to crashes.
     event.isCrashEvent = YES;
 
-    SentryClient *client = _client;
+    SentryClient *_Nullable client = _client;
     if (client == nil) {
         return;
     }

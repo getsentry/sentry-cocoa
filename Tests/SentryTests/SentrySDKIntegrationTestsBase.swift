@@ -53,7 +53,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         try callback(capture?.event, capture?.scope, capture?.additionalEnvelopeItems)
     }
     
-    func assertCrashEventWithScope(_ callback: (Event?, Scope?) throws -> Void) throws {
+    func assertCrashEventWithScope(_ callback: (Event?, Scope?) throws -> Void) rethrows {
         guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
