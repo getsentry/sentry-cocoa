@@ -53,7 +53,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         try callback(capture?.event, capture?.scope, capture?.additionalEnvelopeItems)
     }
     
-    func assertCrashEventWithScope(_ callback: (Event?, Scope?) -> Void) {
+    func assertCrashEventWithScope(_ callback: (Event?, Scope?) throws -> Void) rethrows {
         guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
@@ -61,7 +61,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         
         XCTAssertEqual(1, client.captureCrashEventInvocations.count, "Wrong number of `Crashs` captured.")
         let capture = client.captureCrashEventInvocations.first
-        callback(capture?.event, capture?.scope)
+        try callback(capture?.event, capture?.scope)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
