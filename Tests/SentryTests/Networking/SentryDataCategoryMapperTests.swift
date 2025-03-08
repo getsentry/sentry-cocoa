@@ -2,7 +2,7 @@
 import XCTest
 
 class SentryDataCategoryMapperTests: XCTestCase {
-    
+
     func testEnvelopeItemType() {
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("event"), .error)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("session"), .session)
@@ -34,7 +34,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
 
         XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(13), "Failed to map unknown category number to case .unknown")
     }
-    
+
     func testMapStringToCategory() {
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameAll), .all)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameDefault), .default)

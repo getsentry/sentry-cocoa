@@ -5,7 +5,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-    
+
     func startSentry() {
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
         var storedDsn: String?
@@ -15,9 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("[iOS-Swift] Failed to read/write DSN: \(error)")
         }
-        
+
         let dsn = storedDsn ?? Self.defaultDSN
-        
+
         SentrySDK.start { options in
             options.dsn = dsn
             options.debug = true

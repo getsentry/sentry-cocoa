@@ -5,7 +5,7 @@ class HttpDateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"
         dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
-        
+
         return dateFormatter.string(from: date)
     }
 }

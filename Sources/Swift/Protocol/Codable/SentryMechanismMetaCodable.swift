@@ -8,10 +8,10 @@ extension MechanismMeta: Decodable {
         case machException = "mach_exception"
         case error = "ns_error"
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         self.init()
-        
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.signal = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .signal)

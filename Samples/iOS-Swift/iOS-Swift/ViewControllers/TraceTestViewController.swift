@@ -3,18 +3,18 @@ import Sentry
 import UIKit
 
 class TraceTestViewController: UIViewController {
-    
+
     @IBOutlet weak var imageView: UIImageView!
     var spanObserver: SpanObserver?
     var lifeCycleSteps = ["loadView"]
     var addSpan = true
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         appendLifeCycleStep("viewDidLoad")
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
@@ -33,12 +33,12 @@ class TraceTestViewController: UIViewController {
                 SentrySDK.reportFullyDisplayed()
             }
         }
-        
+
         dataTask.resume()
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
         appendLifeCycleStep("viewWillAppear")
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         appendLifeCycleStep("viewDidAppear")
@@ -53,13 +53,13 @@ class TraceTestViewController: UIViewController {
         super.viewDidLayoutSubviews()
         appendLifeCycleStep("viewDidLayoutSubviews")
     }
-    
+
     func appendLifeCycleStep(_ name: String) {
         if addSpan {
             lifeCycleSteps.append(name)
         }
     }
-    
+
     func assertTransaction(span: Span) {
         DispatchQueue.main.async {
             self.spanObserver?.releaseOnFinish()

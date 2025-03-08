@@ -2,7 +2,7 @@ import SentryTestUtils
 import XCTest
 
 class SentrySdkInfoTests: XCTestCase {
-    
+
     private let sdkName = "sentry.cocoa"
 
     private func cleanUp() {
@@ -31,7 +31,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(sdkName, actual.name)
         XCTAssertEqual(version, actual.version)
     }
-    
+
     func testWithAnyVersion() {
         let version = "anyVersion"
         let actual = SentrySdkInfo(
@@ -41,11 +41,11 @@ class SentrySdkInfoTests: XCTestCase {
             features: [],
             packages: []
         )
-        
+
         XCTAssertEqual(sdkName, actual.name)
         XCTAssertEqual(version, actual.version)
     }
-    
+
     func testSerialization() {
         let version = "5.2.0"
         let sdkInfo = SentrySdkInfo(
@@ -125,7 +125,7 @@ class SentrySdkInfoTests: XCTestCase {
 
         XCTAssertEqual(0, actual.packages.count)
     }
-    
+
     func testInitWithDict_SdkInfo() {
         let version = "10.3.1"
         let expected = SentrySdkInfo(
@@ -217,7 +217,7 @@ class SentrySdkInfoTests: XCTestCase {
 
         assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict as [AnyHashable: Any]))
     }
-    
+
     func testInitWithDict_WrongTypes() {
         let dict = [
             "name": 0,
@@ -272,7 +272,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testInitWithDict_SdkInfoIsString() {
         let dict = ["sdk": ""]
-        
+
         assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
     }
 
@@ -284,7 +284,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertTrue(actual.integrations.count > 0)
         XCTAssertTrue(actual.features.count > 0)
     }
-    
+
     func testFromGlobalsWithExtraPackage() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
         SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
@@ -293,7 +293,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(actual.packages.count, 1)
         XCTAssertTrue(actual.packages.contains(extraPackage))
     }
-    
+
     func testFromGlobalsWithExtraPackageAndPackageManager() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
         SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)

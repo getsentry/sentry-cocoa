@@ -3,7 +3,7 @@ import Foundation
 extension String {
     func snakeToCamelCase() -> String {
         var result = ""
-        
+
         var toUpper = false
         for char in self {
             if char == "_" {
@@ -13,7 +13,7 @@ extension String {
                 toUpper = false
             }
         }
-        
+
         return result
     }
 }

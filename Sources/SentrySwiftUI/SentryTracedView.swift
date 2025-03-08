@@ -12,29 +12,29 @@ class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
     private var tracker: SentryTimeToDisplayTracker?
-    
+
     let name: String
     let nameSource: SentryTransactionNameSource
     let waitForFullDisplay: Bool
     let traceOrigin = SentryTraceOrigin.autoUISwiftUI
-    
+
     init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name
         self.nameSource = nameSource
         self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
     }
-    
+
     func startSpan() -> SpanId? {
         guard !viewAppeared else { return nil }
-        
+
         let trace = startRootTransaction()
         let name = trace != nil ? "\(name) - body" : name
         return createBodySpan(name: name)
     }
-    
+
     private func startRootTransaction() -> SentryTracer? {
         guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
-        
+
         let transactionId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
             nameSource: nameSource,
@@ -51,7 +51,7 @@ class SentryTraceViewModel {
 #endif
         return tracer
     }
-    
+
     private func createBodySpan(name: String) -> SpanId {
         let spanId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
@@ -62,17 +62,17 @@ class SentryTraceViewModel {
         SentryPerformanceTracker.shared.pushActiveSpan(spanId)
         return spanId
     }
-    
+
     func finishSpan(_ spanId: SpanId) {
         SentryPerformanceTracker.shared.popActiveSpan()
         SentryPerformanceTracker.shared.finishSpan(spanId)
     }
-    
+
     func viewDidAppear() {
         guard !viewAppeared else { return }
         viewAppeared = true
         tracker?.reportInitialDisplay()
-        
+
         if let transactionId = transactionId {
             // According to Apple's documentation, the call to `body` needs to be fast
             // and can be made many times in one frame. Therefore they don't use async code to process the view.
@@ -116,7 +116,7 @@ class SentryTraceViewModel {
 public struct SentryTracedView<Content: View>: View {
     @State private var viewModel: SentryTraceViewModel
     let content: () -> Content
-    
+
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
     /// Creates a view that measures the performance of its `content`.
     ///
@@ -145,26 +145,26 @@ public struct SentryTracedView<Content: View>: View {
         _viewModel = State(initialValue: initialViewModel)
     }
 #endif
-    
+
     private static func extractName(content: Any) -> String {
         var result = String(describing: content)
-        
+
         if let index = result.firstIndex(of: "<") {
             result = String(result[result.startIndex ..< index])
         }
-        
+
         return result
     }
-    
+
     public var body: some View {
         let spanId = viewModel.startSpan()
-        
+
         defer {
             if let spanId = spanId {
                 viewModel.finishSpan(spanId)
             }
         }
-        
+
         return content().onAppear(perform: viewModel.viewDidAppear)
     }
 }

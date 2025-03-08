@@ -18,7 +18,7 @@ class ReplaceContentViewController: UIViewController {
 
         currentChild = childVC
     }
-    
+
     @IBAction func tappedReplaceContent(_ sender: Any) {
         swapChild()
     }
@@ -66,7 +66,7 @@ private class LoadCountReportingViewController: UISplitViewController {
     // swiftlint:disable prohibited_super_call
     override func loadView() {
         super.loadView()
-        
+
         loadCount += 1
     }
     // swiftlint:enable prohibited_super_call

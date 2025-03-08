@@ -6,10 +6,10 @@ class SentryDebugMetaTests: XCTestCase {
     func testSerialize() {
         // Arrange
         let debugMeta = TestData.debugMeta
-        
+
         // Act
         let actual = debugMeta.serialize()
-        
+
         // Assert
         XCTAssertEqual(debugMeta.uuid, actual["uuid"] as? String)
         XCTAssertEqual(debugMeta.debugID, actual["debug_id"] as? String)
@@ -20,13 +20,13 @@ class SentryDebugMetaTests: XCTestCase {
         XCTAssertEqual(debugMeta.codeFile, actual["code_file"] as? String)
         XCTAssertEqual(debugMeta.imageVmAddress, actual["image_vmaddr"] as? String)
     }
-    
+
     func testDecode_WithAllProperties() throws {
         // Arrange
         let debugMeta = TestData.debugMeta
         let actual = debugMeta.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
 
@@ -46,7 +46,7 @@ class SentryDebugMetaTests: XCTestCase {
         let debugMeta = DebugMeta()
         let actual = debugMeta.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
 
@@ -67,7 +67,7 @@ class SentryDebugMetaTests: XCTestCase {
         debugMeta.uuid = "123"
         let actual = debugMeta.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
 
@@ -81,5 +81,5 @@ class SentryDebugMetaTests: XCTestCase {
         XCTAssertNil(decoded.codeFile)
         XCTAssertNil(decoded.imageVmAddress)
     }
-    
+
 }

@@ -34,7 +34,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             onComplete(maskedScreenshot)
         }
     }
-    
+
     func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
         let redact = redactBuilder.redactRegionsFor(view: view)
@@ -69,7 +69,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         redactBuilder
     }
 #endif
-    
+
 }
 
 #endif // os(iOS) || os(tvOS)

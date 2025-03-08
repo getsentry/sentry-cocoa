@@ -5,20 +5,20 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
-        
+
         SentrySDK.start { options in
             options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
             options.debug = true
             options.experimental.enableFileManagerSwizzling = true
         }
-        
+
         SentrySDK.configureScope { scope in
             if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
                 scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
             }
-            
+
             scope.injectGitInformation()
-            
+
             if let data = "hello".data(using: .utf8) {
                 scope.addAttachment(Attachment(data: data, filename: "log.txt"))
             }

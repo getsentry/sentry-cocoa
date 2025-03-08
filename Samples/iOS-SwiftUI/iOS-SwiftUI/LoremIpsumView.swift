@@ -3,9 +3,9 @@ import SentrySwiftUI
 import SwiftUI
 
 struct LoremIpsumView: View {
-    
+
     @StateObject var viewModel = LoremIpsumViewModel()
-    
+
     var body: some View {
         SentryTracedView("Lorem Ipsum") {
             Text(viewModel.text)
@@ -15,13 +15,13 @@ struct LoremIpsumView: View {
 }
 
 class LoremIpsumViewModel: ObservableObject {
-    
+
     @Published var text = "Lorem Ipsum ..."
-    
+
     init() {
         fetchLoremIpsum()
     }
-    
+
     private func fetchLoremIpsum() {
         let dispatchQueue = DispatchQueue(label: "LoremIpsumViewModel")
         dispatchQueue.async {

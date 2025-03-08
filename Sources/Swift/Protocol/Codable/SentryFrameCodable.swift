@@ -21,10 +21,10 @@ extension Frame: Decodable {
         case inApp = "in_app"
         case stackStart = "stack_start"
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         self.init()
-        
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.symbolAddress = try container.decodeIfPresent(String.self, forKey: .symbolAddress)
         self.fileName = try container.decodeIfPresent(String.self, forKey: .fileName)

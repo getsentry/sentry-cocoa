@@ -4,7 +4,7 @@ import XCTest
 class SentryRequestTests: XCTestCase {
     func testSerialize() {
         let request = TestData.request
-        
+
         let actual = request.serialize()
 
         XCTAssertEqual(request.url, actual["url"] as? String)
@@ -13,37 +13,37 @@ class SentryRequestTests: XCTestCase {
         XCTAssertEqual(request.cookies, actual["cookies"] as? String)
         XCTAssertEqual(request.method, actual["method"] as? String)
         XCTAssertEqual(request.bodySize, actual["body_size"] as? NSNumber)
-        
+
         XCTAssertEqual(request.headers, actual["headers"] as? Dictionary)
     }
-    
+
     func testNoHeaders() {
         let request = TestData.request
         request.headers = nil
-        
+
         let actual = request.serialize()
-        
+
         XCTAssertNil(actual["headers"])
     }
-    
+
     func testNoBodySize() {
         let request = TestData.request
         request.bodySize = 0
-        
+
         let actual = request.serialize()
-        
+
         XCTAssertNil(actual["body_size"])
     }
-    
+
     func testDecode_WithAllProperties() throws {
         // Arrange
         let request = TestData.request
         let actual = request.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequest?)
-        
+
         // Assert
         XCTAssertEqual(request.bodySize, decoded.bodySize)
         XCTAssertEqual(request.cookies, decoded.cookies)
@@ -59,10 +59,10 @@ class SentryRequestTests: XCTestCase {
         let request = SentryRequest()
         let actual = request.serialize()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequest?)
-        
+
         // Assert
         XCTAssertNil(decoded.bodySize)
         XCTAssertNil(decoded.cookies)
@@ -90,6 +90,6 @@ class SentryRequestTests: XCTestCase {
         XCTAssertNil(decoded.fragment)
         XCTAssertNil(decoded.method)
         XCTAssertNil(decoded.queryString)
-        XCTAssertNil(decoded.url)   
+        XCTAssertNil(decoded.url)
     }
 }

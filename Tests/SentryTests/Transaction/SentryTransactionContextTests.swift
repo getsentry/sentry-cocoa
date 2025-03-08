@@ -4,7 +4,7 @@ import SentryTestUtils
 import XCTest
 
 class SentryTransactionContextTests: XCTestCase {
-    
+
     private let operation = "ui.load"
     private let transactionName = "Screen Load"
     private let origin = "auto.ui.swift_ui"
@@ -24,47 +24,47 @@ class SentryTransactionContextTests: XCTestCase {
 
     func testPublicInit_WithOperation() {
         let context = TransactionContext(operation: operation)
-        
+
         assertContext(context: context, transactionName: "")
     }
-    
+
     func testPublicInit_WithNameOperation() {
         let context = TransactionContext(name: transactionName, operation: operation)
-        
+
         assertContext(context: context)
     }
-    
+
     func testPublicInit_WithOperationSampled() {
         let context = TransactionContext(operation: operation, sampled: .yes)
-        
+
         assertContext(context: context, transactionName: "", sampled: .yes)
     }
 
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithNameOperationSampled() {
         let context = TransactionContext(name: transactionName, operation: operation, sampled: .yes)
-        
+
         assertContext(context: context, sampled: .yes)
     }
 
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithAllParams() {
         let context = TransactionContext(name: transactionName, operation: operation, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, parentSampled: .no)
-        
+
         assertContext(context: context, isParentSpanIdNil: false)
         XCTAssertEqual(traceID, context.traceId)
         XCTAssertEqual(spanID, context.spanId)
         XCTAssertEqual(parentSpanID, context.parentSpanId)
         XCTAssertEqual(.no, context.parentSampled)
     }
-    
+
     func testPrivateInit_WithNameSourceOperationOrigin() {
         let nameSource = SentryTransactionNameSource.route
         let context = TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin)
-        
+
         assertContext(context: context, nameSource: nameSource, origin: origin)
     }
-    
+
     func testPrivateInit_WithNameSourceOperationOriginSampled() {
         let nameSource = SentryTransactionNameSource.route
         let sampled = SentrySampleDecision.yes
@@ -72,23 +72,23 @@ class SentryTransactionContextTests: XCTestCase {
 
         assertContext(context: context, sampled: sampled, nameSource: nameSource, origin: origin)
     }
-    
+
     func testPrivateInit_AllParams() {
         let context = contextWithAllParams
-        
+
         assertContext(context: context, sampled: sampled, isParentSpanIdNil: false, nameSource: nameSource, origin: origin)
         XCTAssertEqual(traceID, context.traceId)
         XCTAssertEqual(spanID, context.spanId)
         XCTAssertEqual(parentSpanID, context.parentSpanId)
     }
-    
+
     private var contextWithAllParams: TransactionContext {
         return TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, sampled: sampled, parentSampled: parentSampled, sampleRate: nil, parentSampleRate: nil, sampleRand: nil, parentSampleRand: nil)
     }
-    
+
     func testSerialize() {
         let context = contextWithAllParams
-        
+
         let actual = context.serialize()
         XCTAssertEqual(context.traceId.sentryIdString, actual["trace_id"] as? String)
         XCTAssertEqual(context.spanId.sentrySpanIdString, actual["span_id"] as? String)
@@ -97,7 +97,7 @@ class SentryTransactionContextTests: XCTestCase {
         XCTAssertEqual("trace", actual["type"] as? String)
         XCTAssertEqual(true, actual["sampled"] as? NSNumber)
         XCTAssertEqual("ui.load", actual["op"] as? String)
-        
+
         XCTAssertNotNil(actual)
     }
 
@@ -180,7 +180,7 @@ class SentryTransactionContextTests: XCTestCase {
     func testPublicInit_WithNameOperation_shouldMatchExpectedValues() {
         // Act
         let context = TransactionContext(name: transactionName, operation: operation)
-    
+
         // Assert
         assertFullContext(
             context: context,
@@ -382,7 +382,7 @@ class SentryTransactionContextTests: XCTestCase {
             operation: operation,
             origin: origin
         )
-        
+
         // Assert
         assertFullContext(
             context: context,
@@ -628,7 +628,7 @@ class SentryTransactionContextTests: XCTestCase {
         XCTAssertEqual("trace", actual["type"] as? String)
         XCTAssertEqual(true, actual["sampled"] as? NSNumber)
         XCTAssertEqual("ui.load", actual["op"] as? String)
-        
+
         XCTAssertNotNil(actual)
     }
 
@@ -737,18 +737,18 @@ class SentryTransactionContextTests: XCTestCase {
     }
 
     // MARK: - Assertion Helpers
-    
+
     private func assertContext(context: TransactionContext, transactionName: String? = nil, sampled: SentrySampleDecision = .undecided, isParentSpanIdNil: Bool = true, nameSource: SentryTransactionNameSource = SentryTransactionNameSource.custom, origin: String? = nil) {
-        
+
         XCTAssertEqual(operation, context.operation)
         XCTAssertEqual(transactionName ?? self.transactionName, context.name)
         XCTAssertEqual(sampled, context.sampled)
         XCTAssertEqual(nameSource, context.nameSource)
         XCTAssertEqual(origin ?? "manual", context.origin)
-        
+
         XCTAssertNotNil(context.traceId)
         XCTAssertNotNil(context.spanId)
-        
+
         if isParentSpanIdNil {
             XCTAssertNil(context.parentSpanId)
         } else {

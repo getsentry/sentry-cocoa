@@ -4,9 +4,9 @@ import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
-    
+
     private static let dsn = TestConstants.dsnAsString(username: "SentryWatchdogTerminationScopeObserverTests")
-    
+
     private class Fixture {
         let breadcrumb: Breadcrumb
         let invalidJSONbreadcrumb: [String: Double]
@@ -18,7 +18,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         init() {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
-          
+
             invalidJSONbreadcrumb = [ "invalid": Double.infinity ]
 
             options = Options()
@@ -60,7 +60,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let firstLine = fileOneContents.split(separator: "\n").first
         XCTAssertNil(firstLine)
     }
-  
+
     // Test that we're storing the serialized breadcrumb in a proper JSON string
     func testStoreBreadcrumb() throws {
         let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
@@ -140,7 +140,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
     }
-    
+
     func testWritingToClosedFile() throws {
             let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
 

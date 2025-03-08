@@ -35,26 +35,26 @@ class SentryTraceProfilerTests: XCTestCase {
         span.finish()
         try self.assertMetricsPayload()
     }
-    
+
     func testCaptureTransactionWithProfile_StopsProfileOnCallingThread() throws {
         let span = try fixture.newTransaction()
         try addMockSamples()
         try fixture.gatherMockedTraceProfileMetrics()
-        
+
         self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
         let currentProfiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
-        
+
         XCTAssertTrue(currentProfiler.isRunning())
-        
+
         span.finish()
-        
+
         XCTAssertFalse(currentProfiler.isRunning(), "Profiler must be stopped on the calling thread.")
         XCTAssertEqual(SentryProfilerTruncationReason.normal, currentProfiler.truncationReason)
-        
+
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         self.fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
         self.fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
-        
+
         try self.assertMetricsPayload()
         try self.assertValidTraceProfileData()
     }
@@ -94,7 +94,7 @@ class SentryTraceProfilerTests: XCTestCase {
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedTraceProfileMetrics()
-                
+
                 XCTAssertTrue(SentryTraceProfiler.isCurrentlyProfiling())
                 span.finish()
                 XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(numberOfTransactions - (i + 1)))
@@ -108,7 +108,7 @@ class SentryTraceProfilerTests: XCTestCase {
                     + 1 // and the end reading for this span
                 try self.assertMetricsPayload(oneLessEnergyReading: i == 0, expectedMetricsReadingsPerBatchOverride: expectedUsageReadings)
             }
-            
+
             XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
             XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(0))
         }
@@ -395,7 +395,7 @@ private extension SentryTraceProfilerTests {
 
     func performTraceProfilingTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, uikitParameters: UIKitParameters? = nil) throws {
         var testingAppLaunchSpans = false
-        
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if let uikitParameters = uikitParameters {
             testingAppLaunchSpans = true
@@ -509,7 +509,7 @@ private extension SentryTraceProfilerTests {
         XCTAssertGreaterThanOrEqual(timestampNumericValue, 0)
         XCTAssertLessThanOrEqual(timestampNumericValue, transactionDuration)
     }
-    
+
     enum SentryProfilerSwiftTestError: Error {
         case notEnoughAppStartSpans
     }
@@ -601,7 +601,7 @@ private extension SentryTraceProfilerTests {
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
 
         let profileTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
-        
+
         let latestTransactionTimestamp = try XCTUnwrap(latestTransaction.startTimestamp)
         var startTimestampString = sentry_toIso8601String(latestTransactionTimestamp)
         #if !os(macOS)
@@ -610,7 +610,7 @@ private extension SentryTraceProfilerTests {
             startTimestampString = sentry_toIso8601String(runtimeInitTimestamp)
         }
         #endif // !os(macOS)
-                    
+
         XCTAssertEqual(profileTimestampString, startTimestampString)
 
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
@@ -657,7 +657,7 @@ private extension SentryTraceProfilerTests {
             }
         }
         options(fixtureOptions)
-        
+
         let span = try fixture.newTransaction()
         if expectedDecision == .yes {
             try addMockSamples()

@@ -215,7 +215,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertNil(span)
         wait(for: [expect], timeout: 0.1)
     }
-    
+
     func testReadFromString() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)

@@ -4,28 +4,28 @@ import UIKit
 class TransactionsViewController: UIViewController {
 
     @IBOutlet weak var appHangFullyBlockingButton: UIButton!
-    
+
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
     @IBOutlet weak var dsnView: UIView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         SentrySDK.reportFullyDisplayed()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         periodicallyDoWork()
-        
+
         addDSNDisplay(self, vcview: dsnView)
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super .viewDidDisappear(animated)
         self.timer?.invalidate()
     }
-    
+
     private func periodicallyDoWork() {
 
         self.timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
@@ -41,11 +41,11 @@ class TransactionsViewController: UIViewController {
 
     @IBAction func uiClickTransaction(_ sender: UIButton) {
         highlightButton(sender)
-       
+
         readLoremIpsumFile()
         loadSentryBrandImage()
     }
-    
+
     private func readLoremIpsumFile() {
         dispatchQueue.async {
             if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
@@ -53,7 +53,7 @@ class TransactionsViewController: UIViewController {
             }
         }
     }
-    
+
     private func loadSentryBrandImage() {
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
@@ -96,7 +96,7 @@ class TransactionsViewController: UIViewController {
             })!)
             showConfirmation(span: span)
         }
-        
+
         if spans.isEmpty {
             if let launchSpan = SentrySDK.span {
                 spans.append(launchSpan)
@@ -129,7 +129,7 @@ class TransactionsViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
     }
-    
+
     @IBAction func appHangFullyBlocking(_ sender: Any) {
         triggerFullyBlockingAppHang(button: self.appHangFullyBlockingButton)
     }
@@ -137,17 +137,17 @@ class TransactionsViewController: UIViewController {
     @IBAction func captureTransaction(_ sender: UIButton) {
         highlightButton(sender)
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
-        
+
         transaction.setMeasurement(name: "duration", value: 44, unit: MeasurementUnitDuration.nanosecond)
         transaction.setMeasurement(name: "information", value: 44, unit: MeasurementUnitInformation.bit)
         transaction.setMeasurement(name: "duration-custom", value: 22, unit: MeasurementUnit(unit: "custom"))
-        
+
         let span = transaction.startChild(operation: "user", description: "calls out")
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
             span.finish()
         })
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
             transaction.finish()
         })
@@ -159,21 +159,21 @@ class TransactionsViewController: UIViewController {
         nib.title = "Nib View Controller"
         navigationController?.pushViewController(nib, animated: false)
     }
-    
+
     @IBAction func showTableViewController(_ sender: UIButton) {
         highlightButton(sender)
         let controller = TableViewController(style: .plain)
         controller.title = "Table View Controller"
         navigationController?.pushViewController(controller, animated: false)
     }
-    
+
     @IBAction func useCoreData(_ sender: UIButton) {
         highlightButton(sender)
         let controller = CoreDataViewController()
         controller.title = "CoreData"
         navigationController?.pushViewController(controller, animated: false)
     }
-    
+
     @IBAction func showPageController(_ sender: UIButton) {
         highlightButton(sender)
         let controller = PageViewController()

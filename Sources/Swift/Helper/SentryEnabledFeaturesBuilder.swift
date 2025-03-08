@@ -1,19 +1,19 @@
 import Foundation
 
 @objcMembers class SentryEnabledFeaturesBuilder: NSObject {
-    
+
     static func getEnabledFeatures(options: Options) -> [String] {
-        
+
         var features: [String] = []
-        
+
         if options.enableCaptureFailedRequests {
             features.append("captureFailedRequests")
         }
-        
+
         if options.enablePerformanceV2 {
             features.append("performanceV2")
         }
-        
+
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
         }
@@ -31,7 +31,7 @@ import Foundation
         }
 #endif // canImport(UIKit)
 #endif // os(iOS) || os(tvOS)
-        
+
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
         }
@@ -41,11 +41,11 @@ import Foundation
             features.append("appHangTrackingV2")
         }
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        
+
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
-        
+
         return features
     }
 }

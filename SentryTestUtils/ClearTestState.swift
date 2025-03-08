@@ -21,7 +21,7 @@ class TestCleanup: NSObject {
         // You must call clearTestState on the main thread. Calling it on a background thread
         // could interfere with another currently running test, making the tests flaky.
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")
-        
+
         SentrySDK.close()
         SentrySDK.setCurrentHub(nil)
         SentrySDK.crashedLastRunCalled = false
@@ -30,7 +30,7 @@ class TestCleanup: NSObject {
         SentrySDK.setStart(nil)
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
-        
+
         SentryLog.setTestDefaultLogLevel()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -40,9 +40,9 @@ class TestCleanup: NSObject {
         SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
         SentryDependencyContainer.sharedInstance().fileManager.clearDiskState()
-        
+
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        
+
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
@@ -55,7 +55,7 @@ class TestCleanup: NSObject {
         SentryTraceProfiler.resetConcurrencyTracking()
         removeAppLaunchProfilingConfigFile()
         sentry_stopAndDiscardLaunchProfileTracer()
-        
+
         if SentryContinuousProfiler.isCurrentlyProfiling() {
             SentryContinuousProfiler.stopTimerAndCleanup()
         }

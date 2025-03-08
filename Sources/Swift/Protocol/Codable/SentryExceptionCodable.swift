@@ -2,19 +2,19 @@
 import Foundation
 
 extension Exception: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case value
         case type
         case mechanism
         case module
         case threadId = "thread_id"
-        case stacktrace   
+        case stacktrace
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         let value = try container.decode(String.self, forKey: .value)
         let type = try container.decode(String.self, forKey: .type)
 

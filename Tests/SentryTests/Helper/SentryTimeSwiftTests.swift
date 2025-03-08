@@ -1,7 +1,7 @@
 import XCTest
 
 final class SentryTimeSwiftTests: XCTestCase {
-    
+
     func testTimeIntervalToNanoseconds() {
         XCTAssertEqual(timeIntervalToNanoseconds(0.0), UInt64(0))
         XCTAssertEqual(timeIntervalToNanoseconds(0.5), UInt64(500_000_000))

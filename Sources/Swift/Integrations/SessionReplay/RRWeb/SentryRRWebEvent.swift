@@ -18,23 +18,23 @@ class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
     let type: SentryRRWebEventType
     let timestamp: Date
     let data: [String: Any]?
-    
+
     init(type: SentryRRWebEventType, timestamp: Date, data: [String: Any]?) {
         self.type = type
         self.timestamp = timestamp
         self.data = data
     }
-    
+
     func serialize() -> [String: Any] {
         var result: [String: Any] = [
             "type": type.rawValue,
             "timestamp": SentryDateUtil.millisecondsSince1970(timestamp)
         ]
-        
+
         if let data = data {
             result["data"] = data
         }
-        
+
         return result
     }
 }

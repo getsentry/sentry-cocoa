@@ -7,18 +7,18 @@ import XCTest
 
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
-    
+
     override class func setUp() {
         super.setUp()
         SentryLog.configure(true, diagnosticLevel: .debug)
     }
-    
+
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
         fixture.options.profilesSampleRate = nil
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -31,13 +31,13 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStartingAndStoppingContinuousProfiler() throws {
         try performContinuousProfilingTest()
     }
-    
+
     func testProfilingDataContainsEnvironmentSetFromOptions() throws {
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
-    
+
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
         let expectedEnvironment = "test-environment"
         fixture.hub.configureScope { scope in
@@ -75,7 +75,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStartingContinuousProfilerWithZeroSampleRate() throws {
         fixture.options.profilesSampleRate = 0
         try performContinuousProfilingTest()
-    }    
+    }
 
     #if !os(macOS)
     // test that receiving a background notification stops the continuous
@@ -97,7 +97,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(interval: 31)
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-    
+
     func testClosingSDKStopsProfile() throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
@@ -105,7 +105,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentrySDK.close()
         try assertContinuousProfileStoppage()
     }
-    
+
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
         let manualSpan = try fixture.newTransaction()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -120,43 +120,43 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStoppingProfilerTransmitsLastFullChunk() throws {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        
+
         // assert that the first chunk was sent
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
-        
+
         // assert that the profiler doesn't stop until after the next timer period elapses
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
-        
+
         // check that the last full chunk was sent
         let lastEnvelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let lastProfileItem = try XCTUnwrap(lastEnvelope.items.first)
         XCTAssertEqual("profile_chunk", lastProfileItem.header.type)
-        
+
         // check that two chunks were sent in total
         XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
-    
+
     func testChunkSerializationAfterBufferInterval() throws {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        
+
         // Advance time by the buffer interval to trigger chunk serialization
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
-        
+
         // Check that a chunk was serialized and sent
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
-        
+
         // Ensure the profiler is still running
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        
+
         // Stop the profiler
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
@@ -172,12 +172,12 @@ private extension SentryContinuousProfilerTests {
             SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: mockThreadMetadata.id, threadPriority: mockThreadMetadata.priority, threadName: mockThreadMetadata.name, addresses: mockAddresses)
         }
     }
-    
+
     func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        
+
         func runTestPart(expectedAddresses: [NSNumber], mockMetrics: SentryProfileTestFixture.MockMetric, countMetricsReadingAtProfileStart: Bool = true) throws {
             fixture.setMockMetrics(mockMetrics)
             try addMockSamples(mockAddresses: expectedAddresses)
@@ -192,23 +192,23 @@ private extension SentryContinuousProfilerTests {
     #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             fixture.currentDateProvider.advanceBy(interval: 1)
         }
-        
+
         try runTestPart(expectedAddresses: [0x1, 0x2, 0x3], mockMetrics: SentryProfileTestFixture.MockMetric())
         try runTestPart(expectedAddresses: [0x4, 0x5, 0x6], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7), countMetricsReadingAtProfileStart: false)
         try runTestPart(expectedAddresses: [0x7, 0x8, 0x9], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3), countMetricsReadingAtProfileStart: false)
-        
+
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
     }
-    
+
     func assertContinuousProfileStoppage() throws {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         fixture.currentDateProvider.advance(by: 60)
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-    
+
     func assertValidData(expectedEnvironment: String, expectedAddresses: [NSNumber]?, countMetricsReadingAtProfileStart: Bool = true) throws {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
         XCTAssertEqual(1, envelope.items.count)
@@ -242,7 +242,7 @@ private extension SentryContinuousProfilerTests {
         XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)
         XCTAssertGreaterThan(try XCTUnwrap(firstImage["image_size"] as? Int), 0)
         XCTAssertEqual(try XCTUnwrap(firstImage["type"] as? String), "macho")
-        
+
         let clientInfo = try XCTUnwrap(profile["client_sdk"] as? [String: String])
         XCTAssertEqual(try XCTUnwrap(clientInfo["name"]), SentryMeta.sdkName)
         XCTAssertEqual(try XCTUnwrap(clientInfo["version"]), SentryMeta.versionString)
@@ -285,10 +285,10 @@ private extension SentryContinuousProfilerTests {
 
         let chunkStartTime = try XCTUnwrap(samples.first?["timestamp"] as? TimeInterval)
         let chunkEndTime = try XCTUnwrap(samples.last?["timestamp"] as? TimeInterval)
- 
+
         // the metric profiler takes a reading right at the start of a profile, so we also get that in addition to the ones that are mocked in these tests
         let expectedReadingsPerBatch = fixture.mockMetrics.readingsPerBatch + (countMetricsReadingAtProfileStart ? 1 : 0)
-        
+
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUUsage, expectedValue: fixture.mockMetrics.cpuUsage, expectedUnits: kSentryMetricProfilerSerializationUnitPercentage, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
@@ -302,7 +302,7 @@ private extension SentryContinuousProfilerTests {
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedContinuousProfileFrameRateChanges, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
 #endif // !os(macOS)
     }
-    
+
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
         let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
         let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: NSNumber]])
@@ -328,13 +328,13 @@ private extension SentryContinuousProfilerTests {
             XCTAssertEqual(actualValue, expectedValue)
         }
     }
-    
+
     func sortedByTimestamps(_ entries: [[String: Any]]) throws -> [[String: Any]] {
         try entries.sorted { a, b in
             try XCTUnwrap(a["timestamp"] as? TimeInterval) < XCTUnwrap(b["timestamp"] as? TimeInterval)
         }
     }
-    
+
     func printTimestamps(entries: [[String: Any]]) throws -> [String] {
         try entries.reduce(into: [String](), { partialResult, entry in
             partialResult.append(String(try XCTUnwrap(entry["timestamp"] as? TimeInterval)))
@@ -357,7 +357,7 @@ private extension SentryContinuousProfilerTests {
             XCTAssertEqual(actualUnits, expectedUnits)
         }
     }
-    
+
     /// Assert that the absolute timestamp actually falls within the chunk's duration, so it should be between 0 and the chunk duration.
     func assertTimestampOccursWithinTransaction(timestamp: TimeInterval, chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {
         XCTAssertGreaterThanOrEqual(timestamp, 0)

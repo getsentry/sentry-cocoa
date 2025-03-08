@@ -25,7 +25,7 @@ class SentryRedactModifierTests: XCTestCase {
             "Type did not match candidates: \(typeOfRedactedText)"
         )
     }
-    
+
     func testViewUnmask() throws {
         // -- Arrange --
         let text = Text("Hello, World!")

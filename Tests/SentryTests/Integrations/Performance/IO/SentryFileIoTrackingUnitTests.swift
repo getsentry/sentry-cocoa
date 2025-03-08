@@ -8,7 +8,7 @@ class SentryFileIoTrackingUnitTests: XCTestCase {
         options.enableFileIOTracing = false
         let sut = SentryFileIOTrackingIntegration()
         let result = sut.install(with: options)
-        
+
         XCTAssertFalse(result)
     }
 }

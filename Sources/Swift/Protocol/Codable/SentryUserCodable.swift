@@ -2,7 +2,7 @@
 import Foundation
 
 extension User: Decodable {
-    
+
     enum CodingKeys: String, CodingKey {
         case userId = "id"
         case email
@@ -13,7 +13,7 @@ extension User: Decodable {
         case geo
         case data
     }
-    
+
      @available(*, deprecated, message: """
      This method is only deprecated to silence the deprecation warning of the property \
      segment. Our Xcode project has deprecations as warnings and warnings as errors \
@@ -33,7 +33,7 @@ extension User: Decodable {
         self.segment = try container.decodeIfPresent(String.self, forKey: .segment)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.geo = try container.decodeIfPresent(Geo.self, forKey: .geo)
-        
+
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)
         }

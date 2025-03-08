@@ -12,35 +12,35 @@ public class TestHub: SentryHub {
     public override func startSession() {
         startSessionInvocations += 1
     }
-    
+
     public func setTestSession() {
         self.session = SentrySession(releaseName: "Test Release", distinctId: "123")
     }
-    
+
     public override func closeCachedSession(withTimestamp timestamp: Date?) {
         closeCachedSessionTimestamp = timestamp
         closeCachedSessionInvocations += 1
     }
-    
+
     public override func endSession(withTimestamp timestamp: Date) {
         endSessionTimestamp = timestamp
     }
-    
+
     public var sentCrashEvents = Invocations<Event>()
     public override func captureCrash(_ event: Event) {
         sentCrashEvents.record(event)
     }
-    
+
     public var sentCrashEventsWithScope = Invocations<(event: Event, scope: Scope)>()
     public override func captureCrash(_ event: Event, with scope: Scope) {
         sentCrashEventsWithScope.record((event, scope))
     }
-    
+
     public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
     public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
-        
+
         self.capturedEventsWithScopes.record((event, scope, additionalEnvelopeItems))
-        
+
         return event.eventId
     }
 
@@ -49,7 +49,7 @@ public class TestHub: SentryHub {
         capturedTransactionsWithScope.record((transaction.serialize(), scope))
         super.capture(transaction, with: scope)
     }
-    
+
     public var onReplayCapture: (() -> Void)?
     public var capturedReplayRecordingVideo = Invocations<(replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)>()
     public override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {

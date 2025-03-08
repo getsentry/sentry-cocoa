@@ -6,9 +6,9 @@ import UIKit
 
 @objc
 class SwiftDescriptor: NSObject {
-    
+
     @objc
-    static func getObjectClassName(_ object: AnyObject) -> String { 
+    static func getObjectClassName(_ object: AnyObject) -> String {
         return String(describing: type(of: object))
     }
 

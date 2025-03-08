@@ -11,7 +11,7 @@ class SentryProfileTestFixture {
         var priority: Int32
         var name: String
     }
-    
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
 
     let options: Options
@@ -31,14 +31,14 @@ class SentryProfileTestFixture {
     var timeoutTimerFactory: TestSentryNSTimerFactory
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     let notificationCenter = TestNSNotificationCenterWrapper()
-    
+
     let currentDateProvider = TestCurrentDateProvider()
-    
+
 #if !os(macOS)
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
     lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
 #endif // !os(macOS)
-    
+
     init() {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
@@ -50,7 +50,7 @@ class SentryProfileTestFixture {
 
         timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
-        
+
         let image = DebugMeta()
         image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
@@ -59,11 +59,11 @@ class SentryProfileTestFixture {
         image.debugID = "debugID"
         image.imageSize = 100
         image.type = "macho"
-        
+
         let debugImageProvider = TestDebugImageProvider()
         debugImageProvider.debugImages = [image]
         SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
-        
+
         mockMetrics = MockMetric()
         systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
         systemWrapper.overrides.memoryFootprintBytes = mockMetrics.memoryFootprint
@@ -71,7 +71,7 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
-        
+
         options = Options()
         options.dsn = SentryProfileTestFixture.dsnAsString
         options.debug = true
@@ -79,25 +79,25 @@ class SentryProfileTestFixture {
         hub = SentryHub(client: client, andScope: scope)
         hub.bindClient(client)
         SentrySDK.setCurrentHub(hub)
-        
+
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
-        
+
         dispatchFactory.vendedSourceHandler = { eventHandler in
             self.metricTimerFactory = eventHandler
         }
-        
+
 #if !os(macOS)
         SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
         framesTracker.start()
         displayLinkWrapper.call()
 #endif // !os(macOS)
     }
-    
+
     /// Advance the mock date provider, start a new transaction and return its handle.
     func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil) throws -> SentryTracer {
         let operation = testingAppLaunchSpans ? SentrySpanOperationUiLoad : transactionOperation
-        
+
         if automaticTransaction {
             return hub.startTransaction(
                 with: TransactionContext(name: transactionName, operation: operation),
@@ -110,22 +110,22 @@ class SentryProfileTestFixture {
                     $0.waitForChildren = true
                 }))
         }
-        
+
         return try XCTUnwrap(hub.startTransaction(name: transactionName, operation: operation) as? SentryTracer)
     }
-    
+
     // mocking
-    
+
     public struct MockMetric {
         public var cpuUsage: NSNumber
         public var memoryFootprint: SentryRAMBytes
         public var cpuEnergyUsage: NSNumber
         public var readingsPerBatch: Int
-        
+
         var cpuUsageError: NSError?
         var memoryFootprintError: NSError?
         var cpuEnergyUsageError: NSError?
-        
+
         public init(cpuUsage: NSNumber = 66.6, memoryFootprint: SentryRAMBytes = 123_456, cpuEnergyUsage: NSNumber = 5, readingsPerBatch: Int = 3) {
             self.cpuUsage = cpuUsage
             self.memoryFootprint = memoryFootprint
@@ -134,7 +134,7 @@ class SentryProfileTestFixture {
         }
     }
     var mockMetrics: MockMetric
-    
+
     func setMockMetrics(_ mockMetrics: MockMetric) {
         self.mockMetrics = mockMetrics
         systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
@@ -144,57 +144,57 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
     }
-    
+
 #if !os(macOS)
     // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
     let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
-    
+
     // Absolute timestamps must be adjusted per span when asserting
     var expectedTraceProfileSlowFrames = [[String: Any]]()
     var expectedTraceProfileFrozenFrames = [[String: Any]]()
     var expectedTraceProfileFrameRateChanges = [[String: Any]]()
-    
+
     var expectedContinuousProfileSlowFrames = [[String: NSNumber]]()
     var expectedContinuousProfileFrozenFrames = [[String: NSNumber]]()
     var expectedContinuousProfileFrameRateChanges = [[String: NSNumber]]()
-    
+
     func resetProfileGPUExpectations() {
         expectedTraceProfileSlowFrames = [[String: Any]]()
         expectedTraceProfileFrozenFrames = [[String: Any]]()
         expectedTraceProfileFrameRateChanges = [[String: Any]]()
-        
+
         expectedContinuousProfileSlowFrames = [[String: NSNumber]]()
         expectedContinuousProfileFrozenFrames = [[String: NSNumber]]()
         expectedContinuousProfileFrameRateChanges = [[String: NSNumber]]()
     }
 #endif // !os(macOS)
-    
+
     lazy var df: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         return dateFormatter
     }()
-    
+
     func log(_ line: Int, _ message: String) {
         print("\(df.string(from: Date())) [Sentry] [TEST] [\((#file as NSString).lastPathComponent):\(line)]: \(message)")
     }
-    
+
     func gatherMockedTraceProfileMetrics() throws {
         for _ in 0..<mockMetrics.readingsPerBatch {
             self.metricTimerFactory?.fire()
-            
+
             // because energy readings are computed as the difference between sequential cumulative readings, we must increment the mock value by the expected result each iteration
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
         }
-        
+
 #if !os(macOS)
         var shouldRecordFrameRateExpectation = true
-        
+
         func changeFrameRate(_ new: FrameRate) {
             displayLinkWrapper.changeFrameRate(new)
             shouldRecordFrameRateExpectation = true
         }
-        
+
         func renderGPUFrame(_ type: GPUFrame) {
             switch type {
             case .normal:
@@ -228,7 +228,7 @@ class SentryProfileTestFixture {
                 expectedTraceProfileFrameRateChanges.append(entry)
             }
         }
-        
+
         /*
          * Mock a series of GPU frame renders of varying quality (normal/slow/frozen) and
          * refresh rate changes. The refresh rate changes ("|") happen at the same time as
@@ -262,50 +262,50 @@ class SentryProfileTestFixture {
         renderGPUFrame(.normal)
         renderGPUFrame(.frozen)
 #endif // !os(macOS)
-        
+
         // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
         systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
         systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
         systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
         metricTimerFactory?.fire()
-        
+
         // clear out errors for the profile end sample collection
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
     }
-    
+
     func gatherMockedContinuousProfileMetrics() throws {
         for _ in 0..<mockMetrics.readingsPerBatch {
             log(#line, "Expecting CPU usage: \(mockMetrics.cpuUsage); memoryFootprint: \(mockMetrics.memoryFootprint); CPU energy usage: \(mockMetrics.cpuEnergyUsage) at \(currentDateProvider.date().timeIntervalSinceReferenceDate)")
-            
+
             // because energy readings are computed as the difference between sequential cumulative readings that monotonically increase, we must increment the mock value by the expected result each iteration so that each reading is taking the difference between last and current to get the instantaneous value
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
-            
+
             self.metricTimerFactory?.fire()
             currentDateProvider.advanceBy(interval: 1)
         }
-        
+
         // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
         systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
         systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
         systemWrapper.overrides.cpuEnergyUsageError = NSError(domain: "test-error", code: 2)
         metricTimerFactory?.fire()
         currentDateProvider.advanceBy(interval: 1)
-        
+
         // clear out errors for the profile end sample collection
         systemWrapper.overrides.cpuUsageError = nil
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
-        
+
 #if !os(macOS)
         var shouldRecordFrameRateExpectation = true
-        
+
         func changeFrameRate(_ new: FrameRate) {
             displayLinkWrapper.changeFrameRate(new)
             shouldRecordFrameRateExpectation = true
         }
-        
+
         func renderGPUFrame(_ type: GPUFrame) {
             switch type {
             case .normal:
@@ -341,7 +341,7 @@ class SentryProfileTestFixture {
                 expectedContinuousProfileFrameRateChanges.append(entry)
             }
         }
-        
+
         /*
          * Mock a series of GPU frame renders of varying quality (normal/slow/frozen) and
          * refresh rate changes. The refresh rate changes ("|") happen at the same time as
@@ -374,18 +374,18 @@ class SentryProfileTestFixture {
         renderGPUFrame(.slow)
         renderGPUFrame(.normal)
         renderGPUFrame(.frozen)
-        
+
         framesTracker.expectedFrames = SentryScreenFrames(total: 0, frozen: 0, slow: 0, slowFrameTimestamps: expectedContinuousProfileSlowFrames, frozenFrameTimestamps: expectedContinuousProfileFrozenFrames, frameRateTimestamps: expectedContinuousProfileFrameRateChanges)
 #endif // !os(macOS)
     }
-    
+
     // app start simulation
-    
+
     lazy var appStart = currentDateProvider.date()
     lazy var appStartSystemTime = currentDateProvider.systemTime()
     var appStartDuration = 0.5
     lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
-    
+
 #if !os(macOS)
     func getAppStartMeasurement(type: SentryAppStartType, preWarmed: Bool = false) -> SentryAppStartMeasurement {
         let runtimeInitDuration = 0.05

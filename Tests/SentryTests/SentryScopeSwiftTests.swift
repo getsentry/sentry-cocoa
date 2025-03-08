@@ -10,7 +10,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let date: Date
         let event: Event
         let transaction: Span
-        
+
         let dist = "dist"
         let environment = "environment"
         let fingerprint = ["fingerprint"]
@@ -26,7 +26,7 @@ class SentryScopeSwiftTests: XCTestCase {
         @available(*, deprecated)
         init() {
             date = Date(timeIntervalSince1970: 10)
-            
+
             user = User(userId: "id")
             user.email = "user@sentry.io"
             user.username = "user123"
@@ -34,7 +34,7 @@ class SentryScopeSwiftTests: XCTestCase {
             user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
-            
+
             let geo = Geo()
             geo.city = "Vienna"
             geo.countryCode = "at"
@@ -48,7 +48,7 @@ class SentryScopeSwiftTests: XCTestCase {
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
             breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
-            
+
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)
             scope.setTag(value: tags["key"] ?? "", key: "key")
@@ -61,36 +61,36 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setContext(value: context["context"] ?? ["": ""], key: "context")
             scope.setLevel(level)
             scope.addBreadcrumb(breadcrumb)
-            
+
             scope.addAttachment(TestData.fileAttachment)
-            
+
             event = Event()
             event.message = SentryMessage(formatted: "message")
-            
+
             transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
         }
-        
+
         var observer: TestScopeObserver {
             return TestScopeObserver()
         }
-        
+
         var dateAs8601String: String {
             sentry_toIso8601String(date as Date)
         }
     }
-    
+
     private var fixture: Fixture!
-    
+
     @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
     }
-    
+
     func testSerialize() throws {
         let scope = fixture.scope
         let actual = scope.serialize()
-        
+
         // Changing the original doesn't modify the serialized
         scope.setTag(value: "another", key: "another")
         scope.setExtra(value: "another", key: "another")
@@ -103,18 +103,18 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.clearBreadcrumbs()
         scope.addAttachment(TestData.fileAttachment)
         scope.span = fixture.transaction
-        
+
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
-        
+
         XCTAssertEqual(fixture.context, actual["context"] as? [String: [String: String]])
-        
+
         let propagationContext = fixture.scope.propagationContext
         XCTAssertEqual(["span_id": propagationContext.spanId.sentrySpanIdString, "trace_id": propagationContext.traceId.sentryIdString], actual["traceContext"] as? [String: String])
-        
+
         let actualUser = actual["user"] as? [String: Any]
         XCTAssertEqual(fixture.ipAddress, actualUser?["ip_address"] as? String)
-        
+
         XCTAssertEqual("dist", actual["dist"] as? String)
         XCTAssertEqual(fixture.environment, actual["environment"] as? String)
         XCTAssertEqual(fixture.fingerprint, actual["fingerprint"] as? [String])
@@ -155,7 +155,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
-    
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
@@ -171,104 +171,104 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.context["c"], actualContext?["c"])
         XCTAssertNotNil(actualContext?["trace"])
     }
-    
+
     func testApplyToEvent_EventWithTags() {
         let tags = NSMutableDictionary(dictionary: ["my": "tag"])
         let event = fixture.event
         event.tags = tags as? [String: String]
-        
+
         let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
-        
+
         tags.addEntries(from: fixture.tags)
         XCTAssertEqual(tags as? [String: String], actual?.tags)
     }
-    
+
     func testApplyToEvent_EventWithExtra() {
         let extra = NSMutableDictionary(dictionary: ["my": "extra"])
         let event = fixture.event
         event.extra = extra as? [String: String]
-        
+
         let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
-        
+
         extra.addEntries(from: fixture.extra)
         XCTAssertEqual(extra as? [String: String], actual?.extra as? [String: String])
     }
-    
+
     func testApplyToEvent_ScopeWithoutUser() {
         let scope = fixture.scope
         scope.setUser(nil)
-        
+
         let event = fixture.event
         event.user = fixture.user
-        
+
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+
         XCTAssertEqual(fixture.user, actual?.user)
     }
-    
+
     func testApplyToEvent_ScopeWithoutDist() {
         let scope = fixture.scope
         scope.setDist(nil)
-        
+
         let event = fixture.event
         event.dist = "myDist"
-        
+
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+
         XCTAssertEqual(event.dist, actual?.dist)
     }
-    
+
     func testApplyToEvent_ScopeWithSpan() {
         let scope = fixture.scope
         scope.span = fixture.transaction
-        
+
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let trace = fixture.event.context?["trace"]
-              
+
         XCTAssertEqual(actual?.transaction, fixture.transactionName)
         XCTAssertEqual(trace?["op"] as? String, fixture.transactionOperation)
         XCTAssertEqual(trace?["trace_id"] as? String, fixture.transaction.traceId.sentryIdString)
         XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
     }
-    
+
     func testApplyToEvent_ScopeWithSpan_NotAppliedToCrashEvent() {
         let scope = fixture.scope
         scope.span = fixture.transaction
         let event = fixture.event
         event.isCrashEvent = true
-        
+
         let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
         XCTAssertNil(fixture.event.context?["trace"])
         XCTAssertNil(actual?.transaction)
     }
-    
+
     func testApplyToEvent_EventWithDist() {
         let event = fixture.event
         event.dist = "myDist"
-        
+
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+
         XCTAssertEqual(event.dist, actual?.dist)
     }
-    
+
     func testApplyToEvent_ScopeWithoutEnvironment() {
         let scope = fixture.scope
         scope.setEnvironment(nil)
-        
+
         let event = fixture.event
         event.environment = "myEnvironment"
-        
+
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+
         XCTAssertEqual(event.environment, actual?.environment)
     }
-    
+
     func testApplyToEvent_EventWithEnvironment() {
         let event = fixture.event
         event.environment = "myEnvironment"
-        
+
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        
+
         XCTAssertEqual(event.environment, actual?.environment)
     }
 
@@ -279,17 +279,17 @@ class SentryScopeSwiftTests: XCTestCase {
             XCTAssert(span === self.fixture.transaction)
         }
     }
-    
+
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
         let scope = fixture.scope
         scope.span = fixture.transaction
         let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
         let expect = expectation(description: "useSpan callback is non-blocking")
-        
+
         let condition = NSCondition()
         var useSpanCalled = false
-        
+
         queue.async {
             scope.useSpan { _ in
                 condition.lock()
@@ -299,7 +299,7 @@ class SentryScopeSwiftTests: XCTestCase {
                 condition.unlock()
             }
         }
-        
+
         queue.async {
             scope.useSpan { _ in
                 useSpanCalled = true
@@ -307,12 +307,12 @@ class SentryScopeSwiftTests: XCTestCase {
                 expect.fulfill()
             }
         }
-        
+
         queue.activate()
-        
+
         wait(for: [expect], timeout: 0.1)
     }
-    
+
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_IsReentrant() {
         let expect = expectation(description: "finish on time")
@@ -326,42 +326,42 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         wait(for: [expect], timeout: 0.1)
     }
-    
+
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testSpan_FromMultipleThreads() {
         let scope = fixture.scope
-        
+
         testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 10, writeWork: { _ in
-            
+
             scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
-            
+
             scope.useSpan { span in
                 XCTAssertNotNil(span)
             }
-            
+
         }, readWork: {
             XCTAssertNotNil(scope.span)
         })
     }
-    
+
     func testMaxBreadcrumbs_IsZero() {
         let scope = Scope(maxBreadcrumbs: 0)
-        
+
         scope.addBreadcrumb(fixture.breadcrumb)
-        
+
         let serialized = scope.serialize()
         XCTAssertNil(serialized["breadcrumbs"])
     }
-    
+
     func testMaxBreadcrumbs_IsNegative() {
         let scope = Scope(maxBreadcrumbs: Int.min)
-        
+
         scope.addBreadcrumb(fixture.breadcrumb)
-        
+
         let serialized = scope.serialize()
         XCTAssertNil(serialized["breadcrumbs"])
     }
-    
+
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
@@ -370,15 +370,15 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         XCTAssertNil(fixture.scope.span)
     }
-    
+
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
                                                        "trace": fixture.scope.propagationContext.traceForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
-        
+
         let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
-        
+
         context.addEntries(from: fixture.context)
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
@@ -392,18 +392,18 @@ class SentryScopeSwiftTests: XCTestCase {
 
         XCTAssertNotNil(actual?.context?["trace"])
     }
-    
+
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
             "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
-        
+
         let expectedAppContext = [
             "first": [ "a": "b", "c": "d", "e": "f"],
             "second": ["0": "1" ]
         ]
-        
+
         // The existing values from the scope get overwritten by the values of the event
         // "a": [12:1] will be overwritten with "a": "b"
         // "c": "c" will be overwritten with "c": "d"
@@ -411,237 +411,237 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = fixture.scope
         scope.setContext(value: ["a": [12: 1], "c": "c", "e": "f"], key: "first")
         scope.setContext(value: ["0": "1"], key: "second")
-        
+
         let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
-        
+
         context.addEntries(from: fixture.context)
         context.addEntries(from: expectedAppContext)
-        
+
         XCTAssertEqual(context as? [String: [String: String]],
                        actualContext)
     }
-        
+
     func testClear() {
         let scope = fixture.scope
         scope.clear()
-        
+
         let expected = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
         XCTAssertEqual(expected, scope)
         XCTAssertEqual(0, scope.attachments.count)
     }
-    
+
     func testAttachmentsIsACopy() {
         let scope = fixture.scope
-        
+
         let attachments = scope.attachments
         scope.addAttachment(TestData.fileAttachment)
-        
+
         XCTAssertEqual(1, attachments.count)
     }
-    
+
     func testClearAttachments() {
         let scope = fixture.scope
         scope.addAttachment(TestData.fileAttachment)
-        
+
         scope.clearAttachments()
-        
+
         XCTAssertEqual(0, scope.attachments.count)
     }
-    
+
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
         let scope = fixture.scope
-        
+
         // The number is kept small for the CI to not take too long.
         // If you really want to test this increase to 100_000 or so.
         testConcurrentModifications(asyncWorkItems: 2, writeLoopCount: 10, writeWork: { _ in
-            
+
             let key = "key"
-            
+
             _ = Scope(scope: scope)
-            
+
             for _ in 0...100 {
                 scope.addBreadcrumb(self.fixture.breadcrumb)
             }
-            
+
             scope.serialize()
             scope.clearBreadcrumbs()
             scope.addBreadcrumb(self.fixture.breadcrumb)
-            
+
             scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
-            
+
             scope.setFingerprint(nil)
             scope.setFingerprint(["finger", "print"])
-            
+
             scope.setContext(value: ["some": "value"], key: key)
             scope.removeContext(key: key)
-            
+
             scope.setExtra(value: 1, key: key)
             scope.removeExtra(key: key)
             scope.setExtras(["value": "1", "value2": "2"])
-            
+
             scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-            
+
             scope.setTag(value: "value", key: key)
             scope.removeTag(key: key)
             scope.setTags(["tag1": "hello", "tag2": "hello"])
-            
+
             scope.addAttachment(TestData.fileAttachment)
             scope.clearAttachments()
             scope.addAttachment(TestData.fileAttachment)
-            
+
             scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
-            
+
             for _ in 0...10 {
                 scope.addBreadcrumb(self.fixture.breadcrumb)
             }
             scope.serialize()
-            
+
             scope.setUser(self.fixture.user)
             scope.setDist("dist")
             scope.setEnvironment("env")
             scope.setLevel(SentryLevel.debug)
-            
+
             scope.applyTo(session: SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
             scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
-            
+
             scope.serialize()
         })
     }
-    
+
     func testScopeObserver_setUser() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let user = TestData.user
         sut.setUser(user)
-        
+
         XCTAssertEqual(user, observer.user)
     }
-    
+
     func testScopeObserver_setTags() {
         let sut = Scope()
-        
+
         sut.setTags(fixture.tags)
-        
+
         XCTAssertEqual(fixture.tags, sut.tags)
     }
-    
+
     func testScopeObserver_setTagValue() {
         let sut = Scope()
-        
+
         sut.setTag(value: "tag", key: "tag")
-        
+
         XCTAssertEqual( ["tag": "tag"], sut.tags)
     }
-    
+
     func testScopeObserver_removeTag() {
         let sut = Scope()
-        
+
         sut.setTag(value: "tag", key: "tag")
         sut.removeTag(key: "tag")
-        
+
         XCTAssertEqual(0, sut.tags.count)
     }
-    
+
     func testScopeObserver_setExtras() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         sut.setExtras( fixture.extra)
-        
+
         XCTAssertEqual(fixture.extra, observer.extras as? [String: String])
     }
-    
+
     func testScopeObserver_setExtraValue() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let extras = ["extra": 1]
-        
+
         sut.setExtra(value: 1, key: "extra")
         XCTAssertEqual(extras, observer.extras as? [String: Int])
     }
-    
+
     func testScopeObserver_removeExtra() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         sut.setExtras(["extra": 1])
         sut.removeExtra(key: "extra")
-        
+
         XCTAssertEqual(0, observer.extras?.count)
     }
-    
+
     func testScopeObserver_setContext() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let value = ["extra": 1]
         sut.setContext(value: ["extra": 1], key: "context")
-        
+
         XCTAssertEqual(["context": value], observer.context as? [String: [String: Int]])
     }
-    
+
     func testScopeObserver_setDist() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let dist = "dist"
         sut.setDist(dist)
-        
+
         XCTAssertEqual(dist, observer.dist)
     }
-    
+
     func testScopeObserver_setEnvironment() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let environment = "environment"
         sut.setEnvironment(environment)
-        
+
         XCTAssertEqual(environment, observer.environment)
     }
-    
+
     func testScopeObserver_setFingerprint() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let fingerprint = ["finger", "print"]
         sut.setFingerprint(fingerprint)
-        
+
         XCTAssertEqual(fingerprint, observer.fingerprint)
     }
-    
+
     func testScopeObserver_setLevel() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let level = SentryLevel.info
         sut.setLevel(level)
-        
+
         XCTAssertEqual(level, observer.level)
     }
-    
+
     func testScopeObserver_addBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let crumb = TestData.crumb
         sut.addBreadcrumb(crumb)
         sut.addBreadcrumb(crumb)
-        
+
         XCTAssertEqual(
             [
                 try XCTUnwrap(crumb.serialize() as? [String: AnyHashable]),
@@ -650,23 +650,23 @@ class SentryScopeSwiftTests: XCTestCase {
             observer.crumbs
         )
     }
-    
+
     func testScopeObserver_clearBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         sut.clearBreadcrumbs()
         sut.clearBreadcrumbs()
-        
+
         XCTAssertEqual(2, observer.clearBreadcrumbInvocations)
     }
-    
+
     func testScopeObserver_setSpan_SetsTraceContext() throws {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         let transaction = fixture.transaction
         sut.span = transaction
 
@@ -674,7 +674,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let serializedTransaction = transaction.serialize()
 
         XCTAssertEqual(Set(serializedTransaction.keys), Set(traceContext.keys))
-        
+
         XCTAssertEqual(serializedTransaction["trace_id"] as? String, traceContext["trace_id"] as? String)
         XCTAssertEqual(serializedTransaction["span_id"] as? String, traceContext["span_id"] as? String)
         XCTAssertEqual(serializedTransaction["op"] as? String, traceContext["op"] as? String)
@@ -688,28 +688,28 @@ class SentryScopeSwiftTests: XCTestCase {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         sut.span = fixture.transaction
         sut.span = nil
-        
+
         let traceContext = try XCTUnwrap(observer.traceContext)
 
         XCTAssertEqual(2, traceContext.count)
         XCTAssertEqual(sut.propagationContext.traceId.sentryIdString, traceContext["trace_id"] as? String)
         XCTAssertEqual(sut.propagationContext.spanId.sentrySpanIdString, traceContext["span_id"] as? String)
     }
-    
+
     func testScopeObserver_clear() {
         let sut = Scope()
         let observer = fixture.observer
         sut.add(observer)
-        
+
         sut.clear()
         sut.clear()
-        
+
         XCTAssertEqual(2, observer.clearInvocations)
     }
-    
+
     func testDefaultBreadcrumbCapacity() {
         let scope = Scope()
         for i in 0..<197 {
@@ -721,16 +721,16 @@ class SentryScopeSwiftTests: XCTestCase {
         let scopeSerialized = scope.serialize()
         let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
         XCTAssertEqual(100, scopeCrumbs?.count ?? 0)
-        
+
         var j = 0
         for i in 97..<197 {
             let actualMessage = scopeCrumbs?[j]["message"] as? String
             XCTAssertEqual("\(i)", actualMessage)
-            
+
             j += 1
         }
     }
-    
+
     func testBreadcrumbsNotFull() {
         let scope = Scope()
         for i in 0..<97 {
@@ -742,13 +742,13 @@ class SentryScopeSwiftTests: XCTestCase {
         let scopeSerialized = scope.serialize()
         let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
         XCTAssertEqual(97, scopeCrumbs?.count ?? 0)
-        
+
         for i in 0..<97 {
             let actualMessage = scopeCrumbs?[i]["message"] as? String
             XCTAssertEqual("\(i)", actualMessage)
         }
     }
-    
+
     func testClearBreadcrumb() {
         let scope = Scope()
         scope.clearBreadcrumbs()
@@ -756,65 +756,65 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.addBreadcrumb(fixture.breadcrumb)
         }
         scope.clearBreadcrumbs()
-        
+
         let scopeSerialized = scope.serialize()
-        
+
         let scopeCrumbs = scopeSerialized["breadcrumbs"] as? [[String: Any]]
         XCTAssertEqual(0, scopeCrumbs?.count ?? 0)
     }
-    
+
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
         scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
-        
+
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
             user.name = "name \(i)"
             scope.setUser(user)
         })
     }
-    
+
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
             self.tags = tags
         }
-        
+
         var extras: [String: Any]?
         func setExtras(_ extras: [String: Any]?) {
             self.extras = extras
         }
-        
+
         var context: [String: Any]?
         func setContext(_ context: [String: Any]?) {
             self.context = context
         }
-        
+
         var traceContext: [String: Any]?
         func setTraceContext(_ traceContext: [String: Any]?) {
             self.traceContext = traceContext
         }
-        
+
         var dist: String?
         func setDist(_ dist: String?) {
             self.dist = dist
         }
-        
+
         var environment: String?
         func setEnvironment(_ environment: String?) {
             self.environment = environment
         }
-        
+
         var fingerprint: [String]?
         func setFingerprint(_ fingerprint: [String]?) {
             self.fingerprint = fingerprint
         }
-        
+
         var level: SentryLevel?
         func setLevel(_ level: SentryLevel) {
             self.level = level
         }
-        
+
         var crumbs: [[String: AnyHashable]] = []
         func addSerializedBreadcrumb(_ crumb: [String: Any]) {
             guard let typedCrumb = crumb as? [String: AnyHashable] else {
@@ -827,12 +827,12 @@ class SentryScopeSwiftTests: XCTestCase {
         func clearBreadcrumbs() {
             clearBreadcrumbInvocations += 1
         }
-        
+
         var clearInvocations = 0
         func clear() {
             clearInvocations += 1
         }
-        
+
         var user: User?
         func setUser(_ user: User?) {
             self.user = user

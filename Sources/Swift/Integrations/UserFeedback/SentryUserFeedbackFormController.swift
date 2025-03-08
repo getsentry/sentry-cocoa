@@ -17,13 +17,13 @@ class SentryUserFeedbackFormController: UIViewController {
     weak var delegate: (any SentryUserFeedbackFormDelegate)?
     let screenshot: UIImage?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
-    
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
         config.recalculateScaleFactors()
         viewModel.updateLayout()
     }
-    
+
     init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate, screenshot: UIImage?) {
         self.config = config
         self.delegate = delegate
@@ -32,12 +32,12 @@ class SentryUserFeedbackFormController: UIViewController {
         view.backgroundColor = config.theme.background
         initLayout()
         viewModel.themeElements()
-        
+
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(showedKeyboard(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -51,7 +51,7 @@ extension SentryUserFeedbackFormController {
         view.addSubview(viewModel.scrollView)
         NSLayoutConstraint.activate(viewModel.allConstraints(view: view))
     }
-    
+
     func showedKeyboard(note: Notification) {
         guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
             SentryLog.warning("Received a keyboard display notification with no frame information.")
@@ -60,7 +60,7 @@ extension SentryUserFeedbackFormController {
         let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
         viewModel.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
     }
-    
+
     func hidKeyboard() {
         viewModel.setScrollViewBottomInset(0)
     }
@@ -89,17 +89,17 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                     }
                 }
             }
-            
+
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing) = error else {
                 SentryLog.warning("Unexpected error type.")
                 presentAlert(message: "Unexpected client error.", errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
-            
+
             presentAlert(message: error.description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
     }
-    
+
     func cancel() {
         delegate?.finished(with: nil)
     }
@@ -112,7 +112,7 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
-    
+
     func textFieldDidChangeSelection(_ textField: UITextField) {
         viewModel.updateSubmitButtonAccessibilityHint()
     }

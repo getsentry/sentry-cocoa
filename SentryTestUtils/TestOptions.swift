@@ -7,11 +7,11 @@ public extension Options {
             NSStringFromClass($0)
         }
     }
-    
+
     func removeAllIntegrations() {
         self.integrations = []
     }
-    
+
     static func noIntegrations() -> Options {
         let options = Options()
         options.removeAllIntegrations()

@@ -2,9 +2,9 @@ import SentryTestUtils
 import XCTest
 
 class SentryTraceContextTests: XCTestCase {
-    
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
-    
+
     private class Fixture {
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
@@ -21,7 +21,7 @@ class SentryTraceContextTests: XCTestCase {
         let environment = "debug"
         let sampled = "true"
         let replayId = "some_replay_id"
-        
+
         @available(*, deprecated)
         init() {
             options = Options()
@@ -29,7 +29,7 @@ class SentryTraceContextTests: XCTestCase {
             options.releaseName = releaseName
             options.environment = environment
             options.sendDefaultPii = true
-            
+
             tracer = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation, sampled: .yes), hub: nil)
 
             scope = Scope()
@@ -37,24 +37,24 @@ class SentryTraceContextTests: XCTestCase {
             scope.userObject?.segment = userSegment
             scope.span = tracer
             scope.replayId = replayId
-            
+
             traceId = tracer.traceId
         }
     }
-    
+
     private var fixture: Fixture!
-    
+
     @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testInit() {
         // Act
         let traceContext = TraceContext(
@@ -68,11 +68,11 @@ class SentryTraceContextTests: XCTestCase {
             sampled: fixture.sampled,
             replayId: fixture.replayId
         )
-        
+
         // Assert
         assertTraceState(traceContext: traceContext)
     }
-    
+
     func testInit_withSampleRateRand() {
         // Act
         let traceContext = TraceContext(
@@ -87,7 +87,7 @@ class SentryTraceContextTests: XCTestCase {
             sampled: fixture.sampled,
             replayId: fixture.replayId
         )
-        
+
         // Assert
         assertFullTraceState(
             traceContext: traceContext,
@@ -103,19 +103,19 @@ class SentryTraceContextTests: XCTestCase {
             expectedReplayId: fixture.replayId
         )
     }
-    
+
     func testInitWithScopeOptions() {
         // Act
         let traceContext = TraceContext(scope: fixture.scope, options: fixture.options)!
-        
+
         // Assert
         assertTraceState(traceContext: traceContext)
     }
-    
+
     func testInitWithTracerScopeOptions() {
         // Act
         let traceContext = TraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options)
-        
+
         // Assert
         assertTraceState(traceContext: traceContext!)
     }
@@ -124,35 +124,35 @@ class SentryTraceContextTests: XCTestCase {
         // Arrange
         let tracer = fixture.tracer
         tracer.sampled = .no
-        
+
         // Act
         let traceContext = TraceContext(tracer: tracer, scope: fixture.scope, options: fixture.options)
-        
+
         // Assert
         XCTAssertEqual(traceContext?.sampled, "false")
     }
-    
+
     func testInitNil() {
         // Arrange
         fixture.scope.span = nil
-        
+
         // Act
         let traceContext = TraceContext(scope: fixture.scope, options: fixture.options)
-        
+
         // Assert
         XCTAssertNil(traceContext)
     }
-    
+
     func testInitTraceIdOptionsSegment_WithOptionsAndSegment() throws {
         // Arrange
         let options = Options()
         options.dsn = TestConstants.realDSN
-    
+
         let traceId = SentryId()
-        
+
         // Act
         let traceContext = TraceContext(trace: traceId, options: options, userSegment: "segment", replayId: "replayId")
-        
+
         // Assert
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
         XCTAssertEqual(traceId, traceContext.traceId)
@@ -165,17 +165,17 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertNil(traceContext.sampleRand)
         XCTAssertNil(traceContext.sampled)
     }
-    
+
     func testInitTraceIdOptionsSegment_WithOptionsOnly() throws {
         // Arrange
         let options = Options()
         options.dsn = TestConstants.realDSN
-    
+
         let traceId = SentryId()
 
         // Act
         let traceContext = TraceContext(trace: traceId, options: options, userSegment: nil, replayId: nil)
-        
+
         // Assert
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
         XCTAssertEqual(traceId, traceContext.traceId)
@@ -187,7 +187,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertNil(traceContext.sampleRand)
         XCTAssertNil(traceContext.sampled)
     }
-    
+
     func test_toBaggage() {
         // Arrange
         let traceContext = TraceContext(
@@ -201,10 +201,10 @@ class SentryTraceContextTests: XCTestCase {
             sampleRand: fixture.sampleRand,
             sampled: fixture.sampled,
             replayId: fixture.replayId)
-        
+
         // Act
         let baggage = traceContext.toBaggage()
-        
+
         // Assert
         XCTAssertEqual(baggage.traceId, fixture.traceId)
         XCTAssertEqual(baggage.publicKey, fixture.publicKey)
@@ -216,7 +216,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(baggage.sampleRand, fixture.sampleRand)
         XCTAssertEqual(baggage.replayId, fixture.replayId)
     }
-        
+
     private func assertTraceState(traceContext: TraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)
         XCTAssertEqual(traceContext.publicKey, fixture.publicKey)
@@ -252,5 +252,5 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(traceContext.sampleRand, expectedSampleRand, "Sample Rand does not match", file: file, line: line)
         XCTAssertEqual(traceContext.replayId, expectedReplayId, "Replay ID does not match", file: file, line: line)
     }
-    
+
 }

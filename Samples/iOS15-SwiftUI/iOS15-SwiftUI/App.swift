@@ -12,7 +12,7 @@ struct SwiftUIApp: App {
             options.experimental.enableFileManagerSwizzling = true
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()

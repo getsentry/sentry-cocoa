@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 public extension UIView {
-    
+
     /**
      * Marks this view to be redacted during replays.
      * - experiment:  This is an experimental feature and may still have bugs.
@@ -12,7 +12,7 @@ public extension UIView {
     func sentryReplayMask() {
         SentryRedactViewHelper.maskView(self)
     }
-    
+
     /**
      * Marks this view to be ignored during redact step
      * of session replay. All its content will be visible in the replay.

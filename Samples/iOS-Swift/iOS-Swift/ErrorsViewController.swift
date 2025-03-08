@@ -7,13 +7,13 @@ class ErrorsViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
-    
+
     @IBOutlet weak var dsnView: UIView!
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
         addDSNDisplay(self, vcview: dsnView)
-        
+
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.inject-screenshot") {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
@@ -33,9 +33,9 @@ class ErrorsViewController: UIViewController {
 
     @IBAction func crash(_ sender: UIButton) {
         let transaction = SentrySDK.startTransaction(name: "Crashing Transaction", operation: "ui.load", bindToScope: true)
-        
+
         transaction.startChild(operation: "operation explode")
-        
+
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
             transaction.startChild(operation: "operation crash")
             SentrySDK.crash()

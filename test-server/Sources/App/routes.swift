@@ -19,7 +19,7 @@ func routes(_ app: Application) throws {
         if let sentryTraceHeader = trace_id.first {
             return sentryTraceHeader
         }
-        
+
         return "(NO-HEADER)"
     }
 

@@ -20,7 +20,7 @@ private func captureMessage() {
         group.leave()
     }
     group.wait()
-    
+
     print("\(String(describing: eventId))")
 }
 

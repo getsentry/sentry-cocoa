@@ -4,9 +4,9 @@ class SentryAppStateTests: XCTestCase {
 
     func testSerialize() {
         let appState = TestData.appState
-        
+
         let actual = appState.serialize()
-        
+
         XCTAssertEqual(appState.releaseName, actual["release_name"] as? String)
         XCTAssertEqual(appState.osVersion, actual["os_version"] as? String)
         XCTAssertEqual(appState.isDebugging, actual["is_debugging"] as? Bool)
@@ -16,26 +16,26 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
         XCTAssertEqual(appState.isSDKRunning, actual["is_sdk_running"] as? Bool)
     }
-    
+
     func testSerialize_ReleaseNameIsNil_DoesNotAddReleaseName() {
         let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
-        
+
         let actual = appState.serialize()
-        
+
         XCTAssertNil(actual["release_name"])
     }
-    
+
     func testInitWithJSON_ReleaseNameIsNil_DoesNotAddReleaseName() {
         let appState = SentryAppState(releaseName: nil, osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: TestData.timestamp)
-        
+
         let actual = SentryAppState(jsonObject: appState.serialize())
-        
+
         XCTAssertNil(actual?.releaseName)
     }
-    
+
     func testInitWithJSON_AllFields() throws {
         let appState = TestData.appState
-        
+
         let releaseName = try XCTUnwrap(appState.releaseName)
         let dict = [
             "release_name": releaseName,
@@ -48,12 +48,12 @@ class SentryAppStateTests: XCTestCase {
             "is_anr_ongoing": appState.isANROngoing,
             "is_sdk_running": appState.isSDKRunning
         ] as [String: Any]
-        
+
         let actual = SentryAppState(jsonObject: dict)
-        
+
         XCTAssertEqual(appState, actual)
     }
-    
+
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
         withValue { $0["os_version"] = nil }
         withValue { $0["vendor_id"] = nil }
@@ -74,17 +74,17 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["was_terminated"] = "" }
         withValue { $0["is_anr_ongoing"] = "" }
     }
-    
+
     func testBootTimeRoundedDownToSeconds() {
-        
+
         let date = Date(timeIntervalSince1970: 0.1)
         let expectedDate = Date(timeIntervalSince1970: 0)
-        
+
         let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date)
-        
+
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
-    
+
     private func withValue(setValue: (inout [String: Any]) -> Void) {
         let expected = TestData.appState
         var serialized = expected.serialize()

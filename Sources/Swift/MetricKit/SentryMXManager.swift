@@ -13,13 +13,13 @@ import MetricKit
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objc protocol SentryMXManagerDelegate {
-    
+
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
-    
+
     func didReceiveDiskWriteExceptionDiagnostic(_ diagnostic: MXDiskWriteExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
-    
+
     func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
-    
+
     func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
@@ -27,38 +27,38 @@ import MetricKit
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objcMembers class SentryMXManager: NSObject, MXMetricManagerSubscriber {
-    
+
     let disableCrashDiagnostics: Bool
-    
+
     public init(disableCrashDiagnostics: Bool = true) {
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 
     weak var delegate: SentryMXManagerDelegate?
-    
+
     func receiveReports() {
         let shared = MXMetricManager.shared
         shared.add(self)
     }
-    
+
     func pauseReports() {
         let shared = MXMetricManager.shared
         shared.remove(self)
     }
-    
+
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
         func actOn(callStackTree: MXCallStackTree, action: (SentryMXCallStackTree) -> Void) {
             guard let callStackTree = try? SentryMXCallStackTree.from(data: callStackTree.jsonRepresentation()) else {
                 return
             }
-            
+
             action(callStackTree)
         }
-        
+
         payloads.forEach { payload in
-            
+
             payload.crashDiagnostics?.forEach { diagnostic in
-                
+
                 if disableCrashDiagnostics {
                     return
                 }
@@ -66,19 +66,19 @@ import MetricKit
                     delegate?.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
             }
-            
+
             payload.diskWriteExceptionDiagnostics?.forEach { diagnostic in
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
                     delegate?.didReceiveDiskWriteExceptionDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
             }
-            
+
             payload.cpuExceptionDiagnostics?.forEach { diagnostic in
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
                     delegate?.didReceiveCpuExceptionDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
             }
-            
+
             payload.hangDiagnostics?.forEach { diagnostic in
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
                     delegate?.didReceiveHangDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)

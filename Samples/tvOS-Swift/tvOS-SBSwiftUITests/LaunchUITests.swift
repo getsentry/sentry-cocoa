@@ -2,7 +2,7 @@ import XCTest
 
 class LaunchUITests: XCTestCase {
     private let timeout: TimeInterval = 10
-    
+
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
@@ -11,17 +11,17 @@ class LaunchUITests: XCTestCase {
     func testLaunch() throws {
         let app = XCUIApplication()
         app.launch()
-        
+
         XCUIRemote.shared.press(.down)
-  
+
         let collectionViewsQuery = app.collectionViews
-        
+
         XCTAssert(collectionViewsQuery.children(matching: .cell).element(boundBy: 0).hasFocus)
-        
+
         XCUIRemote.shared.press(.select)
         XCTAssert(app.tables["TABLE_VIEW"].waitForExistence(timeout: timeout))
         XCUIRemote.shared.press(.menu)
-        
+
         XCTAssert(collectionViewsQuery.children(matching: .cell).element(boundBy: 1).waitForExistence(timeout: timeout))
         XCUIRemote.shared.press(.right)
         XCTAssert(collectionViewsQuery.children(matching: .cell).element(boundBy: 1).hasFocus)
@@ -34,6 +34,6 @@ class LaunchUITests: XCTestCase {
         XCTAssert(collectionViewsQuery.children(matching: .cell).element(boundBy: 2).hasFocus)
         XCUIRemote.shared.press(.select)
         XCUIRemote.shared.press(.menu)
-        
+
     }
 }

@@ -23,24 +23,24 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     private let spanOperation = "spanOperation"
     private let origin = "auto.ui.view_controller"
     private let frameDuration = 0.0016
-    
+
     private class Fixture {
-        
+
         var options: Options
-        
+
         let viewController = TestViewController()
         let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
-        
+
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
-        
+
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
             return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
         }
-        
+
         init() {
             options = Options.noIntegrations()
             let imageName = String(
@@ -48,24 +48,24 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
-            
+
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
-                
+
         func getSut() -> SentryUIViewControllerPerformanceTracker {
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
-            
+
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
             SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic
             return SentryUIViewControllerPerformanceTracker.shared
         }
     }
-    
+
     private var fixture: Fixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -76,7 +76,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testUILifeCycle_ViewDidAppear() throws {
         try assertUILifeCycle(finishStatus: SentrySpanStatus.ok) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {
@@ -114,10 +114,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span?
-                
+
         let callbackExpectation = expectation(description: "Callback Expectation")
         callbackExpectation.expectedFulfillmentCount = 6
-        
+
         XCTAssertTrue(getStack(tracker).isEmpty)
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
@@ -136,7 +136,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(tracer.transactionContext.nameSource, .component)
         XCTAssertEqual(tracer.transactionContext.origin, origin)
         XCTAssertFalse(tracer.isFinished)
-        
+
         let config = try XCTUnwrap(Dynamic(tracer).configuration.asObject as? SentryTracerConfiguration)
         XCTAssertTrue(config.finishMustBeCalled)
 
@@ -151,7 +151,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         XCTAssertFalse(tracer.isFinished)
-        
+
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
@@ -167,7 +167,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let layoutSubViewsSpan = try XCTUnwrap((Dynamic(transactionSpan).children as [Span]?)?.last)
         XCTAssertEqual(layoutSubViewsSpan.parentSpanId, tracer.spanId)
         XCTAssertEqual(layoutSubViewsSpan.spanDescription, self.layoutSubviews)
-        
+
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
@@ -179,7 +179,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         XCTAssertFalse(tracer.isFinished)
-        
+
         sut.viewControllerViewWillAppear(viewController) {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
@@ -204,19 +204,19 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         assertTrackerIsEmpty(tracker)
     }
-    
+
     func testTimeMeasurement() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span?
-        
+
         let callbackExpectation = expectation(description: "Callback Expectation")
         callbackExpectation.expectedFulfillmentCount = 6
-                
+
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         var lastSpan: Span?
-        
+
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
@@ -224,24 +224,24 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
-        
+
         sut.viewControllerViewDidLoad(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 2)
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 2)
-        
+
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 3)
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 3)
-        
+
         let layoutSubViewsSpan = try XCTUnwrap((Dynamic(transactionSpan).children as [Span]?)?.last)
         advanceTime(bySeconds: 4)
-        
+
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 2)
@@ -249,7 +249,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 2)
         try assertSpanDuration(span: layoutSubViewsSpan, expectedDuration: 4)
-        
+
         sut.viewControllerViewWillAppear(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 1)
@@ -266,10 +266,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 5)
         try assertSpanDuration(span: transactionSpan, expectedDuration: 22 + frameDuration)
-        
+
         wait(for: [callbackExpectation], timeout: 0)
     }
-    
+
     func testReportInitialDisplay_WhenViewWillAppear() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
@@ -286,7 +286,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         reportFrame()
         let expectedTTIDTimestamp = fixture.dateProvider.date()
-        
+
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         let ttidSpan = try XCTUnwrap(children?.first)
@@ -295,7 +295,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
         XCTAssertTrue(ttidSpan.isFinished)
     }
-    
+
     func testReportInitialDisplay_WhenViewWillAppearSkipped_WillLayoutSubViewsCalled() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
@@ -306,14 +306,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             let spans = self.getStack(tracker)
             tracer = spans.first as? SentryTracer
         }
-        
+
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             self.advanceTime(bySeconds: 0.1)
         }
 
         reportFrame()
         let expectedTTIDTimestamp = fixture.dateProvider.date()
-        
+
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         let ttidSpan = try XCTUnwrap(children?.first)
@@ -322,7 +322,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
         XCTAssertTrue(ttidSpan.isFinished)
     }
-    
+
     func testReportInitialDisplay_WhenViewWillAppearAndWillLayoutSubviews() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
@@ -339,12 +339,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         reportFrame()
         let expectedTTIDTimestamp = fixture.dateProvider.date()
-        
+
         // It's doubtful that the OS renders a frame between viewWillAppear and viewWillLayoutSubViews, but if it does, we need to pick the end TTID on viewWillAppear.
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             self.advanceTime(bySeconds: 0.1)
         }
-        
+
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         let ttidSpan = try XCTUnwrap(children?.first)
@@ -353,7 +353,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(expectedTTIDTimestamp, ttidSpan.timestamp)
         XCTAssertTrue(ttidSpan.isFinished)
     }
-    
+
     func testReportFullyDisplayed() throws {
         let sut = fixture.getSut()
         sut.alwaysWaitForFullDisplay = true
@@ -377,14 +377,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(ttfdSpan.isFinished, true)
         XCTAssertEqual(ttfdSpan.timestamp, expectedTTFDTimestamp)
     }
-    
+
     func testFramesTrackerNotRunning_NoTTDTrackerAndSpans() {
         fixture.framesTracker.stop()
         let sut = fixture.getSut()
         let tracker = fixture.tracker
         let viewController = fixture.viewController
         var tracer: SentryTracer?
-        
+
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
             tracer = spans.first as? SentryTracer
@@ -392,9 +392,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
         XCTAssertNil(ttdTracker)
-        
+
         sut.reportFullyDisplayed()
-        
+
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("initial_display") }.count, 0, "Tracer must not contain a TTID span")
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("full_display") }.count, 0, "Tracer must not contain a TTFD span")
     }
@@ -403,7 +403,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let viewController2 = TestViewController()
-        
+
         sut.viewControllerLoadView(viewController) {
             //Left empty on purpose
         }
@@ -420,16 +420,16 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
         XCTAssertNil(secondTTDTracker)
     }
-    
+
     func testTimeMeasurement_SkipLoadView() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span?
-                
+
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         var lastSpan: Span?
-        
+
         sut.viewControllerViewDidLoad(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
@@ -437,31 +437,31 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 2)
-        
+
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 3)
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 3)
-        
+
         let layoutSubViewsSpan = try XCTUnwrap((Dynamic(transactionSpan).children as [Span]?)?.last)
         advanceTime(bySeconds: 4)
-        
+
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 2)
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 2)
         try assertSpanDuration(span: layoutSubViewsSpan, expectedDuration: 4)
-        
+
         sut.viewControllerViewWillAppear(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 1)
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
-        
+
         advanceTime(bySeconds: 4)
-        
+
         sut.viewControllerViewDidAppear(viewController) {
             lastSpan = self.getStack(tracker).last
             self.advanceTime(bySeconds: 5)
@@ -471,16 +471,16 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         assertTrackerIsEmpty(tracker)
     }
-    
+
     func testWaitingForCustomSpan() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span?
-        
+
         var lastSpan: Span?
         var customSpanId: SpanId?
-        
+
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
@@ -488,7 +488,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         let unwrappedLastSpan = try XCTUnwrap(lastSpan)
         XCTAssertTrue(unwrappedLastSpan.isFinished)
-        
+
         sut.viewControllerViewWillAppear(viewController) {
             //intentionally left empty.
         }
@@ -509,73 +509,73 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         assertTrackerIsEmpty(tracker)
     }
-    
+
     func testSkipLoadViewAndViewDidLoad() {
         //Skipping loadView prevent the tracker from creating the view controller transaction and no span is created after this.
-        
+
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
-        
+
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker).isEmpty)
         }
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker).isEmpty)
         }
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerViewWillAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker).isEmpty)
         }
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerViewDidAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker).isEmpty)
         }
 
         assertTrackerIsEmpty(tracker)
     }
-    
+
     func testSpanAssociatedConstants() {
         XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID")
         XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID")
     }
-    
+
     func testOverloadCall() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span?
-        
+
         let callbackExpectation = expectation(description: "Callback Expectation")
         callbackExpectation.expectedFulfillmentCount = 3
-        
+
         XCTAssertTrue(getStack(tracker).isEmpty)
         //we need loadView to start the tracking
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
             transactionSpan = spans.first
-            
+
             callbackExpectation.fulfill()
         }
-        
+
         var unwrappedTransactionSpan = try XCTUnwrap(transactionSpan)
         XCTAssertFalse(unwrappedTransactionSpan.isFinished)
-        
+
         sut.viewControllerViewDidLoad(viewController) {
             let blockSpan = self.getStack(tracker).last!
-            
+
             //this is the same as calling super.viewDidLoad in a custom class sub class
             sut.viewControllerViewDidLoad(viewController) {
                 let innerblockSpan = self.getStack(tracker).last!
                 XCTAssertTrue(innerblockSpan === blockSpan)
-                
+
                 callbackExpectation.fulfill()
             }
-            
+
             callbackExpectation.fulfill()
         }
 
@@ -585,26 +585,26 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         wait(for: [callbackExpectation], timeout: 0)
     }
-    
+
     func testLoadView_withNonInAppUIViewController_DoesNotStartTransaction() {
         let sut = fixture.getSut()
         let viewController = UIViewController()
         let tracker = fixture.tracker
         var transactionSpan: Span!
         let callbackExpectation = expectation(description: "Callback Expectation")
-        
+
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
             transactionSpan = spans.first
             callbackExpectation.fulfill()
         }
-               
+
         XCTAssertNil(transactionSpan)
         wait(for: [callbackExpectation], timeout: 0)
     }
-    
+
     func testLoadView_withIgnoreSwizzleUIViewController_DoesNotStartTransaction() {
         fixture.options.swizzleClassNameExcludes = ["TestViewController"]
         let sut = fixture.getSut()
@@ -612,19 +612,19 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         var transactionSpan: Span!
         let callbackExpectation = expectation(description: "Callback Expectation")
-        
+
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
             transactionSpan = spans.first
             callbackExpectation.fulfill()
         }
-               
+
         XCTAssertNil(transactionSpan, "Expected to transaction.")
         wait(for: [callbackExpectation], timeout: 0)
     }
-    
+
     func testSecondLoadView() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
@@ -632,15 +632,15 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var transactionSpan: Span?
         let callbackExpectation = expectation(description: "Callback Expectation")
         callbackExpectation.expectedFulfillmentCount = 2
-        
+
         XCTAssertTrue(getStack(tracker).isEmpty)
-        
+
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker)
             transactionSpan = spans.first
             callbackExpectation.fulfill()
         }
-        
+
         //here we are calling loadView a second time,
         //which should create a child span of the transaction
         //already created in the previous call and not create a new transaction
@@ -686,7 +686,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         XCTAssertEqual(tracer?.children.count, 2)
     }
-    
+
     func test_OnlyViewDidLoad_CreatesTTIDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -700,7 +700,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         XCTAssertEqual(children?.count, 2)
-        
+
         let firstChild = try XCTUnwrap(children?.first)
         XCTAssertEqual("ui.load.initial_display", firstChild.operation)
         XCTAssertEqual("TestViewController initial display", firstChild.spanDescription)
@@ -708,7 +708,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual("ui.load", secondChild.operation)
         XCTAssertEqual("viewDidLoad", secondChild.spanDescription)
     }
-    
+
     func test_OnlyViewDidLoadTTFDEnabled_CreatesTTIDAndTTFDSpans() throws {
         let sut = fixture.getSut()
         sut.alwaysWaitForFullDisplay = true
@@ -723,26 +723,26 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         XCTAssertEqual(children?.count, 3)
-        
+
         let child1 = try XCTUnwrap(children?.first)
         XCTAssertEqual("ui.load.initial_display", child1.operation)
         XCTAssertEqual("TestViewController initial display", child1.spanDescription)
-        
+
         let child2 = try XCTUnwrap(children?[1])
         XCTAssertEqual("ui.load.full_display", child2.operation)
         XCTAssertEqual("TestViewController full display", child2.spanDescription)
-        
+
         let child3 = try XCTUnwrap(children?[2])
         XCTAssertEqual("ui.load", child3.operation)
         XCTAssertEqual("viewDidLoad", child3.spanDescription)
     }
-    
+
     func test_BothLoadViewAndViewDidLoad_CreatesOneTTIDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
         let controller = TestViewController()
         var tracer: SentryTracer!
-        
+
         sut.viewControllerLoadView(controller) {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
@@ -754,19 +754,19 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let children: [Span]? = Dynamic(tracer).children as [Span]?
 
         XCTAssertEqual(children?.count, 3)
-        
+
         let child1 = try XCTUnwrap(children?.first)
         XCTAssertEqual("ui.load.initial_display", child1.operation)
-        
+
         let child2 = try XCTUnwrap(children?[1])
         XCTAssertEqual("ui.load", child2.operation)
         XCTAssertEqual("loadView", child2.spanDescription)
-        
+
         let child3 = try XCTUnwrap(children?[2])
         XCTAssertEqual("ui.load", child3.operation)
         XCTAssertEqual("viewDidLoad", child3.spanDescription)
     }
-    
+
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -777,7 +777,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var secondTracer: SentryTracer?
 
         sut.alwaysWaitForFullDisplay = true
-        
+
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
 
         sut.viewControllerLoadView(firstController) {
@@ -787,33 +787,33 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewDidLoad(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewWillAppear(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewDidAppear(firstController) { /* Empty on purpose */ }
-        
+
         let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
 
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDStartTimestamp, firstFullDisplaySpan.startTimestamp)
         XCTAssertEqual(firstTracer?.traceId, SentrySDK.span?.traceId)
-        
+
         advanceTime(bySeconds: 1)
         let expectedFirstTTFDTimestamp = fixture.dateProvider.date()
 
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
-        
+
         XCTAssertTrue(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDTimestamp, firstFullDisplaySpan.timestamp)
         XCTAssertEqual(.deadlineExceeded, firstFullDisplaySpan.status)
-        
+
         XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
-        
+
         let secondFullDisplaySpan = try XCTUnwrap(secondTracer?.children.first { $0.operation == "ui.load.full_display" }, "Did not find full display span for second UIViewController.")
-        
+
         XCTAssertFalse(secondFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDTimestamp, secondFullDisplaySpan.startTimestamp)
         XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
     }
-    
+
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD_FramesTrackerStopped() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -831,29 +831,29 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewDidLoad(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewWillAppear(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewDidAppear(firstController) { /* Empty on purpose */ }
-        
+
         let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
 
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
-        
+
         fixture.framesTracker.stop()
-        
+
         advanceTime(bySeconds: 1)
         let expectedFirstTTFDTimestamp = fixture.dateProvider.date()
-        
+
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
-        
+
         XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
         XCTAssertTrue(firstTracer?.isFinished ?? false)
         XCTAssertTrue(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDTimestamp, firstFullDisplaySpan.timestamp)
         XCTAssertEqual(.deadlineExceeded, firstFullDisplaySpan.status)
-        
+
         XCTAssertEqual(0, secondTracer?.children.filter { $0.operation == "ui.load.full_display" }.count, "There should be no full display span, because the frames tracker is not running.")
     }
-    
+
     func test_waitForFullDisplay_NestedUIViewControllers_DoesNotFinishTTFDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -864,7 +864,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var secondTracer: SentryTracer?
 
         sut.alwaysWaitForFullDisplay = true
-        
+
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
         sut.viewControllerLoadView(firstController) {
             firstTracer = self.getStack(tracker).first as? SentryTracer
@@ -872,19 +872,19 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewDidLoad(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewWillAppear(firstController) { /* Empty on purpose */ }
         advanceTime(bySeconds: 1)
-        
+
         let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
 
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
-        
+
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }
-        
+
         XCTAssertEqual(firstTracer?.traceId, secondTracer?.traceId, "First and second tracer should have the same trace id as the second view controller is nested in the first one.")
-        
+
         XCTAssertEqual(firstTracer?.traceId.sentryIdString, SentrySDK.span?.traceId.sentryIdString)
-        
+
         XCTAssertFalse(firstTracer?.isFinished ?? true)
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDStartTimestamp, firstFullDisplaySpan.startTimestamp)
@@ -947,7 +947,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let duration = timestamp.timeIntervalSince(startTimestamp)
         XCTAssertEqual(duration, expectedDuration, accuracy: 0.001, file: file, line: line)
     }
-    
+
     private func assertTrackerIsEmpty(_ tracker: SentryPerformanceTracker, file: StaticString = #file, line: UInt = #line) {
         XCTAssertEqual(0, getStack(tracker).count, file: file, line: line)
         XCTAssertEqual(0, getSpans(tracker).count, file: file, line: line)

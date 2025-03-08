@@ -2,10 +2,10 @@ import Foundation
 import Sentry
 
 @objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
-    
+
     public var ignoreRemoveObserver = false
     public var ignoreAddObserver = false
-    
+
     public var addObserverInvocations = Invocations<(observer: WeakReference<NSObject>, selector: Selector, name: NSNotification.Name)>()
     public var addObserverInvocationsCount: Int {
         return addObserverInvocations.count
@@ -16,7 +16,7 @@ import Sentry
             addObserverInvocations.record((WeakReference(value: observer), aSelector, aName))
         }
     }
-    
+
     public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
     public override func addObserver(forName name: NSNotification.Name?, object obj: Any?, queue: OperationQueue?, using block: @escaping (Notification) -> Void) -> any NSObjectProtocol {
         let observer = NSObject()
@@ -44,7 +44,7 @@ import Sentry
             removeObserverInvocations.record(Void())
         }
     }
-    
+
     public override func post(_ notification: Notification) {
         addObserverInvocations.invocations
             .filter { $0.2 == notification.name }

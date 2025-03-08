@@ -3,7 +3,7 @@ import Foundation
 import XCTest
 
 class SentryLevelTests: XCTestCase {
-    
+
     func testNames() {
         XCTAssertEqual(SentryLevel.none, SentryLevel.fromName("none"))
         XCTAssertEqual(SentryLevel.debug, SentryLevel.fromName("debug"))
@@ -12,7 +12,7 @@ class SentryLevelTests: XCTestCase {
         XCTAssertEqual(SentryLevel.fatal, SentryLevel.fromName("fatal"))
         XCTAssertEqual(SentryLevel.warning, SentryLevel.fromName("warning"))
         XCTAssertEqual(SentryLevel.error, SentryLevel.fromName("invalid"))
-        
+
         XCTAssertEqual(SentryLevel.none.description, "none")
         XCTAssertEqual(SentryLevel.debug.description, "debug")
         XCTAssertEqual(SentryLevel.error.description, "error")
