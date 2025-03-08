@@ -6,10 +6,21 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 - New continuous profiling API (#4952)
+- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
+
+### Fixes
+
+- Correctly finish TTFD span when no new frame (#4941)
+- Only delete envelopes when receiving HTTP 200 (#4956)
+
+### Fixes
+
+- Set foreground true for watchdog terminations (#4953)
 
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
+- Avoid creating unnecessary User Interaction transactions (#4957)
 
 ## 8.46.0
 
