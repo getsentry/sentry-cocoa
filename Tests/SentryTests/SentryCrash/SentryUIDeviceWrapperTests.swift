@@ -7,7 +7,7 @@ class SentryUIDeviceWrapperTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testExecutesLogicViaDispatchQueue() {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue

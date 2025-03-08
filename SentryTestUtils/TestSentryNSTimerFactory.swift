@@ -6,10 +6,10 @@ import Foundation
 public class TestSentryNSTimerFactory: SentryNSTimerFactory {
     public struct Overrides {
         private var _interval: TimeInterval?
-        
+
         public var timer: Timer
         var block: ((Timer) -> Void)?
-        
+
         var interval: TimeInterval {
             get {
                 _interval ?? TimeInterval.infinity
@@ -18,15 +18,15 @@ public class TestSentryNSTimerFactory: SentryNSTimerFactory {
                 _interval = newValue
             }
         }
-        
+
         var lastFireDate: Date
-        
+
         struct InvocationInfo {
             var target: NSObject
             var selector: Selector
         }
         var invocationInfo: InvocationInfo?
-        
+
         init(timer: Timer, interval: TimeInterval? = nil, block: ((Timer) -> Void)? = nil, lastFireDate: Date, invocationInfo: InvocationInfo? = nil) {
             self.timer = timer
             self._interval = interval
@@ -35,11 +35,11 @@ public class TestSentryNSTimerFactory: SentryNSTimerFactory {
             self.invocationInfo = invocationInfo
         }
     }
-    
+
     public var overrides: Overrides?
-    
+
     private var currentDateProvider: SentryCurrentDateProvider
-    
+
     public init(currentDateProvider: SentryCurrentDateProvider) {
         self.currentDateProvider = currentDateProvider
         super.init()
@@ -53,7 +53,7 @@ public extension TestSentryNSTimerFactory {
         overrides = Overrides(timer: timer, interval: interval, block: block, lastFireDate: currentDateProvider.date())
         return timer
     }
-    
+
     override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
         let timer = Timer.scheduledTimer(timeInterval: ti, target: aTarget, selector: aSelector, userInfo: userInfo, repeats: yesOrNo)
         //swiftlint:disable force_cast
@@ -69,7 +69,7 @@ public extension TestSentryNSTimerFactory {
     enum TestTimerError: Error {
         case timerNotInitialized
     }
-    
+
     // check the current time against the last fire time and interval, and if enough time has elapsed, execute any block/invocation registered with the timer
     func check() throws {
         guard let overrides = overrides else { throw TestTimerError.timerNotInitialized }
@@ -89,7 +89,7 @@ public extension TestSentryNSTimerFactory {
             try Invocation(target: invocationInfo.target, selector: invocationInfo.selector).invoke()
         }
     }
-    
+
     func isTimerInitialized() -> Bool {
         return overrides != nil
     }

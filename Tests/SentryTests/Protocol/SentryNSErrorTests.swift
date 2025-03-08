@@ -7,31 +7,31 @@ class SentryNSErrorTests: XCTestCase {
         let error = SentryNSError(domain: "domain", code: 10)
 
         let actual = error.serialize()
-        
+
         XCTAssertEqual(error.domain, actual["domain"] as? String)
         XCTAssertEqual(error.code, actual["code"] as? Int)
     }
-    
+
     func testDecode_WithAllProperties() throws {
         // Arrange
         let error = SentryNSError(domain: "domain", code: 10)
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: error.serialize()))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSError?)
-        
+
         // Assert
         XCTAssertEqual(error.code, decoded.code)
         XCTAssertEqual(error.domain, decoded.domain)
     }
-    
+
     func testDecode_WithRemovedDomain_ReturnsNil() throws {
         // Arrange
         let error = SentryNSError(domain: "domain", code: 10)
         var serialized = error.serialize()
         serialized.removeValue(forKey: "domain")
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
-        
+
         // Act & Assert
         XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSError?)
     }
@@ -43,7 +43,7 @@ class SentryNSErrorTests: XCTestCase {
         let actualError = NSErrorFromSentryErrorWithUnderlyingError(SentryError.unknownError, inputDescription, inputUnderlyingError)
 
         XCTAssertEqual(actualError?.localizedDescription, inputDescription)
-        
+
         guard let error = actualError, let actualUnderlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError else {
             XCTFail("Expected an underlying error in the returned error's info dict")
             return

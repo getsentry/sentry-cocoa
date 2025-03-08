@@ -39,10 +39,10 @@ if let match = Regex(semver, options: [.dotMatchesLineSeparators]).firstMatch(in
     for file in files {
         try updateVersion(file, fromVersion, toVersion)
     }
-    
+
     fromVersion = extractVersionOnly(fromVersion)
     toVersion = extractVersionOnly(toVersion)
-    
+
     for file in restrictFiles {
         try updateVersion(file, fromVersion, toVersion)
     }

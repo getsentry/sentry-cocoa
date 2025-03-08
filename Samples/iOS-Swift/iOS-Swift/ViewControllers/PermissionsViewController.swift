@@ -19,7 +19,7 @@ class PermissionsViewController: UIViewController {
         button.addTarget(self, action: #selector(requestLocationPermission), for: .touchUpInside)
         return button
     }()
-    
+
     private lazy var biometricButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Request Biometric Permission", for: .normal)
@@ -64,7 +64,7 @@ class PermissionsViewController: UIViewController {
     @objc func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
@@ -79,7 +79,7 @@ class PermissionsViewController: UIViewController {
                 print(granted)
             }
     }
-    
+
     @objc func requestBiometricPermission() {
         let context = LAContext()
         var error: NSError?

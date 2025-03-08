@@ -10,7 +10,7 @@ struct FormScreen: View {
     func getCurrentTracer() -> String? {
         return SentryPerformanceTracker.shared.activeSpanId()?.sentrySpanIdString
     }
-    
+
     var body: some View {
         SentryTracedView("Form Screen") {
             List {

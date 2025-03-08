@@ -11,7 +11,7 @@ extension SentryThread {
             return false
         }
     }
-    
+
     override open var description: String {
         "\(self.serialize())"
     }
@@ -26,7 +26,7 @@ extension SentryStacktrace {
             return false
         }
     }
-    
+
     override open var description: String {
         "\(self.serialize())"
     }
@@ -50,7 +50,7 @@ extension Sentry.Frame {
             return false
         }
     }
-    
+
     override open var description: String {
         "\(self.serialize())"
     }

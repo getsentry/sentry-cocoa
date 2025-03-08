@@ -3,7 +3,7 @@
 import SentryTestUtils
 
 class TestSentryReachability: SentryReachability {
-    
+
     private var observers: NSHashTable<SentryReachabilityObserver> = NSHashTable.weakObjects()
 
     override func add(_ observer: SentryReachabilityObserver) {
@@ -14,7 +14,7 @@ class TestSentryReachability: SentryReachability {
         for observer in observers.allObjects {
             observer.connectivityChanged(state != SentryConnectivityNone, typeDescription: state)
         }
-        
+
     }
 
     func triggerNetworkReachable() {
@@ -22,7 +22,7 @@ class TestSentryReachability: SentryReachability {
             observer.connectivityChanged(true, typeDescription: SentryConnectivityWiFi)
         }
     }
-    
+
     var stopMonitoringInvocations = Invocations<Void>()
     override func remove(_ observer: SentryReachabilityObserver) {
         stopMonitoringInvocations.record(Void())

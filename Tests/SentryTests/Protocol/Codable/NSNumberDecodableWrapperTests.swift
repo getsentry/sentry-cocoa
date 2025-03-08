@@ -14,12 +14,12 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertTrue(number.boolValue)
     }
-    
+
     func testDecode_BoolFalse() throws {
         // Arrange
         let jsonData = #"""
@@ -27,10 +27,10 @@ class NSNumberDecodableWrapperTests: XCTestCase {
             "number": false
         }
         """#.data(using: .utf8)!
-        
+
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertFalse(number.boolValue)
@@ -46,7 +46,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.intValue, 1)
@@ -62,12 +62,12 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.intValue, Int.max)
     }
-    
+
     func testDecode_IntMin() throws {
         // Arrange
         let jsonData = """
@@ -78,7 +78,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.intValue, Int.min)
@@ -94,12 +94,12 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.uint32Value, UInt32.max)
     }
-    
+
     func testDecode_UInt64Max() throws {
         // Arrange
         let jsonData = """
@@ -110,31 +110,31 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.uint64Value, UInt64.max)
     }
-    
+
     // We can't use UInt128.max is only available on iOS 18 and above.
     // Still we would like to test if a max value bigger than UInt64.max is decoded correctly.
     func testDecode_UInt64MaxPlusOne_UsesDouble() throws {
         let UInt64MaxPlusOne = Double(UInt64.max) + 1
-        
+
         // Arrange
         let jsonData = """
         {
             "number": \(UInt64MaxPlusOne)
         }
         """.data(using: .utf8)!
-        
+
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.doubleValue, UInt64MaxPlusOne)
-        
+
     }
 
     func testDecode_Zero() throws {
@@ -147,7 +147,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.intValue, 0)
@@ -163,7 +163,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.doubleValue, 0.1)
@@ -179,7 +179,7 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
         XCTAssertEqual(number.doubleValue, Double.greatestFiniteMagnitude)
@@ -195,10 +195,10 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
-        
+
         // Assert
         let number = try XCTUnwrap(actual.number)
-        XCTAssertEqual(number.doubleValue, Double.leastNormalMagnitude) 
+        XCTAssertEqual(number.doubleValue, Double.leastNormalMagnitude)
     }
 
     func testDecode_Nil() throws {
@@ -229,16 +229,16 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 }
 
 private class ClassWithNSNumber: Decodable {
-    
+
     var number: NSNumber?
-    
+
     enum CodingKeys: String, CodingKey {
         case number
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         self.init()
-        
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.number = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .number))?.value
     }

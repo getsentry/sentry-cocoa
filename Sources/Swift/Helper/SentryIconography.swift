@@ -7,19 +7,19 @@ extension CGMutablePath {
         let d: CGFloat = sqrt(pow(endPoint.x - startPoint.x, 2) + pow(endPoint.y - startPoint.y, 2))
         let h: CGFloat = sqrt(pow(xyRadii, 2) - pow(d / 2, 2))
         let orientation: CGFloat = clockwise ? 1 : -1
-        
+
         let centerX = midX + orientation * h * (startPoint.y - endPoint.y) / d
         let centerY = midY + orientation * h * (endPoint.x - startPoint.x) / d
         let centerPoint = CGPoint(x: centerX, y: centerY)
-        
+
         let startAngleAtan2X = startPoint.x - centerX
         let startAngleAtan2Y = startPoint.y - centerY
         let startAngle: CGFloat = atan2(startAngleAtan2Y, startAngleAtan2X)
-        
+
         let endAngleAtan2X = endPoint.x - centerX
         let endAngleAtan2Y = endPoint.y - centerY
         let endAngle: CGFloat = atan2(endAngleAtan2Y, endAngleAtan2X)
-        
+
         addArc(center: centerPoint, radius: xyRadii, startAngle: startAngle, endAngle: endAngle, clockwise: !clockwise)
     }
 }
@@ -62,7 +62,7 @@ struct SentryIconography {
         endpoint = .init(x: 12.09, y: 17.47)
         path.addSVGArc(startPoint: point, xyRadii: 27.68, clockwise: false, endPoint: endpoint)
         point = endpoint
-        
+
         // L6,28
         endpoint = CGPoint(x: 6, y: 28)
         path.addLine(to: endpoint)
@@ -191,10 +191,10 @@ struct SentryIconography {
 
         return path
     }()
-    
+
     static let megaphone = {
         let path = CGMutablePath()
-                
+
         path.move(to: CGPoint(x: 1, y: 3))
         path.addLine(to: CGPoint(x: 7, y: 3))
         path.addLine(to: CGPoint(x: 10, y: 1))
@@ -204,12 +204,12 @@ struct SentryIconography {
         path.addLine(to: CGPoint(x: 7, y: 9))
         path.addLine(to: CGPoint(x: 1, y: 9))
         path.closeSubpath()
-        
+
         path.addRect(CGRect(x: 2, y: 9, width: 3.5, height: 6))
-        
+
         path.move(to: CGPoint(x: 12, y: 6))
         path.addRelativeArc(center: CGPoint(x: 12, y: 6), radius: 3, startAngle: -(.pi / 2), delta: .pi)
-        
+
         return path
     }()
 }

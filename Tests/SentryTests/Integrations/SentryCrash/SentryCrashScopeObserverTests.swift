@@ -2,7 +2,7 @@ import SentryTestUtils
 import XCTest
 
 class SentryCrashScopeObserverTests: XCTestCase {
-    
+
     private class Fixture {
         let dist = "dist"
         let environment = "environment"
@@ -10,14 +10,14 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let extras = ["extra": [1, 2], "extra2": "tag1"] as [String: Any]
         let fingerprint = ["a", "b", "c"]
         let maxBreadcrumbs = 10
-        
+
         var sut: SentryCrashScopeObserver {
             return SentryCrashScopeObserver(maxBreadcrumbs: maxBreadcrumbs)
         }
     }
-    
+
     private let fixture = Fixture()
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -27,9 +27,9 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let sut = fixture.sut
         let user = TestData.user
         sut.setUser(user)
-        
+
         let expected = serialize(object: user.serialize())
-        
+
         XCTAssertEqual(expected, getScopeJson { $0.user })
     }
 
@@ -40,7 +40,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         XCTAssertNil(getScopeJson { $0.user })
     }
-    
+
     func testLevel() {
         let sut = fixture.sut
         let level = SentryLevel.fatal
@@ -119,7 +119,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         XCTAssertNil(getScopeJson { $0.context })
     }
-    
+
     func testTraceContext() {
         let sut = fixture.sut
         sut.setTraceContext(TestData.traceContext)
@@ -224,31 +224,31 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let sut = fixture.sut
         let crumb = TestData.crumb
         sut.addSerializedBreadcrumb(crumb.serialize())
-        
+
         assertOneCrumbSetToScope(crumb: crumb)
     }
-    
+
     func testAddCrumbWithoutConfigure_DoesNotCrash() {
         sentrycrash_scopesync_addBreadcrumb("")
     }
-    
+
     func testCallConfigureCrumbTwice() {
         let sut = fixture.sut
         let crumb = TestData.crumb
         sut.addSerializedBreadcrumb(crumb.serialize())
-        
+
         sentrycrash_scopesync_configureBreadcrumbs(fixture.maxBreadcrumbs)
-        
+
         let scope = sentrycrash_scopesync_getScope()
         XCTAssertEqual(0, scope?.pointee.currentCrumb)
-        
+
         sut.addSerializedBreadcrumb(crumb.serialize())
         assertOneCrumbSetToScope(crumb: crumb)
     }
 
     func testAddCrumb_MoreThanMaxBreadcrumbs() {
         let sut = fixture.sut
-        
+
         var crumbs: [Breadcrumb] = []
         for i in 0...fixture.maxBreadcrumbs {
             let crumb = TestData.crumb
@@ -259,23 +259,23 @@ class SentryCrashScopeObserverTests: XCTestCase {
         crumbs.removeFirst()
 
         let scope = sentrycrash_scopesync_getScope()
-        
+
         XCTAssertEqual(1, scope?.pointee.currentCrumb)
-        
+
         guard let breadcrumbs = scope?.pointee.breadcrumbs else {
             XCTFail("Pointer to breadcrumbs is nil.")
             return
         }
-        
+
         // Breadcrumbs are stored with a ring buffer. Therefore,
         // we need to start where the current crumb is
         var i = scope?.pointee.currentCrumb ?? 0
         var crumbPointer = breadcrumbs[i]
         for crumb in crumbs {
             let scopeCrumbJSON = String(cString: crumbPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
-            
+
             XCTAssertEqual(serialize(object: crumb.serialize()), scopeCrumbJSON)
-            
+
             i = (i + 1) % fixture.maxBreadcrumbs
             crumbPointer = breadcrumbs[i]
         }
@@ -298,24 +298,24 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         assertEmptyScope()
     }
-    
+
     func testEmptyScope() {
         // First, we need to configure the CScope
         XCTAssertNotNil(fixture.sut)
-        
+
         assertEmptyScope()
     }
-    
+
     private func serialize(object: Any) -> String {
         let serialized = try! SentryCrashJSONCodec.encode(object, options: SentryCrashJSONEncodeOptionSorted)
         return String(data: serialized, encoding: .utf8) ?? ""
     }
-    
+
     private func getCrashScope() -> SentryCrashScope {
         let jsonPointer = sentrycrash_scopesync_getScope()
         return jsonPointer!.pointee
     }
-    
+
     private func getScopeJson(getField: (SentryCrashScope) -> UnsafeMutablePointer<CChar>?) -> String? {
         guard let scopePointer = sentrycrash_scopesync_getScope() else {
             return nil
@@ -324,23 +324,23 @@ class SentryCrashScopeObserverTests: XCTestCase {
         guard let charPointer = getField(scopePointer.pointee) else {
             return nil
         }
-        
+
         return String(cString: charPointer)
     }
-    
+
     private func assertOneCrumbSetToScope(crumb: Breadcrumb) {
         let expected = serialize(object: crumb.serialize())
-        
+
         let scope = sentrycrash_scopesync_getScope()
-        
+
         XCTAssertEqual(1, scope?.pointee.currentCrumb)
-        
+
         let breadcrumbs = scope?.pointee.breadcrumbs
         let breadcrumbJSON = String(cString: breadcrumbs?.pointee ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
-        
+
         XCTAssertEqual(expected, breadcrumbJSON)
     }
-    
+
     private func assertEmptyScope() {
         let scope = getCrashScope()
         XCTAssertNil(scope.user)
@@ -351,10 +351,10 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(scope.extras)
         XCTAssertNil(scope.fingerprint)
         XCTAssertNil(scope.level)
-        
+
         XCTAssertEqual(0, scope.currentCrumb)
         XCTAssertEqual(fixture.maxBreadcrumbs, scope.maxCrumbs)
-        
+
         guard let breadcrumbs = scope.breadcrumbs else {
             XCTFail("Pointer to breadcrumbs is nil.")
             return

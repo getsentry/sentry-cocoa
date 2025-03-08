@@ -3,7 +3,7 @@ import SentryTestUtils
 import XCTest
 
 class SentryEventTests: XCTestCase {
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -12,18 +12,18 @@ class SentryEventTests: XCTestCase {
     func testInitWithLevel() {
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
-        
+
         let event = Event(level: .debug)
-        
+
         XCTAssertEqual(event.platform, "cocoa")
         XCTAssertEqual(event.level, .debug)
         XCTAssertEqual(event.timestamp, dateProvider.date())
     }
-    
+
     func testSerialize() {
         let event = TestData.event
         let actual = event.serialize()
-        
+
         // Changing the original doesn't modify the serialized
         event.fingerprint?.append("hello")
         event.modules?["this"] = "that"
@@ -48,50 +48,50 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(TestData.event.modules, actual["modules"] as? [String: String])
         XCTAssertNotNil(actual["stacktrace"] as? [String: Any])
         XCTAssertNotNil(actual["request"] as? [String: Any])
-        
+
         let crumbs = actual["breadcrumbs"] as? [[String: Any]]
         XCTAssertNotNil(crumbs)
         XCTAssertEqual(1, crumbs?.count)
-        
+
         let context = actual["contexts"] as? [String: [String: Any]]
         XCTAssertEqual(context?.count, 1)
         XCTAssertEqual(context?["context"]?.count, 2)
         XCTAssertEqual(try XCTUnwrap(context?["context"]?["c"] as? String), "a")
         XCTAssertEqual(try XCTUnwrap(context?["context"]?["date"] as? String), "1970-01-01T00:00:10.000Z")
-        
+
         XCTAssertNotNil(actual["message"] as? [String: Any])
-        
+
         XCTAssertEqual(expected.logger, actual["logger"] as? String)
         XCTAssertEqual(expected.serverName, actual["server_name"] as? String)
         XCTAssertEqual(expected.type, actual["type"] as? String)
     }
-    
+
     func testSerializeWithTypeTransaction() {
         let event = TestData.event
         event.type = "transaction"
-        
+
         let actual = event.serialize()
         XCTAssertEqual(TestData.timestamp.timeIntervalSince1970, actual["start_timestamp"] as? TimeInterval)
     }
-    
+
     func testSerializeWithTypeTransaction_WithoutStartTimestamp() {
         let event = TestData.event
         event.type = "transaction"
         event.startTimestamp = nil
-        
+
         let actual = event.serialize()
         XCTAssertEqual(TestData.timestamp.timeIntervalSince1970, actual["start_timestamp"] as? TimeInterval
         )
     }
-    
+
     func testSerializeWithoutBreadcrumbs() {
         let event = TestData.event
         event.breadcrumbs = nil
-        
+
         let actual = event.serialize()
         XCTAssertNil(actual["breadcrumbs"])
     }
-    
+
     func testInitWithError() {
         let error = CocoaError(CocoaError.coderInvalidValue)
         let event = Event(error: error)
@@ -118,22 +118,22 @@ class SentryEventTests: XCTestCase {
 
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryEventDecodable?)
-        
+
         // Assert
         // We don't assert all properties of all objects because we have other tests for that.
         XCTAssertEqual(event.eventId, decoded.eventId)
-        
+
         // Message
         let eventMessage = try XCTUnwrap(event.message)
         let decodedMessage = try XCTUnwrap(decoded.message)
         XCTAssertEqual(eventMessage.formatted, decodedMessage.formatted)
         XCTAssertEqual(eventMessage.message, decodedMessage.message)
         XCTAssertEqual(eventMessage.params, decodedMessage.params)
-        
+
         XCTAssertEqual(event.timestamp?.timeIntervalSince1970, decoded.timestamp?.timeIntervalSince1970)
         XCTAssertEqual(event.startTimestamp?.timeIntervalSince1970, decoded.startTimestamp?.timeIntervalSince1970)
         XCTAssertEqual(event.level, decoded.level)
-        
+
         XCTAssertEqual(event.platform, decoded.platform)
         XCTAssertEqual(event.logger, decoded.logger)
         XCTAssertEqual(event.serverName, decoded.serverName)
@@ -142,13 +142,13 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(event.environment, decoded.environment)
         XCTAssertEqual(event.transaction, decoded.transaction)
         XCTAssertEqual(event.type, decoded.type)
-        
+
         XCTAssertEqual(event.tags, decoded.tags)
 
         let eventExtra = try XCTUnwrap(event.extra as? NSDictionary)
         let decodedExtra = try XCTUnwrap(decoded.extra as? NSDictionary)
         XCTAssertEqual(eventExtra, decodedExtra)
-        
+
         let eventSdk = try XCTUnwrap(event.sdk as? NSDictionary)
         let decodedSdk = try XCTUnwrap(decoded.sdk as? NSDictionary)
         XCTAssertEqual(eventSdk, decodedSdk)
@@ -158,7 +158,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(eventModules, decodedModules)
 
         XCTAssertEqual(event.fingerprint, decoded.fingerprint)
-        
+
         XCTAssertEqual(event.user, decoded.user)
 
         let eventContext = try XCTUnwrap(event.context as? NSDictionary)
@@ -174,7 +174,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(firstEventThread.name, decodedFirstThread.name)
         XCTAssertEqual(firstEventThread.crashed, decodedFirstThread.crashed)
         XCTAssertEqual(firstEventThread.current, decodedFirstThread.current)
-        
+
         // Exceptions
         let eventExceptions = try XCTUnwrap(event.exceptions)
         let decodedExceptions = try XCTUnwrap(decoded.exceptions)
@@ -183,13 +183,13 @@ class SentryEventTests: XCTestCase {
         let decodedFirstException = try XCTUnwrap(decodedExceptions.first)
         XCTAssertEqual(firstEventException.type, decodedFirstException.type)
         XCTAssertEqual(firstEventException.value, decodedFirstException.value)
-        
+
         // Exception Mechanism
         let firstEventExceptionMechanism = try XCTUnwrap(firstEventException.mechanism)
         let decodedFirstExceptionMechanism = try XCTUnwrap(decodedFirstException.mechanism)
         XCTAssertEqual(firstEventExceptionMechanism.type, decodedFirstExceptionMechanism.type)
         XCTAssertEqual(firstEventExceptionMechanism.desc, decodedFirstExceptionMechanism.desc)
-        
+
         // Exception Mechanism Meta
         let firstEventExceptionMechanismMeta = try XCTUnwrap(firstEventExceptionMechanism.meta)
         let decodedFirstExceptionMechanismMeta = try XCTUnwrap(decodedFirstExceptionMechanism.meta)
@@ -218,7 +218,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(firstEventDebugMeta.imageAddress, decodedFirstDebugMeta.imageAddress)
         XCTAssertEqual(firstEventDebugMeta.imageSize, decodedFirstDebugMeta.imageSize)
         XCTAssertEqual(firstEventDebugMeta.type, decodedFirstDebugMeta.type)
-        
+
         // Breadcrumbs
         let eventBreadcrumbs = try XCTUnwrap(event.breadcrumbs)
         let decodedBreadcrumbs = try XCTUnwrap(decoded.breadcrumbs)
@@ -228,7 +228,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(firstEventBreadcrumb.message, decodedFirstBreadcrumb.message)
         XCTAssertEqual(firstEventBreadcrumb.level, decodedFirstBreadcrumb.level)
         XCTAssertEqual(firstEventBreadcrumb.timestamp, decodedFirstBreadcrumb.timestamp)
-        
+
         // Request
         let eventRequest = try XCTUnwrap(event.request)
         let decodedRequest = try XCTUnwrap(decoded.request)

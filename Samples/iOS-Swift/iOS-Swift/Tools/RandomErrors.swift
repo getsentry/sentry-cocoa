@@ -7,7 +7,7 @@ enum SampleError: Error {
 }
 
 class RandomErrorGenerator {
-    
+
     static func generate() throws {
         let random = Int.random(in: 0...2)
         switch random {

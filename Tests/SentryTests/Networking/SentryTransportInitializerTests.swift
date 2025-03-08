@@ -3,11 +3,11 @@ import SentryTestUtils
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
-    
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportInitializerTests")
-    
+
     private var fileManager: SentryFileManager!
-    
+
     override func setUp() {
         super.setUp()
         let options = Options()
@@ -17,10 +17,10 @@ class SentryTransportInitializerTests: XCTestCase {
 
     func testDefault() throws {
         let options = try Options(dict: ["dsn": SentryTransportInitializerTests.dsnAsString])
-    
+
         let result = TransportInitializer.initTransports(options, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
         XCTAssertEqual(result.count, 1)
-        
+
         let firstTransport = result.first
         XCTAssertEqual(firstTransport?.isKind(of: SentryHttpTransport.self), true)
     }

@@ -7,7 +7,7 @@ protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
 
 @objcMembers
 class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
-    
+
     private let supportedNetworkData = Set<String>([
         "status_code",
         "method",
@@ -16,7 +16,7 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
         "http.query",
         "http.fragment"]
     )
-    
+
     /**
      * This function will convert the SDK breadcrumbs to session replay breadcrumbs in a format that the front-end understands.
      * Any deviation in the information will cause the breadcrumb or the information itself to be discarded
@@ -35,22 +35,22 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "device.connectivity", data: ["state": networkType])
         } else if let action = breadcrumb.data?["action"] as? String, action == "BATTERY_STATE_CHANGE" {
             var data = breadcrumb.data?.filter({ item in item.key == "level" || item.key == "plugged" }) ?? [:]
-            
+
             data["charging"] = data["plugged"]
             data["plugged"] = nil
-            
+
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp,
                                               category: "device.battery",
                                               data: data)
         }
-        
+
         let level = getLevel(breadcrumb: breadcrumb)
         return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: breadcrumb.category, message: breadcrumb.message, level: level, data: breadcrumb.data)
     }
-    
+
     private func navigationBreadcrumb(_ breadcrumb: Breadcrumb) -> SentryRRWebBreadcrumbEvent? {
         guard let timestamp = breadcrumb.timestamp else { return nil }
-        
+
         if breadcrumb.category == "app.lifecycle" {
             guard let state = breadcrumb.data?["state"] else { return nil }
             return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "app.\(state)")
@@ -64,24 +64,24 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
             }
         }
     }
-    
+
     private func networkSpan(_ breadcrumb: Breadcrumb) -> SentryRRWebSpanEvent? {
         guard let timestamp = breadcrumb.timestamp,
               let description = breadcrumb.data?["url"] as? String,
               let startTimestamp = breadcrumb.data?["request_start"] as? Date
         else { return nil }
         var data = [String: Any]()
-        
+
         breadcrumb.data?.forEach({ (key, value) in
             guard supportedNetworkData.contains(key) else { return }
             let newKey = key.replacingOccurrences(of: "http.", with: "")
             data[newKey.snakeToCamelCase()] = value
         })
-        
+
         //We dont have end of the request in the breadcrumb.
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
-    
+
     private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
     }

@@ -6,7 +6,7 @@ import Foundation
 public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
     private let dispatchAsyncLock = NSLock()
-    
+
     public var dispatchAsyncCalled = 0
 
     /// Whether or not delayed dispatches should execute.
@@ -16,21 +16,21 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     public var dispatchAsyncInvocations = Invocations<() -> Void>()
     public var dispatchAsyncExecutesBlock = true
     public override func dispatchAsync(_ block: @escaping () -> Void) {
-        
+
         dispatchAsyncLock.synchronized {
             dispatchAsyncCalled += 1
             dispatchAsyncInvocations.record(block)
         }
-        
+
         if dispatchAsyncExecutesBlock {
             block()
         }
     }
-    
+
     public func invokeLastDispatchAsync() {
         dispatchAsyncInvocations.invocations.last?()
     }
-    
+
     public var blockOnMainInvocations = Invocations<() -> Void>()
     public var blockBeforeMainBlock: () -> Bool = { true }
 
@@ -70,7 +70,7 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
         block()
     }
-    
+
     public var createDispatchBlockReturnsNULL = false
     public override func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
         if createDispatchBlockReturnsNULL {
@@ -78,5 +78,5 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         }
         return super.createDispatchBlock(block)
     }
-    
+
 }

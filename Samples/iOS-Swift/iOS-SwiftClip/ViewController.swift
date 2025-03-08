@@ -11,5 +11,5 @@ class ViewController: UIViewController {
     @IBAction func crash(_ sender: Any) {
         SentrySDK.crash()
     }
-    
+
 }

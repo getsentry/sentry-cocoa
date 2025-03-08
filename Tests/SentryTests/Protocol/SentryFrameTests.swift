@@ -6,10 +6,10 @@ class SentryFrameTests: XCTestCase {
     func testSerialize() {
         // Arrange
         let frame = TestData.mainFrame
-        
+
         // Act
         let actual = frame.serialize()
-        
+
         // Assert
         XCTAssertEqual(frame.symbolAddress, actual["symbol_addr"] as? String)
         XCTAssertEqual(frame.fileName, actual["filename"] as? String)
@@ -29,10 +29,10 @@ class SentryFrameTests: XCTestCase {
         // Arrange
         let frame = TestData.mainFrame
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: frame.serialize()))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
-        
+
         // Assert
         XCTAssertEqual(frame.symbolAddress, decoded.symbolAddress)
         XCTAssertEqual(frame.fileName, decoded.fileName)
@@ -51,10 +51,10 @@ class SentryFrameTests: XCTestCase {
         // Arrange
         let frame = Frame()
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: frame.serialize()))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
-        
+
         // Assert
         XCTAssertNil(decoded.symbolAddress)
         XCTAssertNil(decoded.fileName)
@@ -69,7 +69,7 @@ class SentryFrameTests: XCTestCase {
         XCTAssertNil(decoded.inApp)
         XCTAssertNil(decoded.stackStart)
     }
-    
+
     func testSerialize_Bools() {
         SentryBooleanSerialization.test(Frame(), property: "inApp", serializedProperty: "in_app")
         SentryBooleanSerialization.test(Frame(), property: "stackStart", serializedProperty: "stack_start")

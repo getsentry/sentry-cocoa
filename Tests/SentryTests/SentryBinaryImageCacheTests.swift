@@ -45,10 +45,10 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.cache.first?.name, "Expected Name at 0")
         XCTAssertEqual(try XCTUnwrap(sut.cache.element(at: 1)).name, "Expected Name at 100")
     }
-    
+
     func testBinaryImageAdded_IsNull() {
         sut.binaryImageAdded(nil)
-        
+
         XCTAssertEqual(self.sut.cache.count, 0)
     }
 
@@ -84,13 +84,13 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.cache.count, 0)
         XCTAssertNil(sut.image(byAddress: 240))
     }
-    
+
     func testBinaryImageRemoved_IsNull() {
         var binaryImage = createCrashBinaryImage(0)
         sut.binaryImageAdded(&binaryImage)
-        
+
         sut.binaryImageRemoved(nil)
-        
+
         XCTAssertEqual(self.sut.cache.count, 1)
     }
 
@@ -115,29 +115,29 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertNil(sut.image(byAddress: 300))
         XCTAssertNil(sut.image(byAddress: 399))
     }
-    
+
     func testImagePathByName() {
         var binaryImage = createCrashBinaryImage(0)
         var binaryImage2 = createCrashBinaryImage(1)
         sut.binaryImageAdded(&binaryImage)
         sut.binaryImageAdded(&binaryImage2)
-        
+
         let paths = sut.imagePathsFor(inAppInclude: "Expected Name at 0")
         XCTAssertEqual(paths.first, "Expected Name at 0")
-        
+
         let paths2 = sut.imagePathsFor(inAppInclude: "Expected Name at 1")
         XCTAssertEqual(paths2.first, "Expected Name at 1")
-        
+
         let bothPaths = sut.imagePathsFor(inAppInclude: "Expected")
         XCTAssertEqual(bothPaths, ["Expected Name at 0", "Expected Name at 1"])
-        
+
         let didNotFind = sut.imagePathsFor(inAppInclude: "Name at 0")
         XCTAssertTrue(didNotFind.isEmpty)
     }
-    
+
     func testBinaryImageWithNULLName_DoesNotAddImage() {
         let address = UInt64(100)
-    
+
         var binaryImage = SentryCrashBinaryImage(
             address: address,
             vmAddress: 0,
@@ -149,19 +149,19 @@ class SentryBinaryImageCacheTests: XCTestCase {
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )
-        
+
         sut.binaryImageAdded(&binaryImage)
         XCTAssertNil(self.sut.image(byAddress: address))
         XCTAssertEqual(self.sut.cache.count, 0)
     }
-    
+
     func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
         let name = NSString(string: "こんにちは") // "Hello" in Japanese
         // 8 = NSShiftJISStringEncoding
         // Passing NSShiftJISStringEncoding directly doesn't work on older Xcode versions.
         let nameCString = name.cString(using: UInt(8))
         let address = UInt64(100)
-    
+
         var binaryImage = SentryCrashBinaryImage(
             address: address,
             vmAddress: 0,
@@ -173,57 +173,57 @@ class SentryBinaryImageCacheTests: XCTestCase {
             crashInfoMessage: nil,
             crashInfoMessage2: nil
         )
-        
+
         sut.binaryImageAdded(&binaryImage)
         XCTAssertNil(self.sut.image(byAddress: address))
         XCTAssertEqual(self.sut.cache.count, 0)
     }
-    
+
     func testAddingImagesWhileStoppingAndStartingOnDifferentThread() {
         let count = 1_000
-        
+
         let expectation = expectation(description: "Add images on background thread")
         expectation.expectedFulfillmentCount = count
-        
+
         for i in 0..<count {
             DispatchQueue.global().async {
                 var binaryImage0 = createCrashBinaryImage(UInt(i * 10))
                 self.sut.binaryImageAdded(&binaryImage0)
-                
+
                 self.sut.stop()
                 self.sut.start()
-                
+
                 expectation.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 1)
     }
-    
+
     func testAddingImagesWhileGettingAllOnDifferentThread() {
         let count = 1_000
-        
+
         let expectation = expectation(description: "Add images on background thread")
         expectation.expectedFulfillmentCount = count
-        
+
         self.sut.start()
-        
+
         for i in 0..<count {
             DispatchQueue.global().async {
                 var binaryImage = createCrashBinaryImage(UInt(i * 10), name: "image")
                 self.sut.binaryImageAdded(&binaryImage)
-                
+
                 let allBinaryImages = self.sut.getAllBinaryImages()
                 XCTAssertGreaterThan(allBinaryImages.count, 0)
-                
+
                 for image in allBinaryImages {
                     XCTAssertEqual("image", image.name)
                 }
-                
+
                 expectation.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 1)
     }
 }
@@ -231,7 +231,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
 func createCrashBinaryImage(_ address: UInt, vmAddress: UInt64 = 0, name: String? = nil) -> SentryCrashBinaryImage {
     let imageName = name ?? "Expected Name at \(address)"
     let nameCString = imageName.withCString { strdup($0) }
-    
+
     var uuidPointer = UnsafeMutablePointer<UInt8>(nil)
     let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
     uuidPointer = UnsafeMutablePointer<UInt8>.allocate(capacity: uuidAsCharArray.count)

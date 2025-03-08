@@ -28,11 +28,11 @@ public extension View {
 struct SentryReplayPreviewView: UIViewRepresentable {
     let redactOptions: SentryRedactOptions
     let opacity: Float
-    
+
     func makeUIView(context: Context) -> SentryReplayMaskPreviewUIView {
         return SentryReplayMaskPreviewUIView(redactOptions: redactOptions)
     }
-    
+
     func updateUIView(_ uiView: SentryReplayMaskPreviewUIView, context: Context) {
         uiView.opacity = CGFloat(opacity)
     }

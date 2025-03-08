@@ -2,7 +2,7 @@
 import Foundation
 
 extension DebugMeta: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case uuid
         case debugID = "debug_id"
@@ -13,12 +13,12 @@ extension DebugMeta: Decodable {
         case imageVmAddress = "image_vmaddr"
         case codeFile = "code_file"
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         self.init()
-        
+
         self.uuid = try container.decodeIfPresent(String.self, forKey: .uuid)
         self.debugID = try container.decodeIfPresent(String.self, forKey: .debugID)
         self.type = try container.decodeIfPresent(String.self, forKey: .type)
@@ -27,6 +27,6 @@ extension DebugMeta: Decodable {
         self.imageAddress = try container.decodeIfPresent(String.self, forKey: .imageAddress)
         self.imageVmAddress = try container.decodeIfPresent(String.self, forKey: .imageVmAddress)
         self.codeFile = try container.decodeIfPresent(String.self, forKey: .codeFile)
-    
+
     }
 }

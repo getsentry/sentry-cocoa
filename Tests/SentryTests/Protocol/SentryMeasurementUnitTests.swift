@@ -5,28 +5,28 @@ final class SentryMeasurementUnitTests: XCTestCase {
     func testCustomUnit() {
         let unit = "custom"
         let sut = MeasurementUnit(unit: unit)
-        
+
         XCTAssertEqual(unit, sut.unit)
     }
-    
+
     func testUnitNone() {
         XCTAssertEqual("", MeasurementUnit.none.unit)
     }
-    
+
     func testCopy() throws {
         let unit = "custom"
         let sut = try XCTUnwrap(MeasurementUnit(unit: unit).copy() as? MeasurementUnit)
 
         XCTAssertEqual(unit, sut.unit)
     }
-    
+
     func testCopyOfSubclass() throws {
         let unit = "custom"
         let sut = try XCTUnwrap(MeasurementUnitDuration(unit: unit).copy() as? MeasurementUnitDuration)
 
         XCTAssertEqual(unit, sut.unit)
     }
-    
+
     func testMeasurementUnitDuration() {
         XCTAssertEqual("nanosecond", MeasurementUnitDuration.nanosecond.unit)
         XCTAssertEqual("microsecond", MeasurementUnitDuration.microsecond.unit)
@@ -37,7 +37,7 @@ final class SentryMeasurementUnitTests: XCTestCase {
         XCTAssertEqual("day", MeasurementUnitDuration.day.unit)
         XCTAssertEqual("week", MeasurementUnitDuration.week.unit)
     }
-    
+
     func testMeasurementUnitInformation() {
         XCTAssertEqual("bit", MeasurementUnitInformation.bit.unit)
         XCTAssertEqual("byte", MeasurementUnitInformation.byte.unit)
@@ -54,7 +54,7 @@ final class SentryMeasurementUnitTests: XCTestCase {
         XCTAssertEqual("exabyte", MeasurementUnitInformation.exabyte.unit)
         XCTAssertEqual("exbibyte", MeasurementUnitInformation.exbibyte.unit)
     }
-    
+
     func testMeasurementUnitFraction() {
         XCTAssertEqual("ratio", MeasurementUnitFraction.ratio.unit)
         XCTAssertEqual("percent", MeasurementUnitFraction.percent.unit)

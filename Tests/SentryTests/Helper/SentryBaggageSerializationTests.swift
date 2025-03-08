@@ -3,7 +3,7 @@ import Foundation
 import XCTest
 
 class SentryBaggageSerializationTests: XCTestCase {
-    
+
     func testDictionaryToBaggageEncoded() {
         XCTAssertEqual(encodeDictionary(["key": "value"]), "key=value")
         XCTAssertEqual(encodeDictionary(["key": "value", "key2": "value2"]), "key2=value2,key=value")
@@ -13,26 +13,26 @@ class SentryBaggageSerializationTests: XCTestCase {
         XCTAssertEqual(encodeDictionary(["key": "value%"]), "key=value%25")
         XCTAssertEqual(encodeDictionary(["key": "value-_"]), "key=value-_")
         XCTAssertEqual(encodeDictionary(["key": "value\n\r"]), "key=value%0A%0D")
-        
+
         let largeValue = String(repeating: "a", count: 8_188)
-        
+
         XCTAssertEqual(encodeDictionary(["key": largeValue]), "key=\(largeValue)")
         XCTAssertEqual(encodeDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
         XCTAssertEqual(encodeDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
     }
-    
+
     func testBaggageEmptyKey_ReturnsEmptyString() {
         XCTAssertEqual(encodeDictionary(["key": ""]), "")
     }
-    
+
     func testBaggageEmptyValue_ReturnsEmptyString() {
         XCTAssertEqual(encodeDictionary(["": "value"]), "")
     }
-    
+
     func testBaggageEmptyKeyAndValue_ReturnsEmptyString() {
         XCTAssertEqual(encodeDictionary(["": ""]), "")
     }
-    
+
     func testBaggageStringToDictionaryDecoded() {
         XCTAssertEqual(decode("key=value"), ["key": "value"])
         XCTAssertEqual(decode("key2=value2,key=value"), ["key": "value", "key2": "value2"])
@@ -46,11 +46,11 @@ class SentryBaggageSerializationTests: XCTestCase {
         XCTAssertEqual(decode("key"), [:])
         XCTAssertEqual(decode("key="), ["key": ""])
     }
-    
+
     private func encodeDictionary(_ dictionary: [String: String]) -> String {
         return SentryBaggageSerialization.encodeDictionary(dictionary)
     }
-    
+
     private func decode(_ baggage: String) -> [String: String] {
         return SentryBaggageSerialization.decode(baggage)
     }

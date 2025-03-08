@@ -12,7 +12,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         }()
 
         let data = "SOME DATA".data(using: .utf8)!
-        
+
         var fileUrlToRead: URL!
         var fileUrlToWrite: URL!
         var ignoredFileUrlToRead: URL!

@@ -4,24 +4,24 @@ import XCTest
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testContentsOfLaunchTraceProfileTransactionContext() {
         let context = sentry_context(NSNumber(value: 1), NSNumber(value: 1))
         XCTAssertEqual(context.nameSource.rawValue, 0)
         XCTAssertEqual(context.origin, "auto.app.start.profile")
         XCTAssertEqual(context.sampled, .yes)
     }
-    
+
     #if !os(macOS)
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profiler continues running
     func testLaunchContinuousProfileNotStoppedOnFullyDisplayed() throws {
@@ -32,7 +32,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
-        
+
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
@@ -43,7 +43,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         fixture.displayLinkWrapper.call()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-    
+
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profile is stopped
     func testLaunchTraceProfileStoppedOnFullyDisplayed() throws {
         // start a launch profile
@@ -62,7 +62,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         fixture.displayLinkWrapper.call()
         XCTAssertFalse(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
     }
-    
+
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profiler continues running
     func testLaunchContinuousProfileNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // start a launch profile
@@ -72,7 +72,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
-        
+
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
@@ -82,7 +82,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         fixture.displayLinkWrapper.call()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-    
+
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profile is stopped
     func testLaunchTraceProfileStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // start a launch profile
@@ -114,7 +114,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         sentry_manageTraceProfilerOnStartSDK(fixture.options, TestHub(client: nil, andScope: nil))
         XCTAssertNil(sentry_launchTracer)
     }
-   
+
     func testLaunchTraceProfileConfiguration() throws {
         // -- Arrange --
         let expectedProfilesSampleRate: NSNumber = 0.567
@@ -124,7 +124,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
 
         // -- Act --
         let options = Options()
-        options.enableAppLaunchProfiling = true 
+        options.enableAppLaunchProfiling = true
         options.profilesSampleRate = expectedProfilesSampleRate
         options.tracesSampleRate = expectedTracesSampleRate
 
@@ -169,10 +169,10 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         let options = Options()
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = nil
-        
+
         // sample rates are not considered for continuous profiling (can't test this with a profilesSampleRate of 0 though, because it must be nil to enable continuous profiling)
         options.tracesSampleRate = 0
-        
+
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
@@ -182,7 +182,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-   
+
     // test that after configuring trace based app launch profiling, then on
     // the next launch, configuring profiling for continuous mode, that the
     // configuration file switches from trace-based to continuous-style config
@@ -219,7 +219,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
         XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
     }
- 
+
     func testTraceProfilerStartsWhenBothSampleRatesAreSetAboveZero() {
         let options = Options()
         options.enableAppLaunchProfiling = true
@@ -231,7 +231,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
     }
- 
+
     /**
      * Test how combinations of the following options interact to ultimately decide whether or not to start the profiler on the next app launch..
      * - `enableLaunchProfiling`
@@ -297,7 +297,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
             (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: true),
             (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
             (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: true),
-            
+
             // just those cases that had nil profilesSampleRate but nonnil profilesSamplerReturnValue, now with both as nil, which would enable launch profiling with continuous mode
                 (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
                 (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),

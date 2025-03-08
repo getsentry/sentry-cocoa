@@ -103,36 +103,36 @@ struct ContentView: View {
                         Button(action: addBreadcrumbAction) {
                             Text("Add Breadcrumb")
                         }
-                        
+
                         Button(action: captureMessageAction) {
                             Text("Capture Message")
                         }
                         .accessibility(identifier: "captureMessageButton")
-                        
+
                         Button(action: captureUserFeedbackAction) {
                             Text("Capture User Feedback")
                         }
-                        
+
                         Button(action: captureErrorAction) {
                             Text("Capture Error")
                         }
-                        
+
                         Button(action: captureNSExceptionAction) {
                             Text("Capture NSException")
                         }
-                        
+
                         Button(action: captureTransactionAction) {
                             Text("Capture Transaction")
                         }
                     }
                     VStack {
-                        
+
                         Button(action: {
                             SentrySDK.crash()
                         }) {
                             Text("Crash")
                         }
-                        
+
                         Button(action: {
                             DispatchQueue.main.async {
                                 self.asyncCrash1()
@@ -140,17 +140,17 @@ struct ContentView: View {
                         }) {
                             Text("Async Crash")
                         }
-                        
+
                         Button(action: oomCrashAction) {
                             Text("OOM Crash")
                         }
-                        
+
                         Button(action: {
                             Thread.sleep(forTimeInterval: 3.0)
                         }) {
                             Text("Cause ANR")
                         }
-                        
+
                         NavigationLink(destination: LoremIpsumView()) {
                             Text("Show Detail View 1")
                         }

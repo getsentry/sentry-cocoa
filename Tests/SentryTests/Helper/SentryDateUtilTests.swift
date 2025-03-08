@@ -9,27 +9,27 @@ class SentryDateUtilTests: XCTestCase {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
     }
-    
+
     func testIsInFutureWithFutureDte() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
         XCTAssertTrue(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(1)))
     }
-    
+
     func testIsInFutureWithPresentDate() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
-        
+
         XCTAssertFalse(sut.is(inFuture: currentDateProvider.date()))
     }
-    
+
     func testIsInFutureWithPastDate() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
-        
+
         XCTAssertFalse(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(-1)))
    }
-    
+
     func testIsInFutureWithNil() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
-        
+
         XCTAssertFalse(sut.is(inFuture: nil))
     }
 
@@ -49,7 +49,7 @@ class SentryDateUtilTests: XCTestCase {
 
     func testGetMaximumWithNil() {
         let date = currentDateProvider.date()
-    
+
         XCTAssertEqual(date, SentryDateUtil.getMaximumDate(nil, andOther: date))
         XCTAssertEqual(date, SentryDateUtil.getMaximumDate(date, andOther: nil))
         XCTAssertNil(SentryDateUtil.getMaximumDate(nil, andOther: nil))
@@ -58,8 +58,8 @@ class SentryDateUtilTests: XCTestCase {
     func testJavascriptDate() {
         let testDate = Date(timeIntervalSince1970: 60)
         let timestamp = SentryDateUtil.millisecondsSince1970(testDate)
-        
+
         XCTAssertEqual(timestamp, 60_000)
     }
-    
+
 }

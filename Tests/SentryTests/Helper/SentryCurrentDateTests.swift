@@ -8,7 +8,7 @@ class SentryCurrentDateTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testSetNoCurrentDateProvider() {
         let firstDate = Date()
         let secondDate = SentryDependencyContainer.sharedInstance().dateProvider.date()

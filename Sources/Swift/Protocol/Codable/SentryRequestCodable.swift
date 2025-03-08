@@ -2,7 +2,7 @@
 import Foundation
 
 extension SentryRequest: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case bodySize = "body_size"
         case cookies
@@ -12,12 +12,12 @@ extension SentryRequest: Decodable {
         case queryString = "query_string"
         case url
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         self.init()
-        
+
         self.bodySize = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .bodySize)?.value
         self.cookies = try container.decodeIfPresent(String.self, forKey: .cookies)
         self.headers = try container.decodeIfPresent([String: String].self, forKey: .headers)

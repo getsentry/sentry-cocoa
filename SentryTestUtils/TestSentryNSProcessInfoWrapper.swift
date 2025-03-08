@@ -21,7 +21,7 @@ public class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
     public override var thermalState: ProcessInfo.ThermalState {
         overrides.thermalState ?? super.thermalState
     }
-    
+
     public override var environment: [String: String] {
         overrides.environment ?? super.environment
     }

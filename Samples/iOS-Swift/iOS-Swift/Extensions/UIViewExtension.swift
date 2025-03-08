@@ -8,7 +8,7 @@ extension UIView {
         translatesAutoresizingMaskIntoConstraints = false
         return self
     }
-    
+
     func matchEdgeAnchors(from other: UIView, leadingPad: CGFloat = 0, trailingPad: CGFloat = 0, topPad: CGFloat = 0, bottomPad: CGFloat = 0) {
         self.translatesAutoresizingMaskIntoConstraints = false
         other.translatesAutoresizingMaskIntoConstraints = false

@@ -6,7 +6,7 @@ public class PreviewRedactOptions: SentryRedactOptions {
     public let maskAllImages: Bool
     public let maskedViewClasses: [AnyClass]
     public let unmaskedViewClasses: [AnyClass]
-    
+
     public init(maskAllText: Bool = true, maskAllImages: Bool = true, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages

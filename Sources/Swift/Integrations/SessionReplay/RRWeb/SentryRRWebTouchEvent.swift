@@ -15,7 +15,7 @@ struct TouchPosition {
 }
 
 class RRWebTouchEvent: SentryRRWebEvent {
-    
+
     init(timestamp: Date, touchId: Int, x: Float, y: Float, phase: TouchEventPhase) {
         super.init(type: .touch,
                    timestamp: timestamp,

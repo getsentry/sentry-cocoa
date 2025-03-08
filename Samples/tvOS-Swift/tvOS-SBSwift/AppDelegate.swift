@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             options.experimental.enableFileManagerSwizzling = true
         }
-        
+
         return true
     }
 

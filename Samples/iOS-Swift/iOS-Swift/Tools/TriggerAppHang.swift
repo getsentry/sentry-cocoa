@@ -9,7 +9,7 @@ import UIKit
 /// too many frames and is able to still handle user input, such as navigating to a
 /// different screen.
 func triggerNonFullyBlockingAppHang() {
-    
+
     DispatchQueue.global().async {
         for _ in 0...10 {
             Thread.sleep(forTimeInterval: 0.0001)

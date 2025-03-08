@@ -3,9 +3,9 @@ import SwiftUI
 
 @main
 struct MacOSSwiftUIApp: App {
-    
+
     @NSApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -14,7 +14,7 @@ struct MacOSSwiftUIApp: App {
 }
 
 class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
-    
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         SentrySDK.start { options in
             options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
@@ -25,5 +25,5 @@ class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             options.experimental.enableFileManagerSwizzling = true
         }
     }
-    
+
 }

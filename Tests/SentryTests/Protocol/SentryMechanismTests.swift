@@ -6,9 +6,9 @@ class SentryMechanismTests: XCTestCase {
 
     func testSerialize() {
         let mechanism = TestData.mechanism
-        
+
         let actual = mechanism.serialize()
-        
+
         // Changing the original doesn't modify the serialized
         mechanism.data?["other"] = "object"
         mechanism.meta = nil
@@ -31,47 +31,47 @@ class SentryMechanismTests: XCTestCase {
 
         XCTAssertNotNil(actual["meta"])
     }
-    
+
     func testSerialize_OnlyType_NullablePropertiesNotAdded() {
         let type = "type"
         let mechanism = Mechanism(type: type)
-        
+
         let actual = mechanism.serialize()
         XCTAssertEqual(1, actual.count)
         XCTAssertEqual(type, actual["type"] as? String)
     }
-    
+
     func testSerialize_Bools() {
         SentryBooleanSerialization.test(Mechanism(type: ""), property: "handled")
     }
-    
+
     func testDecode_WithAllProperties() throws {
         // Arrange
         let expected = TestData.mechanism
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: expected.serialize()))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Mechanism?)
-        
+
         // Assert
         XCTAssertEqual(expected.type, decoded.type)
         XCTAssertEqual(expected.desc, decoded.desc)
         XCTAssertEqual(expected.handled, decoded.handled)
         XCTAssertEqual(expected.synthetic, decoded.synthetic)
         XCTAssertEqual(expected.helpLink, decoded.helpLink)
-        
+
         XCTAssertEqual(expected.meta?.error?.code, decoded.meta?.error?.code)
         XCTAssertEqual(expected.meta?.error?.domain, decoded.meta?.error?.domain)
     }
-    
+
     func testDecode_WithAllPropertiesNil() throws {
         // Arrange
         let expected = Mechanism(type: "type")
         let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: expected.serialize()))
-        
+
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Mechanism?)
-        
+
         // Assert
         XCTAssertEqual(expected.type, decoded.type)
         XCTAssertNil(decoded.desc)

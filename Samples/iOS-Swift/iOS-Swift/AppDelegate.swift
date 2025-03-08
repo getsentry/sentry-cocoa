@@ -4,7 +4,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
     var window: UIWindow?
-    
+
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
         print("[iOS-Swift] [debug] launch arguments: \(args)")
@@ -18,23 +18,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if !args.contains("--skip-sentry-init") {
             SentrySDKWrapper.shared.startSentry()
         }
-        
+
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
-        
+
         return true
     }
-    
+
     func applicationWillTerminate(_ application: UIApplication) {
         if #available(iOS 15.0, *) {
             metricKit.pauseReports()
         }
-        
+
         randomDistributionTimer?.invalidate()
         randomDistributionTimer = nil
     }
-    
+
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
     private var _metricKit: Any?
     @available(iOS 15.0, *)
@@ -42,13 +42,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if _metricKit == nil {
             _metricKit = MetricKitManager()
         }
-        
+
         // We know the type so it's fine to force cast.
         // swiftlint:disable force_cast
         return _metricKit as! MetricKitManager
         // swiftlint:enable force_cast
     }
-    
+
     /**
      * previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until
      * after a launch profiler would have an opportunity to run, since SentryProfiler.load would always run

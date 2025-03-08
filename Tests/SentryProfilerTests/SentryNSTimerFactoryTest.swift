@@ -1,7 +1,7 @@
 import XCTest
 
 class SentryNSTimerFactoryTests: XCTestCase {
-    
+
     private struct Fixture {
         lazy var timerFactory = SentryNSTimerFactory()
     }

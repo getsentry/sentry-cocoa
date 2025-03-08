@@ -18,12 +18,12 @@ public func showToast(in vc: UIViewController, type: ToastType, message: String)
     case .warning:
         title = "Warning"
         action = .init(title: "OK", style: .default, handler: { _ in
-            
+
         })
     case .error:
         title = "Error"
         action = .init(title: "OK", style: .default, handler: { _ in
-            
+
         })
     }
     let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)

@@ -26,7 +26,7 @@ enum ArbitraryData: Decodable {
     case dict([String: ArbitraryData])
     case array([ArbitraryData])
     case null
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
@@ -67,7 +67,7 @@ func decodeArbitraryData(decode: () throws -> [String: ArbitraryData]?) -> [Stri
         if rawData == nil {
             return nil
         }
-        
+
         return unwrapArbitraryDict(rawData)
     } catch {
         SentryLog.error("Failed to decode raw data: \(error)")
@@ -81,12 +81,12 @@ func decodeArbitraryData(decode: () throws -> [String: [String: ArbitraryData]]?
         if rawData == nil {
             return nil
         }
-        
+
         var newData = [String: [String: Any]]()
         for (key, value) in rawData ?? [:] {
             newData[key] = unwrapArbitraryDict(value)
         }
-        
+
         return newData
     } catch {
         SentryLog.error("Failed to decode raw data: \(error)")
@@ -98,7 +98,7 @@ private func unwrapArbitraryDict(_ dict: [String: ArbitraryData]?) -> [String: A
     guard let nonNullDict = dict else {
         return nil
     }
-    
+
     return nonNullDict.mapValues { unwrapArbitraryValue($0) as Any }
 }
 

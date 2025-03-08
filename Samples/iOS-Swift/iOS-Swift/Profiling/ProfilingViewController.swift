@@ -2,23 +2,23 @@ import Sentry
 import UIKit
 
 class ProfilingViewController: UIViewController, UITextFieldDelegate {
-    
+
     @IBOutlet weak var workThreadLabel: UILabel!
     @IBOutlet weak var workIntensityFactorLabel: UILabel!
-    
+
     @IBOutlet weak var workThreadSlider: UISlider!
     @IBOutlet weak var workIntervalSlider: UISlider!
-    
+
     @IBOutlet weak var maxThreadsTextField: UITextField!
     @IBOutlet weak var minThreadsTextField: UITextField!
     @IBOutlet weak var minWorkIntensityTextField: UITextField!
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
     @IBOutlet weak var valueTextField: UITextField!
-    
+
     @IBOutlet weak var launchProfilingMarkerFileCheckButton: UIButton!
     @IBOutlet weak var profilingUITestDataMarshalingTextField: UITextField!
     @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
-        
+
     @IBOutlet weak var dsnView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,19 +32,19 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         profilingUITestDataMarshalingTextField.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
         launchProfilingMarkerFileCheckButton.accessibilityLabel = "io.sentry.ui-tests.app-launch-profile-marker-file-button"
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
-        
+
         addDSNDisplay(self, vcview: dsnView)
     }
-    
+
     @IBAction func startBenchmark(_ sender: UIButton) {
         highlightButton(sender)
         SentryBenchmarking.startBenchmark()
     }
-    
+
     @IBAction func stopBenchmark(_ sender: UIButton) {
         highlightButton(sender)
         guard let value = SentryBenchmarking.stopBenchmark() else {
@@ -58,46 +58,46 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         valueTextField.text = value
         print("[iOS-Swift] [debug] [ProfilingViewController] benchmarking results:\n\(value)")
     }
-    
+
     @IBAction func startCPUWork(_ sender: UIButton) {
         highlightButton(sender)
         _adjustWorkThreadsToCurrentRequirement()
     }
-    
+
     @IBAction func minWorkThreadCountChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-    
+
     @IBAction func workThreadSliderChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-    
+
     @IBAction func maxWorkThreadCountChanged(_ sender: Any) {
         _adjustWorkThreadsToCurrentRequirement()
     }
-    
+
     @IBAction func endCPUWork(_ sender: UIButton) {
         highlightButton(sender)
         cpuWorkthreads.forEach { $0.cancel() }
         cpuWorkthreads.removeAll()
     }
-    
+
     @IBAction func minWorkIntervalChanged(_ sender: Any) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-    
+
     @IBAction func workIntensityChanged(_ sender: UISlider) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-    
+
     @IBAction func maxWorkIntervalChanged(_ sender: Any) {
         _adjustWorkIntervalToCurrentRequirements()
     }
-    
+
     @IBAction func bgBrightnessChanged(_ sender: UISlider) {
         view.backgroundColor = .init(white: CGFloat(sender.value), alpha: 1)
     }
-    
+
     @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
         let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
         if FileManager.default.fileExists(atPath: launchProfileMarkerPath) {
@@ -106,35 +106,35 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             profilingUITestDataMarshalingTextField.text = "<missing>"
         }
     }
-    
+
     @IBAction func startContinuousProfiler(_ sender: Any) {
         SentrySDK.startProfiler()
     }
-    
+
     @IBAction func stopContinuousProfiler(_ sender: Any) {
         SentrySDK.stopProfiler()
     }
-    
+
     @IBAction func viewLastProfile(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
         withProfile(first: false) { file in
             handleContents(file: file)
         }
     }
-    
+
     @IBAction func viewFirstContinuousProfileChunk(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
         withProfile(first: true) { file in
             handleContents(file: file)
         }
     }
-        
+
     // MARK: UITextFieldDelegate
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
     }
-    
+
     private func withProfile(first: Bool, block: (URL?) -> Void) {
         let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
@@ -148,7 +148,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         }
         let fileName = "profile\(first ? 0 : count - 1)"
         let fullPath = "\(dir)/\(fileName)"
-        
+
         if fm.fileExists(atPath: fullPath) {
             let url = NSURL.fileURL(withPath: fullPath)
             block(url)
@@ -159,17 +159,17 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             }
             return
         }
-        
+
         block(nil)
     }
-    
+
     private func handleContents(file: URL?) {
         guard let file = file else {
             profilingUITestDataMarshalingTextField.text = "<missing>"
             profilingUITestDataMarshalingStatus.text = "❌"
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: file)
             let contents = data.base64EncodedString()
@@ -182,7 +182,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             profilingUITestDataMarshalingStatus.text = "❌"
         }
     }
-    
+
     func _adjustWorkThreadsToCurrentRequirement() {
         let maxThreads = (maxThreadsTextField.text! as NSString).integerValue
         let minThreads = (minThreadsTextField.text! as NSString).integerValue

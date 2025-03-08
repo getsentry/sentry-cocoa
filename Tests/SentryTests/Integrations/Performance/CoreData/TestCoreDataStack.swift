@@ -27,35 +27,35 @@ class TestCoreDataStack {
 
     lazy var managedObjectModel: NSManagedObjectModel = {
         let model = NSManagedObjectModel()
-        
+
         let buildEntityDescription: ((AnyClass) -> NSEntityDescription) = { (entityClass: AnyClass) in
             let entity = NSEntityDescription()
             entity.name = NSStringFromClass(entityClass)
             entity.managedObjectClassName = entity.name
-            
+
             var properties = [NSAttributeDescription]()
-            
+
             let field1Attribute = NSAttributeDescription()
             field1Attribute.name = "field1"
             field1Attribute.attributeType = .stringAttributeType
             field1Attribute.isOptional = true
             properties.append(field1Attribute)
-            
+
             let field2Attribute = NSAttributeDescription()
             field2Attribute.name = "field2"
             field2Attribute.attributeType = .integer64AttributeType
             field2Attribute.isOptional = true
             properties.append(field2Attribute)
-            
+
             entity.properties = properties
             return entity
         }
-        
+
         let entity1 = buildEntityDescription(TestEntity.self)
         let entity2 = buildEntityDescription(SecondTestEntity.self)
-        
+
         model.entities = [entity1, entity2]
-        
+
         return model
     }()
 
@@ -89,7 +89,7 @@ class TestCoreDataStack {
         let url = tempDir.appendingPathComponent(databaseFilename)
         try? FileManager.default.removeItem(at: url)
     }
-    
+
     func getEntity<T: NSManagedObject>() -> T {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: NSStringFromClass(T.self), in: managedObjectContext) else {
             fatalError("Core Data entity name doesn't match.")
@@ -97,7 +97,7 @@ class TestCoreDataStack {
         let obj = T(entity: entityDescription, insertInto: managedObjectContext)
         return obj
     }
-    
+
     func saveContext () {
         if managedObjectContext.hasChanges {
             try? managedObjectContext.save()

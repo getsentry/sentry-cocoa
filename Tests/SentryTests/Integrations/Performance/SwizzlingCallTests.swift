@@ -3,12 +3,12 @@ import XCTest
 //Run swizzled function because if one of those funcions does not
 //call the original implementation an exception is thrown.
 class SwizzlingCallTests: XCTestCase {
- 
+
     override func setUp() {
         super.setUp()
         initSDKForSwizzling()
     }
-    
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testViewController_SwizzlingCall() {
         let testViewController = TestViewController()
@@ -18,21 +18,21 @@ class SwizzlingCallTests: XCTestCase {
         testViewController.viewWillAppear(false)
         testViewController.viewWillDisappear(false)
         testViewController.viewDidAppear(false)
-        
+
         let viewController = UIViewController()
         viewController.loadView()
         viewController.viewDidAppear(false)
     }
-    
+
 #endif
-    
+
     func testSwizzling() {
         let task = URLSession.shared.dataTask(with: URL(string: "http://localhost/")!)
         task.resume()
-        
+
         let _ = URLSessionConfiguration.default.httpAdditionalHeaders
     }
-    
+
     private func initSDKForSwizzling() {
         SentrySDK.start { options in
             options.dsn = ""

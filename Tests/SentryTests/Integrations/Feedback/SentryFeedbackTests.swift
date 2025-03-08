@@ -6,7 +6,7 @@ import XCTest
 class SentryFeedbackTests: XCTestCase {
     private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
-    
+
     private class Fixture {
         class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
             func finished(with feedback: Sentry.SentryFeedback?) {
@@ -21,74 +21,74 @@ class SentryFeedbackTests: XCTestCase {
             config.configureForm?(config.formConfig) // this is needed to actually get the configured test photo picker into the controller. usually done by the driver
             return controller
         }()
-                
+
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             self.config = config
             self.testCaseConfig = testCaseConfig
         }
     }
-    
+
     func testSerializeWithAllFields() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [Data()])
-        
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
     }
-    
+
     func testSerializeCustomFeedback() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, attachments: [Data()])
-        
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
     }
-    
+
     func testSerializeWithAssociatedEventID() throws {
         let eventID = SentryId()
-        
+
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, associatedEventId: eventID, attachments: [Data()])
-        
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
         XCTAssertEqual(try XCTUnwrap(serialization["associated_event_id"] as? String), eventID.sentryIdString)
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
     }
-    
+
     func testSerializeWithNoOptionalFields() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil)
-        
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertNil(serialization["name"])
         XCTAssertNil(serialization["contact_email"])
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 0)
     }
-        
+
     private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
         (config: (requiresName: false, requiresEmail: false, nameInput: nil, emailInput: nil, messageInput: nil, includeScreenshot: false), shouldValidate: false, expectedSubmitButtonAccessibilityHint: "You must provide all required information before submitting. Please check the following field: description."),
@@ -162,7 +162,7 @@ class SentryFeedbackTests: XCTestCase {
         (config: (requiresName: true, requiresEmail: true, nameInput: "tester", emailInput: "test@email.value", messageInput: "Test message", includeScreenshot: false), shouldValidate: true, expectedSubmitButtonAccessibilityHint: "Will submit feedback for tester at test@email.value with message: Test message."),
         (config: (requiresName: true, requiresEmail: true, nameInput: "tester", emailInput: "test@email.value", messageInput: "Test message", includeScreenshot: true), shouldValidate: true, expectedSubmitButtonAccessibilityHint: "Will submit feedback for tester at test@email.value including attached screenshot with message: Test message.")
     ]
-    
+
     func testSubmitButtonAccessibilityHint() {
         for input in inputCombinations {
             let config = SentryUserFeedbackConfiguration()

@@ -6,7 +6,7 @@ import XCTest
  * different places to break it.
  */
 class SentryCrashDefaultBinaryImageProviderTests: XCTestCase {
-    
+
     private class Fixture {
         func getSut() -> SentryCrashDefaultBinaryImageProvider {
             SentryCrashDefaultBinaryImageProvider()
@@ -24,10 +24,10 @@ class SentryCrashDefaultBinaryImageProviderTests: XCTestCase {
         let imageCount = sut.getImageCount()
         for i in 0 ... imageCount {
             let actual = sut.getBinaryImage(i, isCrash: true)
-            
+
             var expected = SentryCrashBinaryImage()
             sentrycrashdl_getBinaryImage(Int32(i), &expected, /*isCrash*/ false)
-            
+
             XCTAssertEqual(expected.uuid, actual.uuid)
             XCTAssertEqual(expected.vmAddress, actual.vmAddress)
             XCTAssertEqual(expected.address, actual.address)

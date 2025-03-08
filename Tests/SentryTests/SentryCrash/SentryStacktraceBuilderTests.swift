@@ -3,7 +3,7 @@ import SentryTestUtils
 import XCTest
 
 class SentryStacktraceBuilderTests: XCTestCase {
-    
+
     private class Fixture {
         let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
 
@@ -16,7 +16,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    
+
     override class func setUp() {
         super.setUp()
         clearTestState()
@@ -31,17 +31,17 @@ class SentryStacktraceBuilderTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-    
+
     func testEnoughFrames() {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
         // The stacktrace has usually more than 40 frames. Feel free to change the number if the tests are failing
         XCTAssertTrue(30 < actual.frames.count, "Not enough stacktrace frames. It should be more than 30, but was \(actual.frames.count)")
     }
-    
+
     func testFramesAreFilled() {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
         // We don't know the actual values of the frames so we can't write
         // deterministic tests here. Therefore we just make sure they are
         // filled with some values.
@@ -52,29 +52,29 @@ class SentryStacktraceBuilderTests: XCTestCase {
             XCTAssertNotNil(frame.instructionAddress)
         }
     }
-    
+
     func testFramesDontContainBuilderFunction() {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
         let result = actual.frames.contains { frame in
             return frame.function?.contains("buildStacktraceForCurrentThread") ?? false
         }
-        
+
         XCTAssertFalse(result, "The stacktrace should not contain the function that builds the stacktrace")
     }
-    
+
     func testFramesOrder() throws {
         if #available(iOS 18, macOS 15, tvOS 15, *) {
             throw XCTSkip("Stacktrace frames order testing is disabled for this OS version")
         }
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
         // Make sure the first 4 frames contain main
         let frames = actual.frames[...3]
         let filteredFrames = frames.filter { frame in
             return frame.function?.contains("main") ?? false
         }
-        
+
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
@@ -97,7 +97,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
         }
-        
+
         var timeout: TimeInterval = 1
         #if !os(watchOS) && !os(tvOS)
         // observed the async task taking a long time to finish if TSAN is attached
@@ -127,7 +127,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             waitForAsyncToRun.fulfill()
             XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
         }
-        
+
         var timeout: TimeInterval = 1
         #if !os(watchOS) && !os(tvOS)
         // observed the async task taking a long time to finish if TSAN is attached

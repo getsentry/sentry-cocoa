@@ -15,7 +15,7 @@ extension DebugMeta {
             return false
         }
     }
-    
+
     override open var description: String {
         "\(self.serialize())"
     }

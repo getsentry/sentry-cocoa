@@ -1,16 +1,16 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
-    
+
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
-        
+
         app.launch()
     }
-    
+
     override func tearDown() {
         app.terminate()
         super.tearDown()

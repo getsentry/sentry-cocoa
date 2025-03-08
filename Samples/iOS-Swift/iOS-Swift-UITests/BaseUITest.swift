@@ -2,11 +2,11 @@ import XCTest
 
 class BaseUITest: XCTestCase {
     internal lazy var app: XCUIApplication = newAppSession()
-    
+
     //swiftlint:disable implicit_getter
     var automaticallyLaunchAndTerminateApp: Bool { get { true } }
     //swiftlint:enable implicit_getter
-    
+
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -16,7 +16,7 @@ class BaseUITest: XCTestCase {
             launchApp()
         }
     }
-    
+
     override func tearDown() {
         if automaticallyLaunchAndTerminateApp {
             app.terminate()
@@ -31,7 +31,7 @@ extension BaseUITest {
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
         return app
     }
-    
+
     func launchApp(args: [String] = [], env: [String: String] = [:]) {
         app.launchArguments.append(contentsOf: args)
         for (k, v) in env {
@@ -40,9 +40,9 @@ extension BaseUITest {
         app.launch()
         waitForExistenceOfMainScreen()
     }
-    
+
     func waitForExistenceOfMainScreen() {
         app.waitForExistence("Home Screen doesn't exist.")
     }
-    
+
 }

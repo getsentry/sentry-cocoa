@@ -4,11 +4,11 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryAppStartTrackerTests: NotificationCenterTestCase {
-    
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryAppStartTrackerTests")
-    
+
     private class Fixture {
-        
+
         let options: Options
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
@@ -26,18 +26,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         var moduleInitializationTimestamp: Date
         var sdkStartTimestamp: Date
         var didFinishLaunchingTimestamp: Date
-        
+
         init() {
             options = Options()
             options.dsn = SentryAppStartTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
-            
+
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
 
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
-            
+
             appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
@@ -45,19 +45,19 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 dispatchQueueWrapper: dispatchQueue,
                 notificationCenterWrapper: SentryNSNotificationCenterWrapper()
             )
-            
+
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             framesTracker.start()
-            
+
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1)
             sdkStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1)
             SentrySDK.startTimestamp = sdkStartTimestamp
-            
+
             didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
         }
-        
+
         var sut: SentryAppStartTracker {
             let sut = SentryAppStartTracker(
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
@@ -69,18 +69,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             return sut
         }
     }
-    
+
     private var fixture: Fixture!
     private var sut: SentryAppStartTracker!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         fixture = Fixture()
-        
+
         fixture.sysctl.setProcessStartTimestamp(value: SentryDependencyContainer.sharedInstance().dateProvider.date())
     }
-    
+
     override func tearDown() {
         super.tearDown()
         sut.stop()
@@ -90,45 +90,45 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
     func testFirstStart_IsColdStart() {
         startApp()
-        
+
         assertValidStart(type: .cold)
     }
-    
+
     func testPerformanceV2_UsesRenderedFrameAsEndTimeStamp() {
         fixture.enablePerformanceV2 = true
-        
+
         startApp(callDisplayLink: true)
-        
+
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
-    
+
     func testPerformanceV2_RemovesFramesTrackerListener() {
         fixture.enablePerformanceV2 = true
-        
+
         startApp(callDisplayLink: true)
-        
+
         advanceTime(bySeconds: 0.05)
         fixture.displayLinkWrapper.normalFrame()
-        
+
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
-    
+
     func testSecondStart_AfterSystemReboot_IsColdStart() {
         let previousBootTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-1)
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: previousBootTime)
         store(appState: appState)
-        
+
         startApp()
-        
+
         assertValidStart(type: .cold)
     }
-    
+
     func testSecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
-        
+
         assertValidStart(type: .warm)
     }
 
@@ -146,43 +146,43 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         startApp()
         assertValidStart(type: .warm)
     }
-    
+
     func testAppUpgrade_IsColdStart() {
         let appState = SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         store(appState: appState)
-        
+
         startApp()
-        
+
         assertValidStart(type: .cold)
     }
-    
+
     func testAppWasInBackground_NoAppStartUp() {
         store(appState: TestData.appState)
-        
+
         startApp()
-        
+
         sendAppMeasurement()
-        
+
         goToBackground()
         goToForeground()
-        
+
         assertNoAppStartUp()
     }
-    
+
     func testAppTerminates_LaunchesAgain_WarmAppStart() {
         startApp()
         sendAppMeasurement()
         terminateApp()
-        
+
         let appState = SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         store(appState: appState)
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
-        
+
         assertValidStart(type: .warm)
     }
-    
+
     /**
      * Test if the user changes the time of his phone and the previous boot time is in the future.
      */
@@ -192,10 +192,10 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
-        
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunches_OSPrewarmedProcess_AppStartUpShortened() {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
@@ -213,10 +213,10 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertNoAppStartUp()
 #endif
     }
-    
+
     func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
         fixture.enablePreWarmedAppStartTracing = false
-        
+
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
@@ -233,7 +233,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidStart(type: .warm)
 #endif
     }
-    
+
     func testAppLaunches_OSStopsAtLaterAppLaunchStep_NoAppStartUp() {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
@@ -257,43 +257,43 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
-        
+
         assertValidStart(type: .warm)
     }
-    
+
     func testAppLaunches_MaximumAppStartDuration_NoAppStart() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime)
-        
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunches_OSAlmostPrewarmedProcess_AppStartUp() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-179)
         startApp(processStartTimeStamp: processStartTime)
-        
+
         assertValidStart(type: .cold, expectedDuration: 179.4)
     }
-    
+
     func testAppLaunchesBackgroundTask_NoAppStartUp() {
         sut = fixture.sut
         sut.start()
-        
+
         didEnterBackground()
-        
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunchesBackgroundTask_GoesToForeground_NoAppStartUp() {
         sut = fixture.sut
         sut.start()
         didEnterBackground()
-        
+
         goToForeground()
-        
+
         assertNoAppStartUp()
     }
-    
+
     /**
      * Test for reproducing GH-1225
      * It can happen that the OS posts the didFinishLaunching notification before we register for it.
@@ -302,57 +302,57 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         givenProcessStartTimestamp()
         sut = fixture.sut
         givenRuntimeInitTimestamp(sut: sut)
-        
+
         willEnterForeground()
-        
+
         givenDidFinishLaunchingTimestamp()
-        
+
         didFinishLaunching()
-        
+
         sut.start()
-        
+
         advanceTime(bySeconds: 0.1)
         uiWindowDidBecomeVisible()
         didBecomeActive()
-        
+
         assertValidStart(type: .cold)
     }
-    
+
     func testHybridSDKs_ColdStart() {
         hybridAppStart()
-        
+
         assertValidHybridStart(type: .cold)
     }
-    
+
     func testHybridSDKs_SecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
-        
+
         assertValidHybridStart(type: .warm)
     }
-    
+
     private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
-    
+
     private func givenSystemNotRebooted() {
         let systemBootTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
         fixture.sysctl.setProcessStartTimestamp(value: SentryDependencyContainer.sharedInstance().dateProvider.date())
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: systemBootTimestamp)
         store(appState: appState)
     }
-    
+
     private func givenProcessStartTimestamp(processStartTimestamp: Date? = nil) {
         fixture.sysctl.setProcessStartTimestamp(value: processStartTimestamp ?? SentryDependencyContainer.sharedInstance().dateProvider.date())
     }
-    
+
     private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker, timestamp: Date? = nil) {
         fixture.runtimeInitTimestamp = timestamp ?? SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
     }
-    
+
     private func givenModuleInitializationTimestamp(timestamp: Date? = nil) {
         fixture.sysctl.setModuleInitializationTimestamp(value: timestamp ?? fixture.moduleInitializationTimestamp)
     }
@@ -361,24 +361,24 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.3)
         advanceTime(bySeconds: 0.3)
     }
-    
+
     private func startApp(processStartTimeStamp: Date? = nil, runtimeInitTimestamp: Date? = nil, moduleInitializationTimestamp: Date? = nil, callDisplayLink: Bool = false) {
         givenProcessStartTimestamp(processStartTimestamp: processStartTimeStamp)
-        
+
         sut = fixture.sut
         givenRuntimeInitTimestamp(sut: sut, timestamp: runtimeInitTimestamp)
         givenModuleInitializationTimestamp(timestamp: moduleInitializationTimestamp)
         sut.start()
-        
+
         willEnterForeground()
-        
+
         givenDidFinishLaunchingTimestamp()
-        
+
         didFinishLaunching()
         advanceTime(bySeconds: 0.1)
         uiWindowDidBecomeVisible()
         didBecomeActive()
-        
+
         if callDisplayLink {
             advanceTime(bySeconds: 0.05)
             fixture.currentDate.driftTimeForEveryRead = true
@@ -386,59 +386,59 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             fixture.currentDate.driftTimeForEveryRead = false
         }
     }
-    
+
     private func hybridAppStart() {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-        
+
         givenProcessStartTimestamp()
-        
+
         advanceTime(bySeconds: 0.2)
         fixture.runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
-        
+
         willEnterForeground()
-        
+
         advanceTime(bySeconds: 0.3)
         fixture.didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
-        
+
         sut = fixture.sut
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
         givenModuleInitializationTimestamp()
 
         didFinishLaunching()
-        
+
         advanceTime(bySeconds: 0.1)
         uiWindowDidBecomeVisible()
         didBecomeActive()
-        
+
         // The Hybrid SDKs call start after all the notifications are posted,
         // because they init the SentrySDK when the hybrid engine is ready.
         sut.start()
     }
-    
+
     internal override func terminateApp() {
         super.terminateApp()
         sut.stop()
     }
-    
+
     /**
      * We assume a class reads the app measurement, sends it with a transaction to Sentry and sets it to nil.
      */
     private func sendAppMeasurement() {
         SentrySDK.setAppStartMeasurement(nil)
     }
-    
+
     private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil, preWarmed: Bool = false) {
         guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
-        
+
         XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
-        
+
         let expectedAppStartDuration = expectedDuration ?? fixture.appStartDuration
         let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(actualAppStartDuration, expectedAppStartDuration, accuracy: 0.0001)
-        
+
         if preWarmed {
             XCTAssertEqual(fixture.moduleInitializationTimestamp, appStartMeasurement.appStartTimestamp)
         } else {
@@ -447,32 +447,32 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         XCTAssertEqual(appStartMeasurement.moduleInitializationTimestamp, fixture.sysctl.moduleInitializationTimestamp)
         XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, fixture.runtimeInitTimestamp)
-        
+
         XCTAssertEqual(appStartMeasurement.sdkStartTimestamp, fixture.sdkStartTimestamp)
         XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, fixture.didFinishLaunchingTimestamp)
         XCTAssertEqual(appStartMeasurement.isPreWarmed, preWarmed)
     }
-    
+
     private func assertValidHybridStart(type: SentryAppStartType) {
         guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
-        
+
         XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
-        
+
         let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(0.0, actualAppStartDuration, accuracy: 0.0001)
-        
+
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(Date(timeIntervalSinceReferenceDate: 0), appStartMeasurement.didFinishLaunchingTimestamp)
     }
-    
+
     private func assertNoAppStartUp() {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
-    
+
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
     }

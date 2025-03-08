@@ -2,7 +2,7 @@
 import Foundation
 
 extension SentryEventDecodable: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case eventId = "event_id"
         case message
@@ -32,10 +32,10 @@ extension SentryEventDecodable: Decodable {
         case breadcrumbs
         case request
     }
-    
+
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         self.init()
 
         let eventIdAsString = try container.decode(String.self, forKey: .eventId)
@@ -72,7 +72,7 @@ extension SentryEventDecodable: Decodable {
         self.modules = try container.decodeIfPresent([String: String].self, forKey: .modules)
         self.fingerprint = try container.decodeIfPresent([String].self, forKey: .fingerprint)
         self.user = try container.decodeIfPresent(User.self, forKey: .user)
-        
+
         self.context = decodeArbitraryData {
             try container.decodeIfPresent([String: [String: ArbitraryData]].self, forKey: .context)
         }
@@ -80,17 +80,17 @@ extension SentryEventDecodable: Decodable {
         if let rawThreads = try container.decodeIfPresent([String: [SentryThread]].self, forKey: .threads) {
             self.threads = rawThreads["values"]
         }
-            
+
         if let rawExceptions = try container.decodeIfPresent([String: [Exception]].self, forKey: .exception) {
             self.exceptions = rawExceptions["values"]
         }
-        
+
         self.stacktrace = try container.decodeIfPresent(SentryStacktrace.self, forKey: .stacktrace)
-        
+
         if let rawDebugMeta = try container.decodeIfPresent([String: [DebugMeta]].self, forKey: .debugMeta) {
             self.debugMeta = rawDebugMeta["images"]
         }
-        
+
         self.breadcrumbs = try container.decodeIfPresent([Breadcrumb].self, forKey: .breadcrumbs)
         self.request = try container.decodeIfPresent(SentryRequest.self, forKey: .request)
     }

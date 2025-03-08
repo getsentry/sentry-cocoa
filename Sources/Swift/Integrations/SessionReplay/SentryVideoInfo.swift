@@ -2,7 +2,7 @@ import Foundation
 
 @objcMembers
 class SentryVideoInfo: NSObject {
-    
+
     let path: URL
     let height: Int
     let width: Int
@@ -13,7 +13,7 @@ class SentryVideoInfo: NSObject {
     let end: Date
     let fileSize: Int
     let screens: [String]
-    
+
     init(path: URL, height: Int, width: Int, duration: TimeInterval, frameCount: Int, frameRate: Int, start: Date, end: Date, fileSize: Int, screens: [String]) {
         self.height = height
         self.width = width
@@ -26,5 +26,5 @@ class SentryVideoInfo: NSObject {
         self.fileSize = fileSize
         self.screens = screens
     }
-    
+
 }

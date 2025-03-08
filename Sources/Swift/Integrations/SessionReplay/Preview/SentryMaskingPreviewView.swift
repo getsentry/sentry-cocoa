@@ -13,17 +13,17 @@ class SentryMaskingPreviewView: UIView {
             }
         }
     }
-    
+
     private let photographer: SentryViewPhotographer
     private var displayLink: CADisplayLink?
     private var imageView = UIImageView()
     private var idle = true
-    
+
     var opacity: Float {
         get { return Float(imageView.alpha) }
         set { imageView.alpha = CGFloat(newValue)}
     }
-    
+
     init(redactOptions: SentryRedactOptions) {
         self.photographer = SentryViewPhotographer(
             renderer: PreviewRenderer(),
@@ -31,21 +31,21 @@ class SentryMaskingPreviewView: UIView {
         )
         super.init(frame: .zero)
         self.isUserInteractionEnabled = false
-        
+
         imageView.sentryReplayUnmask()
         imageView.frame = bounds
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(imageView)
     }
-        
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     deinit {
         displayLink?.invalidate()
     }
-    
+
     override func didMoveToSuperview() {
         if displayLink == nil {
             displayLink = CADisplayLink(target: self, selector: #selector(update))
@@ -56,7 +56,7 @@ class SentryMaskingPreviewView: UIView {
             self.frame = superview.bounds
         }
     }
-    
+
     @objc
     private func update() {
         guard let superview = self.superview, idle else { return }

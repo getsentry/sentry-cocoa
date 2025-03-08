@@ -12,55 +12,55 @@ func addDSNDisplay(_ vc: UIViewController, vcview: UIView) {
 class DSNDisplayViewController: UIViewController {
     let dispatchQueue = DispatchQueue(label: "io.sentry.iOS-Swift.queue.dsn-management", attributes: .concurrent)
     let label = UILabel(frame: .zero)
-    
+
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        
+
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemFill
         } else {
             view.backgroundColor = .lightGray.withAlphaComponent(0.5)
         }
-        
+
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
         label.textAlignment = .center
-        
+
         let changeButton = UIButton(type: .roundedRect)
         changeButton.setTitle("Change", for: .normal)
         changeButton.addTarget(self, action: #selector(changeDSN), for: .touchUpInside)
-        
+
         let resetButton = UIButton(type: .roundedRect)
         resetButton.setTitle("Reset", for: .normal)
         resetButton.addTarget(self, action: #selector(resetDSN), for: .touchUpInside)
-        
+
         let buttonStack = UIStackView(arrangedSubviews: [
             changeButton,
             resetButton
         ])
         buttonStack.axis = .vertical
         buttonStack.distribution = .fillEqually
-        
+
         let stack = UIStackView(arrangedSubviews: [
             label,
             buttonStack
         ])
-        
+
         view.addSubview(stack)
         stack.matchEdgeAnchors(from: view, leadingPad: 20)
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
         buttonStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3).isActive = true
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         updateDSNLabel()
     }
-    
+
     @objc func dsnChanged(_ newDSN: String) {
         let options = Options()
         options.dsn = newDSN
@@ -99,7 +99,7 @@ class DSNDisplayViewController: UIViewController {
             }
         }
     }
-    
+
     @objc func changeDSN() {
         let alert = UIAlertController(title: "Change DSN", message: nil, preferredStyle: .alert)
         var configuredTextField: UITextField?
@@ -134,7 +134,7 @@ class DSNDisplayViewController: UIViewController {
             }
         }
     }
-    
+
     func updateDSNLabel() {
         do {
             let dsn = try DSNStorage.shared.getDSN() ?? SentrySDKWrapper.defaultDSN
@@ -146,7 +146,7 @@ class DSNDisplayViewController: UIViewController {
             }
         }
     }
-    
+
     func dsnFieldTitleString(dsn: String) -> NSAttributedString {
         let defaultAnnotation = "(default)"
         let overriddenAnnotation = "(overridden)"
@@ -158,15 +158,15 @@ class DSNDisplayViewController: UIViewController {
             attributedString.setAttributes([.font: UIFont.systemFont(ofSize: fontSize)], range: (stringContents as NSString).range(of: dsn))
             return attributedString
         }
-        
+
         let title = "DSN \(overriddenAnnotation)"
         let stringContents = "\(title): \(dsn)"
         let attributedString = NSMutableAttributedString(string: stringContents)
-        
+
         // attributes are stacked as last-one-wins since ranges overlap
         attributedString.setAttributes([.font: UIFont.boldSystemFont(ofSize: fontSize)], range: (stringContents as NSString).range(of: title))
         attributedString.setAttributes([.foregroundColor: UIColor.red, .font: UIFont.boldSystemFont(ofSize: fontSize)], range: (stringContents as NSString).range(of: overriddenAnnotation))
-        
+
         attributedString.setAttributes([.font: UIFont.systemFont(ofSize: fontSize)], range: (stringContents as NSString).range(of: dsn))
         return attributedString
     }
