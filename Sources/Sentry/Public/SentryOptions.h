@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
 @class SentryReplayOptions;
-@class SentryProfilingOptions;
+@class SentryProfileOptions;
 @class SentryScope;
 
 NS_SWIFT_NAME(Options)
@@ -517,7 +517,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Configuration for the Sentry profiler.
  */
-@property (nonatomic, strong) SentryProfilingOptions *profiling;
+@property (nonatomic, strong) SentryProfileOptions *profiling;
 
 /**
  * @warning This is an experimental feature and may still have bugs.
@@ -530,7 +530,7 @@ NS_SWIFT_NAME(Options)
  * whether to set this property to @c YES or @c NO .
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfilingOptions.startOnAppStart and @c SentryProfilingOptions.lifecycle .
+ * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
  */
 @property (nonatomic, assign) BOOL enableAppLaunchProfiling;
 
@@ -557,7 +557,7 @@ NS_SWIFT_NAME(Options)
  * @warning The new continuous profiling mode is experimental and may still contain bugs.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c  SentryProfilingOptions.sessionSampleRate.
+ * @c  SentryProfileOptions.sessionSampleRate.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
@@ -571,7 +571,7 @@ NS_SWIFT_NAME(Options)
  * disk for use on the next app launch.
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfilingOptions.sessionSampleRate .
+ * @c SentryProfileOptions.sessionSampleRate .
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
 

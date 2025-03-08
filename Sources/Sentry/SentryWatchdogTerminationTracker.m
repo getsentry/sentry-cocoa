@@ -78,6 +78,11 @@
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
 
+            // We only report watchdog terminations if the app was in the foreground. So, we can
+            // already set it. We can't set it in the client because the client uses the current
+            // application state, and the app could be in the background when executing this code.
+            event.context = @{@"app" : @ { @"in_foreground" : @(YES) }};
+
             // We don't need to update the releaseName of the event to the previous app state as we
             // assume it's not a watchdog termination when the releaseName changed between app
             // starts.

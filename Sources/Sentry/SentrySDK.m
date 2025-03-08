@@ -285,6 +285,15 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
 }
 
+#if SENTRY_HAS_UIKIT
+
++ (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    [SentrySDK.currentHub captureFatalAppHangEvent:event];
+}
+
+#endif // SENTRY_HAS_UIKIT
+
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDK captureEvent:event withScope:SentrySDK.currentHub.scope];
@@ -636,10 +645,17 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startProfileSession
 {
-    if (currentHub.client.options.profiling.lifecycle == LifecycleTrace) {
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must initialize the SDK with continuous profiling configured before starting a "
+            @"profile session. See SentryProfilingOptions.");
+        return;
+    }
+
+    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(
             @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
-            @"manually. See SentryProfilingOptions.Lifecycle for more information.");
+            @"manually. See SentryProfileLifecycle for more information.");
         return;
     }
 
@@ -649,15 +665,25 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
+    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"There is already a profile session running.");
+        return;
+    }
+
     [SentryContinuousProfiler start];
 }
 
 + (void)stopProfileSession
 {
-    if (currentHub.client.options.profiling.lifecycle == LifecycleTrace) {
+    if (![SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"No profile session to stop.");
+        return;
+    }
+
+    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(
             @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
-            @"manually. See SentryProfilingOptions.Lifecycle for more information.");
+            @"manually. See SentryProfileLifecycle for more information.");
         return;
     }
 

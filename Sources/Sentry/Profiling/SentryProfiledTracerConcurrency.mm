@@ -7,7 +7,6 @@
 #    import "SentryLog.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 #    include <mutex>
 
@@ -19,11 +18,10 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
-#    import "SentryProfiledTracerConcurrency.h"
-#    import "SentrySDK+Private.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
@@ -31,7 +29,7 @@
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
-#    import "SentryAppStartMeasurement.h"
+#        import "SentryAppStartMeasurement.h"
 #        import "SentryDependencyContainer.h"
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
@@ -142,13 +140,17 @@ sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceI
 }
 
 void
-sentry_discardProfilerForTracer(SentryId *internalTraceId)
+sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         _unsafe_cleanUpProfilerContinuous();
     } else {
+        if (internalTraceId == nil) {
+            return;
+        }
+
         SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
             @"Structures should have already been initialized by the time they are being queried");
 
@@ -201,92 +203,88 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-stopProfilerDueToFinishedTransaction(SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue,
-                                     SentryTransaction *transaction,
-                                     BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
-                                 #   if SENTRY_HAS_UIKIT
-                                                                           , SentryAppStartMeasurement *appStartMeasurement
-                                 #endif // SENTRY_HAS_UIKIT
-                                                                           )
+sentry_stopProfilerDueToFinishedTransaction(
+    SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
+    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryAppStartMeasurement *appStartMeasurement
+#    endif // SENTRY_HAS_UIKIT
+)
 {
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         sentry_stopTrackingRootSpanForContinuousProfiler();
-    } else if (isProfiling) {
-        NSDate *startTimestamp;
+        [hub captureTransaction:transaction withScope:hub.scope];
+        return;
+    }
+
+    if (!isProfiling) {
+        [hub captureTransaction:transaction withScope:hub.scope];
+        return;
+    }
+
+    NSDate *startTimestamp;
 
 #    if SENTRY_HAS_UIKIT
-        if (appStartMeasurement != nil) {
-            startTimestamp = appStartMeasurement.runtimeInitTimestamp;
-        }
+    if (appStartMeasurement != nil) {
+        startTimestamp = appStartMeasurement.runtimeInitTimestamp;
+    }
 #    endif // SENTRY_HAS_UIKIT
 
-        if (startTimestamp == nil) {
-            startTimestamp = traceStartTimestamp;
-        }
-        if (!SENTRY_CASSERT_RETURN(startTimestamp != nil,
-                @"A transaction with a profile should have a start timestamp already. We will "
-                @"assign the current time but this will be incorrect.")) {
-            startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        }
+    if (startTimestamp == nil) {
+        startTimestamp = traceStartTimestamp;
+    }
+    if (!SENTRY_CASSERT_RETURN(startTimestamp != nil,
+            @"A transaction with a profile should have a start timestamp already. We will "
+            @"assign the current time but this will be incorrect.")) {
+        startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
+    }
 
-        // if we have an app start span, use its app start timestamp. otherwise use the tracer's
-        // start system time as we currently do
-        SENTRY_LOG_DEBUG(@"Tracer start time: %llu", startSystemTime);
+    // if we have an app start span, use its app start timestamp. otherwise use the tracer's
+    // start system time as we currently do
+    SENTRY_LOG_DEBUG(@"Tracer start time: %llu", startSystemTime);
 
-        transaction.startSystemTime = startSystemTime;
+    transaction.startSystemTime = startSystemTime;
 #    if SENTRY_HAS_UIKIT
-        if (appStartMeasurement != nil) {
-            SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
-                appStartMeasurement.runtimeInitSystemTimestamp);
-            transaction.startSystemTime = appStartMeasurement.runtimeInitSystemTimestamp;
-        }
+    if (appStartMeasurement != nil) {
+        SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
+            appStartMeasurement.runtimeInitSystemTimestamp);
+        transaction.startSystemTime = appStartMeasurement.runtimeInitSystemTimestamp;
+    }
 #    endif // SENTRY_HAS_UIKIT
 
-        [SentryTraceProfiler recordMetrics];
-        transaction.endSystemTime
-            = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    [SentryTraceProfiler recordMetrics];
+    transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 
-        const auto profiler
-            = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
-        if (!profiler) {
+    const auto profiler = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
+    if (!profiler) {
+        [hub captureTransaction:transaction withScope:hub.scope];
+        return;
+    }
+
+    // This code can run on the main thread, and the profile serialization can take a couple of
+    // milliseconds. Therefore, we move this to a background thread to avoid potentially
+    // blocking the main thread.
+    [dispatchQueue dispatchAsyncWithBlock:^{
+        const auto profilingData = [profiler.state copyProfilingData];
+
+        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
+            hub, profiler, profilingData, transaction, startTimestamp);
+
+        if (!profileEnvelopeItem) {
             [hub captureTransaction:transaction withScope:hub.scope];
-            return;
+        } else {
+            [hub captureTransaction:transaction
+                              withScope:hub.scope
+                additionalEnvelopeItems:@[ profileEnvelopeItem ]];
         }
-
-        // This code can run on the main thread, and the profile serialization can take a couple of
-        // milliseconds. Therefore, we move this to a background thread to avoid potentially
-        // blocking the main thread.
-        [dispatchQueue dispatchAsyncWithBlock:^{
-            const auto profilingData = [profiler.state copyProfilingData];
-
-            const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-                hub, profiler, profilingData, transaction, startTimestamp);
-
-            if (!profileEnvelopeItem) {
-                [hub captureTransaction:transaction withScope:hub.scope];
-            } else {
-                [hub captureTransaction:transaction
-                                  withScope:hub.scope
-                    additionalEnvelopeItems:@[ profileEnvelopeItem ]];
-            }
-        }];
-    }
+    }];
 }
 
-void
-discardProfiler(SentryId *internalTraceID)
-{
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
-        sentry_stopTrackingRootSpanForContinuousProfiler();
-    } else {
-        sentry_discardProfilerForTracer(internalTraceID);
-    }
-}
-
-SentryId *_Nullable startProfiler(SentryTracerConfiguration *configuration, SentryHub *hub,
+SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuration, SentryHub *hub,
     SentryTransactionContext *transactionContext)
 {
-    if ([SentrySDK.currentHub.getClient.options isContinuousProfilingEnabled]) {
+    if ([hub.getClient.options isContinuousProfilingEnabled]) {
         sentry_trackRootSpanForContinuousProfiler();
         return [[SentryId alloc] init];
     } else {

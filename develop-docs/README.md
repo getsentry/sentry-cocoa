@@ -189,6 +189,14 @@ App launches can be automatically profiled if configured with `SentryOptions.ena
 
 With continuous profiling, there's also only ever one profiler instance running at a time. They are either started manually by customers or automatically based on active root span counts. They aren't tied to transactions otherwise so are immediately captured in envelopes when stopped.
 
+### Sample apps
+
+The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes. 
+
+By default, they use transaction-based profiling with a sample rate of 1, which can be overridden using the environment variable `--io.sentry.profilesSampleRate` (or `--io.sentry.profilesSamplerValue` to return a different value from the sampler function, which will be used instead of `SentryOptions.profilesSampleRate` if set). Either of these can be set to `nil` to enable the first iteration of continuous profiling, which is now deprecated.
+
+You can enable the launch arg `--io.sentry.profile-options-v2` to use the new continuous profiling API. By default, `SentryProfileLifecycleTrace` is used, which can be overridden to `SentryProfileLifecycleManual` by enabling the launch arg `--io.sentry.profile-lifecycle-manual`.
+
 ### Testing
 
 In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile` and `iOS-Swift-UITests.ProfilingUITests`.
