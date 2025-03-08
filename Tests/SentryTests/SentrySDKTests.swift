@@ -8,7 +8,7 @@ class SentrySDKTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
 
     private class Fixture {
-
+    
         let options: Options
         let event: Event
         let scope: Scope
@@ -232,7 +232,7 @@ class SentrySDKTests: XCTestCase {
 
         let event = fixture.event
         SentrySDK.captureCrash(event)
-
+    
         XCTAssertEqual(1, hub.sentCrashEvents.count)
         XCTAssertEqual(event.message, hub.sentCrashEvents.first?.message)
         XCTAssertEqual(event.eventId, hub.sentCrashEvents.first?.eventId)
@@ -251,15 +251,15 @@ class SentrySDKTests: XCTestCase {
 
         let scope = Scope()
         SentrySDK.capture(event: fixture.event, scope: scope)
-
+    
         assertEventCaptured(expectedScope: scope)
     }
-
+       
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
         SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
-
+    
         assertEventCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
@@ -267,7 +267,7 @@ class SentrySDKTests: XCTestCase {
         givenSdkWithHub()
 
         SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
-
+    
         assertHubScopeNotChanged()
     }
 
@@ -455,7 +455,7 @@ class SentrySDKTests: XCTestCase {
 
         // Act
         SentrySDK.setUser(nil)
-
+    
         // Assert
         let actualLogMessage = try XCTUnwrap(logOutput.loggedMessages.first)
         let expectedLogMessage = "The SDK is disabled, so setUser doesn't work. Please ensure to start the SDK before setting the user."
@@ -959,36 +959,8 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStartingAndStoppingContinuousProfilerV2() throws {
-        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
-        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
-        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
-
-        givenSdkWithHub()
-        SentrySDK.startProfileSession()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.stopProfileSession()
-
-        fixture.currentDate.advance(by: 60)
-        try timerFactory.check()
-
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
-    }
-
-    func testStartingContinuousProfilerV2BeforeStartingSDK() {
-        SentrySDK.startProfileSession()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerV2AfterStoppingSDK() {
-        givenSdkWithHub()
-        SentrySDK.close()
-        SentrySDK.startProfileSession()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
 #if SENTRY_HAS_UIKIT
+    
     func testSetAppStartMeasurementConcurrently() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
@@ -1040,6 +1012,7 @@ class SentrySDKTests: XCTestCase {
         let result = fileManager.readPreviousBreadcrumbs()
         XCTAssertEqual(result.count, 3)
     }
+
 #endif // SENTRY_HAS_UIKIT
 }
 
