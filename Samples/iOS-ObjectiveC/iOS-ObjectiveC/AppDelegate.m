@@ -14,6 +14,7 @@
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
+    NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
         options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
@@ -21,9 +22,35 @@
         options.tracesSampleRate = @1.0;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
-        if ([args containsObject:@"--io.sentry.profiling.enable"]) {
-            options.profilesSampleRate = @1;
+
+        if ([args containsObject:@"--io.sentry.profile-options-v2"]) {
+            options.profiling.lifecycle =
+                [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
+                ? SentryProfileLifecycleManual
+                : SentryProfileLifecycleTrace;
+        } else {
+            NSNumber *profilesSampleRate = @1;
+            if ([args containsObject:@"--io.sentry.enableContinuousProfiling"]) {
+                profilesSampleRate = nil;
+            } else if (env[@"--io.sentry.profilesSampleRate"] != nil) {
+                profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
+            }
+            options.profilesSampleRate = profilesSampleRate;
+
+            if (![args containsObject:@"--io.sentry.enableContinuousProfiling"]
+                && env[@"--io.sentry.profilesSamplerValue"] != nil) {
+                options.profilesSampler
+                    = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
+                {
+                    return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
+                };
+            }
+
+            if ([args containsObject:@"--io.sentry.profile-app-launches"]) {
+                options.enableAppLaunchProfiling = YES;
+            }
         }
+
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
