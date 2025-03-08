@@ -5,6 +5,7 @@
 ### Deprecations
 
 - Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling session (#4854)
+- Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling sessions (#4854)
 
 ### Features
 
