@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+### Deprecations
+
+- Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling sessions (#4854)
+
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- New continuous profiling API (#4952)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 
 ### Fixes
