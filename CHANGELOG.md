@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Behavioral changes
+
+- ⚠️ Automatic IP address storage for `User` is now guarded by `sendDefaultPii`
+  - Before 8.47.0, the IP address was backfilled by Sentry for backwards compatibility - this backfill is being removed ([relay#4519](https://github.com/getsentry/relay/pull/4519))
+  - If you rely on Sentry automatically storing the IP address of the user, set `sendDefaultPii = true` or manually set the IP address of the `User` to `{{auto}}`
+
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
