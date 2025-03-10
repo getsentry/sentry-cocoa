@@ -15,9 +15,6 @@ struct VisionOSSwiftApp: App {
 
             // Experimental features
             options.experimental.enableFileManagerSwizzling = true
-            options.sessionReplay.enableExperimentalViewRenderer = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
         }
     }
 

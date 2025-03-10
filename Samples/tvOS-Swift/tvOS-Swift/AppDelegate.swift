@@ -16,13 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.enableAppHangTracking = true
-
-            // Experimental features
             options.experimental.enableFileManagerSwizzling = true
-            options.sessionReplay.enableExperimentalViewRenderer = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
-
+            
             options.initialScope = { scope in
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
                     scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
