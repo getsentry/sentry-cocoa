@@ -129,7 +129,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
-     * - Note: This flag can be used together with `enableExperimentalViewRenderer` and their performance gains are additive.
+     * - Note: This flag can only be used together with `enableExperimentalViewRenderer` and their performance gains are additive.
      * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
