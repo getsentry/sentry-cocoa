@@ -83,7 +83,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssert(features.contains("experimentalViewRenderer"))
-        options.sessionReplay.enableFastViewRendering = true
     }
 
     func testEnableFastViewRenderer_isEnabled_shouldAddFeature() throws {

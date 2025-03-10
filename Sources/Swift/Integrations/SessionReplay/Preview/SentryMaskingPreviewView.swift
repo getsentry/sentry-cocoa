@@ -27,8 +27,7 @@ class SentryMaskingPreviewView: UIView {
     init(redactOptions: SentryRedactOptions) {
         self.photographer = SentryViewPhotographer(
             renderer: PreviewRenderer(),
-            redactOptions: redactOptions,
-            enableExperimentalMasking: false
+            redactOptions: redactOptions
         )
         super.init(frame: .zero)
         self.isUserInteractionEnabled = false

@@ -105,10 +105,8 @@ static SentryTouchTracker *_touchTracker;
     } else {
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
-    _viewPhotographer =
-        [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                           redactOptions:replayOptions
-                               enableExperimentalMasking:enableExperimentalRenderer];
+    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                           redactOptions:replayOptions];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]
