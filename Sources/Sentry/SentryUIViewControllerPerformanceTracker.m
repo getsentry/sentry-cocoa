@@ -220,6 +220,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(
+                @"Not tracking UIViewController.viewWillAppear because there is no active span.");
             callbackToOrigin();
             return;
         }
@@ -287,6 +289,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.%@ because there is no active span.",
+                lifecycleMethod);
             callbackToOrigin();
             return;
         }
@@ -331,6 +335,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewWillLayoutSubviews because there "
+                             @"is no active span.");
             callbackToOrigin();
             return;
         }
@@ -381,6 +387,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewDidLayoutSubviews because there "
+                             @"is no active span.");
             callbackToOrigin();
             return;
         }
@@ -441,6 +449,9 @@
         block();
         [spansInExecution removeObject:description];
     } else {
+        SENTRY_LOG_DEBUG(@"Skipping tracking the method %@ for %@, cause we're already tracking it "
+                         @"for a parent or child class.",
+            description, viewController);
         callbackToOrigin();
     }
 }

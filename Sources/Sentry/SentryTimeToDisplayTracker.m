@@ -86,9 +86,9 @@
     [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
         if ([span.origin isEqualToString:SentryTraceOriginAutoUITimeToDisplay]) {
             return YES;
-        } else {
-            return NO;
         }
+
+        return NO;
     }];
     [tracer setFinishCallback:^(SentryTracer *_tracer) {
         [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
@@ -126,11 +126,13 @@
 
 - (void)reportInitialDisplay
 {
+    SENTRY_LOG_DEBUG(@"Reporting initial display for %@", _name);
     _initialDisplayReported = YES;
 }
 
 - (void)reportFullyDisplayed
 {
+    SENTRY_LOG_DEBUG(@"Reporting full display for %@", _name);
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
     [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
@@ -138,11 +140,22 @@
 
 - (void)finishSpansIfNotFinished
 {
+    [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+
     if (self.initialDisplaySpan.isFinished == NO) {
         [self.initialDisplaySpan finish];
     }
 
     if (self.fullDisplaySpan.isFinished == NO) {
+        if (_fullyDisplayedReported) {
+            SENTRY_LOG_DEBUG(
+                @"SentrySDK.reportFullyDisplayed() was called but didn't receive a new frame to "
+                @"finish the TTFD span. Finishing the full display span so the SDK can start a new "
+                @"time to display tracker.");
+            [self.fullDisplaySpan finish];
+            return;
+        }
+
         SENTRY_LOG_WARN(@"You didn't call SentrySDK.reportFullyDisplayed() for UIViewController: "
                         @"%@. Finishing full display span with status: %@.",
             _name, nameForSentrySpanStatus(kSentrySpanStatusDeadlineExceeded));
