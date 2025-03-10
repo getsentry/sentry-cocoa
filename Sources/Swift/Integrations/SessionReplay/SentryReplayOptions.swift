@@ -107,6 +107,38 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses = [AnyClass]()
 
     /**
+     * Enables the experimental view renderer used by the Session Replay integration.
+     *
+     * Rendering the view hierarchy is an expensive operation and can impact the performance of your app.
+     * The experimental view renderer is optimized for performance, by using a different approach in setting up the internal graphics context.
+     *
+     * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing interruptions
+     * and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
+     * up to **5x faster render times** (reducing `~160ms` to `~36ms` per frame).
+     *
+     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). Eventually, we will
+     *               remove this feature flag and use the experimental view renderer by default.
+     */
+    public var enableExperimentalViewRenderer = false
+
+    /**
+     * Enables fast view rendering used by the Session Replay integration.
+     *
+     * This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+     * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
+     * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
+     *
+     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
+     *            set this option to `true`.
+     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). Eventually, we will
+     *               mark this feature as stable and remove the experimental flag, but will keep it disabled by default.
+     */
+    public var enableFastViewRendering = false
+
+    /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
      */

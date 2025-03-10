@@ -46,11 +46,11 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
-        if options.experimental.enableExperimentalViewRenderer {
+        if options.sessionReplay.enableExperimentalViewRenderer {
             features.append("experimentalViewRenderer")
         }
-        if options.experimental.enableFastViewRenderer {
-            features.append("fastViewRenderer")
+        if options.sessionReplay.enableFastViewRendering {
+            features.append("fastViewRendering")
         }
 
         return features

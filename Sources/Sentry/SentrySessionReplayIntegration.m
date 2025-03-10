@@ -70,8 +70,8 @@ static SentryTouchTracker *_touchTracker;
     if (self = [super init]) {
         [self setupWith:options.sessionReplay
                     enableTouchTracker:options.enableSwizzling
-            enableExperimentalRenderer:options.experimental.enableExperimentalViewRenderer
-                enableFastViewRenderer:options.experimental.enableFastViewRenderer];
+            enableExperimentalRenderer:options.sessionReplay.enableExperimentalViewRenderer
+                enableFastViewRenderer:options.sessionReplay.enableFastViewRendering];
         [self startWithOptions:options.sessionReplay fullSession:YES];
     }
     return self;
@@ -86,8 +86,8 @@ static SentryTouchTracker *_touchTracker;
 
     [self setupWith:options.sessionReplay
                 enableTouchTracker:options.enableSwizzling
-        enableExperimentalRenderer:options.experimental.enableExperimentalViewRenderer
-            enableFastViewRenderer:options.experimental.enableFastViewRenderer];
+        enableExperimentalRenderer:options.sessionReplay.enableExperimentalViewRenderer
+            enableFastViewRenderer:options.sessionReplay.enableFastViewRendering];
     return YES;
 }
 
