@@ -50,7 +50,7 @@ import Foundation
             features.append("experimentalViewRenderer")
         }
         if options.experimental.enableFastViewRenderer {
-            features.append("enableFastViewRenderer")
+            features.append("fastViewRenderer")
         }
 
         return features
