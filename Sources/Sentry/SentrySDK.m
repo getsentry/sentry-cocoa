@@ -650,7 +650,7 @@ static NSDate *_Nullable startTimestamp = nil;
             @"profile session. See SentryProfilingOptions.");
         return;
     }
-    
+
     // TODO: log a debug message and bail if the profiling session is sampled
     // with respect SentryOptions.profileSessionSampleRate and the profiler is already running
 

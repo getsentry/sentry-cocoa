@@ -372,13 +372,13 @@ SENTRY_NO_INIT
 /**
  * Start a new continuous profiling session if one is not already running.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
- * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c startProfileSession .
  * @note Unlike trace-based profiling, continuous profiling does not take into account @c
  * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
  * not already running. This includes app launch profiles configured with @c
  * SentryOptions.enableAppLaunchProfiling .
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
 + (void)startProfiler;
 
