@@ -5,16 +5,16 @@ import UIKit
 
 @objcMembers
 class SentryExperimentalViewRenderer: NSObject, SentryViewRenderer {
-    let enableFastViewRenderer: Bool
+    let enableFastViewRendering: Bool
 
-    init(enableFastViewRenderer: Bool) {
-        self.enableFastViewRenderer = enableFastViewRenderer
+    init(enableFastViewRendering: Bool) {
+        self.enableFastViewRendering = enableFastViewRendering
     }
 
     func render(view: UIView) -> UIImage {
         let scale = (view as? UIWindow ?? view.window)?.screen.scale ?? 1
         let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).image { context in
-            if enableFastViewRenderer {
+            if enableFastViewRendering {
                 view.layer.draw(in: context.cgContext)
             } else {
                 view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
