@@ -6,8 +6,13 @@ import UIKit
 /**
  * Class similar to the ``UIKit/UIGraphicsImageRenderer`` class, but optimized for Sentry.
  *
- * We introduced this class, because the ``UIGraphicsImageRenderer`` caused performance issues due to internal caching mechanisms.
- * During testing we noticed a significant performance improvement by creating the bitmap context directly.
+ * We introduced this class, because the ``UIGraphicsImageRenderer`` caused performance issues due to internal caching mechanisms mentioned in the
+ * [Apple Developer Documentation](https://developer.apple.com/documentation/uikit/uigraphicsimagerenderer) in the last paragraph of
+ * the section _Overview_:
+ *
+ * > An image renderer keeps a cache of Core Graphics contexts, so reusing the same renderer can be more efficient than creating new renderers.
+ *
+ * During testing we noticed a significant performance improvement by creating the bitmap context directly using ``CoreGraphics/CGContext``.
  */
 class SentryGraphicsImageRenderer {
     struct Context {

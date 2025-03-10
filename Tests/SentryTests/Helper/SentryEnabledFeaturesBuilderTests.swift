@@ -72,7 +72,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("persistingTracesWhenCrashing"))
     }
 
-    func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() {
+    func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
 
@@ -86,7 +86,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.sessionReplay.enableFastViewRendering = true
     }
 
-    func testEnableFastViewRenderer_isEnabled_shouldAddFeature() {
+    func testEnableFastViewRenderer_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
 

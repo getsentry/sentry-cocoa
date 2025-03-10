@@ -129,6 +129,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
+     * - Note: This flag can be used together with `enableExperimentalViewRenderer` and their performance gains are additive.
      * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
@@ -199,7 +200,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true) {
+    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true, enableExperimentalViewRenderer: Bool = false, enableFastViewRendering: Bool = false) {
         self.sessionSampleRate = sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate
         self.maskAllText = maskAllText
@@ -211,7 +212,16 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? true
         let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? true
-        self.init(sessionSampleRate: sessionSampleRate, onErrorSampleRate: onErrorSampleRate, maskAllText: maskAllText, maskAllImages: maskAllImages)
+        let enableExperimentalViewRenderer = (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue ?? false
+        let enableFastViewRendering = (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue ?? false
+        self.init(
+            sessionSampleRate: sessionSampleRate,
+            onErrorSampleRate: onErrorSampleRate,
+            maskAllText: maskAllText,
+            maskAllImages: maskAllImages,
+            enableExperimentalViewRenderer: enableExperimentalViewRenderer,
+            enableFastViewRendering: enableFastViewRendering
+        )
         self.maskedViewClasses = ((dictionary["maskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
             NSClassFromString((element as? String) ?? "")
         })
