@@ -107,7 +107,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses = [AnyClass]()
 
     /**
-     * Enables the experimental view renderer used by the Session Replay integration.
+     * Enables the experimental more performant view renderer used by the Session Replay integration.
      *
      * Rendering the view hierarchy is an expensive operation and can impact the performance of your app.
      * The experimental view renderer is optimized for performance, by using a different approach in setting up the internal graphics context.
