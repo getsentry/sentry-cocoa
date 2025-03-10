@@ -930,6 +930,7 @@ class SentrySDKTests: XCTestCase {
 
     }
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testStartingAndStoppingContinuousProfiler() throws {
         let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
         let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
@@ -987,6 +988,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.startProfileSession()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if SENTRY_HAS_UIKIT
 
