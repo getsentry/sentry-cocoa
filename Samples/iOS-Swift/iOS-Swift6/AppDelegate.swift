@@ -28,6 +28,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.debug = true
             options.sampleRate = 1
             options.tracesSampleRate = 1
+
+            // Experimental features
+            options.experimental.enableFileManagerSwizzling = true
+            options.sessionReplay.enableExperimentalViewRenderer = true
+            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = false
         })
 
     }

@@ -10,10 +10,12 @@ class RedactOptions: SentryRedactOptions {
     var unmaskedViewClasses: [AnyClass]
     var maskAllText: Bool
     var maskAllImages: Bool
-    
-    init(maskAllText: Bool = true, maskAllImages: Bool = true) {
+    var enableExperimentalViewRenderer: Bool
+
+    init(maskAllText: Bool = true, maskAllImages: Bool = true, enableExperimentalViewRenderer: Bool = false) {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
+        self.enableExperimentalViewRenderer = false
         maskedViewClasses = []
         unmaskedViewClasses = []
     }

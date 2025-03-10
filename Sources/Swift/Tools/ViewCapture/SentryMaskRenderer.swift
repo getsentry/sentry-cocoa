@@ -7,5 +7,10 @@ protocol SentryMaskRenderer {
     func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [RedactRegion]) -> UIImage
 }
 
+protocol SentryMaskRendererContext {
+    var cgContext: CGContext { get }
+    var currentImage: UIImage { get }
+}
+
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UIKIT

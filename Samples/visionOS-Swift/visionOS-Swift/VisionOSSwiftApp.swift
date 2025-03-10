@@ -12,6 +12,8 @@ struct VisionOSSwiftApp: App {
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
+
+            // Experimental features
             options.experimental.enableFileManagerSwizzling = true
         }
     }
