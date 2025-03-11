@@ -246,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_contextDictionary removeObjectForKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:_contextDictionary];
+            [observer setContext:_contextDictionary];
         }
     }
 }
