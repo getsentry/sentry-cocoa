@@ -81,7 +81,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 
     func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
-#if os(iOS) || os(tvOS)
+#if os(iOS)
         // -- Arrange --
         let options = Options()
 
@@ -98,7 +98,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 
     func testEnableFastViewRendering_isEnabled_shouldAddFeature() throws {
-#if os(iOS) || os(tvOS)
+#if os(iOS)
         // -- Arrange --
         let options = Options()
 
