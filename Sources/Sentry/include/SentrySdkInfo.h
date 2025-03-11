@@ -61,7 +61,7 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSArray<NSDictionary<NSString *, NSString *> *> *packages;
 
-- (instancetype)initWithOptions:(SentryOptions *)options;
+- (instancetype)initWithOptions:(SentryOptions *_Nullable)options;
 
 - (instancetype)initWithName:(NSString *)name
                      version:(NSString *)version
