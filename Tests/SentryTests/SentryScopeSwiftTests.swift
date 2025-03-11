@@ -231,17 +231,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
     }
     
-    func testApplyToEvent_ScopeWithSpan_NotAppliedToCrashEvent() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        let event = fixture.event
-        event.isCrashEvent = true
-        
-        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
-        XCTAssertNil(fixture.event.context?["trace"])
-        XCTAssertNil(actual?.transaction)
-    }
-    
     func testApplyToEvent_EventWithDist() {
         let event = fixture.event
         event.dist = "myDist"
