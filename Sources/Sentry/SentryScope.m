@@ -529,6 +529,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    if (event.isCrashEvent) {
+        SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "
+                        @"events are from a previous run of the app and the current scope might "
+                        @"have different data than the scope that was active during the crash.");
+        return event;
+    }
+
     if (event.tags == nil) {
         event.tags = [self tags];
     } else {

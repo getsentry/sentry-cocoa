@@ -261,6 +261,16 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.environment, actual?.environment)
     }
 
+    func testApplyToEvent_ForCrashEvent_DoesNotApplyScope() {
+        let event = fixture.event
+        event.isCrashEvent = true
+
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
+
+        XCTAssertNil(actual?.tags)
+        XCTAssertNil(actual?.extra)
+    }
+
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpan() {
         fixture.scope.span = fixture.transaction
