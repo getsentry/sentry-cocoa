@@ -21,7 +21,7 @@
 
 ### Internal
 
-- Change parameter of `SDKInfo.initWithOptions` to be nullable
+- Change parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
 
 ## 8.46.0
 
