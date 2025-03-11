@@ -641,6 +641,37 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentryContinuousProfiler stop];
 }
+
++ (void)startProfileSession
+{
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must initialize the SDK with continuous profiling configured before starting a "
+            @"profile session. See SentryProfilingOptions.");
+        return;
+    }
+
+    // TODO: log a debug message and bail if the profiling session is sampled
+    // with respect SentryOptions.profileSessionSampleRate and the profiler is already running
+
+    // TODO: log a debug message and bail if the profile session is not sampled
+
+    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+
+    [SentryContinuousProfiler start];
+}
+
++ (void)stopProfileSession
+{
+    if (![SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"No profile session to stop.");
+        return;
+    }
+
+    // TODO: log a debug message and bail if SentryOptions.profileLifecycle is set to trace
+
+    [SentryContinuousProfiler stop];
+}
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end

@@ -371,25 +371,46 @@ SENTRY_NO_INIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Start a new continuous profiling session if one is not already running.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @warning This property is deprecated and will be removed in a future version of the SDK. See
+ * @c startProfileSession .
  * @note Unlike trace-based profiling, continuous profiling does not take into account @c
  * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
  * not already running. This includes app launch profiles configured with @c
  * SentryOptions.enableAppLaunchProfiling .
- * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c startProfileSession .
  */
 + (void)startProfiler;
 
 /**
+ * Start a new continuous profile session.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @note Does nothing if the profiling session is sampled with respect
+ * @c SentryOptions.profileSessionSampleRate and the profiler is already running.
+ * @note Does nothing if the profile session is not sampled.
+ * @note Does nothing if @c SentryOptions.profileLifecycle is set to @c trace . In this scenario,
+ * the profiler is automatically started and stopped depending on whether there is an active sampled
+ * span so it is not permitted to manually start profiling.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)startProfileSession;
+
+/**
  * Stop a continuous profiling session if there is one ongoing.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
- * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c stopProfileSession .
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
 + (void)stopProfiler;
+
+/**
+ * Stop a continuous profiling session if there is one ongoing.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @note Does nothing if @c SentryOptions.profileLifecycle is set to @c trace .
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)stopProfileSession;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
