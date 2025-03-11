@@ -20,6 +20,10 @@
 - More debug logs for UIViewController tracing (#4942)
 - Avoid creating unnecessary User Interaction transactions (#4957)
 
+### Internal
+
+- Change parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
+
 ## 8.46.0
 
 ### Features

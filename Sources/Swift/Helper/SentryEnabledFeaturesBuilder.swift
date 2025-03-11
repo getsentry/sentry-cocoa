@@ -7,7 +7,6 @@ import Foundation
         guard let options = options else {
             return []
         }
-
         var features: [String] = []
         
         if options.enableCaptureFailedRequests {
@@ -51,10 +50,10 @@ import Foundation
         }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
-        if options.sessionReplay.enableExperimentalViewRenderer == true {
+        if options.sessionReplay.enableExperimentalViewRenderer {
             features.append("experimentalViewRenderer")
         }
-        if options.sessionReplay.enableFastViewRendering == true {
+        if options.sessionReplay.enableFastViewRendering {
             features.append("fastViewRendering")
         }
 #endif // #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

@@ -72,6 +72,14 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("persistingTracesWhenCrashing"))
     }
 
+    func testGetEnabledFeatures_optionsAreNil_shouldReturnEmptyArray() {
+        // -- Act --
+        let result = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: nil)
+
+        // -- Assert --
+        XCTAssertEqual(result, [])
+    }
+
     func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
 #if os(iOS) || os(tvOS)
         // -- Arrange --
