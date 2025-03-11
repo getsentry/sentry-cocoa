@@ -14,12 +14,21 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
 
     var renderer: SentryViewRenderer
 
+    /// Creates a view photographer used to convert a view hierarchy to an image.
+    ///
+    /// - Parameters:
+    ///   - renderer: Implementation of the view renderer.
+    ///   - redactOptions: Options provided to redact sensitive information.
+    ///   - enableExperimentalMaskRenderer: Flag to enable experimental view renderer.
+    /// - Note: The option `enableExperimentalMaskRenderer` is an internal flag, which is not part of the public API.
+    ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
     init(
         renderer: SentryViewRenderer,
-        redactOptions: SentryRedactOptions
+        redactOptions: SentryRedactOptions,
+        enableExperimentalMaskRenderer: Bool
     ) {
         self.renderer = renderer
-        self.maskRenderer = redactOptions.enableExperimentalViewRenderer ? SentryExperimentalMaskRenderer() : SentryDefaultMaskRenderer()
+        self.maskRenderer = enableExperimentalMaskRenderer ? SentryExperimentalMaskRenderer() : SentryDefaultMaskRenderer()
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }

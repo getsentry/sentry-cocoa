@@ -78,7 +78,6 @@ static SentryTouchTracker *_touchTracker;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
-    enableFastViewRendering:(BOOL)enableFastViewRendering
 {
     if ([super installWithOptions:options] == NO) {
         return NO;
@@ -105,8 +104,10 @@ static SentryTouchTracker *_touchTracker;
     } else {
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
-    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                           redactOptions:replayOptions];
+    _viewPhotographer =
+        [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                           redactOptions:replayOptions
+                          enableExperimentalMaskRenderer:enableExperimentalRenderer];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]

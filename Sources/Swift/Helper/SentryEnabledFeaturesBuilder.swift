@@ -46,14 +46,12 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
-        #if SENTRY_TARGET_REPLAY_SUPPORTED
-        if options.sessionReplay.enableExperimentalViewRenderer {
+        if options.sessionReplay.enableExperimentalViewRenderer == true {
             features.append("experimentalViewRenderer")
         }
-        if options.sessionReplay.enableFastViewRendering {
+        if options.sessionReplay.enableFastViewRendering == true {
             features.append("fastViewRendering")
         }
-        #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
         return features
     }

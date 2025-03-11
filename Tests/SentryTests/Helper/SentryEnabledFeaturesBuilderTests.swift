@@ -73,7 +73,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
     
     func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
-#if SENTRY_TARGET_REPLAY_SUPPORTED
         // -- Arrange --
         let options = Options()
         
@@ -84,13 +83,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         
         // -- Assert --
         XCTAssert(features.contains("experimentalViewRenderer"))
-#else
-        throw XCTSkip("Feature not available on this platform.")
-#endif
     }
     
     func testEnableFastViewRendering_isEnabled_shouldAddFeature() throws {
-#if SENTRY_TARGET_REPLAY_SUPPORTED
         // -- Arrange --
         let options = Options()
         
@@ -100,9 +95,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         
         // -- Assert --
-        XCTAssert(features.contains("fastViewRenderer"))
-#else
-        throw XCTSkip("Feature not available on this platform.")
-#endif
+        XCTAssert(features.contains("fastViewRendering"))
     }
 }
