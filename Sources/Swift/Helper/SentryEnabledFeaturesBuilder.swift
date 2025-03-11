@@ -2,8 +2,10 @@ import Foundation
 
 @objcMembers class SentryEnabledFeaturesBuilder: NSObject {
     
-    static func getEnabledFeatures(options: Options) -> [String] {
-        
+    static func getEnabledFeatures(options: Options?) -> [String] {
+        guard let options = options else {
+            return []
+        }
         var features: [String] = []
         
         if options.enableCaptureFailedRequests {
