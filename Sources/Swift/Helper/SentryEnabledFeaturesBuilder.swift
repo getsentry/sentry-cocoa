@@ -56,7 +56,7 @@ import Foundation
         if options.sessionReplay.enableFastViewRendering {
             features.append("fastViewRendering")
         }
-#endif // #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // #if os(iOS) && !SENTRY_NO_UIKIT
         return features
     }
     // swiftlint:enable cyclomatic_complexity
