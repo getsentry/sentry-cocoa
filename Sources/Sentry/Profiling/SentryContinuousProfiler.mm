@@ -136,16 +136,14 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 + (void)stop
 {
-    {
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
-        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-            SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
-            return;
-        }
-
-        _stopCalled = YES;
+    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+        SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
+        return;
     }
+
+    _stopCalled = YES;
 }
 
 + (nullable SentryId *)currentProfilerID

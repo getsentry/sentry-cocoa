@@ -7,6 +7,7 @@
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
@@ -39,6 +40,13 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
+    if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+        if (!SENTRY_CASSERT_RETURN(options.isTracingEnabled,
+                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+            return;
+        }
+    }
+
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = options.profilesSampleRate != nil;
 #    if SENTRY_HAS_UIKIT

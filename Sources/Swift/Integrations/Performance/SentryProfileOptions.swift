@@ -2,6 +2,7 @@
 import Foundation
 
 /// An object containing configuration for the Sentry profiler.
+/// - note: Profiling is automatically disabled if a thread sanitizer is attached. 
 @objcMembers
 public class SentryProfileOptions: NSObject {
     /// Different modes for starting and stopping the profiler.
@@ -10,6 +11,7 @@ public class SentryProfileOptions: NSObject {
         /// must `SentrySDK.startProfileSession()` and `SentrySDK.stopProfileSession()` to control
         /// the lifecycle of the profiler. If the session is sampled,
         /// `SentrySDK.startProfileSession()` will always start profiling.
+        /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
         case manual
         
         /// Profiling is automatically started when there is at least 1 active root span, and
@@ -22,10 +24,13 @@ public class SentryProfileOptions: NSObject {
         /// - note: If there are multiple overlapping root spans, where some are sampled and some or
         /// not, profiling will continue until the end of the last sampled root span. Profiling data
         /// will not be linked with spans that are not sampled.
+        /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
         case trace
     }
     
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
+    /// - note: Default: `SentryProfileLifecycleManual`.
+    /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var lifecycle: SentryProfileLifecycle = .manual
     
 }
