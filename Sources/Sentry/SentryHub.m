@@ -12,7 +12,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -262,6 +262,42 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+#if SENTRY_HAS_UIKIT
+
+/**
+ * This method expects an abnormal session already stored to disk. For more info checkout: @c
+ * SentryCrashIntegrationSessionHandler
+ */
+- (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    // We treat fatal app hang events similar to crashes.
+    event.isCrashEvent = YES;
+
+    SentryClient *_Nullable client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    SentryFileManager *fileManager = [client fileManager];
+    SentrySession *abnormalSession = [fileManager readAbnormalSession];
+
+    // It can occur that there is no session yet because autoSessionTracking was just enabled or
+    // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
+    // this case, we just send the fatal app hang event.
+    if (abnormalSession == nil) {
+        [client captureCrashEvent:event withScope:self.scope];
+        return;
+    }
+
+    // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
+    // health and session statistics as app hangs.
+    abnormalSession.abnormalMechanism = @"anr_foreground";
+    [client captureCrashEvent:event withSession:abnormalSession withScope:self.scope];
+    [fileManager deleteAbnormalSession];
+}
+
+#endif // SENTRY_HAS_UIKIT
+
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
     [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
@@ -429,10 +465,11 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
-
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
+    if (![self.client.options isContinuousProfilingEnabled]) {
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
+            samplingContext, tracesSamplerDecision, self.client.options);
+        configuration.profilesSamplerDecision = profilesSamplerDecision;
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext

@@ -22,6 +22,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         func getSut(testName: String, isSDKEnabled: Bool = true, isEnabled: Bool = true) throws -> Data {
             let fileManager = FileManager.default
+            let tempDirUrl = URL(fileURLWithPath: NSTemporaryDirectory())
+                .appendingPathComponent("test-\(testName.hashValue.description)")
+            try! fileManager
+                .createDirectory(at: tempDirUrl, withIntermediateDirectories: true)
 
             if isSDKEnabled {
                 SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
@@ -45,17 +49,11 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                     options.experimental.enableFileManagerSwizzling = false
                 }
 
-                // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
-                guard let sentryBasePath = SentrySDK.currentHub().getClient()?.fileManager.basePath else {
-                    preconditionFailure("Sentry base path is nil, but should be configured for test cases.")
-                }
-                let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
-
                 // The base path is not unique for the DSN, therefore we need to make it unique
-                fileUrlToRead = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)--file-to-read")
+                fileUrlToRead = tempDirUrl.appendingPathComponent("test-\(testName.hashValue.description)--file-to-read")
                 try data.write(to: fileUrlToRead)
 
-                fileUrlToWrite = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)--file-to-write")
+                fileUrlToWrite = tempDirUrl.appendingPathComponent("test-\(testName.hashValue.description)--file-to-write")
                 if fileManager.fileExists(atPath: fileUrlToWrite.path) {
                     try fileManager.removeItem(at: fileUrlToWrite)
                 }
@@ -74,15 +72,10 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                     try fileManager.removeItem(at: ignoredFileUrlToWrite)
                 }
             } else {
-                let basePathUrl = URL(fileURLWithPath: NSTemporaryDirectory())
-                    .appendingPathComponent("test-\(testName.hashValue.description)")
-                try! FileManager.default
-                    .createDirectory(at: basePathUrl, withIntermediateDirectories: true)
-
-                fileUrlToRead = basePathUrl.appendingPathComponent("file-to-read")
+                fileUrlToRead = tempDirUrl.appendingPathComponent("file-to-read")
                 try data.write(to: fileUrlToRead)
 
-                fileUrlToWrite = basePathUrl.appendingPathComponent("file-to-write")
+                fileUrlToWrite = tempDirUrl.appendingPathComponent("file-to-write")
                 if fileManager.fileExists(atPath: fileUrlToWrite.path) {
                     try fileManager.removeItem(at: fileUrlToWrite)
                 }

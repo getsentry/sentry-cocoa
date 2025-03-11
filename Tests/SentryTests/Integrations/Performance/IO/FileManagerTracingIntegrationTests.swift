@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -1485,3 +1486,4 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(destData, srcData)
     }   
 }
+// swiftlint:enable file_length
