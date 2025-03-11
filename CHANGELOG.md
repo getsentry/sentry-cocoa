@@ -19,6 +19,7 @@
 - Set foreground true for watchdog terminations (#4953)
 - Fix removing value from context not updating observer context (#4960)
 - Fix wrongly applying scope to crash events (#4969)
+- Changed parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
 
 ### Improvements
 
