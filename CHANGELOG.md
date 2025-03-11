@@ -14,15 +14,12 @@
 - Only delete envelopes when receiving HTTP 200 (#4956)
 - Set foreground true for watchdog terminations (#4953)
 - Fix removing value from context not updating observer context (#4960)
+- Changed parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
 
 ### Improvements
 
 - More debug logs for UIViewController tracing (#4942)
 - Avoid creating unnecessary User Interaction transactions (#4957)
-
-### Internal
-
-- Change parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
 
 ## 8.46.0
 
