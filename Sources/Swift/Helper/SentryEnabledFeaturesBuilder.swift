@@ -1,9 +1,13 @@
 import Foundation
 
 @objcMembers class SentryEnabledFeaturesBuilder: NSObject {
-    
-    static func getEnabledFeatures(options: Options) -> [String] {
-        
+
+    // swiftlint:disable cyclomatic_complexity
+    static func getEnabledFeatures(options: Options?) -> [String] {
+        guard let options = options else {
+            return []
+        }
+
         var features: [String] = []
         
         if options.enableCaptureFailedRequests {
@@ -46,13 +50,15 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
+#if os(iOS) && !SENTRY_NO_UIKIT
         if options.sessionReplay.enableExperimentalViewRenderer == true {
             features.append("experimentalViewRenderer")
         }
         if options.sessionReplay.enableFastViewRendering == true {
             features.append("fastViewRendering")
         }
-
+#endif // #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
         return features
     }
+    // swiftlint:enable cyclomatic_complexity
 }

@@ -104,6 +104,9 @@ static SentryTouchTracker *_touchTracker;
     } else {
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
+    // We are using the flag for the experimental view renderer also for the experimental mask
+    // renderer, as it would just introduce another option without affecting the SDK user
+    // experience.
     _viewPhotographer =
         [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                            redactOptions:replayOptions

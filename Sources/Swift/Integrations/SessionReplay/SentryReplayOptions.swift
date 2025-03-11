@@ -107,14 +107,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses = [AnyClass]()
 
     /**
-     * Enables the experimental more performant view renderer used by the Session Replay integration.
+     * Enables the up to 5x faster experimental view renderer used by the Session Replay integration.
      *
-     * Rendering the view hierarchy is an expensive operation and can impact the performance of your app.
-     * The experimental view renderer is optimized for performance, by using a different approach in setting up the internal graphics context.
-     *
-     * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing interruptions
-     * and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
-     * up to **5x faster render times** (reducing `~160ms` to `~36ms` per frame).
+     * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing 
+     * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
+     * **up to 4-5x faster rendering** (reducing `~160ms` to `~36ms` per frame).
      *
      * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
      *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). Eventually, we will
@@ -123,13 +120,17 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var enableExperimentalViewRenderer = false
 
     /**
-     * Enables fast view rendering used by the Session Replay integration.
+     * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
+     * 
+     * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing 
+     * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
+     * up to **5x faster render times** (reducing `~160ms` to `~30ms` per frame).
      *
      * This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
      * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
-     * - Note: This flag can only be used together with `enableExperimentalViewRenderer` and their performance gains are additive.
+     * - Note: This flag can only be used together with `enableExperimentalViewRenderer` with up to 20% faster render times.
      * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
