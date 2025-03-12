@@ -757,7 +757,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 #endif
 
-    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+    // Crash events are from a previous run. Applying the current scope would potentially apply
+    // current data.
+    if (!isCrashEvent) {
+        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+    }
 
     if (!eventIsNotReplay) {
         event.breadcrumbs = nil;
