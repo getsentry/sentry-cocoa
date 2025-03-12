@@ -679,6 +679,36 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
+    func testSendEnvelope_HTTPResponse199_DoesNotDeleteEnvelopeAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 199, httpVersion: nil, headerFields: nil)
+        
+        fixture.requestManager.returnResponse(response: response)
+        
+        // Act
+        sendEvent()
+        
+        // Assert
+        assertEnvelopesStored(envelopeCount: 1)
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testSendEnvelope_HTTPResponse201_DoesNotDeleteEnvelopeAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 201, httpVersion: nil, headerFields: nil)
+        
+        fixture.requestManager.returnResponse(response: response)
+        
+        // Act
+        sendEvent()
+        
+        // Assert
+        assertEnvelopesStored(envelopeCount: 1)
+        assertRequestsSent(requestCount: 1)
+    }
+    
     func testDeallocated_CachedEnvelopesNotAllSent() throws {
         givenNoInternetConnection()
         givenCachedEvents(amount: 10)

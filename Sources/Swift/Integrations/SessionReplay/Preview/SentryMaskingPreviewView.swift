@@ -4,7 +4,7 @@ import UIKit
 
 @objcMembers
 class SentryMaskingPreviewView: UIView {
-    private class PreviewRederer: ViewRenderer {
+    private class PreviewRenderer: SentryViewRenderer {
         func render(view: UIView) -> UIImage {
             return UIGraphicsImageRenderer(size: view.frame.size, format: .init(for: .init(displayScale: 1))).image { _ in
                 // Creates a transparent image of the view size that will be used to drawn the redact regions.
@@ -25,7 +25,11 @@ class SentryMaskingPreviewView: UIView {
     }
     
     init(redactOptions: SentryRedactOptions) {
-        self.photographer = SentryViewPhotographer(renderer: PreviewRederer(), redactOptions: redactOptions)
+        self.photographer = SentryViewPhotographer(
+            renderer: PreviewRenderer(),
+            redactOptions: redactOptions,
+            enableExperimentalMaskRenderer: false
+        )
         super.init(frame: .zero)
         self.isUserInteractionEnabled = false
         

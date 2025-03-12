@@ -5,6 +5,24 @@
 ### Improvements
 
 - Slightly speed up SDK start (#4916)
+### Features
+
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
+- Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
+
+### Fixes
+
+- Correctly finish TTFD span when no new frame (#4941)
+- Only delete envelopes when receiving HTTP 200 (#4956)
+- Set foreground true for watchdog terminations (#4953)
+- Fix removing value from context not updating observer context (#4960)
+- Changed parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
+
+### Improvements
+
+- More debug logs for UIViewController tracing (#4942)
+- Avoid creating unnecessary User Interaction transactions (#4957)
 
 ## 8.46.0
 
@@ -28,6 +46,10 @@
 - Deadline timeout crash in SentryTracer (#4911)
 - Improve memory-safety by converting Swift constants to Objective-C (#4910)
 - Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
+
+### Internal
+
+- Add injectable mask and view renderer (#4938)
 
 ## 8.45.0
 

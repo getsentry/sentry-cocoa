@@ -393,14 +393,22 @@
                 [weakSelf recordLostEventFor:envelope.items];
             }
 
-            if (nil != response) {
-                SENTRY_LOG_DEBUG(@"Envelope sent successfully!");
-                [weakSelf.rateLimits update:response];
-                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
-            } else {
+            if (response == nil) {
                 SENTRY_LOG_DEBUG(@"No internet connection.");
                 [weakSelf finishedSending];
+                return;
             }
+
+            [weakSelf.rateLimits update:response];
+
+            if (response.statusCode == 200) {
+                SENTRY_LOG_DEBUG(@"Envelope sent successfully!");
+                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
+                return;
+            }
+
+            SENTRY_LOG_DEBUG(@"Received non-200 response code: %li", (long)response.statusCode);
+            [weakSelf finishedSending];
         }];
 }
 

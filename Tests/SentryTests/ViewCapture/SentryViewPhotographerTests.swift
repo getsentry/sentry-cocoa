@@ -7,7 +7,7 @@ import XCTest
 
 class SentryViewPhotographerTests: XCTestCase {
     
-    private class TestViewRenderer: ViewRenderer {
+    private class TestViewRenderer: SentryViewRenderer {
         func render(view: UIView) -> UIImage {
             UIGraphicsImageRenderer(size: view.bounds.size).image { context in
                 view.layer.render(in: context.cgContext)
@@ -16,7 +16,7 @@ class SentryViewPhotographerTests: XCTestCase {
     }
     
     private func sut() -> SentryViewPhotographer {
-        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions())
+        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions(), enableExperimentalMaskRenderer: false)
     }
     
     private func prepare(views: [UIView]) -> UIImage? {
