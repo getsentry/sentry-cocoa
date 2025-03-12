@@ -9,7 +9,13 @@ class SentrySDKTests: XCTestCase {
 
     private class Fixture {
     
-        let options: Options
+        let options: Options = {
+            let options = Options.noIntegrations()
+            options.dsn = SentrySDKTests.dsnAsString
+            options.releaseName = "1.0.0"
+            return options
+        }()
+
         let event: Event
         let scope: Scope
         let client: TestClient
@@ -44,10 +50,6 @@ class SentrySDKTests: XCTestCase {
 
             scope = Scope()
             scope.setTag(value: "value", key: "key")
-
-            options = Options.noIntegrations()
-            options.dsn = SentrySDKTests.dsnAsString
-            options.releaseName = "1.0.0"
 
             client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
@@ -514,48 +516,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
-    func testStartingContinuousProfilerWithSampleRateZero() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampleRate = 0
-        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
-
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerWithSampleRateNil() throws {
-        givenSdkWithHub()
-
-        // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testNotStartingContinuousProfilerWithSampleRateBlock() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampler = { _ in 0 }
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testNotStartingContinuousProfilerWithSampleRateNonZero() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampleRate = 1
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
     func testInstallIntegrations() throws {
         let options = Options()
         options.dsn = "mine"
@@ -930,66 +890,6 @@ class SentrySDKTests: XCTestCase {
 
     }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testStartingAndStoppingContinuousProfiler() throws {
-        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
-        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
-        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
-
-        givenSdkWithHub()
-        SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.stopProfiler()
-
-        fixture.currentDate.advance(by: 60)
-        try timerFactory.check()
-
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
-    }
-
-    func testStartingContinuousProfilerBeforeStartingSDK() {
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerAfterStoppingSDK() {
-        givenSdkWithHub()
-        SentrySDK.close()
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-    
-    func testStartingAndStoppingContinuousProfilerV2() throws {
-        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
-        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
-        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
-        
-        givenSdkWithHub()
-        SentrySDK.startProfileSession()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.stopProfileSession()
-        
-        fixture.currentDate.advance(by: 60)
-        try timerFactory.check()
-        
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
-    }
-    
-    func testStartingContinuousProfilerV2BeforeStartingSDK() {
-        SentrySDK.startProfileSession()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-    
-    func testStartingContinuousProfilerV2AfterStoppingSDK() {
-        givenSdkWithHub()
-        SentrySDK.close()
-        SentrySDK.startProfileSession()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
 #if SENTRY_HAS_UIKIT
 
     func testSetAppStartMeasurementConcurrently() {
@@ -1046,6 +946,179 @@ class SentrySDKTests: XCTestCase {
 
 #endif // SENTRY_HAS_UIKIT
 }
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+extension SentrySDKTests {
+    func testStartingContinuousProfilerWithSampleRateZero() throws {
+        givenSdkWithHub()
+
+        fixture.options.profilesSampleRate = 0
+        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
+
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerWithSampleRateNil() throws {
+        try withMockTimerFactory { timerFactory in
+            givenSdkWithHub()
+
+            // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            SentrySDK.startProfiler()
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // clean up
+            try stopProfiler(timerFactory: timerFactory)
+        }
+    }
+
+    func testNotStartingContinuousProfilerWithSampleRateBlock() throws {
+        givenSdkWithHub()
+
+        fixture.options.profilesSampler = { _ in 0 }
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testNotStartingContinuousProfilerWithSampleRateNonZero() throws {
+        givenSdkWithHub()
+
+        fixture.options.profilesSampleRate = 1
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingAndStoppingContinuousProfiler() throws {
+        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
+        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
+        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
+
+        givenSdkWithHub()
+        SentrySDK.startProfiler()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        try stopProfiler(timerFactory: timerFactory)
+
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
+    }
+
+    func testStartingContinuousProfilerBeforeStartingSDK() {
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerAfterStoppingSDK() {
+        givenSdkWithHub()
+        SentrySDK.close()
+        SentrySDK.startProfiler()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testManuallyStartingAndStoppingContinuousProfilerV2() throws {
+        try withMockTimerFactory { mockTimerFactory in
+            givenSdkWithHub()
+            SentrySDK.startProfileSession()
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            try stopProfilerV2(timerFactory: mockTimerFactory)
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        }
+    }
+
+    func testStartingContinuousProfilerV2BeforeStartingSDKDoesNotStartProfiler() {
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerV2AfterStoppingSDKDoesNotStartProfiler() {
+        givenSdkWithHub()
+        SentrySDK.close()
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerV2WithoutContinuousProfilingEnabledDoesNotStartProfiler() {
+        fixture.options.profilesSampleRate = 1
+        givenSdkWithHub()
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingContinuousProfilerV2WithTraceLifeCycleDoesNotStartProfiler() {
+        fixture.options.profiling.lifecycle = .trace
+        givenSdkWithHub()
+        SentrySDK.startProfileSession()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStoppingContinuousProfilerV2WithTraceLifeCycleDoesNotStopProfiler() throws {
+        try withMockTimerFactory { mockTimerFactory in
+            fixture.options.profiling.lifecycle = .trace
+            fixture.options.tracesSampleRate = 1
+            givenSdkWithHub()
+
+            fixture.currentDate.advance(by: 1)
+            let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // using manual stop method is a no-op in trace profile lifecycle mode
+            try stopProfilerV2(timerFactory: mockTimerFactory)
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            fixture.currentDate.advance(by: 1)
+            trace.finish()
+            // the current profile chunk will finish
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+            fixture.currentDate.advance(by: 60)
+            try mockTimerFactory.check()
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        }
+    }
+
+    func testStartingTransactionWithoutTraceLifecycleDoesNotStartContinuousProfilerV2() {
+        fixture.options.tracesSampleRate = 1
+        givenSdkWithHub()
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testStartingTransactionWithTraceProfilingLifecycleWithTracingDisabledDoesNotStartContinuousProfilerV2() {
+        fixture.options.profiling.lifecycle = .trace
+        givenSdkWithHub()
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+}
+
+private extension SentrySDKTests {
+    func withMockTimerFactory(block: (TestSentryNSTimerFactory) throws -> Void) throws {
+        let timerFactory = TestSentryNSTimerFactory(currentDateProvider: fixture.currentDate)
+        let originalTimerFactory = SentryDependencyContainer.sharedInstance().timerFactory
+        SentryDependencyContainer.sharedInstance().timerFactory = timerFactory
+
+        try block(timerFactory)
+
+        SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
+    }
+
+    func stopProfiler(timerFactory: TestSentryNSTimerFactory) throws {
+        SentrySDK.stopProfiler()
+        fixture.currentDate.advance(by: 60)
+        try timerFactory.check()
+    }
+
+    func stopProfilerV2(timerFactory: TestSentryNSTimerFactory) throws {
+        SentrySDK.stopProfileSession()
+        fixture.currentDate.advance(by: 60)
+        try timerFactory.check()
+    }
+}
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 private extension SentrySDKTests {
     func givenSdkWithHub() {

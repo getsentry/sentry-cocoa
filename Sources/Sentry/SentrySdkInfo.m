@@ -17,10 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)global
 {
-    return [[SentrySdkInfo alloc] initWithOptions:[SentrySDK.currentHub getClient].options];
+    SentryClient *_Nullable client = [SentrySDK.currentHub getClient];
+    return [[SentrySdkInfo alloc] initWithOptions:client.options];
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
 
     NSArray<NSString *> *features =

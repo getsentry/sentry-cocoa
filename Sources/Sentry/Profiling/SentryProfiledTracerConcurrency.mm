@@ -60,7 +60,7 @@ std::mutex _gStateLock;
  * @warning Must be called from a synchronized context.
  */
 void
-_unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
+_unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
 {
     const auto profilerKey = profiler.profilerId.sentryIdString;
     [_gTracersToProfilers removeObjectForKey:tracerKey];
@@ -78,15 +78,18 @@ _unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
  * @warning Must be called from a synchronized context.
  */
 void
-_unsafe_cleanUpProfilerContinuous()
+_unsafe_cleanUpContinuousTraceProfiler()
 {
     if (SENTRY_CASSERT_RETURN(_gInFlightRootSpans > 0,
             @"Attempted to decrement count of root spans to less than zero.")) {
-        _gInFlightRootSpans -= 0;
+        _gInFlightRootSpans -= 1;
     }
 
     if (_gInFlightRootSpans == 0) {
+        SENTRY_LOG_DEBUG(@"Last root span ended, stopping profiler.");
         [SentryContinuousProfiler stop];
+    } else {
+        SENTRY_LOG_DEBUG(@"Waiting for remaining root spans to finish before stopping profiler.");
     }
 }
 
@@ -95,10 +98,10 @@ sentry_trackRootSpanForContinuousProfiler()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    if (_gInFlightRootSpans == 0) {
-        [SentryContinuousProfiler start];
-    }
+    SENTRY_CASSERT([SentryContinuousProfiler isCurrentlyProfiling] || _gInFlightRootSpans == 0,
+        @"Unbalanced tracking of root spans and profiler detected.");
 
+    [SentryContinuousProfiler start];
     _gInFlightRootSpans += 1;
 }
 
@@ -106,7 +109,7 @@ void
 sentry_stopTrackingRootSpanForContinuousProfiler()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
-    _unsafe_cleanUpProfilerContinuous();
+    _unsafe_cleanUpContinuousTraceProfiler();
 }
 
 } // namespace
@@ -145,7 +148,10 @@ sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub)
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if ([hub.getClient.options isContinuousProfilingEnabled]) {
-        _unsafe_cleanUpProfilerContinuous();
+        if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
+            return;
+        }
+        _unsafe_cleanUpContinuousTraceProfiler();
     } else {
         if (internalTraceId == nil) {
             return;
@@ -161,7 +167,7 @@ sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub)
             return;
         }
 
-        _unsafe_cleanUpProfiler(profiler, tracerKey);
+        _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
         if (_gProfilersToTracers.count == 0) {
@@ -186,7 +192,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
         return nil;
     }
 
-    _unsafe_cleanUpProfiler(profiler, tracerKey);
+    _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
     profiler.screenFrameData =
@@ -212,7 +218,11 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    if ([hub.getClient.options isContinuousProfilingEnabled]) {
+    if (isProfiling && [hub.getClient.options isContinuousProfilingEnabled]) {
+        SENTRY_CASSERT(hub.getClient.options.profiling.lifecycle == SentryProfileLifecycleTrace,
+            @"Expected trace profile lifecycle configuration.");
+        SENTRY_CASSERT([SentryContinuousProfiler isCurrentlyProfiling],
+            @"Expected a continuous profiler to be running for this configuration.");
         sentry_stopTrackingRootSpanForContinuousProfiler();
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
@@ -285,6 +295,11 @@ SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuratio
     SentryTransactionContext *transactionContext)
 {
     if ([hub.getClient.options isContinuousProfilingEnabled]) {
+        if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
+            return nil;
+        }
+        SENTRY_LOG_DEBUG(@"Starting continuous profiler for tracer %@",
+            transactionContext.traceId.sentryIdString);
         sentry_trackRootSpanForContinuousProfiler();
         return [[SentryId alloc] init];
     } else {
