@@ -3,7 +3,7 @@
 ## Unreleased
 
 > [!Important]
-> **This version fixes an important bug for applying scope data to crash events (#4969).**
+> This version fixes an important bug for applying scope data to crash events (#4969).
 >
 > Previously, the SDK always set the event's user to the user of the scope of the app launch after the crash event, which could result in incorrect user data if the user changed between the crash and the next launch.
 > Additionally, if specific properties on the crash event were nil, the SDK replaced them with values from the scope of the app launch after the crash event. This affected the following event properties: tags, extra, fingerprints, breadcrumbs, dist, environment, level, and trace context. However, since most of these properties are infrequently nil, the fix should have minimal impact on most users.
