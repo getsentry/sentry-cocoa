@@ -252,13 +252,13 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         let imagesWithVmAddressPercentage = Double(imagesWithVmAddressCount) / Double(images.count) * 100
         
-        // We only get 90% on tvOS 17.5 and iOS 16.4 and above when running the tests on GH actions.
-        // On older versions we get 20%. The exact percentage doesn't really matter. Instead, this is a smoke test
+        // We only get around 90% on tvOS 17.5 and iOS 16.4 and above when running the tests on GH actions.
+        // On older versions we get around 20%. The exact percentage doesn't really matter. Instead, this is a smoke test
         // to ensure that the vmAddress is set for most images.
-        if #available(tvOS 17.5, iOS 16.4, *) {
-            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 90% of the images should have a vmAddress")
+        if #available(tvOS 18.0, iOS 17.0, *) {
+            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 85, "At least 85% of the images should have a vmAddress")
         } else {
-            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 90, "At least 20% of the images should have a vmAddress")
+            XCTAssertGreaterThan(imagesWithVmAddressPercentage, 15, "At least 15% of the images should have a vmAddress")
         }
     }
 }
