@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.47.0
 
 > [!Important]
 > This version fixes an important bug for applying scope data to crash events (#4969).
