@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Slightly speed up SDK start (#4916)
+
 ## 8.47.0
 
 > [!Important]
@@ -27,7 +33,6 @@
 
 - More debug logs for UIViewController tracing (#4942)
 - Avoid creating unnecessary User Interaction transactions (#4957)
-- Slightly speed up SDK start (#4916)
 
 ## 8.46.0
 
