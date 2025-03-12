@@ -126,6 +126,7 @@ class SentryClientTest: XCTestCase {
         
         var eventWithCrash: Event {
             let event = TestData.event
+            event.level = .fatal
             let exception = Exception(value: "value", type: "type")
             let mechanism = Mechanism(type: "mechanism")
             mechanism.handled = false
@@ -727,18 +728,24 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureCrashEventWithSession() throws {
-        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.session, with: fixture.scope)
+        let scope = fixture.scope
+        scope.setLevel(SentryLevel.info)
+        let user = fixture.user
+        scope.setUser(user)
+
+        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.session, with: scope)
 
         eventId.assertIsNotEmpty()
         
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
-        XCTAssertEqual(fixture.event.eventId, args.event.eventId)
-        XCTAssertEqual(fixture.event.message, args.event.message)
-        XCTAssertEqual("value", args.event.tags?["key"] ?? "")
-        XCTAssertEqual(fixture.session, args.session)
+        let event = args.event
+        XCTAssertEqual(event.eventId, fixture.event.eventId)
+        XCTAssertEqual(event.message, fixture.event.message)
+        XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
+        XCTAssertEqual(args.session, fixture.session)
     }
-    
+
     func testCaptureCrashWithSession_DoesntOverideStacktrace() throws {
         let event = TestData.event
         event.threads = nil
@@ -760,19 +767,41 @@ class SentryClientTest: XCTestCase {
         let event = try lastSentEventWithAttachment()
         XCTAssertEqual(fixture.event.eventId, event.eventId)
         XCTAssertEqual(fixture.event.message, event.message)
-        XCTAssertEqual("value", event.tags?["key"] ?? "")
+        XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
     }
     
     func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() throws {
+        // Arrange
         let oomEvent = TestData.oomEvent
-        
+        oomEvent.context = ["device":
+                                [
+                                    "free_memory": 1_000,
+                                    "orientation": "landscape",
+                                    "charging": true,
+                                    "battery_level": 60,
+                                    "thermal_state": "nominal",
+                                    "something": "else"
+                                ],
+                            "app": [
+                                "app_memory": 1_000,
+                                "something": "else"
+                            ]
+        ]
+
+        // Act
         _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
 
+        // Assert
         let event = try lastSentEventWithAttachment()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
 
         let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
-        XCTAssertEqual(deviceContext.count, 0)
+        XCTAssertEqual(deviceContext.count, 1)
+        XCTAssertEqual(deviceContext["something"] as? String, "else")
+
+        let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+        XCTAssertEqual(appContext.count, 1)
+        XCTAssertEqual(appContext["something"] as? String, "else")
     }
     
     func testCaptureOOMEvent_WithNoContext_ContextNotModified() throws {
@@ -796,7 +825,45 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
         XCTAssertEqual(oomEvent.context?.count, actual.context?.count)
     }
-    
+
+    func testCaptureCrashEventWithSession_DoesntApplyCurrentScope() throws {
+        // Arrange
+        let scope = fixture.scope
+        scope.setLevel(SentryLevel.info)
+        let user = fixture.user
+        user.email = "not@me.com"
+        scope.setUser(user)
+
+        // Act
+        let eventId = fixture.getSut().captureCrash(fixture.eventWithCrash, with: fixture.session, with: scope)
+
+        // Assert
+        eventId.assertIsNotEmpty()
+        let event = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last?.event)
+
+        let expectedUser = try XCTUnwrap(TestData.user)
+        let expectedContext = TestData.context
+        XCTAssertEqual(event.user, expectedUser)
+        XCTAssertEqual(event.level, .fatal)
+        XCTAssertEqual(event.context?.count, expectedContext.count)
+    }
+
+    func testCaptureCrashEventWithSession_ScopeWithSpan_NotAppliedToCrashEvent() throws {
+        // Arrange
+        let scope = fixture.scope
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
+        let event = fixture.eventWithCrash
+
+        // Act
+        let eventId = fixture.getSut().captureCrash(event, with: fixture.session, with: scope)
+
+        // Assert
+        eventId.assertIsNotEmpty()
+        let capturedEvent = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last?.event)
+
+        XCTAssertNil(capturedEvent.context?["trace"])
+    }
+
     func testCaptureCrash_DoesntOverideStacktraceFor() throws {
         let event = TestData.event
         event.threads = nil
@@ -810,18 +877,18 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureCrash_NoExtraContext() throws {
+        // Arrange
         let event = TestData.event
+        let expectedMyContext = ["context": "value"]
+        event.context = ["my": expectedMyContext]
 
+        // Act
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
+        // Assert
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(1, actual.context?["device"]?.count, "The device context should only contain free_memory")
-        
-        let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
-        XCTAssertEqual(eventFreeMemory, 2_000)
-        
-        XCTAssertNil(actual.context?["app"], "The app context should be nil")
-        XCTAssertNil(actual.context?["culture"], "The culture context should be nil")
+        XCTAssertEqual(actual.context?.count, 1)
+        XCTAssertEqual(actual.context?["my"] as? [String: String], expectedMyContext)
     }
 
     func testCaptureEvent_AddCurrentMemoryStorageAndCPUCoreCount() throws {

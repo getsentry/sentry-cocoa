@@ -1425,9 +1425,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(sessionStatus, session?.status)
         XCTAssertEqual(abnormalMechanism, session?.abnormalMechanism)
         XCTAssertEqual(fixture.options.environment, session?.environment)
-        
-        let event = argument?.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        XCTAssertEqual(event?.environment, scopeEnvironment)
     }
     
     private func assertSessionWithIncrementedErrorCountedAdded() throws {
