@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length function_body_length
 
 import Sentry
 import UIKit
@@ -71,6 +71,12 @@ struct SentrySDKWrapper {
         
         options.initialScope = configureInitialScope(scope:)
         options.configureUserFeedback = configureFeedback(config:)
+
+        // Experimental features
+        options.experimental.enableFileManagerSwizzling = true
+        options.sessionReplay.enableExperimentalViewRenderer = true
+        // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+        options.sessionReplay.enableFastViewRendering = false
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
@@ -421,4 +427,4 @@ extension SentrySDKWrapper {
     var enableAppLaunchProfiling: Bool { args.contains("--profile-app-launches") }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable file_length function_body_length

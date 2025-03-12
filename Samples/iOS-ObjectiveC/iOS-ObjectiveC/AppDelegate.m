@@ -36,6 +36,10 @@
 
         options.experimental.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
+        options.sessionReplay.enableExperimentalViewRenderer
+            = ![args containsObject:@"--disable-experimental-view-renderer"];
+        options.sessionReplay.enableFastViewRendering
+            = ![args containsObject:@"--disable-fast-view-renderer"];
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
