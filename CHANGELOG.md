@@ -11,6 +11,7 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
+- Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
 
 ### Fixes
 

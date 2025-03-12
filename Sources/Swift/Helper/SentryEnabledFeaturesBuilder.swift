@@ -1,7 +1,8 @@
 import Foundation
 
 @objcMembers class SentryEnabledFeaturesBuilder: NSObject {
-    
+
+    // swiftlint:disable cyclomatic_complexity
     static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
@@ -47,7 +48,16 @@ import Foundation
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
-        
+
+#if os(iOS) && !SENTRY_NO_UIKIT
+        if options.sessionReplay.enableExperimentalViewRenderer {
+            features.append("experimentalViewRenderer")
+        }
+        if options.sessionReplay.enableFastViewRendering {
+            features.append("fastViewRendering")
+        }
+#endif // #if os(iOS) && !SENTRY_NO_UIKIT
         return features
     }
+    // swiftlint:enable cyclomatic_complexity
 }
