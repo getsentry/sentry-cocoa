@@ -1093,6 +1093,111 @@ extension SentrySDKTests {
         SentrySDK.startTransaction(name: "test", operation: "test")
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+
+    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionYes() {
+        // arrange
+        withMockTimerFactory { timerFactory in
+            let random = TestRandom(value: 0.5)
+            fixture.options.profiling.sessionSampleRate = 1
+            givenSdkWithHub()
+
+            // act
+            SentrySDK.startProfileSession()
+
+            // assert
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // clean up
+            try stopProfilerV2(timerFactory: timerFactory)
+        }
+    }
+
+    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() {
+        // arrange
+        let random = TestRandom(value: 0.5)
+        fixture.options.profiling.sessionSampleRate = 0
+        givenSdkWithHub()
+
+        // act
+        SentrySDK.startProfileSession()
+
+        // assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionNo() {
+        // arrange
+        let random = TestRandom(value: 0.5)
+        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.lifecycle = .trace
+        fixture.options.tracesSampleRate = 1
+        givenSdkWithHub()
+
+        // act
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+        // assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // clean up
+        trace.finish()
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionNo() {
+        // arrange
+        let random = TestRandom(value: 0.5)
+        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.lifecycle = .trace
+        fixture.options.tracesSampleRate = 0
+        givenSdkWithHub()
+
+        // act
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+        // assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // clean up
+        trace.finish()
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionYes() {
+        // arrange
+        withMockTimerFactory { _ in
+            let random = TestRandom(value: 0.5)
+            fixture.options.profiling.sessionSampleRate = 1
+            fixture.options.lifecycle = .trace
+            fixture.options.tracesSampleRate = 1
+            givenSdkWithHub()
+
+            // act
+            let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+            // assert
+            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // clean up
+            trace.finish()
+            fixture.currentDate.advance(by: 60)
+            try mockTimerFactory.check()
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        }
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionYes() {
+        // arrange
+        let random = TestRandom(value: 0.5)
+        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.lifecycle = .trace
+        fixture.options.tracesSampleRate = 0
+        givenSdkWithHub()
+
+        // act
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+        // assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
 }
 
 private extension SentrySDKTests {
