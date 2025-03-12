@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Improvements
-
-- Slightly speed up SDK start (#4916)
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
@@ -23,6 +20,7 @@
 
 - More debug logs for UIViewController tracing (#4942)
 - Avoid creating unnecessary User Interaction transactions (#4957)
+- Slightly speed up SDK start (#4916)
 
 ## 8.46.0
 

@@ -374,6 +374,9 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
         case LC_SEGMENT: {
             struct segment_command *segCmd = (struct segment_command *)cmdPtr;
             if (strcmp(segCmd->segname, SEG_TEXT) == 0) {
+                if (imageSize != 0 || imageVmAddr != 0) {
+                    SENTRY_ASYNC_SAFE_LOG_WARN("Found multiple __TEXT segments");
+                }
                 imageSize = segCmd->vmsize;
                 imageVmAddr = segCmd->vmaddr;
             }
@@ -382,21 +385,22 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
         case LC_SEGMENT_64: {
             struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
             if (strcmp(segCmd->segname, SEG_TEXT) == 0) {
+                if (imageSize != 0 || imageVmAddr != 0) {
+                    SENTRY_ASYNC_SAFE_LOG_WARN("Warning: Found multiple __TEXT segments");
+                }
                 imageSize = segCmd->vmsize;
                 imageVmAddr = segCmd->vmaddr;
             }
             break;
         }
         case LC_UUID: {
+            if (uuid != NULL) {
+                SENTRY_ASYNC_SAFE_LOG_WARN("Warning: Found multiple LC_UUID commands");
+            }
             struct uuid_command *uuidCmd = (struct uuid_command *)cmdPtr;
             uuid = uuidCmd->uuid;
             break;
         }
-        }
-
-        // We have all the info we need. Break out of the loop.
-        if (imageSize != 0 && imageVmAddr != 0 && uuid != NULL) {
-            break;
         }
 
         cmdPtr += loadCmd->cmdsize;
