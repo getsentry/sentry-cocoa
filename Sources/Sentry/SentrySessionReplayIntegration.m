@@ -111,6 +111,8 @@ static SentryTouchTracker *_touchTracker;
         [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                            redactOptions:replayOptions
                           enableExperimentalMaskRenderer:enableExperimentalRenderer];
+    [_viewPhotographer setOnRenderScreenshot:replayOptions.onRenderedScreenshot];
+    [_viewPhotographer setOnMaskScreenshot:replayOptions.onMaskedScreenshot];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]

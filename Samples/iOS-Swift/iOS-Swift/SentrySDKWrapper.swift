@@ -21,6 +21,29 @@ struct SentrySDKWrapper {
         if #available(iOS 16.0, *), enableSessionReplay {
             options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
             options.sessionReplay.quality = .high
+            options.sessionReplay.onRenderedScreenshot = { image in
+                guard let data = image.pngData() else {
+                    return image
+                }
+                do {
+                    try data.write(to: URL(fileURLWithPath: "/tmp/session-replay-0-rendered.png"))
+                } catch {
+                    print("Failed to write in onRenderedScreenshot, reason: \(error)")
+                }
+                return image
+            }
+            options.sessionReplay.onMaskedScreenshot = { image in
+                guard let data = image.pngData() else {
+                    return image
+                }
+                do {
+                    try data.write(to: URL(fileURLWithPath: "/tmp/session-replay-1-masked.png"))
+                } catch {
+                    print("Failed to write screenshot in onMaskingScreenshot, reason: \(error)")
+                }
+                return image
+            }
+
         }
         
         if #available(iOS 15.0, *), enableMetricKit {
