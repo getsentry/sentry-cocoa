@@ -529,6 +529,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    if (event.isCrashEvent) {
+        SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "
+                        @"events are from a previous run of the app and the current scope might "
+                        @"have different data than the scope that was active during the crash.");
+        return event;
+    }
+
     if (event.tags == nil) {
         event.tags = [self tags];
     } else {
@@ -583,18 +590,6 @@ NS_ASSUME_NONNULL_BEGIN
         event.level = level;
     }
 
-    NSMutableDictionary *newContext = [self context].mutableCopy;
-    if (event.context != nil) {
-        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
-    }
-
-    // Don't add the trace context of a current trace to a crash event because crash events are from
-    // a previous run.
-    if (event.isCrashEvent) {
-        event.context = newContext;
-        return event;
-    }
-
     id<SentrySpan> span;
 
     if (self.span != nil) {
@@ -609,6 +604,11 @@ NS_ASSUME_NONNULL_BEGIN
                 event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
         }
+    }
+
+    NSMutableDictionary *newContext = [self context].mutableCopy;
+    if (event.context != nil) {
+        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
     }
 
     newContext[@"trace"] = [self buildTraceContext:span];

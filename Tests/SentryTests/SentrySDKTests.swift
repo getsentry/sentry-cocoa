@@ -1083,14 +1083,14 @@ extension SentrySDKTests {
     func testStartingTransactionWithoutTraceLifecycleDoesNotStartContinuousProfilerV2() {
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
-        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+        SentrySDK.startTransaction(name: "test", operation: "test")
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testStartingTransactionWithTraceProfilingLifecycleWithTracingDisabledDoesNotStartContinuousProfilerV2() {
         fixture.options.profiling.lifecycle = .trace
         givenSdkWithHub()
-        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+        SentrySDK.startTransaction(name: "test", operation: "test")
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
