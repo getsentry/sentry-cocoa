@@ -773,7 +773,77 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setUser(user)
         })
     }
-    
+
+    func testRemoveContextForKey_keyNotFound_shouldNotChangeContext() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        // -- Act --
+        scope.removeContext(key: "C")
+
+        // -- Assert --
+        let actual = scope.serialize()["context"] as? NSDictionary
+        let expected: NSDictionary = ["A": ["AA": 1], "B": ["BB": "2"]]
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testRemoveContextForKey_keyFound_shouldRemoveKeyValuePairFromContext() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        // -- Act --
+        scope.removeContext(key: "B")
+
+        // -- Assert --
+        let actual = scope.serialize()["context"] as? NSDictionary
+        let expected: NSDictionary = ["A": ["AA": 1]]
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testRemoveContextForKey_keyNotFound_shouldUpdateAllObserverContexts() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        let observer1 = TestScopeObserver()
+        scope.add(observer1)
+        let observer2 = TestScopeObserver()
+        scope.add(observer2)
+
+        // -- Act --
+        scope.removeContext(key: "C")
+
+        // -- Assert --
+        let expected: NSDictionary = ["A": ["AA": 1], "B": ["BB": "2"]]
+        XCTAssertEqual(observer1.context as? NSDictionary, expected)
+        XCTAssertEqual(observer2.context as? NSDictionary, expected)
+    }
+
+    func testRemoveContextForKey_keyFound_shouldUpdateAllObserverContexts() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        let observer1 = TestScopeObserver()
+        scope.add(observer1)
+        let observer2 = TestScopeObserver()
+        scope.add(observer2)
+
+        // -- Act --
+        scope.removeContext(key: "B")
+
+        // -- Assert --
+        let expected: NSDictionary = ["A": ["AA": 1]]
+        XCTAssertEqual(observer1.context as? NSDictionary, expected)
+        XCTAssertEqual(observer2.context as? NSDictionary, expected)
+    }
+
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
