@@ -833,9 +833,12 @@
 		D4E3F35E2D4A877300F79E2B /* SentryNSDictionarySanitize+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = D41909942D490006002B83D0 /* SentryNSDictionarySanitize+Tests.m */; };
 		D4EDF9842D0B2A210071E7B3 /* Data+SentryTracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EDF9832D0B2A1D0071E7B3 /* Data+SentryTracing.swift */; };
 		D4E829D22D75E2EC00D375AD /* SentryDefaultViewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829D12D75E2DE00D375AD /* SentryDefaultViewRenderer.swift */; };
+		D4E829D42D75E34A00D375AD /* SentryExperimentalViewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829D32D75E34A00D375AD /* SentryExperimentalViewRenderer.swift */; };
 		D4E829D62D75E39B00D375AD /* SentryViewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829D52D75E39900D375AD /* SentryViewRenderer.swift */; };
 		D4E829D82D75E57900D375AD /* SentryMaskRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829D72D75E56C00D375AD /* SentryMaskRenderer.swift */; };
 		D4E829DA2D75F70300D375AD /* SentryDefaultMaskRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829D92D75F70100D375AD /* SentryDefaultMaskRenderer.swift */; };
+		D4E829DC2D75F71200D375AD /* SentryExperimentalMaskRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829DB2D75F71200D375AD /* SentryExperimentalMaskRenderer.swift */; };
+		D4E829DF2D75FCF000D375AD /* SentryGraphicsImageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E829DE2D75FCE800D375AD /* SentryGraphicsImageRenderer.swift */; };
 		D4F2B5352D0C69D500649E42 /* SentryCrashCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F2B5342D0C69D100649E42 /* SentryCrashCTests.swift */; };
 		D8019910286B089000C277F0 /* SentryCrashReportSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */; };
 		D802994E2BA836EF000F0081 /* SentryOnDemandReplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D802994D2BA836EF000F0081 /* SentryOnDemandReplay.swift */; };
@@ -2000,9 +2003,12 @@
 		D4C5F5992D4249E0002A9BF6 /* DataSentryTracingIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSentryTracingIntegrationTests.swift; sourceTree = "<group>"; };
 		D4EDF9832D0B2A1D0071E7B3 /* Data+SentryTracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+SentryTracing.swift"; sourceTree = "<group>"; };
 		D4E829D12D75E2DE00D375AD /* SentryDefaultViewRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDefaultViewRenderer.swift; sourceTree = "<group>"; };
+		D4E829D32D75E34A00D375AD /* SentryExperimentalViewRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryExperimentalViewRenderer.swift; sourceTree = "<group>"; };
 		D4E829D52D75E39900D375AD /* SentryViewRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryViewRenderer.swift; sourceTree = "<group>"; };
 		D4E829D72D75E56C00D375AD /* SentryMaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMaskRenderer.swift; sourceTree = "<group>"; };
 		D4E829D92D75F70100D375AD /* SentryDefaultMaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDefaultMaskRenderer.swift; sourceTree = "<group>"; };
+		D4E829DB2D75F71200D375AD /* SentryExperimentalMaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryExperimentalMaskRenderer.swift; sourceTree = "<group>"; };
+		D4E829DE2D75FCE800D375AD /* SentryGraphicsImageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryGraphicsImageRenderer.swift; sourceTree = "<group>"; };
 		D4F2B5342D0C69D100649E42 /* SentryCrashCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashCTests.swift; sourceTree = "<group>"; };
 		D800942628F82F3A005D3943 /* SwiftDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDescriptor.swift; sourceTree = "<group>"; };
 		D801990F286B089000C277F0 /* SentryCrashReportSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashReportSinkTests.swift; sourceTree = "<group>"; };
@@ -3890,6 +3896,9 @@
 			children = (
 				D4E829D92D75F70100D375AD /* SentryDefaultMaskRenderer.swift */,
 				D4E829D12D75E2DE00D375AD /* SentryDefaultViewRenderer.swift */,
+				D4E829DB2D75F71200D375AD /* SentryExperimentalMaskRenderer.swift */,
+				D4E829D32D75E34A00D375AD /* SentryExperimentalViewRenderer.swift */,
+				D4E829DE2D75FCE800D375AD /* SentryGraphicsImageRenderer.swift */,
 				D4E829D72D75E56C00D375AD /* SentryMaskRenderer.swift */,
 				D8CAC0722BA4473000E38F34 /* SentryViewPhotographer.swift */,
 				D4E829D52D75E39900D375AD /* SentryViewRenderer.swift */,
@@ -4970,6 +4979,7 @@
 				7B88F30024BC5A7D00ADF90A /* SentrySdkInfo.m in Sources */,
 				62862B1E2B1DDC35009B16E3 /* SentryDelayedFrame.m in Sources */,
 				84AC61D729F75A98009EEF61 /* SentryDispatchFactory.m in Sources */,
+				D4E829DF2D75FCF000D375AD /* SentryGraphicsImageRenderer.swift in Sources */,
 				15360CD62432832400112302 /* SentryAutoSessionTrackingIntegration.m in Sources */,
 				848A451D2BBF9504006AAAEC /* SentryProfilerTestHelpers.m in Sources */,
 				7B63459F280EBA7200CFA05A /* SentryUIEventTracker.m in Sources */,
@@ -5076,6 +5086,7 @@
 				0AAE201E28ED9B9400D0CD80 /* SentryReachability.m in Sources */,
 				7B0A54282521C22C00A71716 /* SentryFrameRemover.m in Sources */,
 				6283085F2D50AA8C00EAEF77 /* SentryMessage.swift in Sources */,
+				D4E829DC2D75F71200D375AD /* SentryExperimentalMaskRenderer.swift in Sources */,
 				7BC63F0A28081288009D9E37 /* SentrySwizzleWrapper.m in Sources */,
 				6276350C2D59FACC00F7CEF6 /* SentryEventDecoder.swift in Sources */,
 				7B6C5EDC264E8DA80010D138 /* SentryFramesTrackingIntegration.m in Sources */,
@@ -5154,6 +5165,7 @@
 				8454CF8D293EAF9A006AC140 /* SentryMetricProfiler.mm in Sources */,
 				63FE714120DA4C1100CDBAE8 /* SentryCrashDate.c in Sources */,
 				D43B26DA2D70A612007747FD /* SentrySpanDataKey.m in Sources */,
+				D4E829D42D75E34A00D375AD /* SentryExperimentalViewRenderer.swift in Sources */,
 				63FE70DB20DA4C1000CDBAE8 /* SentryCrashMonitor_System.m in Sources */,
 				7BA61CBB247BC5D800C130A8 /* SentryCrashDefaultBinaryImageProvider.m in Sources */,
 				63FE713120DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */,
@@ -5681,6 +5693,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -5716,6 +5730,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -5764,6 +5780,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -5813,6 +5831,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -6208,6 +6228,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -6360,6 +6382,8 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";

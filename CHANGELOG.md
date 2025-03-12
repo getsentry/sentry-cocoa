@@ -6,15 +6,15 @@
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
+- Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
 
 ### Fixes
 
 - Correctly finish TTFD span when no new frame (#4941)
 - Only delete envelopes when receiving HTTP 200 (#4956)
-
-### Fixes
-
 - Set foreground true for watchdog terminations (#4953)
+- Fix removing value from context not updating observer context (#4960)
+- Changed parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
 
 ### Improvements
 
