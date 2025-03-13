@@ -2085,10 +2085,10 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(header.sdkInfo?.version, "1.0.0")
     }
     
-    func testCaptureCrashEventSetReplayInScope() {
+    func testCaptureFatalEventSetReplayInScope() {
         let sut = fixture.getSut()
         let event = Event()
-        event.isCrashEvent = true
+        event.isFatalEvent = true
         let scope = Scope()
         event.context = ["replay": ["replay_id": "someReplay"]]
         sut.captureCrash(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)

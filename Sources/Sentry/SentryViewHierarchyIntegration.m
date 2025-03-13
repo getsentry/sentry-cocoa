@@ -71,7 +71,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 {
     // We don't attach the view hierarchy if there is no exception/error.
     // We don't attach the view hierarchy if the event is a crash or metric kit event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
+    if ((event.exceptions == nil && event.error == nil) || event.isFatalEvent
 #    if SENTRY_HAS_METRIC_KIT
         || [event isMetricKitEvent]
 #    endif // SENTRY_HAS_METRIC_KIT

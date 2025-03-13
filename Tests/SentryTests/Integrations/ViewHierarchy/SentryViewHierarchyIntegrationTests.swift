@@ -95,7 +95,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     func test_noViewHierarchy_CrashEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.isCrashEvent = true
+        event.isFatalEvent = true
 
         let newAttachmentList = sut.processAttachments([], for: event)
 
