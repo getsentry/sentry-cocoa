@@ -191,7 +191,7 @@ static BOOL appStartMeasurementRead;
 - (void)dealloc
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_discardProfiler(_profilerReferenceID, self.hub);
+    sentry_discardProfiler(_profilerReferenceID, self.hub, self.isProfiling);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     [self cancelDeadlineTimeout];
 }

@@ -1090,8 +1090,11 @@ extension SentrySDKTests {
     func testStartingTransactionWithTraceProfilingLifecycleWithTracingDisabledDoesNotStartContinuousProfilerV2() {
         fixture.options.profiling.lifecycle = .trace
         givenSdkWithHub()
-        SentrySDK.startTransaction(name: "test", operation: "test")
+
+        // hold a reference to the tracer so it doesn't dealloc, which tries to clean up any existing profilers
+        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        trace.finish()
     }
 
     func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionYes() {
