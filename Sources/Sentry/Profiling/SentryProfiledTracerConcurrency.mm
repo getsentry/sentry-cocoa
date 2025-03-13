@@ -148,8 +148,7 @@ sentry_discardProfilerHybrid(SentryId *internalTraceId, SentryHub *hub)
 }
 
 void
-sentry_discardProfiler(
-    SentryId *internalTraceId, SentryHub *hub, SentrySampleDecision tracerSampleDecision)
+sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub, BOOL traceSampled)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -157,7 +156,7 @@ sentry_discardProfiler(
         if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
             return;
         }
-        if (tracerSampleDecision != kSentrySampleDecisionYes) {
+        if (!traceSampled) {
             return;
         }
         _unsafe_cleanUpContinuousTraceProfiler();
