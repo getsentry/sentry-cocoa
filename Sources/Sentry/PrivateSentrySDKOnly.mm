@@ -224,7 +224,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return payload;
 }
 
-+ (void)discardProfilerForTrace:(SentryId *)traceId;
++ (void)discardProfilerForTrace:(SentryId *)traceId
 {
     sentry_discardProfiler(traceId, SentrySDK.currentHub);
 }

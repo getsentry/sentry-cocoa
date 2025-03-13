@@ -1,6 +1,7 @@
 #import "SentryCompiler.h"
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySampleDecision.h"
 #import <Foundation/Foundation.h>
 
 @class SentryProfiler;
@@ -48,11 +49,14 @@ SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
  */
 void sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId);
 
+void sentry_discardProfilerHybrid(SentryId *internalTraceId, SentryHub *hub);
+
 /**
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
  */
-void sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub);
+void sentry_discardProfiler(
+    SentryId *internalTraceId, SentryHub *hub, SentrySampleDecision tracerSampleDecision);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the

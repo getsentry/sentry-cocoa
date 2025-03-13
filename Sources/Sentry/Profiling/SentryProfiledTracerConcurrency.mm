@@ -143,12 +143,21 @@ sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceI
 }
 
 void
-sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub)
+sentry_discardProfilerHybrid(SentryId *internalTraceId, SentryHub *hub)
+{
+}
+
+void
+sentry_discardProfiler(
+    SentryId *internalTraceId, SentryHub *hub, SentrySampleDecision tracerSampleDecision)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if ([hub.getClient.options isContinuousProfilingEnabled]) {
         if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
+            return;
+        }
+        if (tracerSampleDecision != kSentrySampleDecisionYes) {
             return;
         }
         _unsafe_cleanUpContinuousTraceProfiler();
@@ -296,6 +305,9 @@ SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuratio
 {
     if ([hub.getClient.options isContinuousProfilingEnabled]) {
         if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
+            return nil;
+        }
+        if (transactionContext.sampled != kSentrySampleDecisionYes) {
             return nil;
         }
         SENTRY_LOG_DEBUG(@"Starting continuous profiler for tracer %@",
