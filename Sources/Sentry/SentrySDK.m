@@ -659,7 +659,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    if (_sentryProfilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+    if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(
             @"The profiling session has been sampled out, no profiling will take place.");
         return;

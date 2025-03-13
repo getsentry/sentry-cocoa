@@ -1019,13 +1019,34 @@ extension SentrySDKTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testManuallyStartingAndStoppingContinuousProfilerV2() throws {
+    func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
+        // arrange
         try withMockTimerFactory { mockTimerFactory in
+            try withMockRandom(value: 0.5) {
+                fixture.options.profiling.sessionSampleRate = 1
+                givenSdkWithHub()
+                sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+
+                // act
+                SentrySDK.startProfileSession()
+
+                // assert
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // act
+                try stopProfilerV2(timerFactory: mockTimerFactory)
+
+                // assert
+                XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            }
+        }
+    }
+
+    func testManuallyStartingAndStoppingContinuousProfilerV2NotSampled() throws {
+        try withMockRandom(value: 0.5) {
+            fixture.options.profiling.sessionSampleRate = 0
             givenSdkWithHub()
             SentrySDK.startProfileSession()
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-            try stopProfilerV2(timerFactory: mockTimerFactory)
             XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         }
     }
@@ -1056,27 +1077,62 @@ extension SentrySDKTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStoppingContinuousProfilerV2WithTraceLifeCycleDoesNotStopProfiler() throws {
-        try withMockTimerFactory { mockTimerFactory in
+    func testContinuousProfilerV2TraceLifecycleZeroSampleRateDoesNotStartProfiler() throws {
+        // arrange
+        try withMockRandom(value: 0.5) {
             fixture.options.profiling.lifecycle = .trace
+            fixture.options.profiling.sessionSampleRate = 0
             fixture.options.tracesSampleRate = 1
+            sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
             givenSdkWithHub()
-
             fixture.currentDate.advance(by: 1)
+            
+            // act
             let trace = SentrySDK.startTransaction(name: "test", operation: "test")
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-            // using manual stop method is a no-op in trace profile lifecycle mode
-            try stopProfilerV2(timerFactory: mockTimerFactory)
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-            fixture.currentDate.advance(by: 1)
-            trace.finish()
-            // the current profile chunk will finish
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-            fixture.currentDate.advance(by: 60)
-            try mockTimerFactory.check()
+            
+            // assert
             XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            
+            // clean up
+            trace.finish()
+        }
+    }
+
+    func testStoppingContinuousProfilerV2WithTraceLifeCycleDoesNotStopProfiler() throws {
+        // arrange
+        try withMockTimerFactory { mockTimerFactory in
+            try withMockRandom(value: 0.5) {
+                fixture.options.profiling.lifecycle = .trace
+                fixture.options.profiling.sessionSampleRate = 1
+                fixture.options.tracesSampleRate = 1
+                sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+                givenSdkWithHub()
+                fixture.currentDate.advance(by: 1)
+                let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // act - using manual stop method is a no-op in trace profile lifecycle mode
+                try stopProfilerV2(timerFactory: mockTimerFactory)
+
+                // assert
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // arrange
+                fixture.currentDate.advance(by: 1)
+
+                // act - the current profile chunk will automatically finish
+                trace.finish()
+
+                // assert - profile chunk must complete
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // arrange - simulate chunk completion
+                fixture.currentDate.advance(by: 60)
+                try mockTimerFactory.check()
+
+                // assert - profiler is stopped
+                XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            }
         }
     }
 
@@ -1097,109 +1153,124 @@ extension SentrySDKTests {
         trace.finish()
     }
 
-    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionYes() {
+    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionYes() throws {
         // arrange
-        withMockTimerFactory { timerFactory in
-            let random = TestRandom(value: 0.5)
-            fixture.options.profiling.sessionSampleRate = 1
+        try withMockTimerFactory { timerFactory in
+            try withMockRandom(value: 0.5) {
+                fixture.options.profiling.sessionSampleRate = 1
+                givenSdkWithHub()
+                sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+
+                // act
+                SentrySDK.startProfileSession()
+
+                // assert
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // clean up
+                try stopProfilerV2(timerFactory: timerFactory)
+            }
+        }
+    }
+
+    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() throws {
+        // arrange
+        try withMockRandom(value: 0.5) {
+            fixture.options.profiling.sessionSampleRate = 0
             givenSdkWithHub()
+            sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
 
             // act
             SentrySDK.startProfileSession()
 
             // assert
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-            // clean up
-            try stopProfilerV2(timerFactory: timerFactory)
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         }
     }
 
-    func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() {
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionNo() throws {
         // arrange
-        let random = TestRandom(value: 0.5)
-        fixture.options.profiling.sessionSampleRate = 0
-        givenSdkWithHub()
-
-        // act
-        SentrySDK.startProfileSession()
-
-        // assert
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionNo() {
-        // arrange
-        let random = TestRandom(value: 0.5)
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.lifecycle = .trace
-        fixture.options.tracesSampleRate = 1
-        givenSdkWithHub()
-
-        // act
-        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
-
-        // assert
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-
-        // clean up
-        trace.finish()
-    }
-
-    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionNo() {
-        // arrange
-        let random = TestRandom(value: 0.5)
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.lifecycle = .trace
-        fixture.options.tracesSampleRate = 0
-        givenSdkWithHub()
-
-        // act
-        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
-
-        // assert
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-
-        // clean up
-        trace.finish()
-    }
-
-    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionYes() {
-        // arrange
-        withMockTimerFactory { _ in
-            let random = TestRandom(value: 0.5)
-            fixture.options.profiling.sessionSampleRate = 1
-            fixture.options.lifecycle = .trace
+        try withMockRandom(value: 0.5) {
+            fixture.options.profiling.sessionSampleRate = 0
+            fixture.options.profiling.lifecycle = .trace
             fixture.options.tracesSampleRate = 1
             givenSdkWithHub()
+            sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
 
             // act
             let trace = SentrySDK.startTransaction(name: "test", operation: "test")
 
             // assert
-            XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
             // clean up
             trace.finish()
-            fixture.currentDate.advance(by: 60)
-            try mockTimerFactory.check()
-            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         }
     }
 
-    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionYes() {
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionNo() throws {
         // arrange
-        let random = TestRandom(value: 0.5)
-        fixture.options.profiling.sessionSampleRate = 1
-        fixture.options.lifecycle = .trace
-        fixture.options.tracesSampleRate = 0
-        givenSdkWithHub()
+        try withMockRandom(value: 0.5) {
+            fixture.options.profiling.sessionSampleRate = 0
+            fixture.options.profiling.lifecycle = .trace
+            fixture.options.tracesSampleRate = 0
+            givenSdkWithHub()
+            sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
 
-        // act
-        let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+            // act
+            let trace = SentrySDK.startTransaction(name: "test", operation: "test")
 
-        // assert
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            // assert
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // clean up
+            trace.finish()
+        }
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionYesSessionSampleDecisionYes() throws {
+        // arrange
+        try withMockTimerFactory { mockTimerFactory in
+            try withMockRandom(value: 0.5) {
+                fixture.options.profiling.sessionSampleRate = 1
+                fixture.options.profiling.lifecycle = .trace
+                fixture.options.tracesSampleRate = 1
+                givenSdkWithHub()
+                sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+
+                // act
+                let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+                // assert
+                XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+                // clean up
+                trace.finish()
+                fixture.currentDate.advance(by: 60)
+                try mockTimerFactory.check()
+                XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+            }
+        }
+    }
+
+    func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionYes() throws {
+        // arrange
+        try withMockRandom(value: 0.5) {
+            fixture.options.profiling.sessionSampleRate = 1
+            fixture.options.profiling.lifecycle = .trace
+            fixture.options.tracesSampleRate = 0
+            givenSdkWithHub()
+            sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+
+            // act
+            let trace = SentrySDK.startTransaction(name: "test", operation: "test")
+
+            // assert
+            XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+            // clean up
+            trace.finish()
+        }
     }
 }
 
@@ -1212,6 +1283,16 @@ private extension SentrySDKTests {
         try block(timerFactory)
 
         SentryDependencyContainer.sharedInstance().timerFactory = originalTimerFactory
+    }
+
+    func withMockRandom(value: Double, block: () throws -> Void) throws {
+        let random = TestRandom(value: value)
+        let originalRandom = SentryDependencyContainer.sharedInstance().random
+        SentryDependencyContainer.sharedInstance().random = random
+        
+        try block()
+
+        SentryDependencyContainer.sharedInstance().random = originalRandom
     }
 
     func stopProfiler(timerFactory: TestSentryNSTimerFactory) throws {

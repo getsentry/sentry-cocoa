@@ -30,6 +30,8 @@
 
 using namespace sentry::profiling;
 
+SentrySamplerDecision *sentry_profilerSessionSampleDecision;
+
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
@@ -41,11 +43,15 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
-    if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
-        if (!SENTRY_CASSERT_RETURN(options.isTracingEnabled,
-                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+    if ([options isContinuousProfilingEnabled]) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace
+            && !options.isTracingEnabled) {
+            SENTRY_LOG_WARN(
+                @"Tracing must be enabled in order to configure profiling with trace lifecycle.");
             return;
         }
+
+        sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(options);
     }
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
@@ -62,7 +68,6 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         }
 
         sentry_configureLaunchProfiling(options);
-        _sentryProfilerSessionSampleDecision = sentry_sampleProfileSession(options);
     }];
 }
 
