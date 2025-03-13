@@ -6,3 +6,6 @@ workspace: Sentry.xcworkspace
 scheme: Sentry
 source_directory: Sources
 output_directory: slather
+ignore:
+  - 'Tests/**'
+  - 'SentryTestUtils/**'
