@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Slightly speed up adding breadcrumbs (#4984)
+
 ## 8.47.0
 
 > [!Important]
