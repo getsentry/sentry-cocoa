@@ -130,7 +130,7 @@
     XCTAssertEqual([date timeIntervalSince1970], 1582803326.0);
 }
 
-- (void)testToIs08691StringNil_ReturnsNil
+- (void)testToIso8601StringNil_ReturnsNil
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
