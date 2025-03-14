@@ -36,6 +36,22 @@ namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
 
+void
+_sentry_configureContinuousProfiling(SentryOptions *options)
+{
+    if (![options isContinuousProfilingEnabled]) {
+        return;
+    }
+
+    if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
+        SENTRY_LOG_WARN(
+            @"Tracing must be enabled in order to configure profiling with trace lifecycle.");
+        return;
+    }
+
+    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(options);
+}
+
 } // namespace
 
 #    pragma mark - Public
@@ -43,6 +59,8 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
+    _sentry_configureContinuousProfiling(options);
+
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = YES;
 
