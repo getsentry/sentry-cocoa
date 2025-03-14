@@ -122,6 +122,11 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
 SentrySamplerDecision *
 sentry_sampleProfileSession(SentryOptions *options)
 {
+    if (![options isContinuousProfilingV2Enabled]) {
+        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionUndecided
+                                                 forSampleRate:nil
+                                                withSampleRand:nil];
+    }
     return _sentry_calcSampleFromNumericalRate(@(options.profiling.sessionSampleRate));
 }
 

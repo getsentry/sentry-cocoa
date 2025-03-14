@@ -34,16 +34,19 @@ public class SentryProfileOptions: NSObject {
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
     /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
     /// - note: Default: `SentryProfileLifecycleManual`.
+    /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
+    /// set to a non-nil value such that transaction-based profiling is being used, then setting
+    /// this property has no effect.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var lifecycle: SentryProfileLifecycle = .manual
     
     /// The % of user sessions in which to enable profiling.
-    /// - warning: Continuous profiling is an experimental feature and may still contain bugs. 
+    /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
     /// - note: Whether or not the session is sampled is determined once, when the SDK is initially
     /// configured.
     /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
     /// set to a non-nil value such that transaction-based profiling is being used, then setting
-    /// this property has no effect, and neither do `SentrySDK.startProfileSession()` or
+    /// this property has no effect, nor do `SentrySDK.startProfileSession()` or
     /// `SentrySDK.stopProfileSession()`.
     /// - note: The profiling session starts when a new user session begins, and stops when the user
     /// session ends. Backgrounding and foregrounding the app starts a new user session and sampling
@@ -54,4 +57,16 @@ public class SentryProfileOptions: NSObject {
     /// take effect until the profiler is started again.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var sessionSampleRate: Float = 0
+
+    /// Start the profiler as early as possible during the app lifecycle to capture more activity
+    /// during your app's launch.
+    /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
+    /// - note: `sessionSampleRate` is evaluated on the previous launch and only takes effect when
+    /// app start profiling activates on the next launch.
+    /// - note: If `lifecycle` is `manual`, profiling is started automatically on startup, but you
+    /// must manually call `SentrySDK.stopProfileSession()` whenever you app startup to be complete.
+    /// If `lifecycle` is `trace`, profiling is started automatically on startup, and will
+    /// automatically be stopped when the root span that is associated with app startup ends.
+    /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
+    public var profileAppStarts: Bool = false
 }
