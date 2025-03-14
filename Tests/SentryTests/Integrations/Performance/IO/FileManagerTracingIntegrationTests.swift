@@ -23,76 +23,83 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         init() {}
 
         func getSut(testName: String, isSDKEnabled: Bool = true, isEnabled: Bool = true) throws -> FileManager {
+            if isSDKEnabled {
+                return try getSutWithEnabledSDK(testName: testName, isEnabled: isEnabled)
+            }
+            return try getSutWithDisabledSDK(testName: testName, isEnabled: isEnabled)
+        }
+
+        private func getSutWithEnabledSDK(testName: String, isEnabled: Bool) throws -> FileManager {
+            let fileManager = FileManager.default
+            SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
+
+            SentrySDK.start { options in
+                options.dsn = TestConstants.dsnAsString(username: "FileManagerSentryTracingIntegrationTests")
+                options.removeAllIntegrations()
+
+                // Configure options required by File I/O tracking integration
+                options.enableAutoPerformanceTracing = true
+                options.enableFileIOTracing = isEnabled
+                options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
+
+                // Configure the tracing sample rate to record all traces
+                options.tracesSampleRate = 1.0
+
+                // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
+                // Instead we are recommending to disable swizzling and use manual tracing.
+                options.enableSwizzling = true
+                options.experimental.enableDataSwizzling = false
+                options.experimental.enableFileManagerSwizzling = false
+            }
+
+            // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
+            let sentryBasePath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.basePath, "Sentry base path is nil, but should be configured for test cases.")
+            let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
+
+            // The base path is not unique for the DSN, therefore we need to make it unique
+            fileSrcUrl = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)-source-file")
+            try data.write(to: fileSrcUrl)
+
+            fileDestUrl = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)-destination-file")
+            if fileManager.fileExists(atPath: fileDestUrl.path) {
+                try fileManager.removeItem(at: fileDestUrl)
+            }
+
+            // Get the working directory of the SDK, as these files are ignored by default
+            let sentryPath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.sentryPath, "Sentry path is nil, but should be configured for test cases.")
+            let sentryPathUrl = URL(fileURLWithPath: sentryPath)
+
+            ignoredFileToCreateUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-create")
+            if fileManager.fileExists(atPath: ignoredFileToCreateUrl.path) {
+                try fileManager.removeItem(at: ignoredFileToCreateUrl)
+            }
+
+            ignoredFileToDeleteUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-delete")
+            try data.write(to: ignoredFileToDeleteUrl)
+
+            ignoredSrcFileUrl = sentryPathUrl.appendingPathComponent("test--ignored-src-file")
+            try data.write(to: ignoredSrcFileUrl)
+
+            return fileManager
+        }
+
+        private func getSutWithDisabledSDK(testName: String, isEnabled: Bool) throws -> FileManager {
             let fileManager = FileManager.default
 
-            if isSDKEnabled {
-                SentryDependencyContainer.sharedInstance().dateProvider = mockDateProvider
+            let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+                .appendingPathComponent("test-\(testName.hashValue.description)")
+            try! FileManager.default
+                .createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-                SentrySDK.start { options in
-                    options.dsn = TestConstants.dsnAsString(username: "FileManagerSentryTracingIntegrationTests")
-                    options.removeAllIntegrations()
+            fileSrcUrl = tempDir.appendingPathComponent("source-file")
+            try data.write(to: fileSrcUrl)
 
-                    // Configure options required by File I/O tracking integration
-                    options.enableAutoPerformanceTracing = true
-                    options.enableFileIOTracing = isEnabled
-                    options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
-
-                    // Configure the tracing sample rate to record all traces
-                    options.tracesSampleRate = 1.0
-
-                    // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
-                    // Instead we are recommending to disable swizzling and use manual tracing.
-                    options.enableSwizzling = true
-                    options.experimental.enableDataSwizzling = false
-                    options.experimental.enableFileManagerSwizzling = false
-                }
-
-                // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
-                guard let sentryBasePath = SentrySDK.currentHub().getClient()?.fileManager.basePath else {
-                    preconditionFailure("Sentry base path is nil, but should be configured for test cases.")
-                }
-                let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
-
-                // The base path is not unique for the DSN, therefore we need to make it unique
-                fileSrcUrl = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)-source-file")
-                try data.write(to: fileSrcUrl)
-
-                fileDestUrl = sentryBasePathUrl.appendingPathComponent("test-\(testName.hashValue.description)-destination-file")
-                if fileManager.fileExists(atPath: fileDestUrl.path) {
-                    try fileManager.removeItem(at: fileDestUrl)
-                }
-
-                // Get the working directory of the SDK, as these files are ignored by default
-                guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
-                    preconditionFailure("Sentry path is nil, but should be configured for test cases.")
-                }
-                let sentryPathUrl = URL(fileURLWithPath: sentryPath)
-
-                ignoredFileToCreateUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-create")
-                if fileManager.fileExists(atPath: ignoredFileToCreateUrl.path) {
-                    try fileManager.removeItem(at: ignoredFileToCreateUrl)
-                }
-
-                ignoredFileToDeleteUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-delete")
-                try data.write(to: ignoredFileToDeleteUrl)
-
-                ignoredSrcFileUrl = sentryPathUrl.appendingPathComponent("test--ignored-src-file")
-                try data.write(to: ignoredSrcFileUrl)
-            } else {
-                let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
-                    .appendingPathComponent("test-\(testName.hashValue.description)")
-                try! FileManager.default
-                    .createDirectory(at: tempDir, withIntermediateDirectories: true)
-
-                fileSrcUrl = tempDir.appendingPathComponent("source-file")
-                try data.write(to: fileSrcUrl)
-
-                fileDestUrl = tempDir.appendingPathComponent("destination-file")
-                if fileManager.fileExists(atPath: fileDestUrl.path) {
-                    try fileManager.removeItem(at: fileDestUrl)
-                }
+            fileDestUrl = tempDir.appendingPathComponent("destination-file")
+            if fileManager.fileExists(atPath: fileDestUrl.path) {
+                try fileManager.removeItem(at: fileDestUrl)
             }
-            return FileManager.default
+
+            return fileManager
         }
 
         var fileSrcPath: String { fileSrcUrl.path }
@@ -618,6 +625,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -642,6 +650,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -765,6 +774,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -789,6 +799,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -985,6 +996,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -1143,6 +1155,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -1167,6 +1180,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -1338,6 +1352,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)
@@ -1362,6 +1377,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
         // As the date provider is used by multiple internal components, it is not possible to pin-point the exact timestamp.
         // Therefore, we can only assert relative timestamps as the date provider uses an internal drift.
+        // The timestamps are tested in the unit tests of the file I/O tracker helper and span tests.
         let startTimestamp = try XCTUnwrap(span.startTimestamp)
         let endTimestamp = try XCTUnwrap(span.timestamp)
         XCTAssertGreaterThan(startTimestamp.timeIntervalSince1970, refTimestamp.timeIntervalSince1970)

@@ -10,6 +10,8 @@ public extension FileManager {
 
     /// Creates a file with the specified content and attributes at the given location, tracking the operation with Sentry.
     ///
+    /// This method is a wrapper around ``FileManager.createFile(atPath:contents:attributes:)`` and can also be used when the SentrySDK is not enabled.
+    ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
     ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
@@ -22,18 +24,27 @@ public extension FileManager {
     /// - Returns: `true` if the operation was successful or if the item already exists, otherwise `false`.
     /// - Note: See ``FileManager.createFile(atPath:contents:attributes:)`` for more information.
     func createFileWithSentryTracing(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey: Any]? = nil) -> Bool {
-        let tracker = SentryFileIOTracker.sharedInstance()
+        // Using a closure ensures that the same method is used with and without Sentry tracking.
+        let method = { (path: String, data: Data?, attr: [FileAttributeKey: Any]?) -> Bool in
+            self.createFile(atPath: path, contents: data, attributes: attr)
+        }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return method(path, data, attr)
+        }
         return tracker
             .measureCreatingFile(
                 atPath: path,
                 contents: data,
                 attributes: attr,
-                origin: SentryTraceOriginManualFileData) { path, data, attr in
-                    self.createFile(atPath: path, contents: data, attributes: attr)
-            }
+                origin: SentryTraceOriginManualFileData,
+                method: method
+            )
     }
 
     /// Removes the file or directory at the specified URL, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.removeItem(at:)`` and can also be used when the Sentry SDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -42,13 +53,23 @@ public extension FileManager {
     ///                  If the URL specifies a directory, the contents of that directory are recursively removed.
     /// - Note: See ``FileManager.removeItem(at:)`` for more information.
     func removeItemWithSentryTracing(at url: URL) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
-        try tracker.measureRemovingItem(at: url, origin: SentryTraceOriginManualFileData) { url in
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure ensures that the same method is used with and without Sentry tracking.
+        let method = { (url: URL) in
             try self.removeItem(at: url)
         }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(url)
+        }
+        try tracker.measureRemovingItem(at: url, origin: SentryTraceOriginManualFileData, method: method)
     }
 
     /// Removes the file or directory at the specified path, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.removeItem(atPath:)`` and can also be used when the Sentry SDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -57,15 +78,25 @@ public extension FileManager {
     ///                   If the path specifies a directory, the contents of that directory are recursively removed.
     /// - Note: See ``FileManager.removeItem(atPath:)`` for more information.
     func removeItemWithSentryTracing(atPath path: String) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
-        try tracker.measureRemovingItem(atPath: path, origin: SentryTraceOriginManualFileData) { path in
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure to ensure that the same method is used with and without Sentry tracking.
+        let method = { (path: String) in
             try self.removeItem(atPath: path)
         }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(path)
+        }
+        try tracker.measureRemovingItem(atPath: path, origin: SentryTraceOriginManualFileData, method: method)
     }
 
     // MARK: - Moving and Copying Items
 
     /// Copies the file at the specified URL to a new location synchronously, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.copyItem(at:to:)`` and can also be used when the Sentry SDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -77,13 +108,23 @@ public extension FileManager {
     ///             The URL in this parameter must not be a file reference URL and must include the name of the file in its new location.
     /// - Note: See ``FileManager.copyItem(at:to:)`` for more information.
     func copyItemWithSentryTracing(at srcURL: URL, to dstURL: URL) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
-        try tracker.measureCopyingItem(at: srcURL, to: dstURL, origin: SentryTraceOriginManualFileData) { srcURL, dstURL in
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure ensures that the same method is used with and without Sentry tracking.
+        let method = { (srcURL: URL, dstURL: URL) throws in
             try self.copyItem(at: srcURL, to: dstURL)
         }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(srcURL, dstURL)
+        }
+        try tracker.measureCopyingItem(at: srcURL, to: dstURL, origin: SentryTraceOriginManualFileData, method: method)
     }
 
     /// Copies the item at the specified path to a new location synchronously, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.copyItem(atPath:toPath:)`` and can also be used when the SentrySDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -94,13 +135,23 @@ public extension FileManager {
     ///              This path must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.copyItem(atPath:toPath:)`` for more information.
     func copyItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
-        try tracker.measureCopyingItem(atPath: srcPath, toPath: dstPath, origin: SentryTraceOriginManualFileData) { srcPath, dstPath in
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure to ensure that the same method is used with and without Sentry tracking.
+        let method = { (srcPath: String, dstPath: String) throws in
             try self.copyItem(atPath: srcPath, toPath: dstPath)
         }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(srcPath, dstPath)
+        }
+        try tracker.measureCopyingItem(atPath: srcPath, toPath: dstPath, origin: SentryTraceOriginManualFileData, method: method)
     }
 
     /// Moves the file or directory at the specified URL to a new location synchronously, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.moveItem(at:to:)`` and can also be used when the Sentry SDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -112,16 +163,28 @@ public extension FileManager {
     ///             The URL in this parameter must not be a file reference URL and must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.moveItem(at:to:)`` for more information.
     func moveItemWithSentryTracing(at srcURL: URL, to dstURL: URL) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure ensures that the same method is used with and without Sentry tracking.
+        let method = { (srcURL: URL, dstURL: URL) throws in
+            try self.moveItem(at: srcURL, to: dstURL)
+        }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(srcURL, dstURL)
+        }
         try tracker.measureMovingItem(
             at: srcURL,
             to: dstURL,
-            origin: SentryTraceOriginManualFileData) { srcURL, dstURL in
-                try self.moveItem(at: srcURL, to: dstURL)
-        }
+            origin: SentryTraceOriginManualFileData,
+            method: method
+        )
     }
 
     /// Moves the file or directory at the specified path to a new location synchronously, tracking the operation with Sentry.
+    ///
+    /// This method is a wrapper around ``FileManager.moveItem(atPath:toPath:)`` and can also be used when the Sentry SDK is not enabled.
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
@@ -132,9 +195,22 @@ public extension FileManager {
     ///              This path must include the name of the file or directory in its new location.
     /// - Note: See ``FileManager.moveItem(atPath:toPath:)`` for more information.
     func moveItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
-        let tracker = SentryFileIOTracker.sharedInstance()
-        try tracker.measureMovingItem(atPath: srcPath, toPath: dstPath, origin: SentryTraceOriginManualFileData) { srcPath, dstPath in
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
+        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        //
+        // Using a closure ensures that the same method is used with and without Sentry tracking.
+        let method = { (srcPath: String, dstPath: String) throws in
             try self.moveItem(atPath: srcPath, toPath: dstPath)
         }
+        // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
+            return try method(srcPath, dstPath)
+        }
+        try tracker.measureMovingItem(
+            atPath: srcPath,
+            toPath: dstPath,
+            origin: SentryTraceOriginManualFileData,
+            method: method
+        )
     }
 }
