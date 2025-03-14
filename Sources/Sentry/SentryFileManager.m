@@ -692,6 +692,7 @@ appLaunchProfileConfigFileExists(void)
 {
     NSString *path = launchProfileConfigFileURL().path;
     if (path == nil) {
+        SENTRY_LOG_DEBUG(@"Failed to construct the path to check for launch profile configs.")
         return NO;
     }
 

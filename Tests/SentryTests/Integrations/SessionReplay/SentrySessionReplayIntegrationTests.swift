@@ -224,7 +224,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -252,7 +252,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -280,7 +280,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
