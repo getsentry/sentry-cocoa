@@ -67,7 +67,7 @@ saveScreenShot(const char *path)
     // We don't take screenshots if the event is a metric kit event.
     // Screenshots are added via an alternate codepath for crashes, see
     // sentrycrash_setSaveScreenshots in SentryCrashC.c
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
+    if ((event.exceptions == nil && event.error == nil) || event.isFatalEvent
 #    if SENTRY_HAS_METRIC_KIT
         || [event isMetricKitEvent]
 #    endif // SENTRY_HAS_METRIC_KIT

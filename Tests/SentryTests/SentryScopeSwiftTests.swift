@@ -231,17 +231,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
     }
     
-    func testApplyToEvent_ScopeWithSpan_NotAppliedToCrashEvent() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        let event = fixture.event
-        event.isCrashEvent = true
-        
-        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
-        XCTAssertNil(fixture.event.context?["trace"])
-        XCTAssertNil(actual?.transaction)
-    }
-    
     func testApplyToEvent_EventWithDist() {
         let event = fixture.event
         event.dist = "myDist"
@@ -270,6 +259,16 @@ class SentryScopeSwiftTests: XCTestCase {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(event.environment, actual?.environment)
+    }
+
+    func testApplyToEvent_ForFatalEvent_DoesNotApplyScope() {
+        let event = fixture.event
+        event.isFatalEvent = true
+
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
+
+        XCTAssertNil(actual?.tags)
+        XCTAssertNil(actual?.extra)
     }
 
     @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
