@@ -7,5 +7,5 @@ scheme: Sentry
 source_directory: Sources
 output_directory: slather
 ignore:
-  - 'Tests/**'
-  - 'SentryTestUtils/**'
+  - '**/Tests/**'
+  - '**/SentryTestUtils/**'
