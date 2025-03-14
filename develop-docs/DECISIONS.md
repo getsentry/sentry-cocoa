@@ -390,7 +390,7 @@ We can also start with this option to evaluate Swift Codable and switch to optio
 Date: March 11, 2025
 Contributors: @armcknight, @philipphofmann, @kahest
 
-We will support versions of each platform going back 4 major versions. There are 3 considerations:
+We will support versions of each platform going back 4 major versions, but we support no version which is not debuggable by the current Xcode required to submit apps to stores. There are 3 considerations:
 
 1. The distribution of events we receive from the various versions of iOS etc in the wild.
 1. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
