@@ -122,6 +122,8 @@ extension SentryProfilingPublicAPITests {
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
         fixture.options.profiling.sessionSampleRate = 1
+            $0.sessionSampleRate = 1
+        }
         givenSdkWithHub()
 
         // Act
@@ -139,7 +141,9 @@ extension SentryProfilingPublicAPITests {
 
     func testManuallyStartingAndStoppingContinuousProfilerV2NotSampled() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+        }
         givenSdkWithHub()
 
         // Act
@@ -185,7 +189,9 @@ extension SentryProfilingPublicAPITests {
 
     func testStartingContinuousProfilerV2WithTraceLifeCycleDoesNotStartProfiler() {
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
         givenSdkWithHub()
 
         // Act
@@ -204,8 +210,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
         fixture.currentDate.advance(by: 1)
@@ -219,8 +227,10 @@ extension SentryProfilingPublicAPITests {
 
     func testStoppingContinuousProfilerV2WithTraceLifeCycleDoesNotStopProfiler() throws {
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
         fixture.currentDate.advance(by: 1)
@@ -272,7 +282,9 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
         givenSdkWithHub()
 
         // Act - hold a reference to the tracer so it doesn't dealloc, which tries to clean up any existing profilers
@@ -293,7 +305,9 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+        }
         givenSdkWithHub()
 
         // Act
@@ -305,7 +319,9 @@ extension SentryProfilingPublicAPITests {
 
     func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+        }
         givenSdkWithHub()
 
         // Act
@@ -324,8 +340,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
 
@@ -345,8 +363,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 0
         givenSdkWithHub()
 
@@ -373,8 +393,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
 
@@ -394,8 +416,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 0
         givenSdkWithHub()
 

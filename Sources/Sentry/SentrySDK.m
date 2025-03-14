@@ -645,7 +645,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startProfileSession
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
         SENTRY_LOG_WARN(
             @"You must initialize the SDK with continuous profiling configured before starting a "
             @"profile session. See SentryProfilingOptions.");
@@ -675,6 +675,13 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfileSession
 {
+    if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
+        SENTRY_LOG_WARN(
+            @"You must initialize the SDK with continuous profiling configured before interacting"
+            @"with profile sessions. See SentryProfilingOptions.");
+        return;
+    }
+
     if (![SentryContinuousProfiler isCurrentlyProfiling]) {
         SENTRY_LOG_WARN(@"No profile session to stop.");
         return;

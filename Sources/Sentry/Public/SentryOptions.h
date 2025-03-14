@@ -13,7 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
 @class SentryReplayOptions;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryProfileOptions;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryScope;
 
 NS_SWIFT_NAME(Options)
@@ -515,11 +517,19 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * Block used to configure the continuous profiling options.
+ * @warning Continuous profiling is an experimental feature and may contain bugs.
+ * @seealso @c SentryProfileOptions, @c SentrySDK.startProfileSession and
+ * @c SentrySDK.stopProfileSession .
+ */
+typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull profiling);
+
+/**
  * Configuration for the Sentry profiler.
  * @warning: Continuous profiling is an experimental feature and may still contain bugs.
  * @warning: Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nonatomic, strong) SentryProfileOptions *profiling;
+@property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
 
 /**
  * @warning This is an experimental feature and may still have bugs.

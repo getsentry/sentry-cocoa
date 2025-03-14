@@ -12,6 +12,8 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
 - (BOOL)isContinuousProfilingEnabled;
+- (BOOL)isContinuousProfilingV2Enabled;
+@property (nonatomic, nullable, strong) SentryProfileOptions *profiling;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;

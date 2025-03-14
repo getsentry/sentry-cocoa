@@ -40,7 +40,17 @@ void
 _sentry_configureContinuousProfiling(SentryOptions *options)
 {
     if (![options isContinuousProfilingEnabled]) {
+        if (options.configureProfiling != nil) {
+            SENTRY_LOG_WARN(@"In order to configure SentryProfileOptions you must remove "
+                            @"configuration of the older SentryOptions.profilesSampleRate, "
+                            @"SentryOptions.profilesSampler and/or SentryOptions.enableProfiling");
+        }
         return;
+    }
+
+    if (options.configureProfiling != nil) {
+        options.profiling = [[SentryProfileOptions alloc] init];
+        options.configureProfiling(options.profiling);
     }
 
     if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
