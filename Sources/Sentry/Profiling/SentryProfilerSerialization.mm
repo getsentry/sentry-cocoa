@@ -337,7 +337,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
-        sentry_writeProfileFile(JSONData);
+        sentry_writeProfileFile(JSONData, true /*continuous*/);
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
@@ -388,7 +388,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     }
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-    sentry_writeProfileFile(JSONData);
+    sentry_writeProfileFile(JSONData, false /*continuous*/);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
