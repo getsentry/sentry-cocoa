@@ -117,14 +117,14 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func viewLastProfile(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
-        withProfile(first: false) { file in
+        withProfile(continuous: false) { file in
             handleContents(file: file)
         }
     }
     
     @IBAction func viewFirstContinuousProfileChunk(_ sender: Any) {
         profilingUITestDataMarshalingTextField.text = "<fetching...>"
-        withProfile(first: true) { file in
+        withProfile(continuous: true) { file in
             handleContents(file: file)
         }
     }
@@ -135,18 +135,18 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         textField.resignFirstResponder()
     }
     
-    private func withProfile(first: Bool, block: (URL?) -> Void) {
+    private func withProfile(continuous: Bool, block: (URL?) -> Void) {
         let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
-        let dir = "\(cachesDirectory)/io.sentry/profiles"
+        let dir = "\(cachesDirectory)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
         let count = try! fm.contentsOfDirectory(atPath: dir).count
         //swiftlint:disable empty_count
-        guard first || count > 0 else {
+        guard continuous || count > 0 else {
             //swiftlint:enable empty_count
             profilingUITestDataMarshalingTextField.text = "<missing>"
             return
         }
-        let fileName = "profile\(first ? 0 : count - 1)"
+        let fileName = "profile\(continuous ? 0 : count - 1)"
         let fullPath = "\(dir)/\(fileName)"
         
         if fm.fileExists(atPath: fullPath) {

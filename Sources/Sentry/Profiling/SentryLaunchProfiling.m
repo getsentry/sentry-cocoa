@@ -138,6 +138,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = appLaunchProfileConfiguration();
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
+        SENTRY_LOG_DEBUG(@"Starting launch continuous profile");
         [SentryContinuousProfiler start];
         return;
     }
@@ -195,8 +196,10 @@ sentry_configureLaunchProfiling(SentryOptions *options)
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         if ([options isContinuousProfilingEnabled]) {
+            SENTRY_LOG_DEBUG(@"Configuring launch continuous profile");
             configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
         } else {
+            SENTRY_LOG_DEBUG(@"Configuring launch trace profile");
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
                 = config.tracesDecision.sampleRate;
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRand]
