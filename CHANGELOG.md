@@ -6,6 +6,10 @@
 
 - Slightly speed up adding breadcrumbs (#4984)
 
+### Fixes
+
+- Fixes experimental Replay view renderer options initialisation (#4988)
+
 ## 8.47.0
 
 > [!Important]
