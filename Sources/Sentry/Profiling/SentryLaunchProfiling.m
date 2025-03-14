@@ -61,6 +61,11 @@ SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
     if (options.enableAppLaunchProfiling && [options isContinuousProfilingEnabled]) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace
+            && !SENTRY_CASSERT_RETURN(options.isTracingEnabled,
+                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+            return (SentryLaunchProfileConfig) { NO, nil, nil };
+        }
         SENTRY_LOG_DEBUG(@"Launch profiling and continuous profiling options set, no need to worry "
                          @"about sampling, enabling continuous profile of next launch.");
         return (SentryLaunchProfileConfig) { YES, nil, nil };
