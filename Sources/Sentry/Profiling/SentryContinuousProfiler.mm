@@ -194,6 +194,9 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
         }
     }
 
+    SENTRY_LOG_DEBUG(
+        @"Last continuous profile chunk transmitted after stop called, shutting down profiler.");
+
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper

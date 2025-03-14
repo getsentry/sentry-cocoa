@@ -21,7 +21,7 @@ class ProfilingUITests: BaseUITest {
         try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: false)
     }
     
     func testAppLaunchesWithContinuousProfiler() throws {
@@ -33,7 +33,7 @@ class ProfilingUITests: BaseUITest {
         try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: false, continuousProfiling: true)
     }
     
     /**
@@ -147,15 +147,15 @@ extension ProfilingUITests {
             "--disable-uiviewcontroller-tracing",
             
             // opt into launch profiling
-            "--profile-app-launches",
-            
+            "--io.sentry.profile-app-launches",
+
             // sets a marker function to run in a load command that the launch profile should detect
             "--io.sentry.slow-load-method"
         ])
         if continuousProfiling {
-            app.launchArguments.append("--io.sentry.enable-continuous-profiling")
+            app.launchArguments.append("--io.sentry.enableContinuousProfiling")
         }
-        
+
         launchApp()
         
         goToProfiling()

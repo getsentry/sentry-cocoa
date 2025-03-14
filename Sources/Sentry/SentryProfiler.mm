@@ -40,17 +40,23 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
 {
-    if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
-        if (!SENTRY_CASSERT_RETURN(options.isTracingEnabled,
-                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
-            return;
-        }
+    if (options.profiling.lifecycle == SentryProfileLifecycleTrace
+        && !SENTRY_CASSERT_RETURN(options.isTracingEnabled,
+            @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+        return;
+    }
+
+    if ([options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_DEBUG(@"Continuous launch profiles aren't stopped on calls to SentrySDK.start, "
+                         @"not stopping profile.");
+        return;
     }
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        BOOL shouldStopAndTransmitLaunchProfile = options.profilesSampleRate != nil;
+        BOOL shouldStopAndTransmitLaunchProfile = YES;
 #    if SENTRY_HAS_UIKIT
         if (SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
+            SENTRY_LOG_DEBUG(@"Will wait to stop launch profile until full display reported.");
             shouldStopAndTransmitLaunchProfile = NO;
         }
 #    endif // SENTRY_HAS_UIKIT
