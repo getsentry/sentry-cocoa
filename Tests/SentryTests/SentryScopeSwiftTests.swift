@@ -261,9 +261,9 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.environment, actual?.environment)
     }
 
-    func testApplyToEvent_ForCrashEvent_DoesNotApplyScope() {
+    func testApplyToEvent_ForFatalEvent_DoesNotApplyScope() {
         let event = fixture.event
-        event.isCrashEvent = true
+        event.isFatalEvent = true
 
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
 

@@ -8,8 +8,9 @@ class ProfilingUITests: BaseUITest {
     override func setUp() {
         super.setUp()
 
-        // make sure there are no previous configuration files or profile files written
-        app.launchArguments.append("--io.sentry.wipe-data")
+        app.launchArguments.append(contentsOf: [
+            "--io.sentry.wipe-data" // make sure there are no previous configuration files or profile files written
+        ])
     }
     
     func testAppLaunchesWithTraceProfiler() throws {
@@ -147,15 +148,18 @@ extension ProfilingUITests {
             "--disable-uiviewcontroller-tracing",
             
             // opt into launch profiling
-            "--profile-app-launches",
-            
+            "--io.sentry.profile-app-launches",
+
             // sets a marker function to run in a load command that the launch profile should detect
-            "--io.sentry.slow-load-method"
+            "--io.sentry.slow-load-method",
+
+            // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
+            "--io.sentry.continuous-profiler-immediate-stop"
         ])
         if continuousProfiling {
-            app.launchArguments.append("--io.sentry.enable-continuous-profiling")
+            app.launchArguments.append("--io.sentry.enableContinuousProfiling")
         }
-        
+
         launchApp()
         
         goToProfiling()

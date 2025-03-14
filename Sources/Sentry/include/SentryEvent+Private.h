@@ -6,9 +6,10 @@
 @interface SentryEvent ()
 
 /**
- * This indicates whether this event is a result of a crash.
+ * This indicates whether this event is a result of a fatal app termination, such as a crash,
+ * watchdog termination or a fatal app hang.
  */
-@property (nonatomic) BOOL isCrashEvent;
+@property (nonatomic) BOOL isFatalEvent;
 
 /**
  * This indicates whether this event represents an app hang.

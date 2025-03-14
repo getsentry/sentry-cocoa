@@ -117,10 +117,10 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
     
-    func test_noScreenShot_CrashEvent() {
+    func test_noScreenShot_FatalEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.isCrashEvent = true
+        event.isFatalEvent = true
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
