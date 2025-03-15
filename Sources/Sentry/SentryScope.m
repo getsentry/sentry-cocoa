@@ -135,8 +135,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
+        // Serializing is expensive. Only do it once.
+        NSDictionary<NSString *, id> *serializedBreadcrumb = [crumb serialize];
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer addSerializedBreadcrumb:[crumb serialize]];
+            [observer addSerializedBreadcrumb:serializedBreadcrumb];
         }
     }
 }
