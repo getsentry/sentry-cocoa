@@ -206,6 +206,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.onErrorSampleRate = onErrorSampleRate
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
+        self.enableExperimentalViewRenderer = enableExperimentalViewRenderer
+        self.enableFastViewRendering = enableFastViewRendering
     }
 
     convenience init(dictionary: [String: Any]) {
