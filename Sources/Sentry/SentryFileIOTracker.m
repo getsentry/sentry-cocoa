@@ -34,8 +34,14 @@
 
 NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
-+ (instancetype)sharedInstance
++ (instancetype _Nullable)sharedInstance
 {
+    // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
+    // initialize the depency container without any configured SDK options. This is a known issue
+    // and needs to be fixed in general.
+    if (!SentrySDK.isEnabled) {
+        return nil;
+    }
     return SentryDependencyContainer.sharedInstance.fileIOTracker;
 }
 

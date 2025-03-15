@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Slightly speed up adding breadcrumbs (#4984)
+
 ## 8.47.0
 
 > [!Important]
@@ -18,6 +24,7 @@
 - New continuous profiling API (#4952)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 - Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
 
 ### Fixes
 
