@@ -61,6 +61,13 @@ SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
     if (options.enableAppLaunchProfiling && [options isContinuousProfilingEnabled]) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace
+            && !SENTRY_CASSERT_RETURN(options.isTracingEnabled,
+                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+            return (SentryLaunchProfileConfig) { NO, nil, nil };
+        }
+        SENTRY_LOG_DEBUG(@"Launch profiling and continuous profiling options set, no need to worry "
+                         @"about sampling, enabling continuous profile of next launch.");
         return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
 #    pragma clang diagnostic push
@@ -126,6 +133,7 @@ void
 _sentry_nondeduplicated_startLaunchProfile(void)
 {
     if (!appLaunchProfileConfigFileExists()) {
+        SENTRY_LOG_DEBUG(@"No launch profile config exists, will not profile launch.");
         return;
     }
 
@@ -138,7 +146,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = appLaunchProfileConfiguration();
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
-        SENTRY_LOG_DEBUG(@"Starting launch continuous profile");
+        SENTRY_LOG_DEBUG(@"Starting continuous launch profile.");
         [SentryContinuousProfiler start];
         return;
     }
@@ -189,6 +197,7 @@ sentry_configureLaunchProfiling(SentryOptions *options)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryLaunchProfileConfig config = sentry_shouldProfileNextLaunch(options);
         if (!config.shouldProfile) {
+            SENTRY_LOG_DEBUG(@"Removing launch profile config file.");
             removeAppLaunchProfilingConfigFile();
             return;
         }
@@ -196,10 +205,10 @@ sentry_configureLaunchProfiling(SentryOptions *options)
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         if ([options isContinuousProfilingEnabled]) {
-            SENTRY_LOG_DEBUG(@"Configuring launch continuous profile");
+            SENTRY_LOG_DEBUG(@"Configuring continuous launch profile.");
             configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
         } else {
-            SENTRY_LOG_DEBUG(@"Configuring launch trace profile");
+            SENTRY_LOG_DEBUG(@"Configuring trace launch profile.");
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
                 = config.tracesDecision.sampleRate;
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRand]

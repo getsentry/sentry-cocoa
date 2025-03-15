@@ -391,6 +391,7 @@ SENTRY_NO_INIT
  * @note Does nothing if @c SentryOptions.profileLifecycle is set to @c trace . In this scenario,
  * the profiler is automatically started and stopped depending on whether there is an active sampled
  * span so it is not permitted to manually start profiling.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
 + (void)startProfileSession;
@@ -408,6 +409,11 @@ SENTRY_NO_INIT
  * Stop a continuous profiling session if there is one ongoing.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
  * @note Does nothing if @c SentryOptions.profileLifecycle is set to @c trace .
+ * @note Does not immediately stop the profiler. Profiling data is uploaded at regular timed
+ * intervals; when the current interval completes, then the profiler stops. If a profiler session
+ * would be started before that interval completes, the start call is ignored; it doesn't have the
+ * effect of cancelling the previous stop call.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
 + (void)stopProfileSession;

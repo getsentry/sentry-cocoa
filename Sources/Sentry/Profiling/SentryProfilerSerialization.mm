@@ -332,6 +332,8 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
+    SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
+
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
