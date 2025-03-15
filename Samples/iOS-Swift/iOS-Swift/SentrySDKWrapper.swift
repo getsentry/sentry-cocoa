@@ -32,7 +32,12 @@ struct SentrySDKWrapper {
         options.tracesSampler = tracesSampler
         
         configureProfiling(options)
-        
+
+        options.enableAutoSessionTracking = enableSessionTracking
+        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+            options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+        }
+
         options.add(inAppInclude: "iOS_External")
         
         options.enableUserInteractionTracing = enableUITracing
@@ -404,15 +409,11 @@ extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if args.contains("--io.sentry.profile-options-v2") {
             options.profiling.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
+            options.profiling.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
         } else {
             options.profilesSampleRate = profilesSampleRate
             options.profilesSampler = profilesSampler
             options.enableAppLaunchProfiling = enableAppLaunchProfiling
-        }
-        
-        options.enableAutoSessionTracking = enableSessionTracking
-        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
-            options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
     }
     

@@ -284,6 +284,11 @@
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.profile-session-sample-rate"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction

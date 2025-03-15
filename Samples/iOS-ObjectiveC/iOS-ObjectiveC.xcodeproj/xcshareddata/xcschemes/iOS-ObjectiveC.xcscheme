@@ -85,7 +85,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "io.sentry.profile-app-launches"
+            argument = "--io.sentry.profile-app-launches"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -97,6 +97,21 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSamplerValue"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.tracesSampleRate"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.tracesSamplerValue"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.profile-session-sample-rate"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

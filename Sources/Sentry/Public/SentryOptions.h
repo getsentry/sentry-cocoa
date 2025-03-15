@@ -516,6 +516,8 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Configuration for the Sentry profiler.
+ * @warning: Continuous profiling is an experimental feature and may still contain bugs.
+ * @warning: Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, strong) SentryProfileOptions *profiling;
 
@@ -528,9 +530,9 @@ NS_SWIFT_NAME(Options)
  * @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
  * launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
  * whether to set this property to @c YES or @c NO .
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
 @property (nonatomic, assign) BOOL enableAppLaunchProfiling;
 

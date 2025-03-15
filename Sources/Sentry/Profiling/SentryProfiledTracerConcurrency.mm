@@ -309,6 +309,9 @@ SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuratio
         if (transactionContext.sampled != kSentrySampleDecisionYes) {
             return nil;
         }
+        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+            return nil;
+        }
         SENTRY_LOG_DEBUG(@"Starting continuous profiler for tracer %@",
             transactionContext.traceId.sentryIdString);
         sentry_trackRootSpanForContinuousProfiler();

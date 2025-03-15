@@ -19,15 +19,31 @@
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
         options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
-        options.tracesSampleRate = @1.0;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
+
+        if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
+            options.tracesSampler = ^(SentrySamplingContext *_Nonnull samplingContext) {
+                return @([env[@"--io.sentry.tracesSamplerValue"] doubleValue]);
+            };
+        }
+
+        options.tracesSampleRate = @1.0;
+        if (env[@"--io.sentry.tracesSampleRate"] != nil) {
+            options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
+        }
 
         if ([args containsObject:@"--io.sentry.profile-options-v2"]) {
             options.profiling.lifecycle =
                 [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
                 ? SentryProfileLifecycleManual
                 : SentryProfileLifecycleTrace;
+
+            options.profiling.sessionSampleRate = 1.f;
+            if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
+                options.profiling.sessionSampleRate =
+                    [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
+            }
         } else {
             NSNumber *profilesSampleRate = @1;
             if ([args containsObject:@"--io.sentry.enableContinuousProfiling"]) {
