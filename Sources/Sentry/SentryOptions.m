@@ -154,7 +154,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
         self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
-        self.profiling = [[SentryProfileOptions alloc] init];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -699,6 +698,11 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     // profiling as they are mutually exclusive modes
     return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
 #    pragma clang diagnostic pop
+}
+
+- (BOOL)isContinuousProfilingV2Enabled
+{
+    return [self isContinuousProfilingEnabled] && _profiling != nil;
 }
 
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
