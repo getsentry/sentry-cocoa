@@ -384,3 +384,20 @@ We can also start with this option to evaluate Swift Codable and switch to optio
 #### Cons
 
 1. Duplicate code.
+
+## Platform version support
+
+Date: March 11, 2025
+Contributors: @armcknight, @philipphofmann, @kahest
+
+We will support versions of each platform going back 4 major versions, but we support no version which is not debuggable by the current Xcode required to submit apps to stores. There are 3 considerations:
+
+1. The distribution of events we receive from the various versions of iOS etc in the wild.
+1. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
+1. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
+
+Our major-4 standard would place us right in the middle of the earliest Xcode and GitHub Actions supported versions, which seems like a reasonable standard.
+
+Those versions that cannot be automatically tested with GitHub Actions shall be declared as "best effort" support.
+
+See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846.
