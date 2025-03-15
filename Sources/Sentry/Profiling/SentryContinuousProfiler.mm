@@ -79,6 +79,15 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     );
     [SentrySDK captureEnvelope:envelope];
 }
+
+void
+_sentry_unsafe_stopTimerAndCleanup()
+{
+    disableTimer();
+
+    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    _threadUnsafe_gContinuousCurrentProfiler = nil;
+}
 } // namespace
 
 @implementation SentryContinuousProfiler
@@ -143,6 +152,22 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
             return;
         }
+
+        SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
+
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+        // we want to allow immediately stopping a continuous profile for a UI test, since those
+        // currently only test launch profiles, and there is no reliable way to make the UI test
+        // wait until the continuous profile chunk would finish (behavior introduced in
+        // https://github.com/getsentry/sentry-cocoa/pull/4214). we just want to look in its samples
+        // for a call to main()
+        if ([NSProcessInfo.processInfo.arguments
+                containsObject:@"--io.sentry.continuous-profiler-immediate-stop"]) {
+            _sentry_threadUnsafe_transmitChunkEnvelope();
+            _sentry_unsafe_stopTimerAndCleanup();
+            return;
+        }
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
         _stopCalled = YES;
     }
@@ -209,11 +234,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 + (void)stopTimerAndCleanup
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-
-    disableTimer();
-
-    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
-    _threadUnsafe_gContinuousCurrentProfiler = nil;
+    _sentry_unsafe_stopTimerAndCleanup();
 }
 
 #    pragma mark - Testing
