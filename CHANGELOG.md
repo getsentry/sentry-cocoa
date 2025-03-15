@@ -14,9 +14,14 @@
 > Previously, the SDK always set the event's user to the user of the scope of the app launch after the crash event, which could result in incorrect user data if the user changed between the crash and the next launch.
 > Additionally, if specific properties on the crash event were nil, the SDK replaced them with values from the scope of the app launch after the crash event. This affected the following event properties: tags, extra, fingerprints, breadcrumbs, dist, environment, level, and trace context. However, since most of these properties are infrequently nil, the fix should have minimal impact on most users.
 
+### Deprecations
+
+- Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling sessions (#4854)
+
 ### Features
 
 - Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- New continuous profiling API (#4952)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 - Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
 - Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
