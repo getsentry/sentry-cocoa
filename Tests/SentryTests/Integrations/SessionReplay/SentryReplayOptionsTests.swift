@@ -173,6 +173,44 @@ class SentryReplayOptionsTests: XCTestCase {
         ])
         XCTAssertTrue(options.maskAllImages)
     }
+    
+    func testInitFromDictEnableExperimentalViewRendererWithBool() {
+        let options = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": true
+        ])
+        XCTAssertTrue(options.enableExperimentalViewRenderer)
+
+        let options2 = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": false
+        ])
+        XCTAssertFalse(options2.enableExperimentalViewRenderer)
+    }
+
+    func testInitFromDictEnableExperimentalViewRendererWithString() {
+        let options = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": "invalid_value"
+        ])
+        XCTAssertFalse(options.enableExperimentalViewRenderer)
+    }
+    
+    func testInitFromDictEnableFastViewRenderingWithBool() {
+        let options = SentryReplayOptions(dictionary: [
+            "enableFastViewRendering": true
+        ])
+        XCTAssertTrue(options.enableFastViewRendering)
+
+        let options2 = SentryReplayOptions(dictionary: [
+            "enableFastViewRendering": false
+        ])
+        XCTAssertFalse(options2.enableFastViewRendering)
+    }
+
+    func testInitFromDictEnableFastViewRenderingWithString() {
+        let options = SentryReplayOptions(dictionary: [
+            "enableFastViewRendering": "invalid_value"
+        ])
+        XCTAssertFalse(options.enableFastViewRendering)
+    }
 
     func testInitFromDictQualityWithString() {
         let options = SentryReplayOptions(dictionary: [
@@ -217,6 +255,8 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.onErrorSampleRate, 0.8)
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
+        XCTAssertFalse(options.enableExperimentalViewRenderer)
+        XCTAssertFalse(options.enableFastViewRendering)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
