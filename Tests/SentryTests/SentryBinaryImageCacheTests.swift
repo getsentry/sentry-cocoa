@@ -226,9 +226,11 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
-    
-    func testStartWithSenryCrashBinaryImageCache() {
-        
+
+    // Smoke test to validate that the binary images are filled with meaningful values and
+    // not complete garbage.
+    func testStartWithSenryCrashBinaryImageCache_FillsImagesWithMeaningfulValues() {
+
         // We have to start the binary image cache of SentryCrash before starting this cache.
         SentryCrashWrapper.sharedInstance().startBinaryImageCache()
         defer { SentryCrashWrapper.sharedInstance().stopBinaryImageCache() }

@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Improvements
-
-- Slightly speed up SDK start (#4916)
 ### Features
 
 - Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
@@ -12,6 +9,7 @@
 ### Improvements
 
 - Slightly speed up adding breadcrumbs (#4984)
+- Slightly speed up SDK start (#4916)
 
 ### Fixes
 
