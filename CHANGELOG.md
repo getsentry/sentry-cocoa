@@ -2,9 +2,23 @@
 
 ## Unreleased
 
+### Fixes
+
+- Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+
+## 8.48.0
+
+### Features
+
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
+
 ### Improvements
 
 - Slightly speed up adding breadcrumbs (#4984)
+
+### Fixes
+
+- Fixes experimental Replay view renderer options initialisation (#4988)
 
 ## 8.47.0
 
@@ -24,7 +38,6 @@
 - New continuous profiling API (#4952)
 - Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
 - Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
-- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
 
 ### Fixes
 

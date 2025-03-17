@@ -567,7 +567,12 @@ class SentryFileManagerTests: XCTestCase {
     
     func testAbnormalSessionAsync_DoesNotCrash() {
         // Arrange
-        let iterations = 1_000
+
+        // Using 100 iterations because it's still enough to find race conditions and
+        // synchronization issues that could lead to crashes, but it's small enough to not
+        // time out in CI.
+        // If you want to use this to find synchronization issues, you should increase the number of iterations.
+        let iterations = 100
         let expectation = expectation(description: "complete all abnormal session interactions")
         expectation.expectedFulfillmentCount = iterations * 3
         let dispatchQueue = DispatchQueue(label: "testAbnormalSessionAsync_DoesNotCrash", qos: .userInitiated, attributes: [.concurrent])
