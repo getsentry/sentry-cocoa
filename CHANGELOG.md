@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.48.0
 
 ### Features
 
