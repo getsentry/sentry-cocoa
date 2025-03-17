@@ -65,8 +65,10 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace
-            && !SENTRY_CASSERT_RETURN(options.isTracingEnabled,
-                @"Tracing must be enabled in order to configure profiling with trace lifecycle.")) {
+            && !options.isTracingEnabled) {
+            SENTRY_LOG_WARN(
+                @"Tracing must be enabled in order to configure app start profiling with trace "
+                @"lifecycle. See SentryOptions.tracesSampleRate and SentryOptions.tracesSampler.");
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
 
