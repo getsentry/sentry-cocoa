@@ -30,7 +30,7 @@
 
 using namespace sentry::profiling;
 
-SentrySamplerDecision *sentry_profilerSessionSampleDecision;
+SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
 
 namespace {
 

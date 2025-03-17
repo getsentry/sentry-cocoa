@@ -32,7 +32,7 @@ SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub
  * Continuous profiling will respect its own sampling rate, which is computed once for each Sentry
  * session.
  */
-SENTRY_EXTERN SentrySamplerDecision *sentry_profilerSessionSampleDecision;
+SENTRY_EXTERN SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.
