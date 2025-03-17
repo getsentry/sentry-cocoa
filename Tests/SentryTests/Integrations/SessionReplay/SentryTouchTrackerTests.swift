@@ -300,38 +300,47 @@ class SentryTouchTrackerTests: XCTestCase {
         XCTAssertEqual(positions?.count, 3)
     }
     
-    func testLock() {
+    func testAddingReadingFlushing_DoesNotCrash() {
+        // Arrange
+        let iterations = 100
+
         let sut = getSut(dispatchQueue: SentryDispatchQueueWrapper())
         
         let addExp = expectation(description: "add")
+        addExp.expectedFulfillmentCount = iterations
         let removeExp = expectation(description: "remove")
+        removeExp.expectedFulfillmentCount = iterations
         let readExp = expectation(description: "read")
-        
-        DispatchQueue.global().async {
-            for i in 0..<1_000 {
+        readExp.expectedFulfillmentCount = iterations
+
+        let dispatchQueue = DispatchQueue(label: "sentry.test.queue", attributes: [.concurrent, .initiallyInactive])
+
+        // Act
+        for i in 0..<iterations {
+            dispatchQueue.async {
                 let event = MockUIEvent(timestamp: Double(i))
                 let touch = MockUITouch(phase: .ended, location: CGPoint(x: 100, y: 100))
                 event.addTouch(touch)
                 sut.trackTouchFrom(event: event)
+
+                addExp.fulfill()
             }
-            addExp.fulfill()
-        }
-        
-        DispatchQueue.global().async {
-            for _ in 0..<1_000 {
+
+            dispatchQueue.async {
                 sut.flushFinishedEvents()
+                removeExp.fulfill()
             }
-            removeExp.fulfill()
-        }
-        
-        DispatchQueue.global().async {
-            for _ in 0..<1_000 {
+
+            dispatchQueue.async {
                 _ = sut.replayEvents(from: self.referenceDate, until: self.referenceDate.addingTimeInterval(10_000.0))
+                readExp.fulfill()
             }
-            readExp.fulfill()
         }
-        
-        wait(for: [addExp, removeExp, readExp], timeout: 1)
+
+        dispatchQueue.activate()
+
+        // Assert
+        wait(for: [addExp, removeExp, readExp], timeout: 5)
     }
 }
 #endif

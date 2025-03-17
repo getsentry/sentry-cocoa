@@ -99,6 +99,8 @@ _sentry_unsafe_stopTimerAndCleanup()
     {
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
 
+        _stopCalled = NO;
+
         if ([_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
             SENTRY_LOG_DEBUG(@"A continuous profiler is already running.");
             return;
@@ -109,8 +111,6 @@ _sentry_unsafe_stopTimerAndCleanup()
             SENTRY_LOG_WARN(@"Continuous profiler was unable to be initialized.");
             return;
         }
-
-        _stopCalled = NO;
 
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
