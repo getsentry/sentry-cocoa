@@ -489,7 +489,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSArray *attachments = [self attachmentsForEvent:event scope:scope];
 
-    if (event.isCrashEvent && event.context[@"replay"] &&
+    if (event.isFatalEvent && event.context[@"replay"] &&
         [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
         NSDictionary *replay = event.context[@"replay"];
         scope.replayId = replay[@"replay_id"];

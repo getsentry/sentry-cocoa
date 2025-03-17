@@ -424,7 +424,7 @@ extension SentrySDKWrapper {
         }
     }
     
-    var enableAppLaunchProfiling: Bool { args.contains("--profile-app-launches") }
+    var enableAppLaunchProfiling: Bool { args.contains("--io.sentry.profile-app-launches") }
 }
 
 // swiftlint:enable file_length function_body_length

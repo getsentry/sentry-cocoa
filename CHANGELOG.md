@@ -5,6 +5,17 @@
 ### Improvements
 
 - Slightly speed up SDK start (#4916)
+### Features
+
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
+
+### Improvements
+
+- Slightly speed up adding breadcrumbs (#4984)
+
+### Fixes
+
+- Fixes experimental Replay view renderer options initialisation (#4988)
 
 ## 8.47.0
 

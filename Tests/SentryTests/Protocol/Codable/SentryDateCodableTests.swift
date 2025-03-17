@@ -25,8 +25,8 @@ final class SentryDateCodableTests: XCTestCase {
         
         // The ISO8601 date format only supports milliseconds precision.
         // Therefore, we convert the ISO date string back to the date.
-        let expectedDate = sentry_fromIso8601String(isoString)
-        
+        let expectedDate = try XCTUnwrap(sentry_fromIso8601String(isoString))
+
         let json = "{\"date\": \"\(isoString)\"}".data(using: .utf8)!
         
         // Act

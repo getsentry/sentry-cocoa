@@ -241,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    event.isCrashEvent = YES;
+    event.isFatalEvent = YES;
 
     SentryClient *client = _client;
     if (client == nil) {
@@ -271,7 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
     // We treat fatal app hang events similar to crashes.
-    event.isCrashEvent = YES;
+    event.isFatalEvent = YES;
 
     SentryClient *_Nullable client = _client;
     if (client == nil) {

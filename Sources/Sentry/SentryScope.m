@@ -135,8 +135,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
+        // Serializing is expensive. Only do it once.
+        NSDictionary<NSString *, id> *serializedBreadcrumb = [crumb serialize];
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer addSerializedBreadcrumb:[crumb serialize]];
+            [observer addSerializedBreadcrumb:serializedBreadcrumb];
         }
     }
 }
@@ -529,7 +531,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
-    if (event.isCrashEvent) {
+    if (event.isFatalEvent) {
         SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "
                         @"events are from a previous run of the app and the current scope might "
                         @"have different data than the scope that was active during the crash.");
