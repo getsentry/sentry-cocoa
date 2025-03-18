@@ -1,6 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
@@ -105,6 +109,22 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * This property has precedence over `redactViewTypes`.
      */
     public var unmaskedViewClasses = [AnyClass]()
+
+    #if canImport(UIKit)
+    /**
+     * Callback to modify the screenshot after rendered from the view hierarchy.
+     *
+     * This can be used to apply custom modifications to the screenshot before it is masked.
+     */
+    public var onRenderedScreenshot: ((_ screenshot: UIImage) -> UIImage)?
+
+    /**
+     * Callback to modify the screenshot after masking.
+     *
+     * This can be used to apply custom modifications to the screenshot after it is masked.
+     */
+    public var onMaskedScreenshot: ((_ screenshot: UIImage) -> UIImage)?
+    #endif
 
     /**
      * Enables the up to 5x faster experimental view renderer used by the Session Replay integration.

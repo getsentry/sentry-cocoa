@@ -14,6 +14,9 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
 
     var renderer: SentryViewRenderer
 
+    var onRenderScreenshot: ((UIImage) -> UIImage)?
+    var onMaskScreenshot: ((UIImage) -> UIImage)?
+
     /// Creates a view photographer used to convert a view hierarchy to an image.
     ///
     /// - Parameters:
@@ -39,13 +42,15 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
+        let processedRenderedScreenshot = onRenderScreenshot?(renderedScreenshot) ?? renderedScreenshot
 
-        dispatchQueue.dispatchAsync { [maskRenderer] in
+        dispatchQueue.dispatchAsync { [maskRenderer, onMaskScreenshot] in
             // The mask renderer does not need to be on the main thread.
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
-            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redact)
-            onComplete(maskedScreenshot)
+            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: processedRenderedScreenshot, size: viewSize, masking: redact)
+            let processedMaskedScreenshot = onMaskScreenshot?(maskedScreenshot) ?? maskedScreenshot
+            onComplete(processedMaskedScreenshot)
         }
     }
 
