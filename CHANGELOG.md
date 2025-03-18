@@ -6,6 +6,10 @@
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
 
+### Improvements
+
+- Slightly speed up SDK start (#4916)
+
 ## 8.48.0
 
 ### Features
@@ -15,7 +19,6 @@
 ### Improvements
 
 - Slightly speed up adding breadcrumbs (#4984)
-- Slightly speed up SDK start (#4916)
 
 ### Fixes
 
