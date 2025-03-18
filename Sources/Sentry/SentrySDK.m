@@ -622,29 +622,11 @@ static NSDate *_Nullable startTimestamp = nil;
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to start a continuous profiling session.");
+            @"altogether) before attempting to start a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
         return;
     }
 
-    [SentryContinuousProfiler start];
-}
-
-+ (void)stopProfiler
-{
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
-        SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
-            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
-            @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to stop a continuous profiling session.");
-        return;
-    }
-
-    [SentryContinuousProfiler stop];
-}
-
-+ (void)startProfileSession
-{
     if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
         SENTRY_LOG_WARN(
             @"You must initialize the SDK with continuous profiling configured before starting a "
@@ -673,8 +655,18 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler start];
 }
 
-+ (void)stopProfileSession
++ (void)stopProfiler
 {
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
+            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
+            @"properties, so you can also just remove those lines from your configuration "
+            @"altogether) before attempting to stop a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
+        return;
+    }
+
     if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
         SENTRY_LOG_WARN(
             @"You must initialize the SDK with continuous profiling configured before interacting"
