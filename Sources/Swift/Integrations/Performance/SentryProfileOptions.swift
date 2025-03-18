@@ -9,8 +9,8 @@ import UIKit
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
 /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
 /// set to a non-nil value such that transaction-based profiling is being used, these settings
-/// will have no effect, nor will `SentrySDK.startProfileSession()` or
-/// `SentrySDK.stopProfileSession()`.
+/// will have no effect, nor will `SentrySDK.startProfiler()` or
+/// `SentrySDK.stopProfiler()`.
 /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
 @objcMembers
 public class SentryProfileOptions: NSObject {
