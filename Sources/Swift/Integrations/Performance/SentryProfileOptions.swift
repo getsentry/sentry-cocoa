@@ -70,7 +70,7 @@ public class SentryProfileOptions: NSObject {
         super.init()
 
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { _ in
-            sentry_reevaluateSessionSampleRate(NSNumber(value: self.sessionSampleRate))
+            sentry_reevaluateSessionSampleRate(self.sessionSampleRate)
         }
     }
 

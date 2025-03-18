@@ -34,7 +34,7 @@ SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub
  */
 SENTRY_EXTERN SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
 
-SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(NSNumber *sessionSampleRate);
+SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(float sessionSampleRate);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.

@@ -49,7 +49,7 @@ _sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    sentry_reevaluateSessionSampleRate(@(options.profiling.sessionSampleRate));
+    sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
 }
 
 } // namespace
@@ -57,7 +57,7 @@ _sentry_configureContinuousProfiling(SentryOptions *options)
 #    pragma mark - Public
 
 void
-sentry_reevaluateSessionSampleRate(NSNumber *sessionSampleRate)
+sentry_reevaluateSessionSampleRate(float sessionSampleRate)
 {
     sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
 }
