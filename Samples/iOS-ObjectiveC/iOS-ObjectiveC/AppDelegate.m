@@ -34,16 +34,15 @@
         }
 
         if ([args containsObject:@"--io.sentry.profile-options-v2"]) {
-            options.configureProfiling = ^(SentryProfileOptions * _Nonnull profiling) {
-                profiling.lifecycle =
-                [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
-                ? SentryProfileLifecycleManual
-                : SentryProfileLifecycleTrace;
+            options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
+                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
+                    ? SentryProfileLifecycleManual
+                    : SentryProfileLifecycleTrace;
 
                 profiling.sessionSampleRate = 1.f;
                 if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
                     profiling.sessionSampleRate =
-                    [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
+                        [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
                 }
             };
         } else {
