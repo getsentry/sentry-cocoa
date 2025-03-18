@@ -127,7 +127,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -147,7 +147,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -157,7 +157,7 @@ extension SentryProfilingPublicAPITests {
         // Arrange - do nothing, simulating actions before starting sdk
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -169,7 +169,7 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         SentrySDK.close()
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -181,7 +181,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -195,7 +195,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -311,7 +311,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -325,7 +325,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -450,7 +450,7 @@ private extension SentryProfilingPublicAPITests {
     }
 
     func stopProfilerV2() throws {
-        SentrySDK.stopProfileSession()
+        SentrySDK.stopProfiler()
         fixture.currentDate.advance(by: 60)
         try fixture.timerFactory.check()
     }
