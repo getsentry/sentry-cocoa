@@ -14,6 +14,7 @@
 #    pragma mark - Private
 
 NSTimer *_Nullable _sentry_threadUnsafe_traceProfileTimeoutTimer;
+NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 namespace {
 /** @warning: Must be used from a synchronized context. */

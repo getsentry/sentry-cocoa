@@ -24,6 +24,8 @@
 
 #    pragma mark - Private
 
+NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
+
 namespace {
 /** @warning: Must be used from a synchronized context. */
 std::mutex _threadUnsafe_gContinuousProfilerLock;
@@ -152,8 +154,6 @@ _sentry_unsafe_stopTimerAndCleanup()
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
-
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // we want to allow immediately stopping a continuous profile for a UI test, since those
     // currently only test launch profiles, and there is no reliable way to make the UI test
@@ -168,11 +168,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No continuous profiler is currently running.");
-        return;
-    }
-
+    SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
     _stopCalled = YES;
 }
 

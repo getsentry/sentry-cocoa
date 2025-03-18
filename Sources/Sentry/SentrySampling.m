@@ -120,9 +120,9 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
 }
 
 SentrySamplerDecision *
-sentry_sampleProfileSession(SentryOptions *options)
+sentry_sampleProfileSession(NSNumber *sessionSampleRate)
 {
-    return _sentry_calcSampleFromNumericalRate(@(options.profiling.sessionSampleRate));
+    return _sentry_calcSampleFromNumericalRate(sessionSampleRate);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

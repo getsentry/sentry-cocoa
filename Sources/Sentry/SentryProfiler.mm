@@ -49,12 +49,18 @@ _sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(options);
+    sentry_reevaluateSessionSampleRate(@(options.profiling.sessionSampleRate));
 }
 
 } // namespace
 
 #    pragma mark - Public
+
+void
+sentry_reevaluateSessionSampleRate(NSNumber *sessionSampleRate)
+{
+    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
+}
 
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)

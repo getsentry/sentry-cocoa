@@ -22,7 +22,7 @@ SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTrace(
 SENTRY_EXTERN SentrySamplerDecision *sentry_sampleTraceProfile(SentrySamplingContext *context,
     SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options);
 
-SENTRY_EXTERN SentrySamplerDecision *sentry_sampleProfileSession(SentryOptions *options);
+SENTRY_EXTERN SentrySamplerDecision *sentry_sampleProfileSession(NSNumber *sessionSampleRate);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_END
