@@ -617,7 +617,8 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
@@ -627,24 +628,19 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
-        SENTRY_LOG_WARN(
-            @"You must initialize the SDK with continuous profiling configured before starting a "
-            @"profile session. See SentryProfilingOptions.");
-        return;
-    }
+    if (options.profiling != nil) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+            SENTRY_LOG_WARN(
+                @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
+                @"manually. See SentryProfileLifecycle for more information.");
+            return;
+        }
 
-    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
-        SENTRY_LOG_WARN(
-            @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
-            @"manually. See SentryProfileLifecycle for more information.");
-        return;
-    }
-
-    if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(
-            @"The profiling session has been sampled out, no profiling will take place.");
-        return;
+        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+            SENTRY_LOG_DEBUG(
+                @"The profiling session has been sampled out, no profiling will take place.");
+            return;
+        }
     }
 
     if ([SentryContinuousProfiler isCurrentlyProfiling]) {
@@ -657,7 +653,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
@@ -667,22 +664,15 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    if (![currentHub.client.options isContinuousProfilingV2Enabled]) {
+    if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(
-            @"You must initialize the SDK with continuous profiling configured before interacting"
-            @"with profile sessions. See SentryProfilingOptions.");
+            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
+            @"manually. See SentryProfileLifecycle for more information.");
         return;
     }
 
     if (![SentryContinuousProfiler isCurrentlyProfiling]) {
         SENTRY_LOG_WARN(@"No profile session to stop.");
-        return;
-    }
-
-    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
-        SENTRY_LOG_WARN(
-            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
-            @"manually. See SentryProfileLifecycle for more information.");
         return;
     }
 
