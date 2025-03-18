@@ -2,7 +2,8 @@
 import Foundation
 
 /// An object containing configuration for the Sentry profiler.
-/// - note: Profiling is automatically disabled if a thread sanitizer is attached. 
+/// - warning: Continuous profiling is an experimental feature and may still contain bugs.
+/// - note: Profiling is automatically disabled if a thread sanitizer is attached.
 @objcMembers
 public class SentryProfileOptions: NSObject {
     /// Different modes for starting and stopping the profiler.
@@ -11,11 +12,13 @@ public class SentryProfileOptions: NSObject {
         /// must `SentrySDK.startProfileSession()` and `SentrySDK.stopProfileSession()` to control
         /// the lifecycle of the profiler. If the session is sampled,
         /// `SentrySDK.startProfileSession()` will always start profiling.
+        /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
         /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
         case manual
         
         /// Profiling is automatically started when there is at least 1 active root span, and
         /// automatically stopped when there are 0 root spans.
+        /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
         /// - note: This mode only works if tracing is enabled.
         /// - note: Profiling respects both `SentryProfileOptions.profileSessionSampleRate` and
         /// the existing sampling configuration for tracing
@@ -29,8 +32,25 @@ public class SentryProfileOptions: NSObject {
     }
     
     /// The mode to use for starting and stopping the profiler, either manually or automatically.
+    /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
     /// - note: Default: `SentryProfileLifecycleManual`.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var lifecycle: SentryProfileLifecycle = .manual
     
+    /// The % of user sessions in which to enable profiling.
+    /// - warning: Continuous profiling is an experimental feature and may still contain bugs. 
+    /// - note: Whether or not the session is sampled is determined once, when the SDK is initially
+    /// configured.
+    /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
+    /// set to a non-nil value such that transaction-based profiling is being used, then setting
+    /// this property has no effect, and neither do `SentrySDK.startProfileSession()` or
+    /// `SentrySDK.stopProfileSession()`.
+    /// - note: Backgrounding and foregrounding the app starts a new user session and sampling is
+    /// re-evaluated. If there is no active trace when the app is backgrounded, profiling stops
+    /// before the app backgrounds. If there is an active trace and profiling is in-flight when the
+    /// app is foregrounded again, the same profiling session should continue until the last root
+    /// span in that trace finishes — this means that the re-evaluated sample rate does not actually
+    /// take effect until the profiler is started again.
+    /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
+    public var sessionSampleRate: Float = 0
 }

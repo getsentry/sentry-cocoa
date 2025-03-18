@@ -15,6 +15,7 @@
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
+#    import "SentrySampling.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
@@ -29,17 +30,37 @@
 
 using namespace sentry::profiling;
 
+SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
+
+void
+_sentry_configureContinuousProfiling(SentryOptions *options)
+{
+    if (![options isContinuousProfilingEnabled]) {
+        return;
+    }
+
+    if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
+        SENTRY_LOG_WARN(
+            @"Tracing must be enabled in order to configure profiling with trace lifecycle.");
+        return;
+    }
+
+    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(options);
+}
 
 } // namespace
 
 #    pragma mark - Public
 
 void
-sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
+sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
+    _sentry_configureContinuousProfiling(options);
+
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = YES;
 
@@ -60,6 +81,7 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
                              @"be no automatic trace to attach it to.");
             sentry_stopAndTransmitLaunchProfile(hub);
         }
+
         sentry_configureLaunchProfiling(options);
     }];
 }

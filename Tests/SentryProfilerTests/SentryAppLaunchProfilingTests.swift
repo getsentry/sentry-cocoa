@@ -111,7 +111,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         sentry_configureLaunchProfiling(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssertNotNil(sentry_launchTracer)
-        sentry_manageTraceProfilerOnStartSDK(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
         XCTAssertNil(sentry_launchTracer)
     }
    
@@ -130,7 +130,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
 
         // Smoke test that the file doesn't exist yet
         XCTAssertFalse(appLaunchProfileConfigFileExists())
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
@@ -150,17 +150,17 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         options.profilesSampleRate = 0.567
         options.tracesSampleRate = 0.789
         XCTAssertFalse(appLaunchProfileConfigFileExists())
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
         options.profilesSampleRate = 0.1 // less than the fixture's "random" value of 0.5
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         // ensure we get another config written, to test removal again
         options.profilesSampleRate = 0.567
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
         options.tracesSampleRate = 0
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -174,7 +174,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         options.tracesSampleRate = 0
         
         XCTAssertFalse(appLaunchProfileConfigFileExists())
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
@@ -197,7 +197,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // -- Act --
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
@@ -209,7 +209,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
 
         // -- Act --
         options.profilesSampleRate = nil
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         let newDict = try XCTUnwrap(appLaunchProfileConfiguration())
@@ -226,7 +226,7 @@ final class SentryAppLaunchProfilingSwiftTests: XCTestCase {
         options.profilesSampleRate = 0.567
         options.tracesSampleRate = 0.789
         XCTAssertFalse(appLaunchProfileConfigFileExists())
-        sentry_manageTraceProfilerOnStartSDK(options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
