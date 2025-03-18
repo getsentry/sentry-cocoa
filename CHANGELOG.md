@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+
+## 8.48.0
+
 ### Features
 
 - Add extension for `FileManager` to track file I/O operations with Sentry (#4863)

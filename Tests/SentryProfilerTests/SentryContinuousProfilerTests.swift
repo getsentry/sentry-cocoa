@@ -161,6 +161,34 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
     }
+
+    func testStoppingAndStartingAgainBeforeFinalChunkCompletesResultsInOneProfile() throws {
+        // arrange
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // act
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.stop()
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.start()
+
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.stop()
+
+        // assert
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
 }
 
 private extension SentryContinuousProfilerTests {
