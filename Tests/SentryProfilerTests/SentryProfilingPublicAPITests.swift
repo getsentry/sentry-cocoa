@@ -51,6 +51,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 }
 
+// MARK: continuous profiling v1
 extension SentryProfilingPublicAPITests {
     func testStartingContinuousProfilerV1WithSampleRateZero() throws {
         givenSdkWithHub()
@@ -114,7 +115,10 @@ extension SentryProfilingPublicAPITests {
         SentrySDK.startProfiler()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+}
 
+// MARK: continuous profiling v2
+extension SentryProfilingPublicAPITests {
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
         fixture.options.profiling.sessionSampleRate = 1
