@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+
 ## 8.48.0
 
 ### Features
