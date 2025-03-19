@@ -62,10 +62,14 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
     if ([options isContinuousProfilingV2Enabled]) {
         if (!options.profiling.profileAppStarts) {
+            SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled but disabled app start profiling, "
+                             @"won't profile launch.");
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace
             && !options.isTracingEnabled) {
+            SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled for trace lifecycle but tracing is "
+                             @"disabled, won't profile launch.");
             SENTRY_LOG_WARN(
                 @"Tracing must be enabled in order to configure app start profiling with trace "
                 @"lifecycle. See SentryOptions.tracesSampleRate and SentryOptions.tracesSampler.");
@@ -79,29 +83,33 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
             [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
         SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
         if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
-            SENTRY_LOG_DEBUG(@"Sampling out the launch trace.");
+            SENTRY_LOG_DEBUG(@"Sampling out the launch trace for continuous profile v2 trace "
+                             @"lifecycle, won't profile launch.");
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
 
         SentrySamplerDecision *profileSamplerDecision
             = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
         if (profileSamplerDecision.decision != kSentrySampleDecisionYes) {
+            SENTRY_LOG_DEBUG(@"Sampling out continuous v2 profile, won't profile launch.");
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
 
+        SENTRY_LOG_DEBUG(@"Continuous profiling v2 conditions satisfied, will profile launch.");
         return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profileSamplerDecision };
     }
     if (options.enableAppLaunchProfiling && [options isContinuousProfilingEnabled]) {
         SENTRY_LOG_DEBUG(@"Launch profiling and continuous profiling options set, no need to worry "
-                         @"about sampling, enabling continuous profile of next launch.");
+                         @"about sampling, will profile launch.");
         return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
-        SENTRY_LOG_DEBUG(@"Won't profile next launch due to specified options configuration: "
-                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d",
+        SENTRY_LOG_DEBUG(@"Specified options configuration doesn't enable launch profiling: "
+                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d; won't "
+                         @"profile launch",
             options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
@@ -114,18 +122,20 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
     SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
     if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch trace.");
+        SENTRY_LOG_DEBUG(
+            @"Sampling out the launch trace for transaction profiling; won't profile launch.");
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
     SentrySamplerDecision *profilesSamplerDecision
         = sentry_sampleTraceProfile(context, tracesSamplerDecision, options);
     if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Sampling out the launch trace profile.");
+        SENTRY_LOG_DEBUG(
+            @"Sampling out the launch profile for transaction profiling; won't profile launch.");
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SENTRY_LOG_DEBUG(@"Will start trace profile next launch.");
+    SENTRY_LOG_DEBUG(@"Will start transaction profile next launch; will profile launch.");
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
