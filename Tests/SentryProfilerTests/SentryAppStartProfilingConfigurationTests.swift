@@ -1,36 +1,6 @@
 import SentryTestUtils
 import XCTest
 
-@testable import Sentry
-typealias SentryLog = Sentry.SentryLog
-
-//Exposing internal/test functions from SentryLog
-extension Sentry.SentryLog {
-    static func configureLog(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
-        SentryLog.configure(isDebug, diagnosticLevel: diagnosticLevel)
-    }
-
-    static func setLogOutput(_ output: SentryLogOutput) {
-        #if SENTRY_TEST || SENTRY_TEST_CI
-        SentryLog.setOutput(output)
-        #endif
-    }
-
-    static func getLogOutput() -> SentryLogOutput {
-        #if SENTRY_TEST || SENTRY_TEST_CI
-        return SentryLog.getOutput()
-        #else
-        SentryLogOutput()
-        #endif
-    }
-
-    static func setCurrentDateProvider(_ dateProvider: SentryCurrentDateProvider) {
-        #if SENTRY_TEST || SENTRY_TEST_CI
-        SentryLog.setDateProvider(dateProvider)
-        #endif
-    }
-}
-
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 /// Test how combinations of the following options interact to ultimately decide whether or not to start the profiler on the next app launch.
@@ -60,7 +30,6 @@ final class SentryAppStartProfilingConfigurationTests: XCTestCase {
 
 extension SentryAppStartProfilingConfigurationTests {
     func testShouldProfileLaunchBasedOnOptionsCombinations() {
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 1)
         for enableAppLaunchProfilingOption in [true, false] {
             LaunchProfileOptions.TracingOptions.iterateCombinations { tracesSampleRateOption, tracesSamplerReturnValueOption in
@@ -112,13 +81,6 @@ extension SentryAppStartProfilingConfigurationTests {
                         let actualDecision = sentry_willProfileNextLaunch(actualOptions)
 
                         XCTAssertEqual(expectedDecision, actualDecision, "Expected \(expectedDecision ? "" : "not ")to enable app launch profiling with options: LaunchProfileOptions(enableAppLaunchProfiling: \(enableAppLaunchProfilingOption), tracingOptions: .init(tracesSampleRate: \(String(describing: tracesSampleRateOption)), tracesSamplerReturnValue: \(String(describing: tracesSamplerReturnValueOption))), profileSamplingV1Options: .init(profilesSampleRate: \(String(describing: profilesSampleRateOption)), profilesSamplerReturnValue: \(String(describing: profilesSamplerReturnValueOption))), continuousProfileV2Options: \(String(describing: continuousProfileV2Options))) }")
-
-                        if (expectedDecision != actualDecision) {
-                            let doubleCheck = LaunchProfileOptions.validCombinations.contains(expectedOptions)
-                            print(doubleCheck)
-                            sentry_willProfileNextLaunch(actualOptions)
-                        }
-//                        XCTAssertNotEqual(expectedDecision, actualDecision)
                     }
                 }
             }
@@ -132,11 +94,6 @@ struct LaunchProfileOptions: Equatable {
     struct TracingOptions: Equatable {
         let tracesSampleRate: Float?
         let tracesSamplerReturnValue: Float?
-
-        static func ==(lhs: LaunchProfileOptions.TracingOptions, rhs: LaunchProfileOptions.TracingOptions) -> Bool {
-            lhs.tracesSampleRate == rhs.tracesSampleRate
-            && lhs.tracesSamplerReturnValue == rhs.tracesSamplerReturnValue
-        }
 
         static func iterateCombinations(_ combo: (_ sampleRate: Float?, _ samplerReturnValue: Float?) -> Void) {
             for sampleRate: Float? in [nil, 0, 1] {
@@ -175,11 +132,6 @@ struct LaunchProfileOptions: Equatable {
         let profilesSampleRate: Float?
         let profilesSamplerReturnValue: Float?
 
-        static func ==(lhs: LaunchProfileOptions.ProfileSamplingV1Options, rhs: LaunchProfileOptions.ProfileSamplingV1Options) -> Bool {
-            lhs.profilesSampleRate == rhs.profilesSampleRate
-            && lhs.profilesSamplerReturnValue == rhs.profilesSamplerReturnValue
-        }
-
         static func iterateCombinations(_ combo: (_ sampleRate: Float?, _ samplerReturnValue: Float?) -> Void) {
             for sampleRate: Float? in [nil, 0, 1] {
                 for samplerReturnValue: Float? in [nil, 0, 1] {
@@ -213,12 +165,6 @@ struct LaunchProfileOptions: Equatable {
         let lifecycle: SentryProfileOptions.SentryProfileLifecycle
         let sessionSampleRate: Float
         let profileAppStarts: Bool
-
-        static func ==(lhs: LaunchProfileOptions.ContinuousProfileV2Options, rhs: LaunchProfileOptions.ContinuousProfileV2Options) -> Bool {
-            lhs.lifecycle == rhs.lifecycle
-            && lhs.sessionSampleRate == rhs.sessionSampleRate
-            && lhs.profileAppStarts == rhs.profileAppStarts
-        }
 
         static func iterateCombinations(_ combo: (ContinuousProfileV2Options?) -> Void) {
             combo(nil)
@@ -271,19 +217,13 @@ struct LaunchProfileOptions: Equatable {
                 return "lifecycle: manual, sessionSampleRate: \(sessionSampleRate), profileAppStarts: \(profileAppStarts)"
             case .trace:
                 return "lifecycle: trace, sessionSampleRate: \(sessionSampleRate), profileAppStarts: \(profileAppStarts)"
+            @unknown default:
+                return "unknown lifecycle, sessionSampleRate: \(sessionSampleRate), profileAppStarts: \(profileAppStarts)"
             }
         }
     }
 
     let continuousProfileV2Options: ContinuousProfileV2Options?
-
-    static func ==(lhs: LaunchProfileOptions, rhs: LaunchProfileOptions) -> Bool {
-        let result = lhs.enableAppLaunchProfiling == rhs.enableAppLaunchProfiling
-        && lhs.tracingOptions == rhs.tracingOptions
-        && lhs.profileSamplingV1Options == rhs.profileSamplingV1Options
-        && lhs.continuousProfileV2Options == rhs.continuousProfileV2Options
-        return result
-    }
 
     static let validCombinations: [LaunchProfileOptions] = {
         var combos = [LaunchProfileOptions]()
