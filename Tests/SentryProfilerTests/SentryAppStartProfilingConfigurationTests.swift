@@ -58,172 +58,71 @@ final class SentryAppStartProfilingConfigurationTests: XCTestCase {
     }
 }
 
-//let shouldProfileLegalCombinations: [LaunchProfileOptions] = [
-//    // transaction-based profiling
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: nil, tracesSamplerReturnValue: nil, profilesSampleRate: 0, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: nil, tracesSamplerReturnValue: nil, profilesSampleRate: 1, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: nil, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: 0, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: 1, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: 1, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//
-//    // continuous profiling v1
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: nil, sessionSampleRate: nil, profileAppStarts: nil),
-//
-//    // continuous profiling v2
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true),
-//
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true),
-//    LaunchProfileOptions(enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, tracesSamplerReturnValue: nil, profilesSampleRate: nil, profilesSamplerReturnValue: nil, lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true),
-//]
-
 extension SentryAppStartProfilingConfigurationTests {
     func testShouldProfileLaunchBasedOnOptionsCombinations() {
         SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 1)
         for enableAppLaunchProfilingOption in [true, false] {
             LaunchProfileOptions.TracingOptions.iterateCombinations { tracesSampleRateOption, tracesSamplerReturnValueOption in
                 LaunchProfileOptions.ProfileSamplingV1Options.iterateCombinations { profilesSampleRateOption, profilesSamplerReturnValueOption in
                     LaunchProfileOptions.ContinuousProfileV2Options.iterateCombinations { continuousProfileV2Options in
-                        let options = Options()
-                        options.enableAppLaunchProfiling = enableAppLaunchProfilingOption
+                        let actualOptions = Options()
+                        actualOptions.enableAppLaunchProfiling = enableAppLaunchProfilingOption
 
                         if let tracesSampleRate = tracesSampleRateOption {
-                            options.tracesSampleRate = NSNumber(value: tracesSampleRate)
-                        }
-                        if let profilesSampleRate = profilesSampleRateOption {
-                            options.profilesSampleRate = NSNumber(value: profilesSampleRate)
+                            actualOptions.tracesSampleRate = NSNumber(value: tracesSampleRate)
                         } else {
-                            options.profilesSampleRate = nil
+                            actualOptions.tracesSampleRate = nil
+                        }
+                        if let tracesSamplerReturnValue = tracesSamplerReturnValueOption {
+                            actualOptions.tracesSampler = { _ in
+                                NSNumber(value: tracesSamplerReturnValue)
+                            }
+                        } else {
+                            actualOptions.tracesSampler = nil
+                        }
+
+                        if let profilesSampleRate = profilesSampleRateOption {
+                            actualOptions.profilesSampleRate = NSNumber(value: profilesSampleRate)
+                        } else {
+                            actualOptions.profilesSampleRate = nil
                         }
                         if let profilesSamplerReturnValue = profilesSamplerReturnValueOption {
-                            options.profilesSampler = { _ in
+                            actualOptions.profilesSampler = { _ in
                                 NSNumber(value: profilesSamplerReturnValue)
                             }
                         } else {
-                            options.profilesSampler = nil
+                            actualOptions.profilesSampler = nil
                         }
 
-                        let actualDecision = sentry_willProfileNextLaunch(options)
+                        if let continuousProfileV2Options = continuousProfileV2Options {
+                            actualOptions.configureProfiling = {
+                                $0.lifecycle = continuousProfileV2Options.lifecycle
+                                $0.sessionSampleRate = continuousProfileV2Options.sessionSampleRate
+                                $0.profileAppStarts = continuousProfileV2Options.profileAppStarts
+                            }
+                        }
 
-                        let actualOptions = LaunchProfileOptions(enableAppLaunchProfiling: enableAppLaunchProfilingOption, tracingOptions: .init(tracesSampleRate: tracesSampleRateOption, tracesSamplerReturnValue: tracesSamplerReturnValueOption), profileSamplingV1Options: .init(profilesSampleRate: profilesSampleRateOption, profilesSamplerReturnValue: profilesSamplerReturnValueOption), continuousProfileV2Options: continuousProfileV2Options)
+                        let expectedOptions = LaunchProfileOptions(enableAppLaunchProfiling: enableAppLaunchProfilingOption, tracingOptions: .init(tracesSampleRate: tracesSampleRateOption, tracesSamplerReturnValue: tracesSamplerReturnValueOption), profileSamplingV1Options: .init(profilesSampleRate: profilesSampleRateOption, profilesSamplerReturnValue: profilesSamplerReturnValueOption), continuousProfileV2Options: continuousProfileV2Options)
+                        let expectedDecision = LaunchProfileOptions.validCombinations.contains(expectedOptions)
 
-                        let expectedDecision = LaunchProfileOptions.validCombinations.contains(actualOptions)
+                        // this is where SentryOptions.configureProfiling is evaluated
+                        sentry_configureContinuousProfiling(actualOptions)
+
+                        let actualDecision = sentry_willProfileNextLaunch(actualOptions)
+
                         XCTAssertEqual(expectedDecision, actualDecision, "Expected \(expectedDecision ? "" : "not ")to enable app launch profiling with options: LaunchProfileOptions(enableAppLaunchProfiling: \(enableAppLaunchProfilingOption), tracingOptions: .init(tracesSampleRate: \(String(describing: tracesSampleRateOption)), tracesSamplerReturnValue: \(String(describing: tracesSamplerReturnValueOption))), profileSamplingV1Options: .init(profilesSampleRate: \(String(describing: profilesSampleRateOption)), profilesSamplerReturnValue: \(String(describing: profilesSamplerReturnValueOption))), continuousProfileV2Options: \(String(describing: continuousProfileV2Options))) }")
-                        XCTAssertNotEqual(expectedDecision, actualDecision)
+
+                        if (expectedDecision != actualDecision) {
+                            let doubleCheck = LaunchProfileOptions.validCombinations.contains(expectedOptions)
+                            print(doubleCheck)
+                            sentry_willProfileNextLaunch(actualOptions)
+                        }
+//                        XCTAssertNotEqual(expectedDecision, actualDecision)
                     }
                 }
             }
         }
-
-//        for testCase: (enableAppLaunchProfiling: Bool, enableTracing: Bool, tracesSampleRate: Int, profilesSampleRate: Int?, profilesSamplerReturnValue: Int?, shouldProfileLaunch: Bool) in [
-//            // everything false/0
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // change profilesSampleRate to 1
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // change tracesSampleRate to 1
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // enable continuous profiling by setting profilesSampleRate to nil
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // change enableTracing to true
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // change enableAppLaunchProfiling to true
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 0, shouldProfileLaunch: false),
-//            // change profilesSamplerReturnValue to 1
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 0, profilesSamplerReturnValue: 1, shouldProfileLaunch: true),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: 1, profilesSamplerReturnValue: 1, shouldProfileLaunch: true),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: false),
-//            (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: 1, shouldProfileLaunch: true),
-//
-//            // just those cases that had nil profilesSampleRate but nonnil profilesSamplerReturnValue, now with both as nil, which would enable launch profiling with continuous mode
-//                (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: false, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: false),
-//                (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: false, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 0, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true),
-//                (enableAppLaunchProfiling: true, enableTracing: true, tracesSampleRate: 1, profilesSampleRate: nil, profilesSamplerReturnValue: nil, shouldProfileLaunch: true)
-//        ] {
-//            let options = Options()
-//            options.enableAppLaunchProfiling = testCase.enableAppLaunchProfiling
-//            Dynamic(options).enableTracing = testCase.enableTracing
-//            options.tracesSampleRate = NSNumber(value: testCase.tracesSampleRate)
-//            if let profilesSampleRate = testCase.profilesSampleRate {
-//                options.profilesSampleRate = NSNumber(value: profilesSampleRate)
-//            } else {
-//                options.profilesSampleRate = nil
-//            }
-//            if let profilesSamplerReturnValue = testCase.profilesSamplerReturnValue {
-//                options.profilesSampler = { _ in
-//                    NSNumber(value: profilesSamplerReturnValue)
-//                }
-//            } else {
-//                options.profilesSampler = nil
-//            }
-//            XCTAssertEqual(sentry_willProfileNextLaunch(options), testCase.shouldProfileLaunch, "Expected \(testCase.shouldProfileLaunch ? "" : "not ")to enable app launch profiling with options: { enableAppLaunchProfiling: \(testCase.enableAppLaunchProfiling), enableTracing: \(testCase.enableTracing), tracesSampleRate: \(testCase.tracesSampleRate), profilesSampleRate: \(String(describing: testCase.profilesSampleRate)), profilesSamplerReturnValue: \(String(describing: testCase.profilesSamplerReturnValue)) }")
-//        }
     }
 }
 
@@ -233,6 +132,11 @@ struct LaunchProfileOptions: Equatable {
     struct TracingOptions: Equatable {
         let tracesSampleRate: Float?
         let tracesSamplerReturnValue: Float?
+
+        static func ==(lhs: LaunchProfileOptions.TracingOptions, rhs: LaunchProfileOptions.TracingOptions) -> Bool {
+            lhs.tracesSampleRate == rhs.tracesSampleRate
+            && lhs.tracesSamplerReturnValue == rhs.tracesSamplerReturnValue
+        }
 
         static func iterateCombinations(_ combo: (_ sampleRate: Float?, _ samplerReturnValue: Float?) -> Void) {
             for sampleRate: Float? in [nil, 0, 1] {
@@ -245,7 +149,8 @@ struct LaunchProfileOptions: Equatable {
         static let validCombinationsTransactionProfiling: [TracingOptions] = {
             var combos = [TracingOptions]()
             iterateCombinations { sampleRate, samplerReturnValue in
-                if (sampleRate == nil || sampleRate == 0) && (samplerReturnValue == nil || samplerReturnValue == 0) { return }
+                if samplerReturnValue == 0 { return }
+                if (sampleRate == nil || sampleRate == 0) && samplerReturnValue == nil { return }
                 combos.append(TracingOptions(tracesSampleRate: sampleRate, tracesSamplerReturnValue: samplerReturnValue))
             }
             return combos
@@ -270,6 +175,11 @@ struct LaunchProfileOptions: Equatable {
         let profilesSampleRate: Float?
         let profilesSamplerReturnValue: Float?
 
+        static func ==(lhs: LaunchProfileOptions.ProfileSamplingV1Options, rhs: LaunchProfileOptions.ProfileSamplingV1Options) -> Bool {
+            lhs.profilesSampleRate == rhs.profilesSampleRate
+            && lhs.profilesSamplerReturnValue == rhs.profilesSamplerReturnValue
+        }
+
         static func iterateCombinations(_ combo: (_ sampleRate: Float?, _ samplerReturnValue: Float?) -> Void) {
             for sampleRate: Float? in [nil, 0, 1] {
                 for samplerReturnValue: Float? in [nil, 0, 1] {
@@ -281,25 +191,20 @@ struct LaunchProfileOptions: Equatable {
         static let validCombinationsTransactionProfiling: [ProfileSamplingV1Options] = {
             var combos = [ProfileSamplingV1Options]()
             iterateCombinations { sampleRate, samplerReturnValue in
-                if (sampleRate == nil || sampleRate == 0) && (samplerReturnValue == nil || samplerReturnValue == 0) { return }
+                if samplerReturnValue == 0 { return }
+                if (sampleRate == nil || sampleRate == 0) && samplerReturnValue == nil { return }
                 combos.append(ProfileSamplingV1Options(profilesSampleRate: sampleRate, profilesSamplerReturnValue: samplerReturnValue))
             }
             return combos
         }()
 
         static let validCombinationsContinuousProfilingV1: [ProfileSamplingV1Options] = {
-            var combos = [ProfileSamplingV1Options]()
-            iterateCombinations { sampleRate, samplerReturnValue in
-                combos.append(ProfileSamplingV1Options(profilesSampleRate: sampleRate, profilesSamplerReturnValue: samplerReturnValue))
-            }
-            return combos
-        }()
-
-        static let validCombinationsContinuousProfilingV2ManualLifecycle: [ProfileSamplingV1Options] = {
             [ProfileSamplingV1Options(profilesSampleRate: nil, profilesSamplerReturnValue: nil)]
         }()
 
-        static let validCombinationsContinuousProfilingV2TraceLifecycle: [ProfileSamplingV1Options] = validCombinationsContinuousProfilingV2ManualLifecycle
+        static let validCombinationsContinuousProfilingV2ManualLifecycle: [ProfileSamplingV1Options] = validCombinationsContinuousProfilingV1
+
+        static let validCombinationsContinuousProfilingV2TraceLifecycle: [ProfileSamplingV1Options] = validCombinationsContinuousProfilingV1
     }
 
     let profileSamplingV1Options: ProfileSamplingV1Options
@@ -308,6 +213,12 @@ struct LaunchProfileOptions: Equatable {
         let lifecycle: SentryProfileOptions.SentryProfileLifecycle
         let sessionSampleRate: Float
         let profileAppStarts: Bool
+
+        static func ==(lhs: LaunchProfileOptions.ContinuousProfileV2Options, rhs: LaunchProfileOptions.ContinuousProfileV2Options) -> Bool {
+            lhs.lifecycle == rhs.lifecycle
+            && lhs.sessionSampleRate == rhs.sessionSampleRate
+            && lhs.profileAppStarts == rhs.profileAppStarts
+        }
 
         static func iterateCombinations(_ combo: (ContinuousProfileV2Options?) -> Void) {
             combo(nil)
@@ -319,6 +230,22 @@ struct LaunchProfileOptions: Equatable {
                 }
             }
         }
+
+        static let validCombinationsTransactionProfiling: [ContinuousProfileV2Options?] = {
+            var combos = [ContinuousProfileV2Options?]()
+            iterateCombinations { combo in
+                combos.append(combo)
+            }
+            return combos
+        }()
+
+        static let validCombinationsContinuousProfilingV1: [ContinuousProfileV2Options?] = {
+            var combos = [ContinuousProfileV2Options?]()
+            iterateCombinations { combo in
+                combos.append(combo)
+            }
+            return combos
+        }()
 
         static let validCombinationsManualLifecycle: [ContinuousProfileV2Options] = {
             var combos = [ContinuousProfileV2Options]()
@@ -350,26 +277,37 @@ struct LaunchProfileOptions: Equatable {
 
     let continuousProfileV2Options: ContinuousProfileV2Options?
 
+    static func ==(lhs: LaunchProfileOptions, rhs: LaunchProfileOptions) -> Bool {
+        let result = lhs.enableAppLaunchProfiling == rhs.enableAppLaunchProfiling
+        && lhs.tracingOptions == rhs.tracingOptions
+        && lhs.profileSamplingV1Options == rhs.profileSamplingV1Options
+        && lhs.continuousProfileV2Options == rhs.continuousProfileV2Options
+        return result
+    }
+
     static let validCombinations: [LaunchProfileOptions] = {
         var combos = [LaunchProfileOptions]()
+        for tracingOptions in TracingOptions.validCombinationsTransactionProfiling {
+            for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsTransactionProfiling {
+                for continuousProfileV2Options in ContinuousProfileV2Options.validCombinationsTransactionProfiling {
+                    combos.append(.init(enableAppLaunchProfiling: true, tracingOptions: tracingOptions, profileSamplingV1Options: profileSamplingV1Options, continuousProfileV2Options: continuousProfileV2Options))
+                }
+            }
+        }
+        for tracingOptions in TracingOptions.validCombinationsContinuousProfilingV1 {
+            for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsContinuousProfilingV1 {
+                for continuousProfileV2Options in ContinuousProfileV2Options.validCombinationsContinuousProfilingV1 {
+                    combos.append(.init(enableAppLaunchProfiling: true, tracingOptions: tracingOptions, profileSamplingV1Options: profileSamplingV1Options, continuousProfileV2Options: continuousProfileV2Options))
+                }
+            }
+        }
         for enableAppLaunchProfilingOption in [true, false] {
-            for tracingOptions in TracingOptions.validCombinationsTransactionProfiling {
-                for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsTransactionProfiling {
-                    combos.append(.init(enableAppLaunchProfiling: enableAppLaunchProfilingOption, tracingOptions: tracingOptions, profileSamplingV1Options: profileSamplingV1Options, continuousProfileV2Options: nil))
-                }
-            }
-            for tracingOptions in TracingOptions.validCombinationsContinuousProfilingV1 {
-                for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsContinuousProfilingV1 {
-                    combos.append(.init(enableAppLaunchProfiling: enableAppLaunchProfilingOption, tracingOptions: tracingOptions, profileSamplingV1Options: profileSamplingV1Options, continuousProfileV2Options: nil))
-                }
-            }
             for tracingOptions in TracingOptions.validCombinationsContinuousProfilingV2TraceLifecycle {
                 for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsContinuousProfilingV2TraceLifecycle {
                     for continuousProfilingV2Options in ContinuousProfileV2Options.validCombinationsTraceLifecycle {
                         combos.append(.init(enableAppLaunchProfiling: enableAppLaunchProfilingOption, tracingOptions: tracingOptions, profileSamplingV1Options: profileSamplingV1Options, continuousProfileV2Options: continuousProfilingV2Options))
                     }
-                }
-            }
+                }}
             for tracingOptions in TracingOptions.validCombinationsContinuousProfilingV2ManualLifecycle {
                 for profileSamplingV1Options in ProfileSamplingV1Options.validCombinationsContinuousProfilingV2ManualLifecycle {
                     for continuousProfilingV2Options in ContinuousProfileV2Options.validCombinationsManualLifecycle {

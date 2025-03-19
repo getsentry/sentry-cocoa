@@ -36,8 +36,19 @@ namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
 
+} // namespace
+
+#    pragma mark - Public
+
 void
-_sentry_configureContinuousProfiling(SentryOptions *options)
+sentry_reevaluateSessionSampleRate(float sessionSampleRate)
+{
+    // TODO: carry over computed sample decision from last launch profile configuration, if there was one; basically, if the launch profile config exists, set to yes here
+    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
+}
+
+void
+sentry_configureContinuousProfiling(SentryOptions *options)
 {
     if (![options isContinuousProfilingEnabled]) {
         if (options.configureProfiling != nil) {
@@ -48,10 +59,14 @@ _sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    if (options.configureProfiling != nil) {
-        options.profiling = [[SentryProfileOptions alloc] init];
-        options.configureProfiling(options.profiling);
+    if (options.configureProfiling == nil) {
+        SENTRY_LOG_DEBUG(@"Continuous profiling V2 configuration not set by SDK consumer, nothing "
+                         @"to do here.");
+        return;
     }
+
+    options.profiling = [[SentryProfileOptions alloc] init];
+    options.configureProfiling(options.profiling);
 
     if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
         SENTRY_LOG_WARN(
@@ -62,20 +77,10 @@ _sentry_configureContinuousProfiling(SentryOptions *options)
     sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
 }
 
-} // namespace
-
-#    pragma mark - Public
-
-void
-sentry_reevaluateSessionSampleRate(float sessionSampleRate)
-{
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
-}
-
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
-    _sentry_configureContinuousProfiling(options);
+    sentry_configureContinuousProfiling(options);
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         BOOL shouldStopAndTransmitLaunchProfile = YES;
