@@ -1,9 +1,9 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT
 
 /// An object containing configuration for the Sentry profiler.
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
@@ -65,7 +65,7 @@ public class SentryProfileOptions: NSObject {
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var sessionSampleRate: Float = 0
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UIKIT
     public override init() {
         super.init()
 
@@ -77,5 +77,5 @@ public class SentryProfileOptions: NSObject {
      deinit {
         NotificationCenter.default.removeObserver(self)
     }
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT
 }
