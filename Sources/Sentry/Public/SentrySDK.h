@@ -372,20 +372,16 @@ SENTRY_NO_INIT
 /**
  * Start a new continuous profiling session if one is not already running.
  * @warning Continuous profiling mode is experimental and may still contain bugs.
- * @note Unlike trace-based profiling, continuous profiling does not take into account
+ * @note Unlike transaction-based profiling, continuous profiling does not take into account
  * @c SentryOptions.profilesSampleRate or @c SentryOptions.profilesSampler . If either of those
- * options are set, this method does nothing. @b Warning: Because those options are deprecated, this
- * behavior is deprecated and will change in a future version.
+ * options are set, this method does nothing.
  * @note Taking into account the above note, if @c SentryOptions.configureProfiling is not set,
  * calls to this method will always start a profile if one is not already running. This includes app
- * launch profiles configured with @c SentryOptions.enableAppLaunchProfiling . If you need sampling,
- * you must calculate your own sampling decisions to call this method or enable app launch
- * profiling. @b Warning: this behavior relies on deprecated options and will change in a future
- * version. In the future, there will be internal sampling and the default sample rate will be 0.
+ * launch profiles configured with @c SentryOptions.enableAppLaunchProfiling .
  * @note If neither @c SentryOptions.profilesSampleRate nor @c SentryOptions.profilesSampler are
  * set, and @c SentryOptions.configureProfiling is set, this method does nothing if the profiling
- * session is not sampled with respect to @c SentryOptions.profileSessionSampleRate , (which
- * defaults to a sample rate of 0), or if it is sampled but the profiler is already running.
+ * session is not sampled with respect to @c SentryOptions.profileSessionSampleRate , or if it is
+ * sampled but the profiler is already running.
  * @note If neither @c SentryOptions.profilesSampleRate nor @c SentryOptions.profilesSampler are
  * set, and @c SentryOptions.configureProfiling is set, this method does nothing if
  * @c SentryOptions.profileLifecycle is set to @c trace . In this scenario, the profiler is
