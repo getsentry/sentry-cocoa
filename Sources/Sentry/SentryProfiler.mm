@@ -43,7 +43,8 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_reevaluateSessionSampleRate(float sessionSampleRate)
 {
-    // TODO: carry over computed sample decision from last launch profile configuration, if there was one; basically, if the launch profile config exists, set to yes here
+    // TODO: carry over computed sample decision from last launch profile configuration, if there
+    // was one; basically, if the launch profile config exists, set to yes here
     sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
 }
 
