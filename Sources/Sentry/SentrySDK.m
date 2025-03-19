@@ -20,6 +20,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
+#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -260,7 +261,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageTraceProfilerOnStartSDK(options, hub);
+        sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 
@@ -636,6 +637,53 @@ static NSDate *_Nullable startTimestamp = nil;
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
             @"altogether) before attempting to stop a continuous profiling session.");
+        return;
+    }
+
+    [SentryContinuousProfiler stop];
+}
+
++ (void)startProfileSession
+{
+    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+        SENTRY_LOG_WARN(
+            @"You must initialize the SDK with continuous profiling configured before starting a "
+            @"profile session. See SentryProfilingOptions.");
+        return;
+    }
+
+    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
+            @"manually. See SentryProfileLifecycle for more information.");
+        return;
+    }
+
+    if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+        SENTRY_LOG_DEBUG(
+            @"The profiling session has been sampled out, no profiling will take place.");
+        return;
+    }
+
+    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"There is already a profile session running.");
+        return;
+    }
+
+    [SentryContinuousProfiler start];
+}
+
++ (void)stopProfileSession
+{
+    if (![SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"No profile session to stop.");
+        return;
+    }
+
+    if (currentHub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
+            @"manually. See SentryProfileLifecycle for more information.");
         return;
     }
 

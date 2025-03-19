@@ -121,8 +121,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 /**
  * Discard profiler session data associated with the given @c SentryId.
  * This only needs to be called in case you haven't collected the profile (and don't intend to).
+ * @note For continuous profiling with trace lifecycle, you must indicate whether or not the trace
+ * associated with this profiler was sampled for proper bookkeeping to align automatic continuous
+ * profiling to root spans.
  */
-+ (void)discardProfilerForTrace:(SentryId *)traceId;
++ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)traceSampled;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (class, nullable, nonatomic, copy)

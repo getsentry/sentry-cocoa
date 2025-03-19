@@ -19,10 +19,10 @@ class ProfilingUITests: BaseUITest {
         }
 
         // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true)
     }
     
     func testAppLaunchesWithContinuousProfiler() throws {
@@ -31,10 +31,10 @@ class ProfilingUITests: BaseUITest {
         }
 
         // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true)
     }
     
     /**
@@ -133,7 +133,6 @@ extension ProfilingUITests {
     func launchAndConfigureSubsequentLaunches(
         terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool,
-        shouldEnableLaunchProfilingOptionForNextLaunch: Bool,
         continuousProfiling: Bool = false
     ) throws {
         if terminatePriorSession {
@@ -161,12 +160,9 @@ extension ProfilingUITests {
         }
 
         launchApp()
-        
         goToProfiling()
-        
-        let markerFileExists = try checkLaunchProfileMarkerFileExistence()
-        XCTAssertEqual(shouldEnableLaunchProfilingOptionForNextLaunch, markerFileExists)
-        
+        XCTAssert(try checkLaunchProfileMarkerFileExistence())
+
         guard shouldProfileThisLaunch else {
             return
         }

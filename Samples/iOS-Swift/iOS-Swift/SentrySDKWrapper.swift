@@ -30,15 +30,14 @@ struct SentrySDKWrapper {
         
         options.tracesSampleRate = tracesSampleRate
         options.tracesSampler = tracesSampler
-        options.profilesSampleRate = profilesSampleRate
-        options.profilesSampler = profilesSampler
-        options.enableAppLaunchProfiling = enableAppLaunchProfiling
         
+        configureProfiling(options)
+
         options.enableAutoSessionTracking = enableSessionTracking
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
-        
+
         options.add(inAppInclude: "iOS_External")
         
         options.enableUserInteractionTracing = enableUITracing
@@ -403,6 +402,20 @@ extension SentrySDKWrapper {
             return NSNumber(value: (tracesSamplerValue as NSString).integerValue)
         }
     }
+}
+
+// MARK: Profiling configuration
+extension SentrySDKWrapper {
+    func configureProfiling(_ options: Options) {
+        if args.contains("--io.sentry.profile-options-v2") {
+            options.profiling.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
+            options.profiling.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
+        } else {
+            options.profilesSampleRate = profilesSampleRate
+            options.profilesSampler = profilesSampler
+            options.enableAppLaunchProfiling = enableAppLaunchProfiling
+        }
+    }
     
     var profilesSampleRate: NSNumber? {
         if args.contains("--io.sentry.enableContinuousProfiling") {
@@ -415,6 +428,10 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampler: ((SamplingContext) -> NSNumber?)? {
+        guard !args.contains("--io.sentry.enableContinuousProfiling") else {
+            return nil
+        }
+        
         guard let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] else {
             return nil
         }
