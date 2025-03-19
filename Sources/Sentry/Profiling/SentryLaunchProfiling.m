@@ -114,16 +114,16 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
             SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled for trace lifecycle but tracing is "
                              @"disabled, won't profile launch.");
             SENTRY_LOG_WARN(
-                @"Tracing must be enabled in order to configure app start profiling with trace "
-                @"lifecycle. See SentryOptions.tracesSampleRate and SentryOptions.tracesSampler.");
+                            @"Tracing must be enabled in order to configure app start profiling with trace "
+                            @"lifecycle. See SentryOptions.tracesSampleRate and SentryOptions.tracesSampler.");
             return (SentryLaunchProfileConfig) { NO, nil, nil };
         }
 
         SentryTransactionContext *transactionContext =
-            [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
+        [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
         transactionContext.forNextAppLaunch = YES;
         SentrySamplingContext *context =
-            [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
         SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
         if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(@"Sampling out the launch trace for continuous profile v2 trace "
@@ -132,7 +132,7 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
         }
 
         SentrySamplerDecision *profileSamplerDecision
-            = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
+        = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
         if (profileSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"Sampling out continuous v2 trace lifecycle profile, won't profile launch.");
@@ -158,6 +158,10 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
+    if ([options isContinuousProfilingEnabled] && options.enableAppLaunchProfiling) {
+        return (SentryLaunchProfileConfig) { YES, nil, nil };
+    }
+
     if ([options isContinuousProfilingV2Enabled]) {
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
