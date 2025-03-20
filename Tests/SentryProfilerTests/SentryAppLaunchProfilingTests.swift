@@ -304,8 +304,67 @@ extension SentryAppLaunchProfilingTests {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testLaunchContinuousProfileV2NotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
+    func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
+        // Arrange
+        fixture.options.tracesSampleRate = 1
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
+            $0.profileAppStarts = true
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfiling(fixture.options)
 
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNotNil(sentry_launchTracer)
+
+        // Act
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: tracer)
+        ttd.reportInitialDisplay()
+        fixture.displayLinkWrapper.call()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
+        // Arrange
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
+            $0.profileAppStarts = true
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .manual
+        }
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfiling(fixture.options)
+
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNil(sentry_launchTracer)
+
+        // Act
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: tracer)
+        ttd.reportInitialDisplay()
+        fixture.displayLinkWrapper.call()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testContinuousLaunchProfileV2Configuration() throws {
