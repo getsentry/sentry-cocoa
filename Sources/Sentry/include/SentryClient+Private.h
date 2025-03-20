@@ -15,9 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
 
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
-                                                    forEvent:(SentryEvent *)event;
+- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
+                                           forEvent:(SentryEvent *)event;
 
 @end
 

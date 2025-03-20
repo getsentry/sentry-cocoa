@@ -59,8 +59,9 @@ saveScreenShot(const char *path)
     [client removeAttachmentProcessor:self];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(nonnull SentryEvent *)event
+- (nonnull NSArray<SentryAttachment *> *)processAttachments:
+                                             (nonnull NSArray<SentryAttachment *> *)attachments
+                                                   forEvent:(nonnull SentryEvent *)event
 {
 
     // We don't take screenshots if there is no exception/error.
