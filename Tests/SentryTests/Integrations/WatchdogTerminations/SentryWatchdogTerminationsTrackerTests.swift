@@ -280,8 +280,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         try assertOOMEventSent(expectedBreadcrumbs: 2)
 
-        let crashEvent = fixture.client.captureCrashEventInvocations.first?.event
-        XCTAssertEqual(crashEvent?.timestamp, breadcrumb.timestamp)
+        let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
+        XCTAssertEqual(fatalEvent?.timestamp, breadcrumb.timestamp)
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() throws {
@@ -365,16 +365,16 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     private func assertOOMEventSent(expectedBreadcrumbs: Int = 0) throws {
-        XCTAssertEqual(1, fixture.client.captureCrashEventInvocations.count)
-        let crashEvent = try XCTUnwrap(fixture.client.captureCrashEventInvocations.first?.event)
+        XCTAssertEqual(1, fixture.client.captureFatalEventInvocations.count)
+        let fatalEvent = try XCTUnwrap(fixture.client.captureFatalEventInvocations.first?.event)
+
+        XCTAssertEqual(SentryLevel.fatal, fatalEvent.level)
+        XCTAssertEqual(fatalEvent.breadcrumbs?.count, 0)
+        XCTAssertEqual(fatalEvent.serializedBreadcrumbs?.count, expectedBreadcrumbs)
         
-        XCTAssertEqual(SentryLevel.fatal, crashEvent.level)
-        XCTAssertEqual(crashEvent.breadcrumbs?.count, 0)
-        XCTAssertEqual(crashEvent.serializedBreadcrumbs?.count, expectedBreadcrumbs)
+        XCTAssertEqual(1, fatalEvent.exceptions?.count)
         
-        XCTAssertEqual(1, crashEvent.exceptions?.count)
-        
-        let exception = crashEvent.exceptions?.first
+        let exception = fatalEvent.exceptions?.first
         XCTAssertEqual("The OS watchdog terminated your app, possibly because it overused RAM.", exception?.value)
         XCTAssertEqual("WatchdogTermination", exception?.type)
         
@@ -382,12 +382,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(false, exception?.mechanism?.handled)
         XCTAssertEqual("watchdog_termination", exception?.mechanism?.type)
         
-        let appContext = try XCTUnwrap(crashEvent.context?["app"] as? [String: Any])
+        let appContext = try XCTUnwrap(fatalEvent.context?["app"] as? [String: Any])
         XCTAssertEqual(true, appContext["in_foreground"] as? Bool)
     }
 
     private func assertNoOOMSent() {
-        XCTAssertEqual(0, fixture.client.captureCrashEventInvocations.count)
+        XCTAssertEqual(0, fixture.client.captureFatalEventInvocations.count)
     }
 }
 

@@ -92,7 +92,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
 
-    func test_noViewHierarchy_CrashEvent() {
+    func test_noViewHierarchy_FatalEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
         event.isFatalEvent = true
