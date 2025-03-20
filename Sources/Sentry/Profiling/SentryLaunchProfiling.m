@@ -31,6 +31,8 @@ NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand = @"traces.sample_
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand = @"profiles.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
+NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2 = @"continuous-profiling-v2-enabled";
+NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle = @"continuous-profiling-v2-lifecycle";
 static SentryTracer *_Nullable launchTracer;
 
 #    pragma mark - Private
@@ -38,13 +40,14 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_config(NSNumber *profilesRate, NSNumber *profilesRand)
+sentry_config(NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *profileOptions)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
         [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                           forSampleRate:profilesRate
                                          withSampleRand:profilesRand];
+    config.profileOptions = profileOptions;
     return config;
 }
 
@@ -216,12 +219,37 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
+    SentryProfileOptions *profileOptions = nil;
+    if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfilingV2] boolValue]) {
+        SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
+        NSNumber *lifecycleValue = launchConfig[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
+        if (lifecycleValue == nil) {
+#if SENTRY_TEST || SENTRY_TESTCI
+            SENTRY_CASSERT(NO, @"Expected a lifecycle option in the launch config for continuous profiling v2.");
+#else
+            SENTRY_LOG_WARN(@"Missing expected launch profile config parameter for lifecycle. Will not proceed with launch profile.");
+            return;
+#endif // SENTRY_TEST || SENTRY_TESTCI
+        }
+
+        SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
+        if (lifecycle == SentryProfileLifecycleManual) {
+            [SentryContinuousProfiler start];
+            return;
+        }
+
+        profileOptions = [[SentryProfileOptions alloc] init];
+        profileOptions.lifecycle = lifecycle;
+        profileOptions.profileAppStarts = true;
+    }
+
     NSNumber *profilesRate = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     if (profilesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rate, will not "
                          @"start trace profiler for launch.");
         return;
     }
+    profileOptions.sessionSampleRate = profilesRate.floatValue;
 
     NSNumber *profilesRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
     if (profilesRate == nil) {
@@ -249,7 +277,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     sentry_launchTracer =
         [[SentryTracer alloc] initWithTransactionContext:sentry_context(tracesRate, tracesRand)
                                                      hub:nil
-                                           configuration:sentry_config(profilesRate, profilesRand)];
+                                           configuration:sentry_config(profilesRate, profilesRand, profileOptions)];
 }
 
 #    pragma mark - Public
@@ -270,8 +298,20 @@ sentry_configureLaunchProfiling(SentryOptions *options)
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         if ([options isContinuousProfilingEnabled]) {
-            SENTRY_LOG_DEBUG(@"Configuring continuous launch profile.");
-            configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
+            if ([options isContinuousProfilingV2Enabled]) {
+                SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
+                configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
+                configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] = @(options.profiling.lifecycle);
+                if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+                    configDict[kSentryLaunchProfileConfigKeyTracesSampleRate] = config.tracesDecision.sampleRate;
+                    configDict[kSentryLaunchProfileConfigKeyTracesSampleRand] = config.tracesDecision.sampleRand;
+                }
+                configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate] = config.profilesDecision.sampleRate;
+                configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand] = config.profilesDecision.sampleRand;
+            } else {
+                SENTRY_LOG_DEBUG(@"Configuring continuous launch profile.");
+                configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
+            }
         } else {
             SENTRY_LOG_DEBUG(@"Configuring trace launch profile.");
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]

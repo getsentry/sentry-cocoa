@@ -8,7 +8,7 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
@@ -224,9 +224,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return payload;
 }
 
-+ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)traceSampled;
++ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)launchTraceSampledForContinuousProfilingV2;
 {
-    sentry_discardProfiler(traceId, SentrySDK.currentHub, traceSampled);
+    sentry_discardProfiler(traceId, SentrySDK.currentHub, launchTraceSampledForContinuousProfilingV2);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

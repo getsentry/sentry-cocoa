@@ -12,6 +12,7 @@
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
 @class SentryTracerConfiguration;
+@class SentryProfileOptions;
 @class SentryId;
 #if SENTRY_HAS_UIKIT
 @class SentryAppStartMeasurement;
@@ -59,7 +60,7 @@ void sentry_discardProfilerHybrid(SentryId *internalTraceId, SentryHub *hub);
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
  */
-void sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub, BOOL traceSampled);
+void sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub, BOOL launchTraceSampledForContinuousProfilingV2);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the
