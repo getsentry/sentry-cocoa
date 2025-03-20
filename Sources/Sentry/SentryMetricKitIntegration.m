@@ -227,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
         event.debugMeta = [self extractDebugMetaFromMXCallStacks:callStackTree.callStacks];
 
         // The crash event can be way from the past. We don't want to impact the current session.
-        // Therefore we don't call captureCrashEvent.
+        // Therefore we don't call captureFatalEvent.
         [self captureEvent:event withDiagnosticJSON:diagnosticJSON];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {

@@ -26,14 +26,14 @@ public class TestHub: SentryHub {
         endSessionTimestamp = timestamp
     }
     
-    public var sentCrashEvents = Invocations<Event>()
-    public override func captureCrash(_ event: Event) {
-        sentCrashEvents.record(event)
+    public var sentFatalEvents = Invocations<Event>()
+    public override func captureFatalEvent(_ event: Event) {
+        sentFatalEvents.record(event)
     }
     
-    public var sentCrashEventsWithScope = Invocations<(event: Event, scope: Scope)>()
-    public override func captureCrash(_ event: Event, with scope: Scope) {
-        sentCrashEventsWithScope.record((event, scope))
+    public var sentFatalEventsWithScope = Invocations<(event: Event, scope: Scope)>()
+    public override func captureFatalEvent(_ event: Event, with scope: Scope) {
+        sentFatalEventsWithScope.record((event, scope))
     }
     
     public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()

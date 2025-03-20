@@ -23,7 +23,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
     
@@ -39,10 +39,10 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
         
-        let event = self.testClient.captureCrashEventInvocations.last?.event
+        let event = self.testClient.captureFatalEventInvocations.last?.event
         XCTAssertEqual(event?.context?["device"]?["free_storage"] as? Int, 278_914_420_736)
         // total_storage got converted to storage_size
         XCTAssertEqual(event?.context?["device"]?["storage_size"] as? Int, 994_662_584_320)
@@ -57,10 +57,10 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             XCTAssertEqual(filteredReports?.count, 1)
         }
         
-        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 1)
+        XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
         
-        let event = self.testClient.captureCrashEventInvocations.last?.event
+        let event = self.testClient.captureFatalEventInvocations.last?.event
         XCTAssertNil(event?.context?["device"])
         XCTAssertEqual(event?.context?["app"]?["app_name"] as? String, "iOS-Swift")
     }
@@ -74,7 +74,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             XCTAssertEqual(filteredReports?.count, 0)
         }
         
-        XCTAssertEqual(self.testClient.captureCrashEventInvocations.count, 0)
+        XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 0)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
     

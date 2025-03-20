@@ -34,9 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryClient *_Nullable)client;
 
-- (void)captureCrashEvent:(SentryEvent *)event;
+- (void)captureFatalEvent:(SentryEvent *)event;
 
-- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
 #if SENTRY_HAS_UIKIT
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;

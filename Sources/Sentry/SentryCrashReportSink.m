@@ -100,7 +100,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
         }
     }
 
-    [SentrySDK captureCrashEvent:event withScope:scope];
+    [SentrySDK captureFatalEvent:event withScope:scope];
 }
 
 @end

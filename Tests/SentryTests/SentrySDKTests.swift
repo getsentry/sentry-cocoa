@@ -226,16 +226,16 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
-    func testCaptureCrashEvent() {
+    func testCaptureFatalEvent() {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         
         let event = fixture.event
-        SentrySDK.captureCrash(event)
+        SentrySDK.captureFatalEvent(event)
     
-        XCTAssertEqual(1, hub.sentCrashEvents.count)
-        XCTAssertEqual(event.message, hub.sentCrashEvents.first?.message)
-        XCTAssertEqual(event.eventId, hub.sentCrashEvents.first?.eventId)
+        XCTAssertEqual(1, hub.sentFatalEvents.count)
+        XCTAssertEqual(event.message, hub.sentFatalEvents.first?.message)
+        XCTAssertEqual(event.eventId, hub.sentFatalEvents.first?.eventId)
     }
     
     func testCaptureEvent() {

@@ -40,7 +40,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         
         let reportSink = fixture.sut
         reportSink.filterReports([report]) { _, _, _ in
-            self.assertCrashEventWithScope { _, scope in
+            self.assertFatalEventWithScope { _, scope in
                 let data = scope?.serialize()
                 XCTAssertEqual(data?["environment"] as? String, "testFilterReports_CopyHubScope")
                 expect.fulfill()
@@ -115,7 +115,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     private func filterReportWithAttachment() {
         let report = ["attachments": ["file.png"]]
         fixture.sut.filterReports([report]) { _, _, _ in
-            self.assertCrashEventWithScope { _, scope in
+            self.assertFatalEventWithScope { _, scope in
                 XCTAssertEqual(scope?.attachments.count, 1)
             }
         }

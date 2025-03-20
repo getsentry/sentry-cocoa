@@ -36,9 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
                      withScope:(SentryScope *)scope
         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
