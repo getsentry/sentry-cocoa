@@ -209,7 +209,7 @@ extension SentryAppLaunchProfilingTests {
         options.profilesSampleRate = 0.567
         options.tracesSampleRate = 0.789
 
-        // Smoke test that the file doesn't exist
+        // Assert:Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // -- Act --
@@ -217,7 +217,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -228,12 +228,12 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        let newDict = try XCTUnwrap(appLaunchProfileConfiguration())
-        XCTAssertEqual(newDict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
-        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyTracesSampleRate])
-        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyTracesSampleRand])
-        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
-        XCTAssertNil(newDict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
+        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
     }
 }
 
@@ -367,16 +367,238 @@ extension SentryAppLaunchProfilingTests {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testContinuousLaunchProfileV2Configuration() throws {
+    func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.tracesSampleRate = 1
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
 
+        // Assert
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // Act
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // Assert
+        XCTAssert(appLaunchProfileConfigFileExists())
+        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 1)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRand]), 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.trace.rawValue)
+
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testSwitchFromTraceBasedToContinuousLaunchProfileV2Configuration() throws {
+    func testContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.configureProfiling = {
+            $0.lifecycle = .manual
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
 
+        // Assert
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // Act
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // Assert
+        XCTAssert(appLaunchProfileConfigFileExists())
+        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.manual.rawValue)
+
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testSwitchFromContinuousLaunchProfileV1ToContinuousLaunchProfileV2Configuration() throws {
+    func testSwitchFromTraceBasedToContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
+        // -- Arrange --
+        let options = Options()
+        options.tracesSampleRate = 0.789
+        options.profilesSampleRate = 0.567
+        options.enableAppLaunchProfiling = true
 
+        // Smoke test that the file doesn't exist
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // -- Act --
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        XCTAssert(appLaunchProfileConfigFileExists())
+        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        options.configureProfiling = {
+            $0.lifecycle = .manual
+            $0.sessionSampleRate = 0.987
+            $0.profileAppStarts = true
+        }
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]).floatValue, 0.987)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]).floatValue, 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.manual.rawValue)
+    }
+
+    func testSwitchFromTraceBasedToContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
+        // -- Arrange --
+        let options = Options()
+        options.tracesSampleRate = 0.789
+        options.profilesSampleRate = 0.567
+        options.enableAppLaunchProfiling = true
+
+        // Smoke test that the file doesn't exist
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // -- Act --
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        XCTAssert(appLaunchProfileConfigFileExists())
+        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 0.987
+            $0.profileAppStarts = true
+        }
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRand]), 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]).floatValue, 0.987)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]).floatValue, 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.trace.rawValue)
+    }
+
+    func testSwitchFromContinuousLaunchProfileV1ToContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableAppLaunchProfiling = true
+        options.profilesSampleRate = 0.567
+        options.tracesSampleRate = 0.789
+
+        // -- Assert -- Smoke test that the file doesn't exist
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        options.configureProfiling = {
+            $0.lifecycle = .manual
+            $0.sessionSampleRate = 0.987
+            $0.profileAppStarts = true
+        }
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]).floatValue, 0.987)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]).floatValue, 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.manual.rawValue)
+    }
+
+    func testSwitchFromContinuousLaunchProfileV1ToContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableAppLaunchProfiling = true
+        options.profilesSampleRate = 0.567
+        options.tracesSampleRate = 0.789
+
+        // -- Assert -- Smoke test that the file doesn't exist
+        XCTAssertFalse(appLaunchProfileConfigFileExists())
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
+
+        // -- Act --
+        options.profilesSampleRate = nil
+        options.tracesSampleRate = 0.789
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 0.987
+            $0.profileAppStarts = true
+        }
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+
+        // -- Assert --
+        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRand]), 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]).floatValue, 0.987)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]).floatValue, 0.5)
+        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.trace.rawValue)
     }
 }
 

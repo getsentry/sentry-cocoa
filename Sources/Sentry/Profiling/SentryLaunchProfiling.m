@@ -156,12 +156,12 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 SentryLaunchProfileConfig
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    if ([options isContinuousProfilingEnabled] && options.enableAppLaunchProfiling) {
-        return (SentryLaunchProfileConfig) { YES, nil, nil };
-    }
-
     if ([options isContinuousProfilingV2Enabled]) {
         return sentry_launchShouldHaveContinuousProfilingV2(options);
+    }
+
+    if ([options isContinuousProfilingEnabled] && options.enableAppLaunchProfiling) {
+        return (SentryLaunchProfileConfig) { YES, nil, nil };
     }
 
     if ([options isContinuousProfilingEnabled]) {

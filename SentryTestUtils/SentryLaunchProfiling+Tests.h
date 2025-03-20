@@ -21,6 +21,8 @@ SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle;
 
 SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
 
