@@ -17,31 +17,32 @@ class SentryMessageTests: XCTestCase {
             message.message = "A message %s %s"
             message.params = ["my", "params"]
         }
-        
     }
     
     private let fixture = Fixture()
     
-    func testTruncateFormatted() {
+    func testFormatted_NotTruncated() {
         let message = SentryMessage(formatted: "aaaaa")
         XCTAssertEqual(5, message.formatted.count)
         
         XCTAssertEqual(fixture.stringMaxCount, SentryMessage(formatted: fixture.maximumCount).formatted.count)
-        
-        XCTAssertEqual(fixture.stringMaxCount, SentryMessage(formatted: fixture.tooLong).formatted.count)
+
+        // Let Relay do the truncation
+        XCTAssertEqual(fixture.tooLong.count, SentryMessage(formatted: fixture.tooLong).formatted.count)
     }
     
-    func testTruncateMessage() {
+    func testMessage_NotTruncated() {
         let message = SentryMessage(formatted: "")
         message.message = "aaaaa %s"
-        
+
         XCTAssertEqual(8, message.message?.count)
-        
+
         message.message = fixture.maximumCount
         XCTAssertEqual(fixture.stringMaxCount, message.message?.count)
-        
+
+        // Let Relay do the truncation
         message.message = fixture.tooLong
-        XCTAssertEqual(fixture.stringMaxCount, message.message?.count)
+        XCTAssertEqual(fixture.tooLong.count, message.message?.count)
     }
     
     func testSerialize() {

@@ -20,7 +20,7 @@ SENTRY_NO_INIT
 /**
  * Returns a @c SentryMessage with setting formatted.
  * @param formatted The fully formatted message. If missing, Sentry will try to interpolate the
- * message. It must not exceed 8192 characters. Longer messages will be truncated.
+ * message. The backend will truncate messages longer than 8192 characters.
  */
 - (instancetype)initWithFormatted:(NSString *)formatted;
 
