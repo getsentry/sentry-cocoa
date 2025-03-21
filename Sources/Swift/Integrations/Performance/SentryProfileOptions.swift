@@ -1,10 +1,6 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if os(iOS) && !SENTRY_NO_UIKIT
-import UIKit
-#endif // os(iOS) && !SENTRY_NO_UIKIT
-
 /// An object containing configuration for the Sentry profiler.
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
 /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
@@ -64,18 +60,4 @@ public class SentryProfileOptions: NSObject {
     /// take effect until the profiler is started again.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var sessionSampleRate: Float = 0
-
-#if os(iOS) && !SENTRY_NO_UIKIT
-    public override init() {
-        super.init()
-
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { _ in
-            sentry_reevaluateSessionSampleRate(self.sessionSampleRate)
-        }
-    }
-
-     deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-#endif // os(iOS) && !SENTRY_NO_UIKIT
 }
