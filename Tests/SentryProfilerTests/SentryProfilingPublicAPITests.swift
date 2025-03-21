@@ -121,7 +121,7 @@ extension SentryProfilingPublicAPITests {
 extension SentryProfilingPublicAPITests {
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
             $0.sessionSampleRate = 1
         }
         givenSdkWithHub()
