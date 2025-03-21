@@ -543,9 +543,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See startProfilerOnAppStart and "
-    "profileLifecycle.");
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -572,8 +570,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c  SentryProfileOptions.sessionSampleRate.
  */
-@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See profileSessionSampleRate.");
+@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -587,10 +584,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c SentryProfileOptions.sessionSampleRate .
  */
-@property (nullable, nonatomic)
-    SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE DEPRECATED_MSG_ATTRIBUTE(
-        "This property will be removed in a future version of the SDK. See "
-        "profileSessionSampleRate.");
+@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
 
 /**
  * If profiling should be enabled or not.
@@ -603,8 +597,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK.
  */
-@property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See profileLifecycle.");
+@property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
 /**
  * @brief Whether to enable the sampling profiler.
