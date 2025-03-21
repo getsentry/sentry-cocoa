@@ -42,7 +42,8 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_configForLaunchProfilerForTrace(NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *profileOptions)
+sentry_configForLaunchProfilerForTrace(
+    NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *profileOptions)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
@@ -280,12 +281,13 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
     sentry_isTracingAppLaunch = YES;
 
-    SentryTransactionContext *context = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
-    SentryTracerConfiguration *config = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
-    sentry_launchTracer =
-        [[SentryTracer alloc] initWithTransactionContext:context
-                                                     hub:nil
-                                           configuration:config];
+    SentryTransactionContext *context
+        = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
+    SentryTracerConfiguration *config
+        = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
+    sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
+                                                                       hub:nil
+                                                             configuration:config];
 }
 
 #    pragma mark - Public

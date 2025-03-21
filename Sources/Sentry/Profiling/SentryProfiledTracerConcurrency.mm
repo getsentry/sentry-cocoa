@@ -171,15 +171,16 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        BOOL notLaunchContinuousProfileV2TraceLifecycle = hub != nil && hub.client.options.profiling != nil && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
+        BOOL notLaunchContinuousProfileV2TraceLifecycle = hub != nil
+            && hub.client.options.profiling != nil
+            && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
         if (!notLaunchContinuousProfileV2TraceLifecycle && !isProfiling) {
             SENTRY_LOG_DEBUG(@"Continuous profiler v1 won't be stopped with a tracer.");
             return;
         }
 
         _unsafe_cleanUpContinuousProfilerV2();
-    }
-    else if (internalTraceId != nil) {
+    } else if (internalTraceId != nil) {
         SENTRY_CASSERT(![hub.getClient.options isContinuousProfilingEnabled],
             @"Tracers are not tracked with continuous profiling V1");
 
@@ -317,18 +318,20 @@ sentry_stopProfilerDueToFinishedTransaction(
     }];
 }
 
-SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration, SentryHub *hub,
-    SentryTransactionContext *transactionContext)
+SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
+    SentryHub *hub, SentryTransactionContext *transactionContext)
 {
     if (configuration.profileOptions != nil) {
         // launch profile; there's hub to get options from, so they're read from the launch profile
         // config file and packaged into the tracer configuration in the launch profile codepath
-        return _sentry_startContinuousProfilerV2ForTrace(configuration.profileOptions, transactionContext);
+        return _sentry_startContinuousProfilerV2ForTrace(
+            configuration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingEnabled]) {
         // non launch profile
         SentryProfileOptions *profileOptions = hub.getClient.options.profiling;
         if (profileOptions == nil) {
-            SENTRY_LOG_DEBUG(@"Continuous profiling v1 configured; will not start automatically for trace.");
+            SENTRY_LOG_DEBUG(
+                @"Continuous profiling v1 configured; will not start automatically for trace.");
             return nil;
         }
         return _sentry_startContinuousProfilerV2ForTrace(profileOptions, transactionContext);
