@@ -15,8 +15,8 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonAppMovedToBackground,
 };
 
-static NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
-static NSTimeInterval kSentryProfilerTimeoutInterval = 30;
+SENTRY_EXTERN NSTimeInterval kSentryProfilerChunkExpirationInterval;
+SENTRY_EXTERN NSTimeInterval kSentryProfilerTimeoutInterval;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -105,7 +105,14 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentrySDK.close()
         try assertContinuousProfileStoppage()
     }
-    
+
+    func testBackgroundNotificationStopsProfile() {
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
         let manualSpan = try fixture.newTransaction()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
