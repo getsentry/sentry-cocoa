@@ -325,7 +325,9 @@ static SentryTouchTracker *_touchTracker;
 
     // The cache should be at least the amount of frames fitting into he session segment duration
     // plus one frame to ensure that the last frame is not dropped.
-    NSInteger sessionSegmentDuration = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration: replayOptions.errorReplayDuration);
+    NSInteger sessionSegmentDuration
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
     replayMaker.cacheMaxSize = (sessionSegmentDuration * replayOptions.frameRate) + 1;
 
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
