@@ -299,7 +299,6 @@ struct LaunchProfileOptions: Equatable {
         let profileAppStarts: Bool
     }
 
-    ///
     var continuousProfileV2Options: ContinuousProfileV2Options?
 }
 
