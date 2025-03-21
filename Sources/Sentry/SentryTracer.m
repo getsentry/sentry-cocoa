@@ -179,7 +179,7 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    _profilerReferenceID = sentry_startProfiler(configuration, hub, transactionContext);
+    _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -191,8 +191,7 @@ static BOOL appStartMeasurementRead;
 - (void)dealloc
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_discardProfiler(_profilerReferenceID, self.hub,
-        self.isProfiling /* launchTraceSampledForContinuousProfilingV2 */);
+    sentry_discardProfilerCorrelatedToTrace(_profilerReferenceID, self.hub, self.isProfiling);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     [self cancelDeadlineTimeout];
 }
