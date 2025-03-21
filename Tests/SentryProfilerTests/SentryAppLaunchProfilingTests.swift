@@ -68,7 +68,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], expectedTracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand], expectedTracesSampleRand)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], expectedProfilesSampleRate)
@@ -135,7 +135,7 @@ extension SentryAppLaunchProfilingTests {
     }
 
     func testContentsOfLaunchTraceProfileTransactionContext() {
-        let context = sentry_context(NSNumber(value: 1), NSNumber(value: 1))
+        let context = sentry_contextForLaunchProfilerForTrace(NSNumber(value: 1), NSNumber(value: 1))
         XCTAssertEqual(context.nameSource.rawValue, 0)
         XCTAssertEqual(context.origin, "auto.app.start.profile")
         XCTAssertEqual(context.sampled, .yes)
@@ -192,7 +192,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
 
         _sentry_nondeduplicated_startLaunchProfile()
@@ -217,7 +217,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -228,7 +228,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -386,7 +386,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -419,7 +419,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -449,7 +449,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -465,7 +465,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
@@ -490,7 +490,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -506,7 +506,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
@@ -531,7 +531,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -548,7 +548,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
@@ -573,7 +573,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        var dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -591,7 +591,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)

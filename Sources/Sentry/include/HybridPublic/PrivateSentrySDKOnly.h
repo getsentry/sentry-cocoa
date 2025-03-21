@@ -125,8 +125,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * associated with this profiler was sampled for proper bookkeeping to align automatic continuous
  * profiling to root spans, and provide the configuration options.
  */
-+ (void)discardProfilerForTrace:(SentryId *)traceId
-                   traceSampled:(BOOL)launchTraceSampledForContinuousProfilingV2;
++ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)isProfiling;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (class, nullable, nonatomic, copy)
