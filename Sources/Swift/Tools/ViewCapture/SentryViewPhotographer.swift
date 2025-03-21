@@ -35,7 +35,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
 
     func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let viewSize = view.bounds.size
-        let redact = redactBuilder.redactRegionsFor(view: view)
+        let (viewHiearchy, redact) = redactBuilder.redactRegionsFor(view: view)
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
@@ -45,13 +45,13 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redact)
-            onComplete(maskedScreenshot)
+            onComplete(viewHiearchy, redact, renderedScreenshot, maskedScreenshot)
         }
     }
 
     func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
-        let redact = redactBuilder.redactRegionsFor(view: view)
+        let (_, redact) = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)
         let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redact)
 

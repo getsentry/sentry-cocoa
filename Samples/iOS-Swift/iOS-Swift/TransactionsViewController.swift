@@ -2,28 +2,31 @@ import Sentry
 import UIKit
 
 class TransactionsViewController: UIViewController {
-
+    static var isTransitioning = false
     @IBOutlet weak var appHangFullyBlockingButton: UIButton!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
     @IBOutlet weak var dsnView: UIView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         SentrySDK.reportFullyDisplayed()
     }
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("--> TransactionsViewController.viewWillAppear")
+        TransactionsViewController.isTransitioning = true
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("--> TransactionsViewController.viewDidAppear")
+        TransactionsViewController.isTransitioning = false
         periodicallyDoWork()
-        
+        dsnView.tag = 42
         addDSNDisplay(self, vcview: dsnView)
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super .viewDidDisappear(animated)
-        self.timer?.invalidate()
     }
     
     private func periodicallyDoWork() {

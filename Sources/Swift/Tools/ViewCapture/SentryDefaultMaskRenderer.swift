@@ -48,6 +48,9 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
                 self.updateClipping(for: context.cgContext,
                                     clipPaths: clipPaths,
                                     clipOutPath: clipOutPath)
+                UIColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.5).setFill()
+                context.cgContext.addPath(path)
+                context.cgContext.fillPath()
             case .clipBegin:
                 clipPaths.append(path)
                 self.updateClipping(for: context.cgContext,

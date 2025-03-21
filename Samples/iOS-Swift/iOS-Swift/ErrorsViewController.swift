@@ -9,8 +9,16 @@ class ErrorsViewController: UIViewController {
     private let diskWriteException = DiskWriteException()
     
     @IBOutlet weak var dsnView: UIView!
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("--> ErrorsViewController.viewWillAppear")
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("--> ErrorsViewController.viewDidAppear")
+
         SentrySDK.reportFullyDisplayed()
         addDSNDisplay(self, vcview: dsnView)
         
