@@ -224,9 +224,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return payload;
 }
 
-+ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)launchTraceSampledForContinuousProfilingV2;
++ (void)discardProfilerForTrace:(SentryId *)traceId
+                   traceSampled:(BOOL)launchTraceSampledForContinuousProfilingV2;
 {
-    sentry_discardProfiler(traceId, SentrySDK.currentHub, launchTraceSampledForContinuousProfilingV2);
+    sentry_discardProfiler(
+        traceId, SentrySDK.currentHub, launchTraceSampledForContinuousProfilingV2);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

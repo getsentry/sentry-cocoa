@@ -117,7 +117,9 @@ sentry_stopTrackingRootSpanForContinuousProfilerV2()
     _unsafe_cleanUpContinuousProfilerV2();
 }
 
-SentryId *_Nullable _sentry_startContinuousProfilerV2(SentryProfileOptions *profileOptions, SentryTransactionContext *transactionContext) {
+SentryId *_Nullable _sentry_startContinuousProfilerV2(
+    SentryProfileOptions *profileOptions, SentryTransactionContext *transactionContext)
+{
     if (profileOptions.lifecycle != SentryProfileLifecycleTrace) {
         return nil;
     }
@@ -127,8 +129,8 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2(SentryProfileOptions *prof
     if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
         return nil;
     }
-    SENTRY_LOG_DEBUG(@"Starting continuous profiler for tracer %@",
-        transactionContext.traceId.sentryIdString);
+    SENTRY_LOG_DEBUG(
+        @"Starting continuous profiler for tracer %@", transactionContext.traceId.sentryIdString);
     sentry_trackRootSpanForContinuousProfilerV2();
     return [[SentryId alloc] init];
 }
@@ -169,20 +171,23 @@ sentry_discardProfilerHybrid(SentryId *internalTraceId, SentryHub *hub)
 }
 
 void
-sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub, BOOL launchTraceSampledForContinuousProfilingV2)
+sentry_discardProfiler(
+    SentryId *internalTraceId, SentryHub *hub, BOOL launchTraceSampledForContinuousProfilingV2)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        BOOL notLaunchContinuousProfileV2TraceLifecycle = hub != nil && hub.client.options.profiling != nil && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
-        if (!notLaunchContinuousProfileV2TraceLifecycle && !launchTraceSampledForContinuousProfilingV2) {
+        BOOL notLaunchContinuousProfileV2TraceLifecycle = hub != nil
+            && hub.client.options.profiling != nil
+            && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
+        if (!notLaunchContinuousProfileV2TraceLifecycle
+            && !launchTraceSampledForContinuousProfilingV2) {
             SENTRY_LOG_DEBUG(@"Continuous profiler v1 won't be stopped with a tracer.");
             return;
         }
 
         _unsafe_cleanUpContinuousProfilerV2();
-    }
-    else if (internalTraceId != nil) {
+    } else if (internalTraceId != nil) {
         SENTRY_CASSERT(![hub.getClient.options isContinuousProfilingEnabled],
             @"Tracers are not tracked with continuous profiling V1");
 
@@ -325,15 +330,13 @@ SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuratio
 {
     if (configuration.profileOptions != nil) {
         return _sentry_startContinuousProfilerV2(configuration.profileOptions, transactionContext);
-    }
-    else if ([hub.getClient.options isContinuousProfilingEnabled]) {
+    } else if ([hub.getClient.options isContinuousProfilingEnabled]) {
         SentryProfileOptions *profileOptions = hub.getClient.options.profiling;
         if (profileOptions == nil) {
             return nil;
         }
         return _sentry_startContinuousProfilerV2(profileOptions, transactionContext);
-    }
-    else {
+    } else {
         BOOL profileShouldBeSampled
             = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
         BOOL isContinuousProfiling = [hub.client.options isContinuousProfilingEnabled];

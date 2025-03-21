@@ -113,13 +113,13 @@ private extension SentryAppStartProfilingConfigurationTests {
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 0),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 0),
+        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 0)
     ]
 
     static let invalidContinuousProfilingV1Configurations = [
         LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil),
         LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil),
+        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil)
     ]
 
     static let invalidTransactionProfilingWithV2OptionsConfigurations = [
@@ -202,7 +202,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
     ]
 
     static let invalidContinuousProfilingV2Configurations = [
@@ -250,7 +250,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
     ]
 
     static let validConfigurations = [
@@ -276,7 +276,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
         LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true))
     ]
 }
 
@@ -300,7 +300,7 @@ struct LaunchProfileOptions: Equatable {
     }
 
     ///
-    var continuousProfileV2Options: ContinuousProfileV2Options? = nil
+    var continuousProfileV2Options: ContinuousProfileV2Options?
 }
 
 // MARK: -
