@@ -42,7 +42,8 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_config(NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *_Nullable profileOptions)
+sentry_config(
+    NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *_Nullable profileOptions)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
