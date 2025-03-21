@@ -13,7 +13,7 @@
 
 #import "SentryProfilingConditionals.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#import "SentryProfiler+Private.h"
+#    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_TARGET_MACOS_HAS_UI
