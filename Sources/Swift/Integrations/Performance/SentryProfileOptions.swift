@@ -1,6 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
 #if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
 #endif // os(iOS) && !SENTRY_NO_UIKIT
@@ -94,3 +96,5 @@ public class SentryProfileOptions: NSObject {
     }
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 }
+
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

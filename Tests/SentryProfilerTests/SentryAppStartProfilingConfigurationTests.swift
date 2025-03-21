@@ -317,7 +317,7 @@ extension LaunchProfileOptions: CustomStringConvertible {
     }
 }
 
-extension SentryProfileOptions.SentryProfileLifecycle: @retroactive CustomStringConvertible {
+extension SentryProfileOptions.SentryProfileLifecycle {
     public var description: String {
         switch self {
         case .manual:
