@@ -20,7 +20,19 @@ class SentryProfilingPublicAPITests: XCTestCase {
             return scope
         }()
 
-        let random = TestRandom(value: 0.5)
+        var sessionTracker: SessionTracker?
+
+        var _random: TestRandom = TestRandom(value: 0.5)
+        var random: TestRandom {
+            get {
+                _random
+            }
+            set(newValue) {
+                _random = newValue
+                SentryDependencyContainer.sharedInstance().random = newValue
+            }
+        }
+
         let currentDate = TestCurrentDateProvider()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
         lazy var client = TestClient(options: options)!
@@ -31,7 +43,6 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        SentryDependencyContainer.sharedInstance().random = fixture.random
         SentryDependencyContainer.sharedInstance().timerFactory = fixture.timerFactory
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDate
     }
@@ -401,6 +412,37 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         span = SentrySDK.startTransaction(name: "test", operation: "test")
+
+        // Assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testSessionSampleRateReevaluationOnAppBecomingActive() {
+        // Arrange
+        fixture.options.profiling.sessionSampleRate = 0.5
+        fixture.options.profiling.lifecycle = .manual
+        fixture.random = TestRandom(value: 0)
+        let nc = SentryDependencyContainer.sharedInstance().notificationCenterWrapper
+        fixture.sessionTracker = SessionTracker(options: fixture.options, notificationCenter: nc)
+        fixture.sessionTracker?.start()
+        givenSdkWithHub()
+
+        // Act
+        SentrySDK.startProfileSession()
+
+        // Assert
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act
+        nc.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Arrange
+        fixture.random = TestRandom(value: 1)
+
+        // Act
+        nc.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        SentrySDK.startProfileSession()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
