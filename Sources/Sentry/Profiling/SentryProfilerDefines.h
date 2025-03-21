@@ -13,6 +13,7 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonNormal,
     SentryProfilerTruncationReasonTimeout,
     SentryProfilerTruncationReasonAppMovedToBackground,
+    SentryProfilerTruncationReasonPanic,
 };
 
 SENTRY_EXTERN NSTimeInterval kSentryProfilerChunkExpirationInterval;

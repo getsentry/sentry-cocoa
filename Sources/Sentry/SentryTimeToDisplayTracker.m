@@ -176,7 +176,7 @@
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-            if (![SentrySDK.options isContinuousProfilingEnabled]) {
+            if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
                 sentry_stopAndDiscardLaunchProfileTracer();
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -188,7 +188,7 @@
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (![SentrySDK.options isContinuousProfilingEnabled]) {
+        if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
             sentry_stopAndDiscardLaunchProfileTracer();
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
