@@ -5,6 +5,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryFileManager.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -43,8 +44,6 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_reevaluateSessionSampleRate(float sessionSampleRate)
 {
-    // TODO: carry over computed sample decision from last launch profile configuration, if there
-    // was one; basically, if the launch profile config exists, set to yes here
     sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
 }
 
@@ -84,20 +83,41 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     sentry_configureContinuousProfiling(options);
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        // get the configuration options from the last time the launch config was written; it may be
+        // different than the new options the SDK was just started with
+        const auto configDict = sentry_appLaunchProfileConfiguration();
+        const auto profileIsContinuousV1 =
+            [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
+        const auto profileIsContinuousV2 =
+            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] boolValue];
+        const auto v2LifecycleValue
+            = configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
+        const auto v2Lifecycle = (SentryProfileLifecycle)
+            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] intValue];
+        const auto v2LifecycleIsManual = profileIsContinuousV2 && v2LifecycleValue != nil
+            && v2Lifecycle == SentryProfileLifecycleManual;
+        const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
+            && v2Lifecycle == SentryProfileLifecycleTrace;
+        const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
+
         BOOL shouldStopAndTransmitLaunchProfile = YES;
 
-        if ([options isContinuousProfilingEnabled]) {
-            SENTRY_LOG_DEBUG(
-                @"Continuous launch profiles aren't stopped on calls to SentrySDK.start, "
-                @"not stopping profile.");
-            shouldStopAndTransmitLaunchProfile = NO;
-        }
 #    if SENTRY_HAS_UIKIT
-        if (SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
-            SENTRY_LOG_DEBUG(@"Will wait to stop launch profile until full display reported.");
+        if (profileIsCorrelatedToTrace
+            && SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
+            SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
+                             @"display reported.");
             shouldStopAndTransmitLaunchProfile = NO;
         }
 #    endif // SENTRY_HAS_UIKIT
+
+        if (profileIsContinuousV1 || v2LifecycleIsManual) {
+            SENTRY_LOG_DEBUG(
+                @"Continuous manual launch profiles aren't stopped on calls to SentrySDK.start, "
+                @"not stopping profile.");
+            shouldStopAndTransmitLaunchProfile = NO;
+        }
+
         if (shouldStopAndTransmitLaunchProfile) {
             SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
                              @"be no automatic trace to attach it to.");
@@ -118,6 +138,20 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
+    }
+
+    // the ui tests want to wipe the data before each test case runs, to remove any launch config
+    // files that might be present before launching the app initially, however we need to make sure
+    // to remove stale versions of the file before it gets used to potentially start a launch
+    // profile that shouldn't have started, so we check here for this
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.wipe-data"]) {
+        const auto caches = [NSSearchPathForDirectoriesInDomains(
+            NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+        if ([NSFileManager.defaultManager fileExistsAtPath:caches]) {
+            NSError *error;
+            SENTRY_ASSERT([NSFileManager.defaultManager removeItemAtPath:caches error:&error],
+                @"Failed to wipe application support: %@", error);
+        }
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentry_startLaunchProfile();

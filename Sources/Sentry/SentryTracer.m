@@ -536,6 +536,7 @@ static BOOL appStartMeasurementRead;
         appStartMeasurement
 #    endif // SENTRY_HAS_UIKIT
     );
+    _isProfiling = NO;
 #else
     [_hub captureTransaction:transaction withScope:_hub.scope];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

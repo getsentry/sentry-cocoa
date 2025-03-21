@@ -42,7 +42,8 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_configForLaunchProfilerForTrace(NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *profileOptions)
+sentry_configForLaunchProfilerForTrace(
+    NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *profileOptions)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
     config.profilesSamplerDecision =
@@ -57,7 +58,8 @@ sentry_configForLaunchProfilerForTrace(NSNumber *profilesRate, NSNumber *profile
 
 typedef struct {
     BOOL shouldProfile;
-    /** Only needed for trace launch profiling; unused with continuous profiling. */
+    /** Only needed for trace launch profiling or continuous profiling v2 with trace lifecycle;
+     * unused with continuous profiling. */
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
@@ -216,7 +218,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
-        SENTRY_LOG_DEBUG(@"Starting continuous launch profile.");
+        SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
         [SentryContinuousProfiler start];
         return;
     }
@@ -239,6 +241,26 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
         SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
         if (lifecycle == SentryProfileLifecycleManual) {
+            NSNumber *sampleRate = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+            NSNumber *sampleRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
+
+            if (sampleRate == nil || sampleRand == nil) {
+#    if SENTRY_TEST || SENTRY_TESTCI
+                SENTRY_CASSERT(NO,
+                    @"Tried to start a continuous profile v2 with no configured sample rate/rand.");
+#    else
+                SENTRY_LOG_WARN(@"Tried to start a continuous profile v2 with no configured sample "
+                                @"rate/rand. Will not run profiler.");
+#    endif // SENTRY_TEST || SENTRY_TESTCI
+                return;
+            }
+
+            SentrySamplerDecision *decision =
+                [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                                  forSampleRate:sampleRate
+                                                 withSampleRand:sampleRand];
+            sentry_profilerSessionSampleDecision = decision;
+
             [SentryContinuousProfiler start];
             return;
         }
@@ -280,12 +302,18 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
     sentry_isTracingAppLaunch = YES;
 
-    SentryTransactionContext *context = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
-    SentryTracerConfiguration *config = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
-    sentry_launchTracer =
-        [[SentryTracer alloc] initWithTransactionContext:context
-                                                     hub:nil
-                                           configuration:config];
+    SentryTransactionContext *context
+        = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
+    SentryTracerConfiguration *config
+        = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
+    SentrySamplerDecision *decision =
+        [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                          forSampleRate:profilesRate
+                                         withSampleRand:profilesRand];
+    sentry_profilerSessionSampleDecision = decision;
+    sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
+                                                                       hub:nil
+                                                             configuration:config];
 }
 
 #    pragma mark - Public
