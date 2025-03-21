@@ -34,6 +34,10 @@ void sentry_captureTransactionWithProfile(SentryHub *hub, SentryDispatchQueueWra
 SentryId *_Nullable sentry_startProfiler(SentryTracerConfiguration *configuration, SentryHub *hub,
     SentryTransactionContext *transactionContext);
 
+/**
+ * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
+ * option configured.
+ */
 SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
     SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
     BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime

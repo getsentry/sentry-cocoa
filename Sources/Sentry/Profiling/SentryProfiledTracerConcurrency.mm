@@ -80,12 +80,17 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
 void
 _unsafe_cleanUpContinuousTraceProfiler()
 {
-    if (SENTRY_CASSERT_RETURN(_gInFlightRootSpans > 0,
-            @"Attempted to decrement count of root spans to less than zero.")) {
-        _gInFlightRootSpans -= 1;
+    _gInFlightRootSpans -= 1;
+
+    if (_gInFlightRootSpans < 0) {
+#    if SENTRY_TEST || SENTRY_TEST_CI
+        SENTRY_CASSERT(NO, @"Attempted to decrement count of root spans to less than zero.");
+#    else
+        SENTRY_LOG_DEBUG(@"Attempted to decrement count of root spans to less than zero.");
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
     }
 
-    if (_gInFlightRootSpans == 0) {
+    if (_gInFlightRootSpans <= 0) {
         SENTRY_LOG_DEBUG(@"Last root span ended, stopping profiler.");
         [SentryContinuousProfiler stop];
     } else {
@@ -157,6 +162,8 @@ sentry_discardProfiler(SentryId *internalTraceId, SentryHub *hub, BOOL traceSamp
             return;
         }
         if (!traceSampled) {
+            SENTRY_LOG_DEBUG(@"The trace associated with the profiler was not sampled, so the "
+                             @"profiler was never started and there is nothing to discard.");
             return;
         }
         _unsafe_cleanUpContinuousTraceProfiler();
