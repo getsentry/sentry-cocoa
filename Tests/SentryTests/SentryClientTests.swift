@@ -727,13 +727,13 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
     }
 
-    func testCaptureCrashEventWithSession() throws {
+    func testCaptureFatalEventWithSession() throws {
         let scope = fixture.scope
         scope.setLevel(SentryLevel.info)
         let user = fixture.user
         scope.setUser(user)
 
-        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.session, with: scope)
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.session, with: scope)
 
         eventId.assertIsNotEmpty()
         
@@ -751,7 +751,7 @@ class SentryClientTest: XCTestCase {
         event.threads = nil
         event.debugMeta = nil
         
-        fixture.getSut().captureCrash(event, with: fixture.session, with: fixture.scope)
+        fixture.getSut().captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
@@ -759,8 +759,8 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(args.event.debugMeta)
     }
     
-    func testCaptureCrashEvent() throws {
-        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.scope)
+    func testCaptureFatalEvent() throws {
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.scope)
 
         eventId.assertIsNotEmpty()
         
@@ -789,7 +789,7 @@ class SentryClientTest: XCTestCase {
         ]
 
         // Act
-        _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: fixture.scope)
 
         // Assert
         let event = try lastSentEventWithAttachment()
@@ -807,7 +807,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureOOMEvent_WithNoContext_ContextNotModified() throws {
         let oomEvent = TestData.oomEvent
         
-        _ = fixture.getSut().captureCrash(oomEvent, with: Scope())
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: Scope())
 
         let actual = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
@@ -819,14 +819,14 @@ class SentryClientTest: XCTestCase {
         let scope = Scope()
         scope.setContext(value: ["some": "thing"], key: "any")
         
-        _ = fixture.getSut().captureCrash(oomEvent, with: scope)
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: scope)
 
         let actual = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
         XCTAssertEqual(oomEvent.context?.count, actual.context?.count)
     }
 
-    func testCaptureCrashEventWithSession_DoesntApplyCurrentScope() throws {
+    func testCaptureFatalEventWithSession_DoesntApplyCurrentScope() throws {
         // Arrange
         let scope = fixture.scope
         scope.setLevel(SentryLevel.info)
@@ -835,7 +835,7 @@ class SentryClientTest: XCTestCase {
         scope.setUser(user)
 
         // Act
-        let eventId = fixture.getSut().captureCrash(fixture.eventWithCrash, with: fixture.session, with: scope)
+        let eventId = fixture.getSut().captureFatalEvent(fixture.eventWithCrash, with: fixture.session, with: scope)
 
         // Assert
         eventId.assertIsNotEmpty()
@@ -848,14 +848,14 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(event.context?.count, expectedContext.count)
     }
 
-    func testCaptureCrashEventWithSession_ScopeWithSpan_NotAppliedToCrashEvent() throws {
+    func testCaptureFatalEventWithSession_ScopeWithSpan_NotAppliedToFatalEvent() throws {
         // Arrange
         let scope = fixture.scope
         scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
         let event = fixture.eventWithCrash
 
         // Act
-        let eventId = fixture.getSut().captureCrash(event, with: fixture.session, with: scope)
+        let eventId = fixture.getSut().captureFatalEvent(event, with: fixture.session, with: scope)
 
         // Assert
         eventId.assertIsNotEmpty()
@@ -869,7 +869,7 @@ class SentryClientTest: XCTestCase {
         event.threads = nil
         event.debugMeta = nil
         
-        fixture.getSut().captureCrash(event, with: fixture.scope)
+        fixture.getSut().captureFatalEvent(event, with: fixture.scope)
         
         let actual = try lastSentEventWithAttachment()
         XCTAssertNil(actual.threads)
@@ -883,7 +883,7 @@ class SentryClientTest: XCTestCase {
         event.context = ["my": expectedMyContext]
 
         // Act
-        fixture.getSut().captureCrash(event, with: fixture.scope)
+        fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
         // Assert
         let actual = try lastSentEventWithAttachment()
@@ -1111,7 +1111,7 @@ class SentryClientTest: XCTestCase {
             session
         }
             .assertIsNotEmpty()
-        fixture.getSut().captureCrash(fixture.event, with: session, with: Scope())
+        fixture.getSut().captureFatalEvent(fixture.event, with: session, with: Scope())
             .assertIsNotEmpty()
         
         // No sessions sent
@@ -1283,7 +1283,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureCrash(Event(), with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(Event(), with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -1810,7 +1810,7 @@ class SentryClientTest: XCTestCase {
             options.onCrashedLastRun = { _ in
                 onCrashedLastRunCalled = true
             }
-        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertTrue(onCrashedLastRunCalled)
     }
@@ -1826,7 +1826,7 @@ class SentryClientTest: XCTestCase {
             options.onCrashedLastRun = { _ in
                 onCrashedLastRunCalled = true
             }
-        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertFalse(onCrashedLastRunCalled)
     }
@@ -1842,15 +1842,15 @@ class SentryClientTest: XCTestCase {
             }
         })
         
-        client.captureCrash(event, with: fixture.scope)
-        client.captureCrash(TestData.event, with: fixture.scope)
+        client.captureFatalEvent(event, with: fixture.scope)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
         
         XCTAssertTrue(onCrashedLastRunCalled)
     }
     
     func testOnCrashedLastRun_WithoutCallback_DoesNothing() {
         let client = fixture.getSut()
-        client.captureCrash(TestData.event, with: fixture.scope)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
     
     func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
@@ -1866,9 +1866,9 @@ class SentryClientTest: XCTestCase {
                 captureCrash!()
             }
         })
-        captureCrash = { client.captureCrash(event, with: self.fixture.scope) }
+        captureCrash = { client.captureFatalEvent(event, with: self.fixture.scope) }
         
-        client.captureCrash(event, with: fixture.scope)
+        client.captureFatalEvent(event, with: fixture.scope)
         
         wait(for: [callbackExpectation], timeout: 0.1)
     }
@@ -2091,7 +2091,7 @@ class SentryClientTest: XCTestCase {
         event.isFatalEvent = true
         let scope = Scope()
         event.context = ["replay": ["replay_id": "someReplay"]]
-        sut.captureCrash(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
+        sut.captureFatalEvent(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
         XCTAssertEqual(scope.replayId, "someReplay")
     }
 }

@@ -437,7 +437,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(enableV2: true)
         
         // Assert
-        try assertCrashEventWithScope { event, _ in
+        try assertFatalEventWithScope { event, _ in
             XCTAssertEqual(event?.level, SentryLevel.fatal)
             
             let ex = try XCTUnwrap(event?.exceptions?.first)
@@ -481,8 +481,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Assert
         let client = try XCTUnwrap(SentrySDK.currentHub().getClient() as? TestClient)
         
-        XCTAssertEqual(1, client.captureCrashEventWithSessionInvocations.count, "Wrong number of `Crashs` captured.")
-        let capture = try XCTUnwrap(client.captureCrashEventWithSessionInvocations.first)
+        XCTAssertEqual(1, client.captureFatalEventWithSessionInvocations.count, "Wrong number of `Crashs` captured.")
+        let capture = try XCTUnwrap(client.captureFatalEventWithSessionInvocations.first)
         let event = capture.event
         XCTAssertEqual(event.level, SentryLevel.fatal)
         
