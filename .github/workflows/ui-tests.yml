@@ -23,13 +23,13 @@ concurrency:
 jobs:
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       matrix:
         target: ["ios_objc", "tvos_swift"]
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
