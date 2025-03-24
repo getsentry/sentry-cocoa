@@ -78,9 +78,9 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         let newAttachmentList = sut.processAttachments([], for: event)
 
-        XCTAssertEqual(newAttachmentList?.first?.filename, "view-hierarchy.json")
-        XCTAssertEqual(newAttachmentList?.first?.contentType, "application/json")
-        XCTAssertEqual(newAttachmentList?.first?.attachmentType, .viewHierarchy)
+        XCTAssertEqual(newAttachmentList.first?.filename, "view-hierarchy.json")
+        XCTAssertEqual(newAttachmentList.first?.contentType, "application/json")
+        XCTAssertEqual(newAttachmentList.first?.attachmentType, .viewHierarchy)
     }
 
     func test_noViewHierarchy_attachment() {
@@ -89,7 +89,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         let newAttachmentList = sut.processAttachments([], for: event)
 
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 
     func test_noViewHierarchy_FatalEvent() {
@@ -99,7 +99,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         let newAttachmentList = sut.processAttachments([], for: event)
 
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 
 #if os(iOS) || targetEnvironment(macCatalyst)
@@ -108,7 +108,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([], for: TestData.metricKitEvent)
 
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     
@@ -130,7 +130,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         wait(for: [expectation], timeout: 1.0)
 
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 
     func test_noViewHierarchy_keepAttachment() {
@@ -141,8 +141,8 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         let newAttachmentList = sut.processAttachments([attachment], for: event)
 
-        XCTAssertEqual(newAttachmentList?.count, 1)
-        XCTAssertEqual(newAttachmentList?.first, attachment)
+        XCTAssertEqual(newAttachmentList.count, 1)
+        XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
     func test_backgroundForAppHangs() {

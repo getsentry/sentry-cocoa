@@ -406,7 +406,7 @@ class SentryClientTest: XCTestCase {
 
         let expectProcessorCall = expectation(description: "Processor Call")
         let processor = TestAttachmentProcessor { atts, e in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             XCTAssertEqual(event, e)
             expectProcessorCall.fulfill()
@@ -429,7 +429,7 @@ class SentryClientTest: XCTestCase {
         let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
 
         let processor = TestAttachmentProcessor { atts, _ in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             return result
         }
@@ -451,7 +451,7 @@ class SentryClientTest: XCTestCase {
         let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
         
         let processor = TestAttachmentProcessor { atts, _ in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             return result
         }
@@ -2238,13 +2238,13 @@ private extension SentryClientTest {
     
     class TestAttachmentProcessor: NSObject, SentryClientAttachmentProcessor {
         
-        var callback: (([Attachment]?, Event) -> [Attachment]?)
+        var callback: (([Attachment], Event) -> [Attachment])
         
-        init(callback: @escaping ([Attachment]?, Event) -> [Attachment]?) {
+        init(callback: @escaping ([Attachment], Event) -> [Attachment]) {
             self.callback = callback
         }
         
-        func processAttachments(_ attachments: [Attachment]?, for event: Event) -> [Attachment]? {
+        func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
             return callback(attachments, event)
         }
     }

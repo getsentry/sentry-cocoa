@@ -66,8 +66,9 @@ saveViewHierarchy(const char *reportDirectoryPath)
     [client removeAttachmentProcessor:self];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(nonnull SentryEvent *)event
+- (nonnull NSArray<SentryAttachment *> *)processAttachments:
+                                             (nonnull NSArray<SentryAttachment *> *)attachments
+                                                   forEvent:(nonnull SentryEvent *)event
 {
     // We don't attach the view hierarchy if there is no exception/error.
     // We don't attach the view hierarchy if the event is a crash or metric kit event.
