@@ -95,7 +95,7 @@ jobs:
       
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{matrix.device}}-${{matrix.os-version}}
           path: |
