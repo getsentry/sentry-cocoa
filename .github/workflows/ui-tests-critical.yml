@@ -34,7 +34,7 @@ jobs:
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
 
   run-tests:
-    name: Test iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
+    name: Test iOS on Xcode ${{matrix.xcode}}
     needs: [build-sample]
     runs-on: ${{matrix.runs-on}}
     env:
@@ -53,21 +53,15 @@ jobs:
         include:
           - runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 14"
-            os-version: "16.4"
-            force-sim-runtime: true
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
           - runs-on: macos-15
             xcode: "16.2"
-            device: "iPhone 16"
-            os-version: "18.2"
 
     steps:
       - uses: actions/checkout@v4
-      - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
-        run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}" "${{matrix.force-sim-runtime}}"
+
       - name: Install tooling
         run: make init-ci-test
 
@@ -82,13 +76,9 @@ jobs:
 
           maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
 
-      - name: Delete Simulator
-        if: always()
-        run: ./scripts/delete-simulator.sh
-
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: maestro-logs-${{matrix.device}}-${{matrix.os-version}}
+          name: maestro-logs-${{matrix.xcode}}
           path: ${{env.MAESTRO_LOGS_PATH}}
