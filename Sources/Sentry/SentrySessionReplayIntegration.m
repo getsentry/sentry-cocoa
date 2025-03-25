@@ -57,6 +57,9 @@ static SentryTouchTracker *_touchTracker;
     // This is the easiest way to ensure segment 0 will always reach the server, because session
     // replay absolutely needs segment 0 to make replay work.
     BOOL _rateLimited;
+    id<SentryCurrentDateProvider> _dateProvider;
+    SentryDispatchQueueWrapper *_replayProcessingQueue;
+    SentryDispatchQueueWrapper *_replayAssetWorkerQueue;
 }
 
 - (instancetype)init
@@ -120,6 +123,19 @@ static SentryTouchTracker *_touchTracker;
     }
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
+    // The asset worker queue is used to work on video and frames data.
+    // Use a relative priority of -1 to make it lower than the default background priority.
+    _replayAssetWorkerQueue = [SentryDispatchQueueWrapper
+        createBackgroundDispatchQueueWithName:"io.sentry.session-replay.asset-worker"
+                             relativePriority:-1];
+    // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
+    // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
+    // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
+    _replayProcessingQueue = [SentryDispatchQueueWrapper
+        createBackgroundDispatchQueueWithName:"io.sentry.session-replay.processing"
+                             relativePriority:-2];
 
     [self moveCurrentReplay];
     [self cleanUp];
@@ -189,30 +205,54 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryOnDemandReplay *resumeReplayMaker =
-        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
+        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
+                                          processingQueue:_replayProcessingQueue
+                                         assetWorkerQueue:_replayAssetWorkerQueue
+                                             dateProvider:_dateProvider];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
         : [resumeReplayMaker oldestFrameDate];
-
     if (beginning == nil) {
         return; // no frames to send
     }
+    NSDate *end = [beginning dateByAddingTimeInterval:duration];
 
-    SentryReplayType _type = type;
-    int _segmentId = segmentId;
+    // This method is called from a background thread, so we can synchronize the creation of the
+    // video with a dispatch group.
+    __block NSArray<SentryVideoInfo *> *videos;
+    __block NSError *_Nullable error;
 
-    NSError *error;
-    NSArray<SentryVideoInfo *> *videos =
-        [resumeReplayMaker createVideoWithBeginning:beginning
-                                                end:[beginning dateByAddingTimeInterval:duration]
-                                              error:&error];
-    if (videos == nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+    [resumeReplayMaker
+        createVideoAsyncWithBeginning:beginning
+                                  end:end
+                           completion:^(NSArray<SentryVideoInfo *> *_Nullable resultVideos,
+                               NSError *_Nullable resultError) {
+                               videos = resultVideos;
+                               error = resultError;
+                               dispatch_group_leave(group);
+                           }];
+    // Wait for the video creation to finish without a timeout, because the video creation is
+    // expected to finish in a reasonable time frame.
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+    // Either error or videos should be set.
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Could not create replay video, reason: %@", error);
         return;
     }
+    if (videos == nil) {
+        SENTRY_LOG_ERROR(@"Could not create replay video, reason: no videos available");
+        return;
+    }
+
+    // For each segment we need to create a new event with the video.
+    int _segmentId = segmentId;
+    SentryReplayType _type = type;
     for (SentryVideoInfo *video in videos) {
         [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
         // type buffer is only for the first segment
@@ -224,8 +264,10 @@ static SentryTouchTracker *_touchTracker;
         [NSDictionary dictionaryWithObjectsAndKeys:replayId.sentryIdString, @"replay_id", nil];
     event.context = eventContext;
 
-    if ([NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&error] == NO) {
-        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, error);
+    NSError *_Nullable removeError;
+    BOOL result = [NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&removeError];
+    if (result == NO) {
+        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, removeError);
     }
 }
 
@@ -316,30 +358,27 @@ static SentryTouchTracker *_touchTracker;
                                                      error:nil];
     }
 
-    SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
+    SentryOnDemandReplay *replayMaker =
+        [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
+                                         processingQueue:_replayProcessingQueue
+                                        assetWorkerQueue:_replayAssetWorkerQueue
+                                            dateProvider:_dateProvider];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
     replayMaker.cacheMaxSize
         = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
                                               : replayOptions.errorReplayDuration + 1);
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
-    SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.session-replay"
-                                              attributes:attributes];
-
-    self.sessionReplay = [[SentrySessionReplay alloc]
-        initWithReplayOptions:replayOptions
-             replayFolderPath:docs
-           screenshotProvider:screenshotProvider
-                  replayMaker:replayMaker
-          breadcrumbConverter:breadcrumbConverter
-                 touchTracker:_touchTracker
-                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     delegate:self
-                dispatchQueue:dispatchQueue
-           displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+    SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
+    self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions
+                                                           replayFolderPath:docs
+                                                         screenshotProvider:screenshotProvider
+                                                                replayMaker:replayMaker
+                                                        breadcrumbConverter:breadcrumbConverter
+                                                               touchTracker:_touchTracker
+                                                               dateProvider:_dateProvider
+                                                                   delegate:self
+                                                         displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
         startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject

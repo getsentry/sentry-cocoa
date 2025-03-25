@@ -105,6 +105,14 @@ NS_ASSUME_NONNULL_BEGIN
     return dispatch_block_create(0, block);
 }
 
++ (SentryDispatchQueueWrapper *)createBackgroundDispatchQueueWithName:(const char *)name
+                                                     relativePriority:(int)relativePriority
+
+{
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, QOS_CLASS_BACKGROUND, relativePriority);
+    return [[SentryDispatchQueueWrapper alloc] initWithName:name attributes:attributes];
+}
 @end
 
 NS_ASSUME_NONNULL_END
