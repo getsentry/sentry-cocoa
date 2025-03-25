@@ -92,3 +92,11 @@ jobs:
         with:
           name: maestro-logs-${{matrix.device}}-${{matrix.os-version}}
           path: ${{env.MAESTRO_LOGS_PATH}}
+      
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: crash-logs-${{matrix.device}}-${{matrix.os-version}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
