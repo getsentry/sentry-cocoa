@@ -138,8 +138,9 @@ class SentrySessionReplay: NSObject {
             return
         }
 
-        guard (event.error != nil || event.exceptions?.isEmpty == false)
-                && captureReplay() else { return }
+        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay() else { 
+            return
+        }
         
         setEventContext(event: event)
     }
@@ -225,16 +226,17 @@ class SentrySessionReplay: NSObject {
         // Creating a video is computationally expensive, therefore perform it on a background queue.
         self.replayMaker.createVideoAsyncWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
             if let error = error {
-                SentryLog.debug("[Session Replay] Could not create replay video - \(error.localizedDescription)")
+                SentryLog.error("[Session Replay] Could not create replay video - \(error.localizedDescription)")
             }
             guard let videos = videos else {
-                SentryLog.debug("[Session Replay] Finished replay video creation without any segments")
+                SentryLog.warning("[Session Replay] Finished replay video creation without any segments")
                 return
             }
             SentryLog.debug("[Session Replay] Created replay video with \(videos.count) segments")
             for video in videos {
                 self.newSegmentAvailable(videoInfo: video, replayType: replayType)
             }
+            SentryLog.debug("[Session Replay] Finished replay video creation with \(videos.count) segments")
         }
     }
 
