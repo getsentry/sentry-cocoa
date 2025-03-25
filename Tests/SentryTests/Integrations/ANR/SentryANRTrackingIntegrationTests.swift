@@ -526,7 +526,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.pauseAppHangTracking()
 
         // Assert
-        try assertCrashEventWithScope { event, _ in
+        try assertFatalEventWithScope { event, _ in
             XCTAssertEqual(event?.level, SentryLevel.fatal)
 
             let ex = try XCTUnwrap(event?.exceptions?.first)
