@@ -51,12 +51,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
+
+          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see 
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "14.3.1"
             device: "iPhone 14"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
+          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see 
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - runs-on: macos-15
             xcode: "16.2"
             device: "iPhone 16"
