@@ -113,9 +113,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 15.2; see 
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "15.2"
 
+          # As of 25th March 2025, the default iOS simulator version is 17.5 for macOS 14 and Xcode 15.4; see 
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#installed-sdks
           - runs-on: macos-14
             xcode: "15.4"
             
