@@ -137,14 +137,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     func createVideoAsyncWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]?, Error?) -> Void) {
         // Note: In Swift it is best practice to use `Result<Value, Error>` instead of `(Value?, Error?)`
         //       Due to interoperability with Objective-C and @objc, we can not use Result here.
-        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
-        let videoFrames = getFilteredFrames(beginning: beginning, end: end)
+        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
 
         // Dispatch the video creation to a background queue to avoid blocking the calling queue.
-        let outputPath = self._outputPath
         processingQueue.dispatchAsync {
             SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end), current queue: \(self.processingQueue.queue.label)")
             
+            let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
+     
             do {
                 // Use a semaphore to wait for each video segment to finish.
                 let semaphore = DispatchSemaphore(value: 0)
@@ -152,7 +152,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 var frameCount = 0
                 var videos = [SentryVideoInfo]()
                 while frameCount < videoFrames.count {
-                    let outputFileURL = URL(fileURLWithPath: outputPath.appending("/\(videoFrames[frameCount].time.timeIntervalSinceReferenceDate).mp4"))
+                    let outputFileURL = URL(fileURLWithPath: self._outputPath.appending("/\(videoFrames[frameCount].time.timeIntervalSinceReferenceDate).mp4"))
 
                     self.renderVideo(with: videoFrames, from: &frameCount, at: outputFileURL) { result in
                         // Do not use `processingQueue` here, since it will be blocked by the semaphore.
@@ -187,15 +187,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 completion(nil, error)
             }
         }
-    }
-
-    private func getFilteredFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
-        var frames = [SentryReplayFrame]()
-        // Using dispatch queue as sync mechanism since we need a queue already to generate the video.
-        processingQueue.dispatchSync {
-            frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
-        }
-        return frames
     }
 
     // swiftlint:disable function_body_length
