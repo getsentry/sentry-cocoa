@@ -11,7 +11,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         init() {
             let testViewHierarchy = TestSentryViewHierarchy()
-            testViewHierarchy.result = "view hierarchy".data(using: .utf8) ?? Data()
+            testViewHierarchy.result = Data("view hierarchy".utf8)
             viewHierarchy = testViewHierarchy
         }
 
