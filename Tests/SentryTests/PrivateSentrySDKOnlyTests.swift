@@ -117,12 +117,12 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testEnvelopeWithData() throws {
-        let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
+        let itemData = Data("{}\n{\"length\":0,\"type\":\"attachment\"}\n".utf8)
         XCTAssertNotNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
     
     func testEnvelopeWithDataLengthGtZero() throws {
-        let itemData = "{}\n{\"length\":1,\"type\":\"attachment\"}\n".data(using: .utf8)!
+        let itemData = Data("{}\n{\"length\":1,\"type\":\"attachment\"}\n".utf8)
         XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
 

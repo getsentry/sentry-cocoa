@@ -382,11 +382,11 @@ class SentrySDKTests: XCTestCase {
         
         let fileManager = try SentryFileManager(options: fixture.options)
         
-        let corruptedEnvelopeData = """
+        let corruptedEnvelopeData = Data("""
                        {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
                        {"type":"test","length":50}
-                       """.data(using: .utf8)!
-        
+                       """.utf8)
+
         try corruptedEnvelopeData.write(to: URL(fileURLWithPath: "\(fileManager.envelopesPath)/corrupted-envelope.json"))
         
         SentrySDK.start(options: fixture.options)

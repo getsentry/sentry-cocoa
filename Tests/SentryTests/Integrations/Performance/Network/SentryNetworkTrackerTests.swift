@@ -1011,13 +1011,13 @@ class SentryNetworkTrackerTests: XCTestCase {
             var request = $0
             
             request.httpMethod = "POST"
-            request.httpBody = """
+            request.httpBody = Data("""
             {
                 "operationName": "someOperationName",
                 "variables": { "a": 1 },
                 "query": "query someOperationName { someField }"
             }
-            """.data(using: .utf8)
+            """.utf8)
             request.allHTTPHeaderFields = ["content-type": "application/json"]
             
             return request

@@ -6,11 +6,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_BoolTrue() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "number": true
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -22,11 +22,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
     
     func testDecode_BoolFalse() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "number": false
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -38,11 +38,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_PositiveInt() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "number": 1
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -54,11 +54,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_IntMax() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(Int.max)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -70,11 +70,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
     
     func testDecode_IntMin() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(Int.min)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -86,11 +86,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_UInt32Max() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(UInt32.max)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -102,11 +102,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
     
     func testDecode_UInt64Max() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(UInt64.max)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -122,11 +122,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
         let UInt64MaxPlusOne = Double(UInt64.max) + 1
         
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(UInt64MaxPlusOne)
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -139,11 +139,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_Zero() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": 0.0
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -155,11 +155,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_Double() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": 0.1
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -171,11 +171,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_DoubleMax() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(Double.greatestFiniteMagnitude)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -187,11 +187,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_DoubleMin() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": \(Double.leastNormalMagnitude)
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -203,11 +203,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_Nil() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": null
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
@@ -216,11 +216,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_String() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "number": "hello"
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
