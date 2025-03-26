@@ -60,7 +60,7 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertNotEqual(session, copiedSession)
     }
     
-    func testInitWithJson_Status_MapsToCorrectStatus() throws {
+    func testInitWithJson_Status_MapsToCorrectStatus() {
         func testStatus(status: SentrySessionStatus, statusAsString: String) {
             let expected = SentrySession(releaseName: "release", distinctId: "some-id")
             var serialized = expected.serialize()
