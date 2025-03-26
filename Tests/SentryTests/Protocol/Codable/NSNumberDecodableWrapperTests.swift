@@ -54,11 +54,11 @@ class NSNumberDecodableWrapperTests: XCTestCase {
 
     func testDecode_IntMax() throws {
         // Arrange
-        let jsonData = Data(#"""
+        let jsonData = Data("""
         {
             "number": \(Int.max)
         }
-        """#.utf8)
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as ClassWithNSNumber?)
