@@ -11,8 +11,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
             return provider
         }()
 
-        let data = "SOME DATA".data(using: .utf8)!
-        
+        let data = Data("SOME DATA".utf8)
+
         var fileUrlToRead: URL!
         var fileUrlToWrite: URL!
         var ignoredFileUrlToRead: URL!

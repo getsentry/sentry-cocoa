@@ -9,7 +9,7 @@ class SentryEnvelopeTests: XCTestCase {
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
         let userFeedback: UserFeedback = TestData.userFeedback
         let path = "test.log"
-        let data = "hello".data(using: .utf8)
+        let data = Data("hello".utf8)
         
         let maxAttachmentSize: UInt = 5 * 1_024 * 1_024
         let dataAllowed: Data
@@ -240,7 +240,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitWithFileAttachment() {
-        writeDataToFile(data: fixture.data ?? Data())
+        writeDataToFile(data: fixture.data)
         
         let attachment = Attachment(path: fixture.path)
         
@@ -253,13 +253,13 @@ class SentryEnvelopeTests: XCTestCase {
 
         XCTAssertEqual(header.attachmentType, .eventAttachment)
         XCTAssertEqual("attachment", envelopeItem.header.type)
-        XCTAssertEqual(UInt(fixture.data?.count ?? 0), envelopeItem.header.length)
+        XCTAssertEqual(UInt(fixture.data.count), envelopeItem.header.length)
         XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
     }
 
     func testInitWith_ViewHierarchy_Attachment() {
-        writeDataToFile(data: fixture.data ?? Data())
+        writeDataToFile(data: fixture.data)
 
         let attachment = Attachment(path: fixture.path, filename: "filename", contentType: "text", attachmentType: .viewHierarchy)
 

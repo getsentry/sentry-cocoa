@@ -1927,7 +1927,7 @@ class SentryClientTest: XCTestCase {
         let scope = Scope()
 
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("view-hierarchy.json")
-        try "data".data(using: .utf8)?.write(to: tempFile)
+        try Data("data".utf8).write(to: tempFile)
 
         scope.addCrashReportAttachment(inPath: tempFile.path)
 
