@@ -5,7 +5,7 @@ import XCTest
 class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
-        static var invalidData = "hi".data(using: .utf8) ?? Data()
+        static var invalidData = Data("hi".utf8)
         static var traceContext = TraceContext(
             trace: SentryId(),
             publicKey: "PUBLIC_KEY",
