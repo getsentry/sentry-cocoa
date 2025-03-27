@@ -29,6 +29,9 @@ jobs:
         target: ["ios_objc", "tvos_swift"]
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
       - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
@@ -73,6 +76,10 @@ jobs:
             xcode: "14.3.1"
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
@@ -124,6 +131,10 @@ jobs:
             
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
@@ -160,6 +171,10 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+            
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - name: Run Fastlane
@@ -196,6 +211,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
