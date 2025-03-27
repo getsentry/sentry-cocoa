@@ -30,10 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
+        run: fastlane ui_tests_${{matrix.target}}
         shell: sh
 
       - name: Publish Test Report
@@ -63,7 +63,7 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
+    name: UI Tests for SwiftUI
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -71,14 +71,13 @@ jobs:
         include:
           - runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 8 (16.1)"
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
+        run: fastlane ui_tests_ios_swiftui
         shell: sh
 
       - name: Publish Test Report
@@ -94,14 +93,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ui-tests-ios-swiftui-${{matrix.device}}.xcresult
+          name: ui-tests-ios-swiftui.xcresult
           path: fastlane/test_results/ui-tests-ios-swiftui.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: ui-tests-ios-swiftui-raw-output-${{matrix.device}}
+          name: ui-tests-ios-swiftui-raw-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -126,6 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift
@@ -161,7 +161,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.2"
-
+      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - name: Run Fastlane
         run: fastlane ui_tests_ios_swift6
 
@@ -197,7 +197,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh "16.2"
+      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
+      
       - name: Run Fastlane
         run: fastlane duplication_test
 
