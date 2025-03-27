@@ -401,3 +401,7 @@ Our major-4 standard would place us right in the middle of the earliest Xcode an
 Those versions that cannot be automatically tested with GitHub Actions shall be declared as "best effort" support.
 
 See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846.
+
+## Use preinstalled GH actions simulators
+
+Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
