@@ -33,7 +33,7 @@ jobs:
       - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
       - name: Run Fastlane
-        run: bundle execfastlane ui_tests_${{matrix.target}}
+        run: bundle exec fastlane ui_tests_${{matrix.target}}
         shell: sh
 
       - name: Publish Test Report
