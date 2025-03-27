@@ -96,23 +96,23 @@ NS_ASSUME_NONNULL_BEGIN
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:trimmedDsnString];
     NSString *errorMessage = nil;
-    if (nil == url.scheme) {
+    if (url.scheme == nil) {
         errorMessage = @"URL scheme of DSN is missing";
         url = nil;
     }
-    if (![allowedSchemes containsObject:url.scheme]) {
+    if (url != nil && ![allowedSchemes containsObject:url.scheme]) {
         errorMessage = @"Unrecognized URL scheme in DSN";
         url = nil;
     }
-    if (nil == url.host || url.host.length == 0) {
+    if (url != nil && (nil == url.host || url.host.length == 0)) {
         errorMessage = @"Host component of DSN is missing";
         url = nil;
     }
-    if (nil == url.user) {
+    if (url != nil && url.user == nil) {
         errorMessage = @"User component of DSN is missing";
         url = nil;
     }
-    if (url.pathComponents.count < 2) {
+    if (url != nil && url.pathComponents.count < 2) {
         errorMessage = @"Project ID path component of DSN is missing";
         url = nil;
     }
