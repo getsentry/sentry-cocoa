@@ -594,6 +594,6 @@ class SentrySerializationTests: XCTestCase {
 
 private extension Data {
     mutating func appendString(_ string: String) {
-        self.append(string.data(using: .utf8)!)
+        self.append(Data(string.utf8))
     }
 }
