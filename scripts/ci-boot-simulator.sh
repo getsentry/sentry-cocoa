@@ -11,7 +11,24 @@
 
 set -euo pipefail
 
-XCODE_VERSION="${1:-16.2}"
+# Parse named arguments
+XCODE_VERSION="16.2" # Default value
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -x|--xcode)
+            XCODE_VERSION="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            echo "Usage: $0 [-x|--xcode <version>]"
+            exit 1
+            ;;
+    esac
+done
+
+SIMULATOR="iPhone 16"
 
 # Select simulator based on Xcode version
 case "$XCODE_VERSION" in
@@ -29,4 +46,5 @@ case "$XCODE_VERSION" in
         ;;
 esac
 
+echo "Booting simulator $SIMULATOR"
 xcrun simctl boot "$SIMULATOR"
