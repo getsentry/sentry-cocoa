@@ -449,7 +449,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testEnvelopeWithData_ItemWithoutType_ReturnsNil() throws {
+    func testEnvelopeWithData_ItemWithoutType_ReturnsNil() {
         let itemData = Data("{}\n{\"length\":0}".utf8)
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
