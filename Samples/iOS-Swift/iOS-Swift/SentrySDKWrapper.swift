@@ -105,9 +105,8 @@ struct SentrySDKWrapper {
         if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
             scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
         }
-        if let data = "hello".data(using: .utf8) {
-            scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-        }
+        let data = Data("hello".utf8)
+        scope.addAttachment(Attachment(data: data, filename: "log.txt"))
         return scope
     }
     
