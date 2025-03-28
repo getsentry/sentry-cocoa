@@ -1185,6 +1185,9 @@ static void
 binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void *context)
 {
     SentryCrashReportWriter *writer = (SentryCrashReportWriter *)context;
+    // We can only retrieve the crash info after a crash occurred. So we need to
+    // fetch it when writing the crash report.
+    sentrycrashdl_getCrashInfo(image->address, image);
     writeBinaryImage(writer, NULL, image);
 }
 
