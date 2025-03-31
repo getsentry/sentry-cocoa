@@ -10,7 +10,7 @@ set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRE
     -scheme Sentry \
     -configuration Test \
     -enableThreadSanitizer YES \
-    -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
+    -destination "platform=iOS Simulator,OS=latest,name=iPhone 16" \
     -skip-testing:"SentryProfilerTests" \
     test 2>&1 |
     tee thread-sanitizer.log |
