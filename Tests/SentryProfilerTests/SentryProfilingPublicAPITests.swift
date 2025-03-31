@@ -62,8 +62,9 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 }
 
+// MARK: continuous profiling v1
 extension SentryProfilingPublicAPITests {
-    func testStartingContinuousProfilerWithSampleRateZero() throws {
+    func testStartingContinuousProfilerV1WithSampleRateZero() throws {
         givenSdkWithHub()
 
         fixture.options.profilesSampleRate = 0
@@ -74,7 +75,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStartingContinuousProfilerWithSampleRateNil() throws {
+    func testStartingContinuousProfilerV1WithSampleRateNil() throws {
         givenSdkWithHub()
 
         // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
@@ -86,7 +87,7 @@ extension SentryProfilingPublicAPITests {
         try stopProfiler()
     }
 
-    func testNotStartingContinuousProfilerWithSampleRateBlock() throws {
+    func testNotStartingContinuousProfilerV1WithSampleRateBlock() throws {
         givenSdkWithHub()
 
         fixture.options.profilesSampler = { _ in 0 }
@@ -95,7 +96,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testNotStartingContinuousProfilerWithSampleRateNonZero() throws {
+    func testNotStartingContinuousProfilerV1WithSampleRateNonZero() throws {
         givenSdkWithHub()
 
         fixture.options.profilesSampleRate = 1
@@ -104,7 +105,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStartingAndStoppingContinuousProfiler() throws {
+    func testStartingAndStoppingContinuousProfilerV1() throws {
         givenSdkWithHub()
         SentrySDK.startProfiler()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -114,18 +115,21 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStartingContinuousProfilerBeforeStartingSDK() {
+    func testStartingContinuousProfilerV1BeforeStartingSDK() {
         SentrySDK.startProfiler()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func testStartingContinuousProfilerAfterStoppingSDK() {
+    func testStartingContinuousProfilerV1AfterStoppingSDK() {
         givenSdkWithHub()
         SentrySDK.close()
         SentrySDK.startProfiler()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+}
 
+// MARK: continuous profiling v2
+extension SentryProfilingPublicAPITests {
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
         fixture.options.profiling.sessionSampleRate = 1
