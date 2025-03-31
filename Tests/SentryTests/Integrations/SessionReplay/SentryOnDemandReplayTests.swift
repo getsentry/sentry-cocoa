@@ -165,7 +165,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         let end = dateProvider.date()
         
         //Creating a file where the replay would be written to cause an error in the writer
-        try "tempFile".data(using: .utf8)?.write(to: outputPath.appendingPathComponent("0.0.mp4"))
+        try Data("tempFile".utf8).write(to: outputPath.appendingPathComponent("0.0.mp4"))
         
         XCTAssertThrowsError(try sut.createVideoWith(beginning: start, end: end))
     }

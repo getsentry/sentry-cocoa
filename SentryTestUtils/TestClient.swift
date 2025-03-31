@@ -96,15 +96,15 @@ public class TestClient: SentryClient {
         return SentryId()
     }
     
-    public var captureCrashEventInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
-        captureCrashEventInvocations.record((event, scope))
+    public var captureFatalEventInvocations = Invocations<(event: Event, scope: Scope)>()
+    public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+        captureFatalEventInvocations.record((event, scope))
         return SentryId()
     }
     
-    public var captureCrashEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
-    public override func captureCrash(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureCrashEventWithSessionInvocations.record((event, session, scope))
+    public var captureFatalEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
+    public override func captureFatalEvent(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
+        captureFatalEventWithSessionInvocations.record((event, session, scope))
         return SentryId()
     }
     
