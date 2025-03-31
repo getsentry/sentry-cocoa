@@ -175,12 +175,20 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
             && hub.client.options.profiling != nil
             && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
         if (!notLaunchContinuousProfileV2TraceLifecycle && !isProfiling) {
-            SENTRY_LOG_DEBUG(@"Continuous profiler v1 won't be stopped with a tracer.");
+            SENTRY_LOG_DEBUG(@"The trace associated with the profiler was not sampled, so the "
+                             @"profiler was never started and there is nothing to discard.");
+            return;
+        }
+        _unsafe_cleanUpContinuousTraceProfiler();
+    } else {
+        if (internalTraceId == nil) {
             return;
         }
 
         _unsafe_cleanUpContinuousProfilerV2();
-    } else if (internalTraceId != nil) {
+    }
+    else if (internalTraceId != nil)
+    {
         SENTRY_CASSERT(![hub.getClient.options isContinuousProfilingEnabled],
             @"Tracers are not tracked with continuous profiling V1");
 
