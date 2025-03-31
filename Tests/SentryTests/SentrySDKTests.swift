@@ -228,16 +228,16 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
 
-    func testCaptureCrashEvent() {
+    func testCaptureFatalEvent() {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
 
         let event = fixture.event
-        SentrySDK.captureCrash(event)
+        SentrySDK.captureFatalEvent(event)
     
-        XCTAssertEqual(1, hub.sentCrashEvents.count)
-        XCTAssertEqual(event.message, hub.sentCrashEvents.first?.message)
-        XCTAssertEqual(event.eventId, hub.sentCrashEvents.first?.eventId)
+        XCTAssertEqual(1, hub.sentFatalEvents.count)
+        XCTAssertEqual(event.message, hub.sentFatalEvents.first?.message)
+        XCTAssertEqual(event.eventId, hub.sentFatalEvents.first?.eventId)
     }
 
     func testCaptureEvent() {
@@ -384,10 +384,10 @@ class SentrySDKTests: XCTestCase {
 
         let fileManager = try SentryFileManager(options: fixture.options)
 
-        let corruptedEnvelopeData = """
+        let corruptedEnvelopeData = Data("""
                        {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
                        {"type":"test","length":50}
-                       """.data(using: .utf8)!
+                       """.utf8)
 
         try corruptedEnvelopeData.write(to: URL(fileURLWithPath: "\(fileManager.envelopesPath)/corrupted-envelope.json"))
 

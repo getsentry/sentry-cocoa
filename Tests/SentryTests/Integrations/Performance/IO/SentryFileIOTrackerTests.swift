@@ -11,7 +11,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let sentryPath = try! TestFileManager(options: Options()).sentryPath
         let sentryUrl = URL(fileURLWithPath: try! TestFileManager(options: Options()).sentryPath)
         let dateProvider = TestCurrentDateProvider()
-        let data = "SOME DATA".data(using: .utf8)!
+        let data = Data("SOME DATA".utf8)
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 

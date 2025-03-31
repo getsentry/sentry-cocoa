@@ -21,6 +21,10 @@
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
 
+### Improvements
+
+- Remove SDK side character limit of 8192 for SentryMessage (#5005) Now, the backend handles the character limit, which has the advantage of showing in the UI when the message was truncated.
+
 ## 8.48.0
 
 ### Features
