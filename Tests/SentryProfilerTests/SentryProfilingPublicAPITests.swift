@@ -455,7 +455,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -469,7 +469,7 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         nc.post(Notification(name: UIApplication.didBecomeActiveNotification))
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
