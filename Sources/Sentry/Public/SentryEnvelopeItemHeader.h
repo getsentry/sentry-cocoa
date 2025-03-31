@@ -28,6 +28,12 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly, copy, nullable) NSString *filename;
 @property (nonatomic, readonly, copy, nullable) NSString *contentType;
 
+/**
+ * Some envelopes need to report the platform name for enhanced rate limiting functionality in
+ * relay.
+ */
+@property (nonatomic, copy, nullable) NSString *platform;
+
 @end
 
 NS_ASSUME_NONNULL_END
