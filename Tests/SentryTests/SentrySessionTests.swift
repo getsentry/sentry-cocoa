@@ -106,15 +106,15 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertNil(SentrySession(jsonObject: serialized))
     }
     
-    func testSerialize_Bools() {
+    func testSerialize_Bools() throws {
         let session = SentrySession(releaseName: "", distinctId: "some-id")
 
         var json = session.serialize()
         json["init"] = 2
         
-        let session2 = SentrySession(jsonObject: json)
+        let session2 = try XCTUnwrap(SentrySession(jsonObject: json))
         
-        let result = session2!.serialize() 
+        let result = session2.serialize() 
         
         XCTAssertTrue(result["init"] as? Bool ?? false)
         XCTAssertNotEqual(2, result["init"] as? NSNumber ?? 2)

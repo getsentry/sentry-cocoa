@@ -6,14 +6,14 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_StringValues() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 "some": "value",
                 "empty": "",
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -25,7 +25,7 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_IntValues() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "data": {
                 "positive": 1,
@@ -35,7 +35,7 @@ class ArbitraryDataTests: XCTestCase {
                 "min": \(Int.min)
             }
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -50,7 +50,7 @@ class ArbitraryDataTests: XCTestCase {
 
     func testDecode_DoubleValues() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "data": {
                 "positive": 0.1,
@@ -59,7 +59,7 @@ class ArbitraryDataTests: XCTestCase {
                 "min": \(Double.leastNormalMagnitude)
             }
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -73,7 +73,7 @@ class ArbitraryDataTests: XCTestCase {
 
     func testDecode_DoubleWithoutFractionalPart_IsDecodedAsInt() throws {
         // Arrange
-        let jsonData = """
+        let jsonData = Data("""
         {
             "data": {
                 "zero": 0.0,
@@ -82,7 +82,7 @@ class ArbitraryDataTests: XCTestCase {
 
             }
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -95,14 +95,14 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_BoolValues() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 "true": true,
                 "false": false
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -115,13 +115,13 @@ class ArbitraryDataTests: XCTestCase {
     func testDecode_DateValue() throws {
         // Arrange
         let date = TestCurrentDateProvider().date().addingTimeInterval(0.001)
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 "date": "\#(sentry_toIso8601String(date))"
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -133,7 +133,7 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_Dict() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 "dict": { 
@@ -143,7 +143,7 @@ class ArbitraryDataTests: XCTestCase {
                 },
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -157,13 +157,13 @@ class ArbitraryDataTests: XCTestCase {
 
     func testDecode_IntArray() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 "array": [1, 2, 3]
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -175,7 +175,7 @@ class ArbitraryDataTests: XCTestCase {
     func testDecode_ArrayOfDicts() throws {
         // Arrange
         let date = TestCurrentDateProvider().date().addingTimeInterval(0.001)
-        let jsonData = #"""
+        let jsonData = Data(#"""
        {
            "data": {
                "array": [
@@ -190,7 +190,7 @@ class ArbitraryDataTests: XCTestCase {
                 ]
             }
        }
-       """#.data(using: .utf8)!
+       """#.utf8)
 
        // Act
        let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -212,11 +212,11 @@ class ArbitraryDataTests: XCTestCase {
 
     func testDecode_NullValue() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": { "null": null }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -227,13 +227,13 @@ class ArbitraryDataTests: XCTestCase {
 
     func testDecode_GarbageJSON() {
          // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "data": {
                 1: "garbage"
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act & Assert
         XCTAssertNil(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -241,11 +241,11 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecode_Null() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
        {
            "data": null
        }
-       """#.data(using: .utf8)!
+       """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -256,7 +256,7 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecodeNestedData_Values() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "nestedData": { 
                 "value": {
@@ -265,7 +265,7 @@ class ArbitraryDataTests: XCTestCase {
                 } 
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -278,14 +278,14 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecodeNestedData_Empty() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "nestedData": { 
                 "value": {
                 } 
             }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -297,11 +297,11 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecodeNestedData_Null() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "nestedData": { "value": {"nested": null} }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)
@@ -313,11 +313,11 @@ class ArbitraryDataTests: XCTestCase {
     
     func testDecodeNestedData_Garbage() throws {
         // Arrange
-        let jsonData = #"""
+        let jsonData = Data(#"""
         {
             "nestedData": { "value": "wrong" }
         }
-        """#.data(using: .utf8)!
+        """#.utf8)
 
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as DataWrapper?)

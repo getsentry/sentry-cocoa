@@ -12,7 +12,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
             return provider
         }()
 
-        let data = "SOME DATA".data(using: .utf8)!
+        let data = Data("SOME DATA".utf8)
 
         var fileSrcUrl: URL!
         var fileDestUrl: URL!

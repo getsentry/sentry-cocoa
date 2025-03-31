@@ -82,7 +82,7 @@ jobs:
           # iOS 16
           - runs-on: macos-13
             platform: "iOS"
-            xcode: "14.3"
+            xcode: "14.3.1"
             test-destination-os: "16.4"
             device: "iPhone 14"
             scheme: "Sentry"
@@ -278,7 +278,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 20
     needs: [build-test-server]
 
@@ -300,7 +300,7 @@ jobs:
       - name: Check test-server runs
         run: curl http://localhost:8080/echo-baggage-header
 
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh
