@@ -390,8 +390,7 @@ SENTRY_NO_INIT
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
-+ (void)startProfiler DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See startProfileSession.");
++ (void)startProfiler;
 
 /**
  * Stop a continuous profiling session if there is one ongoing.
@@ -405,8 +404,7 @@ SENTRY_NO_INIT
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
  */
-+ (void)stopProfiler DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK. See stopProfileSession.");
++ (void)stopProfiler;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
