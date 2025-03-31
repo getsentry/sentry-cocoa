@@ -1,6 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
 /// An object containing configuration for the Sentry profiler.
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
 /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are

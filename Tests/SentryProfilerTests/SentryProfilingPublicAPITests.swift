@@ -441,10 +441,13 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+#if !os(macOS)
     func testSessionSampleRateReevaluationOnAppBecomingActive() {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0.5
-        fixture.options.profiling.lifecycle = .manual
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0.5
+            $0.lifecycle = .manual
+        }
         fixture.random = TestRandom(value: 0)
         let nc = SentryDependencyContainer.sharedInstance().notificationCenterWrapper
         fixture.sessionTracker = SessionTracker(options: fixture.options, notificationCenter: nc)
@@ -471,6 +474,7 @@ extension SentryProfilingPublicAPITests {
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+#endif // !os(macOS)
 }
 
 private extension SentryProfilingPublicAPITests {
