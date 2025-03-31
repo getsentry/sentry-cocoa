@@ -342,6 +342,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     const auto header =
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
                                                 length:JSONData.length];
+    header.platform = @"cocoa";
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
