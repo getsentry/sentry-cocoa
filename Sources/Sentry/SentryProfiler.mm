@@ -79,12 +79,6 @@ sentry_configureContinuousProfiling(SentryOptions *options)
 }
 
 void
-sentry_reevaluateSessionSampleRate(float sessionSampleRate)
-{
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
-}
-
-void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
     sentry_configureContinuousProfiling(options);
