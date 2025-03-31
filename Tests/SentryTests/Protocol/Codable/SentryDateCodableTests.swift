@@ -9,7 +9,7 @@ final class SentryDateCodableTests: XCTestCase {
         let timestamp = 0.012345678
         let date = Date(timeIntervalSince1970: timestamp)
         
-        let json = "{\"date\": \(timestamp)}".data(using: .utf8)!
+        let json = Data("{\"date\": \(timestamp)}".utf8)
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryDateTestDecodable?)
         
@@ -27,7 +27,7 @@ final class SentryDateCodableTests: XCTestCase {
         // Therefore, we convert the ISO date string back to the date.
         let expectedDate = try XCTUnwrap(sentry_fromIso8601String(isoString))
 
-        let json = "{\"date\": \"\(isoString)\"}".data(using: .utf8)!
+        let json = Data("{\"date\": \"\(isoString)\"}".utf8)
         
         // Act
         let actual = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryDateTestDecodable?)
@@ -38,7 +38,7 @@ final class SentryDateCodableTests: XCTestCase {
     
     func testDecodeDate_WithWrongDateFormat() throws {
         //Arrange
-        let json = "{\"date\": \"hello\"}".data(using: .utf8)!
+        let json = Data("{\"date\": \"hello\"}".utf8)
         
         // Act & Assert
         XCTAssertNil(decodeFromJSONData(jsonData: json) as SentryDateTestDecodable?)
@@ -46,8 +46,8 @@ final class SentryDateCodableTests: XCTestCase {
     
     func testDecodeDate_WithBool() throws {
         //Arrange
-        let json = "{\"date\": true}".data(using: .utf8)!
-        
+        let json = Data("{\"date\": true}".utf8)
+
         // Act & Assert
         XCTAssertNil(decodeFromJSONData(jsonData: json) as SentryDateTestDecodable?)
     }

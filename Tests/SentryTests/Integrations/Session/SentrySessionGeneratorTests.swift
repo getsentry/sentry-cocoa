@@ -98,10 +98,10 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             // Almost always the AutoSessionTrackingIntegration is faster
             // than the SentryCrashIntegration creating the event from the
             // crash report on a background thread.
-            let crashEvent = Event()
-            crashEvent.level = SentryLevel.fatal
-            crashEvent.message = SentryMessage(formatted: "Crash for SentrySessionGeneratorTests")
-            SentrySDK.captureCrash(crashEvent)
+            let fatalEvent = Event()
+            fatalEvent.level = SentryLevel.fatal
+            fatalEvent.message = SentryMessage(formatted: "Crash for SentrySessionGeneratorTests")
+            SentrySDK.captureFatalEvent(fatalEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false
         
@@ -118,7 +118,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             autoSessionTrackingIntegration.install(with: options)
             goToForeground()
             
-            SentrySDK.captureCrash(TestData.oomEvent)
+            SentrySDK.captureFatalEvent(TestData.oomEvent)
         }
         fileManager.deleteAppState()
         #endif

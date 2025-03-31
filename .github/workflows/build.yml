@@ -29,10 +29,10 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
