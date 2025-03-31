@@ -228,9 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
     return sessionCopy;
 }
 
-- (void)captureCrashEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SentryEvent *)event
 {
-    [self captureCrashEvent:event withScope:self.scope];
+    [self captureFatalEvent:event withScope:self.scope];
 }
 
 /**
@@ -239,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
  * currently no way to know which one belongs to the crashed session, so we send the session with
  * the first crash event we receive.
  */
-- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     event.isFatalEvent = YES;
 
@@ -255,10 +255,10 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        [client captureCrashEvent:event withSession:crashedSession withScope:scope];
+        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
         [fileManager deleteCrashedSession];
     } else {
-        [client captureCrashEvent:event withScope:scope];
+        [client captureFatalEvent:event withScope:scope];
     }
 }
 
@@ -285,14 +285,14 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
     // this case, we just send the fatal app hang event.
     if (abnormalSession == nil) {
-        [client captureCrashEvent:event withScope:self.scope];
+        [client captureFatalEvent:event withScope:self.scope];
         return;
     }
 
     // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
     // health and session statistics as app hangs.
     abnormalSession.abnormalMechanism = @"anr_foreground";
-    [client captureCrashEvent:event withSession:abnormalSession withScope:self.scope];
+    [client captureFatalEvent:event withSession:abnormalSession withScope:self.scope];
     [fileManager deleteAbnormalSession];
 }
 

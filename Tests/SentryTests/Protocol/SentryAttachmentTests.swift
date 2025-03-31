@@ -6,7 +6,7 @@ class SentryAttachmentTests: XCTestCase {
         let defaultContentType = "application/octet-stream"
         let contentType = "application/json"
         let filename = "logs.txt"
-        let data = "content".data(using: .utf8)!
+        let data = Data("content".utf8)
         let path: String
         
         let dataAttachment: Attachment

@@ -234,7 +234,7 @@ class TestData {
     }
     
     static var dataAttachment: Attachment {
-        return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
+        return Attachment(data: Data("hello".utf8), filename: "file.txt")
     }
 
     static var spanContext: SpanContext {
