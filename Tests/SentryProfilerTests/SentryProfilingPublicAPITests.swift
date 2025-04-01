@@ -62,6 +62,41 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 }
 
+// MARK: transaction profiling
+extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+}
+
 // MARK: continuous profiling v1
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingEnabled() {
@@ -183,7 +218,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertTrue(options.isContinuousProfilingV2Enabled())
     }
 
-    func testSentryOptionsReportsContinuousProfilingV2DisabledNonnilSampleRate() {
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampleRate() {
         // Arrange
         let options = Options()
         options.profilesSampleRate = 1
@@ -197,7 +232,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(options.isContinuousProfilingV2Enabled())
     }
 
-    func testSentryOptionsReportsContinuousProfilingV2DisabledNonnilSampler() {
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampler() {
         // Arrange
         let options = Options()
         options.profilesSampleRate = nil
@@ -211,7 +246,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(options.isContinuousProfilingV2Enabled())
     }
 
-    func testSentryOptionsReportsContinuousProfilingV2DisabledNilConfiguration() {
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
         // Arrange
         let options = Options()
         options.profilesSampleRate = nil
@@ -263,38 +298,6 @@ extension SentryProfilingPublicAPITests {
         options.profilesSampleRate = nil
         options.profilesSampler = nil
         options.configureProfiling = nil
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
-    }
-
-    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NonnilSampleRate() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = 1
-        options.profilesSampler = nil
-        options.configureProfiling = {
-            $0.lifecycle = .trace
-        }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
-    }
-
-    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NonnilSampler() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = { _ in 1 }
-        options.configureProfiling = {
-            $0.lifecycle = .trace
-        }
 
         // Act
         sentry_configureContinuousProfiling(options)

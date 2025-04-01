@@ -98,11 +98,11 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
             && v2Lifecycle == SentryProfileLifecycleManual;
         const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
             && v2Lifecycle == SentryProfileLifecycleTrace;
-        const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
 
         BOOL shouldStopAndTransmitLaunchProfile = YES;
 
 #    if SENTRY_HAS_UIKIT
+        const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
         if (profileIsCorrelatedToTrace
             && SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
             SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
