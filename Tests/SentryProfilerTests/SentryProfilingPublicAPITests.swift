@@ -64,6 +64,45 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
 // MARK: continuous profiling v1
 extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsContinuousProfilingEnabled() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isContinuousProfilingEnabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingEnabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingEnabled())
+    }
+
     func testStartingContinuousProfilerV1WithSampleRateZero() throws {
         givenSdkWithHub()
 
@@ -130,6 +169,140 @@ extension SentryProfilingPublicAPITests {
 
 // MARK: continuous profiling v2
 extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsContinuousProfilingV2Enabled() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2DisabledNonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2DisabledNonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2DisabledNilConfiguration() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsProfilingCorrelatedToTraces() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .manual // this is the default value, but made explicit here for clarity
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
         fixture.options.configureProfiling = {

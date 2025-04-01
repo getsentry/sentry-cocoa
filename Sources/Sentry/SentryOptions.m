@@ -708,7 +708,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (BOOL)isProfilingCorrelatedToTraces
 {
     return ![self isContinuousProfilingEnabled]
-        || _profiling.lifecycle == SentryProfileLifecycleTrace;
+        || (_profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace);
 }
 
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY

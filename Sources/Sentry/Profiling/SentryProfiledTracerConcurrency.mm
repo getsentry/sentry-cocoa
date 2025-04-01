@@ -104,13 +104,8 @@ sentry_trackRootSpanForContinuousProfilerV2()
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if (![SentryContinuousProfiler isCurrentlyProfiling] && _gInFlightRootSpans != 0) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-        SENTRY_CASSERT(NO, @"Unbalanced tracking of root spans and profiler detected.");
-#    else
-        SENTRY_LOG_WARN(@"Unbalanced tracking of root spans and profiler detected. Will not start "
-                        @"any more profilers.");
+        SENTRY_TEST_FATAL(@"Unbalanced tracking of root spans and profiler detected.");
         return;
-#    endif // SENTRY_TEST || SENTRY_TESTCI
     }
 
     [SentryContinuousProfiler start];
@@ -191,23 +186,13 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil && isProfiling) {
         if ([hub.getClient.options isContinuousProfilingEnabled]) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(NO, @"Tracers are not tracked with continuous profiling V1");
-#    else
-            SENTRY_LOG_WARN(@"Tracers are not tracked with continuous profiling V1.");
+            SENTRY_TEST_FATAL(@"Tracers are not tracked with continuous profiling V1.");
             return;
-#    endif // SENTRY_TEST || SENTRY_TESTCI
         }
 
         if (_gTracersToProfilers == nil) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(NO,
-                @"Tracer to profiler structure should have already been initialized by the time "
-                @"they are being queried");
-#    else
-            SENTRY_LOG_WARN(@"Tracer to profiler should have already been initialized by the time "
-                            @"they are being queried");
-#    endif // SENTRY_TEST || SENTRY_TESTCI
+            SENTRY_TEST_FATAL(@"Tracer to profiler should have already been initialized by the "
+                              @"time they are being queried");
         }
 
         const auto tracerKey = internalTraceId.sentryIdString;
@@ -221,14 +206,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
 
 #    if SENTRY_HAS_UIKIT
         if (_gProfilersToTracers == nil) {
-#        if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(NO,
-                @"Profiler to tracer structure should have already been initialized by the time "
-                @"they are being queried");
-#        else
-            SENTRY_LOG_WARN(@"Profiler to tracer structure should have already been initialized by "
-                            @"the time they are being queried");
-#        endif // SENTRY_TEST || SENTRY_TESTCI
+            SENTRY_TEST_FATAL(@"Profiler to tracer structure should have already been "
+                              @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
             [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
@@ -280,22 +259,13 @@ sentry_stopProfilerDueToFinishedTransaction(
 {
     if (isProfiling && [hub.getClient.options isContinuousProfilingEnabled]) {
         if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(NO, @"Expected trace profile v2 lifecycle configuration.");
-#    else
-            SENTRY_LOG_WARN(@"Expected trace profile v2 lifecycle configuration.");
+            SENTRY_TEST_FATAL(@"Expected trace profile v2 lifecycle configuration.");
             return;
-#    endif // SENTRY_TEST || SENTRY_TESTCI
         }
 
         if (![SentryContinuousProfiler isCurrentlyProfiling]) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(
-                NO, @"Expected a continuous profiler to be running for this configuration.");
-#    else
-            SENTRY_LOG_WARN(
+            SENTRY_TEST_FATAL(
                 @"Expected a continuous profiler to be running for this configuration.");
-#    endif // SENTRY_TEST || SENTRY_TESTCI
         }
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         [hub captureTransaction:transaction withScope:hub.scope];

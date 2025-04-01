@@ -110,8 +110,6 @@ sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         return @"backgrounded";
     case SentryProfilerTruncationReasonTimeout:
         return @"timeout";
-    case SentryProfilerTruncationReasonPanic:
-        return @"panic";
     }
 }
 
