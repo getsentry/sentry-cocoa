@@ -42,7 +42,7 @@ static SentryTracer *_Nullable launchTracer;
 SentryTracer *_Nullable sentry_launchTracer;
 
 SentryTracerConfiguration *
-sentry_config(
+sentry_configForLaunchProfilerForTrace(
     NSNumber *profilesRate, NSNumber *profilesRand, SentryProfileOptions *_Nullable profileOptions)
 {
     SentryTracerConfiguration *config = [SentryTracerConfiguration defaultConfiguration];
@@ -175,7 +175,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
 }
 
 SentryTransactionContext *
-sentry_context(NSNumber *tracesRate, NSNumber *tracesRand)
+sentry_contextForLaunchProfilerForTrace(NSNumber *tracesRate, NSNumber *tracesRand)
 {
     SentryTransactionContext *context =
         [[SentryTransactionContext alloc] initWithName:@"launch"
@@ -215,7 +215,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
-    NSDictionary<NSString *, NSNumber *> *launchConfig = appLaunchProfileConfiguration();
+    NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
         SENTRY_LOG_DEBUG(@"Starting continuous launch profile.");
         [SentryContinuousProfiler start];
@@ -280,10 +280,14 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
     SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
     sentry_isTracingAppLaunch = YES;
-    sentry_launchTracer = [[SentryTracer alloc]
-        initWithTransactionContext:sentry_context(tracesRate, tracesRand)
-                               hub:nil
-                     configuration:sentry_config(profilesRate, profilesRand, profileOptions)];
+
+    SentryTransactionContext *context
+        = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
+    SentryTracerConfiguration *config
+        = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
+    sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
+                                                                       hub:nil
+                                                             configuration:config];
 }
 
 #    pragma mark - Public
