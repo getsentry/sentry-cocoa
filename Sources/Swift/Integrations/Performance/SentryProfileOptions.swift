@@ -7,17 +7,16 @@ import Foundation
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
 /// - note: If either `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler` are
 /// set to a non-nil value such that transaction-based profiling is being used, these settings
-/// will have no effect, nor will `SentrySDK.startProfileSession()` or
-/// `SentrySDK.stopProfileSession()`.
+/// will have no effect, nor will `SentrySDK.startProfiler()` or `SentrySDK.stopProfiler()`.
 /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
 @objcMembers
 public class SentryProfileOptions: NSObject {
     /// Different modes for starting and stopping the profiler.
     @objc public enum SentryProfileLifecycle: Int {
         /// Profiling is controlled manually, and is independent of transactions & spans. Developers
-        /// must use`SentrySDK.startProfileSession()` and `SentrySDK.stopProfileSession()` to
-        /// manage the profile session. If the session is sampled,
-        /// `SentrySDK.startProfileSession()` will always start profiling.
+        /// must use`SentrySDK.startProfiler()` and `SentrySDK.stopProfiler()` to manage the profile
+        /// session. If the session is sampled, `SentrySDK.startProfiler()` will always start
+        /// profiling.
         /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
         /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
         case manual
@@ -72,8 +71,8 @@ public class SentryProfileOptions: NSObject {
     /// - note: `sessionSampleRate` is evaluated on the previous launch and only takes effect when
     /// app start profiling activates on the next launch.
     /// - note: If `lifecycle` is `manual`, profiling is started automatically on startup, but you
-    /// must manually call `SentrySDK.stopProfileSession()` whenever you app startup to be complete.
-    /// If `lifecycle` is `trace`, profiling is started automatically on startup, and will
+    /// must manually call `SentrySDK.stopProfiler()` whenever you app startup to be complete. If
+    /// `lifecycle` is `trace`, profiling is started automatically on startup, and will
     /// automatically be stopped when the root span that is associated with app startup ends.
     /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
     public var profileAppStarts: Bool = false

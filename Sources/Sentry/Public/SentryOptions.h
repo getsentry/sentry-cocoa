@@ -519,8 +519,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Block used to configure the continuous profiling options.
  * @warning Continuous profiling is an experimental feature and may contain bugs.
- * @seealso @c SentryProfileOptions, @c SentrySDK.startProfileSession and
- * @c SentrySDK.stopProfileSession .
+ * @seealso @c SentryProfileOptions, @c SentrySDK.startProfiler and @c SentrySDK.stopProfiler .
  */
 typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull profiling);
 
