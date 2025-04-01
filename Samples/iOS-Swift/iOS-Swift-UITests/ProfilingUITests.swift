@@ -25,7 +25,7 @@ class ProfilingUITests: BaseUITest {
         try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true)
     }
     
-    func testAppLaunchesWithContinuousProfiler() throws {
+    func testAppLaunchesWithContinuousProfilerV1() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
@@ -35,6 +35,30 @@ class ProfilingUITests: BaseUITest {
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
         try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true)
+    }
+    
+    func testAppLaunchesWithContinuousProfilerV2TraceLifecycle() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
+        }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2TraceLifecycle: true)
+
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2TraceLifecycle: true)
+    }
+    
+    func testAppLaunchesWithContinuousProfilerV2ManualLifeCycle() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
+        }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2ManualLifecycle: true)
+
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2ManualLifecycle: true)
     }
     
     /**
@@ -133,7 +157,9 @@ extension ProfilingUITests {
     func launchAndConfigureSubsequentLaunches(
         terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool,
-        continuousProfiling: Bool = false
+        continuousProfiling: Bool = false,
+        v2TraceLifecycle: Bool = false,
+        v2ManualLifecycle: Bool = false
     ) throws {
         if terminatePriorSession {
             app.terminate()
@@ -155,8 +181,23 @@ extension ProfilingUITests {
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
             "--io.sentry.continuous-profiler-immediate-stop"
         ])
+
         if continuousProfiling {
             app.launchArguments.append("--io.sentry.enableContinuousProfiling")
+            if v2TraceLifecycle {
+                app.launchArguments.append(contentsOf: [
+                    "--io.sentry.profile-options-v2",
+                    "--io.sentry.profile-app-starts-v2"
+                ])
+                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            } else if v2ManualLifecycle {
+                app.launchArguments.append(contentsOf: [
+                    "--io.sentry.profile-options-v2",
+                    "--io.sentry.profile-app-starts-v2",
+                    "--io.sentry.profile-lifecycle-manual"
+                ])
+                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            }
         }
 
         launchApp()
@@ -168,7 +209,9 @@ extension ProfilingUITests {
         }
         
         if continuousProfiling {
-            stopContinuousProfiler()
+            if !v2TraceLifecycle {
+                stopContinuousProfiler()
+            }
             retrieveFirstProfileChunkData()
         } else {
             retrieveLastProfileData()

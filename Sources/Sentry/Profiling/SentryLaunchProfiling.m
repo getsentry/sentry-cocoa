@@ -58,7 +58,8 @@ sentry_configForLaunchProfilerForTrace(
 
 typedef struct {
     BOOL shouldProfile;
-    /** Only needed for trace launch profiling; unused with continuous profiling. */
+    /** Only needed for trace launch profiling or continuous profiling v2 with trace lifecycle;
+     * unused with continuous profiling. */
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
@@ -217,7 +218,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
-        SENTRY_LOG_DEBUG(@"Starting continuous launch profile.");
+        SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
         [SentryContinuousProfiler start];
         return;
     }
@@ -228,18 +229,30 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         NSNumber *lifecycleValue
             = launchConfig[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
         if (lifecycleValue == nil) {
-#    if SENTRY_TEST || SENTRY_TESTCI
-            SENTRY_CASSERT(NO,
-                @"Expected a lifecycle option in the launch config for continuous profiling v2.");
-#    else
-            SENTRY_LOG_WARN(@"Missing expected launch profile config parameter for lifecycle. Will "
-                            @"not proceed with launch profile.");
+            SENTRY_TEST_FATAL(
+                @"Missing expected launch profile config parameter for lifecycle. Will "
+                @"not proceed with launch profile.");
             return;
-#    endif // SENTRY_TEST || SENTRY_TESTCI
         }
 
         SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
         if (lifecycle == SentryProfileLifecycleManual) {
+            NSNumber *sampleRate = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRate];
+            NSNumber *sampleRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
+
+            if (sampleRate == nil || sampleRand == nil) {
+                SENTRY_TEST_FATAL(
+                    @"Tried to start a continuous profile v2 with no configured sample "
+                    @"rate/rand. Will not run profiler.");
+                return;
+            }
+
+            SentrySamplerDecision *decision =
+                [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                                  forSampleRate:sampleRate
+                                                 withSampleRand:sampleRand];
+            sentry_profilerSessionSampleDecision = decision;
+
             [SentryContinuousProfiler start];
             return;
         }
@@ -285,6 +298,11 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
     SentryTracerConfiguration *config
         = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
+    SentrySamplerDecision *decision =
+        [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                          forSampleRate:profilesRate
+                                         withSampleRand:profilesRand];
+    sentry_profilerSessionSampleDecision = decision;
     sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                        hub:nil
                                                              configuration:config];
