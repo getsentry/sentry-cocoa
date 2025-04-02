@@ -56,7 +56,6 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 14"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -64,7 +63,7 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - runs-on: macos-15
             xcode: "16.2"
-            device: "iPhone 16"
+            
 
     steps:
       - uses: actions/checkout@v4
@@ -77,8 +76,7 @@ jobs:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
 
-      - name: Boot Simulator
-        run: xcrun simctl boot "${{matrix.device}}"
+      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Install App
         run: xcrun simctl install booted ${{env.APP_PATH}}
@@ -98,6 +96,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{matrix.device}}-${{matrix.os-version}}
+          name: crash-logs-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
