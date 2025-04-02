@@ -9,7 +9,20 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Sentry.xcodeproj",
+          "identifier" : "63AA759A1EB8AEF500D153DE",
+          "name" : "Sentry"
+        },
+        {
+          "containerPath" : "container:Sentry.xcodeproj",
+          "identifier" : "D8199DA929376E9B0074249E",
+          "name" : "SentrySwiftUI"
+        }
+      ]
+    },
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
