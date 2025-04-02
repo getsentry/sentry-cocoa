@@ -5,6 +5,7 @@
 ### Fixes
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+- Truncation of Swift crash messages (#5035)
 
 ### Improvements
 
