@@ -1,3 +1,4 @@
+#import "Sentry/SentryOptions.h"
 #import "SentryDefines.h"
 #import "SentryInternalCDefines.h"
 
@@ -33,8 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (bytes)appMemorySize;
 
-- (void)enrichScope:(SentryScope *)scope;
-
+- (void)enrichScope:(SentryScope *)scope withOption:(SentryOptions *)options;
 @end
 
 NS_ASSUME_NONNULL_END

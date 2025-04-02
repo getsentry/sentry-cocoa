@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
         _errorsBeforeSession = 0;
 
         if (_scope) {
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:_scope withOption:_client.options];
         }
     }
 
@@ -594,7 +594,7 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:_scope withOption:_client.options];
         }
         return _scope;
     }
