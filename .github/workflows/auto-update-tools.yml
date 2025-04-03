@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   auto-update-tools:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
