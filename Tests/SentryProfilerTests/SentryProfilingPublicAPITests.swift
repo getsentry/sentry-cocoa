@@ -62,8 +62,82 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 }
 
+// MARK: transaction profiling
+extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+}
+
 // MARK: continuous profiling v1
 extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsContinuousProfilingEnabled() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isContinuousProfilingEnabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingEnabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingEnabled())
+    }
+
     func testStartingContinuousProfilerV1WithSampleRateZero() throws {
         givenSdkWithHub()
 
@@ -130,13 +204,117 @@ extension SentryProfilingPublicAPITests {
 
 // MARK: continuous profiling v2
 extension SentryProfilingPublicAPITests {
+    func testSentryOptionsReportsContinuousProfilingV2Enabled() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampleRate() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = 1
+        options.profilesSampler = nil
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampler() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = { _ in 1 }
+        options.configureProfiling = { _ in }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+    }
+
+    func testSentryOptionsReportsProfilingCorrelatedToTraces() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = {
+            $0.lifecycle = .manual // this is the default value, but made explicit here for clarity
+        }
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
+    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
+        // Arrange
+        let options = Options()
+        options.profilesSampleRate = nil
+        options.profilesSampler = nil
+        options.configureProfiling = nil
+
+        // Act
+        sentry_configureContinuousProfiling(options)
+
+        // Assert
+        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+    }
+
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+        }
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -150,11 +328,13 @@ extension SentryProfilingPublicAPITests {
 
     func testManuallyStartingAndStoppingContinuousProfilerV2NotSampled() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+        }
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -164,7 +344,7 @@ extension SentryProfilingPublicAPITests {
         // Arrange - do nothing, simulating actions before starting sdk
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -176,7 +356,7 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         SentrySDK.close()
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -188,7 +368,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -196,11 +376,13 @@ extension SentryProfilingPublicAPITests {
 
     func testStartingContinuousProfilerV2WithTraceLifeCycleDoesNotStartProfiler() {
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -215,8 +397,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
         fixture.currentDate.advance(by: 1)
@@ -230,8 +414,10 @@ extension SentryProfilingPublicAPITests {
 
     func testStoppingContinuousProfilerV2WithTraceLifeCycleDoesNotStopProfiler() throws {
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
         fixture.currentDate.advance(by: 1)
@@ -283,7 +469,9 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+        }
         givenSdkWithHub()
 
         // Act - hold a reference to the tracer so it doesn't dealloc, which tries to clean up any existing profilers
@@ -304,11 +492,13 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+        }
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -316,11 +506,13 @@ extension SentryProfilingPublicAPITests {
 
     func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() throws {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+        }
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -335,8 +527,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
 
@@ -356,8 +550,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 0
         givenSdkWithHub()
 
@@ -384,8 +580,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 1
         givenSdkWithHub()
 
@@ -405,8 +603,10 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 1
-        fixture.options.profiling.lifecycle = .trace
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
         fixture.options.tracesSampleRate = 0
         givenSdkWithHub()
 
@@ -417,10 +617,13 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+#if !os(macOS)
     func testSessionSampleRateReevaluationOnAppBecomingActive() {
         // Arrange
-        fixture.options.profiling.sessionSampleRate = 0.5
-        fixture.options.profiling.lifecycle = .manual
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0.5
+            $0.lifecycle = .manual
+        }
         fixture.random = TestRandom(value: 0)
         let nc = SentryDependencyContainer.sharedInstance().notificationCenterWrapper
         fixture.sessionTracker = SessionTracker(options: fixture.options, notificationCenter: nc)
@@ -428,7 +631,7 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
 
         // Act
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -442,11 +645,12 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         nc.post(Notification(name: UIApplication.didBecomeActiveNotification))
-        SentrySDK.startProfileSession()
+        SentrySDK.startProfiler()
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+#endif // !os(macOS)
 }
 
 private extension SentryProfilingPublicAPITests {
@@ -468,7 +672,7 @@ private extension SentryProfilingPublicAPITests {
     }
 
     func stopProfilerV2() throws {
-        SentrySDK.stopProfileSession()
+        SentrySDK.stopProfiler()
         fixture.currentDate.advance(by: 60)
         try fixture.timerFactory.check()
     }

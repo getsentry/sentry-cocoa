@@ -36,6 +36,8 @@ SENTRY_EXTERN SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecis
 
 SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(float sessionSampleRate);
 
+SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
+
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.
  * @warning A main assumption is that profile start/stop must be contained within range of time of

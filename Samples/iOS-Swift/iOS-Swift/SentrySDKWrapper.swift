@@ -408,8 +408,11 @@ extension SentrySDKWrapper {
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if args.contains("--io.sentry.profile-options-v2") {
-            options.profiling.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
-            options.profiling.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
+            options.configureProfiling = {
+                $0.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
+                $0.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
+                $0.profileAppStarts = args.contains("--io.sentry.profile-app-starts-v2")
+            }
         } else {
             options.profilesSampleRate = profilesSampleRate
             options.profilesSampler = profilesSampler
