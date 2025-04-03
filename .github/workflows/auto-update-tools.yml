@@ -1,6 +1,7 @@
 name: "Automation: Update tooling versions"
 
 on:
+  push:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
@@ -15,6 +16,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Install CI tools
+        run: |
+          make init-ci-test
+          make init-ci-deploy
 
       - name: Update tooling versions
         run: make update-versions
