@@ -26,6 +26,7 @@
 - GA of better session replay view renderer V2 (#5054)
 - Replace associated object with current TTD tracker (#5048)
 - Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Replace associated object with current TTD tracker (#5048)
 
 ## 8.49.2
 
