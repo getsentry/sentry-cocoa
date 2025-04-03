@@ -1,0 +1,38 @@
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-update-tools:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Update tools and version files
+        run: make init
+
+      - name: Create pull request for clang-format version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: scripts/.clang-format-version
+          branch: github-actions/auto-update-tools-clang-format
+          commit-message: "chore(deps): Update clang-format version"
+          delete-branch: true
+          title: "chore(deps): Update clang-format version"
+          sign-commits: true
+
+      - name: Create pull request for swiftlint version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: scripts/.swiftlint-version
+          branch: github-actions/auto-update-tools-swiftlint
+          commit-message: "chore(deps): Update swiftlint version"
+          delete-branch: true
+          title: "chore(deps): Update swiftlint version"
+          sign-commits: true
