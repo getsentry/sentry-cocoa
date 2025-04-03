@@ -1,4 +1,4 @@
-name: "Automation: Auto-update tooling"
+name: "Automation: Update tooling versions"
 
 on:
   push:
@@ -17,8 +17,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Update tools and version files
-        run: make init
+      - name: Update tooling versions
+        run: make update-versions
+
+      - name: Check tooling versions
+        run: make check-versions
+
+      - name: Print git status and changes
+        run: |
+          git status
+          git diff HEAD
 
       - name: Create pull request for clang-format version
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
@@ -31,7 +39,7 @@ jobs:
           sign-commits: true
 
       - name: Create pull request for swiftlint version
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
         with:
           add-paths: scripts/.swiftlint-version
           branch: github-actions/auto-update-tools-swiftlint

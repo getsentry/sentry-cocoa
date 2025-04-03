@@ -6,8 +6,7 @@ init:
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
-	swiftlint version > scripts/.swiftlint-version
+	./scripts/update-tooling-versions.sh
 	
 	# The node version manager is optional, so we don't fail if it's not installed.
 	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
@@ -23,6 +22,10 @@ init-ci-test:
 .PHONY: init-ci-deploy
 init-ci-deploy:
 	brew bundle --file Brewfile-ci-deploy
+
+.PHONY: update-versions
+update-versions:
+	./scripts/update-tooling-versions.sh
 
 .PHONY: check-versions
 check-versions:
