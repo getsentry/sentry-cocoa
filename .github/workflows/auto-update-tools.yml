@@ -24,12 +24,6 @@ jobs:
         run: |
           make init-ci-format
 
-      - name: Verify Swiftlint is installed
-        run: swiftlint --version
-
-      - name: Verify Clang-Format is installed
-        run: clang-format --version
-
       - name: Update tooling versions
         run: make update-versions
 
