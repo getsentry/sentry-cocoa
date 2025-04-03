@@ -60,6 +60,7 @@ struct SentrySDKWrapper {
         options.attachViewHierarchy = enableAttachViewHierarchy
         options.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
         options.enablePerformanceV2 = enablePerformanceV2
+        options.enableAppHangTrackingV2 = enableAppHangTrackingV2
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
         
         options.beforeBreadcrumb = { breadcrumb in
@@ -374,6 +375,7 @@ extension SentrySDKWrapper {
     var enableAttachScreenshot: Bool { !checkDisabled(with: "--disable-attach-screenshot")}
     var enableAttachViewHierarchy: Bool { !checkDisabled(with: "--disable-attach-view-hierarchy")}
     var enablePerformanceV2: Bool { !checkDisabled(with: "--disable-performance-v2")}
+    var enableAppHangTrackingV2: Bool { !checkDisabled(with: "--disable-app-hang-tracking-v2")}
     var enableSessionReplay: Bool { !checkDisabled(with: "--disable-session-replay") }
     var enableMetricKit: Bool { !checkDisabled(with: "--disable-metrickit-integration") }
     var enableSessionTracking: Bool { !checkDisabled(with: "--disable-automatic-session-tracking") }
