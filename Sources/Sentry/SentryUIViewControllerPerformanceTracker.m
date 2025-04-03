@@ -157,21 +157,18 @@
         return;
     }
 
-    if (objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER)) {
+    if (self.currentTTDTracker != nil) {
         // Already tracking time to display, not creating a new tracker.
         // This may happen if user manually call `loadView` from a view controller more than once.
+        SENTRY_LOG_DEBUG(
+            @"Already tracking time to display for view controller %@ using tracker %@", controller,
+            self.currentTTDTracker);
         return;
     }
 
-    SentryTimeToDisplayTracker *ttdTracker =
-        [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
-                              waitForFullDisplay:self.alwaysWaitForFullDisplay
-                                          tracer:(SentryTracer *)vcSpan];
-
-    if (ttdTracker) {
-        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
-            OBJC_ASSOCIATION_ASSIGN);
-    }
+    [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
+                          waitForFullDisplay:self.alwaysWaitForFullDisplay
+                                      tracer:(SentryTracer *)vcSpan];
 }
 
 - (void)reportFullyDisplayed
@@ -190,9 +187,9 @@
     [self.currentTTDTracker reportFullyDisplayed];
 }
 
-- (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                            tracer:(SentryTracer *)tracer
+- (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                        waitForFullDisplay:(BOOL)waitForFullDisplay
+                                    tracer:(SentryTracer *)tracer
 {
     [self.currentTTDTracker finishSpansIfNotFinished];
 
@@ -203,17 +200,18 @@
 
     if ([ttdTracker startForTracer:tracer] == NO) {
         self.currentTTDTracker = nil;
-        return nil;
+        return;
     }
 
     self.currentTTDTracker = ttdTracker;
-    return ttdTracker;
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(void (^)(void))callbackToOrigin
 {
     void (^limitOverrideBlock)(void) = ^{
+        SENTRY_LOG_DEBUG(
+            @"Tracking UIViewController.viewWillAppear for controller: %@", controller);
         SentrySpanId *spanId
             = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
@@ -476,11 +474,14 @@
     }
 }
 
-- (void)reportInitialDisplay:(UIViewController *)controller
+- (void)reportInitialDisplay:(NSObject *)controller
 {
-    SentryTimeToDisplayTracker *ttdTracker
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
-    [ttdTracker reportInitialDisplay];
+    if (self.currentTTDTracker == nil) {
+        SENTRY_LOG_DEBUG(
+            @"Can't report initial display, no screen transaction being tracked right now.")
+        return;
+    }
+    [self.currentTTDTracker reportInitialDisplay];
 }
 
 @end
