@@ -13,7 +13,7 @@ jobs:
   # if necessary
   format-code:
     name: Format Code
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +26,7 @@ jobs:
           node-version-file: .nvmrc
       - run: corepack enable
       - run: yarn install
+
       - name: Format Code
         run: make format
 

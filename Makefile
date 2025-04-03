@@ -27,6 +27,7 @@ init-ci-deploy:
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
+	rbenv install --skip-existing
 
 .PHONY: update-versions
 update-versions:
