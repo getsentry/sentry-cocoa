@@ -1,0 +1,55 @@
+name: "Automation: Update tooling versions"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-update-tools:
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Update Homebrew
+        run: brew update
+
+      - name: Install CI tools
+        run: |
+          make init-ci-format
+
+      - name: Update tooling versions
+        run: make update-versions
+
+      - name: Check tooling versions
+        run: make check-versions
+
+      - name: Print git status and changes
+        run: |
+          git status
+          git diff HEAD
+
+      - name: Create pull request for clang-format version
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        with:
+          add-paths: scripts/.clang-format-version
+          branch: github-actions/auto-update-tools-clang-format
+          commit-message: "chore(deps): Update clang-format version"
+          delete-branch: true
+          title: "chore(deps): Update clang-format version"
+          sign-commits: true
+
+      - name: Create pull request for swiftlint version
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        with:
+          add-paths: scripts/.swiftlint-version
+          branch: github-actions/auto-update-tools-swiftlint
+          commit-message: "chore(deps): Update swiftlint version"
+          delete-branch: true
+          title: "chore(deps): Update swiftlint version"
+          sign-commits: true
