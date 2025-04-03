@@ -420,9 +420,9 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampleRate: NSNumber? {
-        if args.contains("--io.sentry.enableContinuousProfiling") {
+        if args.contains(SentrySDKTestConfiguration.Profiling.Key.continuousProfilingV1.rawValue) {
             return nil
-        } else if let profilesSampleRateOverride = env["--io.sentry.profilesSampleRate"] {
+        } else if let profilesSampleRateOverride = env[SentrySDKTestConfiguration.Profiling.Key.sampleRate.rawValue] {
             return NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
         } else {
             return 1
@@ -434,7 +434,7 @@ extension SentrySDKWrapper {
             return nil
         }
         
-        guard let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] else {
+        guard let profilesSamplerValue = env[SentrySDKTestConfiguration.Profiling.Key.samplerValue.rawValue] else {
             return nil
         }
         
@@ -443,7 +443,7 @@ extension SentrySDKWrapper {
         }
     }
     
-    var enableAppLaunchProfiling: Bool { args.contains("--io.sentry.profile-app-launches") }
+    var enableAppLaunchProfiling: Bool { args.contains(SentrySDKTestConfiguration.Profiling.Key.launchProfilingV1.rawValue) }
 }
 
 // swiftlint:enable file_length function_body_length

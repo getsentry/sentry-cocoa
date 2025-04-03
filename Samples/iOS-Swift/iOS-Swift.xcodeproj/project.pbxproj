@@ -23,6 +23,9 @@
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B79000329028C7300A7F467 /* MetricKitManager.swift */; };
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
+		840DDB2A2D9EFD49000C17F7 /* BenchmarkingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB292D9EFD49000C17F7 /* BenchmarkingViewController.swift */; };
+		840DDB2C2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB2B2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift */; };
+		840DDB2D2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB2B2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		847670302BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m in Sources */ = {isa = PBXBuildFile; fileRef = 8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */; };
@@ -274,6 +277,8 @@
 		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B79000329028C7300A7F467 /* MetricKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricKitManager.swift; sourceTree = "<group>"; };
 		7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
+		840DDB292D9EFD49000C17F7 /* BenchmarkingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkingViewController.swift; sourceTree = "<group>"; };
+		840DDB2B2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKTestConfiguration.swift; sourceTree = "<group>"; };
 		8476702E2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SentryAppSetup.h"; sourceTree = "<group>"; };
 		8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SentryAppSetup.m"; sourceTree = "<group>"; };
 		848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PerformanceBenchmarks.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -489,6 +494,7 @@
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
 				84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */,
+				840DDB2B2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift */,
 				637AFDAD243B02760034958B /* TransactionsViewController.swift */,
 				84AB90782A50031B0054C99A /* Profiling */,
 				D80D021229EE93630084393D /* ErrorsViewController.swift */,
@@ -538,6 +544,7 @@
 			isa = PBXGroup;
 			children = (
 				84AB90702A5001000054C99A /* ProfilingViewController.swift */,
+				840DDB292D9EFD49000C17F7 /* BenchmarkingViewController.swift */,
 				8476702E2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.h */,
 				8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */,
 				84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */,
@@ -1124,10 +1131,12 @@
 				D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */,
 				D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */,
 				D8832B1E2AF52D0500C522B0 /* PageViewController.swift in Sources */,
+				840DDB2C2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift in Sources */,
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */,
+				840DDB2A2D9EFD49000C17F7 /* BenchmarkingViewController.swift in Sources */,
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
 				84ACC4432A73CD0700932A18 /* ProfilingCPUWork.swift in Sources */,
 				847670302BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m in Sources */,
@@ -1188,6 +1197,7 @@
 				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
 				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
+				840DDB2D2D9F02CB000C17F7 /* SentrySDKTestConfiguration.swift in Sources */,
 				924857562C89A86300774AC3 /* MainViewController.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				7B5525B62938B644006A2932 /* DiskWriteException.swift in Sources */,

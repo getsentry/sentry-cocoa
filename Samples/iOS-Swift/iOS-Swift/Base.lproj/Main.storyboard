@@ -195,20 +195,20 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="29" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
-                                <rect key="frame" x="0.0" y="64" width="320" height="348"/>
+                                <rect key="frame" x="0.0" y="64" width="321" height="385"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1f-aG-VcS">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="321" height="70"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="waU-m0-7H1"/>
                                         </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                        <rect key="frame" x="0.0" y="99" width="320" height="249"/>
+                                        <rect key="frame" x="0.0" y="99" width="321" height="286"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DsI-9S-jdi">
-                                                <rect key="frame" x="71.5" y="0.0" width="177" height="28"/>
+                                                <rect key="frame" x="72" y="0.0" width="177" height="28"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AqY-0A-8M9">
                                                         <rect key="frame" x="0.0" y="0.0" width="143" height="28"/>
@@ -233,7 +233,7 @@
                                                 </subviews>
                                             </stackView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="czv-xf-Atw">
-                                                <rect key="frame" x="55" y="28" width="210" height="28"/>
+                                                <rect key="frame" x="55.5" y="28" width="210" height="28"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="viewFirstContinuousProfileChunk"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -243,7 +243,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vwa-d9-1BM">
-                                                <rect key="frame" x="111.5" y="56" width="97" height="28"/>
+                                                <rect key="frame" x="112" y="56" width="97" height="28"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="viewLastProfile"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -253,7 +253,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="keL-m5-7hv">
-                                                <rect key="frame" x="33.5" y="84" width="253" height="28"/>
+                                                <rect key="frame" x="34" y="84" width="253" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Check launch profile marker file existence"/>
@@ -262,38 +262,65 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WJJ-UH-aUt">
-                                                <rect key="frame" x="91" y="112" width="138" height="28"/>
+                                                <rect key="frame" x="91.5" y="112" width="138" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Enable launch profiling"/>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bcw-hL-SEd">
-                                                <rect key="frame" x="76.5" y="140" width="167" height="28"/>
+                                                <rect key="frame" x="77" y="140" width="167" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Enable trace lifecycle mode"/>
                                             </button>
-                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eIF-PE-QqH">
-                                                <rect key="frame" x="0.0" y="168" width="320" height="31"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eIF-PE-QqH">
+                                                <rect key="frame" x="45.5" y="168" width="230" height="34"/>
                                                 <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wf5-9h-9xr">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profiles sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FQD-I0-1X0">
-                                                        <rect key="frame" x="57" y="0.0" width="150.5" height="31"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Next profiles sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FQD-I0-1X0">
+                                                        <rect key="frame" x="0.0" y="7" width="190" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xwi-jT-wbn">
-                                                        <rect key="frame" x="215.5" y="0.0" width="104.5" height="31"/>
+                                                        <rect key="frame" x="198" y="0.0" width="32" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
+                                                        <connections>
+                                                            <action selector="sampleRateEdited:" destination="NZr-bH-g9o" eventType="valueChanged" id="E9x-jh-dfI"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                             </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="zeP-Kl-5q9">
+                                                <rect key="frame" x="9" y="202" width="303" height="34"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <subviews>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ldr-gc-aLt">
+                                                        <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="samplerSwitchToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="Ut3-59-6M7"/>
+                                                        </connections>
+                                                    </switch>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Next profiles sampler value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-dR-4qq">
+                                                        <rect key="frame" x="57" y="7" width="206" height="20.5"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zf3-tk-iEk">
+                                                        <rect key="frame" x="271" y="0.0" width="32" height="34"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                        <connections>
+                                                            <action selector="samplerValueEdited:" destination="NZr-bH-g9o" eventType="valueChanged" id="AXp-GO-pds"/>
+                                                        </connections>
+                                                    </textField>
+                                                </subviews>
+                                                <viewLayoutGuide key="safeArea" id="rlW-hU-UvU"/>
+                                            </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LIr-jM-FSX">
-                                                <rect key="frame" x="19" y="199" width="282" height="50"/>
+                                                <rect key="frame" x="19.5" y="236" width="282" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI test data marshalling:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhg-B3-Rao" userLabel="UI test data marshaling:">
                                                         <rect key="frame" x="0.0" y="15" width="184" height="20.5"/>
@@ -315,15 +342,12 @@
                                                 </subviews>
                                             </stackView>
                                             <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uTM-T7-Gv6">
-                                                <rect key="frame" x="144" y="249" width="32" height="0.0"/>
+                                                <rect key="frame" x="144.5" y="286" width="32" height="0.0"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="io.sentry.benchmark.value-marshaling-text-field"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                         </subviews>
-                                        <constraints>
-                                            <constraint firstItem="eIF-PE-QqH" firstAttribute="width" secondItem="jya-5z-xKN" secondAttribute="width" id="uKj-qd-wZM"/>
-                                        </constraints>
                                     </stackView>
                                 </subviews>
                             </stackView>
@@ -343,6 +367,9 @@
                         <outlet property="launchProfilingMarkerFileCheckButton" destination="keL-m5-7hv" id="PRA-Jy-Ola"/>
                         <outlet property="profilingUITestDataMarshalingStatus" destination="2LR-W8-mNE" id="S4k-Yg-EsB"/>
                         <outlet property="profilingUITestDataMarshalingTextField" destination="5zI-Ix-rMJ" id="2o6-Cc-NMl"/>
+                        <outlet property="sampleRateField" destination="Xwi-jT-wbn" id="XpH-kw-BQZ"/>
+                        <outlet property="samplerSwitch" destination="ldr-gc-aLt" id="GYi-4L-XSQ"/>
+                        <outlet property="samplerValueField" destination="zio-dR-4qq" id="NF8-Du-uSv"/>
                         <outlet property="valueTextField" destination="uTM-T7-Gv6" id="M59-lx-juE"/>
                     </connections>
                 </viewController>
