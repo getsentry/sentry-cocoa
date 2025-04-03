@@ -17,10 +17,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Update Homebrew
+        run: brew update
+
       - name: Install CI tools
         run: |
-          make init-ci-test
-          make init-ci-deploy
+          make init-ci-format
 
       - name: Update tooling versions
         run: make update-versions
