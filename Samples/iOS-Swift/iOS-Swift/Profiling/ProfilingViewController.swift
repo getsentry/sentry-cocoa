@@ -44,9 +44,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             }
         }
 
-        if options.configureProfiling {
-
-        }
+        profilingV2Switch.isOn = options.configureProfiling != nil
     }
 
     @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {

@@ -408,9 +408,9 @@ extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if args.contains(SentrySDKTestConfiguration.Profiling.Key.useProfilingV2.rawValue) {
             options.configureProfiling = {
-                $0.profiling.lifecycle = SentrySDKTestConfiguration.Profiling.getLifecycle()
-                $0.profiling.sessionSampleRate = SentrySDKTestConfiguration.Profiling.getSessionSampleRate()
-                $0.profileAppStarts = args.contains("--io.sentry.profile-app-starts-v2")
+                $0.lifecycle = SentrySDKTestConfiguration.Profiling.getLifecycle()
+                $0.sessionSampleRate = SentrySDKTestConfiguration.Profiling.getSessionSampleRate()
+                $0.profileAppStarts = SentrySDKTestConfiguration.Profiling.shouldProfileLaunches()
             }
         } else {
             options.profilesSampleRate = profilesSampleRate
