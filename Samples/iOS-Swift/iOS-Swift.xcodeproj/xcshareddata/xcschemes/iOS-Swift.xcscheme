@@ -81,7 +81,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.profile-lifecycle-manual"
+            argument = "--io.sentry.profile-lifecycle-trace"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

@@ -406,10 +406,10 @@ extension SentrySDKWrapper {
 // MARK: Profiling configuration
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-        if args.contains("--io.sentry.profile-options-v2") {
+        if args.contains(SentrySDKTestConfiguration.Profiling.Key.useProfilingV2.rawValue) {
             options.configureProfiling = {
-                $0.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
-                $0.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
+                $0.profiling.lifecycle = SentrySDKTestConfiguration.Profiling.getLifecycle()
+                $0.profiling.sessionSampleRate = SentrySDKTestConfiguration.Profiling.getSessionSampleRate()
                 $0.profileAppStarts = args.contains("--io.sentry.profile-app-starts-v2")
             }
         } else {
@@ -422,28 +422,28 @@ extension SentrySDKWrapper {
     var profilesSampleRate: NSNumber? {
         if args.contains(SentrySDKTestConfiguration.Profiling.Key.continuousProfilingV1.rawValue) {
             return nil
-        } else if let profilesSampleRateOverride = env[SentrySDKTestConfiguration.Profiling.Key.sampleRate.rawValue] {
-            return NSNumber(value: (profilesSampleRateOverride as NSString).integerValue)
+        } else if let profilesSampleRateOverride = SentrySDKTestConfiguration.Profiling.getSampleRate() {
+            return NSNumber(value: profilesSampleRateOverride)
         } else {
             return 1
         }
     }
     
     var profilesSampler: ((SamplingContext) -> NSNumber?)? {
-        guard !args.contains("--io.sentry.enableContinuousProfiling") else {
+        guard !args.contains(SentrySDKTestConfiguration.Profiling.Key.continuousProfilingV1.rawValue) else {
             return nil
         }
         
-        guard let profilesSamplerValue = env[SentrySDKTestConfiguration.Profiling.Key.samplerValue.rawValue] else {
+        guard let profilesSamplerValue = SentrySDKTestConfiguration.Profiling.getSamplerValue() else {
             return nil
         }
         
         return { _ in
-            return NSNumber(value: (profilesSamplerValue as NSString).integerValue)
+            return NSNumber(value: profilesSamplerValue)
         }
     }
     
-    var enableAppLaunchProfiling: Bool { args.contains(SentrySDKTestConfiguration.Profiling.Key.launchProfilingV1.rawValue) }
+    var enableAppLaunchProfiling: Bool { SentrySDKTestConfiguration.Profiling.shouldProfileLaunches() }
 }
 
 // swiftlint:enable file_length function_body_length

@@ -9,6 +9,10 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var sampleRateField: UITextField!
     @IBOutlet weak var samplerSwitch: UISwitch!
     @IBOutlet weak var samplerValueField: UILabel!
+
+    @IBOutlet weak var profilingV2Switch: UISwitch!
+    @IBOutlet weak var profilingV2Stack: UIStackView!
+
     @IBOutlet weak var dsnView: UIView!
 
     override func viewDidLoad() {
@@ -23,21 +27,25 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
         
         addDSNDisplay(self, vcview: dsnView)
 
-        let options = SentrySDK.currentHub().getClient()?.options
+        guard let options = SentrySDK.currentHub().getClient()?.options else { return }
 
-        if let sampleRate = options?.profilesSampleRate {
+        if let sampleRate = options.profilesSampleRate {
             sampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
         } else {
             sampleRateField.text = "nil"
         }
 
-        samplerSwitch.isOn = options?.profilesSampler != nil
-        if options?.profilesSampler != nil {
+        samplerSwitch.isOn = options.profilesSampler != nil
+        if options.profilesSampler != nil {
             if let samplerValue = SentrySDKTestConfiguration.Profiling.getSamplerValue() {
                 samplerValueField.text = String(format: "%.2f", samplerValue)
             } else {
                 samplerValueField.text = "dynamic"
             }
+        }
+
+        if options.configureProfiling {
+
         }
     }
 
