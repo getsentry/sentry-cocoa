@@ -23,7 +23,7 @@ init-ci-test:
 init-ci-deploy:
 	brew bundle --file Brewfile-ci-deploy
 
-# installs the tools needed to run CI format tasks locally (note that swiftlint is preinstalled in github actions)
+# installs the tools needed to run CI format tasks locally
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
