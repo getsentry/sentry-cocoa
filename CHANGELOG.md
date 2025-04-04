@@ -15,7 +15,7 @@
 > If you are experiencing any issues with the experimental view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa/issues/4000).
 
 - Remove SDK side character limit of 8192 for SentryMessage (#5005) Now, the backend handles the character limit, which has the advantage of showing in the UI when the message was truncated.
-- Enable experimental view renderer by default (#5006)
+- Enable experimental view renderer by default (#5054)
 
 ## 8.48.0
 
