@@ -194,75 +194,94 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="29" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
-                                <rect key="frame" x="0.0" y="64" width="321" height="425"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
+                                <rect key="frame" x="0.0" y="64" width="320" height="430"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1f-aG-VcS">
-                                        <rect key="frame" x="0.0" y="0.0" width="321" height="70"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="waU-m0-7H1"/>
                                         </constraints>
                                     </view>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                        <rect key="frame" x="0.0" y="99" width="321" height="326"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
+                                        <rect key="frame" x="0.0" y="70" width="320" height="360"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DsI-9S-jdi">
-                                                <rect key="frame" x="72" y="0.0" width="177" height="28"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="center" id="DsI-9S-jdi">
+                                                <rect key="frame" x="0.0" y="0.0" width="320" height="28"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <subviews>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AqY-0A-8M9">
-                                                        <rect key="frame" x="0.0" y="0.0" width="143" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" label="io.sentry.ios-swift.ui-tests.button.start-continuous-profiler"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Continuous profile:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Pv-Or-ZV2">
+                                                        <rect key="frame" x="0.0" y="4" width="226" height="20.5"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AqY-0A-8M9" userLabel="start">
+                                                        <rect key="frame" x="226" y="0.0" width="47" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ios-swift.ui-tests.button.start-continuous-profiler"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title="Continuous profile start"/>
+                                                        <state key="normal" title="start"/>
                                                         <connections>
                                                             <action selector="startContinuousProfiler:" destination="NZr-bH-g9o" eventType="touchUpInside" id="wGa-hQ-xGf"/>
                                                         </connections>
                                                     </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39W-Kv-xim">
-                                                        <rect key="frame" x="143" y="0.0" width="34" height="28"/>
-                                                        <accessibility key="accessibilityConfiguration" label="io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"/>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39W-Kv-xim" userLabel="end">
+                                                        <rect key="frame" x="273" y="0.0" width="47" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                        <state key="normal" title=" / end"/>
+                                                        <state key="normal" title="end"/>
                                                         <connections>
                                                             <action selector="stopContinuousProfiler:" destination="NZr-bH-g9o" eventType="touchUpInside" id="OWl-9b-rrQ"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
                                             </stackView>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="czv-xf-Atw">
-                                                <rect key="frame" x="55.5" y="28" width="210" height="28"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="viewFirstContinuousProfileChunk"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="View first continuous profile chunk"/>
-                                                <connections>
-                                                    <action selector="viewFirstContinuousProfileChunk:" destination="NZr-bH-g9o" eventType="touchUpInside" id="KYt-6d-ANR"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vwa-d9-1BM">
-                                                <rect key="frame" x="112" y="56" width="97" height="28"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="viewLastProfile"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="View last profile"/>
-                                                <connections>
-                                                    <action selector="viewLastProfile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="7Xd-19-rsP"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="keL-m5-7hv">
-                                                <rect key="frame" x="34" y="84" width="253" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="Check launch profile marker file existence"/>
-                                                <connections>
-                                                    <action selector="checkLaunchProfilingMarkerFile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="NY7-nn-qqr"/>
-                                                </connections>
-                                            </button>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" translatesAutoresizingMaskIntoConstraints="NO" id="Szg-6a-jAX">
+                                                <rect key="frame" x="0.0" y="32" width="320" height="28"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Files:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mfk-2c-dYY">
+                                                        <rect key="frame" x="0.0" y="0.0" width="39.5" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="czv-xf-Atw">
+                                                        <rect key="frame" x="73" y="0.0" width="65" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-tests.view-first-continuous-profile-chunk"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="first chunk"/>
+                                                        <connections>
+                                                            <action selector="viewFirstContinuousProfileChunk:" destination="NZr-bH-g9o" eventType="touchUpInside" id="KYt-6d-ANR"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vwa-d9-1BM">
+                                                        <rect key="frame" x="159.5" y="0.0" width="64" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-tests.view-last-profile"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="last profile"/>
+                                                        <connections>
+                                                            <action selector="viewLastProfile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="7Xd-19-rsP"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="keL-m5-7hv">
+                                                        <rect key="frame" x="234" y="0.0" width="86" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-tests.app-launch-profile-marker-file-button"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="launch marker"/>
+                                                        <connections>
+                                                            <action selector="checkLaunchProfilingMarkerFile:" destination="NZr-bH-g9o" eventType="touchUpInside" id="NY7-nn-qqr"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eIF-PE-QqH">
-                                                <rect key="frame" x="45.5" y="112" width="230" height="34"/>
+                                                <rect key="frame" x="0.0" y="64" width="320" height="34"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Next profiles sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FQD-I0-1X0">
                                                         <rect key="frame" x="0.0" y="7" width="190" height="20.5"/>
@@ -271,64 +290,95 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xwi-jT-wbn">
-                                                        <rect key="frame" x="198" y="0.0" width="32" height="34"/>
+                                                        <rect key="frame" x="198" y="0.0" width="122" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                         <connections>
-                                                            <action selector="sampleRateEdited:" destination="NZr-bH-g9o" eventType="valueChanged" id="E9x-jh-dfI"/>
+                                                            <action selector="sampleRateEdited:" destination="NZr-bH-g9o" eventType="editingDidEnd" id="M9R-4P-Hu3"/>
                                                         </connections>
                                                     </textField>
                                                 </subviews>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="zeP-Kl-5q9">
-                                                <rect key="frame" x="9" y="146" width="303" height="34"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="zeP-Kl-5q9">
+                                                <rect key="frame" x="0.0" y="102" width="320" height="34"/>
                                                 <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ldr-gc-aLt">
-                                                        <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="samplerSwitchToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="Ut3-59-6M7"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Next profiles sampler value" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-dR-4qq">
-                                                        <rect key="frame" x="57" y="7" width="206" height="20.5"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Next traces sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-dR-4qq">
+                                                        <rect key="frame" x="0.0" y="7" width="181" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zf3-tk-iEk">
-                                                        <rect key="frame" x="271" y="0.0" width="32" height="34"/>
+                                                        <rect key="frame" x="189" y="0.0" width="131" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                         <connections>
-                                                            <action selector="samplerValueEdited:" destination="NZr-bH-g9o" eventType="valueChanged" id="AXp-GO-pds"/>
+                                                            <action selector="tracesSampleRateEdited:" destination="NZr-bH-g9o" eventType="editingDidEnd" id="eL9-ZN-pHn"/>
                                                         </connections>
                                                     </textField>
                                                 </subviews>
-                                                <viewLayoutGuide key="safeArea" id="rlW-hU-UvU"/>
+                                                <viewLayoutGuide key="safeArea" id="fFg-gn-sbi"/>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="0lw-9O-whJ">
-                                                <rect key="frame" x="88" y="180" width="145" height="31"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="dS1-Su-a5x">
+                                                <rect key="frame" x="0.0" y="140" width="320" height="31"/>
                                                 <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Vu-fg-In9">
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8bN-UU-QZD">
                                                         <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="profileAppStartsToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="GvQ-9R-Xa9"/>
+                                                        </connections>
                                                     </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profiling V2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OET-Ys-74j">
-                                                        <rect key="frame" x="57" y="5.5" width="88" height="20.5"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profile app starts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z9g-ZQ-nd9">
+                                                        <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
-                                                <viewLayoutGuide key="safeArea" id="eaF-g8-bu4"/>
+                                                <viewLayoutGuide key="safeArea" id="RlG-tL-5qm"/>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="mzj-bg-VRX">
+                                                <rect key="frame" x="0.0" y="175" width="320" height="31"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <subviews>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gze-1d-uyQ">
+                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="continuousProfilingV1Toggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="MEf-2L-dUa"/>
+                                                        </connections>
+                                                    </switch>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Continuous profiling V1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xOQ-KY-MLE">
+                                                        <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <viewLayoutGuide key="safeArea" id="gJu-5R-hWW"/>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DVc-uT-M38">
-                                                <rect key="frame" x="64" y="211" width="193" height="65"/>
+                                                <rect key="frame" x="0.0" y="210" width="320" height="96"/>
                                                 <subviews>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="SXh-2A-peo">
-                                                        <rect key="frame" x="0.0" y="0.0" width="193" height="34"/>
-                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0lw-9O-whJ">
+                                                        <rect key="frame" x="0.0" y="0.0" width="320" height="31"/>
+                                                        <subviews>
+                                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Vu-fg-In9">
+                                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                                <connections>
+                                                                    <action selector="profilingV2Toggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="WrH-fV-vSS"/>
+                                                                </connections>
+                                                            </switch>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profiling V2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OET-Ys-74j">
+                                                                <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <viewLayoutGuide key="safeArea" id="eaF-g8-bu4"/>
+                                                    </stackView>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="SXh-2A-peo">
+                                                        <rect key="frame" x="0.0" y="31" width="320" height="34"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Session sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fF1-ly-MDN">
                                                                 <rect key="frame" x="0.0" y="7" width="153" height="20.5"/>
@@ -336,23 +386,28 @@
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
-                                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="U13-Gw-eUj">
-                                                                <rect key="frame" x="161" y="0.0" width="32" height="34"/>
+                                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Default: 0" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="U13-Gw-eUj">
+                                                                <rect key="frame" x="161" y="0.0" width="159" height="34"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                 <textInputTraits key="textInputTraits"/>
+                                                                <connections>
+                                                                    <action selector="sessionSampleRateChanged:" destination="NZr-bH-g9o" eventType="editingDidEnd" id="cnB-mA-wYx"/>
+                                                                </connections>
                                                             </textField>
                                                         </subviews>
                                                         <viewLayoutGuide key="safeArea" id="8xH-Zh-geM"/>
                                                     </stackView>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="W6x-yz-w2T">
-                                                        <rect key="frame" x="0.0" y="34" width="193" height="31"/>
-                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="W6x-yz-w2T">
+                                                        <rect key="frame" x="0.0" y="65" width="320" height="31"/>
                                                         <subviews>
                                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LE4-ET-8Nj">
                                                                 <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                                <connections>
+                                                                    <action selector="traceLifecycleToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="aFQ-Gx-ZDF"/>
+                                                                </connections>
                                                             </switch>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Trace lifecycle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EfE-Zl-aAj">
-                                                                <rect key="frame" x="57" y="5.5" width="136" height="20.5"/>
+                                                                <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -361,9 +416,11 @@
                                                         <viewLayoutGuide key="safeArea" id="eNW-7k-qBt"/>
                                                     </stackView>
                                                 </subviews>
+                                                <viewLayoutGuide key="safeArea" id="Xjs-qf-kxh"/>
+                                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LIr-jM-FSX">
-                                                <rect key="frame" x="19.5" y="276" width="282" height="50"/>
+                                                <rect key="frame" x="0.0" y="310" width="320" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI test data marshalling:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhg-B3-Rao" userLabel="UI test data marshaling:">
                                                         <rect key="frame" x="0.0" y="15" width="184" height="20.5"/>
@@ -372,34 +429,33 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5zI-Ix-rMJ">
-                                                        <rect key="frame" x="192" y="8" width="32" height="34"/>
+                                                        <rect key="frame" x="192" y="8" width="70" height="34"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-tests.profile-marshaling-text-field"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                     </textField>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2LR-W8-mNE" userLabel="Profiling UI Test Data Marshaling status">
-                                                        <rect key="frame" x="232" y="0.0" width="50" height="50"/>
+                                                        <rect key="frame" x="270" y="0.0" width="50" height="50"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
+                                                <viewLayoutGuide key="safeArea" id="mvt-jF-k3t"/>
                                             </stackView>
-                                            <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uTM-T7-Gv6">
-                                                <rect key="frame" x="144.5" y="326" width="32" height="0.0"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="io.sentry.benchmark.value-marshaling-text-field"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
-                                            </textField>
                                         </subviews>
                                     </stackView>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="b1f-aG-VcS" firstAttribute="width" secondItem="ntC-Ea-bhK" secondAttribute="width" id="bNm-Xk-fsf"/>
+                                </constraints>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3iU-yQ-Fps"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="ntC-Ea-bhK" firstAttribute="trailing" secondItem="3iU-yQ-Fps" secondAttribute="trailing" id="K70-2E-qbr"/>
                             <constraint firstItem="ntC-Ea-bhK" firstAttribute="leading" secondItem="3iU-yQ-Fps" secondAttribute="leading" id="NHM-EL-Mkg"/>
-                            <constraint firstItem="ntC-Ea-bhK" firstAttribute="trailing" secondItem="3iU-yQ-Fps" secondAttribute="trailing" id="NPD-XV-Ct1"/>
                             <constraint firstItem="3iU-yQ-Fps" firstAttribute="top" secondItem="ntC-Ea-bhK" secondAttribute="top" id="e00-Vi-FWO"/>
                             <constraint firstItem="3iU-yQ-Fps" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ntC-Ea-bhK" secondAttribute="bottom" id="ris-1h-B6Y"/>
                         </constraints>
@@ -408,14 +464,15 @@
                     <connections>
                         <outlet property="dsnView" destination="b1f-aG-VcS" id="cP6-26-jVy"/>
                         <outlet property="launchProfilingMarkerFileCheckButton" destination="keL-m5-7hv" id="PRA-Jy-Ola"/>
+                        <outlet property="profileAppStartsSwitch" destination="8bN-UU-QZD" id="OkT-LI-spn"/>
                         <outlet property="profilingUITestDataMarshalingStatus" destination="2LR-W8-mNE" id="S4k-Yg-EsB"/>
                         <outlet property="profilingUITestDataMarshalingTextField" destination="5zI-Ix-rMJ" id="2o6-Cc-NMl"/>
                         <outlet property="profilingV2Stack" destination="DVc-uT-M38" id="4hr-sl-gIF"/>
                         <outlet property="profilingV2Switch" destination="5Vu-fg-In9" id="0Vl-KF-cFM"/>
                         <outlet property="sampleRateField" destination="Xwi-jT-wbn" id="XpH-kw-BQZ"/>
-                        <outlet property="samplerSwitch" destination="ldr-gc-aLt" id="GYi-4L-XSQ"/>
-                        <outlet property="samplerValueField" destination="zio-dR-4qq" id="NF8-Du-uSv"/>
-                        <outlet property="valueTextField" destination="uTM-T7-Gv6" id="M59-lx-juE"/>
+                        <outlet property="sessionSampleRateField" destination="U13-Gw-eUj" id="2ga-SC-ftw"/>
+                        <outlet property="traceLifecycleSwitch" destination="LE4-ET-8Nj" id="lID-WQ-nMk"/>
+                        <outlet property="tracesSampleRateField" destination="zf3-tk-iEk" id="zZn-Dc-pUc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MLd-fY-Tsv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -823,7 +880,8 @@
                         <segue destination="QmU-DD-itF" kind="relationship" relationship="viewControllers" id="8ms-Et-jnA"/>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="WZb-N9-7Fs"/>
                         <segue destination="VqS-l1-kwe" kind="relationship" relationship="viewControllers" id="4xB-07-xBR"/>
-                        <segue destination="NZr-bH-g9o" kind="relationship" relationship="viewControllers" id="oN7-Yv-7FU"/>
+                        <segue destination="NZr-bH-g9o" kind="relationship" relationship="viewControllers" id="QeG-0S-MzX"/>
+                        <segue destination="aU9-zi-mBa" kind="relationship" relationship="viewControllers" id="w0L-TJ-bTb"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZEF-L9-zzL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1301,13 +1359,13 @@
         <!--Benchmarking-->
         <scene sceneID="j16-1Z-EP5">
             <objects>
-                <viewController id="aU9-zi-mBa" customClass="BenchmarkingViewContrtoller" sceneMemberID="viewController">
+                <viewController id="aU9-zi-mBa" customClass="BenchmarkingViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Zsq-8c-G49">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="29" translatesAutoresizingMaskIntoConstraints="NO" id="iWa-mg-185">
-                                <rect key="frame" x="0.0" y="20" width="320" height="343.5"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="343.5"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BgI-TB-kbW">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
@@ -1497,15 +1555,13 @@
                         <outlet property="minThreadsTextField" destination="004-v0-7Qd" id="1KN-gE-FmB"/>
                         <outlet property="minWorkIntensityTextField" destination="Klc-Qa-HQ2" id="H45-fH-mC1"/>
                         <outlet property="valueTextField" destination="32C-fK-f1m" id="6xf-Dh-O7L"/>
-                        <outlet property="workIntensityFactorLabel" destination="MUM-bP-9Dd" id="rnc-6a-ymq"/>
                         <outlet property="workIntervalSlider" destination="Atu-de-lTB" id="HPK-3t-Ihe"/>
-                        <outlet property="workThreadLabel" destination="Nww-JZ-rV7" id="tMs-jq-U8X"/>
                         <outlet property="workThreadSlider" destination="ed1-6K-k0m" id="nef-ga-fcN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tQB-KH-TlY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-199" y="2540"/>
+            <point key="canvasLocation" x="-201" y="3364"/>
         </scene>
     </scenes>
     <resources>
@@ -1517,6 +1573,9 @@
         <image name="flame.fill" catalog="system" width="106" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

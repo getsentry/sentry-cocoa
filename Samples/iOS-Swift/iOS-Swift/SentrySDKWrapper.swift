@@ -386,19 +386,19 @@ extension SentrySDKWrapper {
     var enableCrashHandling: Bool { !checkDisabled(with: "--disable-crash-handler") }
     
     var tracesSampleRate: NSNumber {
-        guard let tracesSampleRateOverride = env["--io.sentry.tracesSampleRate"] else {
+        guard let tracesSampleRateOverride = SentrySDKOverrides.Tracing.sampleRate else {
             return 1
         }
-        return NSNumber(value: (tracesSampleRateOverride as NSString).integerValue)
+        return NSNumber(value: tracesSampleRateOverride)
     }
     
     var tracesSampler: ((SamplingContext) -> NSNumber?)? {
-        guard let tracesSamplerValue = env["--io.sentry.tracesSamplerValue"] else {
+        guard let tracesSamplerValue = SentrySDKOverrides.Tracing.samplerValue else {
             return nil
         }
         
         return { _ in
-            return NSNumber(value: (tracesSamplerValue as NSString).integerValue)
+            return NSNumber(value: tracesSamplerValue)
         }
     }
 }
@@ -406,11 +406,11 @@ extension SentrySDKWrapper {
 // MARK: Profiling configuration
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-        if args.contains(SentrySDKTestConfiguration.Profiling.Key.useProfilingV2.rawValue) {
+        if SentrySDKOverrides.Profiling.useProfilingV2 {
             options.configureProfiling = {
-                $0.lifecycle = SentrySDKTestConfiguration.Profiling.getLifecycle()
-                $0.sessionSampleRate = SentrySDKTestConfiguration.Profiling.getSessionSampleRate()
-                $0.profileAppStarts = SentrySDKTestConfiguration.Profiling.shouldProfileLaunches()
+                $0.lifecycle = SentrySDKOverrides.Profiling.lifecycle
+                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 0
+                $0.profileAppStarts = SentrySDKOverrides.Profiling.profileAppStarts
             }
         } else {
             options.profilesSampleRate = profilesSampleRate
@@ -420,9 +420,9 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampleRate: NSNumber? {
-        if args.contains(SentrySDKTestConfiguration.Profiling.Key.continuousProfilingV1.rawValue) {
+        if SentrySDKOverrides.Profiling.useContinuousProfilingV1 {
             return nil
-        } else if let profilesSampleRateOverride = SentrySDKTestConfiguration.Profiling.getSampleRate() {
+        } else if let profilesSampleRateOverride = SentrySDKOverrides.Profiling.sampleRate {
             return NSNumber(value: profilesSampleRateOverride)
         } else {
             return 1
@@ -430,11 +430,11 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampler: ((SamplingContext) -> NSNumber?)? {
-        guard !args.contains(SentrySDKTestConfiguration.Profiling.Key.continuousProfilingV1.rawValue) else {
+        guard !SentrySDKOverrides.Profiling.useContinuousProfilingV1 else {
             return nil
         }
         
-        guard let profilesSamplerValue = SentrySDKTestConfiguration.Profiling.getSamplerValue() else {
+        guard let profilesSamplerValue = SentrySDKOverrides.Profiling.samplerValue else {
             return nil
         }
         
@@ -443,7 +443,7 @@ extension SentrySDKWrapper {
         }
     }
     
-    var enableAppLaunchProfiling: Bool { SentrySDKTestConfiguration.Profiling.shouldProfileLaunches() }
+    var enableAppLaunchProfiling: Bool { SentrySDKOverrides.Profiling.profileAppStarts }
 }
 
 // swiftlint:enable file_length function_body_length

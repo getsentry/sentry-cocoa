@@ -7,26 +7,23 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var profilingUITestDataMarshalingStatus: UILabel!
         
     @IBOutlet weak var sampleRateField: UITextField!
-    @IBOutlet weak var samplerSwitch: UISwitch!
-    @IBOutlet weak var samplerValueField: UILabel!
-
+    @IBOutlet weak var tracesSampleRateField: UITextField!
+    @IBOutlet weak var profileAppStartsSwitch: UISwitch!
+    
     @IBOutlet weak var profilingV2Switch: UISwitch!
     @IBOutlet weak var profilingV2Stack: UIStackView!
-
+    @IBOutlet weak var traceLifecycleSwitch: UISwitch!
+    @IBOutlet weak var sessionSampleRateField: UITextField!
+    
     @IBOutlet weak var dsnView: UIView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        profilingUITestDataMarshalingTextField.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
-        launchProfilingMarkerFileCheckButton.accessibilityLabel = "io.sentry.ui-tests.app-launch-profile-marker-file-button"
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        SentrySDK.reportFullyDisplayed()
-        
         addDSNDisplay(self, vcview: dsnView)
+        optionsConfiguration()
+    }
 
+    func optionsConfiguration() {
         guard let options = SentrySDK.currentHub().getClient()?.options else { return }
 
         if let sampleRate = options.profilesSampleRate {
@@ -35,16 +32,27 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
             sampleRateField.text = "nil"
         }
 
-        samplerSwitch.isOn = options.profilesSampler != nil
-        if options.profilesSampler != nil {
-            if let samplerValue = SentrySDKTestConfiguration.Profiling.getSamplerValue() {
-                samplerValueField.text = String(format: "%.2f", samplerValue)
-            } else {
-                samplerValueField.text = "dynamic"
-            }
+        if let sampleRate = options.tracesSampleRate {
+            tracesSampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
+        } else {
+            tracesSampleRateField.text = "nil"
         }
 
-        profilingV2Switch.isOn = options.configureProfiling != nil
+        if let v2Options = options.profiling {
+            profilingV2Switch.isOn = true
+            traceLifecycleSwitch.isOn = v2Options.lifecycle == .trace
+            sessionSampleRateField.text = String(format: "%.2f", v2Options.sessionSampleRate)
+            profileAppStartsSwitch.isOn = v2Options.profileAppStarts
+        } else {
+            profilingV2Switch.isOn = false
+            traceLifecycleSwitch.isOn = false
+            profileAppStartsSwitch.isOn = options.enableAppLaunchProfiling
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        SentrySDK.reportFullyDisplayed()
     }
 
     @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
@@ -80,31 +88,45 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func sampleRateEdited(_ sender: UITextField) {
         guard let text = sender.text, !text.isEmpty else {
-            UserDefaults.standard.removeObject(forKey: SentrySDKTestConfiguration.Profiling.Key.sampleRate.rawValue)
+            SentrySDKOverrides.Profiling.sampleRate = nil
             return
         }
 
-        let rate = (text as NSString).floatValue
-        UserDefaults.standard.set(rate, forKey: SentrySDKTestConfiguration.Profiling.Key.sampleRate.rawValue)
-    }
-
-    @IBAction func samplerSwitchToggled(_ sender: UISwitch) {
-        if sender.isOn {
-            if let text = samplerValueField.text {
-                let rate = (text as NSString).floatValue
-                UserDefaults.standard.set(rate, forKey: SentrySDKTestConfiguration.Profiling.Key.samplerValue.rawValue)
-                samplerValueField.text = String(format: "%.2f", rate)
-            }
-        } else {
-            UserDefaults.standard.removeObject(forKey: SentrySDKTestConfiguration.Profiling.Key.samplerValue.rawValue)
-        }
+        SentrySDKOverrides.Profiling.sampleRate = (text as NSString).floatValue
     }
     
-    @IBAction func samplerValueEdited(_ sender: UITextField) {
-        if let text = sender.text {
-            let rate = (text as NSString).floatValue
-            UserDefaults.standard.set(rate, forKey: SentrySDKTestConfiguration.Profiling.Key.samplerValue.rawValue)
+    @IBAction func tracesSampleRateEdited(_ sender: UITextField) {
+        guard let text = sender.text, !text.isEmpty else {
+            SentrySDKOverrides.Tracing.sampleRate = nil
+            return
         }
+
+        SentrySDKOverrides.Tracing.sampleRate = (text as NSString).floatValue
+    }
+
+    @IBAction func profileAppStartsToggled(_ sender: UISwitch) {
+        SentrySDKOverrides.Profiling.profileAppStarts = sender.isOn
+    }
+
+    @IBAction func continuousProfilingV1Toggled(_ sender: UISwitch) {
+        SentrySDKOverrides.Profiling.useContinuousProfilingV1 = sender.isOn
+    }
+
+    @IBAction func traceLifecycleToggled(_ sender: UISwitch) {
+        SentrySDKOverrides.Profiling.lifecycle = sender.isOn ? .trace : .manual
+    }
+
+    @IBAction func sessionSampleRateChanged(_ sender: UITextField) {
+        guard let text = sender.text, !text.isEmpty else {
+            SentrySDKOverrides.Profiling.sessionSampleRate = nil
+            return
+        }
+
+        SentrySDKOverrides.Profiling.sessionSampleRate = (text as NSString).floatValue
+    }
+    
+    @IBAction func profilingV2Toggled(_ sender: UISwitch) {
+        SentrySDKOverrides.Profiling.useProfilingV2 = sender.isOn
     }
 
     // MARK: UITextFieldDelegate

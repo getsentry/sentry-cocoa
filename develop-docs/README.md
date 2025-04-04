@@ -183,19 +183,21 @@ The profiler will automatically time out if it is not stopped within 30 seconds,
 
 With transaction profiling, there's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`.
 
-App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
+App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so. If TTID/TTFD tracking is also enabled, then the launch profile is stopped when the SDK detects that initial/full display have completed, instead of when `SentrySDK.startWithOptions` is called.
 
-### Continuous profiling
+### Continuous profiling (beta)
 
 With continuous profiling, there's also only ever one profiler instance running at a time. They are either started manually by customers or automatically based on active root span counts. They aren't tied to transactions otherwise so are immediately captured in envelopes when stopped.
+
+### UI Profiling
+
+Also referred to in implementation as continuous profiling V2. Essentially a combination of transaction-based profiling (although now focused on "root spans" instead of transactions) for the trace lifecycle and continuous profiling beta for the manual lifecycle, with the exception that manual mode also respects a configured sample rate.
 
 ### Sample apps
 
 The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes.
 
-By default, they use transaction-based profiling with a sample rate of 1, which can be overridden using the environment variable `--io.sentry.profilesSampleRate` (or `--io.sentry.profilesSamplerValue` to return a different value from the sampler function, which will be used instead of `SentryOptions.profilesSampleRate` if set). Either of these can be set to `nil` to enable the first iteration of continuous profiling, which is now deprecated.
-
-You can enable the launch arg `--io.sentry.profile-options-v2` to use the new continuous profiling API. By default, `SentryProfileLifecycleTrace` is used, which can be overridden to `SentryProfileLifecycleManual` by enabling the launch arg `--io.sentry.profile-lifecycle-manual`.
+In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and take precedence over launch arg and env variable settings when both are present. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
 
 ### Testing
 

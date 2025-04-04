@@ -135,11 +135,11 @@ extension ProfilingUITests {
     }
     
     func retrieveLastProfileData() {
-        app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-last-profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func retrieveFirstProfileChunkData() {
-        app.buttons["viewFirstContinuousProfileChunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-first-continuous-profile-chunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func stopContinuousProfiler() {

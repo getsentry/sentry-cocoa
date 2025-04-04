@@ -2,10 +2,6 @@ import Sentry
 import UIKit
 
 class BenchmarkingViewController: UIViewController, UITextFieldDelegate {
-
-    @IBOutlet weak var workThreadLabel: UILabel!
-    @IBOutlet weak var workIntensityFactorLabel: UILabel!
-    
     @IBOutlet weak var workThreadSlider: UISlider!
     @IBOutlet weak var workIntervalSlider: UISlider!
     
@@ -25,13 +21,12 @@ class BenchmarkingViewController: UIViewController, UITextFieldDelegate {
         [maxThreadsTextField, minThreadsTextField, minWorkIntensityTextField, maxWorkIntensityTextField].forEach {
             $0?.delegate = self
         }
+        addDSNDisplay(self, vcview: dsnView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
-        
-        addDSNDisplay(self, vcview: dsnView)
     }
     
     @IBAction func startBenchmark(_ sender: UIButton) {

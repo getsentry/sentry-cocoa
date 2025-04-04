@@ -236,13 +236,13 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "--io.sentry.tracesSampleRate"
-            value = ""
-            isEnabled = "NO">
+            value = "0.5"
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSampleRate"
-            value = ""
-            isEnabled = "NO">
+            value = "0.5"
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.tracesSamplerValue"
