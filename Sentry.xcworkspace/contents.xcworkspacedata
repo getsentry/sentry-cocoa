@@ -35,6 +35,9 @@
          location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
    </Group>
