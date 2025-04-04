@@ -66,5 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 try! FileManager.default.removeItem(atPath: ($0 as NSString).appendingPathComponent((item as! String)))
             }
         }
+
+        SentrySDKOverrides.resetDefaults()
     }
 }

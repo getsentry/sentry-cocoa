@@ -35,9 +35,9 @@
 
         if ([args containsObject:@"--io.sentry.profile-options-v2"]) {
             options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
-                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
-                    ? SentryProfileLifecycleManual
-                    : SentryProfileLifecycleTrace;
+                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-trace"]
+                    ? SentryProfileLifecycleTrace
+                    : SentryProfileLifecycleManual;
 
                 profiling.sessionSampleRate = 1.f;
                 if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
