@@ -1,4 +1,5 @@
 #import "SentryCrashWrapper.h"
+#import "Sentry/SentryOptions.h"
 #import "SentryCrash.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashIntegration.h"
@@ -106,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrashbic_stopCache();
 }
 
-- (void)enrichScope:(SentryScope *)scope
+- (void)enrichScope:(SentryScope *)scope withOption:(SentryOptions *)options;
 {
     // OS
     NSMutableDictionary *osData = [NSMutableDictionary new];
@@ -183,16 +184,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 // The UIWindowScene is unavailable on visionOS
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-
-    NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
-    if ([appWindows count] > 0) {
-        UIScreen *appScreen = appWindows.firstObject.screen;
-        if (appScreen != nil) {
-            [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
-            [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+    if (options.enableAutoSessionTracking) {
+        NSArray<UIWindow *> *appWindows
+            = SentryDependencyContainer.sharedInstance.application.windows;
+        if ([appWindows count] > 0) {
+            UIScreen *appScreen = appWindows.firstObject.screen;
+            if (appScreen != nil) {
+                [deviceData setValue:@(appScreen.bounds.size.height)
+                              forKey:@"screen_height_pixels"];
+                [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+            }
         }
     }
-
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];

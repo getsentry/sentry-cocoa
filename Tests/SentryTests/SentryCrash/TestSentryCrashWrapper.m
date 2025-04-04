@@ -88,10 +88,10 @@
     return self.internalAppMemorySize;
 }
 
-- (void)enrichScope:(SentryScope *)scope
+- (void)enrichScope:(SentryScope *)scope withOption:(SentryOptions *)options
 {
     self.enrichScopeCalled = YES;
-    [super enrichScope:scope];
+    [super enrichScope:scope withOption:options];
 }
 
 @end
