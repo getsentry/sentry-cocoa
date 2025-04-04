@@ -111,13 +111,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing 
      * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
-     * **up to 4-5x faster rendering** (reducing `~160ms` to `~36ms` per frame).
+     * **up to 4-5x faster rendering** (reducing `~160ms` to `~36ms` per frame) on older devices.
      *
-     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
-     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). Eventually, we will
-     *               remove this feature flag and use the experimental view renderer by default.
+     * - Experiment: In case you are noticing issues with the experimental view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). 
+     *               Eventually, we will remove this feature flag and use the experimental view renderer by default.
      */
-    public var enableExperimentalViewRenderer = false
+    public var enableExperimentalViewRenderer = true
 
     /**
      * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
