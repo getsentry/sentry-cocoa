@@ -139,7 +139,7 @@ extension ProfilingUITests {
     }
     
     func retrieveFirstProfileChunkData() {
-        app.buttons["io.sentry.ui-tests.view-first-continuous-profile-chunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-first-continuous-profile-chunk"].afterWaitingForExistence("Couldn't find button to view first profile chunk").tap()
     }
     
     func stopContinuousProfiler() {
@@ -187,14 +187,14 @@ extension ProfilingUITests {
             if v2TraceLifecycle {
                 app.launchArguments.append(contentsOf: [
                     "--io.sentry.profile-options-v2",
-                    "--io.sentry.profile-app-starts-v2"
+                    "--io.sentry.profile-app-starts-v2",
+                    "--io.sentry.profile-lifecycle-trace"
                 ])
                 app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
             } else if v2ManualLifecycle {
                 app.launchArguments.append(contentsOf: [
                     "--io.sentry.profile-options-v2",
-                    "--io.sentry.profile-app-starts-v2",
-                    "--io.sentry.profile-lifecycle-manual"
+                    "--io.sentry.profile-app-starts-v2"
                 ])
                 app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
             }

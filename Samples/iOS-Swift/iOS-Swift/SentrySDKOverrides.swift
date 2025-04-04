@@ -1,10 +1,18 @@
 import Foundation
 
-protocol OverrideKey: RawRepresentable {
+protocol OverrideKey: RawRepresentable, CaseIterable {
     var rawValue: String { get }
 }
 
 enum SentrySDKOverrides {
+    static let defaultSuiteName = "io.sentry.iOS-Swift"
+
+    static func resetDefaults() {
+        for key in Tracing.Key.allCases.map(\.rawValue) + Profiling.Key.allCases.map(\.rawValue) {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+
     enum Tracing {
         enum Key: String, OverrideKey {
             case sampleRate = "--io.sentry.tracesSampleRate"
