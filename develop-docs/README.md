@@ -199,6 +199,8 @@ The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch 
 
 In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and take precedence over launch arg and env variable settings when both are present. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
 
+Note that the settings don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This also means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
+
 ### Testing
 
 ### Continuous profiling
