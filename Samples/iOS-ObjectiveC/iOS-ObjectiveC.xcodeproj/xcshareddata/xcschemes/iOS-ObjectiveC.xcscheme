@@ -77,12 +77,12 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.profile-lifecycle-manual"
-            isEnabled = "NO">
+            argument = "--io.sentry.profile-lifecycle-trace"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-options-v2"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-app-launches"
@@ -112,8 +112,8 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profile-session-sample-rate"
-            value = ""
-            isEnabled = "NO">
+            value = "1.0"
+            isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

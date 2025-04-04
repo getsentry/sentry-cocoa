@@ -197,23 +197,11 @@ Also referred to in implementation as continuous profiling V2. Essentially a com
 
 The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes.
 
+By default, the launch arguments for the iOS-Swift and iOS-ObjectiveC schemas are configured to use UI Profiling with trace lifecycle (to override the default of manual lifecycle) and a session sample rate of 1 (to override the default of 0).
+
 In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and take precedence over launch arg and env variable settings when both are present. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
 
 Note that the settings don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This also means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
-
-### Testing
-
-### Continuous profiling
-
-With continuous profiling, there's also only ever one profiler instance running at a time. They are either started manually by customers or automatically based on active root span counts. They aren't tied to transactions otherwise so are immediately captured in envelopes when stopped.
-
-### Sample apps
-
-The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes.
-
-By default, they use transaction-based profiling with a sample rate of 1, which can be overridden using the environment variable `--io.sentry.profilesSampleRate` (or `--io.sentry.profilesSamplerValue` to return a different value from the sampler function, which will be used instead of `SentryOptions.profilesSampleRate` if set). Either of these can be set to `nil` to enable the first iteration of continuous profiling, which is now deprecated.
-
-You can enable the launch arg `--io.sentry.profile-options-v2` to use the new continuous profiling API. By default, `SentryProfileLifecycleTrace` is used, which can be overridden to `SentryProfileLifecycleManual` by enabling the launch arg `--io.sentry.profile-lifecycle-manual`.
 
 ### Testing
 
