@@ -30,15 +30,14 @@ struct SentrySDKWrapper {
         
         options.tracesSampleRate = tracesSampleRate
         options.tracesSampler = tracesSampler
-        options.profilesSampleRate = profilesSampleRate
-        options.profilesSampler = profilesSampler
-        options.enableAppLaunchProfiling = enableAppLaunchProfiling
         
+        configureProfiling(options)
+
         options.enableAutoSessionTracking = enableSessionTracking
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
-        
+
         options.add(inAppInclude: "iOS_External")
         
         options.enableUserInteractionTracing = enableUITracing
@@ -105,9 +104,8 @@ struct SentrySDKWrapper {
         if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
             scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
         }
-        if let data = "hello".data(using: .utf8) {
-            scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-        }
+        let data = Data("hello".utf8)
+        scope.addAttachment(Attachment(data: data, filename: "log.txt"))
         return scope
     }
     
@@ -403,6 +401,23 @@ extension SentrySDKWrapper {
             return NSNumber(value: (tracesSamplerValue as NSString).integerValue)
         }
     }
+}
+
+// MARK: Profiling configuration
+extension SentrySDKWrapper {
+    func configureProfiling(_ options: Options) {
+        if args.contains("--io.sentry.profile-options-v2") {
+            options.configureProfiling = {
+                $0.lifecycle = args.contains("--io.sentry.profile-lifecycle-manual") ? .manual : .trace
+                $0.sessionSampleRate = (env["--io.sentry.profile-session-sample-rate"] as? NSString)?.floatValue ?? 1
+                $0.profileAppStarts = args.contains("--io.sentry.profile-app-starts-v2")
+            }
+        } else {
+            options.profilesSampleRate = profilesSampleRate
+            options.profilesSampler = profilesSampler
+            options.enableAppLaunchProfiling = enableAppLaunchProfiling
+        }
+    }
     
     var profilesSampleRate: NSNumber? {
         if args.contains("--io.sentry.enableContinuousProfiling") {
@@ -415,6 +430,10 @@ extension SentrySDKWrapper {
     }
     
     var profilesSampler: ((SamplingContext) -> NSNumber?)? {
+        guard !args.contains("--io.sentry.enableContinuousProfiling") else {
+            return nil
+        }
+        
         guard let profilesSamplerValue = env["--io.sentry.profilesSamplerValue"] else {
             return nil
         }

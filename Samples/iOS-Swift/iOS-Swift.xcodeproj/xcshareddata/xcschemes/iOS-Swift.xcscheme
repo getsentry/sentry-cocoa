@@ -81,6 +81,14 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.profile-lifecycle-manual"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.profile-options-v2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-time-to-full-display-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -177,7 +185,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--profile-app-launches"
+            argument = "--io.sentry.profile-app-launches"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -273,6 +281,11 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.user.name"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.profile-session-sample-rate"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
