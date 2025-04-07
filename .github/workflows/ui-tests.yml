@@ -67,21 +67,15 @@ jobs:
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI
-    runs-on: ${{matrix.runs-on}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runs-on: macos-13
-            xcode: "14.3.1"
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
             bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
+      - run: ./scripts/ci-select-xcode.sh 14.3.1
+      - run: ./scripts/ci-boot-simulator.sh --xcode 14.3.1
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swiftui
