@@ -81,12 +81,12 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.profile-lifecycle-manual"
-            isEnabled = "NO">
+            argument = "--io.sentry.profile-lifecycle-trace"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-options-v2"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-time-to-full-display-tracing"
@@ -286,8 +286,8 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profile-session-sample-rate"
-            value = ""
-            isEnabled = "NO">
+            value = "1"
+            isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

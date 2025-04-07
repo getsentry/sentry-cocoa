@@ -11,14 +11,13 @@ class TransactionsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        addDSNDisplay(self, vcview: dsnView)
         SentrySDK.reportFullyDisplayed()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         periodicallyDoWork()
-        
-        addDSNDisplay(self, vcview: dsnView)
     }
     
     override func viewDidDisappear(_ animated: Bool) {

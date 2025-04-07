@@ -75,6 +75,12 @@ sentry_configureContinuousProfiling(SentryOptions *options)
     }
 
     sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
+
+    SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
+                     @"%.2f\n  profileAppStarts: %@\n}",
+        options.profiling,
+        options.profiling.lifecycle == SentryProfileLifecycleTrace ? @"trace" : @"manual",
+        options.profiling.sessionSampleRate, options.profiling.profileAppStarts ? @"YES" : @"NO");
 }
 
 void
