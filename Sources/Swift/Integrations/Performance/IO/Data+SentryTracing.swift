@@ -3,7 +3,7 @@
 /// A ``Data`` extension that tracks read and write operations with Sentry.
 ///
 /// - Note: Methods provided by this extension reflect the same functionality as the original ``Data`` methods, but they track the operation with Sentry.
-public extension Foundation.Data {
+public extension Data {
 
     // MARK: - Reading Data from a File
 
@@ -21,7 +21,7 @@ public extension Foundation.Data {
     init(contentsOfWithSentryTracing url: URL, options: Foundation.Data.ReadingOptions = []) throws {
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
         let method = { (url: URL, options: Foundation.Data.ReadingOptions) throws -> Foundation.Data in
-            try Foundation.Data(contentsOf: url, options: options)
+            try Data(contentsOf: url, options: options)
         }
         guard let tracker = SentryFileIOTracker.sharedInstance() else {
             self = try method(url, options)
@@ -51,7 +51,7 @@ public extension Foundation.Data {
     /// - Note: See ``Data.write(to:options:)`` for more information.
     func writeWithSentryTracing(to url: URL, options: Foundation.Data.WritingOptions = []) throws {
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        let method = { (data: Foundation.Data, url: URL, options: Foundation.Data.WritingOptions) throws in
+        let method = { (data: Data, url: URL, options: Foundation.Data.WritingOptions) throws in
             try data.write(to: url, options: options)
         }
         guard let tracker = SentryFileIOTracker.sharedInstance() else {
