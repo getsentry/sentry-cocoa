@@ -988,6 +988,23 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(unit.unit, try XCTUnwrap(measurement["unit"] as? String))
     }
 
+    func testMeasurement_NameIsNil_MeasurementsGetsDiscarded() throws {
+        // Arrange
+        let sut = fixture.getSut()
+
+        // Act
+        testing_setMeasurementWithNilName(sut, 0.0)
+        testing_setMeasurementWithNilNameAndUnit(sut, 0.0, MeasurementUnitFraction.percent)
+
+        // Assert
+        sut.finish()
+
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+
+        XCTAssertNil(serializedTransaction?["measurements"])
+    }
+
     func testFinish_WithUnfinishedChildren() {
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)

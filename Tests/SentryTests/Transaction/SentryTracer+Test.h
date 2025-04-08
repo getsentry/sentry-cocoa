@@ -10,4 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+void testing_setMeasurementWithNilName(SentryTracer *tracer, NSNumber *value);
+
+void testing_setMeasurementWithNilNameAndUnit(
+    SentryTracer *tracer, NSNumber *value, SentryMeasurementUnit *unit);
+
 NS_ASSUME_NONNULL_END

@@ -21,6 +21,7 @@
 ### Fixes
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+- Crash in setMeasurement when name is nil (#5064)
 
 ### Improvements
 

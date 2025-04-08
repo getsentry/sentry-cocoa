@@ -423,13 +423,27 @@ static BOOL appStartMeasurementRead;
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value];
-    _measurements[name] = measurement;
+
+    [self setMeasurement:name measurement:measurement];
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
+
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
                                                                                    unit:unit];
+    [self setMeasurement:name measurement:measurement];
+}
+
+- (void)setMeasurement:(NSString *)name measurement:(SentryMeasurementValue *)measurement
+{
+    // Although name is nonnull we saw edge cases where it was nil and then leading to crashes. If
+    // the name is nil we can discard the measurement
+    if (name == nil) {
+        SENTRY_LOG_ERROR(@"The name of the measurement is nil. Discarding the measurement.");
+        return;
+    }
+
     _measurements[name] = measurement;
 }
 
