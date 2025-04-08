@@ -65,7 +65,7 @@ jobs:
             xcode: 15.4
             runs-on: macos-14
           - scheme: watchOS-Swift WatchKit App
-            platform: watchOS
+            platform: iOS
             xcode: 15.4
             runs-on: macos-14
           # Only compiles on Xcode 16+
@@ -75,7 +75,7 @@ jobs:
             runs-on: macos-15
           - scheme: SessionReplay-CameraTest
             platform: iOS
-            xcode: 16.2
+            xcode: 15.4
             runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
