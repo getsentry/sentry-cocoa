@@ -28,6 +28,7 @@ struct SentrySDKWrapper {
             options.enableMetricKitRawPayload = true
         }
 
+        options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate {
             options.tracesSampleRate = NSNumber(value: sampleRate)
         }
