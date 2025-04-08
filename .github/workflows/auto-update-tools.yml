@@ -1,3 +1,10 @@
+# This workflow is used to update the custom tooling versions for the project.
+#
+# We prefer to use Dependabot to update external dependencies, but at this time it does not include Homebrew as a supported package manager (https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories).
+# Furthermore, neither `swiftlint` nor `clang-format` are listed as dependencies in our repository, therefore also not picked up by Dependabot.
+#
+# Therefore we are using a custom workflow to update relevant files and open a pull request with the changes.
+
 name: "Automation: Update tooling versions"
 
 on:
