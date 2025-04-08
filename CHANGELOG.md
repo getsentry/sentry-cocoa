@@ -4,7 +4,7 @@
 
 ### Features
 
-- New continuous profiling configuration API (#4952)
+- New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
 > With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
