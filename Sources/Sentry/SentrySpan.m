@@ -112,10 +112,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (context.parentSpanId == nil) {
-        SENTRY_LOG_DEBUG(@"Started root span with id %@", _spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"Started root span with id %@", context.spanId.sentrySpanIdString);
     } else {
-        SENTRY_LOG_DEBUG(@"Started span with id %@; parent id %@", _spanId.sentrySpanIdString,
-            _parentSpanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"Started span with id %@; parent id %@",
+            context.spanId.sentrySpanIdString, _parentSpanId.sentrySpanIdString);
     }
     return self;
 }
