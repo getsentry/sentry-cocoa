@@ -101,6 +101,8 @@ extension SentryProfiledTracerConcurrencyTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+    class ProfiledViewController: UIViewController {}
+
     func testLaunchProfileStartAndStopWithTTFD() throws {
         // Arrange
         fixture.options.profilesSampleRate = nil
@@ -110,20 +112,9 @@ extension SentryProfiledTracerConcurrencyTests {
             $0.profileAppStarts = true
         }
         fixture.options.enableTimeToFullDisplayTracing = true
-//        fixture.givenSdkWithHub()
-
-//        let tracker = SentryTimeToDisplayTracker(name: "test TTFD tracker", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-//        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: fixture.hub, configuration: SentryTracerConfiguration(block: {
-//            $0.waitForChildren = true
-//        }))
-//        tracker.start(for: tracer)
-
+        fixture.options.add(inAppInclude: "uikitcore")
+        SentryDependencyContainer.sharedInstance()
         SentrySDK.start(options: fixture.options)
-
-        let uivc = UIViewController(nibName: nil, bundle: nil)
-        uivc.loadView()
-        uivc.viewWillAppear(false)
-        fixture.displayLinkWrapper.call()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
@@ -136,8 +127,23 @@ extension SentryProfiledTracerConcurrencyTests {
         XCTAssertEqual(_gInFlightRootSpans, 1)
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
+        let uivc = ProfiledViewController(nibName: nil, bundle: nil)
+        uivc.loadView()
+        uivc.viewWillAppear(false)
+        fixture.displayLinkWrapper.call()
+
+        // Assert
+        XCTAssertEqual(_gInFlightRootSpans, 2)
+
         // Act
         sentry_stopAndDiscardLaunchProfileTracer()
+
+        // Assert
+        XCTAssertEqual(_gInFlightRootSpans, 1)
+
+        // Act
+        uivc.viewDidAppear(false)
+        fixture.displayLinkWrapper.call()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
