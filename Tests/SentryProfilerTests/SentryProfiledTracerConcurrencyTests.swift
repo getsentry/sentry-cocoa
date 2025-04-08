@@ -27,7 +27,6 @@ extension SentryProfiledTracerConcurrencyTests {
             $0.profileAppStarts = true
         }
         fixture.givenSdkWithHub()
-//        sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
