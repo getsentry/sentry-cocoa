@@ -31,7 +31,8 @@ class SentryProfileTestFixture {
     var timeoutTimerFactory: TestSentryNSTimerFactory
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     let notificationCenter = TestNSNotificationCenterWrapper()
-    
+    lazy var sessionTracker = SessionTracker(options: options, notificationCenter: notificationCenter)
+
     let currentDateProvider = TestCurrentDateProvider()
     
 #if !os(macOS)
@@ -400,6 +401,23 @@ class SentryProfileTestFixture {
                                          sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 #endif // !os(macOS)
+
+    func givenSdkWithHub() {
+        SentrySDK.setCurrentHub(hub)
+        SentrySDK.setStart(options)
+        sentry_sdkInitProfilerTasks(options, hub)
+    }
+
+    func givenSdkWithHubButNoClient() {
+        SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDK.setStart(options)
+    }
+
+    func stopContinuousProfiler() throws {
+        SentrySDK.stopProfiler()
+        currentDateProvider.advance(by: 60)
+        try timeoutTimerFactory.check()
+    }
 }
 
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
