@@ -85,6 +85,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--disable-app-hang-tracking-v2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.schema-override-precedence"
             isEnabled = "NO">
          </CommandLineArgument>
