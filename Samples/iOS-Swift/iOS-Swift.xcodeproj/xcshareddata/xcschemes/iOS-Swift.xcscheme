@@ -226,7 +226,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-ui-tracing"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.no-auto-inject-widget"
