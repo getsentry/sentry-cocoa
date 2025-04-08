@@ -174,23 +174,23 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllImages)
     }
     
-    func testInitFromDictEnableExperimentalViewRendererWithBool() {
+    func testInitFromDictenableViewRendererV2WithBool() {
         let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": true
+            "enableViewRendererV2": true
         ])
-        XCTAssertTrue(options.enableExperimentalViewRenderer)
+        XCTAssertTrue(options.enableViewRendererV2)
 
         let options2 = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": false
+            "enableViewRendererV2": false
         ])
-        XCTAssertFalse(options2.enableExperimentalViewRenderer)
+        XCTAssertFalse(options2.enableViewRendererV2)
     }
 
-    func testInitFromDictEnableExperimentalViewRendererWithString() {
+    func testInitFromDictenableViewRendererV2WithString() {
         let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": "invalid_value"
+            "enableViewRendererV2": "invalid_value"
         ])
-        XCTAssertFalse(options.enableExperimentalViewRenderer)
+        XCTAssertFalse(options.enableViewRendererV2)
     }
     
     func testInitFromDictEnableFastViewRenderingWithBool() {
@@ -255,7 +255,7 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.onErrorSampleRate, 0.8)
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        XCTAssertFalse(options.enableExperimentalViewRenderer)
+        XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))

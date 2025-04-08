@@ -74,7 +74,7 @@ struct SentrySDKWrapper {
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = true
-        options.sessionReplay.enableExperimentalViewRenderer = true
+        options.sessionReplay.enableViewRendererV2 = true
         // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
         options.sessionReplay.enableFastViewRendering = false
     }

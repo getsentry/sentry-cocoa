@@ -69,9 +69,9 @@ static SentryTouchTracker *_touchTracker;
 {
     if (self = [super init]) {
         [self setupWith:options.sessionReplay
-                    enableTouchTracker:options.enableSwizzling
-            enableExperimentalRenderer:options.sessionReplay.enableExperimentalViewRenderer
-               enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
+                 enableTouchTracker:options.enableSwizzling
+               enableViewRendererV2:options.sessionReplay.enableViewRendererV2
+            enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
         [self startWithOptions:options.sessionReplay fullSession:YES];
     }
     return self;
@@ -84,21 +84,21 @@ static SentryTouchTracker *_touchTracker;
     }
 
     [self setupWith:options.sessionReplay
-                enableTouchTracker:options.enableSwizzling
-        enableExperimentalRenderer:options.sessionReplay.enableExperimentalViewRenderer
-           enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
+             enableTouchTracker:options.enableSwizzling
+           enableViewRendererV2:options.sessionReplay.enableViewRendererV2
+        enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
     return YES;
 }
 
 - (void)setupWith:(SentryReplayOptions *)replayOptions
-            enableTouchTracker:(BOOL)touchTracker
-    enableExperimentalRenderer:(BOOL)enableExperimentalRenderer
-       enableFastViewRendering:(BOOL)enableFastViewRendering
+         enableTouchTracker:(BOOL)touchTracker
+       enableViewRendererV2:(BOOL)enableViewRendererV2
+    enableFastViewRendering:(BOOL)enableFastViewRendering
 {
     _replayOptions = replayOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
     id<SentryViewRenderer> viewRenderer;
-    if (enableExperimentalRenderer) {
+    if (enableViewRendererV2) {
         viewRenderer = [[SentryExperimentalViewRenderer alloc]
             initWithEnableFastViewRendering:enableFastViewRendering];
     } else {
@@ -107,10 +107,9 @@ static SentryTouchTracker *_touchTracker;
     // We are using the flag for the experimental view renderer also for the experimental mask
     // renderer, as it would just introduce another option without affecting the SDK user
     // experience.
-    _viewPhotographer =
-        [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                           redactOptions:replayOptions
-                          enableExperimentalMaskRenderer:enableExperimentalRenderer];
+    _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                           redactOptions:replayOptions
+                                                    enableMaskRendererV2:enableViewRendererV2];
 
     if (touchTracker) {
         _touchTracker = [[SentryTouchTracker alloc]

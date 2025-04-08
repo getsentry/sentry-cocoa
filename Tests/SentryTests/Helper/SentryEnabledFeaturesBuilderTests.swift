@@ -80,12 +80,12 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(result, [])
     }
 
-    func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
+    func testenableViewRendererV2_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
 
-        options.sessionReplay.enableExperimentalViewRenderer = true
+        options.sessionReplay.enableViewRendererV2 = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
