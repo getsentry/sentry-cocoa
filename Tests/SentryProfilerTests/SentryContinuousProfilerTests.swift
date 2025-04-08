@@ -118,6 +118,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     // test that when stop is called, the profiler runs to the end of the last
     // chunk and transmits that before stopping
     func testStoppingProfilerTransmitsLastFullChunk() throws {
+        fixture.givenSdkWithHub()
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
@@ -142,6 +143,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     func testChunkSerializationAfterBufferInterval() throws {
+        fixture.givenSdkWithHub()
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
@@ -202,6 +204,7 @@ private extension SentryContinuousProfilerTests {
     }
     
     func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
+        fixture.givenSdkWithHub()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
