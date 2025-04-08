@@ -57,19 +57,24 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
+            platform: macOS
             xcode: 15.4
             runs-on: macos-14
           - scheme: iOS13-Swift
+            platform: iOS
             xcode: 15.4
             runs-on: macos-14
           - scheme: watchOS-Swift WatchKit App
+            platform: watchOS
             xcode: 15.4
             runs-on: macos-14
           # Only compiles on Xcode 16+
           - scheme: macOS-SwiftUI
+            platform: macOS
             xcode: 16.2
             runs-on: macos-15
           - scheme: SessionReplay-CameraTest
+            platform: iOS
             xcode: 16.2
             runs-on: macos-15
     steps:
@@ -78,10 +83,9 @@ jobs:
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --command build \
-            --platform iOS \
+            --platform ${{ matrix.platform }} \
             --os latest \
             --configuration Debug \
-            --derived-data DerivedData \
             --scheme "${{ matrix.scheme }}" \
             --no-quiet \
             --ref ${{ github.ref }} \
