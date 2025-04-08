@@ -20,15 +20,14 @@ final class SentryProfiledTracerConcurrencyTests: XCTestCase {
 extension SentryProfiledTracerConcurrencyTests {
     func testLaunchProfileStartAndStop() throws {
         // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.tracesSampleRate = 1
-        options.configureProfiling = {
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
             $0.lifecycle = .trace
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
-        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+        fixture.givenSdkWithHub()
+//        sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
@@ -42,26 +41,27 @@ extension SentryProfiledTracerConcurrencyTests {
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
-        try XCTUnwrap(sentry_launchTracer).finish()
+        sentry_stopAndDiscardLaunchProfileTracer()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
+
+        // Act
+        try fixture.allowContinuousProfilerToStop()
+
+        // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testLaunchProfileStartWithAdditionalSpan() throws {
         // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.tracesSampleRate = 1
-        options.configureProfiling = {
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
             $0.lifecycle = .trace
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
-        
-        let hub = TestHub(client: TestClient(options: options), andScope: nil)
-        sentry_sdkInitProfilerTasks(options, hub)
+        fixture.givenSdkWithHub()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
@@ -75,8 +75,7 @@ extension SentryProfiledTracerConcurrencyTests {
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
-        let context = TransactionContext(trace: SentryId(), spanId: SpanId(), parentId: nil, operation: "test-operaton", spanDescription: "test-second-root-span", sampled: .yes)
-        let span = SentryTracer(transactionContext: context, hub: hub, configuration: .init())
+        let span = try fixture.newTransaction(rootSpan: true)
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 2)
@@ -96,49 +95,56 @@ extension SentryProfiledTracerConcurrencyTests {
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
 
+        // Act
+        try fixture.allowContinuousProfilerToStop()
+
+        // Assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testStartAndStopTransaction() throws {
         // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.tracesSampleRate = 1
-        options.configureProfiling = {
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
             $0.lifecycle = .trace
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
-        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+        fixture.givenSdkWithHub()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
-        let span = SentrySDK.startTransaction(name: "test", operation: "operation")
+        let span = try fixture.newTransaction()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 1)
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
         // Act
         span.finish()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
+
+        // Act
+        try fixture.allowContinuousProfilerToStop()
+
+        // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testManualLifecycleDoesntTrackLaunchWithSpan() throws {
         // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.tracesSampleRate = 1
-        options.configureProfiling = {
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
-        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+        fixture.givenSdkWithHub()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
@@ -155,22 +161,20 @@ extension SentryProfiledTracerConcurrencyTests {
 
     func testManualLifecycleDoesntTrackRootSpan() throws {
         // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.tracesSampleRate = 1
-        options.configureProfiling = {
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
-        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
+        fixture.givenSdkWithHub()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
-        let span = SentrySDK.startTransaction(name: "test", operation: "operation")
+        let span = try fixture.newTransaction()
 
         // Assert
         XCTAssertEqual(_gInFlightRootSpans, 0)
