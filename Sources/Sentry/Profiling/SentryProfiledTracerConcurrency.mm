@@ -249,11 +249,8 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    if (isProfiling && [hub.getClient.options isProfilingCorrelatedToTraces]) {
-        if (![SentryContinuousProfiler isCurrentlyProfiling]) {
-            SENTRY_TEST_FATAL(
-                @"Expected a continuous profiler to be running for this configuration.");
-        }
+    if (isProfiling && [hub.getClient.options isContinuousProfilingV2Enabled] &&
+        [hub.getClient.options isProfilingCorrelatedToTraces]) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             transaction.trace.profilerReferenceID.sentryIdString);
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
