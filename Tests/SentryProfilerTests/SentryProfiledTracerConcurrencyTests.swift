@@ -101,6 +101,54 @@ extension SentryProfiledTracerConcurrencyTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+    func testLaunchProfileStartAndStopWithTTFD() throws {
+        // Arrange
+        fixture.options.profilesSampleRate = nil
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
+        fixture.options.enableTimeToFullDisplayTracing = true
+//        fixture.givenSdkWithHub()
+
+//        let tracker = SentryTimeToDisplayTracker(name: "test TTFD tracker", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+//        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: fixture.hub, configuration: SentryTracerConfiguration(block: {
+//            $0.waitForChildren = true
+//        }))
+//        tracker.start(for: tracer)
+
+        SentrySDK.start(options: fixture.options)
+
+        let uivc = UIViewController(nibName: nil, bundle: nil)
+        uivc.loadView()
+        uivc.viewWillAppear(false)
+        fixture.displayLinkWrapper.call()
+
+        // Assert
+        XCTAssertEqual(_gInFlightRootSpans, 0)
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssertEqual(_gInFlightRootSpans, 1)
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act
+        sentry_stopAndDiscardLaunchProfileTracer()
+
+        // Assert
+        XCTAssertEqual(_gInFlightRootSpans, 0)
+
+        // Act
+        try fixture.allowContinuousProfilerToStop()
+
+        // Assert
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
     func testStartAndStopTransaction() throws {
         // Arrange
         fixture.options.profilesSampleRate = nil
