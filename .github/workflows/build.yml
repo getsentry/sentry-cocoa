@@ -80,12 +80,19 @@ jobs:
             --command build \
             --platform iOS \
             --os latest \
-            --device "iPhone 16 Pro" \
             --configuration Debug \
             --derived-data DerivedData \
             --scheme "${{ matrix.scheme }}" \
             --no-quiet \
             --ref ${{ github.ref }}
+
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-os-${{matrix.runs-on}}-xcode-${{matrix.xcode}}-scheme-${{matrix.scheme}}
+          path: |
+            raw-build-output.log
 
   build-xcframework:
     name: Build XCFramework
@@ -131,7 +138,7 @@ jobs:
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework
           path: |

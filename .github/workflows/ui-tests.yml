@@ -40,7 +40,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -54,7 +54,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-uitest-output-${{matrix.target}}
           path: |
@@ -85,7 +85,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -113,16 +113,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see 
+          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "14.3.1"
 
-          # As of 25th March 2025, the default iOS simulator version is 17.5 for macOS 14 and Xcode 15.4; see 
+          # As of 25th March 2025, the default iOS simulator version is 17.5 for macOS 14 and Xcode 15.4; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#installed-sdks
           - runs-on: macos-14
             xcode: "15.4"
-            
+
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -134,7 +134,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -148,7 +148,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: ui-tests-ios-swift-raw-logs-${{matrix.xcode}}
           path: |
@@ -169,7 +169,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -205,7 +205,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: 'build/reports/junit.xml'
+          report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -219,7 +219,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: duplication-test-raw-output
           path: |
