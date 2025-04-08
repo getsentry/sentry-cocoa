@@ -29,7 +29,7 @@
 
         [app.buttons[@"startTransactionMainThread"] tap];
 
-        [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
+        [app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] tap];
 
         [app.buttons[@"Benchmark start"] tap];
 

@@ -16,12 +16,6 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand;
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
-
 SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
@@ -41,7 +35,8 @@ BOOL sentry_willProfileNextLaunch(SentryOptions *options);
  */
 void _sentry_nondeduplicated_startLaunchProfile(void);
 
-SentryTransactionContext *sentry_context(NSNumber *tracesRate, NSNumber *tracesRand);
+SentryTransactionContext *sentry_contextForLaunchProfilerForTrace(
+    NSNumber *tracesRate, NSNumber *tracesRand);
 
 NS_ASSUME_NONNULL_END
 

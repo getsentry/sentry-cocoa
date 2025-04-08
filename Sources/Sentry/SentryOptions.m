@@ -700,6 +700,17 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #    pragma clang diagnostic pop
 }
 
+- (BOOL)isContinuousProfilingV2Enabled
+{
+    return [self isContinuousProfilingEnabled] && _profiling != nil;
+}
+
+- (BOOL)isProfilingCorrelatedToTraces
+{
+    return ![self isContinuousProfilingEnabled]
+        || (_profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace);
+}
+
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
 #    pragma clang diagnostic push
