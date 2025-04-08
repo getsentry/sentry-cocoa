@@ -330,19 +330,14 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
         // codepath
         return _sentry_startContinuousProfilerV2ForTrace(
             configuration.profileOptions, transactionContext);
-    } else if ([hub.getClient.options isContinuousProfilingEnabled]) {
+    } else if ([hub.getClient.options isContinuousProfilingV2Enabled]) {
         // non launch profile
-        SentryProfileOptions *profileOptions = hub.getClient.options.profiling;
-        if (profileOptions == nil) {
-            SENTRY_LOG_DEBUG(
-                @"Continuous profiling v1 configured; will not start automatically for trace.");
-            return nil;
-        }
         if (transactionContext.parentSpanId != nil) {
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
             return nil;
         }
-        return _sentry_startContinuousProfilerV2ForTrace(profileOptions, transactionContext);
+        return _sentry_startContinuousProfilerV2ForTrace(
+            hub.getClient.options.profiling, transactionContext);
     } else {
         BOOL profileShouldBeSampled
             = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
