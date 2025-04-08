@@ -57,39 +57,35 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
-            platform: macOS
             xcode: 15.4
             runs-on: macos-14
           - scheme: iOS13-Swift
-            platform: iOS
             xcode: 15.4
             runs-on: macos-14
           - scheme: watchOS-Swift WatchKit App
-            platform: iOS
             xcode: 15.4
             runs-on: macos-14
           # Only compiles on Xcode 16+
           - scheme: macOS-SwiftUI
-            platform: macOS
             xcode: 16.2
             runs-on: macos-15
           - scheme: SessionReplay-CameraTest
-            platform: iOS
-            xcode: 15.4
+            xcode: 16.2
             runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}
-      - run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --command build \
-            --platform ${{ matrix.platform }} \
-            --os latest \
-            --configuration Debug \
-            --scheme "${{ matrix.scheme }}" \
-            --no-quiet \
-            --ref ${{ github.ref }} \
-            --xcodebuild-args CODE_SIGNING_ALLOWED="NO"
+
+      - # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
+        #       we did not yet migrate this step to use the script yet.
+        run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme '${{matrix.scheme}}'
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
