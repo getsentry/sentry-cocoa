@@ -9,10 +9,15 @@ class ErrorsViewController: UIViewController {
     private let diskWriteException = DiskWriteException()
     
     @IBOutlet weak var dsnView: UIView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addDSNDisplay(self, vcview: dsnView)
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
-        addDSNDisplay(self, vcview: dsnView)
         
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.inject-screenshot") {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
