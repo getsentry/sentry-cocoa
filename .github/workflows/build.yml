@@ -84,7 +84,8 @@ jobs:
             --derived-data DerivedData \
             --scheme "${{ matrix.scheme }}" \
             --no-quiet \
-            --ref ${{ github.ref }}
+            --ref ${{ github.ref }} \
+            --xcodebuild-args CODE_SIGNING_ALLOWED="NO"
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4

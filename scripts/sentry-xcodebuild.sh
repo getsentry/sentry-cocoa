@@ -18,6 +18,7 @@ CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 QUIET="-quiet" # Default to quiet output
+ADDITIONAL_XCODEBUILD_ARGS=""
 
 usage() {
     echo "Usage: $0"
@@ -30,6 +31,7 @@ usage() {
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -n|--no-quiet                   Disable quiet output (default: false)"
+    echo "  -x|--xcodebuild-args <args>     Additional Xcodebuild args"
     exit 1
 }
 
@@ -71,6 +73,10 @@ while [[ $# -gt 0 ]]; do
         -n|--no-quiet)
             QUIET=""
             shift
+            ;;
+        -x|--xcodebuild-args)
+            ADDITIONAL_XCODEBUILD_ARGS="$2"
+            shift 2
             ;;
         *)
             echo "Unknown option: $1"
@@ -148,6 +154,7 @@ if [ $RUN_BUILD == true ]; then
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
         $QUIET \
+        $ADDITIONAL_XCODEBUILD_ARGS \
         build 2>&1 |
         tee raw-build-output.log |
         xcbeautify
@@ -160,6 +167,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         $QUIET \
+        $ADDITIONAL_XCODEBUILD_ARGS \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify
@@ -172,6 +180,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         $QUIET \
+        $ADDITIONAL_XCODEBUILD_ARGS \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit &&
