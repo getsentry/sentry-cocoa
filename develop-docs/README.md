@@ -197,11 +197,11 @@ Also referred to in implementation as continuous profiling V2. Essentially a com
 
 The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes.
 
-By default, the launch arguments for the iOS-Swift and iOS-ObjectiveC schemas are configured to use UI Profiling with trace lifecycle (to override the default of manual lifecycle) and a session sample rate of 1 (to override the default of 0).
+By default, the launch arguments for the iOS-Swift and iOS-ObjectiveC schemas are configured to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
 
-In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and take precedence over launch arg and env variable settings when both are present. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
+In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and by default take precedence over launch arg and env variable settings when both are present. If you want to give precedence to schema launch args and environment vars over user defaults values, enable the launch arg `--io.sentry.schema-override-precedence`. You can also remove all stored values in user defaults by launching with `--io.sentry.wipe-data`. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
 
-Note that the settings don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This also means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
+Note that in-app overrides don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
 
 ### Testing
 

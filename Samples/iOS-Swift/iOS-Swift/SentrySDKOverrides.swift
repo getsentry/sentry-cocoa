@@ -5,11 +5,13 @@ protocol OverrideKey: RawRepresentable, CaseIterable {
 }
 
 enum SentrySDKOverrides {
-    static let defaultSuiteName = "io.sentry.iOS-Swift"
+    static let userDefaultOverrideSuffix = "-not-overridden"
+    static let defaults = UserDefaults.standard
 
     static func resetDefaults() {
         for key in Tracing.Key.allCases.map(\.rawValue) + Profiling.Key.allCases.map(\.rawValue) {
-            UserDefaults.standard.removeObject(forKey: key)
+            defaults.removeObject(forKey: key)
+            defaults.set(true, forKey: key + userDefaultOverrideSuffix)
         }
     }
 
@@ -24,7 +26,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Tracing.Key.sampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Tracing.Key.sampleRate.rawValue)
+                defaults.set(newValue, forKey: Tracing.Key.sampleRate.rawValue)
             }
         }
 
@@ -33,7 +35,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Tracing.Key.samplerValue)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Tracing.Key.samplerValue.rawValue)
+                defaults.set(newValue, forKey: Tracing.Key.samplerValue.rawValue)
             }
         }
     }
@@ -42,11 +44,10 @@ enum SentrySDKOverrides {
         enum Key: String, OverrideKey {
             case sampleRate = "--io.sentry.profilesSampleRate"
             case samplerValue = "--io.sentry.profilesSamplerValue"
-            case launchProfiling = "--io.sentry.profile-app-launches"
-            case continuousProfilingV1 = "--io.sentry.enableContinuousProfiling"
-            case useProfilingV2 = "--io.sentry.profile-options-v2"
-            case traceLifecycle = "--io.sentry.profile-lifecycle-trace"
+            case disableAppStartProfiling = "--io.sentry.disable-app-start-profiling"
+            case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
             case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
+            case disableUIProfiling = "--io.sentry.disable-ui-profiling"
         }
 
         static var sampleRate: Float? {
@@ -54,7 +55,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.sampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.sampleRate.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.sampleRate.rawValue)
             }
         }
 
@@ -63,7 +64,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.samplerValue)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.samplerValue.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.samplerValue.rawValue)
             }
         }
 
@@ -72,57 +73,96 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.sessionSampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.sessionSampleRate.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.sessionSampleRate.rawValue)
             }
         }
 
-        static var lifecycle: SentryProfileOptions.SentryProfileLifecycle {
+        /// - note: If no other overrides are present, we set the iOS-Swift app to use trace lifecycle (the SDK default is manual)
+        static var manualLifecycle: Bool {
             get {
-                getOverride(for: Profiling.Key.traceLifecycle) ? .trace : .manual
+                getOverride(for: Profiling.Key.manualLifecycle)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue.rawValue, forKey: Profiling.Key.traceLifecycle.rawValue)
+                setOverride(for: Profiling.Key.manualLifecycle, value: newValue)
             }
         }
 
+        /// - note: If no other overrides are present, we set the iOS-Swift app to use launch profiling (the SDK default is to disable it)
         static var profileAppStarts: Bool {
             get {
-                getOverride(for: Profiling.Key.launchProfiling)
+                !getOverride(for: Profiling.Key.disableAppStartProfiling)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.launchProfiling.rawValue)
+                setOverride(for: Profiling.Key.disableAppStartProfiling, value: !newValue)
             }
         }
 
-        static var useContinuousProfilingV1: Bool {
+        /// allows configuring to use continuous profiling functionality beta
+        static var disableUIProfiling: Bool {
             get {
-                getOverride(for: Profiling.Key.continuousProfilingV1)
+                getOverride(for: Profiling.Key.disableUIProfiling)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.continuousProfilingV1.rawValue)
-            }
-        }
-
-        static var useProfilingV2: Bool {
-            get {
-                getOverride(for: Profiling.Key.useProfilingV2)
-            }
-            set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.useProfilingV2.rawValue)
+                setOverride(for: Profiling.Key.disableUIProfiling, value: newValue)
             }
         }
     }
 
+    /// - note: This returns `false` in the default case. For anything that calls this method, design the API in such a way that by default it responds to this returning `false`, and then if it returns `true`, the override takes effect. Here's the decision tree:
+    /// ```
+    /// - should schema overrides take precedence
+    ///     - no (default)
+    ///         - is override present in user defaults
+    ///             - yes: return the value stored in user defaults
+    ///             - no: return whether override flag is set in schema
+    ///     - yes
+    ///         - is override flag in the schema
+    ///             - yes: return true indicating the override should take effect
+    ///             - no
+    ///                 - is override present in user defaults
+    ///                     - yes: return the value stored in user defaults
+    ///                     - no: return false indicating that the override should not take effect
+    /// ```
     private static func getOverride(for key: any OverrideKey) -> Bool {
-        if let value = UserDefaults.standard.object(forKey: key.rawValue), let bool = value as? Bool {
-            return bool
+        let args = ProcessInfo.processInfo.arguments
+
+        if args.contains("--io.sentry.schema-override-precedence") {
+            guard args.contains(key.rawValue) else {
+                return checkOverride(key) {
+                    false
+                }
+            }
+
+            return true
         }
 
-        return ProcessInfo.processInfo.arguments.contains(key.rawValue)
+        return checkOverride(key) {
+            args.contains(key.rawValue)
+        }
+    }
+
+    /// If a key is not present for a bool in user defaults, it returns false, but we need to know if it's returning false because it was overridden that way, or just isn't present, so we provide a way to return a "default value" if the override isn't present in defaults at all (indicated by a "true" value stored for "default X not overridden" key to make this truthy, otherwise return the stored defaults value
+    private static func checkOverride(_ key: any OverrideKey, defaultValue: () -> Bool) -> Bool {
+        let defaults = defaults
+
+        guard !defaults.bool(forKey: key.rawValue + userDefaultOverrideSuffix) else {
+            return defaultValue()
+        }
+
+        return defaults.bool(forKey: key.rawValue)
+    }
+
+    private static func setOverride(for key: any OverrideKey, value: Bool) {
+        defaults.set(value, forKey: key.rawValue)
+        defaults.set(false, forKey: key.rawValue + userDefaultOverrideSuffix)
     }
 
     private static func getValueOverride<T>(for key: any OverrideKey) -> T? where T: LosslessStringConvertible {
-        UserDefaults.standard.object(forKey: key.rawValue) as? T
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-override-precedence") {
+            return ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
+        }
+
+        return defaults.object(forKey: key.rawValue) as? T
             ?? ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
     }
 }
