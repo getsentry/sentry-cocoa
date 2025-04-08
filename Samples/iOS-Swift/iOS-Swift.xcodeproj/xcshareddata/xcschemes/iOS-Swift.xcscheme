@@ -85,10 +85,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.continuous-profiler-immediate-stop"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--io.sentry.profile-lifecycle-manual"
             isEnabled = "NO">
          </CommandLineArgument>
