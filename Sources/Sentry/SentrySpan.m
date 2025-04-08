@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
-    if (_parentSpanId == context.parentSpanId) {
+    if (context.parentSpanId == nil) {
         SENTRY_LOG_DEBUG(@"Started root span with id %@", _spanId.sentrySpanIdString);
     } else {
         SENTRY_LOG_DEBUG(@"Started span with id %@; parent id %@", _spanId.sentrySpanIdString,
