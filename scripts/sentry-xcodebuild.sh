@@ -17,6 +17,7 @@ DEVICE="iPhone 14"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
+QUIET="-quiet" # Default to quiet output
 
 usage() {
     echo "Usage: $0"
@@ -28,6 +29,7 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    echo "  -n|--no-quiet                   Disable quiet output (default: false)"
     exit 1
 }
 
@@ -65,6 +67,10 @@ while [[ $# -gt 0 ]]; do
         -s|--scheme)
             TEST_SCHEME="$2"
             shift 2
+            ;;
+        -n|--no-quiet)
+            QUIET=""
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -141,7 +147,7 @@ if [ $RUN_BUILD == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -quiet \
+        $QUIET \
         build 2>&1 |
         tee raw-build-output.log |
         xcbeautify
@@ -153,7 +159,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        -quiet \
+        $QUIET \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify
@@ -165,6 +171,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        $QUIET \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit &&

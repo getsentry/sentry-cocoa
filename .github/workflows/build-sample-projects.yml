@@ -1,0 +1,38 @@
+# This workflow builds sample projects to ensure changes in the SDK do cause regression issues.
+
+name: Build Sample Projects
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "Samples/SessionReplay-CameraTest/**"
+      - "Sources/**"
+      - ".github/workflows/build-sample-projects.yml"
+      - "scripts/sentry-xcodebuild.sh"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-sample-project-session-replay-camera-test:
+    name: Build Sample Session Replay Camera Test
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --command build \
+            --platform iOS \
+            --os latest \
+            --device "iPhone 16 Pro" \
+            --configuration Debug \
+            --derived-data DerivedData \
+            --scheme "SessionReplay-CameraTest" \
+            --no-quiet \
+            --ref ${{ github.ref }}
