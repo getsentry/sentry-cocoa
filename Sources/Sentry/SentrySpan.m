@@ -155,8 +155,6 @@ NS_ASSUME_NONNULL_BEGIN
 
         _tracer = tracer;
 
-        // !!!: this method is only called from SentryTracer startChildWithParentId... but the
-        // parentSpanID never gets set
         if (context.parentSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Starting root span with tracer with profilerReferenceId %@",
                 tracer.profilerReferenceID.sentryIdString);
