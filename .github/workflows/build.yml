@@ -76,9 +76,15 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}
 
-      - # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
-        #       we did not yet migrate this step to use the script yet.
+      - name: List Xcode Build Schemes
         run: >-
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -list
+
+      # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
+      #       we did not yet migrate this step to use the script yet.
+      - run: >-
           env NSUnbufferedIO=YES
           xcodebuild
           -workspace Sentry.xcworkspace
