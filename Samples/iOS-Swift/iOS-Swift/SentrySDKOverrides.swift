@@ -5,9 +5,13 @@ protocol OverrideKey: RawRepresentable, CaseIterable {
 }
 
 enum SentrySDKOverrides {
+    static let userDefaultOverrideSuffix = "-not-overridden"
+    static let defaults = UserDefaults.standard
+
     static func resetDefaults() {
         for key in Tracing.Key.allCases.map(\.rawValue) + Profiling.Key.allCases.map(\.rawValue) {
-            UserDefaults.standard.removeObject(forKey: key)
+            defaults.removeObject(forKey: key)
+            defaults.set(true, forKey: key + userDefaultOverrideSuffix)
         }
     }
 
@@ -22,7 +26,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Tracing.Key.sampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Tracing.Key.sampleRate.rawValue)
+                defaults.set(newValue, forKey: Tracing.Key.sampleRate.rawValue)
             }
         }
 
@@ -31,7 +35,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Tracing.Key.samplerValue)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Tracing.Key.samplerValue.rawValue)
+                defaults.set(newValue, forKey: Tracing.Key.samplerValue.rawValue)
             }
         }
     }
@@ -51,7 +55,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.sampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.sampleRate.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.sampleRate.rawValue)
             }
         }
 
@@ -60,7 +64,7 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.samplerValue)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.samplerValue.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.samplerValue.rawValue)
             }
         }
 
@@ -69,14 +73,14 @@ enum SentrySDKOverrides {
                 getValueOverride(for: Profiling.Key.sessionSampleRate)
             }
             set(newValue) {
-                UserDefaults.standard.set(newValue, forKey: Profiling.Key.sessionSampleRate.rawValue)
+                defaults.set(newValue, forKey: Profiling.Key.sessionSampleRate.rawValue)
             }
         }
 
         /// - note: If no other overrides are present, we set the iOS-Swift app to use trace lifecycle (the SDK default is manual)
         static var manualLifecycle: Bool {
             get {
-                return getOverride(for: Profiling.Key.manualLifecycle)
+                getOverride(for: Profiling.Key.manualLifecycle)
             }
             set(newValue) {
                 setOverride(for: Profiling.Key.manualLifecycle, value: newValue)
@@ -137,11 +141,11 @@ enum SentrySDKOverrides {
         }
     }
 
-    /// If a key is not present for a bool in user defaults, it returns false, but we need to know if it's returning false because it was overridden that way, or just isn't present, so we provide a way to return a "default value" if the override isn't present in defaults at all, otherwise return the stored defaults value
+    /// If a key is not present for a bool in user defaults, it returns false, but we need to know if it's returning false because it was overridden that way, or just isn't present, so we provide a way to return a "default value" if the override isn't present in defaults at all (indicated by a "true" value stored for "default X not overridden" key to make this truthy, otherwise return the stored defaults value
     private static func checkOverride(_ key: any OverrideKey, defaultValue: () -> Bool) -> Bool {
-        let defaults = UserDefaults.standard
+        let defaults = defaults
 
-        guard !defaults.bool(forKey: key.rawValue + "-overridden") else {
+        guard !defaults.bool(forKey: key.rawValue + userDefaultOverrideSuffix) else {
             return defaultValue()
         }
 
@@ -149,16 +153,16 @@ enum SentrySDKOverrides {
     }
 
     private static func setOverride(for key: any OverrideKey, value: Bool) {
-        UserDefaults.standard.set(value, forKey: key.rawValue)
-        UserDefaults.standard.set(true, forKey: key.rawValue + "-overridden")
+        defaults.set(value, forKey: key.rawValue)
+        defaults.set(false, forKey: key.rawValue + userDefaultOverrideSuffix)
     }
 
     private static func getValueOverride<T>(for key: any OverrideKey) -> T? where T: LosslessStringConvertible {
-            if ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-override-precedence") {
-                return ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
-            }
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-override-precedence") {
+            return ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
+        }
 
-        return UserDefaults.standard.object(forKey: key.rawValue) as? T
+        return defaults.object(forKey: key.rawValue) as? T
             ?? ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
     }
 }

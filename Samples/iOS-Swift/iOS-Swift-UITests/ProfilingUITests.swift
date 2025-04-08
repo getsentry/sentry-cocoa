@@ -194,6 +194,8 @@ extension ProfilingUITests {
                     "--io.sentry.profile-lifecycle-manual"
                 ])
                 app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            } else {
+                app.launchArguments.append("--io.sentry.disable-ui-profiling")
             }
         } else {
             app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1"

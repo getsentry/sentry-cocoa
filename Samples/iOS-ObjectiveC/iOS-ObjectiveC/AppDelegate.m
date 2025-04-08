@@ -33,17 +33,19 @@
             options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
         }
 
-        options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
-            profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
-                ? SentryProfileLifecycleManual
-                : SentryProfileLifecycleTrace;
+        if (![args containsObject:@"--io.sentry.disable-ui-profiling"]) {
+            options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
+                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
+                    ? SentryProfileLifecycleManual
+                    : SentryProfileLifecycleTrace;
 
-            profiling.sessionSampleRate = 1.f;
-            if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
-                profiling.sessionSampleRate =
-                    [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
-            }
-        };
+                profiling.sessionSampleRate = 1.f;
+                if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
+                    profiling.sessionSampleRate =
+                        [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
+                }
+            };
+        }
 
         if (env[@"--io.sentry.profilesSampleRate"] != nil) {
             options.profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
@@ -57,7 +59,7 @@
             };
         }
 
-        if ([args containsObject:@"--io.sentry.disable-app-start-profiling"]) {
+        if (![args containsObject:@"--io.sentry.disable-app-start-profiling"]) {
             options.enableAppLaunchProfiling = YES;
         }
 
