@@ -82,11 +82,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.schema-override-precedence"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.continuous-profiler-immediate-stop"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-lifecycle-manual"
