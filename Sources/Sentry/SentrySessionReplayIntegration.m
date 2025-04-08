@@ -99,8 +99,8 @@ static SentryTouchTracker *_touchTracker;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
     id<SentryViewRenderer> viewRenderer;
     if (enableViewRendererV2) {
-        viewRenderer = [[SentryExperimentalViewRenderer alloc]
-            initWithEnableFastViewRendering:enableFastViewRendering];
+        viewRenderer =
+            [[SentryViewRendererV2 alloc] initWithEnableFastViewRendering:enableFastViewRendering];
     } else {
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }

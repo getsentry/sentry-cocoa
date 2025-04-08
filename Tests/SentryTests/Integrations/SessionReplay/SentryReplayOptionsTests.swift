@@ -192,7 +192,37 @@ class SentryReplayOptionsTests: XCTestCase {
         ])
         XCTAssertFalse(options.enableViewRendererV2)
     }
-    
+
+    func testInitFromDict_enableViewRendererV2WithBool_shouldIgnoreValue() {
+        // To support backwards compatibility we keep support for the old key
+        // "experimentalViewRenderer" until we remove it in a future version.
+
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "experimentalViewRenderer": true
+        ])
+        let options2 = SentryReplayOptions(dictionary: [
+            "experimentalViewRenderer": false
+        ])
+
+        // -- Assert --
+        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertFalse(options2.enableViewRendererV2)
+    }
+
+    func testInitFromDict_enableViewRendererV2WithString_shouldIgnoreValue() {
+        // To support backwards compatibility we keep support for the old key
+        // "experimentalViewRenderer" until we remove it in a future version.
+
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "experimentalViewRenderer": "invalid_value"
+        ])
+
+        // -- Assert --
+        XCTAssertFalse(options.enableViewRendererV2)
+    }
+
     func testInitFromDictEnableFastViewRenderingWithBool() {
         let options = SentryReplayOptions(dictionary: [
             "enableFastViewRendering": true

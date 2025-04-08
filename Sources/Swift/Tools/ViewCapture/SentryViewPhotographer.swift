@@ -28,7 +28,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         enableMaskRendererV2: Bool
     ) {
         self.renderer = renderer
-        self.maskRenderer = enableMaskRendererV2 ? SentryExperimentalMaskRenderer() : SentryDefaultMaskRenderer()
+        self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }
