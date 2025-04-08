@@ -24,7 +24,7 @@
 
 #    pragma mark - Private
 
-NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
+NSTimeInterval kSentryProfilerChunkExpirationInterval = 5;
 
 namespace {
 /** @warning: Must be used from a synchronized context. */

@@ -80,17 +80,13 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
 void
 _unsafe_cleanUpContinuousProfilerV2()
 {
-    _gInFlightRootSpans -= 1;
-
-    if (_gInFlightRootSpans < 0) {
-#    if SENTRY_TEST || SENTRY_TEST_CI
-        SENTRY_CASSERT(NO, @"Attempted to decrement count of root spans to less than zero.");
-#    else
-        SENTRY_LOG_DEBUG(@"Attempted to decrement count of root spans to less than zero.");
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+    if (_gInFlightRootSpans == 0) {
+        SENTRY_TEST_FATAL(@"Attempted to decrement count of root spans to less than zero.");
+    } else {
+        _gInFlightRootSpans -= 1;
     }
 
-    if (_gInFlightRootSpans <= 0) {
+    if (_gInFlightRootSpans == 0) {
         SENTRY_LOG_DEBUG(@"Last root span ended, stopping profiler.");
         [SentryContinuousProfiler stop];
     } else {
@@ -133,10 +129,12 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
+    SentryId *profilerReferenceId = [[SentryId alloc] init];
     SENTRY_LOG_DEBUG(
-        @"Starting continuous profiler for tracer %@", transactionContext.traceId.sentryIdString);
+        @"Starting continuous profiler for root span tracer with profilerReferenceId %@",
+        profilerReferenceId.sentryIdString);
     sentry_trackRootSpanForContinuousProfilerV2();
-    return [[SentryId alloc] init];
+    return profilerReferenceId;
 }
 
 } // namespace
@@ -170,21 +168,15 @@ sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *inte
 }
 
 void
-sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hub, BOOL isProfiling)
+sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hub)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if ([SentryContinuousProfiler isCurrentlyProfiling]) {
-        BOOL notLaunchContinuousProfileV2TraceLifecycle = hub != nil
-            && hub.client.options.profiling != nil
-            && hub.client.options.profiling.lifecycle == SentryProfileLifecycleTrace;
-        if (!notLaunchContinuousProfileV2TraceLifecycle && !isProfiling) {
-            SENTRY_LOG_DEBUG(@"Continuous profiler v1 won't be stopped with a tracer.");
-            return;
-        }
-
+        SENTRY_LOG_DEBUG(@"Stopping tracking discarded tracer with profileReferenceId %@",
+            internalTraceId.sentryIdString);
         _unsafe_cleanUpContinuousProfilerV2();
-    } else if (internalTraceId != nil && isProfiling) {
+    } else if (internalTraceId != nil) {
         if ([hub.getClient.options isContinuousProfilingEnabled]) {
             SENTRY_TEST_FATAL(@"Tracers are not tracked with continuous profiling V1.");
             return;
@@ -257,16 +249,13 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    if (isProfiling && [hub.getClient.options isContinuousProfilingEnabled]) {
-        if (hub.getClient.options.profiling.lifecycle != SentryProfileLifecycleTrace) {
-            SENTRY_TEST_FATAL(@"Expected trace profile v2 lifecycle configuration.");
-            return;
-        }
-
+    if (isProfiling && [hub.getClient.options isProfilingCorrelatedToTraces]) {
         if (![SentryContinuousProfiler isCurrentlyProfiling]) {
             SENTRY_TEST_FATAL(
                 @"Expected a continuous profiler to be running for this configuration.");
         }
+        SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
+            transaction.trace.profilerReferenceID.sentryIdString);
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
@@ -339,8 +328,9 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     SentryHub *hub, SentryTransactionContext *transactionContext)
 {
     if (configuration.profileOptions != nil) {
-        // launch profile; there's hub to get options from, so they're read from the launch profile
-        // config file and packaged into the tracer configuration in the launch profile codepath
+        // launch profile; there's no hub to get options from, so they're read from the launch
+        // profile config file and packaged into the tracer configuration in the launch profile
+        // codepath
         return _sentry_startContinuousProfilerV2ForTrace(
             configuration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingEnabled]) {
@@ -349,6 +339,10 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
         if (profileOptions == nil) {
             SENTRY_LOG_DEBUG(
                 @"Continuous profiling v1 configured; will not start automatically for trace.");
+            return nil;
+        }
+        if (transactionContext.parentSpanId != nil) {
+            SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
             return nil;
         }
         return _sentry_startContinuousProfilerV2ForTrace(profileOptions, transactionContext);
