@@ -43,6 +43,7 @@ enum SentrySDKOverrides {
             case disableAppStartProfiling = "--io.sentry.disable-app-start-profiling"
             case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
             case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
+            case disableUIProfiling = "--io.sentry.disable-ui-profiling"
         }
 
         static var sampleRate: Float? {
@@ -89,6 +90,16 @@ enum SentrySDKOverrides {
             }
             set(newValue) {
                 setOverride(for: Profiling.Key.disableAppStartProfiling, value: !newValue)
+            }
+        }
+
+        /// allows configuring to use continuous profiling functionality beta
+        static var disableUIProfiling: Bool {
+            get {
+                getOverride(for: Profiling.Key.disableUIProfiling)
+            }
+            set(newValue) {
+                setOverride(for: Profiling.Key.disableUIProfiling, value: newValue)
             }
         }
     }

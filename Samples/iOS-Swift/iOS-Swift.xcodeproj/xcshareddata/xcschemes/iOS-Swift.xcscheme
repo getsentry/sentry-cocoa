@@ -81,6 +81,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.disable-ui-profiling"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.schema-override-precedence"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -162,10 +166,6 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-session-replay"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--io.sentry.enableContinuousProfiling"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

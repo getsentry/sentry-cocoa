@@ -404,10 +404,13 @@ extension SentrySDKWrapper {
             }
         }
         options.enableAppLaunchProfiling = SentrySDKOverrides.Profiling.profileAppStarts
-        options.configureProfiling = {
-            $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle ? .manual : .trace
-            $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 1
-            $0.profileAppStarts = SentrySDKOverrides.Profiling.profileAppStarts
+
+        if !SentrySDKOverrides.Profiling.disableUIProfiling {
+            options.configureProfiling = {
+                $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle ? .manual : .trace
+                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 1
+                $0.profileAppStarts = SentrySDKOverrides.Profiling.profileAppStarts
+            }
         }
     }
 }
