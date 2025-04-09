@@ -18,7 +18,7 @@ struct SentrySDKWrapper {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
         
-        if #available(iOS 16.0, *), enableSessionReplay {
+        if #available(iOS 16.0, *), SentrySDKOverrides.Other.disableSessionReplay.set {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
                 onErrorSampleRate: 1,
@@ -28,16 +28,16 @@ struct SentrySDKWrapper {
             options.sessionReplay.quality = .high
         }
         
-        if #available(iOS 15.0, *), enableMetricKit {
+        if #available(iOS 15.0, *), SentrySDKOverrides.Other.disableMetricKit.set {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
         }
 
         options.tracesSampleRate = 1
-        if let sampleRate = SentrySDKOverrides.Tracing.sampleRate {
+        if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.value {
             options.tracesSampleRate = NSNumber(value: sampleRate)
         }
-        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue {
+        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue.value {
             options.tracesSampler = { _ in
                 return NSNumber(value: samplerValue)
             }
@@ -45,33 +45,40 @@ struct SentrySDKWrapper {
 
         configureProfiling(options)
 
-        options.enableAutoSessionTracking = enableSessionTracking
+        options.enableAutoSessionTracking = SentrySDKOverrides.Performance.disableSessionTracking.set
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
 
         options.add(inAppInclude: "iOS_External")
-        
-        options.enableUserInteractionTracing = enableUITracing
-        options.enableAppHangTracking = enableANRTracking
-        options.enableWatchdogTerminationTracking = enableWatchdogTracking
-        options.enableAutoPerformanceTracing = enablePerformanceTracing
-        options.enablePreWarmedAppStartTracing = enablePrewarmedAppStartTracing
-        options.enableFileIOTracing = enableFileIOTracing
-        options.enableAutoBreadcrumbTracking = enableBreadcrumbs
-        options.enableUIViewControllerTracing = enableUIVCTracing
-        options.enableNetworkTracking = enableNetworkTracing
-        options.enableCoreDataTracing = enableCoreDataTracing
-        options.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
-        options.enableSwizzling = enableSwizzling
-        options.enableCrashHandler = enableCrashHandling
-        options.enableTracing = enableTracing
+
+        // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
+        options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableUITracing.set
+
+        // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
+        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.set
+
+        // UI tests generate false OOMs
+        options.enableWatchdogTerminationTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.set
+
+        options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.set
+        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.set
+        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.set
+
+        options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.set
+        options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.set
+        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.set
+        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.set
+        options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.set
+        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.set
+        options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.set
+        options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.set
         options.enablePersistingTracesWhenCrashing = true
-        options.attachScreenshot = enableAttachScreenshot
-        options.attachViewHierarchy = enableAttachViewHierarchy
-        options.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
-        options.enablePerformanceV2 = enablePerformanceV2
-        options.enableAppHangTrackingV2 = enableAppHangTrackingV2
+        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.set
+        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.set
+        options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.set
+        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.set
+        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.set
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
         
         options.beforeBreadcrumb = { breadcrumb in
@@ -369,55 +376,26 @@ extension SentrySDKWrapper {
         false
 #endif // targetEnvironment(simulator)
     }
-    
-    /// - note: the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-    var enableUITracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-ui-tracing") }
-    var enablePrewarmedAppStartTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-prewarmed-app-start-tracing") }
-    var enablePerformanceTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-auto-performance-tracing") }
-    var enableTracing: Bool { !isBenchmarking && !checkDisabled(with: "--disable-tracing") }
-    /// - note: UI tests generate false OOMs
-    var enableWatchdogTracking: Bool { !isUITest && !isBenchmarking && !checkDisabled(with: "--disable-watchdog-tracking") }
-    /// - note: disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
-    var enableANRTracking: Bool { !isBenchmarking && !checkDisabled(with: "--disable-anr-tracking") }
-    
-    // MARK: Other features
-    
-    var enableTimeToFullDisplayTracing: Bool { !checkDisabled(with: "--disable-time-to-full-display-tracing")}
-    var enableAttachScreenshot: Bool { !checkDisabled(with: "--disable-attach-screenshot")}
-    var enableAttachViewHierarchy: Bool { !checkDisabled(with: "--disable-attach-view-hierarchy")}
-    var enablePerformanceV2: Bool { !checkDisabled(with: "--disable-performance-v2")}
-    var enableAppHangTrackingV2: Bool { !checkDisabled(with: "--disable-app-hang-tracking-v2")}
-    var enableSessionReplay: Bool { !checkDisabled(with: "--disable-session-replay") }
-    var enableMetricKit: Bool { !checkDisabled(with: "--disable-metrickit-integration") }
-    var enableSessionTracking: Bool { !checkDisabled(with: "--disable-automatic-session-tracking") }
-    var enableFileIOTracing: Bool { !checkDisabled(with: "--disable-file-io-tracing") }
-    var enableBreadcrumbs: Bool { !checkDisabled(with: "--disable-automatic-breadcrumbs") }
-    var enableUIVCTracing: Bool { !checkDisabled(with: "--disable-uiviewcontroller-tracing") }
-    var enableNetworkTracing: Bool { !checkDisabled(with: "--disable-network-tracking") }
-    var enableCoreDataTracing: Bool { !checkDisabled(with: "--disable-core-data-tracing") }
-    var enableNetworkBreadcrumbs: Bool { !checkDisabled(with: "--disable-network-breadcrumbs") }
-    var enableSwizzling: Bool { !checkDisabled(with: "--disable-swizzling") }
-    var enableCrashHandling: Bool { !checkDisabled(with: "--disable-crash-handler") }
 }
 
 // MARK: Profiling configuration
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-        if let sampleRate = SentrySDKOverrides.Profiling.sampleRate {
+        if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.value {
             options.profilesSampleRate = NSNumber(value: sampleRate)
         }
-        if let samplerValue = SentrySDKOverrides.Profiling.samplerValue {
+        if let samplerValue = SentrySDKOverrides.Profiling.samplerValue.value {
             options.profilesSampler = { _ in
                 return NSNumber(value: samplerValue)
             }
         }
-        options.enableAppLaunchProfiling = SentrySDKOverrides.Profiling.profileAppStarts
+        options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.set
 
-        if !SentrySDKOverrides.Profiling.disableUIProfiling {
+        if !SentrySDKOverrides.Profiling.disableUIProfiling.set {
             options.configureProfiling = {
-                $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle ? .manual : .trace
-                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 1
-                $0.profileAppStarts = SentrySDKOverrides.Profiling.profileAppStarts
+                $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle.set ? .manual : .trace
+                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate.value ?? 1
+                $0.profileAppStarts = !SentrySDKOverrides.Profiling.disableAppStartProfiling.set
             }
         }
     }
