@@ -59,7 +59,7 @@ struct SentrySDKWrapper {
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.set
 
         // UI tests generate false OOMs
-        options.enableWatchdogTerminationTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.set
+        options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.set
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.set
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.set
@@ -80,7 +80,13 @@ struct SentrySDKWrapper {
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.set
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.set
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
-        
+
+    #if targetEnvironment(simulator)
+        options.enableSpotlight = !SentrySDKOverrides.Other.disableSpotlight.set
+    #else
+        options.enableSpotlight = false
+    #endif // targetEnvironment(simulator)
+
         options.beforeBreadcrumb = { breadcrumb in
             //Raising notifications when a new breadcrumb is created in order to use this information
             //to validate whether proper breadcrumb are being created in the right places.
@@ -152,7 +158,7 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        guard !args.contains("--io.sentry.feedback.no-auto-inject-widget") else {
+        guard !SentrySDKOverrides.Feedback.disableAutoInject.set else {
             config.autoInject = false
             return
         }
@@ -170,19 +176,19 @@ extension SentrySDKWrapper {
         }
         config.layoutUIOffset = layoutOffset
         
-        if args.contains("--io.sentry.feedback.no-widget-text") {
+        if SentrySDKOverrides.Feedback.noWidgetText.set {
             config.labelText = nil
         }
-        if args.contains("--io.sentry.feedback.no-widget-icon") {
+        if SentrySDKOverrides.Feedback.noWidgetIcon.set {
             config.showIcon = false
         }
     }
     
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
-        config.useSentryUser = !args.contains("--io.sentry.feedback.dont-use-sentry-user")
+        config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.set
         config.formTitle = "Jank Report"
-        config.isEmailRequired = args.contains("--io.sentry.feedback.require-email")
-        config.isNameRequired = args.contains("--io.sentry.feedback.require-name")
+        config.isEmailRequired = SentrySDKOverrides.Feedback.requireEmail.set
+        config.isNameRequired = SentrySDKOverrides.Feedback.requireName.set
         config.submitButtonLabel = "Report that jank"
         config.removeScreenshotButtonLabel = "Oof too nsfl"
         config.cancelButtonLabel = "What, me worry?"
@@ -226,7 +232,7 @@ extension SentrySDKWrapper {
             return
         }
         
-        config.animations = !args.contains("--io.sentry.feedback.no-animations")
+        config.animations = !SentrySDKOverrides.Feedback.noAnimations.set
         config.useShakeGesture = true
         config.showFormForScreenshots = true
         config.configureWidget = configureFeedbackWidget(config:)
@@ -363,19 +369,6 @@ extension SentrySDKWrapper {
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
     var isUITest: Bool { env["--io.sentry.sdk-environment"] == "ui-tests" }
-    
-    func checkDisabled(with arg: String) -> Bool {
-        args.contains("--io.sentry.disable-everything") || args.contains(arg)
-    }
-    
-    // MARK: features that care about simulator vs device, ui tests and profiling benchmarks
-    var enableSpotlight: Bool {
-#if targetEnvironment(simulator)
-        !checkDisabled(with: "--disable-spotlight")
-#else
-        false
-#endif // targetEnvironment(simulator)
-    }
 }
 
 // MARK: Profiling configuration
