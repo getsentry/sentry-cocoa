@@ -444,7 +444,9 @@ static BOOL appStartMeasurementRead;
         return;
     }
 
-    _measurements[name] = measurement;
+    @synchronized(_measurements) {
+        _measurements[name] = measurement;
+    }
 }
 
 - (void)finish
