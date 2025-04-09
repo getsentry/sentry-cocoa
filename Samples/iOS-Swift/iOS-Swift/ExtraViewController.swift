@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SentrySampleShared_Swift
 import UIKit
 
 class ExtraViewController: UIViewController {

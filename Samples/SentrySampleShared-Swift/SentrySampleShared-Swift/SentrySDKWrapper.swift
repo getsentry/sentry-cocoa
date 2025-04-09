@@ -3,10 +3,10 @@
 import Sentry
 import UIKit
 
-struct SentrySDKWrapper {
-    static let shared = SentrySDKWrapper()
-    
-    func startSentry() {
+public struct SentrySDKWrapper {
+    public static let shared = SentrySDKWrapper()
+
+    public func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
     
@@ -118,9 +118,9 @@ struct SentrySDKWrapper {
         }
         
         scope.setTag(value: "swift", key: "language")
-        
-        scope.injectGitInformation()
-        
+
+        injectGitInformation(scope: scope)
+
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
         user.username = username
@@ -339,8 +339,8 @@ extension SentrySDKWrapper {
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
-    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-    
+    public static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
+
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
         print("[iOS-Swift] [debug] launch arguments: \(args)")

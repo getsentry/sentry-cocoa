@@ -1,3 +1,4 @@
+import SentrySampleShared_Swift
 import UIKit
 
 let fontSize: CGFloat = 12
