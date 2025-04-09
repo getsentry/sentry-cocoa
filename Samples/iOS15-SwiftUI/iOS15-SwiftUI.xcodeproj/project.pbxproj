@@ -13,7 +13,25 @@
 		7B5166532758C6F400C0A720 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B5166522758C6F400C0A720 /* Preview Assets.xcassets */; };
 		7B5166772758C72600C0A720 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; };
 		7B5166782758C72600C0A720 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		842D55182DA718FB00D3528B /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 842D55172DA718FB00D3528B /* libSentrySampleShared-Swift.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		842D551C2DA718FE00D3528B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 842D547D2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
+		842D551F2DA718FF00D3528B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 842D547E2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		7B5166792758C72600C0A720 /* Embed Frameworks */ = {
@@ -36,6 +54,9 @@
 		7B51664D2758C6F000C0A720 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7B5166522758C6F400C0A720 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B5166762758C72600C0A720 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "../SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		842D55172DA718FB00D3528B /* libSentrySampleShared-Swift.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libSentrySampleShared-Swift.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Samples/SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842D55182DA718FB00D3528B /* libSentrySampleShared-Swift.a in Frameworks */,
 				7B5166772758C72600C0A720 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,9 +75,11 @@
 		7B51663F2758C6F000C0A720 = {
 			isa = PBXGroup;
 			children = (
+				842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */,
 				7B51664A2758C6F000C0A720 /* iOS15-SwiftUI */,
 				7B5166492758C6F000C0A720 /* Products */,
 				7B5166752758C72600C0A720 /* Frameworks */,
+				842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,9 +113,18 @@
 		7B5166752758C72600C0A720 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				842D55172DA718FB00D3528B /* libSentrySampleShared-Swift.a */,
 				7B5166762758C72600C0A720 /* Sentry.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		842D551A2DA718FE00D3528B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				842D55202DA718FF00D3528B /* libSentrySampleShared-Swift.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -109,6 +142,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				842D551D2DA718FE00D3528B /* PBXTargetDependency */,
 			);
 			name = "iOS15-SwiftUI";
 			productName = "iOS15-SwiftUI";
@@ -141,12 +175,28 @@
 			mainGroup = 7B51663F2758C6F000C0A720;
 			productRefGroup = 7B5166492758C6F000C0A720 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 842D551A2DA718FE00D3528B /* Products */;
+					ProjectRef = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7B5166472758C6F000C0A720 /* iOS15-SwiftUI */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		842D55202DA718FF00D3528B /* libSentrySampleShared-Swift.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSentrySampleShared-Swift.a";
+			remoteRef = 842D551F2DA718FF00D3528B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7B5166462758C6F000C0A720 /* Resources */ = {
@@ -171,6 +221,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		842D551D2DA718FE00D3528B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SentrySampleShared-Swift";
+			targetProxy = 842D551C2DA718FE00D3528B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7B51666A2758C6F400C0A720 /* Debug */ = {
