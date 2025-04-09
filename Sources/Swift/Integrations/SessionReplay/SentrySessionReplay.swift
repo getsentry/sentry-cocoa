@@ -311,17 +311,38 @@ class SentrySessionReplay: NSObject {
         processingScreenshot = true
         lock.unlock()
 
+        let timestamp = dateProvider.date()
         let screenName = delegate?.currentScreenNameForSessionReplay()
-        
-        screenshotProvider.image(view: rootView) { [weak self] screenshot in
-            self?.newImage(image: screenshot, forScreen: screenName)
+        screenshotProvider.image(view: rootView) { [weak self] viewHiearchy, redactRegions, renderedViewImage, maskedViewImage in
+            self?.newImage(
+                timestamp: timestamp,
+                viewHiearchy: viewHiearchy,
+                redactRegions: redactRegions,
+                renderedViewImage: renderedViewImage,
+                maskedViewImage: maskedViewImage,
+                forScreen: screenName
+            )
         }
     }
 
-    private func newImage(image: UIImage, forScreen screen: String?) {
+    private func newImage(
+        timestamp: Date,
+        viewHiearchy: ViewHierarchyNode,
+        redactRegions: [RedactRegion],
+        renderedViewImage: UIImage,
+        maskedViewImage: UIImage,
+        forScreen screen: String?
+    ) {
         lock.synchronized {
             processingScreenshot = false
-            replayMaker.addFrameAsync(image: image, forScreen: screen)
+            replayMaker.addFrameAsync(
+                timestamp: timestamp,
+                viewHiearchy: viewHiearchy,
+                redactRegions: redactRegions,
+                renderedViewImage: renderedViewImage,
+                maskedViewImage: maskedViewImage,
+                forScreen: screen
+            )
         }
     }
 }
