@@ -1,27 +1,12 @@
 import Foundation
 import Sentry
+import SentrySampleShared_Swift
 import SwiftUI
 
 @main
 struct SwiftUIApp: App {
     init() {
-        SentrySDK.start { options in
-            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-            options.debug = true
-            options.tracesSampleRate = 1.0
-            options.profilesSampleRate = 1.0
-            options.sessionReplay.sessionSampleRate = 1.0
-            options.initialScope = { scope in
-                scope.injectGitInformation()
-                return scope
-            }
-
-            // Experimental features
-            options.experimental.enableFileManagerSwizzling = true
-            options.sessionReplay.enableExperimentalViewRenderer = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
-        }
+        SentrySDKWrapper.shared.startSentry()
     }
     
     var body: some Scene {
