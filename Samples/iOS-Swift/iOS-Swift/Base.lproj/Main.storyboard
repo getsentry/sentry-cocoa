@@ -187,20 +187,23 @@
             <point key="canvasLocation" x="-201" y="1581"/>
         </scene>
         <!--Features-->
-        <scene sceneID="1ct-QI-3IH">
+        <scene sceneID="vXA-cz-ex5">
             <objects>
-                <viewController id="rJ2-Qe-Ibc" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="WQL-WD-VYA">
+                <tableViewController id="NOh-os-mDC" customClass="FeaturesViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="vhK-hb-Kdy">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="wtM-ic-QSN"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Features" image="checklist" catalog="system" selectedImage="checklist" id="0yc-Xt-A11"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="qOz-s3-QCS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                        <connections>
+                            <outlet property="dataSource" destination="NOh-os-mDC" id="g9j-PD-Fa5"/>
+                            <outlet property="delegate" destination="NOh-os-mDC" id="Z2w-9r-byj"/>
+                        </connections>
+                    </tableView>
+                    <tabBarItem key="tabBarItem" title="Features" image="checklist" catalog="system" selectedImage="checklist" id="EwG-Si-LFf"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CM5-5C-yYU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1113" y="2690"/>
+            <point key="canvasLocation" x="-1221" y="2572"/>
         </scene>
         <!--Profiling-->
         <scene sceneID="f4B-j3-STc">
@@ -899,7 +902,7 @@
                         <segue destination="VqS-l1-kwe" kind="relationship" relationship="viewControllers" id="4xB-07-xBR"/>
                         <segue destination="NZr-bH-g9o" kind="relationship" relationship="viewControllers" id="QeG-0S-MzX"/>
                         <segue destination="aU9-zi-mBa" kind="relationship" relationship="viewControllers" id="w0L-TJ-bTb"/>
-                        <segue destination="rJ2-Qe-Ibc" kind="relationship" relationship="viewControllers" id="85B-6n-MtG"/>
+                        <segue destination="NOh-os-mDC" kind="relationship" relationship="viewControllers" id="ZXG-Zc-0bz"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZEF-L9-zzL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1592,13 +1595,13 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

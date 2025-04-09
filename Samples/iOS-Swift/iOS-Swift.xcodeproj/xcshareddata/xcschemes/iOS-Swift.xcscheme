@@ -89,8 +89,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.schema-override-precedence"
-            isEnabled = "NO">
+            argument = "--io.sentry.schema-environment-variable-precedence"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-lifecycle-manual"
@@ -190,7 +190,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.disable-app-start-profiling"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-crash-handler"
@@ -240,8 +240,8 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "--io.sentry.tracesSampleRate"
-            value = ""
-            isEnabled = "NO">
+            value = "0.5"
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSampleRate"
