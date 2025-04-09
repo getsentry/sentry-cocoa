@@ -1,16 +1,16 @@
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: fastlane
-    versions:
-    - 2.179.0
-    
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
+  - package-ecosystem: bundler
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: fastlane
+        versions:
+          - 2.179.0
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
       interval: weekly

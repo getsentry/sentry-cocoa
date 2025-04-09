@@ -6,15 +6,15 @@ on:
       - release/**
 
     paths:
-      - 'Sources/**'
-      - 'Samples/iOS-Swift/**'
-      - '.github/workflows/testflight.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
-  
+      - "Sources/**"
+      - "Samples/iOS-Swift/**"
+      - ".github/workflows/testflight.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+
   pull_request:
     paths:
-      - '.github/workflows/testflight.yml'
+      - ".github/workflows/testflight.yml"
   workflow_dispatch:
 
 jobs:
