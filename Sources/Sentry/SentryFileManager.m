@@ -672,7 +672,7 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
-NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
+NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfiguration(void)
 {
     NSURL *url = launchProfileConfigFileURL();
     if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
@@ -692,6 +692,7 @@ appLaunchProfileConfigFileExists(void)
 {
     NSString *path = launchProfileConfigFileURL().path;
     if (path == nil) {
+        SENTRY_LOG_DEBUG(@"Failed to construct the path to check for launch profile configs.")
         return NO;
     }
 

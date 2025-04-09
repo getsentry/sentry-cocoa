@@ -19,22 +19,46 @@ class ProfilingUITests: BaseUITest {
         }
 
         // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true)
     }
     
-    func testAppLaunchesWithContinuousProfiler() throws {
+    func testAppLaunchesWithContinuousProfilerV1() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
         // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true)
         
         // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldEnableLaunchProfilingOptionForNextLaunch: true, continuousProfiling: true)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true)
+    }
+    
+    func testAppLaunchesWithContinuousProfilerV2TraceLifecycle() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
+        }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2TraceLifecycle: true)
+
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2TraceLifecycle: true)
+    }
+    
+    func testAppLaunchesWithContinuousProfilerV2ManualLifeCycle() throws {
+        guard #available(iOS 16, *) else {
+            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
+        }
+
+        // by default, launch profiling is not enabled
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2ManualLifecycle: true)
+
+        // after configuring for launch profiling, check the marker file exists, and that the profile happens
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2ManualLifecycle: true)
     }
     
     /**
@@ -42,8 +66,15 @@ class ProfilingUITests: BaseUITest {
      */
     func testProfilingGPUInfo() throws {
         if #available(iOS 16, *) {
-            app.launchArguments.append("--disable-swizzling") // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-            app.launchArguments.append("--io.sentry.wipe-data")
+            app.launchArguments.append(contentsOf: [
+                "--io.sentry.wipe-data",
+
+                // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
+                "--disable-swizzling",
+
+                "--io.sentry.disable-app-start-profiling"
+            ])
+            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1.0"
             launchApp()
             
             goToTransactions()
@@ -111,11 +142,11 @@ extension ProfilingUITests {
     }
     
     func retrieveLastProfileData() {
-        app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-last-profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func retrieveFirstProfileChunkData() {
-        app.buttons["viewFirstContinuousProfileChunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-first-continuous-profile-chunk"].afterWaitingForExistence("Couldn't find button to view first profile chunk").tap()
     }
     
     func stopContinuousProfiler() {
@@ -133,8 +164,9 @@ extension ProfilingUITests {
     func launchAndConfigureSubsequentLaunches(
         terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool,
-        shouldEnableLaunchProfilingOptionForNextLaunch: Bool,
-        continuousProfiling: Bool = false
+        continuousProfiling: Bool = false,
+        v2TraceLifecycle: Bool = false,
+        v2ManualLifecycle: Bool = false
     ) throws {
         if terminatePriorSession {
             app.terminate()
@@ -146,9 +178,6 @@ extension ProfilingUITests {
             "--disable-swizzling",
             "--disable-auto-performance-tracing",
             "--disable-uiviewcontroller-tracing",
-            
-            // opt into launch profiling
-            "--io.sentry.profile-app-launches",
 
             // sets a marker function to run in a load command that the launch profile should detect
             "--io.sentry.slow-load-method",
@@ -156,23 +185,34 @@ extension ProfilingUITests {
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
             "--io.sentry.continuous-profiler-immediate-stop"
         ])
+
         if continuousProfiling {
-            app.launchArguments.append("--io.sentry.enableContinuousProfiling")
+            if v2TraceLifecycle {
+                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            } else if v2ManualLifecycle {
+                app.launchArguments.append(contentsOf: [
+                    "--io.sentry.profile-lifecycle-manual"
+                ])
+                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            } else {
+                app.launchArguments.append("--io.sentry.disable-ui-profiling")
+            }
+        } else {
+            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1"
         }
 
         launchApp()
-        
         goToProfiling()
-        
-        let markerFileExists = try checkLaunchProfileMarkerFileExistence()
-        XCTAssertEqual(shouldEnableLaunchProfilingOptionForNextLaunch, markerFileExists)
-        
+        XCTAssert(try checkLaunchProfileMarkerFileExistence())
+
         guard shouldProfileThisLaunch else {
             return
         }
         
         if continuousProfiling {
-            stopContinuousProfiler()
+            if !v2TraceLifecycle {
+                stopContinuousProfiler()
+            }
             retrieveFirstProfileChunkData()
         } else {
             retrieveLastProfileData()

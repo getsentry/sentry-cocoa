@@ -22,18 +22,21 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: UI Tests for ${{matrix.target}} on Simulators
+    name: UI Tests for ${{matrix.target}}
     runs-on: macos-14
     strategy:
       matrix:
         target: ["ios_objc", "tvos_swift"]
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
+        run: bundle exec fastlane ui_tests_${{matrix.target}}
         shell: sh
 
       - name: Publish Test Report
@@ -63,22 +66,19 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    runs-on: ${{matrix.runs-on}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runs-on: macos-13
-            xcode: "14.3.1"
-            device: "iPhone 8 (16.1)"
+    name: UI Tests for SwiftUI
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
 
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - run: ./scripts/ci-select-xcode.sh 14.3.1
+      - run: ./scripts/ci-boot-simulator.sh --xcode 14.3.1
+
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
+        run: bundle exec fastlane ui_tests_ios_swiftui
         shell: sh
 
       - name: Publish Test Report
@@ -94,14 +94,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ui-tests-ios-swiftui-${{matrix.device}}.xcresult
+          name: ui-tests-ios-swiftui.xcresult
           path: fastlane/test_results/ui-tests-ios-swiftui.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: ui-tests-ios-swiftui-raw-output-${{matrix.device}}
+          name: ui-tests-ios-swiftui-raw-output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -125,10 +125,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift
+        run: bundle exec fastlane ui_tests_ios_swift
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
@@ -156,14 +161,18 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift6:
-    name: UI Tests for iOS-Swift6 Simulator
+    name: UI Tests for iOS-Swift6
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+            
       - run: ./scripts/ci-select-xcode.sh "16.2"
-
+      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - name: Run Fastlane
-        run: fastlane ui_tests_ios_swift6
+        run: bundle exec fastlane ui_tests_ios_swift6
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
@@ -196,10 +205,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+            bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh "16.2"
+      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
+      
       - name: Run Fastlane
-        run: fastlane duplication_test
+        run: bundle exec fastlane duplication_test
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1

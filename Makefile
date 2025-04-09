@@ -6,8 +6,7 @@ init:
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
-	swiftlint version > scripts/.swiftlint-version
+	./scripts/update-tooling-versions.sh
 	
 	# The node version manager is optional, so we don't fail if it's not installed.
 	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
@@ -23,6 +22,16 @@ init-ci-test:
 .PHONY: init-ci-deploy
 init-ci-deploy:
 	brew bundle --file Brewfile-ci-deploy
+
+# installs the tools needed to run CI format tasks locally
+.PHONY: init-ci-format
+init-ci-format:
+	brew bundle --file Brewfile-ci-format
+	rbenv install --skip-existing
+
+.PHONY: update-versions
+update-versions:
+	./scripts/update-tooling-versions.sh
 
 .PHONY: check-versions
 check-versions:
@@ -85,7 +94,7 @@ test-ui-critical:
 
 analyze:
 	rm -rf analyzer
-	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
+	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
