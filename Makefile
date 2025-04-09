@@ -41,10 +41,10 @@ lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint --strict
-	yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json}"
+	yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json,yaml,yml}"
 .PHONY: lint
 
-format: format-clang format-swift format-markdown format-json
+format: format-clang format-swift format-markdown format-json format-yaml
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
@@ -63,6 +63,10 @@ format-markdown:
 # Format JSON
 format-json:
 	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.json"
+
+# Format YAML
+format-yaml:
+	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.{yaml,yml}"
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
