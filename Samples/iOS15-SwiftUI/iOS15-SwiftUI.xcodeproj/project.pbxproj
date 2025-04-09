@@ -17,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		841C8A192DA7253800DCA74F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 842D547E2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
 		842D551C2DA718FE00D3528B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
@@ -119,6 +126,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		841C8A092DA7253800DCA74F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				841C8A1A2DA7253800DCA74F /* libSentrySampleShared-Swift.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		842D551A2DA718FE00D3528B /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -180,6 +195,10 @@
 					ProductGroup = 842D551A2DA718FE00D3528B /* Products */;
 					ProjectRef = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
 				},
+				{
+					ProductGroup = 841C8A092DA7253800DCA74F /* Products */;
+					ProjectRef = 842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -189,6 +208,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		841C8A1A2DA7253800DCA74F /* libSentrySampleShared-Swift.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSentrySampleShared-Swift.a";
+			remoteRef = 841C8A192DA7253800DCA74F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		842D55202DA718FF00D3528B /* libSentrySampleShared-Swift.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
