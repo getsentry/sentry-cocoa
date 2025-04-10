@@ -1,1 +1,4 @@
+## Add the 'labeler.yml', because it uses a `**` to match all files, which is not supported by prettier.
+.github/labeler.yml
+
 Tests/Resources/**/*garbage*.json

@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-            bundler-cache: true
+          bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
       - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-            bundler-cache: true
+          bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh 14.3.1
       - run: ./scripts/ci-boot-simulator.sh --xcode 14.3.1
@@ -127,7 +127,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-            bundler-cache: true
+          bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
@@ -167,8 +167,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-            bundler-cache: true
-            
+          bundler-cache: true
+
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - name: Run Fastlane
@@ -207,12 +207,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-            bundler-cache: true
+          bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
       - run: ./scripts/build-xcframework.sh gameOnly
-      
+
       - name: Run Fastlane
         run: bundle exec fastlane duplication_test
 
