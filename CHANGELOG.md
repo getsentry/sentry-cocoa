@@ -5,7 +5,7 @@
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
-- Make setMeasurement thread safe (#5067)
+- Make setMeasurement thread safe (#5067, #5078)
 
 ## 8.49.0
 
