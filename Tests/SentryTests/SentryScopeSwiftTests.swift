@@ -843,7 +843,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(observer2.context as? NSDictionary, expected)
     }
 
-    func testSetPropagationContext_UpdatesTraceContext() throws {
+    func testScopeObserver_setPropagationContext_UpdatesTraceContext() throws {
         // -- Arrange --
         let sut = Scope()
         let observer = fixture.observer
