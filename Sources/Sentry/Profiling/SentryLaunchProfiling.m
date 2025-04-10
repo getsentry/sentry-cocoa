@@ -385,6 +385,17 @@ sentry_stopAndTransmitLaunchProfile(SentryHub *hub)
 void
 sentry_stopAndDiscardLaunchProfileTracer(void)
 {
+    if (sentry_launchTracer == nil) {
+        if (sentry_isTracingAppLaunch) {
+            SENTRY_LOG_WARN(@"Inconsistent state detected for app launch tracking.");
+        }
+        return;
+    }
+
+    if (!sentry_isTracingAppLaunch) {
+        SENTRY_LOG_WARN(@"Inconsistent state detected for app launch tracking.");
+    }
+
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [sentry_launchTracer finish];
     sentry_isTracingAppLaunch = NO;
