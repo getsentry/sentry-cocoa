@@ -3,19 +3,31 @@
 import Sentry
 import UIKit
 
-struct SentrySDKWrapper {
-    static let shared = SentrySDKWrapper()
-    
-    func startSentry() {
+public struct SentrySDKWrapper {
+    public static let shared = SentrySDKWrapper()
+
+    public func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
     
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
-        options.beforeSend = { $0 }
-        options.beforeSendSpan = { $0 }
-        options.beforeCaptureScreenshot = { _ in true }
-        options.beforeCaptureViewHierarchy = { _ in true }
+        options.beforeSend = {
+            print("Sentry: beforeSend called")
+            return $0
+        }
+        options.beforeSendSpan = {
+            print("Sentry: beforeSendSpan called")
+            return $0
+        }
+        options.beforeCaptureScreenshot = { _ in
+            print("Sentry: beforeCaptureScreenshot called")
+            return true
+        }
+        options.beforeCaptureViewHierarchy = { _ in
+            print("Sentry: beforeCaptureViewHierarchy called")
+            return true
+        }
         options.debug = true
         
         if #available(iOS 16.0, *), SentrySDKOverrides.Other.disableSessionReplay.set {
@@ -113,9 +125,9 @@ struct SentrySDKWrapper {
         }
         
         scope.setTag(value: "swift", key: "language")
-        
-        scope.injectGitInformation()
-        
+
+        injectGitInformation(scope: scope)
+
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
         user.username = username
@@ -334,8 +346,8 @@ extension SentrySDKWrapper {
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
-    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-    
+    public static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
+
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
         print("[iOS-Swift] [debug] launch arguments: \(args)")

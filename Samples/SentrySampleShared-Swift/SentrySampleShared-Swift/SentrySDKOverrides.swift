@@ -1,6 +1,6 @@
 import Foundation
 
-protocol SentrySDKOverride: RawRepresentable, CaseIterable {
+public protocol SentrySDKOverride: RawRepresentable, CaseIterable {
     var set: Bool { get set }
     var value: Float? { get set }
 }
@@ -23,7 +23,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Special: String, SentrySDKOverride {
+    public enum Special: String, SentrySDKOverride {
         case wipeDataOnLaunch = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
 
@@ -36,7 +36,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var value: Float? {
+        public var value: Float? {
             get {
                 fatalError("Invalid")
             }
@@ -46,7 +46,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Feedback: String, SentrySDKOverride {
+    public enum Feedback: String, SentrySDKOverride {
         case allDefaults = "--io.sentry.feedback.all-defaults"
         case disableAutoInject = "--io.sentry.feedback.no-auto-inject-widget"
         case noWidgetText = "--io.sentry.feedback.no-widget-text"
@@ -68,7 +68,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var value: Float? {
+        public var value: Float? {
             get {
                 fatalError("Invalid")
             }
@@ -78,7 +78,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Performance: String, SentrySDKOverride {
+    public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
         case disablePerformanceV2 = "--disable-performance-v2"
         case disableAppHangTrackingV2 = "--disable-app-hang-tracking-v2"
@@ -102,7 +102,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var value: Float? {
+        public var value: Float? {
             get {
                 fatalError("Invalid")
             }
@@ -112,7 +112,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Other: String, SentrySDKOverride {
+    public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
         case disableSessionReplay = "--disable-session-replay"
@@ -132,7 +132,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var value: Float? {
+        public var value: Float? {
             get {
                 fatalError("Invalid")
             }
