@@ -5,6 +5,7 @@
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
+- Make setMeasurement thread safe (#5067)
 
 ## 8.49.0
 
@@ -26,8 +27,6 @@
 ### Fixes
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
-- Crash in setMeasurement when name is nil (#5064)
-- Make setMeasurement thread safe (#5067)
 
 ### Improvements
 
