@@ -1005,7 +1005,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(serializedTransaction?["measurements"])
     }
 
-    func testMeasurementsFromDifferentThreads_SetsAllMeasurements() throws {
+    func testMeasurements_WriteFromDifferentThreads_SetsAllMeasurements() throws {
         // Arrange
         let iterations = 100
         let unit = MeasurementUnitFraction.percent
