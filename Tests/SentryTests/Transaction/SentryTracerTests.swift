@@ -988,6 +988,64 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(unit.unit, try XCTUnwrap(measurement["unit"] as? String))
     }
 
+    func testMeasurement_NameIsNil_MeasurementsGetsDiscarded() throws {
+        // Arrange
+        let sut = fixture.getSut()
+
+        // Act
+        testing_setMeasurementWithNilName(sut, 0.0)
+        testing_setMeasurementWithNilNameAndUnit(sut, 0.0, MeasurementUnitFraction.percent)
+
+        // Assert
+        sut.finish()
+
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+
+        XCTAssertNil(serializedTransaction?["measurements"])
+    }
+
+    func testMeasurements_WriteFromDifferentThreads_SetsAllMeasurements() throws {
+        // Arrange
+        let iterations = 100
+        let unit = MeasurementUnitFraction.percent
+
+        let sut = fixture.getSut()
+        let childSpan = sut.startChild(operation: "operation")
+
+        let dispatchQueue = DispatchQueue(label: "testQueue", attributes: .concurrent)
+        let expectation = XCTestExpectation(description: "Set measurements")
+        expectation.expectedFulfillmentCount = iterations
+
+        // Act
+        for i in 0..<iterations {
+            dispatchQueue.async {
+                sut.setMeasurement(name: "transaction \(i)", value: 12.0, unit: unit)
+                childSpan.setMeasurement(name: "span \(i)", value: 10.0, unit: unit)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        childSpan.finish()
+        sut.finish()
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+
+        let measurements = try XCTUnwrap(serializedTransaction?["measurements"] as? [String: [String: Any]])
+        XCTAssertEqual(measurements.count, iterations * 2)
+
+        for i in 0..<iterations {
+            let transactionMeasurement = try XCTUnwrap(measurements["transaction \(i)"])
+            XCTAssertEqual(try XCTUnwrap(transactionMeasurement["value"] as? NSNumber), 12.0)
+
+            let spanMeasurement = try XCTUnwrap(measurements["span \(i)"])
+            XCTAssertEqual(try XCTUnwrap(spanMeasurement["value"] as? NSNumber), 10.0)
+        }
+    }
+
     func testFinish_WithUnfinishedChildren() {
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)

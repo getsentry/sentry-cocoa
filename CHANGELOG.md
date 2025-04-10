@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash in setMeasurement when name is nil (#5064)
+- Make setMeasurement thread safe (#5067)
+
 ## 8.49.0
 
 ### Features
