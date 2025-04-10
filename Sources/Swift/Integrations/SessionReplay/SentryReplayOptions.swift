@@ -107,6 +107,22 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses = [AnyClass]()
 
     /**
+     * Alias for ``enableViewRendererV2``.
+     *
+     * This flag is deprecated and will be removed in a future version.
+     * Please use ``enableViewRendererV2`` instead.
+     */
+    @available(*, deprecated, renamed: "enableViewRendererV2")
+    public var enableExperimentalViewRenderer: Bool {
+        get {
+            enableViewRendererV2
+        }
+        set {
+            enableViewRendererV2 = newValue
+        }
+    }
+
+    /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing 

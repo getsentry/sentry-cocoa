@@ -174,35 +174,43 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllImages)
     }
     
-    func testInitFromDictenableViewRendererV2WithBool() {
-        let options = SentryReplayOptions(dictionary: [
-            "enableViewRendererV2": true
-        ])
-        XCTAssertTrue(options.enableViewRendererV2)
-
-        let options2 = SentryReplayOptions(dictionary: [
-            "enableViewRendererV2": false
-        ])
-        XCTAssertFalse(options2.enableViewRendererV2)
-    }
-
-    func testInitFromDictenableViewRendererV2WithString() {
-        let options = SentryReplayOptions(dictionary: [
-            "enableViewRendererV2": "invalid_value"
-        ])
-        XCTAssertFalse(options.enableViewRendererV2)
-    }
-
-    func testInitFromDict_enableViewRendererV2WithBool_shouldIgnoreValue() {
+    func testInitFromDictEnableExperimentalViewRendererWithBool() {
         // To support backwards compatibility we keep support for the old key
         // "experimentalViewRenderer" until we remove it in a future version.
 
         // -- Act --
         let options = SentryReplayOptions(dictionary: [
-            "experimentalViewRenderer": true
+            "enableExperimentalViewRenderer": true
         ])
         let options2 = SentryReplayOptions(dictionary: [
-            "experimentalViewRenderer": false
+            "enableExperimentalViewRenderer": false
+        ])
+
+        // -- Assert --
+        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertFalse(options2.enableViewRendererV2)
+    }
+
+    func testInitFromDictEnableExperimentalViewRendererWithString() {
+        // To support backwards compatibility we keep support for the old key
+        // "experimentalViewRenderer" until we remove it in a future version.
+
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": "invalid_value"
+        ])
+
+        // -- Assert --
+        XCTAssertFalse(options.enableViewRendererV2)
+    }
+
+    func testInitFromDict_enableViewRendererV2WithBool_shouldIgnoreValue() {
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": true
+        ])
+        let options2 = SentryReplayOptions(dictionary: [
+            "enableExperimentalViewRenderer": false
         ])
 
         // -- Assert --
@@ -211,12 +219,9 @@ class SentryReplayOptionsTests: XCTestCase {
     }
 
     func testInitFromDict_enableViewRendererV2WithString_shouldIgnoreValue() {
-        // To support backwards compatibility we keep support for the old key
-        // "experimentalViewRenderer" until we remove it in a future version.
-
         // -- Act --
         let options = SentryReplayOptions(dictionary: [
-            "experimentalViewRenderer": "invalid_value"
+            "enableExperimentalViewRenderer": "invalid_value"
         ])
 
         // -- Assert --
@@ -286,6 +291,7 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertFalse(options.enableViewRendererV2)
+        XCTAssertFalse(options.experimentalViewRenderer)
         XCTAssertFalse(options.enableFastViewRendering)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
@@ -294,4 +300,24 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.quality, .low)
     }
 
+    func testExperimentalViewRenderer_shouldBeAnAliasForEnableViewRendererV2() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        options.enableViewRendererV2 = false
+        options.experimentalViewRenderer = false
+
+        // -- Act & Assert --
+        XCTAssertFalse(options.enableViewRendererV2)
+        XCTAssertFalse(options.experimentalViewRenderer)
+
+        options.enableViewRendererV2 = true
+        
+        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertTrue(options.experimentalViewRenderer)
+
+        options.experimentalViewRenderer = false
+
+        XCTAssertFalse(options.enableViewRendererV2)
+        XCTAssertFalse(options.experimentalViewRenderer)
+    }
 }
