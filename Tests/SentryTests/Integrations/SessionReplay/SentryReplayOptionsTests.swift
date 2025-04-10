@@ -291,7 +291,6 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertFalse(options.experimentalViewRenderer)
         XCTAssertFalse(options.enableFastViewRendering)
         XCTAssertEqual(options.maskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.maskedViewClasses.first!), ObjectIdentifier(NSString.self))
@@ -300,24 +299,25 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.quality, .low)
     }
 
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the tested property.")
     func testExperimentalViewRenderer_shouldBeAnAliasForEnableViewRendererV2() {
         // -- Arrange --
         let options = SentryReplayOptions()
         options.enableViewRendererV2 = false
-        options.experimentalViewRenderer = false
+        options.enableExperimentalViewRenderer = false
 
         // -- Act & Assert --
         XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertFalse(options.experimentalViewRenderer)
+        XCTAssertFalse(options.enableExperimentalViewRenderer)
 
         options.enableViewRendererV2 = true
         
         XCTAssertTrue(options.enableViewRendererV2)
-        XCTAssertTrue(options.experimentalViewRenderer)
+        XCTAssertTrue(options.enableExperimentalViewRenderer)
 
-        options.experimentalViewRenderer = false
+        options.enableExperimentalViewRenderer = false
 
         XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertFalse(options.experimentalViewRenderer)
+        XCTAssertFalse(options.enableExperimentalViewRenderer)
     }
 }
