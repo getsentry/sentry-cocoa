@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash in setMeasurement when name is nil (#5064)
+
 ## 8.49.0
 
 ### Features
