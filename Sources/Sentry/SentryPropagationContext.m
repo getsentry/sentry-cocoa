@@ -14,6 +14,15 @@
     return self;
 }
 
+- (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId
+{
+    if (self = [super init]) {
+        _traceId = traceId;
+        _spanId = spanId;
+    }
+    return self;
+}
+
 - (SentryTraceHeader *)traceHeader
 {
     return [[SentryTraceHeader alloc] initWithTraceId:self.traceId
