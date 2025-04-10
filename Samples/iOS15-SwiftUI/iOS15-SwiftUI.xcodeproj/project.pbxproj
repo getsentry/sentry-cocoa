@@ -24,20 +24,6 @@
 			remoteGlobalIDString = 842D547E2DA712C200D3528B;
 			remoteInfo = "SentrySampleShared-Swift";
 		};
-		842D551C2DA718FE00D3528B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 842D547D2DA712C200D3528B;
-			remoteInfo = "SentrySampleShared-Swift";
-		};
-		842D551F2DA718FF00D3528B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 842D547E2DA712C200D3528B;
-			remoteInfo = "SentrySampleShared-Swift";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,7 +49,6 @@
 		7B5166762758C72600C0A720 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "../SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		842D55172DA718FB00D3528B /* libSentrySampleShared-Swift.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libSentrySampleShared-Swift.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Samples/SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,7 +71,6 @@
 				7B51664A2758C6F000C0A720 /* iOS15-SwiftUI */,
 				7B5166492758C6F000C0A720 /* Products */,
 				7B5166752758C72600C0A720 /* Frameworks */,
-				842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -134,14 +118,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		842D551A2DA718FE00D3528B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				842D55202DA718FF00D3528B /* libSentrySampleShared-Swift.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -157,7 +133,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				842D551D2DA718FE00D3528B /* PBXTargetDependency */,
 			);
 			name = "iOS15-SwiftUI";
 			productName = "iOS15-SwiftUI";
@@ -192,10 +167,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 842D551A2DA718FE00D3528B /* Products */;
-					ProjectRef = 842D55192DA718FE00D3528B /* SentrySampleShared.xcodeproj */;
-				},
-				{
 					ProductGroup = 841C8A092DA7253800DCA74F /* Products */;
 					ProjectRef = 842D55142DA718F200D3528B /* SentrySampleShared.xcodeproj */;
 				},
@@ -213,13 +184,6 @@
 			fileType = archive.ar;
 			path = "libSentrySampleShared-Swift.a";
 			remoteRef = 841C8A192DA7253800DCA74F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		842D55202DA718FF00D3528B /* libSentrySampleShared-Swift.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libSentrySampleShared-Swift.a";
-			remoteRef = 842D551F2DA718FF00D3528B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -247,14 +211,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		842D551D2DA718FE00D3528B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "SentrySampleShared-Swift";
-			targetProxy = 842D551C2DA718FE00D3528B /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7B51666A2758C6F400C0A720 /* Debug */ = {

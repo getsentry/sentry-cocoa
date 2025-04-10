@@ -12,10 +12,22 @@ public struct SentrySDKWrapper {
     
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
-        options.beforeSend = { $0 }
-        options.beforeSendSpan = { $0 }
-        options.beforeCaptureScreenshot = { _ in true }
-        options.beforeCaptureViewHierarchy = { _ in true }
+        options.beforeSend = {
+            print("Sentry: beforeSend called")
+            return $0
+        }
+        options.beforeSendSpan = {
+            print("Sentry: beforeSendSpan called")
+            return $0
+        }
+        options.beforeCaptureScreenshot = { _ in
+            print("Sentry: beforeCaptureScreenshot called")
+            return true
+        }
+        options.beforeCaptureViewHierarchy = { _ in
+            print("Sentry: beforeCaptureViewHierarchy called")
+            return true
+        }
         options.debug = true
         
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {

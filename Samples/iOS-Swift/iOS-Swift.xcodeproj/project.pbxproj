@@ -30,6 +30,7 @@
 		841C8A242DA7273400DCA74F /* LaunchArgumentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A222DA7273400DCA74F /* LaunchArgumentTableViewCell.swift */; };
 		841C8A262DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */; };
 		841C8A272DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */; };
+		841C8A5F2DA740D100DCA74F /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 842D549F2DA712ED00D3528B /* libSentrySampleShared-Swift.a */; };
 		842D54AA2DA7135F00D3528B /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 842D549F2DA712ED00D3528B /* libSentrySampleShared-Swift.a */; };
 		842D54AD2DA7138700D3528B /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 842D549F2DA712ED00D3528B /* libSentrySampleShared-Swift.a */; };
 		842D54B12DA7169800D3528B /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 842D549F2DA712ED00D3528B /* libSentrySampleShared-Swift.a */; };
@@ -146,6 +147,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDA5243B02760034958B;
 			remoteInfo = "iOS-Swift";
+		};
+		841C8A602DA740D400DCA74F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 842D54882DA712E700D3528B /* SentrySampleShared.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 842D547D2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
 		};
 		842D549E2DA712ED00D3528B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -453,6 +461,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841C8A5F2DA740D100DCA74F /* libSentrySampleShared-Swift.a in Frameworks */,
 				D8F71A822CDD04C200334022 /* (null) in Frameworks */,
 				D86B9CA02CDD11670039211C /* Sentry.framework in Frameworks */,
 			);
@@ -867,6 +876,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				841C8A612DA740D400DCA74F /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift6";
 			productName = "iOS-Swift6";
@@ -1323,6 +1333,11 @@
 			isa = PBXTargetDependency;
 			target = 637AFDA5243B02760034958B /* iOS-Swift */;
 			targetProxy = 7B64386D26A6C544000D0F65 /* PBXContainerItemProxy */;
+		};
+		841C8A612DA740D400DCA74F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SentrySampleShared-Swift";
+			targetProxy = 841C8A602DA740D400DCA74F /* PBXContainerItemProxy */;
 		};
 		842D54A92DA7135A00D3528B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
