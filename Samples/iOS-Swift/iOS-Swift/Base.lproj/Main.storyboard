@@ -195,7 +195,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
-                                <rect key="frame" x="0.0" y="64" width="320" height="430"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="419.5"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1f-aG-VcS">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
@@ -205,7 +205,7 @@
                                         </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                        <rect key="frame" x="0.0" y="70" width="320" height="360"/>
+                                        <rect key="frame" x="0.0" y="70" width="320" height="349.5"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="center" id="DsI-9S-jdi">
                                                 <rect key="frame" x="0.0" y="0.0" width="320" height="28"/>
@@ -283,14 +283,20 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eIF-PE-QqH">
                                                 <rect key="frame" x="0.0" y="64" width="320" height="34"/>
                                                 <subviews>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gze-1d-uyQ">
+                                                        <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="defineProfilesSampleRateToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="MEf-2L-dUa"/>
+                                                        </connections>
+                                                    </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Next profiles sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FQD-I0-1X0">
-                                                        <rect key="frame" x="0.0" y="7" width="190" height="20.5"/>
+                                                        <rect key="frame" x="57" y="7" width="190" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xwi-jT-wbn">
-                                                        <rect key="frame" x="198" y="0.0" width="122" height="34"/>
+                                                        <rect key="frame" x="255" y="0.0" width="65" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                         <connections>
@@ -302,14 +308,20 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="zeP-Kl-5q9">
                                                 <rect key="frame" x="0.0" y="102" width="320" height="34"/>
                                                 <subviews>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vE8-ol-phx">
+                                                        <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="defineTracesSampleRateToggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="nkZ-wh-VHz"/>
+                                                        </connections>
+                                                    </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Next traces sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zio-dR-4qq">
-                                                        <rect key="frame" x="0.0" y="7" width="181" height="20.5"/>
+                                                        <rect key="frame" x="57" y="7" width="181" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zf3-tk-iEk">
-                                                        <rect key="frame" x="189" y="0.0" width="131" height="34"/>
+                                                        <rect key="frame" x="246" y="0.0" width="74" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                         <connections>
@@ -337,48 +349,17 @@
                                                 </subviews>
                                                 <viewLayoutGuide key="safeArea" id="RlG-tL-5qm"/>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="mzj-bg-VRX">
-                                                <rect key="frame" x="0.0" y="175" width="320" height="31"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DVc-uT-M38">
+                                                <rect key="frame" x="0.0" y="175" width="320" height="85.5"/>
                                                 <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gze-1d-uyQ">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="continuousProfilingV1Toggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="MEf-2L-dUa"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Continuous profiling (beta)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xOQ-KY-MLE">
-                                                        <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI Profiling" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OET-Ys-74j">
+                                                        <rect key="frame" x="0.0" y="0.0" width="320" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                </subviews>
-                                                <viewLayoutGuide key="safeArea" id="gJu-5R-hWW"/>
-                                            </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DVc-uT-M38">
-                                                <rect key="frame" x="0.0" y="210" width="320" height="96"/>
-                                                <subviews>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0lw-9O-whJ">
-                                                        <rect key="frame" x="0.0" y="0.0" width="320" height="31"/>
-                                                        <subviews>
-                                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Vu-fg-In9">
-                                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                                <connections>
-                                                                    <action selector="profilingV2Toggled:" destination="NZr-bH-g9o" eventType="valueChanged" id="WrH-fV-vSS"/>
-                                                                </connections>
-                                                            </switch>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI Profiling" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OET-Ys-74j">
-                                                                <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                        </subviews>
-                                                        <viewLayoutGuide key="safeArea" id="eaF-g8-bu4"/>
-                                                    </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="SXh-2A-peo">
-                                                        <rect key="frame" x="0.0" y="31" width="320" height="34"/>
+                                                        <rect key="frame" x="0.0" y="20.5" width="320" height="34"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Session sample rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fF1-ly-MDN">
                                                                 <rect key="frame" x="0.0" y="7" width="153" height="20.5"/>
@@ -398,7 +379,7 @@
                                                         <viewLayoutGuide key="safeArea" id="8xH-Zh-geM"/>
                                                     </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="W6x-yz-w2T">
-                                                        <rect key="frame" x="0.0" y="65" width="320" height="31"/>
+                                                        <rect key="frame" x="0.0" y="54.5" width="320" height="31"/>
                                                         <subviews>
                                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LE4-ET-8Nj">
                                                                 <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
@@ -419,8 +400,27 @@
                                                 <viewLayoutGuide key="safeArea" id="Xjs-qf-kxh"/>
                                                 <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                             </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="cTH-vp-x1q">
+                                                <rect key="frame" x="0.0" y="264.5" width="320" height="31"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <subviews>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jWc-r9-WqX">
+                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="immediatelyStopContinuousProfiler:" destination="NZr-bH-g9o" eventType="valueChanged" id="Vxa-jj-EAa"/>
+                                                        </connections>
+                                                    </switch>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Immediately stop continuous profiler" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.29999999999999999" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Acv-eU-TLH">
+                                                        <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <viewLayoutGuide key="safeArea" id="m7S-DL-OF1"/>
+                                            </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LIr-jM-FSX">
-                                                <rect key="frame" x="0.0" y="310" width="320" height="50"/>
+                                                <rect key="frame" x="0.0" y="299.5" width="320" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI test data marshalling:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhg-B3-Rao" userLabel="UI test data marshaling:">
                                                         <rect key="frame" x="0.0" y="15" width="184" height="20.5"/>
@@ -465,14 +465,15 @@
                         <outlet property="dsnView" destination="b1f-aG-VcS" id="cP6-26-jVy"/>
                         <outlet property="launchProfilingMarkerFileCheckButton" destination="keL-m5-7hv" id="PRA-Jy-Ola"/>
                         <outlet property="profileAppStartsSwitch" destination="8bN-UU-QZD" id="OkT-LI-spn"/>
+                        <outlet property="profilesSampleRateSwitch" destination="Gze-1d-uyQ" id="iyp-zb-OQQ"/>
                         <outlet property="profilingUITestDataMarshalingStatus" destination="2LR-W8-mNE" id="S4k-Yg-EsB"/>
                         <outlet property="profilingUITestDataMarshalingTextField" destination="5zI-Ix-rMJ" id="2o6-Cc-NMl"/>
                         <outlet property="profilingV2Stack" destination="DVc-uT-M38" id="4hr-sl-gIF"/>
-                        <outlet property="profilingV2Switch" destination="5Vu-fg-In9" id="0Vl-KF-cFM"/>
                         <outlet property="sampleRateField" destination="Xwi-jT-wbn" id="XpH-kw-BQZ"/>
                         <outlet property="sessionSampleRateField" destination="U13-Gw-eUj" id="2ga-SC-ftw"/>
                         <outlet property="traceLifecycleSwitch" destination="LE4-ET-8Nj" id="lID-WQ-nMk"/>
                         <outlet property="tracesSampleRateField" destination="zf3-tk-iEk" id="zZn-Dc-pUc"/>
+                        <outlet property="tracesSampleRateSwitch" destination="vE8-ol-phx" id="g6f-KU-n0a"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MLd-fY-Tsv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

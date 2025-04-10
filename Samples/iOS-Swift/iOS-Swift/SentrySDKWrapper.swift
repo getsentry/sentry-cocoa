@@ -27,10 +27,17 @@ struct SentrySDKWrapper {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
         }
-        
-        options.tracesSampleRate = tracesSampleRate
-        options.tracesSampler = tracesSampler
-        
+
+        options.tracesSampleRate = 1
+        if let sampleRate = SentrySDKOverrides.Tracing.sampleRate {
+            options.tracesSampleRate = NSNumber(value: sampleRate)
+        }
+        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue {
+            options.tracesSampler = { _ in
+                return NSNumber(value: samplerValue)
+            }
+        }
+
         configureProfiling(options)
 
         options.enableAutoSessionTracking = enableSessionTracking
@@ -59,6 +66,7 @@ struct SentrySDKWrapper {
         options.attachViewHierarchy = enableAttachViewHierarchy
         options.enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing
         options.enablePerformanceV2 = enablePerformanceV2
+        options.enableAppHangTrackingV2 = enableAppHangTrackingV2
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
         
         options.beforeBreadcrumb = { breadcrumb in
@@ -373,6 +381,7 @@ extension SentrySDKWrapper {
     var enableAttachScreenshot: Bool { !checkDisabled(with: "--disable-attach-screenshot")}
     var enableAttachViewHierarchy: Bool { !checkDisabled(with: "--disable-attach-view-hierarchy")}
     var enablePerformanceV2: Bool { !checkDisabled(with: "--disable-performance-v2")}
+    var enableAppHangTrackingV2: Bool { !checkDisabled(with: "--disable-app-hang-tracking-v2")}
     var enableSessionReplay: Bool { !checkDisabled(with: "--disable-session-replay") }
     var enableMetricKit: Bool { !checkDisabled(with: "--disable-metrickit-integration") }
     var enableSessionTracking: Bool { !checkDisabled(with: "--disable-automatic-session-tracking") }
@@ -384,66 +393,29 @@ extension SentrySDKWrapper {
     var enableNetworkBreadcrumbs: Bool { !checkDisabled(with: "--disable-network-breadcrumbs") }
     var enableSwizzling: Bool { !checkDisabled(with: "--disable-swizzling") }
     var enableCrashHandling: Bool { !checkDisabled(with: "--disable-crash-handler") }
-    
-    var tracesSampleRate: NSNumber {
-        guard let tracesSampleRateOverride = SentrySDKOverrides.Tracing.sampleRate else {
-            return 1
-        }
-        return NSNumber(value: tracesSampleRateOverride)
-    }
-    
-    var tracesSampler: ((SamplingContext) -> NSNumber?)? {
-        guard let tracesSamplerValue = SentrySDKOverrides.Tracing.samplerValue else {
-            return nil
-        }
-        
-        return { _ in
-            return NSNumber(value: tracesSamplerValue)
-        }
-    }
 }
 
 // MARK: Profiling configuration
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-        if SentrySDKOverrides.Profiling.useProfilingV2 {
+        if let sampleRate = SentrySDKOverrides.Profiling.sampleRate {
+            options.profilesSampleRate = NSNumber(value: sampleRate)
+        }
+        if let samplerValue = SentrySDKOverrides.Profiling.samplerValue {
+            options.profilesSampler = { _ in
+                return NSNumber(value: samplerValue)
+            }
+        }
+        options.enableAppLaunchProfiling = SentrySDKOverrides.Profiling.profileAppStarts
+
+        if !SentrySDKOverrides.Profiling.disableUIProfiling {
             options.configureProfiling = {
-                $0.lifecycle = SentrySDKOverrides.Profiling.lifecycle
-                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 0
+                $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle ? .manual : .trace
+                $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate ?? 1
                 $0.profileAppStarts = SentrySDKOverrides.Profiling.profileAppStarts
             }
-        } else {
-            options.profilesSampleRate = profilesSampleRate
-            options.profilesSampler = profilesSampler
-            options.enableAppLaunchProfiling = enableAppLaunchProfiling
         }
     }
-    
-    var profilesSampleRate: NSNumber? {
-        if SentrySDKOverrides.Profiling.useContinuousProfilingV1 {
-            return nil
-        } else if let profilesSampleRateOverride = SentrySDKOverrides.Profiling.sampleRate {
-            return NSNumber(value: profilesSampleRateOverride)
-        } else {
-            return 1
-        }
-    }
-    
-    var profilesSampler: ((SamplingContext) -> NSNumber?)? {
-        guard !SentrySDKOverrides.Profiling.useContinuousProfilingV1 else {
-            return nil
-        }
-        
-        guard let profilesSamplerValue = SentrySDKOverrides.Profiling.samplerValue else {
-            return nil
-        }
-        
-        return { _ in
-            return NSNumber(value: profilesSamplerValue)
-        }
-    }
-    
-    var enableAppLaunchProfiling: Bool { SentrySDKOverrides.Profiling.profileAppStarts }
 }
 
 // swiftlint:enable file_length function_body_length

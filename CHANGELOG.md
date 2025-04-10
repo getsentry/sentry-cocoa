@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 8.49.0
 
 ### Features
 
-- New continuous profiling configuration API (#4952)
+- New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
 > With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
@@ -15,7 +15,6 @@
 > - `SentryOptions.profilesSampler`
 > - `SentryOptions.enableLaunchProfiling`
 >
-> Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above API are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is it's default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
 > Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above APIs are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is its default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
 
 > ![Important]

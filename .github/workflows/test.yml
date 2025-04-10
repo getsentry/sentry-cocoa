@@ -60,7 +60,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -234,7 +234,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -242,7 +242,7 @@ jobs:
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -307,7 +307,7 @@ jobs:
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: thread-sanitizer
           path: thread-sanitizer.log
