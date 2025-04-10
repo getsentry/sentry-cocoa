@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+> ![Important]
+> This version makes the new view renderer used by Session Replay generally available.
+> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
+>
+> In case you are noticing issues with the new view renderer, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
+
+## Improvements
+
+- GA of new session replay view renderer (#5054)
+
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
@@ -24,12 +34,6 @@
 >
 > Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above APIs are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is its default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
 
-> ![Important]
-> This version makes the new view renderer used by Session Replay generally available.
-> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
->
-> In case you are noticing issues with the new view renderer, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
-
 ### Fixes
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
@@ -37,7 +41,6 @@
 ### Improvements
 
 - Remove SDK side character limit of 8192 for SentryMessage (#5005) Now, the backend handles the character limit, which has the advantage of showing in the UI when the message was truncated.
-- GA of new session replay view renderer (#5054)
 
 ## 8.48.0
 
