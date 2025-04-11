@@ -36,7 +36,7 @@ public enum SentrySDKOverrides {
 
         public var boolValue: Bool {
             get {
-                getBoolOverride(for: rawValue)
+                return getBoolOverride(for: rawValue)
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
@@ -57,8 +57,8 @@ public enum SentrySDKOverrides {
         public var boolValue: Bool {
             get {
                 switch self {
-                case .disableAutoInject: getBoolOverride(for: rawValue)
-                default: getBoolOverride(for: rawValue)
+                case .disableAutoInject: return getBoolOverride(for: rawValue)
+                default: return getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
@@ -84,7 +84,7 @@ public enum SentrySDKOverrides {
 
         public var boolValue: Bool {
             get {
-                getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
@@ -107,7 +107,7 @@ public enum SentrySDKOverrides {
 
         public var boolValue: Bool {
             get {
-                getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
@@ -117,15 +117,13 @@ public enum SentrySDKOverrides {
         var stringValue: String? {
             get {
                 switch self {
-                case .userName, .userEmail:
-                    return getStringValueOverride(for: rawValue)
+                case .userName, .userEmail: return getStringValueOverride(for: rawValue)
                 default: fatalError("Invalid")
                 }
             }
             set(newValue) {
                 switch self {
-                case .userName, .userEmail:
-                    return setStringOverride(for: rawValue, value: newValue)
+                case .userName, .userEmail: return setStringOverride(for: rawValue, value: newValue)
                 default: fatalError("Invalid")
                 }
             }
@@ -144,7 +142,7 @@ public enum SentrySDKOverrides {
             get {
                 switch self {
                 case .sampleRate, .samplerValue: fatalError("Invalid")
-                default: getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
@@ -159,7 +157,7 @@ public enum SentrySDKOverrides {
             get {
                 switch self {
                 case .disableTracing: fatalError("Invalid")
-                default: getFloatValueOverride(for: rawValue)
+                default: return getFloatValueOverride(for: rawValue)
                 }
             }
             set(newValue) {
@@ -186,8 +184,8 @@ public enum SentrySDKOverrides {
             get {
                 switch self {
                 case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Invalid")
-                case .disableUIProfiling, .disableAppStartProfiling: getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
-                default: getBoolOverride(for: rawValue)
+                case .disableUIProfiling, .disableAppStartProfiling: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                default: return getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
@@ -202,7 +200,7 @@ public enum SentrySDKOverrides {
             get {
                 switch self {
                 case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Invalid")
-                default: getFloatValueOverride(for: rawValue)
+                default: return getFloatValueOverride(for: rawValue)
                 }
             }
             set(newValue) {

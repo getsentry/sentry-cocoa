@@ -297,7 +297,7 @@ class ExtraViewController: UIViewController {
         }
         var waitingForFeedbackAttachment = false
         let parsedEnvelopeContents = envelopeFileContents.split(separator: "\n").map { line in
-            if let imageData = Data(base64Encoded: String(line), options: []) {
+            if let _ = Data(base64Encoded: String(line), options: []) {
                 guard !waitingForFeedbackAttachment else {
                     waitingForFeedbackAttachment = false
                     return EnvelopeContent.feedbackAttachment(String(line))
