@@ -1,5 +1,6 @@
 import Cocoa
 import Sentry
+import SentrySampleShared_Swift
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -37,6 +38,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             options.experimental.enableFileManagerSwizzling = !args.contains("--disable-filemanager-swizzling")
         }
+
+        SentrySDKWrapper.shared.startSentry()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

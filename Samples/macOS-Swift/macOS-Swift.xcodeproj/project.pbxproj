@@ -16,7 +16,7 @@
 		7B3427FE25876DE700056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427FC25876DE700056519 /* Tongariro.jpg */; };
 		7B948A06275E459C00F04173 /* CppSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A04275E459C00F04173 /* CppSample.cpp */; };
 		7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
-		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
+		84B135362DA9E29A0004D99F /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B135352DA9E2970004D99F /* libSentrySampleShared-Swift.a */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
 		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -44,6 +44,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
+		};
+		84B1352C2DA9E25E0004D99F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D833D7342D1321C100961E7A;
+			remoteInfo = SentrySwiftUITests;
+		};
+		84B135312DA9E2970004D99F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84B1352E2DA9E2970004D99F /* SentrySampleShared.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 842D547D2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
+		84B135342DA9E2970004D99F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84B1352E2DA9E2970004D99F /* SentrySampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 842D547E2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
 		};
 		924D215C2C89FE2D00E0FEFD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -106,7 +127,8 @@
 		7B948A05275E459C00F04173 /* CppSample.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CppSample.hpp; sourceTree = "<group>"; };
 		7B948A08275E498E00F04173 /* CppWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CppWrapper.h; sourceTree = "<group>"; };
 		7B948A09275E4A9900F04173 /* CppWrapper.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = CppWrapper.m; sourceTree = "<group>"; };
-		84BA72AC2C9369B80045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84B135232DA9E25E0004D99F /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "../SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		84B1352E2DA9E2970004D99F /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Samples/SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = "<absolute>"; };
 		924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +138,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84B135362DA9E29A0004D99F /* libSentrySampleShared-Swift.a in Frameworks */,
 				6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */,
 				924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */,
 			);
@@ -133,6 +156,7 @@
 				924D215F2C89FE2D00E0FEFD /* SentryProfilerTests.xctest */,
 				924D21612C89FE2D00E0FEFD /* libSentryTestUtils.a */,
 				924D21632C89FE2D00E0FEFD /* SentryTestUtilsDynamic.framework */,
+				84B1352D2DA9E25E0004D99F /* SentrySwiftUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,11 +164,12 @@
 		637AFDE2243B04320034958B = {
 			isa = PBXGroup;
 			children = (
-				84BA72AD2C9369B80045B828 /* Shared */,
+				84B135232DA9E25E0004D99F /* SentrySampleShared.xcodeproj */,
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
 				637AFDED243B04320034958B /* macOS-Swift */,
 				637AFDEC243B04320034958B /* Products */,
 				637AFDFE243B07420034958B /* Frameworks */,
+				84B1352E2DA9E2970004D99F /* SentrySampleShared.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -185,13 +210,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		84BA72AD2C9369B80045B828 /* Shared */ = {
+		84B1352F2DA9E2970004D99F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				84BA72AC2C9369B80045B828 /* GitInjections.swift */,
+				84B135352DA9E2970004D99F /* libSentrySampleShared-Swift.a */,
 			);
-			name = Shared;
-			path = ../Shared;
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +235,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				84B135322DA9E2970004D99F /* PBXTargetDependency */,
 				6308534D2440C5F500DDE4CE /* PBXTargetDependency */,
 			);
 			name = "macOS-Swift";
@@ -250,6 +275,10 @@
 					ProductGroup = 6308533F2440C45A00DDE4CE /* Products */;
 					ProjectRef = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
 				},
+				{
+					ProductGroup = 84B1352F2DA9E2970004D99F /* Products */;
+					ProjectRef = 84B1352E2DA9E2970004D99F /* SentrySampleShared.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -271,6 +300,20 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 630853452440C45A00DDE4CE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84B1352D2DA9E25E0004D99F /* SentrySwiftUITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentrySwiftUITests.xctest;
+			remoteRef = 84B1352C2DA9E25E0004D99F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84B135352DA9E2970004D99F /* libSentrySampleShared-Swift.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSentrySampleShared-Swift.a";
+			remoteRef = 84B135342DA9E2970004D99F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */ = {
@@ -365,7 +408,6 @@
 				924D216B2C8A020C00E0FEFD /* SwiftUIView.swift in Sources */,
 				7B948A06275E459C00F04173 /* CppSample.cpp in Sources */,
 				637AFDEF243B04320034958B /* AppDelegate.swift in Sources */,
-				84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */,
 				7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,6 +419,11 @@
 			isa = PBXTargetDependency;
 			name = Sentry;
 			targetProxy = 6308534C2440C5F500DDE4CE /* PBXContainerItemProxy */;
+		};
+		84B135322DA9E2970004D99F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SentrySampleShared-Swift";
+			targetProxy = 84B135312DA9E2970004D99F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
