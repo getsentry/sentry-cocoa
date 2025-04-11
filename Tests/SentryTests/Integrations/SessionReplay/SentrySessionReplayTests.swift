@@ -35,7 +35,11 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+        func createVideoAsyncWith(
+            beginning: Date,
+            end: Date,
+            completion: @escaping ([Sentry.SentryVideoInfo]?, (any Error)?) -> Void
+        ) {
             lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
@@ -43,7 +47,7 @@ class SentrySessionReplayTests: XCTestCase {
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(overrideBeginning ?? beginning), frameCount: 5, frameRate: 1, start: overrideBeginning ?? beginning, end: end, fileSize: 10, screens: screens)
             
             createVideoCallBack?(videoInfo)
-            return [videoInfo]
+            return completion([videoInfo], nil)
         }
         
         var lastFrame: UIImage?
