@@ -84,6 +84,15 @@ class ErrorsViewController: UIViewController {
         fatalError("This is a fatal error. Oh no 😬.")
     }
 
+    @IBAction func throwFatalDuplicateKeyError(_ sender: Any) {
+        // Triggers: Fatal error: Duplicate keys of type 'Something' were found in a Dictionary.
+        var dict = [Something(): "value", Something(): "value"]
+
+        for _ in 0..<100 {
+            dict[Something()] = "value \(1)"
+        }
+    }
+    
     @IBAction func oomCrash(_ sender: UIButton) {
         highlightButton(sender)
         DispatchQueue.main.async {
@@ -99,5 +108,18 @@ class ErrorsViewController: UIViewController {
                 }
             }
         }
+    }
+}
+
+class Something: Hashable {
+
+    private var x: Int = 0
+
+    static func == (lhs: Something, rhs: Something) -> Bool {
+        return true
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(Int.random(in: 0..<100))
     }
 }

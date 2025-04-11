@@ -352,6 +352,12 @@ sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isC
     return sentrycrashdl_getBinaryImageForHeader((const void *)header, imageName, buffer, isCrash);
 }
 
+void
+sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer)
+{
+    getCrashInfo((struct mach_header *)address, buffer);
+}
+
 bool
 sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *const image_name,
     SentryCrashBinaryImage *buffer, bool isCrash)
