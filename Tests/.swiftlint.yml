@@ -2,7 +2,6 @@ parent_config: ../.swiftlint.yml
 
 enabled_rules:
   - test_case_accessibility
-  - non_optional_string_data_conversion
 
 disabled_rules:
   - force_cast

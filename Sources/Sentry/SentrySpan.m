@@ -16,7 +16,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryTracer.h"
+#import "SentryTracer+Private.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryFramesTracker.h>
@@ -110,6 +110,13 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
+
+    if (context.parentSpanId == nil) {
+        SENTRY_LOG_DEBUG(@"Started root span with id %@", context.spanId.sentrySpanIdString);
+    } else {
+        SENTRY_LOG_DEBUG(@"Started span with id %@; parent id %@",
+            context.spanId.sentrySpanIdString, context.parentSpanId.sentrySpanIdString);
+    }
     return self;
 }
 
@@ -147,6 +154,14 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         _tracer = tracer;
+
+        if (context.parentSpanId == nil) {
+            SENTRY_LOG_DEBUG(@"Starting root span with tracer with profilerReferenceId %@",
+                tracer.profilerReferenceID.sentryIdString);
+        } else {
+            SENTRY_LOG_DEBUG(@"Starting span with tracer with profilerReferenceId %@",
+                tracer.profilerReferenceID.sentryIdString);
+        }
     }
     return self;
 }
@@ -256,7 +271,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
-
         CFTimeInterval framesDelay = [_framesTracker
                 getFramesDelay:_startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
@@ -288,6 +302,10 @@ NS_ASSUME_NONNULL_BEGIN
             @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
         return;
     }
+
+    SENTRY_LOG_DEBUG(@"Marking span %@ as finished in tracer %@ (profileReferenceId %@)",
+        _spanId.sentrySpanIdString, _tracer.traceId.sentryIdString,
+        _tracer.profilerReferenceID.sentryIdString);
     [self.tracer spanFinished:self];
 }
 

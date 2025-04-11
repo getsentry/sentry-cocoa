@@ -48,6 +48,10 @@
         [target setValue:self.contentType forKey:@"content_type"];
     }
 
+    if (self.platform) {
+        [target setValue:self.contentType forKey:@"platform"];
+    }
+
     [target setValue:[NSNumber numberWithUnsignedInteger:self.length] forKey:@"length"];
 
     return target;
