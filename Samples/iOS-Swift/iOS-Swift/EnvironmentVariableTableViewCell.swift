@@ -2,11 +2,14 @@ import UIKit
 
 class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
     let titleLabel = UILabel(frame: .zero)
+
     lazy var valueField = {
         let field = UITextField(frame: .zero)
         field.delegate = self
         return field
     }()
+
+    var float: Bool = false
     var override: (any SentrySDKOverride)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -23,20 +26,28 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with launchArgument: any SentrySDKOverride) {
-        titleLabel.text = launchArgument.rawValue as? String
+    func configure(with override: any SentrySDKOverride, float: Bool) {
+        titleLabel.text = override.rawValue as? String
 
         var text: String
-        if let value = launchArgument.value {
+        if let value = override.floatValue {
             text = String(format: "%.2f", value)
+        } else if let value = override.stringValue {
+            text = value
         } else {
             text = "nil"
         }
         valueField.text = text
-        self.override = launchArgument
+
+        self.float = float
+        self.override = override
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        override?.value = textField.text.flatMap { Float($0) }
+        if self.float {
+            override?.floatValue = textField.text.flatMap { Float($0) }
+        } else {
+            override?.stringValue = textField.text
+        }
     }
 }

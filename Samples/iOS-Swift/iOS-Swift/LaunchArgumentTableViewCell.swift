@@ -10,7 +10,7 @@ class LaunchArgumentTableViewCell: UITableViewCell {
     var override: (any SentrySDKOverride)?
 
     @objc func toggleFlag() {
-        override?.set = flagSwitch.isOn
+        override?.boolValue = flagSwitch.isOn
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -25,9 +25,9 @@ class LaunchArgumentTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with launchArgument: any SentrySDKOverride) {
-        titleLabel.text = launchArgument.rawValue as? String
-        flagSwitch.isOn = launchArgument.set
-        self.override = launchArgument
+    func configure(with override: any SentrySDKOverride) {
+        titleLabel.text = override.rawValue as? String
+        flagSwitch.isOn = override.boolValue
+        self.override = override
     }
 }

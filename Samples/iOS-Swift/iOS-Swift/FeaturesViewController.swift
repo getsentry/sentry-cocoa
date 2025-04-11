@@ -74,23 +74,33 @@ class FeaturesViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 2 {
-            if SentrySDKOverrides.Tracing.args.contains(SentrySDKOverrides.Tracing.allCases[indexPath.row]) {
+            if SentrySDKOverrides.Tracing.boolValues.contains(SentrySDKOverrides.Tracing.allCases[indexPath.row]) {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
                 cell.configure(with: SentrySDKOverrides.Tracing.allCases[indexPath.row])
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
-                cell.configure(with: SentrySDKOverrides.Tracing.allCases[indexPath.row])
+                cell.configure(with: SentrySDKOverrides.Tracing.allCases[indexPath.row], float: true)
                 return cell
             }
         } else if indexPath.section == 3 {
-            if SentrySDKOverrides.Profiling.args.contains(SentrySDKOverrides.Profiling.allCases[indexPath.row]) {
+            if SentrySDKOverrides.Profiling.boolValues.contains(SentrySDKOverrides.Profiling.allCases[indexPath.row]) {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
                 cell.configure(with: SentrySDKOverrides.Profiling.allCases[indexPath.row])
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
-                cell.configure(with: SentrySDKOverrides.Profiling.allCases[indexPath.row])
+                cell.configure(with: SentrySDKOverrides.Profiling.allCases[indexPath.row], float: true)
+                return cell
+            }
+        } else if indexPath.section == 5 {
+            if SentrySDKOverrides.Other.boolValues.contains(SentrySDKOverrides.Other.allCases[indexPath.row]) {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
+                cell.configure(with: SentrySDKOverrides.Other.allCases[indexPath.row])
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
+                cell.configure(with: SentrySDKOverrides.Other.allCases[indexPath.row], float: false)
                 return cell
             }
         }
@@ -102,8 +112,6 @@ class FeaturesViewController: UITableViewController {
             cell.configure(with: SentrySDKOverrides.Performance.allCases[indexPath.row])
         } else if indexPath.section == 4 {
             cell.configure(with: SentrySDKOverrides.Feedback.allCases[indexPath.row])
-        } else if indexPath.section == 5 {
-            cell.configure(with: SentrySDKOverrides.Other.allCases[indexPath.row])
         }
         return cell
     }
