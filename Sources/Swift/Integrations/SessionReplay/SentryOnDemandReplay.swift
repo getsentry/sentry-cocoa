@@ -7,18 +7,6 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-struct SentryReplayFrame {
-    let imagePath: String
-    let time: Date
-    let screenName: String?
-}
-
-enum SentryOnDemandReplayError: Error {
-    case cantReadVideoSize
-    case cantCreatePixelBuffer
-    case errorRenderingVideo
-}
-
 @objcMembers
 class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
@@ -27,7 +15,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private let dateProvider: SentryCurrentDateProvider
     private let workingQueue: SentryDispatchQueueWrapper
     private var _frames = [SentryReplayFrame]()
-    
+
     #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     //This is exposed only for tests, no need to make it thread safe.
     var frames: [SentryReplayFrame] {
@@ -48,20 +36,28 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     convenience init(withContentFrom outputPath: String, workingQueue: SentryDispatchQueueWrapper, dateProvider: SentryCurrentDateProvider) {
         self.init(outputPath: outputPath, workingQueue: workingQueue, dateProvider: dateProvider)
-        
+        loadFrames(fromPath: outputPath)
+    }
+
+    /// Loads the frames from the given path.
+    ///
+    /// - Parameter path: The path to the directory containing the frames.
+    private func loadFrames(fromPath path: String) {
+        SentryLog.debug("[Session Replay] Loading frames from path: \(path)")
         do {
-            let content = try FileManager.default.contentsOfDirectory(atPath: outputPath)
-            _frames = content.compactMap {
-                guard $0.hasSuffix(".png") else { return SentryReplayFrame?.none }
-                guard let time = Double($0.dropLast(4)) else { return nil }
-                return SentryReplayFrame(imagePath: "\(outputPath)/\($0)", time: Date(timeIntervalSinceReferenceDate: time), screenName: nil)
+            let content = try FileManager.default.contentsOfDirectory(atPath: path)
+            _frames = content.compactMap { frameFilePath -> SentryReplayFrame? in
+                guard frameFilePath.hasSuffix(".png") else { return nil }
+                guard let time = Double(frameFilePath.dropLast(4)) else { return nil }
+                let timestamp = Date(timeIntervalSinceReferenceDate: time)
+                return SentryReplayFrame(imagePath: "\(path)/\(frameFilePath)", time: timestamp, screenName: nil)
             }.sorted { $0.time < $1.time }
+            SentryLog.debug("[Session Replay] Loaded \(content.count) files into \(_frames.count) frames from path: \(path)")
         } catch {
-            SentryLog.debug("Could not list frames from replay: \(error.localizedDescription)")
-            return
+            SentryLog.error("[Session Replay] Could not list frames from replay: \(error.localizedDescription)")
         }
     }
-    
+
     convenience init(outputPath: String) {
         self.init(outputPath: outputPath,
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
@@ -73,7 +69,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                   workingQueue: SentryDispatchQueueWrapper(name: "io.sentry.onDemandReplay", attributes: nil),
                   dateProvider: SentryDefaultCurrentDateProvider())
     }
-    
+
     func addFrameAsync(image: UIImage, forScreen: String?) {
         workingQueue.dispatchAsync({
             self.addFrame(image: image, forScreen: forScreen)
@@ -88,11 +84,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         do {
             try data.write(to: URL(fileURLWithPath: imagePath))
         } catch {
-            SentryLog.debug("Could not save replay frame. Error: \(error)")
+            SentryLog.error("[Session Replay] Could not save replay frame. Error: \(error)")
             return
         }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
-        
+
+        // Remove the oldest frames if the cache size exceeds the maximum size.
         while _frames.count > cacheMaxSize {
             let first = _frames.removeFirst()
             try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
@@ -111,10 +108,17 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     func releaseFramesUntil(_ date: Date) {
+        SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
         workingQueue.dispatchAsync ({
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+                let fileUrl = URL(fileURLWithPath: first.imagePath)
+                do {
+                    try FileManager.default.removeItem(at: fileUrl)
+                    SentryLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
+                } catch {
+                    SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error.localizedDescription), ignoring error")
+                }
             }
         })
     }
@@ -239,7 +243,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         })
         return frames
     }
-    
+
     private func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
         return [
             AVVideoCodecKey: AVVideoCodecType.h264,
