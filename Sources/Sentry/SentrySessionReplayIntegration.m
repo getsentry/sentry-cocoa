@@ -120,6 +120,7 @@ static SentryTouchTracker *_touchTracker;
                                                                    scale:replayOptions.sizeScale];
         [self swizzleApplicationTouch];
     }
+
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
 
     // The asset worker queue is used to work on video and frames data.
@@ -230,8 +231,8 @@ static SentryTouchTracker *_touchTracker;
     NSError *_Nullable removeError;
     BOOL result = [NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&removeError];
     if (result == NO) {
-        SENTRY_LOG_ERROR(
-            @"Can`t delete file item at url: '%@', reason: %@", lastReplayURL, removeError);
+        SENTRY_LOG_ERROR(@"Can't delete '%@' with file item at url: '%@', reason: %@",
+            SENTRY_LAST_REPLAY, lastReplayURL, removeError);
     }
 }
 
