@@ -1,5 +1,8 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
@@ -140,6 +143,16 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var enableFastViewRendering = false
 
+    #if canImport(UIKit)
+    public var onNewFrame: ((
+        _ timestamp: Date,
+        _ viewHiearchy: ViewHierarchyNode,
+        _ redactRegions: [RedactRegion],
+        _ renderedViewImage: UIImage,
+        _ maskedViewImage: UIImage
+    ) -> Void)?
+    #endif
+
     /**
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
@@ -160,7 +173,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The more the havier the process is.
      * The minimum is 1, if set to zero this will change to 1.
      */
-    var frameRate: UInt = 1 {
+    public var frameRate: UInt = 1 {
         didSet {
             if frameRate < 1 { frameRate = 1 }
         }

@@ -7,44 +7,6 @@ import UIKit
 import WebKit
 #endif
 
-enum RedactRegionType {
-    /// Redacts the region.
-    case redact
-    
-    /// Marks a region to not draw anything.
-    /// This is used for opaque views.
-    case clipOut
-    
-    /// Push a clip region to the drawing context.
-    /// This is used for views that clip to its bounds.
-    case clipBegin
-    
-    /// Pop the last Pushed region from the drawing context.
-    /// Used after prossing every child of a view that clip to its bounds.
-    case clipEnd
-    
-    /// These regions are redacted first, there is no way to avoid it.
-    case redactSwiftUI
-}
-
-struct RedactRegion {
-    let size: CGSize
-    let transform: CGAffineTransform
-    let type: RedactRegionType
-    let color: UIColor?
-    
-    init(size: CGSize, transform: CGAffineTransform, type: RedactRegionType, color: UIColor? = nil) {
-        self.size = size
-        self.transform = transform
-        self.type = type
-        self.color = color
-    }
-    
-    func canReplace(as other: RedactRegion) -> Bool {
-        size == other.size && transform == other.transform && type == other.type
-    }
-}
-
 class UIRedactBuilder {
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
@@ -178,10 +140,10 @@ class UIRedactBuilder {
      
      This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
      */
-    func redactRegionsFor(view: UIView) -> [RedactRegion] {
+    func redactRegionsFor(view: UIView) -> (ViewHierarchyNode, [RedactRegion]) {
         var redactingRegions = [RedactRegion]()
         
-        self.mapRedactRegion(fromLayer: view.layer.presentation() ?? view.layer,
+        let node = self.mapRedactRegion(fromLayer: view.layer.presentation() ?? view.layer,
                              relativeTo: nil,
                              redacting: &redactingRegions,
                              rootFrame: view.frame,
@@ -199,7 +161,7 @@ class UIRedactBuilder {
         }
         
         //The swiftUI type needs to appear first in the list so it always get masked
-        return (otherRegions + swiftUIRedact).reversed()
+        return (node, (otherRegions + swiftUIRedact).reversed())
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
@@ -238,9 +200,11 @@ class UIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
     
-    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
-        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else { return }
-        
+    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) -> ViewHierarchyNode {
+        let node = ViewHierarchyNode(layer: layer)
+        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else {
+            return node
+        }
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         
         let ignore = !forceRedact && shouldIgnore(view: view)
@@ -249,9 +213,17 @@ class UIRedactBuilder {
         var enforceRedact = forceRedact
         
         if !ignore && redact {
-            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: swiftUI ? .redactSwiftUI : .redact, color: self.color(for: view)))
+            redacting.append(RedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: swiftUI ? .redactSwiftUI : .redact,
+                color: self.color(for: view),
+                name: layer.debugDescription
+            ))
 
-            guard !view.clipsToBounds else { return }
+            guard !view.clipsToBounds else {
+                return node
+            }
             enforceRedact = true
         } else if isOpaque(view) {
             let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
@@ -259,23 +231,46 @@ class UIRedactBuilder {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
                 redacting.removeAll()
             } else {
-                redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipOut))
+                let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: 1).image { _ in
+                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
+                }
+                print(image)
+                redacting.append(RedactRegion(
+                    size: layer.bounds.size,
+                    transform: newTransform,
+                    type: .clipOut,
+                    name: layer.debugDescription
+                ))
             }
         }
         
-        guard let subLayers = layer.sublayers, subLayers.count > 0 else { return }
+        guard let subLayers = layer.sublayers, subLayers.count > 0 else {
+            return node
+        }
         let clipToBounds = view.clipsToBounds
         if clipToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
-            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipEnd))
+            redacting.append(RedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .clipEnd,
+                name: layer.debugDescription
+            ))
         }
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
-            mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
+            let child = mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
+            node.children.append(child)
         }
         if clipToBounds {
-            redacting.append(RedactRegion(size: layer.bounds.size, transform: newTransform, type: .clipBegin))
+            redacting.append(RedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .clipBegin,
+                name: layer.debugDescription
+            ))
         }
+        return node
     }
 
     /**

@@ -192,6 +192,7 @@ static SentryTouchTracker *_touchTracker;
         [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    resumeReplayMaker.frameRate = _replayOptions.frameRate;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
@@ -319,9 +320,15 @@ static SentryTouchTracker *_touchTracker;
     SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
-    replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
-                                              : replayOptions.errorReplayDuration + 1);
+    replayMaker.frameRate = replayOptions.frameRate;
+    replayMaker.onNewFrame = replayOptions.onNewFrame;
+
+    // The cache should be at least the amount of frames fitting into he session segment duration
+    // plus one frame to ensure that the last frame is not dropped.
+    NSInteger sessionSegmentDuration
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
+    replayMaker.cacheMaxSize = (sessionSegmentDuration * replayOptions.frameRate) + 1;
 
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);

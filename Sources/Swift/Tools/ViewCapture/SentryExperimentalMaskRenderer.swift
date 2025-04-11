@@ -7,7 +7,7 @@ class SentryExperimentalMaskRenderer: SentryDefaultMaskRenderer {
     override func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [RedactRegion]) -> UIImage {
         // The `SentryDefaultMaskRenderer` is also using an display scale of 1, therefore we also use 1 here.
         // This could be evaluated in future iterations to view performance impact vs quality.
-        let image = SentryGraphicsImageRenderer(size: size, scale: 1).image { context in
+        let image = SentryGraphicsImageRenderer(size: size, scale: 2).image { context in
             // The experimental mask renderer only uses a different graphics renderer and can reuse the default masking logic.
             applyMasking(to: context, image: image, size: size, masking: masking)
         }

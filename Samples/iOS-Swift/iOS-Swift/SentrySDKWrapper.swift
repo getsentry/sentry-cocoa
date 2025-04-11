@@ -19,8 +19,51 @@ struct SentrySDKWrapper {
         options.debug = true
         
         if #available(iOS 16.0, *), enableSessionReplay {
-            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
+            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0.0, onErrorSampleRate: 1, maskAllText: true, maskAllImages: true)
             options.sessionReplay.quality = .high
+            options.sessionReplay.frameRate = 10
+            try! FileManager.default.removeItem(atPath: "/tmp/workdir")
+            try! FileManager.default.createDirectory(atPath: "/tmp/workdir", withIntermediateDirectories: true, attributes: nil)
+            var previousEncodedViewData: Data?
+            var counter = 0
+            options.sessionReplay.onNewFrame = { _, viewHiearchy, redactRegions, renderedViewImage, maskedViewImage  in
+                guard TransactionsViewController.isTransitioning else { return }
+                do {
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+                    let encodedViewData = try encoder.encode(viewHiearchy)
+                    if let previousEncodedViewData = previousEncodedViewData {
+                        if encodedViewData == previousEncodedViewData {
+                            return
+                        }
+                    }
+                    previousEncodedViewData = encodedViewData
+                    if counter >= 2 {
+                        return
+                    }
+                    counter += 1
+
+                    let viewHiearchyPath = "/tmp/workdir/\(counter)-0_view.json"
+                    let regionsPath = "/tmp/workdir/\(counter)-1_regions.json"
+                    let imagePath = "/tmp/workdir/\(counter)-2_image.png"
+                    let maskedImagePath = "/tmp/workdir/\(counter)-3_masked.png"
+
+                    try encodedViewData.write(to: URL(fileURLWithPath: viewHiearchyPath))
+
+                    let encodedRegionsData = try encoder.encode(redactRegions)
+                    try encodedRegionsData.write(to: URL(fileURLWithPath: regionsPath))
+
+                    let encodedImage = renderedViewImage.pngData()
+                    try encodedImage?.write(to: URL(fileURLWithPath: imagePath))
+
+                    let encodedMaskedImage = maskedViewImage.pngData()
+                    try encodedMaskedImage?.write(to: URL(fileURLWithPath: maskedImagePath))
+                    
+                } catch {
+                    print("Could not encode redact regions. Error: \(error)")
+                }
+            }
         }
         
         if #available(iOS 15.0, *), enableMetricKit {

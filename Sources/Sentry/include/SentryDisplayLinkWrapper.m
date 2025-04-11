@@ -21,6 +21,7 @@
 - (void)linkWithTarget:(id)target selector:(SEL)sel
 {
     displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];
+    displayLink.preferredFramesPerSecond = 10;
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }
 

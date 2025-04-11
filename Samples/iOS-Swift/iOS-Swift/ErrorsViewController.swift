@@ -17,6 +17,8 @@ class ErrorsViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("--> ErrorsViewController.viewDidAppear")
+
         SentrySDK.reportFullyDisplayed()
         
         if ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.inject-screenshot") {
