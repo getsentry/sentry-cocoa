@@ -3,7 +3,6 @@
 /// A ``Data`` extension that tracks read and write operations with Sentry.
 ///
 /// - Note: Methods provided by this extension reflect the same functionality as the original ``Data`` methods, but they track the operation with Sentry.
-///
 public extension Data {
 
     // MARK: - Reading Data from a File
