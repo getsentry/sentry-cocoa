@@ -98,6 +98,8 @@ static SentryTouchTracker *_touchTracker;
 {
     _replayOptions = replayOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
+    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
     id<SentryViewRenderer> viewRenderer;
     if (enableExperimentalRenderer) {
         viewRenderer = [[SentryExperimentalViewRenderer alloc]
@@ -114,14 +116,11 @@ static SentryTouchTracker *_touchTracker;
                           enableExperimentalMaskRenderer:enableExperimentalRenderer];
 
     if (touchTracker) {
-        _touchTracker = [[SentryTouchTracker alloc]
-            initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                           scale:replayOptions.sizeScale];
+        _touchTracker = [[SentryTouchTracker alloc] initWithDateProvider:_dateProvider
+                                                                   scale:replayOptions.sizeScale];
         [self swizzleApplicationTouch];
     }
-
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
 
     // The asset worker queue is used to work on video and frames data.
 
@@ -210,7 +209,7 @@ static SentryTouchTracker *_touchTracker;
                                                                                  end:end
                                                                                error:&error];
     if (videos == nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video, reason: no videos available");
+        SENTRY_LOG_ERROR(@"Could not create replay video, reason: %@", error);
         return;
     }
 
@@ -231,7 +230,8 @@ static SentryTouchTracker *_touchTracker;
     NSError *_Nullable removeError;
     BOOL result = [NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&removeError];
     if (result == NO) {
-        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, removeError);
+        SENTRY_LOG_ERROR(
+            @"Can`t delete file item at url: '%@', reason: %@", lastReplayURL, removeError);
     }
 }
 
