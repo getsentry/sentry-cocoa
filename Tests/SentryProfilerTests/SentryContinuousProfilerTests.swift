@@ -118,6 +118,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     // test that when stop is called, the profiler runs to the end of the last
     // chunk and transmits that before stopping
     func testStoppingProfilerTransmitsLastFullChunk() throws {
+        fixture.givenSdkWithHub()
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
@@ -142,6 +143,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
     
     func testChunkSerializationAfterBufferInterval() throws {
+        fixture.givenSdkWithHub()
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
@@ -202,6 +204,7 @@ private extension SentryContinuousProfilerTests {
     }
     
     func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
+        fixture.givenSdkWithHub()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -225,15 +228,13 @@ private extension SentryContinuousProfilerTests {
         try runTestPart(expectedAddresses: [0x4, 0x5, 0x6], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 1.23, memoryFootprint: 456, cpuEnergyUsage: 7), countMetricsReadingAtProfileStart: false)
         try runTestPart(expectedAddresses: [0x7, 0x8, 0x9], mockMetrics: SentryProfileTestFixture.MockMetric(cpuUsage: 9.87, memoryFootprint: 654, cpuEnergyUsage: 3), countMetricsReadingAtProfileStart: false)
         
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
     }
     
     func assertContinuousProfileStoppage() throws {
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        fixture.currentDateProvider.advance(by: 60)
-        try fixture.timeoutTimerFactory.check()
+        try fixture.allowContinuousProfilerToStop()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
     
