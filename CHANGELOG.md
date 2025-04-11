@@ -6,6 +6,7 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
+- Add error logging for move current replay to last path (#5083)
 
 ## 8.49.0
 
