@@ -109,16 +109,18 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     func releaseFramesUntil(_ date: Date) {
         SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
-        while let first = self._frames.first, first.time < date {
-            self._frames.removeFirst()
-            let fileUrl = URL(fileURLWithPath: first.imagePath)
-            do {
-                try FileManager.default.removeItem(at: fileUrl)
-                SentryLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
-            } catch {
-                SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error.localizedDescription), ignoring error")
+        workingQueue.dispatchAsync ({
+            while let first = self._frames.first, first.time < date {
+                self._frames.removeFirst()
+                let fileUrl = URL(fileURLWithPath: first.imagePath)
+                do {
+                    try FileManager.default.removeItem(at: fileUrl)
+                    SentryLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
+                } catch {
+                    SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error.localizedDescription), ignoring error")
+                }
             }
-        }
+        })
     }
         
     var oldestFrameDate: Date? {
