@@ -103,9 +103,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
 
 - (void)reportFullyDisplayed;
 
-- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                                     tracer:(SentryTracer *)tracer;
+- (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                        waitForFullDisplay:(BOOL)waitForFullDisplay
+                                    tracer:(SentryTracer *)tracer;
 
 @end
 
