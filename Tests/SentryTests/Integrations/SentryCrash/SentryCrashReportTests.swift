@@ -177,7 +177,7 @@ class SentryCrashReportTests: XCTestCase {
     // We noticed that the libsystem_sim_platform.dylib is a simulator library that has a crash info message even when there is no crash.
     // This is simply a smoke test to ensure we can write the crash_info_message key to the report.
     // This only works on iOS.
-    // Actual testing must be done manually.
+    // Actual testing must be done manually with a fatalError in Swift.
     func testWriteCrashReport_ContainsCrashInfoMessage() throws {
         writeCrashReport()
 
