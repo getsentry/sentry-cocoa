@@ -159,8 +159,11 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_propagationContext) {
         _propagationContext = propagationContext;
 
-        for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTraceContext:[self.propagationContext traceContextForEvent]];
+        if (self.observers.count > 0) {
+            NSDictionary *traceContext = [self.propagationContext traceContextForEvent];
+            for (id<SentryScopeObserver> observer in self.observers) {
+                [observer setTraceContext:traceContext];
+            }
         }
     }
 }
