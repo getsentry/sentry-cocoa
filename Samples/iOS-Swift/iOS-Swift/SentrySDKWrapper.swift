@@ -18,7 +18,7 @@ struct SentrySDKWrapper {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
         
-        if #available(iOS 16.0, *), SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
                 onErrorSampleRate: 1,
@@ -28,7 +28,7 @@ struct SentrySDKWrapper {
             options.sessionReplay.quality = .high
         }
         
-        if #available(iOS 15.0, *), SentrySDKOverrides.Other.disableMetricKit.boolValue {
+        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
         }
@@ -45,7 +45,7 @@ struct SentrySDKWrapper {
 
         configureProfiling(options)
 
-        options.enableAutoSessionTracking = SentrySDKOverrides.Performance.disableSessionTracking.boolValue
+        options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
