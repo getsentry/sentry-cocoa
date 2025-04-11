@@ -69,9 +69,19 @@ jobs:
           - scheme: macOS-SwiftUI
             xcode: 16.2
             runs-on: macos-15
+
           - scheme: SessionReplay-CameraTest
             xcode: 16.2
             runs-on: macos-15
+
+            # We have to compile on Xcode 16.3 because compiling on Xcode 16.2 fails with
+            # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
+            # and cannot be used here because C++ types from imported module 'Foundation' do not support
+            # library evolution; this is an error in the Swift 6 language mode
+          - scheme: visionOS-Swift
+            xcode: 16.3
+            runs-on: macos-15
+
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}

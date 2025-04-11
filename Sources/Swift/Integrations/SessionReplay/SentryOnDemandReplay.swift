@@ -119,7 +119,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     func releaseFramesUntil(_ date: Date) {
         processingQueue.dispatchAsync {
-            SentryLog.debug("[Session Replay] Releasing frames until date: \(date), current queue: \(self.processingQueue.queue.label)")
+            SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
                 let fileUrl = URL(fileURLWithPath: first.imagePath)

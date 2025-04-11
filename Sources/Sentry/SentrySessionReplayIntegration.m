@@ -100,6 +100,8 @@ static SentryTouchTracker *_touchTracker;
 {
     _replayOptions = replayOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
+    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
     id<SentryViewRenderer> viewRenderer;
     if (enableExperimentalRenderer) {
         viewRenderer = [[SentryExperimentalViewRenderer alloc]
@@ -116,9 +118,8 @@ static SentryTouchTracker *_touchTracker;
                           enableExperimentalMaskRenderer:enableExperimentalRenderer];
 
     if (touchTracker) {
-        _touchTracker = [[SentryTouchTracker alloc]
-            initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                           scale:replayOptions.sizeScale];
+        _touchTracker = [[SentryTouchTracker alloc] initWithDateProvider:_dateProvider
+                                                                   scale:replayOptions.sizeScale];
         [self swizzleApplicationTouch];
     }
 
@@ -136,6 +137,8 @@ static SentryTouchTracker *_touchTracker;
     _replayProcessingQueue = [SentryDispatchQueueWrapper
         createBackgroundDispatchQueueWithName:"io.sentry.session-replay.processing"
                              relativePriority:-2];
+
+    // The asset worker queue is used to work on video and frames data.
 
     [self moveCurrentReplay];
     [self cleanUp];
@@ -267,7 +270,8 @@ static SentryTouchTracker *_touchTracker;
     NSError *_Nullable removeError;
     BOOL result = [NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&removeError];
     if (result == NO) {
-        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, removeError);
+        SENTRY_LOG_ERROR(@"Can't delete '%@' with file item at url: '%@', reason: %@",
+            SENTRY_LAST_REPLAY, lastReplayURL, removeError);
     }
 }
 
