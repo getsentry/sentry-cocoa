@@ -414,3 +414,8 @@ Contributors: @philipphofmann, @philprime, @kahest
 Due to a potential memory-management bug in the Swift standard library for bridging `String` to Objective-C, we experienced SDK crashes when accessing Swift String constants from an Objective-C `NSBlock` closure.
 
 To avoid this issue, we should not use Swift String constants in Objective-C code and instead define them as Objective-C constants.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/4887
+- https://github.com/getsentry/sentry-cocoa/pull/4910
