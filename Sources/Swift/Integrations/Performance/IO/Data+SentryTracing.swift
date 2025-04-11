@@ -6,7 +6,7 @@
 ///
 /// We must use Data from the Foundation lib, cause ``ReadingOptions`` and ``WritingOptions`` are bridged to ``NSData`` and NSData lives in Foundation.
 /// Not prefixing with Foundation leads to compiler errors when compling with Swift 6.
-public extension Foundation.Data {
+public extension Data {
 
     // MARK: - Reading Data from a File
 
@@ -21,10 +21,10 @@ public extension Foundation.Data {
     ///   - url: The location on disk of the data to read.
     ///   - options: The mask specifying the options to use when reading the data. For more information, see ``NSData.ReadingOptions``.
     /// - Note: See ``Data.init(contentsOf:options:)`` for more information.
-    init(contentsOfWithSentryTracing url: URL, options: Foundation.Data.ReadingOptions = []) throws {
+    init(contentsOfWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        let method = { (url: URL, options: Foundation.Data.ReadingOptions) throws -> Foundation.Data in
-            try Foundation.Data(contentsOf: url, options: options)
+        let method = { (url: URL, options: Data.ReadingOptions) throws -> Data in
+            try Data(contentsOf: url, options: options)
         }
         guard let tracker = SentryFileIOTracker.sharedInstance() else {
             self = try method(url, options)
@@ -52,9 +52,9 @@ public extension Foundation.Data {
     ///   - url: The location to write the data into.
     ///   - options: Options for writing the data. Default value is `[]`.
     /// - Note: See ``Data.write(to:options:)`` for more information.
-    func writeWithSentryTracing(to url: URL, options: Foundation.Data.WritingOptions = []) throws {
+    func writeWithSentryTracing(to url: URL, options: Data.WritingOptions = []) throws {
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        let method = { (data: Foundation.Data, url: URL, options: Foundation.Data.WritingOptions) throws in
+        let method = { (data: Data, url: URL, options: Data.WritingOptions) throws in
             try data.write(to: url, options: options)
         }
         guard let tracker = SentryFileIOTracker.sharedInstance() else {

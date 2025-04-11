@@ -88,7 +88,13 @@ jobs:
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
       - run: >-
-          env NSUnbufferedIO=YES  xcodebuild -workspace Sentry.xcworkspace -scheme visionOS-Swift -configuration Debug CODE_SIGNING_ALLOWED="NO" build
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme '${{matrix.scheme}}'
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
