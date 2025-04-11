@@ -17,6 +17,7 @@
 		7BB6225E26A56CB600D0E75E /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB6225C26A56CB600D0E75E /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84BA72B52C9369C80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72B32C9369C80045B828 /* GitInjections.swift */; };
 		84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEB228ECD52E00EDAAFE /* Sentry.framework */; };
+		D4DB99952D678355000AD63F /* DelayedFullDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DB998D2D67834D000AD63F /* DelayedFullDisplayView.swift */; };
 		D8199DCD29376FD90074249E /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; };
 		D8199DCE29376FD90074249E /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D832FAF02982A908007A9A5F /* FormScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D832FAEF2982A908007A9A5F /* FormScreen.swift */; };
@@ -171,6 +172,7 @@
 		84D4FEA628ECD51800EDAAFE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Sentry.xcodeproj"; sourceTree = "<absolute>"; };
+		D4DB998D2D67834D000AD63F /* DelayedFullDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedFullDisplayView.swift; sourceTree = "<group>"; };
 		D832FAEF2982A908007A9A5F /* FormScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormScreen.swift; sourceTree = "<group>"; };
 		D85388D02980222500B63908 /* UIKitScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitScreen.swift; sourceTree = "<group>"; };
 		D8A22A7729151DB7006907D9 /* bridging-headers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bridging-headers.h"; sourceTree = "<group>"; };
@@ -211,7 +213,7 @@
 				8425DE232B52241000113FEF /* SentryProfilerTests.xctest */,
 				8425DE252B52241000113FEF /* libSentryTestUtils.a */,
 				8425DE272B52241000113FEF /* SentryTestUtilsDynamic.framework */,
-				D833D61B2D13216300961E7A /* libSentrySwiftUITests.a */,
+				D833D61B2D13216300961E7A /* SentrySwiftUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -249,6 +251,7 @@
 		7BB6224B26A56C4E00D0E75E /* iOS-SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				D4DB998D2D67834D000AD63F /* DelayedFullDisplayView.swift */,
 				7BB6226026A56E1E00D0E75E /* iOS-SwiftUI.entitlements */,
 				7BB6224C26A56C4E00D0E75E /* SwiftUIApp.swift */,
 				7BB6224E26A56C4E00D0E75E /* ContentView.swift */,
@@ -485,7 +488,7 @@
 			remoteRef = 84D4FEB328ECD52E00EDAAFE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		D833D61B2D13216300961E7A /* libSentrySwiftUITests.a */ = {
+		D833D61B2D13216300961E7A /* SentrySwiftUITests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = SentrySwiftUITests.xctest;
@@ -576,6 +579,7 @@
 				D85388D12980222500B63908 /* UIKitScreen.swift in Sources */,
 				7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */,
 				7B5DA9D92859DC850069AD02 /* LoremIpsumView.swift in Sources */,
+				D4DB99952D678355000AD63F /* DelayedFullDisplayView.swift in Sources */,
 				D832FAF02982A908007A9A5F /* FormScreen.swift in Sources */,
 				84BA72B52C9369C80045B828 /* GitInjections.swift in Sources */,
 				7BB6224D26A56C4E00D0E75E /* SwiftUIApp.swift in Sources */,
