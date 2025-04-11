@@ -139,7 +139,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
     func createVideoAsyncWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]?, Error?) -> Void) {
         // Note: In Swift it is best practice to use `Result<Value, Error>` instead of `(Value?, Error?)`
-        //       Due to interoperability with Objective-C and @objc, we can not use Result here.
+        //       Due to interoperability with Objective-C and @objc, we can not use Result for the completion callback.
         SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
 
         // Dispatch the video creation to a background queue to avoid blocking the calling queue.
@@ -203,7 +203,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private func renderVideo(with videoFrames: [SentryReplayFrame], from: Int, at outputFileURL: URL, completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
         SentryLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(from), to output url: \(outputFileURL)")
         guard from < videoFrames.count, let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else {
-            SentryLog.debug("[Session Replay] Failed to render video, reason: index out of bounds or can't read image at path: \(videoFrames[from].imagePath)")
+            SentryLog.error("[Session Replay] Failed to render video, reason: index out of bounds or can't read image at path: \(videoFrames[from].imagePath)")
             return completion(.success(SentryRenderVideoResult(
                 info: nil,
                 finalFrameIndex: from
@@ -218,7 +218,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         do {
             videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
         } catch {
-            SentryLog.debug("[Session Replay] Failed to create video writer, reason: \(error)")
+            SentryLog.error("[Session Replay] Failed to create video writer, reason: \(error)")
             return completion(.failure(error))
         }
 
