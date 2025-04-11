@@ -81,6 +81,22 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.disable-ui-profiling"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-app-hang-tracking-v2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.schema-override-precedence"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.profile-lifecycle-manual"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-time-to-full-display-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -157,10 +173,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.enableContinuousProfiling"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--io.sentry.wipe-data"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -177,7 +189,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--profile-app-launches"
+            argument = "--io.sentry.disable-app-start-profiling"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -273,6 +285,11 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.user.name"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.profile-session-sample-rate"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

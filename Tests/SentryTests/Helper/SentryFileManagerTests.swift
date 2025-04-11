@@ -182,7 +182,7 @@ class SentryFileManagerTests: XCTestCase {
         
         let dsStoreFile = "\(sut.basePath)/.DS_Store"
         
-        let result = FileManager.default.createFile(atPath: dsStoreFile, contents: "some data".data(using: .utf8))
+        let result = FileManager.default.createFile(atPath: dsStoreFile, contents: Data("some data".utf8))
         XCTAssertEqual(result, true)
         
         sut.deleteOldEnvelopeItems()
@@ -205,7 +205,7 @@ class SentryFileManagerTests: XCTestCase {
         
         let textFilePath = "\(sut.basePath)/something.txt"
         
-        let result = FileManager.default.createFile(atPath: textFilePath, contents: "some data".data(using: .utf8))
+        let result = FileManager.default.createFile(atPath: textFilePath, contents: Data("some data".utf8))
         XCTAssertEqual(result, true)
         
         sut.deleteOldEnvelopeItems()
@@ -785,8 +785,8 @@ class SentryFileManagerTests: XCTestCase {
         let fileManager = FileManager.default
         let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
         
-        fileManager.createFile(atPath: appHangEventFilePath, contents: "garbage".data(using: .utf8)!, attributes: nil)
-        
+        fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
+
         // Act
         XCTAssertNil(sut.readAppHangEvent())
     }
@@ -822,8 +822,8 @@ class SentryFileManagerTests: XCTestCase {
         let fileManager = FileManager.default
         let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
         
-        fileManager.createFile(atPath: appHangEventFilePath, contents: "garbage".data(using: .utf8)!, attributes: nil)
-        
+        fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
+
         // Act && Assert
         XCTAssertTrue(sut.appHangEventExists())
     }
@@ -1090,7 +1090,7 @@ extension SentryFileManagerTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
     
-    func testAppLaunchProfileConfiguration() throws {
+    func testsentry_appLaunchProfileConfiguration() throws {
         // -- Assert --
         let expectedTracesSampleRate = 0.12
         let expectedTracesSampleRand = 0.55
@@ -1104,7 +1104,7 @@ extension SentryFileManagerTests {
             profilesSampleRate: expectedProfilesSampleRate,
             profilesSampleRand: expectedProfilesSampleRand
         )
-        let config = appLaunchProfileConfiguration()
+        let config = sentry_appLaunchProfileConfiguration()
 
         // -- Assert --
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
@@ -1118,9 +1118,9 @@ extension SentryFileManagerTests {
     }
     
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
-    func testAppLaunchProfileConfiguration_noConfigurationExists() throws {
+    func testsentry_appLaunchProfileConfiguration_noConfigurationExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        XCTAssertNil(appLaunchProfileConfiguration())
+        XCTAssertNil(sentry_appLaunchProfileConfiguration())
     }
     
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {

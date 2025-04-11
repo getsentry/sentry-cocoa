@@ -1,5 +1,5 @@
 excluded:
-  - '**/Carthage'
+  - "**/Carthage"
   - Pods
   - Utils/**/.build
   - DependencyManagerTests
@@ -76,6 +76,7 @@ only_rules:
   - void_return
   - weak_delegate
   - yoda_condition
+  - non_optional_string_data_conversion
 
 identifier_name:
   allowed_symbols:
@@ -86,9 +87,9 @@ identifier_name:
   max_length:
     warning: 50
     error: 50
-    
+
 line_length:
-  - 1000 
+  - 1000
 type_name:
   min_length:
     - 2
@@ -97,4 +98,4 @@ type_name:
     warning: 50
     error: 50
 large_tuple:
-    - 3
+  - 3

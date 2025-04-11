@@ -9,8 +9,8 @@ extension SentryFileManager {
     static func prepareInitError() {
         deleteInternalPath()
         do {
-            let data = "hello".data(using: .utf8)
-            try data?.write(to: getInternalPath())
+            let data = Data("hello".utf8)
+            try data.write(to: getInternalPath())
         } catch {
             XCTFail("Couldn't create file for init error of SentryFileManager.")
         }
