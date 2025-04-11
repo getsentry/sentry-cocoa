@@ -75,8 +75,9 @@ jobs:
             runs-on: macos-15
           
             # We have to compile on Xcode 16.3 because compiling on Xcode 16.2 fails with 
-            # /Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Swift/Integrations/Performance/IO/Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions' and cannot be used here because C++ types from imported module 'Foundation' do not support library evolution; this is an error in the Swift 6 language mode
-            # init(contentsOfWithSentryTracing url: URL, options: Data.ReadingOptions = []) throws {
+            # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions' 
+            # and cannot be used here because C++ types from imported module 'Foundation' do not support
+            # library evolution; this is an error in the Swift 6 language mode
           - scheme: visionOS-Swift
             xcode: 16.3
             runs-on: macos-15
