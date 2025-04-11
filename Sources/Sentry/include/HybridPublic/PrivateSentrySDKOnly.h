@@ -105,7 +105,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSDictionary *)getExtraContext;
 
 /**
- * Allow Hybrids SDKs to set the current Trace.
+ * Allows Hybrids SDKs to thread-safe set the current trace.
  */
 + (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId;
 
