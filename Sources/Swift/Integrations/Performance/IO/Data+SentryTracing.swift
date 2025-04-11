@@ -4,8 +4,6 @@
 ///
 /// - Note: Methods provided by this extension reflect the same functionality as the original ``Data`` methods, but they track the operation with Sentry.
 ///
-/// We must use Data from the Foundation lib, cause ``ReadingOptions`` and ``WritingOptions`` are bridged to ``NSData`` and NSData lives in Foundation.
-/// Not prefixing with Foundation leads to compiler errors when compling with Swift 6.
 public extension Data {
 
     // MARK: - Reading Data from a File

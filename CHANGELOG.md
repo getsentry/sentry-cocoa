@@ -6,7 +6,6 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
-- Compiling SDK on visionOS with Swift 6 (#5059)
 
 ## 8.49.0
 
