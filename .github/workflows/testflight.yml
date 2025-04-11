@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - fix/swift-crash-message-truncation
 
     paths:
       - "Sources/**"
