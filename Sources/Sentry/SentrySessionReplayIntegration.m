@@ -57,6 +57,7 @@ static SentryTouchTracker *_touchTracker;
     // This is the easiest way to ensure segment 0 will always reach the server, because session
     // replay absolutely needs segment 0 to make replay work.
     BOOL _rateLimited;
+    id<SentryCurrentDateProvider> _dateProvider;
 }
 
 - (instancetype)init
@@ -97,6 +98,8 @@ static SentryTouchTracker *_touchTracker;
 {
     _replayOptions = replayOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
+    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
     id<SentryViewRenderer> viewRenderer;
     if (enableExperimentalRenderer) {
         viewRenderer = [[SentryExperimentalViewRenderer alloc]
@@ -113,13 +116,14 @@ static SentryTouchTracker *_touchTracker;
                           enableExperimentalMaskRenderer:enableExperimentalRenderer];
 
     if (touchTracker) {
-        _touchTracker = [[SentryTouchTracker alloc]
-            initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                           scale:replayOptions.sizeScale];
+        _touchTracker = [[SentryTouchTracker alloc] initWithDateProvider:_dateProvider
+                                                                   scale:replayOptions.sizeScale];
         [self swizzleApplicationTouch];
     }
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+
+    // The asset worker queue is used to work on video and frames data.
 
     [self moveCurrentReplay];
     [self cleanUp];
@@ -196,23 +200,23 @@ static SentryTouchTracker *_touchTracker;
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
         : [resumeReplayMaker oldestFrameDate];
-
     if (beginning == nil) {
         return; // no frames to send
     }
-
-    SentryReplayType _type = type;
-    int _segmentId = segmentId;
+    NSDate *end = [beginning dateByAddingTimeInterval:duration];
 
     NSError *error;
-    NSArray<SentryVideoInfo *> *videos =
-        [resumeReplayMaker createVideoWithBeginning:beginning
-                                                end:[beginning dateByAddingTimeInterval:duration]
-                                              error:&error];
+    NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker createVideoWithBeginning:beginning
+                                                                                 end:end
+                                                                               error:&error];
     if (videos == nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video: %@", error);
+        SENTRY_LOG_ERROR(@"Could not create replay video, reason: %@", error);
         return;
     }
+
+    // For each segment we need to create a new event with the video.
+    int _segmentId = segmentId;
+    SentryReplayType _type = type;
     for (SentryVideoInfo *video in videos) {
         [self captureVideo:video replayId:replayId segmentId:_segmentId++ type:_type];
         // type buffer is only for the first segment
@@ -224,8 +228,11 @@ static SentryTouchTracker *_touchTracker;
         [NSDictionary dictionaryWithObjectsAndKeys:replayId.sentryIdString, @"replay_id", nil];
     event.context = eventContext;
 
-    if ([NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&error] == NO) {
-        SENTRY_LOG_ERROR(@"Can`t delete '%@': %@", SENTRY_LAST_REPLAY, error);
+    NSError *_Nullable removeError;
+    BOOL result = [NSFileManager.defaultManager removeItemAtURL:lastReplayURL error:&removeError];
+    if (result == NO) {
+        SENTRY_LOG_ERROR(@"Can't delete '%@' with file item at url: '%@', reason: %@",
+            SENTRY_LAST_REPLAY, lastReplayURL, removeError);
     }
 }
 
