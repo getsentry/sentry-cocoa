@@ -181,6 +181,7 @@
 #import "SentryScreenFrames.h"
 #import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
+#import "SentrySessionReplayIntegration+Test.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryUncaughtNSExceptions.h"
