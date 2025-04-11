@@ -6,6 +6,7 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
+- Fix thread inversion warning in session replay (#5018)
 
 ## 8.49.0
 
