@@ -172,11 +172,11 @@ class SentryCrashReportTests: XCTestCase {
         XCTAssertEqual(0, mach.subcode)
     }
 
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
     // We can't really test writing the crash_info_message unless there is an actual crash.
     // We noticed that the libsystem_sim_platform.dylib is a simulator library that has a crash info message even when there is no crash.
     // This is simply a smoke test to ensure we can write the crash_info_message key to the report.
-    // This only works on iOS.
+    // This only works on iOS and also not macCatalyst.
     // Actual testing must be done manually with a fatalError in Swift.
     func testWriteCrashReport_ContainsCrashInfoMessage() throws {
         writeCrashReport()
