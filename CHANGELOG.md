@@ -6,6 +6,7 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
+- Truncation of Swift crash messages (#5035)
 
 ## 8.49.0
 
@@ -27,7 +28,6 @@
 ### Fixes
 
 - Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
-- Truncation of Swift crash messages (#5035)
 
 ### Improvements
 
