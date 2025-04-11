@@ -15,7 +15,18 @@ struct ContentView: View {
             Button(action: reportNSException) {
                 Text("Report NSException")
             }
-            
+
+            Button(action: {
+                // Triggers: Fatal error: Duplicate keys of type 'Something' were found in a Dictionary.
+                var dict = [Something(): "value", Something(): "value"]
+
+                for _ in 0..<100 {
+                    dict[Something()] = "value \(1)"
+                }
+            }) {
+                Text("Fatal Duplicate Key Error")
+            }
+
             Button(action: crash) {
                 Text("Crash")
             }
@@ -42,6 +53,19 @@ struct ContentView: View {
     
     func crash() {
         SentrySDK.crash()
+    }
+}
+
+class Something: Hashable {
+
+    private var x: Int = 0
+
+    static func == (lhs: Something, rhs: Something) -> Bool {
+        return true
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(Int.random(in: 0..<100))
     }
 }
 
