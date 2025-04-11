@@ -81,11 +81,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.profile-options-v2"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--io.sentry.profile-app-launches"
+            argument = "--io.sentry.disable-app-start-profiling"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

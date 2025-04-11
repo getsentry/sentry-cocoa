@@ -66,8 +66,15 @@ class ProfilingUITests: BaseUITest {
      */
     func testProfilingGPUInfo() throws {
         if #available(iOS 16, *) {
-            app.launchArguments.append("--disable-swizzling") // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-            app.launchArguments.append("--io.sentry.wipe-data")
+            app.launchArguments.append(contentsOf: [
+                "--io.sentry.wipe-data",
+
+                // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
+                "--disable-swizzling",
+
+                "--io.sentry.disable-app-start-profiling"
+            ])
+            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1.0"
             launchApp()
             
             goToTransactions()
@@ -135,11 +142,11 @@ extension ProfilingUITests {
     }
     
     func retrieveLastProfileData() {
-        app.buttons["viewLastProfile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-last-profile"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
     }
     
     func retrieveFirstProfileChunkData() {
-        app.buttons["viewFirstContinuousProfileChunk"].afterWaitingForExistence("Couldn't find button to view last profile").tap()
+        app.buttons["io.sentry.ui-tests.view-first-continuous-profile-chunk"].afterWaitingForExistence("Couldn't find button to view first profile chunk").tap()
     }
     
     func stopContinuousProfiler() {
@@ -171,9 +178,6 @@ extension ProfilingUITests {
             "--disable-swizzling",
             "--disable-auto-performance-tracing",
             "--disable-uiviewcontroller-tracing",
-            
-            // opt into launch profiling
-            "--io.sentry.profile-app-launches",
 
             // sets a marker function to run in a load command that the launch profile should detect
             "--io.sentry.slow-load-method",
@@ -183,21 +187,18 @@ extension ProfilingUITests {
         ])
 
         if continuousProfiling {
-            app.launchArguments.append("--io.sentry.enableContinuousProfiling")
             if v2TraceLifecycle {
-                app.launchArguments.append(contentsOf: [
-                    "--io.sentry.profile-options-v2",
-                    "--io.sentry.profile-app-starts-v2"
-                ])
                 app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
             } else if v2ManualLifecycle {
                 app.launchArguments.append(contentsOf: [
-                    "--io.sentry.profile-options-v2",
-                    "--io.sentry.profile-app-starts-v2",
                     "--io.sentry.profile-lifecycle-manual"
                 ])
                 app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+            } else {
+                app.launchArguments.append("--io.sentry.disable-ui-profiling")
             }
+        } else {
+            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1"
         }
 
         launchApp()

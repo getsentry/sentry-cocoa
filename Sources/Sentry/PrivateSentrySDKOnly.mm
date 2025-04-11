@@ -224,9 +224,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return payload;
 }
 
-+ (void)discardProfilerForTrace:(SentryId *)traceId traceSampled:(BOOL)isProfiling;
++ (void)discardProfilerForTrace:(SentryId *)traceId;
 {
-    sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDK.currentHub, isProfiling);
+    sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDK.currentHub);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

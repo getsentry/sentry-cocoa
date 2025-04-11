@@ -183,7 +183,17 @@ static BOOL appStartMeasurementRead;
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    SENTRY_LOG_DEBUG(@"Started tracer with id: %@", transactionContext.traceId.sentryIdString);
+    if (transactionContext.parentSpanId == nil) {
+        SENTRY_LOG_DEBUG(
+            @"Started root span tracer with id: %@; profilerReferenceId: %@; span id: %@",
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            self.spanId.sentrySpanIdString);
+    } else {
+        SENTRY_LOG_DEBUG(@"Started child span tracer with id: %@; profilerReferenceId: %@; span "
+                         @"id: %@; parent span id: %@",
+            transactionContext.traceId.sentryIdString, _profilerReferenceID.sentryIdString,
+            self.spanId.sentrySpanIdString, transactionContext.parentSpanId.sentrySpanIdString);
+    }
 
     return self;
 }
@@ -191,7 +201,9 @@ static BOOL appStartMeasurementRead;
 - (void)dealloc
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_discardProfilerCorrelatedToTrace(_profilerReferenceID, self.hub, self.isProfiling);
+    if (self.isProfiling) {
+        sentry_discardProfilerCorrelatedToTrace(_profilerReferenceID, self.hub);
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     [self cancelDeadlineTimeout];
 }
@@ -396,6 +408,9 @@ static BOOL appStartMeasurementRead;
             @"Cannot call finish on span with id %@", finishedSpan.spanId.sentrySpanIdString);
         return;
     }
+
+    SENTRY_LOG_DEBUG(@"Checking if tracer %@ (profileReferenceId %@) can be finished",
+        self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
     [self canBeFinished];
 }
 
@@ -423,14 +438,37 @@ static BOOL appStartMeasurementRead;
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value];
-    _measurements[name] = measurement;
+
+    [self setMeasurement:name measurement:measurement];
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
+
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
                                                                                    unit:unit];
-    _measurements[name] = measurement;
+    [self setMeasurement:name measurement:measurement];
+}
+
+- (void)setMeasurement:(NSString *)name measurement:(SentryMeasurementValue *)measurement
+{
+    // Although name is nonnull we saw edge cases where it was nil and then leading to crashes. If
+    // the name is nil we can discard the measurement
+    if (name == nil) {
+        SENTRY_LOG_ERROR(@"The name of the measurement is nil. Discarding the measurement.");
+        return;
+    }
+
+    @synchronized(_measurements) {
+        _measurements[name] = measurement;
+    }
+}
+
+- (NSDictionary<NSString *, SentryMeasurementValue *> *)measurements
+{
+    @synchronized(_measurements) {
+        return _measurements.copy;
+    }
 }
 
 - (void)finish
@@ -440,7 +478,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    SENTRY_LOG_DEBUG(@"Finished trace with traceID: %@ and status: %@",
+    SENTRY_LOG_DEBUG(@"Finished trace with tracer profilerReferenceId: %@ and status: %@",
         self.profilerReferenceID.sentryIdString, nameForSentrySpanStatus(status));
     @synchronized(self) {
         self.wasFinishCalled = YES;
@@ -496,6 +534,9 @@ static BOOL appStartMeasurementRead;
         }
     }
 
+    SENTRY_LOG_DEBUG(@"Can finish tracer %@ (profileReferenceId %@)", self.traceId.sentryIdString,
+        _profilerReferenceID.sentryIdString);
+
     [self finishInternal];
 }
 
@@ -523,6 +564,8 @@ static BOOL appStartMeasurementRead;
     BOOL discardTransaction = [self finishTracer:kSentrySpanStatusDeadlineExceeded
                                    shouldCleanUp:YES];
     if (discardTransaction) {
+        SENTRY_LOG_DEBUG(@"Discarding transaction for trace %@ (profileReferenceId %@)",
+            self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
         return;
     }
 
@@ -777,7 +820,7 @@ static BOOL appStartMeasurementRead;
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Returning app start measurements for trace id %@",
+    SENTRY_LOG_DEBUG(@"Returning app start measurements for tracer with profilerReferenceId %@",
         self.profilerReferenceID.sentryIdString);
     return measurement;
 }

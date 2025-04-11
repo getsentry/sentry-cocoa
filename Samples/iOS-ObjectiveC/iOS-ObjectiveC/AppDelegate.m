@@ -33,7 +33,7 @@
             options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
         }
 
-        if ([args containsObject:@"--io.sentry.profile-options-v2"]) {
+        if (![args containsObject:@"--io.sentry.disable-ui-profiling"]) {
             options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
                 profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
                     ? SentryProfileLifecycleManual
@@ -45,27 +45,22 @@
                         [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
                 }
             };
-        } else {
-            NSNumber *profilesSampleRate = @1;
-            if ([args containsObject:@"--io.sentry.enableContinuousProfiling"]) {
-                profilesSampleRate = nil;
-            } else if (env[@"--io.sentry.profilesSampleRate"] != nil) {
-                profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
-            }
-            options.profilesSampleRate = profilesSampleRate;
+        }
 
-            if (![args containsObject:@"--io.sentry.enableContinuousProfiling"]
-                && env[@"--io.sentry.profilesSamplerValue"] != nil) {
-                options.profilesSampler
-                    = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
-                {
-                    return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
-                };
-            }
+        if (env[@"--io.sentry.profilesSampleRate"] != nil) {
+            options.profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
+        }
 
-            if ([args containsObject:@"--io.sentry.profile-app-launches"]) {
-                options.enableAppLaunchProfiling = YES;
-            }
+        if (env[@"--io.sentry.profilesSamplerValue"] != nil) {
+            options.profilesSampler
+                = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
+            {
+                return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
+            };
+        }
+
+        if (![args containsObject:@"--io.sentry.disable-app-start-profiling"]) {
+            options.enableAppLaunchProfiling = YES;
         }
 
         SentryHttpStatusCodeRange *httpStatusCodeRange =
