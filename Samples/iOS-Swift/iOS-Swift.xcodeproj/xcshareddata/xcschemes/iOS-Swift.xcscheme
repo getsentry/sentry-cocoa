@@ -236,6 +236,10 @@
             argument = "--io.sentry.feedback.no-auto-inject-widget"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-filemanager-swizzling"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable

@@ -98,7 +98,7 @@ struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 
         // Experimental features
-        options.experimental.enableFileManagerSwizzling = true
+        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.sessionReplay.enableExperimentalViewRenderer = true
         // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
         options.sessionReplay.enableFastViewRendering = false

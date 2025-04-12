@@ -7,9 +7,9 @@ protocol SentrySDKOverride: RawRepresentable, CaseIterable {
 }
 
 extension SentrySDKOverride {
-    var boolValue: Bool { get { false } set { } }
-    var floatValue: Float? { get { nil } set { } }
-    var stringValue: String? { get { nil } set { } }
+    public var boolValue: Bool { get { false } set { } }
+    public var floatValue: Float? { get { nil } set { } }
+    public var stringValue: String? { get { nil } set { } }
 }
 
 public enum SentrySDKOverrides {
@@ -102,12 +102,16 @@ public enum SentrySDKOverrides {
         case disableSwizzling = "--disable-swizzling"
         case disableCrashHandling = "--disable-crash-handler"
         case disableSpotlight = "--disable-spotlight"
+        case disableFileManagerSwizzling = "--disable-filemanager-swizzling"
         case userName = "--io.sentry.user.name"
         case userEmail = "--io.sentry.user.email"
 
         public var boolValue: Bool {
             get {
-                return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                switch self {
+                case .userName, .userEmail: fatalError("Invalid")
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
