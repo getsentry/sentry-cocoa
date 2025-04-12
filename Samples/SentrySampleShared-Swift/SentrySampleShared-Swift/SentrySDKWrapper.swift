@@ -49,10 +49,12 @@ public struct SentrySDKWrapper {
         }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+#if !os(tvOS) && !os(watchOS)
         if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
         }
+#endif // !os(tvOS) && !os(watchOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
@@ -64,11 +66,15 @@ public struct SentrySDKWrapper {
             }
         }
 
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
         configureProfiling(options)
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+        } else {
+            options.sessionTrackingIntervalMillis = 5_000
         }
 
         options.add(inAppInclude: "iOS_External")
@@ -407,6 +413,7 @@ extension SentrySDKWrapper {
 }
 
 // MARK: Profiling configuration
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
@@ -428,5 +435,6 @@ extension SentrySDKWrapper {
         }
     }
 }
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 // swiftlint:enable file_length function_body_length
