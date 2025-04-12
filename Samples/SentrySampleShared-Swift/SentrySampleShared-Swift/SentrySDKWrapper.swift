@@ -43,7 +43,7 @@ public struct SentrySDKWrapper {
             )
             options.sessionReplay.quality = .high
             options.sessionReplay.enableExperimentalViewRenderer = true
-            
+
             // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
             options.sessionReplay.enableFastViewRendering = false
         }
@@ -84,6 +84,10 @@ public struct SentrySDKWrapper {
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
+        #if os(macOS)
+        options.enableUncaughtNSExceptionReporting = true
+        #endif // os(macOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
