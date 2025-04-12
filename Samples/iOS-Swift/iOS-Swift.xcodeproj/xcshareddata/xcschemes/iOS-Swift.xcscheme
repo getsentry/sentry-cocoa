@@ -190,7 +190,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.disable-app-start-profiling"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--disable-crash-handler"
@@ -244,8 +244,8 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "--io.sentry.tracesSampleRate"
-            value = "0.5"
-            isEnabled = "YES">
+            value = ""
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.profilesSampleRate"
