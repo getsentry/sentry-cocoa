@@ -32,7 +32,8 @@ public struct SentrySDKWrapper {
             return true
         }
         options.debug = true
-        
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
@@ -41,8 +42,13 @@ public struct SentrySDKWrapper {
                 maskAllImages: true
             )
             options.sessionReplay.quality = .high
+            options.sessionReplay.enableExperimentalViewRenderer = true
+            
+            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = false
         }
-        
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
@@ -67,8 +73,17 @@ public struct SentrySDKWrapper {
 
         options.add(inAppInclude: "iOS_External")
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
         // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableUITracing.boolValue
+
+        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
+        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
+        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
@@ -77,23 +92,17 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
-        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
-        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
 
         options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
         options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
         options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
-        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
-        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
@@ -110,13 +119,13 @@ public struct SentrySDKWrapper {
         }
         
         options.initialScope = configureInitialScope(scope:)
+
+#if os(iOS)
         options.configureUserFeedback = configureFeedback(config:)
+#endif // os(iOS)
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
-        options.sessionReplay.enableExperimentalViewRenderer = true
-        // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-        options.sessionReplay.enableFastViewRendering = false
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
@@ -169,6 +178,7 @@ public struct SentrySDKWrapper {
 }
 
 // MARK: User feedback configuration
+#if os(iOS)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     
@@ -356,6 +366,7 @@ extension SentrySDKWrapper {
         }
     }
 }
+#endif // os(iOS)
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
