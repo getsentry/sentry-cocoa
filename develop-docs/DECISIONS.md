@@ -409,7 +409,7 @@ Creating simulators in GH actions can take up to five minutes or more. Instead, 
 ## Do not use Swift String constants in ObjC code
 
 Date: April 11, 2025
-Contributors: @philipphofmann, @philprime, @kahest 
+Contributors: @philipphofmann, @philprime, @kahest
 
 Due to a potential memory-management bug in the Swift standard library for bridging `String` to Objective-C, we experienced SDK crashes when accessing Swift String constants from an Objective-C `NSBlock` closure.
 
