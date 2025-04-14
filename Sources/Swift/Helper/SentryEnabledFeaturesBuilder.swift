@@ -57,7 +57,18 @@ import Foundation
             features.append("fastViewRendering")
         }
 #endif // #if os(iOS) && !SENTRY_NO_UIKIT
+
+        addFileIOFeatures(options: options, to: &features)
         return features
     }
     // swiftlint:enable cyclomatic_complexity
+
+    private static func addFileIOFeatures(options: Options, to features: inout [String]) {
+        if options.experimental.enableDataSwizzling {
+            features.append("dataSwizzling")
+        }
+        if options.experimental.enableFileManagerSwizzling {
+            features.append("fileManagerSwizzling")
+        }
+    }
 }
