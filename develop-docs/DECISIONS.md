@@ -405,3 +405,17 @@ See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846
 ## Use preinstalled GH actions simulators
 
 Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
+
+## Do not use Swift String constants in ObjC code
+
+Date: April 11, 2025
+Contributors: @philipphofmann, @philprime, @kahest 
+
+Due to a potential memory-management bug in the Swift standard library for bridging `String` to Objective-C, we experienced SDK crashes when accessing Swift String constants from an Objective-C `NSBlock` closure.
+
+To avoid this issue, we should not use Swift String constants in Objective-C code and instead define them as Objective-C constants.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/4887
+- https://github.com/getsentry/sentry-cocoa/pull/4910
