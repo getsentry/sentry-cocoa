@@ -2,7 +2,7 @@ import Foundation
 
 @objcMembers class SentryEnabledFeaturesBuilder: NSObject {
 
-    // swiftlint:disable cyclomatic_complexity
+    // swiftlint:disable cyclomatic_complexity function_body_length
     static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
@@ -58,17 +58,13 @@ import Foundation
         }
 #endif // #if os(iOS) && !SENTRY_NO_UIKIT
 
-        addFileIOFeatures(options: options, to: &features)
-        return features
-    }
-    // swiftlint:enable cyclomatic_complexity
-
-    private static func addFileIOFeatures(options: Options, to features: inout [String]) {
         if options.experimental.enableDataSwizzling {
             features.append("dataSwizzling")
         }
         if options.experimental.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
+        return features
     }
+    // swiftlint:enable cyclomatic_complexity function_body_length
 }
