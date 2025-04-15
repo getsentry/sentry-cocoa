@@ -477,4 +477,21 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         event.exceptions?.first?.mechanism?.handled = false
         return SentryEnvelope(event: event)
     }
+    
+    func testSetTrace() {
+        // -- Arrange --
+        let traceId = SentryId()
+        let spanId = SentrySpanId()
+        
+        let scope = Scope()
+        let hub = TestHub(client: nil, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        
+        // -- Act --
+        PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
+        
+        // -- Assert --        
+        XCTAssertEqual(scope.propagationContext?.traceId, traceId)
+        XCTAssertEqual(scope.propagationContext?.spanId, spanId)
+    }
 }
