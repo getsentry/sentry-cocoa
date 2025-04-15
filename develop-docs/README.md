@@ -167,7 +167,11 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock, and aren't suitable for SentryCrash.
+
+### SentryCrash Logging
+
+In SentryCrash we have to use SentryAsyncSafeLog and we can't use NSLog, as it's not async-safe. Therefore, logging to the console is disabled for log messages from SentryAsyncSafeLog. You can enable it by setting `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1`, but you MUST NEVER commit this change. SentryAsyncSafeLog writes its messages to the file `/Caches/io.sentry/async.log`. The default log level is error. To see all log messages set `SENTRY_ASYNC_SAFE_LOG_LEVEL` in `SentryAsyncSafeLog.h` to `SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE`.
 
 ## Profiling
 
