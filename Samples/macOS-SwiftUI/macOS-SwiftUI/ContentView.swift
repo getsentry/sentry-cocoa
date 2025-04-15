@@ -18,9 +18,9 @@ struct ContentView: View {
 
             Button(action: {
                 // Triggers: Fatal error: Duplicate keys of type 'Something' were found in a Dictionary.
-                var dict = [Something(): "value", Something(): "value"]
+                var dict = [Something(): "value"]
 
-                for _ in 0..<100 {
+                for _ in 0..<1_000_000 {
                     dict[Something()] = "value \(1)"
                 }
             }) {
@@ -65,7 +65,7 @@ class Something: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(Int.random(in: 0..<100))
+        hasher.combine(Int.random(in: 0..<10))
     }
 }
 

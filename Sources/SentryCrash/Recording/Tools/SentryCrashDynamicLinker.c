@@ -319,10 +319,9 @@ isValidCrashInfoMessage(const char *str)
  * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/include/swift/Runtime/Debug.h#L29-L58
  *
- * Sadly, Swift doesn't reliably put the crash message into the crash info. We also tried using
- * getsectbynamefromheader to get the crash info as Crashlytics
+ * We also investigated using getsectbynamefromheader to get the crash info as Crashlytics
  * (https://github.com/firebase/firebase-ios-sdk/blob/main/Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.m#L245-L283)
- * does it, but we got the same results. If the crash info is missing, we can't find it via
+ * does it, but we get the same results. If the crash info is missing, we can't find it via
  * getsectiondata or getsectbynamefromheader. We also saw Swift storing the error message into the
  * x26 CPU register, but when the error message isn't in the crash info, we also can't find it in
  * the x26 CPU register. Furthermore, the error message gets truncated. For example:
