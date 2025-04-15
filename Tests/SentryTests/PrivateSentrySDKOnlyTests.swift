@@ -479,6 +479,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testSetTrace() {
+        // -- Arrange --
         let traceId = SentryId()
         let spanId = SentrySpanId()
         
@@ -486,8 +487,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let hub = TestHub(client: nil, andScope: scope)
         SentrySDK.setCurrentHub(hub)
         
+        // -- Act --
         PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
         
+        // -- Assert --        
         XCTAssertEqual(scope.propagationContext?.traceId, traceId)
         XCTAssertEqual(scope.propagationContext?.spanId, spanId)
     }
