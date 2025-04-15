@@ -37,7 +37,7 @@ jobs:
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
 
   run-tests:
-    name: Test iOS on Xcode ${{matrix.xcode}}
+    name: Test iOS on Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
     needs: [build-sample]
     runs-on: ${{matrix.runs-on}}
     env:
