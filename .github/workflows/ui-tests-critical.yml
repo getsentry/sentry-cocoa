@@ -86,8 +86,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Boot Default Simulator
+        if: ${{ matrix.device == 'default' && matrix.os-version == 'default' }}
+        run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
+
       - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
-        if: ${{ matrix.os-version != 'default' }} # Only create simulator if os-version is set
+        if: ${{ matrix.device != 'default' && matrix.os-version != 'default' }} # Only create simulator if os-version is set
         run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}" "${{matrix.force-sim-runtime}}"
 
       - name: Install tooling
@@ -97,14 +102,6 @@ jobs:
         with:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
-
-      - name: Boot Default Simulator
-        if: ${{ matrix.device == 'default' }}
-        run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
-
-      - name: Boot ${{matrix.device}} Simulator
-        if: ${{ matrix.device != 'default' }}
-        run: ./scripts/ci-boot-simulator.sh --device "${{matrix.device}}"
 
       - name: Install App
         run: xcrun simctl install booted ${{env.APP_PATH}}
