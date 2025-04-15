@@ -53,14 +53,14 @@ jobs:
         include:
           # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
-          - name: Test iOS on Xcode 14.3.1
+          - name: Test iOS on Xcode 14.3.1 - V2
             runs-on: macos-13
             xcode: "14.3.1"
             device: "default"
             os-version: "default"
 
           # Added for testing flakiness of the tests (without the new simulator test became more flaky up to 50%)
-          - name: Test iOS on Xcode 14.3.1 with iPhone 14 (16.4) - Reverted
+          - name: Test iOS on Xcode 14.3.1 with iPhone 14 (16.4) - V2
             runs-on: macos-13
             xcode: "14.3.1"
             device: "iPhone 14"
@@ -71,14 +71,14 @@ jobs:
 
           # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
-          - name: Test iOS on Xcode 16.2
+          - name: Test iOS on Xcode 16.2 - V2
             runs-on: macos-15
             xcode: "16.2"
             device: "default"
             os-version: "default"
 
           # Added for testing flakiness of the tests (without the new simulator test became more flaky up to 50%)
-          - name: Test iOS on Xcode 16.2 with iPhone 16 (18.2) - Reverted
+          - name: Test iOS on Xcode 16.2 with iPhone 16 (18.2) - V2
             runs-on: macos-15
             xcode: "16.2"
             device: "iPhone 16"
