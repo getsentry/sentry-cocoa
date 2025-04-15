@@ -18,10 +18,11 @@ struct ContentView: View {
 
             Button(action: {
                 // Triggers: Fatal error: Duplicate keys of type 'Something' were found in a Dictionary.
-                var dict = [Something(): "value"]
+                var dict = [HashableViolation(): "value"]
 
-                for _ in 0..<1_000_000 {
-                    dict[Something()] = "value \(1)"
+                // Add plenty of items to the dictionary so it uses both == and hash methods, which will cause the crash.
+                for i in 0..<1_000_000 {
+                    dict[HashableViolation()] = "value \(i)"
                 }
             }) {
                 Text("Fatal Duplicate Key Error")
@@ -56,16 +57,20 @@ struct ContentView: View {
     }
 }
 
-class Something: Hashable {
+/// When using this class with a dictionary in Swift, it will cause a crash due to the violation of the Hashable contract.
+/// The Swift dict sees multiple keys that are equal but have different hashes, which it can’t resolve safely. When this
+/// happens, the Swift runtime will crash with the error: "Fatal error: Duplicate keys of type 'HashableViolation' were
+/// found in a Dictionary."
+class HashableViolation: Hashable {
 
-    private var x: Int = 0
-
-    static func == (lhs: Something, rhs: Something) -> Bool {
+    //  always return true, which means every instance of Something is considered equal.
+    static func == (lhs: HashableViolation, rhs: HashableViolation) -> Bool {
         return true
     }
 
+    // Always return a different hash value for each instance so we're violating the Hashable contract.
     func hash(into hasher: inout Hasher) {
-        hasher.combine(Int.random(in: 0..<10))
+        hasher.combine(ObjectIdentifier(self))
     }
 }
 
