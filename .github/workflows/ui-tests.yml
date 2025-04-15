@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: UI Tests for ${{matrix.target}}
+    name: UI Tests for ${{matrix.target}} - V2 # Up the version with every change to keep track of flaky tests
     runs-on: macos-14
     strategy:
       matrix:
@@ -66,7 +66,7 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI
+    name: UI Tests for SwiftUI - V2 # Up the version with every change to keep track of flaky tests
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +107,7 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}}
+    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -161,7 +161,7 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift6:
-    name: UI Tests for iOS-Swift6
+    name: UI Tests for iOS-Swift6 - V2 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -200,7 +200,7 @@ jobs:
             ./fastlane/test_output/**
 
   duplication-tests:
-    name: UI Tests for project with Sentry duplicated
+    name: UI Tests for project with Sentry duplicated - V2 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
 
     steps:
