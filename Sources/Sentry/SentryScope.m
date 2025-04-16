@@ -154,6 +154,20 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)setPropagationContext:(SentryPropagationContext *)propagationContext
+{
+    @synchronized(_propagationContext) {
+        _propagationContext = propagationContext;
+
+        if (self.observers.count > 0) {
+            NSDictionary *traceContext = [self.propagationContext traceContextForEvent];
+            for (id<SentryScopeObserver> observer in self.observers) {
+                [observer setTraceContext:traceContext];
+            }
+        }
+    }
+}
+
 - (nullable id<SentrySpan>)span
 {
     @synchronized(_spanLock) {
