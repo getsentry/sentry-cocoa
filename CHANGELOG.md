@@ -6,6 +6,7 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
+- Truncation of Swift crash messages (#5036)
 
 ## 8.49.0
 
