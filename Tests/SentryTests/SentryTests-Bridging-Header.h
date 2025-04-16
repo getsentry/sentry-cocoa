@@ -90,6 +90,7 @@
 #import "SentryCrashReportSink.h"
 #import "SentryCrashReportStore.h"
 #import "SentryCrashScopeObserver.h"
+#import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryCrashWrapper.h"
