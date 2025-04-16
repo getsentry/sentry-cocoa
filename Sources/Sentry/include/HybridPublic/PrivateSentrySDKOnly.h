@@ -18,6 +18,7 @@
 @class SentryUser;
 @class SentryEnvelope;
 @class SentryId;
+@class SentrySpanId;
 @class SentrySessionReplayIntegration;
 @class UIView;
 
@@ -102,6 +103,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Retrieves extra context
  */
 + (NSDictionary *)getExtraContext;
+
+/**
+ * Allows Hybrids SDKs to thread-safe set the current trace.
+ */
++ (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**

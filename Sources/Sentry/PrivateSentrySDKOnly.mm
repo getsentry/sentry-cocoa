@@ -9,6 +9,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
+#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
@@ -197,6 +198,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSDictionary *)getExtraContext
 {
     return [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
+}
+
++ (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId
+{
+    [SentrySDK.currentHub configureScope:^(SentryScope *scope) {
+        scope.propagationContext = [[SentryPropagationContext alloc] initWithTraceId:traceId
+                                                                              spanId:spanId];
+    }];
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
