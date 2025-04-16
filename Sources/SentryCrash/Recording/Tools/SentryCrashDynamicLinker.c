@@ -293,6 +293,50 @@ isValidCrashInfoMessage(const char *str)
     return false;
 }
 
+/**
+ * Get the message of fatalError, assert, and precondition to set it as the exception value if the
+ * crashInfo contains the message.
+ *
+ * Swift puts the messages of fatalError, assert, and precondition into the @c crashInfo of the
+ * @c libswiftCore.dylib. We found proof that the swift runtime uses @c __crash_info:
+ * fatalError (1) calls @c swift_reportError (2) calls @c reportOnCrash (3) which uses (4) the
+ * @c __crash_info (5). The documentation of Apple and Swift doesn't mention anything about where
+ * the @c __crash_info ends up. Trying fatalError, assert, and precondition on iPhone, iPhone
+ * simulator, and macOS all showed that the message ends up in the crashInfo of the
+ * @c libswiftCore.dylib. For example, on the simulator, other binary images also contain a
+ * @c crash_info_message with information about the stacktrace. We only care about the message of
+ * fatalError, assert, or precondition, and we already get the stacktrace from the threads,
+ * retrieving it from @c libswiftCore.dylib seems to be the most reliable option.
+ *
+ * @seealso
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L365-L377
+ * @seealso
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L361
+ * @seealso
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L269-L293
+ * @seealso
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L264-L293
+ * @seealso
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/include/swift/Runtime/Debug.h#L29-L58
+ *
+ * We also investigated using getsectbynamefromheader to get the crash info as Crashlytics
+ * (https://github.com/firebase/firebase-ios-sdk/blob/main/Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.m#L245-L283)
+ * does it, but we get the same results. If the crash info is missing, we can't find it via
+ * getsectiondata or getsectbynamefromheader. We also saw Swift storing the error message into the
+ * x26 CPU register, but when the error message isn't in the crash info, we also can't find it in
+ * the x26 CPU register. Furthermore, the error message gets truncated. For example:
+ *
+ * Fatal error: Duplicate keys of type 'Something' were found in a Dictionary.\nThis usually means
+ * either that the type violates Hashable's requirements, or\nthat members of such a dictionary were
+ * mutated after insertion.
+ *
+ * gets truncated to
+ *
+ * ' were found in a Dictionary.\nThis usually means either that the type violates Hashable's
+ * requirements, or\nthat members of such a dictionary were mutated after insertion.
+ *
+ * So, there seems to be a problem with the string interpolation.
+ */
 static void
 getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
 {
@@ -350,6 +394,12 @@ sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isC
 
     const char *imageName = _dyld_get_image_name((unsigned)index);
     return sentrycrashdl_getBinaryImageForHeader((const void *)header, imageName, buffer, isCrash);
+}
+
+void
+sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer)
+{
+    getCrashInfo((struct mach_header *)address, buffer);
 }
 
 bool
