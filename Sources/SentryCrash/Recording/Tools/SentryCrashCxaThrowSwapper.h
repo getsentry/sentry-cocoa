@@ -1,5 +1,6 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
-//  SentryCrashPlatformSpecificDefines.h
+//  SentryCxaThrowSwapper.h
 //
 //  Copyright (c) 2019 YANDEX LLC. All rights reserved.
 //
@@ -22,28 +23,24 @@
 // THE SOFTWARE.
 //
 
-#ifndef SentryCrashPlatformSpecificDefines_h
-#define SentryCrashPlatformSpecificDefines_h
+#ifndef SentryCxaThrowSwapper_h
+#define SentryCxaThrowSwapper_h
 
-#include <mach-o/loader.h>
-#include <mach-o/nlist.h>
+#ifdef __cplusplus
 
-#ifdef __LP64__
-typedef struct mach_header_64 mach_header_t;
-typedef struct segment_command_64 segment_command_t;
-typedef struct section_64 section_t;
-typedef struct nlist_64 nlist_t;
-#    define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT_64
-#else /* __LP64__ */
-typedef struct mach_header mach_header_t;
-typedef struct segment_command segment_command_t;
-typedef struct section section_t;
-typedef struct nlist nlist_t;
-#    define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT
-#endif /* __LP64__ */
+#    include <typeinfo>
 
-#ifndef SEG_DATA_CONST
-#    define SEG_DATA_CONST "__DATA_CONST"
-#endif /* SEG_DATA_CONST */
+extern "C" {
 
-#endif /* SentryCrashPlatformSpecificDefines_h */
+typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
+#else
+typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
+#endif
+
+int ksct_swap(const cxa_throw_type handler);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SentryCxaThrowSwapper_h */
