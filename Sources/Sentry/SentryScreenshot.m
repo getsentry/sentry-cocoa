@@ -16,9 +16,9 @@
 {
     if (self = [super init]) {
         photographer = [[SentryViewPhotographer alloc]
-                          initWithRenderer:[[SentryDefaultViewRenderer alloc] init]
-                             redactOptions:[[SentryRedactDefaultOptions alloc] init]
-            enableExperimentalMaskRenderer:false];
+                initWithRenderer:[[SentryDefaultViewRenderer alloc] init]
+                   redactOptions:[[SentryRedactDefaultOptions alloc] init]
+            enableMaskRendererV2:false];
     }
     return self;
 }

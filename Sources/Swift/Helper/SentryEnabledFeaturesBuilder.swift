@@ -50,7 +50,7 @@ import Foundation
         }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
-        if options.sessionReplay.enableExperimentalViewRenderer {
+        if options.sessionReplay.enableViewRendererV2 {
             features.append("experimentalViewRenderer")
         }
         if options.sessionReplay.enableFastViewRendering {

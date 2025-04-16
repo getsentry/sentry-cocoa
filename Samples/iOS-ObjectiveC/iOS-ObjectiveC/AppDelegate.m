@@ -75,7 +75,7 @@
 
         options.experimental.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
-        options.sessionReplay.enableExperimentalViewRenderer
+        options.sessionReplay.enableViewRendererV2
             = ![args containsObject:@"--disable-experimental-view-renderer"];
         options.sessionReplay.enableFastViewRendering
             = ![args containsObject:@"--disable-fast-view-renderer"];
