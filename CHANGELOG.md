@@ -9,7 +9,6 @@
 - Truncation of Swift crash messages (#5036)
 - Async safe log for backtrace in CPPException (#5098)
 
-
 ## 8.49.0
 
 ### Features
