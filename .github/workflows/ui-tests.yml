@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: UI Tests for ${{matrix.target}} - V2 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for ${{matrix.target}} - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-14
     strategy:
       matrix:
@@ -33,7 +33,6 @@ jobs:
         with:
           bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
-      - run: ./scripts/ci-boot-simulator.sh --xcode 16.2
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_${{matrix.target}}
@@ -66,7 +65,7 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI - V2 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for SwiftUI - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +74,6 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh 14.3.1
-      - run: ./scripts/ci-boot-simulator.sh --xcode 14.3.1
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swiftui
@@ -107,7 +105,7 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V3 # Up the version with every change to keep track of flaky tests
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -130,7 +128,6 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift
@@ -161,7 +158,7 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift6:
-    name: UI Tests for iOS-Swift6 - V2 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -170,7 +167,7 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
-      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
+
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
 
@@ -200,7 +197,7 @@ jobs:
             ./fastlane/test_output/**
 
   duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V2 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
 
     steps:
@@ -210,7 +207,7 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
-      - run: ./scripts/ci-boot-simulator.sh --xcode "16.2"
+
       - run: ./scripts/build-xcframework.sh gameOnly
 
       - name: Run Fastlane
