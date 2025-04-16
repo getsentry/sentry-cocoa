@@ -9,6 +9,7 @@
     }
   ],
   "defaultOptions" : {
+    "codeCoverage" : false,
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
