@@ -98,6 +98,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		84588EB22DB0812D00827993 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D49AA46C2D9FD43100F51498 = {
 			isa = PBXGroup;
 			children = (
@@ -185,6 +192,10 @@
 				{
 					ProductGroup = 84588E7D2DB07A9300827993 /* Products */;
 					ProjectRef = 84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */;
+				},
+				{
+					ProductGroup = 84588EB22DB0812D00827993 /* Products */;
+					ProjectRef = 84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */;
 				},
 			);
 			projectRoot = "";
