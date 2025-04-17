@@ -86,7 +86,7 @@ jobs:
         run: >-
           env NSUnbufferedIO=YES
           xcodebuild
-          -project Samples/${{matrix.scheme}}.xcodeproj
+          -project Samples/${{matrix.scheme}}/${{matrix.scheme}}.xcodeproj
           -scheme '${{matrix.scheme}}'
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
