@@ -73,10 +73,20 @@ jobs:
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
-      - run: >-
+      - if: ${{ !contains(matrix.scheme, 'SessionReplay-CameraTest') }}
+        run: >-
           env NSUnbufferedIO=YES
           xcodebuild
           -workspace Sentry.xcworkspace
+          -scheme '${{matrix.scheme}}'
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
+      - if: ${{ contains(matrix.scheme, 'SessionReplay-CameraTest') }}
+        run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -project Samples/${{matrix.scheme}}.xcodeproj
           -scheme '${{matrix.scheme}}'
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
