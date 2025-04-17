@@ -145,5 +145,5 @@ release-pod:
 	pod trunk push Sentry.podspec
 	pod trunk push SentrySwiftUI.podspec
 
-ios-swift-xcode:
-	xcodegen
+session-replay-camera-test-xcode:
+	xcodegen --spec Samples/SessionReplay-CameraTest.yml --project Samples/XcodeGen --project-root Samples/SessionReplay-CameraTest

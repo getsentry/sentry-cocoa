@@ -4,6 +4,10 @@
    <Group
       location = "container:"
       name = "Samples">
+      <Group
+         location = "group:Samples/XcodeGen"
+         name = "XcodeGen">
+      </Group>
       <FileRef
          location = "group:Samples/Shared">
       </FileRef>
