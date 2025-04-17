@@ -25,6 +25,7 @@ class SentryCrashReportTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        sentrycrashbic_startCache()
         deleteTestDir()
         createTestDir()
     }
@@ -34,6 +35,7 @@ class SentryCrashReportTests: XCTestCase {
         
         deleteTestDir()
         clearTestState()
+        sentrycrashbic_stopCache()
     }
         
     func testScopeInCrashReport_IsSameAsSerializingIt() {
@@ -169,7 +171,26 @@ class SentryCrashReportTests: XCTestCase {
         XCTAssertNil(mach.code_name)
         XCTAssertEqual(0, mach.subcode)
     }
-    
+
+#if os(iOS) && !targetEnvironment(macCatalyst)
+    // We can't really test writing the crash_info_message unless there is an actual crash.
+    // We noticed that the libsystem_sim_platform.dylib is a simulator library that has a crash info message even when there is no crash.
+    // This is simply a smoke test to ensure we can write the crash_info_message key to the report.
+    // This only works on iOS and also not macCatalyst.
+    // Actual testing must be done manually with a fatalError in Swift.
+    func testWriteCrashReport_ContainsCrashInfoMessage() throws {
+        writeCrashReport()
+
+        let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
+        let crashReportContentsAsString = try XCTUnwrap(String(data: crashReportContents, encoding: .ascii))
+
+        // The libsystem_sim_platform.dylib is a simulator library that has a crash info message even
+        // when there is no crash. So we check if the key is present in the report.
+        XCTAssertTrue(crashReportContentsAsString.contains("\"crash_info_message\""), "crash_info_message key not found in report")
+
+    }
+#endif // os(iOS)
+
     private func writeCrashReport(monitorContext: SentryCrash_MonitorContext? = nil) {
         var localMonitorContext = monitorContext ?? SentryCrash_MonitorContext()
         
