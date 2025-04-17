@@ -5,11 +5,6 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var backgroundLabel: UILabel!
-    @IBOutlet weak var controlsContainerView: UIView!
-
-    @IBOutlet weak var enableSessionReplaySwitch: UISwitch!
-    @IBOutlet weak var useExperimentalViewRendererSwitch: UISwitch!
-
     private weak var previewView: PreviewView!
     private weak var errorLabel: UILabel!
 
@@ -29,7 +24,7 @@ class ViewController: UIViewController {
     private func setupPreviewView() {
         let previewView = PreviewView()
         self.previewView = previewView
-        view.insertSubview(previewView, belowSubview: controlsContainerView)
+        view.addSubview(previewView)
 
         previewView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -85,16 +80,5 @@ class ViewController: UIViewController {
         DispatchQueue.global(qos: .userInitiated).async {
             captureSession.startRunning()
         }
-    }
-
-    @IBAction func didChangeToggleValue(_ sender: UISwitch) {
-        if sender === enableSessionReplaySwitch {
-            AppDelegate.isSessionReplayEnabled = sender.isOn
-            print("Enable session replay flag changed to: \(AppDelegate.isSessionReplayEnabled)")
-        } else if sender === useExperimentalViewRendererSwitch {
-            AppDelegate.isExperimentalViewRendererEnabled = sender.isOn
-            print("Use experimental view renderer flag changed to: \(AppDelegate.isExperimentalViewRendererEnabled)")
-        }
-        AppDelegate.reloadSentrySDK()
     }
 }
