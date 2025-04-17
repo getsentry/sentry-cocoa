@@ -50,7 +50,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: macos-latest
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
