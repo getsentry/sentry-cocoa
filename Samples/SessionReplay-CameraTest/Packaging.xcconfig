@@ -1,0 +1,4 @@
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_FILE = Sources/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.SessionReplay-CameraTest"
+PRODUCT_NAME = "$(TARGET_NAME)"

@@ -7,6 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		845893D02DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893CF2DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig */; };
+		845893D22DB19ED300827993 /* ClangWarnings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893D12DB19EC800827993 /* ClangWarnings.xcconfig */; };
+		845893D62DB19F3100827993 /* Plist.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893D52DB19F3100827993 /* Plist.xcconfig */; };
+		845893D82DB19F5100827993 /* Swift.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893D72DB19F5100827993 /* Swift.xcconfig */; };
+		845893DA2DB19F8600827993 /* Signing.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893D92DB19F8600827993 /* Signing.xcconfig */; };
+		845893DC2DB19FB300827993 /* Architectures.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893DB2DB19FB300827993 /* Architectures.xcconfig */; };
+		845893FA2DB1A15800827993 /* Deployment.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893F92DB1A15800827993 /* Deployment.xcconfig */; };
+		845893FC2DB1A16900827993 /* BuildOptions.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893FB2DB1A16900827993 /* BuildOptions.xcconfig */; };
+		845893FE2DB1A21600827993 /* Linking.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893FD2DB1A21600827993 /* Linking.xcconfig */; };
+		845894002DB1A23A00827993 /* Localization.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845893FF2DB1A23A00827993 /* Localization.xcconfig */; };
+		845894022DB1A26900827993 /* Packaging.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894012DB1A26900827993 /* Packaging.xcconfig */; };
+		845894042DB1A2AF00827993 /* SearchPaths.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894032DB1A2AF00827993 /* SearchPaths.xcconfig */; };
+		845894062DB1A2CD00827993 /* Versioning.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894052DB1A2CD00827993 /* Versioning.xcconfig */; };
+		845894082DB1A2E900827993 /* CodeGeneration.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894072DB1A2E900827993 /* CodeGeneration.xcconfig */; };
+		8458940A2DB1A3AA00827993 /* ClangLanguage.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894092DB1A3AA00827993 /* ClangLanguage.xcconfig */; };
+		8458940C2DB1A3C600827993 /* ClangCppLanguage.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8458940B2DB1A3C600827993 /* ClangCppLanguage.xcconfig */; };
+		8458940E2DB1A3EF00827993 /* ClangModules.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8458940D2DB1A3EF00827993 /* ClangModules.xcconfig */; };
+		845894102DB1A40300827993 /* ClangObjCLanguage.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8458940F2DB1A40300827993 /* ClangObjCLanguage.xcconfig */; };
+		845894122DB1A42F00827993 /* ClangPreprocessing.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894112DB1A42F00827993 /* ClangPreprocessing.xcconfig */; };
+		845894142DB1A4BA00827993 /* ClangWarningsCpp.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894132DB1A4BA00827993 /* ClangWarningsCpp.xcconfig */; };
+		845894162DB1A4DA00827993 /* ClangWarningsObjC.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894152DB1A4DA00827993 /* ClangWarningsObjC.xcconfig */; };
+		845894182DB1A51900827993 /* AssetCatalog.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894172DB1A51900827993 /* AssetCatalog.xcconfig */; };
+		8458941A2DB1A54600827993 /* ClangAnalyzer.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 845894192DB1A54600827993 /* ClangAnalyzer.xcconfig */; };
 		D49AA4BF2D9FD48400F51498 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49AA4BE2D9FD48400F51498 /* Sentry.framework */; };
 		D49AA4C02D9FD48400F51498 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D49AA4BE2D9FD48400F51498 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -26,6 +49,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		845893CF2DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SessionReplay-CameraTest.xcconfig"; sourceTree = "<group>"; };
+		845893D12DB19EC800827993 /* ClangWarnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarnings.xcconfig; sourceTree = "<group>"; };
+		845893D52DB19F3100827993 /* Plist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plist.xcconfig; sourceTree = "<group>"; };
+		845893D72DB19F5100827993 /* Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Swift.xcconfig; sourceTree = "<group>"; };
+		845893D92DB19F8600827993 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		845893DB2DB19FB300827993 /* Architectures.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Architectures.xcconfig; sourceTree = "<group>"; };
+		845893F92DB1A15800827993 /* Deployment.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Deployment.xcconfig; sourceTree = "<group>"; };
+		845893FB2DB1A16900827993 /* BuildOptions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildOptions.xcconfig; sourceTree = "<group>"; };
+		845893FD2DB1A21600827993 /* Linking.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Linking.xcconfig; sourceTree = "<group>"; };
+		845893FF2DB1A23A00827993 /* Localization.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Localization.xcconfig; sourceTree = "<group>"; };
+		845894012DB1A26900827993 /* Packaging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Packaging.xcconfig; sourceTree = "<group>"; };
+		845894032DB1A2AF00827993 /* SearchPaths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SearchPaths.xcconfig; sourceTree = "<group>"; };
+		845894052DB1A2CD00827993 /* Versioning.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versioning.xcconfig; sourceTree = "<group>"; };
+		845894072DB1A2E900827993 /* CodeGeneration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CodeGeneration.xcconfig; sourceTree = "<group>"; };
+		845894092DB1A3AA00827993 /* ClangLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangLanguage.xcconfig; sourceTree = "<group>"; };
+		8458940B2DB1A3C600827993 /* ClangCppLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangCppLanguage.xcconfig; sourceTree = "<group>"; };
+		8458940D2DB1A3EF00827993 /* ClangModules.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangModules.xcconfig; sourceTree = "<group>"; };
+		8458940F2DB1A40300827993 /* ClangObjCLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangObjCLanguage.xcconfig; sourceTree = "<group>"; };
+		845894112DB1A42F00827993 /* ClangPreprocessing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangPreprocessing.xcconfig; sourceTree = "<group>"; };
+		845894132DB1A4BA00827993 /* ClangWarningsCpp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsCpp.xcconfig; sourceTree = "<group>"; };
+		845894152DB1A4DA00827993 /* ClangWarningsObjC.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsObjC.xcconfig; sourceTree = "<group>"; };
+		845894172DB1A51900827993 /* AssetCatalog.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AssetCatalog.xcconfig; sourceTree = "<group>"; };
+		845894192DB1A54600827993 /* ClangAnalyzer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangAnalyzer.xcconfig; sourceTree = "<group>"; };
 		D49AA4752D9FD43100F51498 /* SessionReplay-CameraTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SessionReplay-CameraTest.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49AA4BE2D9FD48400F51498 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -72,6 +118,29 @@
 		D49AA46C2D9FD43100F51498 = {
 			isa = PBXGroup;
 			children = (
+				845894152DB1A4DA00827993 /* ClangWarningsObjC.xcconfig */,
+				8458940B2DB1A3C600827993 /* ClangCppLanguage.xcconfig */,
+				845893CF2DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig */,
+				845894172DB1A51900827993 /* AssetCatalog.xcconfig */,
+				845894132DB1A4BA00827993 /* ClangWarningsCpp.xcconfig */,
+				845894112DB1A42F00827993 /* ClangPreprocessing.xcconfig */,
+				8458940F2DB1A40300827993 /* ClangObjCLanguage.xcconfig */,
+				845894052DB1A2CD00827993 /* Versioning.xcconfig */,
+				845894072DB1A2E900827993 /* CodeGeneration.xcconfig */,
+				845894012DB1A26900827993 /* Packaging.xcconfig */,
+				845894032DB1A2AF00827993 /* SearchPaths.xcconfig */,
+				845893FD2DB1A21600827993 /* Linking.xcconfig */,
+				845893FF2DB1A23A00827993 /* Localization.xcconfig */,
+				845893FB2DB1A16900827993 /* BuildOptions.xcconfig */,
+				845893F92DB1A15800827993 /* Deployment.xcconfig */,
+				845893DB2DB19FB300827993 /* Architectures.xcconfig */,
+				845893D92DB19F8600827993 /* Signing.xcconfig */,
+				845893D72DB19F5100827993 /* Swift.xcconfig */,
+				845893D52DB19F3100827993 /* Plist.xcconfig */,
+				845893D12DB19EC800827993 /* ClangWarnings.xcconfig */,
+				845894192DB1A54600827993 /* ClangAnalyzer.xcconfig */,
+				8458940D2DB1A3EF00827993 /* ClangModules.xcconfig */,
+				845894092DB1A3AA00827993 /* ClangLanguage.xcconfig */,
 				D49AA4C72D9FD8EE00F51498 /* Shared */,
 				D49AA4772D9FD43100F51498 /* Sources */,
 				D49AA4BD2D9FD48400F51498 /* Frameworks */,
@@ -161,6 +230,29 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				845893FC2DB1A16900827993 /* BuildOptions.xcconfig in Resources */,
+				845894142DB1A4BA00827993 /* ClangWarningsCpp.xcconfig in Resources */,
+				845894002DB1A23A00827993 /* Localization.xcconfig in Resources */,
+				845894102DB1A40300827993 /* ClangObjCLanguage.xcconfig in Resources */,
+				845893DC2DB19FB300827993 /* Architectures.xcconfig in Resources */,
+				845894062DB1A2CD00827993 /* Versioning.xcconfig in Resources */,
+				8458940E2DB1A3EF00827993 /* ClangModules.xcconfig in Resources */,
+				845893D02DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig in Resources */,
+				8458941A2DB1A54600827993 /* ClangAnalyzer.xcconfig in Resources */,
+				845893DA2DB19F8600827993 /* Signing.xcconfig in Resources */,
+				845894182DB1A51900827993 /* AssetCatalog.xcconfig in Resources */,
+				845893FA2DB1A15800827993 /* Deployment.xcconfig in Resources */,
+				845894082DB1A2E900827993 /* CodeGeneration.xcconfig in Resources */,
+				845893D82DB19F5100827993 /* Swift.xcconfig in Resources */,
+				8458940A2DB1A3AA00827993 /* ClangLanguage.xcconfig in Resources */,
+				845894162DB1A4DA00827993 /* ClangWarningsObjC.xcconfig in Resources */,
+				845893D22DB19ED300827993 /* ClangWarnings.xcconfig in Resources */,
+				845894022DB1A26900827993 /* Packaging.xcconfig in Resources */,
+				845893FE2DB1A21600827993 /* Linking.xcconfig in Resources */,
+				845894122DB1A42F00827993 /* ClangPreprocessing.xcconfig in Resources */,
+				8458940C2DB1A3C600827993 /* ClangCppLanguage.xcconfig in Resources */,
+				845894042DB1A2AF00827993 /* SearchPaths.xcconfig in Resources */,
+				845893D62DB19F3100827993 /* Plist.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,6 +271,7 @@
 /* Begin XCBuildConfiguration section */
 		D49AA4892D9FD43200F51498 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 845893CF2DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -209,6 +302,7 @@
 		};
 		D49AA48A2D9FD43200F51498 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 845893CF2DB19BFC00827993 /* SessionReplay-CameraTest.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
