@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -28,11 +28,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		842D54802DA712C200D3528B /* SentrySampleShared-Swift */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "SentrySampleShared-Swift";
-			sourceTree = "<group>";
-		};
+		842D54802DA712C200D3528B /* SentrySampleShared-Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "SentrySampleShared-Swift"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +110,7 @@
 				};
 			};
 			buildConfigurationList = 842D54792DA712C200D3528B /* Build configuration list for PBXProject "SentrySampleShared" */;
+			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -122,7 +119,6 @@
 			);
 			mainGroup = 842D54752DA712C200D3528B;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 842D547F2DA712C200D3528B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
