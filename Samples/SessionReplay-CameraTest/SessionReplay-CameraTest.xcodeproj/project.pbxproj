@@ -44,7 +44,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "../SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Samples/SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = "<absolute>"; };
 		D49AA4752D9FD43100F51498 /* SessionReplay-CameraTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SessionReplay-CameraTest.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49AA4BE2D9FD48400F51498 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,17 +97,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		84588EB22DB0812D00827993 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		D49AA46C2D9FD43100F51498 = {
 			isa = PBXGroup;
 			children = (
-				84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */,
 				D49AA4C72D9FD8EE00F51498 /* Shared */,
 				D49AA4772D9FD43100F51498 /* Sources */,
 				D49AA4BD2D9FD48400F51498 /* Frameworks */,
@@ -192,10 +183,6 @@
 				{
 					ProductGroup = 84588E7D2DB07A9300827993 /* Products */;
 					ProjectRef = 84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */;
-				},
-				{
-					ProductGroup = 84588EB22DB0812D00827993 /* Products */;
-					ProjectRef = 84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */;
 				},
 			);
 			projectRoot = "";
