@@ -7,9 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84588E842DB07A9700827993 /* libSentrySampleShared-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84588E832DB07A9300827993 /* libSentrySampleShared-Swift.a */; };
 		D49AA4BF2D9FD48400F51498 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49AA4BE2D9FD48400F51498 /* Sentry.framework */; };
 		D49AA4C02D9FD48400F51498 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D49AA4BE2D9FD48400F51498 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		84588E7F2DB07A9300827993 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 842D547D2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
+		84588E822DB07A9300827993 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 842D547E2DA712C200D3528B;
+			remoteInfo = "SentrySampleShared-Swift";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		D49AA4C12D9FD48400F51498 /* Embed Frameworks */ = {
@@ -26,6 +44,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "../SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Samples/SentrySampleShared-Swift/SentrySampleShared.xcodeproj"; sourceTree = "<absolute>"; };
 		D49AA4752D9FD43100F51498 /* SessionReplay-CameraTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SessionReplay-CameraTest.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49AA4BE2D9FD48400F51498 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -62,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84588E842DB07A9700827993 /* libSentrySampleShared-Swift.a in Frameworks */,
 				D49AA4BF2D9FD48400F51498 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,13 +90,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		84588E7D2DB07A9300827993 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84588E832DB07A9300827993 /* libSentrySampleShared-Swift.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D49AA46C2D9FD43100F51498 = {
 			isa = PBXGroup;
 			children = (
+				84588E792DB07A8900827993 /* SentrySampleShared.xcodeproj */,
 				D49AA4C72D9FD8EE00F51498 /* Shared */,
 				D49AA4772D9FD43100F51498 /* Sources */,
 				D49AA4BD2D9FD48400F51498 /* Frameworks */,
 				D49AA4762D9FD43100F51498 /* Products */,
+				84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -110,6 +141,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				84588E802DB07A9300827993 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D49AA4772D9FD43100F51498 /* Sources */,
@@ -149,12 +181,28 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D49AA4762D9FD43100F51498 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 84588E7D2DB07A9300827993 /* Products */;
+					ProjectRef = 84588E7C2DB07A9300827993 /* SentrySampleShared.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D49AA4742D9FD43100F51498 /* SessionReplay-CameraTest */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		84588E832DB07A9300827993 /* libSentrySampleShared-Swift.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSentrySampleShared-Swift.a";
+			remoteRef = 84588E822DB07A9300827993 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D49AA4732D9FD43100F51498 /* Resources */ = {
@@ -175,6 +223,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		84588E802DB07A9300827993 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SentrySampleShared-Swift";
+			targetProxy = 84588E7F2DB07A9300827993 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D49AA4892D9FD43200F51498 /* Debug */ = {
