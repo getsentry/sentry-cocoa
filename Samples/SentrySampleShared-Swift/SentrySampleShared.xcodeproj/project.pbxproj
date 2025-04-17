@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -70,6 +70,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8458911C2DB1814400827993 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -123,6 +130,12 @@
 			minimizedProjectReferenceProxies = 1;
 			productRefGroup = 842D547F2DA712C200D3528B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 8458911C2DB1814400827993 /* Products */;
+					ProjectRef = 84588F612DB08C5F00827993 /* Sentry.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				842D547D2DA712C200D3528B /* SentrySampleShared-Swift */,
