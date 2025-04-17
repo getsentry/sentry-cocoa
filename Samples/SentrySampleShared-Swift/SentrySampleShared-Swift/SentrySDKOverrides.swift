@@ -109,7 +109,7 @@ public enum SentrySDKOverrides {
         public var boolValue: Bool {
             get {
                 switch self {
-                case .userName, .userEmail: fatalError("Invalid")
+                case .userName, .userEmail: fatalError("Use stringValue to get the value of this override")
                 default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
                 }
             }
@@ -122,13 +122,13 @@ public enum SentrySDKOverrides {
             get {
                 switch self {
                 case .userName, .userEmail: return getStringValueOverride(for: rawValue)
-                default: fatalError("Invalid")
+                default: fatalError("Use boolValue to get the value of this override")
                 }
             }
             set(newValue) {
                 switch self {
                 case .userName, .userEmail: return setStringOverride(for: rawValue, value: newValue)
-                default: fatalError("Invalid")
+                default: fatalError("Use boolValue to get the value of this override")
                 }
             }
         }
@@ -145,13 +145,13 @@ public enum SentrySDKOverrides {
         public var boolValue: Bool {
             get {
                 switch self {
-                case .sampleRate, .samplerValue: fatalError("Invalid")
+                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
                 default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
                 switch self {
-                case .sampleRate, .samplerValue: fatalError("Invalid")
+                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
                 default: setBoolOverride(for: rawValue, value: newValue)
                 }
             }
@@ -160,13 +160,13 @@ public enum SentrySDKOverrides {
         public var floatValue: Float? {
             get {
                 switch self {
-                case .disableTracing: fatalError("Invalid")
+                case .disableTracing: fatalError("Use boolValue to get the value of this override")
                 default: return getFloatValueOverride(for: rawValue)
                 }
             }
             set(newValue) {
                 switch self {
-                case .disableTracing: fatalError("Invalid")
+                case .disableTracing: fatalError("Use boolValue to get the value of this override")
                 default: setFloatOverride(for: rawValue, value: newValue)
                 }
             }
@@ -187,14 +187,14 @@ public enum SentrySDKOverrides {
         public var boolValue: Bool {
             get {
                 switch self {
-                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Invalid")
+                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
                 case .disableUIProfiling, .disableAppStartProfiling: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
                 default: return getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
                 switch self {
-                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Invalid")
+                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
                 default: setBoolOverride(for: rawValue, value: newValue)
                 }
             }
@@ -203,13 +203,13 @@ public enum SentrySDKOverrides {
         public var floatValue: Float? {
             get {
                 switch self {
-                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Invalid")
+                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
                 default: return getFloatValueOverride(for: rawValue)
                 }
             }
             set(newValue) {
                 switch self {
-                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Invalid")
+                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
                 default: setFloatOverride(for: rawValue, value: newValue)
                 }
             }
