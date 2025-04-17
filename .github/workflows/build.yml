@@ -29,10 +29,10 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    runs-on: macos-14
+    runs-on: macos15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-select-xcode.sh 16.3
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -66,12 +66,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.3
-
-      - name: List Xcode Build Schemes
-        run: >-
-          xcodebuild
-          -workspace Sentry.xcworkspace
-          -list
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
