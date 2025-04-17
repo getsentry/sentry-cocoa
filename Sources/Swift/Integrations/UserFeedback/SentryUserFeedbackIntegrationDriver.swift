@@ -25,11 +25,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
         super.init()
-        
-        if let widgetConfigBuilder = configuration.configureWidget {
-            widgetConfigBuilder(configuration.widgetConfig)
-            validate(configuration.widgetConfig)
-        }
+
         if let uiFormConfigBuilder = configuration.configureForm {
             uiFormConfigBuilder(configuration.formConfig)
         }
@@ -39,18 +35,16 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
         if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
             darkThemeOverrideBuilder(configuration.darkTheme)
         }
-        
-        if configuration.widgetConfig.autoInject {
-            createWidget()
-        }
-    }
 
-    /**
-     * Attaches the feedback widget to a specified UIButton. The button will trigger the feedback form.
-     * - Parameter button: The UIButton to attach the widget to.
-     */
-    func attachToButton(_ button: UIButton) {
-        
+        if let customButton = configuration.showForButton {
+            customButton.addTarget(self, action: #selector(attachToButton(_:)), for: .touchUpInside)
+        } else if let widgetConfigBuilder = configuration.configureWidget {
+            widgetConfigBuilder(configuration.widgetConfig)
+            validate(configuration.widgetConfig)
+            if configuration.widgetConfig.autoInject {
+                createWidget()
+            }
+        }
     }
     
     /**
