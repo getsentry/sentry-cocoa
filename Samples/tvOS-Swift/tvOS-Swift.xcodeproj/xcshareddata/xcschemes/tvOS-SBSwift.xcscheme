@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1600"
+   LastUpgradeVersion = "1620"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "62C97D0E2CC634DD00DDA204"
-               BuildableName = "macOS-SwiftUI.app"
-               BlueprintName = "macOS-SwiftUI"
-               ReferencedContainer = "container:macOS-SwiftUI.xcodeproj">
+               BlueprintIdentifier = "D822A41F2760D15000E7B241"
+               BuildableName = "tvOS-SBSwift.app"
+               BlueprintName = "tvOS-SBSwift"
+               ReferencedContainer = "container:tvOS-Swift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,18 +27,25 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:../../Plans/macOS-SwiftUI_Base.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D822A4432760ED7100E7B241"
+               BuildableName = "tvOS-SBSwiftUITests.xctest"
+               BlueprintName = "tvOS-SBSwiftUITests"
+               ReferencedContainer = "container:tvOS-Swift.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -49,10 +56,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "62C97D0E2CC634DD00DDA204"
-            BuildableName = "macOS-SwiftUI.app"
-            BlueprintName = "macOS-SwiftUI"
-            ReferencedContainer = "container:macOS-SwiftUI.xcodeproj">
+            BlueprintIdentifier = "D822A41F2760D15000E7B241"
+            BuildableName = "tvOS-SBSwift.app"
+            BlueprintName = "tvOS-SBSwift"
+            ReferencedContainer = "container:tvOS-Swift.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -289,10 +296,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "62C97D0E2CC634DD00DDA204"
-            BuildableName = "macOS-SwiftUI.app"
-            BlueprintName = "macOS-SwiftUI"
-            ReferencedContainer = "container:macOS-SwiftUI.xcodeproj">
+            BlueprintIdentifier = "D822A41F2760D15000E7B241"
+            BuildableName = "tvOS-SBSwift.app"
+            BlueprintName = "tvOS-SBSwift"
+            ReferencedContainer = "container:tvOS-Swift.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
