@@ -23,8 +23,8 @@
 // THE SOFTWARE.
 //
 
-#ifndef SentryCxaThrowSwapper_h
-#define SentryCxaThrowSwapper_h
+#ifndef SentryCrashCxaThrowSwapper_h
+#define SentryCrashCxaThrowSwapper_h
 
 #ifdef __cplusplus
 
@@ -37,10 +37,10 @@ typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
 typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
 #endif
 
-int ksct_swap(const cxa_throw_type handler);
+int sentrycrashct_swap(const cxa_throw_type handler);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SentryCxaThrowSwapper_h */
+#endif /* SentryCrashCxaThrowSwapper_h */

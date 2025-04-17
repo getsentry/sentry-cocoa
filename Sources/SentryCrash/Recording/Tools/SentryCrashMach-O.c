@@ -58,13 +58,13 @@
 const struct load_command *
 sentrycrash_macho_getCommandByTypeFromHeader(const mach_header_t *header, uint32_t commandType)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE(
-        "Getting command by type %u in Mach header at %p", commandType, header);
-
     if (header == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Header is NULL");
         return NULL;
     }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE(
+        "Getting command by type %u in Mach header at %p", commandType, header);
 
     uintptr_t current = (uintptr_t)header + sizeof(mach_header_t);
     struct load_command *loadCommand = NULL;
@@ -83,19 +83,23 @@ sentrycrash_macho_getCommandByTypeFromHeader(const mach_header_t *header, uint32
 const segment_command_t *
 sentrycrash_macho_getSegmentByNameFromHeader(const mach_header_t *header, const char *segmentName)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE(
-        "Searching for segment %s in Mach header at %p", segmentName, header);
-
     if (header == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Header is NULL");
         return NULL;
     }
 
+    if (segmentName == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Segment name is NULL");
+        return NULL;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE(
+        "Searching for segment %s in Mach header at %p", segmentName, header);
+
     const segment_command_t *segmentCommand;
-    unsigned long commandIndex;
 
     segmentCommand = (segment_command_t *)((uintptr_t)header + sizeof(mach_header_t));
-    for (commandIndex = 0; commandIndex < header->ncmds; commandIndex++) {
+    for (uint commandIndex = 0; commandIndex < header->ncmds; commandIndex++) {
         if (segmentCommand->cmd == LC_SEGMENT_ARCH_DEPENDENT
             && strncmp(segmentCommand->segname, segmentName, sizeof(segmentCommand->segname))
                 == 0) {
@@ -113,13 +117,13 @@ const section_t *
 sentrycrash_macho_getSectionByTypeFlagFromSegment(
     const segment_command_t *segmentCommand, uint32_t flag)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE(
-        "Getting section by flag %u in segment %s", flag, segmentCommand->segname);
-
     if (segmentCommand == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Segment is NULL");
         return NULL;
     }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE(
+        "Getting section by flag %u in segment %s", flag, segmentCommand->segname);
 
     uintptr_t current = (uintptr_t)segmentCommand + sizeof(segment_command_t);
     const section_t *section = NULL;

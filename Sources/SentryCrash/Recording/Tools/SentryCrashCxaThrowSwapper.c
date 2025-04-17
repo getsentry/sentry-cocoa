@@ -70,32 +70,32 @@
 typedef struct {
     uintptr_t image;
     uintptr_t function;
-} KSAddressPair;
+} SentryCrashAddressPair;
 
 static cxa_throw_type g_cxa_throw_handler = NULL;
 static const char *const g_cxa_throw_name = "__cxa_throw";
 
-static KSAddressPair *g_cxa_originals = NULL;
+static SentryCrashAddressPair *g_cxa_originals = NULL;
 static size_t g_cxa_originals_capacity = 0;
 static size_t g_cxa_originals_count = 0;
 
 static void
-addPair(KSAddressPair pair)
+addPair(SentryCrashAddressPair pair)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Adding address pair: image=%p, function=%p", (void *)pair.image, (void *)pair.function);
 
     if (g_cxa_originals_count == g_cxa_originals_capacity) {
         g_cxa_originals_capacity *= 2;
-        g_cxa_originals = (KSAddressPair *)realloc(
-            g_cxa_originals, sizeof(KSAddressPair) * g_cxa_originals_capacity);
+        g_cxa_originals = (SentryCrashAddressPair *)realloc(
+            g_cxa_originals, sizeof(SentryCrashAddressPair) * g_cxa_originals_capacity);
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to realloc memory for g_cxa_originals: %s", strerror(errno));
             return;
         }
     }
-    memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair, sizeof(KSAddressPair));
+    memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair, sizeof(SentryCrashAddressPair));
 }
 
 static uintptr_t
@@ -170,7 +170,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
         if (symbol_name_longer_than_1 && strcmp(&symbol_name[1], g_cxa_throw_name) == 0) {
             Dl_info info;
             if (dladdr(dataSection, &info) != 0) {
-                KSAddressPair pair
+                SentryCrashAddressPair pair
                     = { (uintptr_t)info.dli_fbase, (uintptr_t)indirect_symbol_bindings[i] };
                 addPair(pair);
             }
@@ -267,13 +267,14 @@ rebind_symbols_for_image(const struct mach_header *header, intptr_t slide)
 }
 
 int
-ksct_swap(const cxa_throw_type handler)
+sentrycrashct_swap(const cxa_throw_type handler)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Swapping __cxa_throw handler");
 
     if (g_cxa_originals == NULL) {
         g_cxa_originals_capacity = 25;
-        g_cxa_originals = (KSAddressPair *)malloc(sizeof(KSAddressPair) * g_cxa_originals_capacity);
+        g_cxa_originals = (SentryCrashAddressPair *)malloc(
+            sizeof(SentryCrashAddressPair) * g_cxa_originals_capacity);
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to allocate memory for g_cxa_originals: %s", strerror(errno));

@@ -251,7 +251,7 @@ initialize(void)
     if (!isInitialized) {
         isInitialized = true;
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
-        ksct_swap(captureStackTrace);
+        sentrycrashct_swap(captureStackTrace);
     }
 }
 
