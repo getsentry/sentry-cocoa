@@ -1013,6 +1013,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		84BA71F92C8F7F920045B828 /* Inject Git information into Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1067,6 +1068,7 @@
 		};
 		84BA720D2C8FA48D0045B828 /* Reset Git fields in Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
