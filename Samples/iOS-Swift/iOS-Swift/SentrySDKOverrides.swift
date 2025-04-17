@@ -1,168 +1,263 @@
 import Foundation
 
-protocol OverrideKey: RawRepresentable, CaseIterable {
-    var rawValue: String { get }
+protocol SentrySDKOverride: RawRepresentable, CaseIterable {
+    var boolValue: Bool { get set }
+    var floatValue: Float? { get set }
+    var stringValue: String? { get set }
 }
 
-enum SentrySDKOverrides {
-    static let userDefaultOverrideSuffix = "-not-overridden"
-    static let defaults = UserDefaults.standard
+extension SentrySDKOverride {
+    public var boolValue: Bool { get { false } set { } }
+    public var floatValue: Float? { get { nil } set { } }
+    public var stringValue: String? { get { nil } set { } }
+}
 
-    static func resetDefaults() {
-        for key in Tracing.Key.allCases.map(\.rawValue) + Profiling.Key.allCases.map(\.rawValue) {
+public enum SentrySDKOverrides {
+    private static let defaults = UserDefaults.standard
+
+    public static var schemaPrecedenceForEnvironmentVariables: Bool {
+        ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-environment-variable-precedence")
+    }
+
+    public static func resetDefaults() {
+        let allKeys = Tracing.allCases.map(\.rawValue)
+            + Profiling.allCases.map(\.rawValue)
+            + Performance.allCases.map(\.rawValue)
+            + Other.allCases.map(\.rawValue)
+            + Feedback.allCases.map(\.rawValue)
+        for key in allKeys {
             defaults.removeObject(forKey: key)
-            defaults.set(true, forKey: key + userDefaultOverrideSuffix)
         }
     }
 
-    enum Tracing {
-        enum Key: String, OverrideKey {
-            case sampleRate = "--io.sentry.tracesSampleRate"
-            case samplerValue = "--io.sentry.tracesSamplerValue"
-        }
+    enum Special: String, SentrySDKOverride {
+        case wipeDataOnLaunch = "--io.sentry.wipe-data"
+        case disableEverything = "--io.sentry.disable-everything"
 
-        static var sampleRate: Float? {
+        public var boolValue: Bool {
             get {
-                getValueOverride(for: Tracing.Key.sampleRate)
+                return getBoolOverride(for: rawValue)
             }
             set(newValue) {
-                defaults.set(newValue, forKey: Tracing.Key.sampleRate.rawValue)
-            }
-        }
-
-        static var samplerValue: Float? {
-            get {
-                getValueOverride(for: Tracing.Key.samplerValue)
-            }
-            set(newValue) {
-                defaults.set(newValue, forKey: Tracing.Key.samplerValue.rawValue)
+                setBoolOverride(for: rawValue, value: newValue)
             }
         }
     }
 
-    enum Profiling {
-        enum Key: String, OverrideKey {
-            case sampleRate = "--io.sentry.profilesSampleRate"
-            case samplerValue = "--io.sentry.profilesSamplerValue"
-            case disableAppStartProfiling = "--io.sentry.disable-app-start-profiling"
-            case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
-            case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
-            case disableUIProfiling = "--io.sentry.disable-ui-profiling"
-        }
+    enum Feedback: String, SentrySDKOverride {
+        case allDefaults = "--io.sentry.feedback.all-defaults"
+        case disableAutoInject = "--io.sentry.feedback.no-auto-inject-widget"
+        case noWidgetText = "--io.sentry.feedback.no-widget-text"
+        case noWidgetIcon = "--io.sentry.feedback.no-widget-icon"
+        case noUserInjection = "--io.sentry.feedback.dont-use-sentry-user"
+        case requireEmail = "--io.sentry.feedback.require-email"
+        case requireName = "--io.sentry.feedback.require-name"
+        case noAnimations = "--io.sentry.feedback.no-animations"
 
-        static var sampleRate: Float? {
+        public var boolValue: Bool {
             get {
-                getValueOverride(for: Profiling.Key.sampleRate)
-            }
-            set(newValue) {
-                defaults.set(newValue, forKey: Profiling.Key.sampleRate.rawValue)
-            }
-        }
-
-        static var samplerValue: Float? {
-            get {
-                getValueOverride(for: Profiling.Key.samplerValue)
-            }
-            set(newValue) {
-                defaults.set(newValue, forKey: Profiling.Key.samplerValue.rawValue)
-            }
-        }
-
-        static var sessionSampleRate: Float? {
-            get {
-                getValueOverride(for: Profiling.Key.sessionSampleRate)
-            }
-            set(newValue) {
-                defaults.set(newValue, forKey: Profiling.Key.sessionSampleRate.rawValue)
-            }
-        }
-
-        /// - note: If no other overrides are present, we set the iOS-Swift app to use trace lifecycle (the SDK default is manual)
-        static var manualLifecycle: Bool {
-            get {
-                getOverride(for: Profiling.Key.manualLifecycle)
-            }
-            set(newValue) {
-                setOverride(for: Profiling.Key.manualLifecycle, value: newValue)
-            }
-        }
-
-        /// - note: If no other overrides are present, we set the iOS-Swift app to use launch profiling (the SDK default is to disable it)
-        static var profileAppStarts: Bool {
-            get {
-                !getOverride(for: Profiling.Key.disableAppStartProfiling)
-            }
-            set(newValue) {
-                setOverride(for: Profiling.Key.disableAppStartProfiling, value: !newValue)
-            }
-        }
-
-        /// allows configuring to use continuous profiling functionality beta
-        static var disableUIProfiling: Bool {
-            get {
-                getOverride(for: Profiling.Key.disableUIProfiling)
-            }
-            set(newValue) {
-                setOverride(for: Profiling.Key.disableUIProfiling, value: newValue)
-            }
-        }
-    }
-
-    /// - note: This returns `false` in the default case. For anything that calls this method, design the API in such a way that by default it responds to this returning `false`, and then if it returns `true`, the override takes effect. Here's the decision tree:
-    /// ```
-    /// - should schema overrides take precedence
-    ///     - no (default)
-    ///         - is override present in user defaults
-    ///             - yes: return the value stored in user defaults
-    ///             - no: return whether override flag is set in schema
-    ///     - yes
-    ///         - is override flag in the schema
-    ///             - yes: return true indicating the override should take effect
-    ///             - no
-    ///                 - is override present in user defaults
-    ///                     - yes: return the value stored in user defaults
-    ///                     - no: return false indicating that the override should not take effect
-    /// ```
-    private static func getOverride(for key: any OverrideKey) -> Bool {
-        let args = ProcessInfo.processInfo.arguments
-
-        if args.contains("--io.sentry.schema-override-precedence") {
-            guard args.contains(key.rawValue) else {
-                return checkOverride(key) {
-                    false
+                switch self {
+                case .disableAutoInject: return getBoolOverride(for: rawValue)
+                default: return getBoolOverride(for: rawValue)
                 }
             }
-
-            return true
-        }
-
-        return checkOverride(key) {
-            args.contains(key.rawValue)
+            set(newValue) {
+                setBoolOverride(for: rawValue, value: newValue)
+            }
         }
     }
 
-    /// If a key is not present for a bool in user defaults, it returns false, but we need to know if it's returning false because it was overridden that way, or just isn't present, so we provide a way to return a "default value" if the override isn't present in defaults at all (indicated by a "true" value stored for "default X not overridden" key to make this truthy, otherwise return the stored defaults value
-    private static func checkOverride(_ key: any OverrideKey, defaultValue: () -> Bool) -> Bool {
-        let defaults = defaults
+    enum Performance: String, SentrySDKOverride {
+        case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
+        case disablePerformanceV2 = "--disable-performance-v2"
+        case disableAppHangTrackingV2 = "--disable-app-hang-tracking-v2"
+        case disableSessionTracking = "--disable-automatic-session-tracking"
+        case disableFileIOTracing = "--disable-file-io-tracing"
+        case disableUIVCTracing = "--disable-uiviewcontroller-tracing"
+        case disableNetworkTracing = "--disable-network-tracking"
+        case disableCoreDataTracing = "--disable-core-data-tracing"
+        case disableANRTracking = "--disable-anr-tracking"
+        case disableWatchdogTracking = "--disable-watchdog-tracking"
+        case disableUITracing = "--disable-ui-tracing"
+        case disablePrewarmedAppStartTracing = "--disable-prewarmed-app-start-tracing"
+        case disablePerformanceTracing = "--disable-auto-performance-tracing"
 
-        guard !defaults.bool(forKey: key.rawValue + userDefaultOverrideSuffix) else {
-            return defaultValue()
+        public var boolValue: Bool {
+            get {
+                return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+            }
+            set(newValue) {
+                setBoolOverride(for: rawValue, value: newValue)
+            }
         }
-
-        return defaults.bool(forKey: key.rawValue)
     }
 
-    private static func setOverride(for key: any OverrideKey, value: Bool) {
-        defaults.set(value, forKey: key.rawValue)
-        defaults.set(false, forKey: key.rawValue + userDefaultOverrideSuffix)
-    }
+    enum Other: String, SentrySDKOverride {
+        case disableAttachScreenshot = "--disable-attach-screenshot"
+        case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
+        case disableSessionReplay = "--disable-session-replay"
+        case disableMetricKit = "--disable-metrickit-integration"
+        case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
+        case disableNetworkBreadcrumbs = "--disable-network-breadcrumbs"
+        case disableSwizzling = "--disable-swizzling"
+        case disableCrashHandling = "--disable-crash-handler"
+        case disableSpotlight = "--disable-spotlight"
+        case disableFileManagerSwizzling = "--disable-filemanager-swizzling"
+        case userName = "--io.sentry.user.name"
+        case userEmail = "--io.sentry.user.email"
 
-    private static func getValueOverride<T>(for key: any OverrideKey) -> T? where T: LosslessStringConvertible {
-        if ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-override-precedence") {
-            return ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
+        public var boolValue: Bool {
+            get {
+                switch self {
+                case .userName, .userEmail: fatalError("Use stringValue to get the value of this override")
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                setBoolOverride(for: rawValue, value: newValue)
+            }
         }
 
-        return defaults.object(forKey: key.rawValue) as? T
-            ?? ProcessInfo.processInfo.environment[key.rawValue].flatMap(T.init)
+        var stringValue: String? {
+            get {
+                switch self {
+                case .userName, .userEmail: return getStringValueOverride(for: rawValue)
+                default: fatalError("Use boolValue to get the value of this override")
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .userName, .userEmail: return setStringOverride(for: rawValue, value: newValue)
+                default: fatalError("Use boolValue to get the value of this override")
+                }
+            }
+        }
+
+        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight] }
+        public static var stringVars: [Other] { [.userName, .userEmail] }
+    }
+
+    public enum Tracing: String, SentrySDKOverride {
+        case sampleRate = "--io.sentry.tracesSampleRate"
+        case samplerValue = "--io.sentry.tracesSamplerValue"
+        case disableTracing = "--io.sentry.disable-tracing"
+
+        public var boolValue: Bool {
+            get {
+                switch self {
+                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var floatValue: Float? {
+            get {
+                switch self {
+                case .disableTracing: fatalError("Use boolValue to get the value of this override")
+                default: return getFloatValueOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .disableTracing: fatalError("Use boolValue to get the value of this override")
+                default: setFloatOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public static var boolValues: [Tracing] { [.disableTracing] }
+        public static var floatValues: [Tracing] { [.sampleRate, .samplerValue] }
+    }
+
+    public enum Profiling: String, SentrySDKOverride {
+        case sampleRate = "--io.sentry.profilesSampleRate"
+        case samplerValue = "--io.sentry.profilesSamplerValue"
+        case disableAppStartProfiling = "--io.sentry.disable-app-start-profiling"
+        case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
+        case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
+        case disableUIProfiling = "--io.sentry.disable-ui-profiling"
+
+        public var boolValue: Bool {
+            get {
+                switch self {
+                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
+                case .disableUIProfiling, .disableAppStartProfiling: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                default: return getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var floatValue: Float? {
+            get {
+                switch self {
+                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
+                default: return getFloatValueOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
+                default: setFloatOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public static var boolValues: [Profiling] { [.disableUIProfiling, .disableAppStartProfiling, .manualLifecycle] }
+        public static var floatValues: [Profiling] { [.sampleRate, .samplerValue, .sessionSampleRate] }
+    }
+}
+
+private extension SentrySDKOverrides {
+    static func getBoolOverride(for key: String) -> Bool {
+        ProcessInfo.processInfo.arguments.contains(key) || defaults.bool(forKey: key)
+    }
+
+    static func setBoolOverride(for key: String, value: Bool) {
+        defaults.set(value, forKey: key)
+    }
+
+    static func setFloatOverride(for key: String, value: Float?) {
+        guard let value = value else {
+            defaults.removeObject(forKey: key)
+            return
+        }
+        
+        setStringOverride(for: key, value: String(format: "%f", value))
+    }
+
+    static func setStringOverride(for key: String, value: String?) {
+        defaults.set(value, forKey: key)
+    }
+
+    static func getFloatValueOverride(for key: String) -> Float? {
+        (getStringValueOverride(for: key) as? NSString)?.floatValue
+    }
+
+    static func getStringValueOverride(for key: String) -> String? {
+        var schemaEnvironmentVariable: String?
+        if let value = ProcessInfo.processInfo.environment[key] {
+            schemaEnvironmentVariable = value
+        }
+
+        let defaultsValue = defaults.string(forKey: key)
+
+        if schemaPrecedenceForEnvironmentVariables {
+            return schemaEnvironmentVariable ?? defaultsValue
+        } else {
+            return defaultsValue ?? schemaEnvironmentVariable
+        }
     }
 }

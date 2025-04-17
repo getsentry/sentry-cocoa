@@ -186,6 +186,25 @@
             </objects>
             <point key="canvasLocation" x="-201" y="1581"/>
         </scene>
+        <!--Features-->
+        <scene sceneID="vXA-cz-ex5">
+            <objects>
+                <tableViewController id="NOh-os-mDC" customClass="FeaturesViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="vhK-hb-Kdy">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <connections>
+                            <outlet property="dataSource" destination="NOh-os-mDC" id="g9j-PD-Fa5"/>
+                            <outlet property="delegate" destination="NOh-os-mDC" id="Z2w-9r-byj"/>
+                        </connections>
+                    </tableView>
+                    <tabBarItem key="tabBarItem" title="Features" image="checklist" catalog="system" selectedImage="checklist" id="EwG-Si-LFf"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CM5-5C-yYU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1221" y="2572"/>
+        </scene>
         <!--Profiling-->
         <scene sceneID="f4B-j3-STc">
             <objects>
@@ -195,7 +214,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
-                                <rect key="frame" x="0.0" y="64" width="320" height="419.5"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="384.5"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1f-aG-VcS">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
@@ -205,7 +224,7 @@
                                         </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                        <rect key="frame" x="0.0" y="70" width="320" height="349.5"/>
+                                        <rect key="frame" x="0.0" y="70" width="320" height="314.5"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="center" id="DsI-9S-jdi">
                                                 <rect key="frame" x="0.0" y="0.0" width="320" height="28"/>
@@ -400,27 +419,8 @@
                                                 <viewLayoutGuide key="safeArea" id="Xjs-qf-kxh"/>
                                                 <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" id="cTH-vp-x1q">
-                                                <rect key="frame" x="0.0" y="264.5" width="320" height="31"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jWc-r9-WqX">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="immediatelyStopContinuousProfiler:" destination="NZr-bH-g9o" eventType="valueChanged" id="Vxa-jj-EAa"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Immediately stop continuous profiler" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.29999999999999999" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Acv-eU-TLH">
-                                                        <rect key="frame" x="57" y="5.5" width="263" height="20.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                                <viewLayoutGuide key="safeArea" id="m7S-DL-OF1"/>
-                                            </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LIr-jM-FSX">
-                                                <rect key="frame" x="0.0" y="299.5" width="320" height="50"/>
+                                                <rect key="frame" x="0.0" y="264.5" width="320" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI test data marshalling:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhg-B3-Rao" userLabel="UI test data marshaling:">
                                                         <rect key="frame" x="0.0" y="15" width="184" height="20.5"/>
@@ -478,7 +478,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MLd-fY-Tsv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-199" y="2540"/>
+            <point key="canvasLocation" x="-203" y="2341"/>
         </scene>
         <!--Navigation Transaction-->
         <scene sceneID="nC1-NO-4uj">
@@ -891,6 +891,7 @@
                         <segue destination="VqS-l1-kwe" kind="relationship" relationship="viewControllers" id="4xB-07-xBR"/>
                         <segue destination="NZr-bH-g9o" kind="relationship" relationship="viewControllers" id="QeG-0S-MzX"/>
                         <segue destination="aU9-zi-mBa" kind="relationship" relationship="viewControllers" id="w0L-TJ-bTb"/>
+                        <segue destination="NOh-os-mDC" kind="relationship" relationship="viewControllers" id="ZXG-Zc-0bz"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZEF-L9-zzL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1129,7 +1130,6 @@
                                                                 <state key="normal" title="Get app support path"/>
                                                                 <connections>
                                                                     <action selector="getApplicationSupportPath:" destination="VqS-l1-kwe" eventType="touchUpInside" id="nck-yy-OlS"/>
-                                                                    <action selector="getLatestEnvelope:" destination="VqS-l1-kwe" eventType="touchUpInside" id="l3H-vg-yn9"/>
                                                                 </connections>
                                                             </button>
                                                         </subviews>
@@ -1572,6 +1572,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="checklist" catalog="system" width="128" height="107"/>
         <image name="clock.fill" catalog="system" width="128" height="123"/>
         <image name="deskclock" catalog="system" width="128" height="125"/>
         <image name="deskclock.fill" catalog="system" width="128" height="125"/>
