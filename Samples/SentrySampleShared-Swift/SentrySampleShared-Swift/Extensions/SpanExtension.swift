@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
 
-extension Span {
+public extension Span {
     
     //If span is a transaction it has a list of children
     func children() -> [Span]? {

@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-extension UIView {
+public extension UIView {
     /// A shortcut to disable `translatesAutoresizingMaskIntoConstraints`
     /// - Returns: self
     func forAutoLayout() -> Self {
