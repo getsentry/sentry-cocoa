@@ -4,10 +4,6 @@
    <Group
       location = "container:"
       name = "Samples">
-      <Group
-         location = "group:Samples/XcodeGen"
-         name = "XcodeGen">
-      </Group>
       <FileRef
          location = "group:Samples/Shared">
       </FileRef>
@@ -37,9 +33,6 @@
       </FileRef>
       <FileRef
          location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">

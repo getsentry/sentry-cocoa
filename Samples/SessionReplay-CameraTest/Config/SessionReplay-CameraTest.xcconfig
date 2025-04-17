@@ -1,7 +1,6 @@
 #include "Architectures.xcconfig"
 #include "BuildOptions.xcconfig"
 #include "Deployment.xcconfig"
-#include "Plist.xcconfig"
 #include "Linking.xcconfig"
 #include "Localization.xcconfig"
 #include "Packaging.xcconfig"

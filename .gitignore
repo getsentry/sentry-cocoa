@@ -224,4 +224,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-Samples/XcodeGen/*.xcodeproj
+Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj

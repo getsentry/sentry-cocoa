@@ -10,9 +10,19 @@ targets:
   SessionReplay-CameraTest:
     type: application
     platform: iOS
-    sources: [Sources]
+    sources:
+      - Sources
+      - ../Shared
     dependencies:
       - target: Sentry/Sentry
     configFiles:
       Debug: Config/SessionReplay-CameraTest.xcconfig
       Release: Config/SessionReplay-CameraTest.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
