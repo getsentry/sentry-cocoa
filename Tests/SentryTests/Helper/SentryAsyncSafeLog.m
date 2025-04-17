@@ -11,8 +11,8 @@
 
 /*
  * This test only runs when SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE is set to 1. We must only
- * set SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE to 1 for debugging purposes but we MUST never
- * commit this change to the main branch.
+ * set SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE in SentryAsyncSafeLog.h to 1 for debugging
+ * purposes but we MUST never commit this change to the main branch.
  */
 - (void)testAsyncSafeLogDoesNotWriteToConsole
 {
