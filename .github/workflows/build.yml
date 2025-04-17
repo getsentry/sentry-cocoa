@@ -66,6 +66,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: brew install xcodegen
+        if: ${{matrix.scheme}} == SessionReplay
       - run: make session-replay-camera-test-xcode
         if: ${{matrix.scheme}} == SessionReplay
 
