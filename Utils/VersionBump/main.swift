@@ -16,14 +16,14 @@ let files = [
 // Files that only accept the format x.x.x in order to release an app using the framework.
 // This will enable publishing apps with SDK beta version.
 let restrictFiles = [
-    "./Samples/iOS-Swift/iOS-Swift/Sample.xcconfig",
-    "./Sources/Configuration/SDK.xcconfig",
+    "./Samples/Config/Versioning.xcconfig",
+    "./Sources/Configuration/SDK.xcconfig", // T O D O: use a single file here that is included into either other one. or even one single file for everything
     "./Sources/Configuration/SentrySwiftUI.xcconfig"
 ]
 
 let args = CommandLine.arguments
 
-let semver: StaticString = "([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?"
+let semver: StaticString = "MARKETING_VERSION = ([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?"
 let regex = Regex(semver)
 if regex.firstMatch(in: args[1]) == nil {
     exit(errormessage: "version number must fit x.x.x format" )
