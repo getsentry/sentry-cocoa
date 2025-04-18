@@ -16,7 +16,6 @@ targets:
   iOS-Swift:
     type: application
     platform: auto
-    supportedDestinations: [iOS, macCatalyst]
     sources:
       - iOS-Swift
       - ../Shared/GitInjections.swift
@@ -40,7 +39,6 @@ targets:
   iOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
-    supportedDestinations: [iOS, macCatalyst]
     sources:
       - iOS-Swift-UITests
     configFiles:
@@ -48,8 +46,6 @@ targets:
       Release: iOS-Swift-UITests.xcconfig
       Test: iOS-Swift-UITests.xcconfig
       TestCI: iOS-Swift-UITests.xcconfig
-    settings:
-      TEST_TARGET_NAME: iOS-Swift
 schemes:
   iOS-Swift:
     build:

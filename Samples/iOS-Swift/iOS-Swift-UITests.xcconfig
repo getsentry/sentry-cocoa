@@ -22,3 +22,7 @@
 #include "../Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift-UITests
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+TEST_TARGET_NAME = iOS-Swift

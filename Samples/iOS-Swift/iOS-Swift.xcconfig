@@ -35,3 +35,5 @@ PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
 CODE_SIGN_STYLE = Manual
 
 SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
