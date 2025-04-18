@@ -15,7 +15,8 @@ options:
 targets:
   iOS-Swift:
     type: application
-    platform: iOS
+    platform: auto
+    supportedDestinations: [iOS, macCatalyst]
     sources:
       - iOS-Swift
       - ../Shared/GitInjections.swift
@@ -38,7 +39,8 @@ targets:
         basedOnDependencyAnalysis: false
   iOS-Swift-UITests:
     type: bundle.ui-testing
-    platform: iOS
+    platform: auto
+    supportedDestinations: [iOS, macCatalyst]
     sources:
       - iOS-Swift-UITests
     configFiles:
@@ -46,3 +48,19 @@ targets:
       Release: iOS-Swift-UITests.xcconfig
       Test: iOS-Swift-UITests.xcconfig
       TestCI: iOS-Swift-UITests.xcconfig
+    settings:
+      TEST_TARGET_NAME: iOS-Swift
+schemes:
+  iOS-Swift:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-UITests: test
+    test:
+      targets:
+        - iOS-Swift-UITests
+      config: Test
+      deleteScreenshotsWhenEachTestSucceeds: false
+      gatherCoverageData: true
+      coverageTargets:
+        - Sentry/Sentry
