@@ -1,4 +1,9 @@
-name: SessionReplay-CameraTest
+name: iOS-Swift_xcodegen
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
@@ -8,19 +13,21 @@ fileGroups:
 options:
   bundleIdPrefix: io.sentry
 targets:
-  SessionReplay-CameraTest:
+  iOS-Swift:
     type: application
     platform: iOS
     sources:
-      - Sources
+      - iOS-Swift
       - ../Shared/GitInjections.swift
       - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
     configFiles:
-      Debug: SessionReplay-CameraTest.xcconfig
-      Release: SessionReplay-CameraTest.xcconfig
+      Debug: iOS-Swift.xcconfig
+      Release: iOS-Swift.xcconfig
+      Test: iOS-Swift.xcconfig
+      TestCI: iOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -29,3 +36,13 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
+  iOS-Swift-UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - iOS-Swift-UITests
+    configFiles:
+      Debug: iOS-Swift-UITests.xcconfig
+      Release: iOS-Swift-UITests.xcconfig
+      Test: iOS-Swift-UITests.xcconfig
+      TestCI: iOS-Swift-UITests.xcconfig

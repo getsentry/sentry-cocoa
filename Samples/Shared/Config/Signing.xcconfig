@@ -1,0 +1,14 @@
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = 97JCY7859U
+
+CODE_SIGN_IDENTITY_Debug[sdk=iphoneos*] = iPhone Developer
+CODE_SIGN_IDENTITY_Test[sdk=iphoneos*] = iPhone Developer
+CODE_SIGN_IDENTITY_TestCI[sdk=iphoneos*] = iPhone Developer
+CODE_SIGN_IDENTITY_Release[sdk=iphoneos*] = iPhone Distribution
+CODE_SIGN_IDENTITY_Debug[sdk=macosx*] = Apple Developer
+CODE_SIGN_IDENTITY_Test[sdk=macosx*] = Apple Developer
+CODE_SIGN_IDENTITY_TestCI[sdk=macosx*] = Apple Developer
+CODE_SIGN_IDENTITY_Release[sdk=macosx*] = Apple Distribution
+
+CODE_SIGN_IDENTITY[sdk=macosx*] = $(CODE_SIGN_IDENTITY_$(CONFIGURATION))
+CODE_SIGN_IDENTITY[sdk=iphoneos*] = $(CODE_SIGN_IDENTITY_$(CONFIGURATION))

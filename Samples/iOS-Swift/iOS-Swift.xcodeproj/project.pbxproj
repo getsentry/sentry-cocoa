@@ -295,6 +295,8 @@
 		849C4A682D66CA1600FA632D /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
 		84A5D72C29D2708D00388BFA /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
+		84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift.xcconfig"; sourceTree = "<group>"; };
+		84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-SwiftUITests.xcconfig"; sourceTree = "<group>"; };
 		84AB90702A5001000054C99A /* ProfilingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingViewController.swift; sourceTree = "<group>"; };
 		84ACC43B2A73CB5900932A18 /* ProfilingNetworkScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingNetworkScanner.swift; sourceTree = "<group>"; };
 		84ACC4422A73CD0700932A18 /* ProfilingCPUWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingCPUWork.swift; sourceTree = "<group>"; };
@@ -461,6 +463,8 @@
 		637AFD9D243B02760034958B = {
 			isa = PBXGroup;
 			children = (
+				84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */,
+				84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */,
 				62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */,
 				84BA72A62C93698E0045B828 /* Shared */,
 				848A2576286E3490008A8858 /* PerformanceBenchmarks */,
@@ -1492,9 +1496,11 @@
 		};
 		637AFDBB243B02770034958B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1523,9 +1529,11 @@
 		};
 		637AFDBC243B02770034958B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
@@ -1551,6 +1559,7 @@
 		};
 		7B64386F26A6C544000D0F65 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -1576,6 +1585,7 @@
 		};
 		7B64387026A6C544000D0F65 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -1712,9 +1722,11 @@
 		};
 		84D4FE8128ECD1EA00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1743,6 +1755,7 @@
 		};
 		84D4FE8228ECD1EA00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -1952,9 +1965,11 @@
 		};
 		84D4FE8928ECD1ED00EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DE2DB1D285006D6C83 /* iOS-Swift.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1983,6 +1998,7 @@
 		};
 		84D4FE8A28ECD1ED00EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84AB67DF2DB1D285006D6C83 /* iOS-SwiftUITests.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
