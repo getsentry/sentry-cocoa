@@ -1,7 +1,10 @@
 // swiftlint:disable file_length function_body_length
 
 import Sentry
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
 import UIKit
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
 
 public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
@@ -29,7 +32,8 @@ public struct SentrySDKWrapper {
             return true
         }
         options.debug = true
-        
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
@@ -38,12 +42,19 @@ public struct SentrySDKWrapper {
                 maskAllImages: true
             )
             options.sessionReplay.quality = .high
+            options.sessionReplay.enableExperimentalViewRenderer = true
+
+            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = false
         }
-        
-        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+#if !os(tvOS) && !os(watchOS)
+        if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
         }
+#endif // !os(tvOS) && !os(watchOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
@@ -55,17 +66,34 @@ public struct SentrySDKWrapper {
             }
         }
 
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
         configureProfiling(options)
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+        } else {
+            options.sessionTrackingIntervalMillis = 5_000
         }
 
         options.add(inAppInclude: "iOS_External")
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
         // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableUITracing.boolValue
+
+        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
+        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
+        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
+        #if os(macOS)
+        options.enableUncaughtNSExceptionReporting = true
+        #endif // os(macOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
@@ -74,23 +102,17 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
-        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
-        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
 
         options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
         options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
         options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
-        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
-        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
@@ -107,13 +129,13 @@ public struct SentrySDKWrapper {
         }
         
         options.initialScope = configureInitialScope(scope:)
+
+#if os(iOS)
         options.configureUserFeedback = configureFeedback(config:)
+#endif // os(iOS)
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
-        options.sessionReplay.enableExperimentalViewRenderer = true
-        // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-        options.sessionReplay.enableFastViewRendering = false
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
@@ -166,6 +188,7 @@ public struct SentrySDKWrapper {
 }
 
 // MARK: User feedback configuration
+#if os(iOS)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     
@@ -261,11 +284,13 @@ extension SentrySDKWrapper {
             updateHookMarkers(forEvent: "onFormClose")
         }
         config.onSubmitSuccess = { info in
+            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
             let name = info["name"] ?? "$shakespearean_insult_name"
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
-            
+            #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
             // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
             if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
@@ -276,9 +301,12 @@ extension SentrySDKWrapper {
             updateHookMarkers(forEvent: "onSubmitSuccess", with: jsonData.base64EncodedString())
         }
         config.onSubmitError = { error in
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
             let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
             alert.addAction(.init(title: "Derp", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
             let nserror = error as NSError
             let missingFieldsSorted = (nserror.userInfo["missing_fields"] as? [String])?.sorted().joined(separator: ";") ?? ""
             updateHookMarkers(forEvent: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(missingFieldsSorted)")
@@ -348,6 +376,7 @@ extension SentrySDKWrapper {
         }
     }
 }
+#endif // os(iOS)
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
@@ -384,6 +413,7 @@ extension SentrySDKWrapper {
 }
 
 // MARK: Profiling configuration
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
@@ -405,5 +435,6 @@ extension SentrySDKWrapper {
         }
     }
 }
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 // swiftlint:enable file_length function_body_length
