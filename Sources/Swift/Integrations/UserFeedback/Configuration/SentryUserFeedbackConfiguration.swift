@@ -43,7 +43,7 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * - note: If this is set, `configureWidget` is ignored.
      * - note: Default: `nil`
      */
-    public var showForButton: UIButton?
+    public var customButton: UIButton?
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.

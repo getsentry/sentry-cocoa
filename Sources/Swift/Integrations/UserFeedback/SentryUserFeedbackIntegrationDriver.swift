@@ -14,12 +14,12 @@ protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
  */
 @available(iOS 13.0, *)
 @objcMembers
-class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDelegate {
+class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
-    private var window: SentryUserFeedbackWidget.Window?
+    private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
     let screenshotProvider: SentryScreenshot
-    
+
     public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
         self.delegate = delegate
@@ -36,56 +36,130 @@ class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDel
             darkThemeOverrideBuilder(configuration.darkTheme)
         }
 
-        if let customButton = configuration.showForButton {
-            customButton.addTarget(self, action: #selector(attachToButton(_:)), for: .touchUpInside)
+        if let customButton = configuration.customButton {
+            customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         } else if let widgetConfigBuilder = configuration.configureWidget {
             widgetConfigBuilder(configuration.widgetConfig)
             validate(configuration.widgetConfig)
             if configuration.widgetConfig.autoInject {
-                createWidget()
+                widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
             }
         }
+
+        observeScreenshots()
     }
-    
-    /**
-     * Creates and renders the feedback widget on the screen.
-     * If `SentryUserFeedbackConfiguration.autoInject` is `false`, this must be called explicitly.
-     */
-    func createWidget() {
-        window = SentryUserFeedbackWidget.Window(config: configuration, delegate: self, screenshotProvider: screenshotProvider)
-        window?.isHidden = false
+
+    @objc func showForm(sender: UIButton) {
+        sender.controller?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
+            self.configuration.onFormOpen?()
+        }
     }
-    
-    /**
-     * Removes the feedback widget from the view hierarchy. Useful for cleanup when the widget is no longer needed.
-     */
-    func removeWidget() {
-        
+}
+
+// MARK: SentryUserFeedbackFormDelegate
+@available(iOSApplicationExtension 13.0, *)
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func finished(with feedback: SentryFeedback?) {
+        if let feedback = feedback {
+            delegate?.capture(feedback: feedback)
+        }
+        presenter?.dismiss(animated: configuration.animations) {
+            self.configuration.onFormClose?()
+        }
+        widget?.setWidget(visible: true, animated: configuration.animations)
     }
-    
-    private func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
+}
+
+// MARK: SentryUserFeedbackWidgetDelegate
+@available(iOSApplicationExtension 13.0, *)
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
+    func showForm(presenter: UIViewController) {
+        showForm(presenter: presenter, screenshot: nil)
+    }
+}
+
+// MARK: UIAdaptivePresentationControllerDelegate
+@available(iOSApplicationExtension 13.0, *)
+extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        widget?.setWidget(visible: true, animated: configuration.animations)
+        configuration.onFormClose?()
+    }
+}
+
+// MARK: Private
+@available(iOSApplicationExtension 13.0, *)
+private extension SentryUserFeedbackIntegrationDriver {
+    func showForm(presenter: UIViewController, screenshot: UIImage?) {
+        let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
+        form.presentationController?.delegate = self
+        widget?.setWidget(visible: false, animated: configuration.animations)
+        presenter.present(form, animated: configuration.animations) {
+            self.configuration.onFormOpen?()
+        }
+    }
+
+    func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
         let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
-            || !config.location.contains(.trailing) && config.location.contains(.leading)
+        || !config.location.contains(.trailing) && config.location.contains(.leading)
         let noOpposingVerticals = config.location.contains(.top) && !config.location.contains(.bottom)
-            || !config.location.contains(.top) && config.location.contains(.bottom)
+        || !config.location.contains(.top) && config.location.contains(.bottom)
         let atLeastOneLocation = config.location.contains(.trailing)
-            || config.location.contains(.leading)
-            || config.location.contains(.top)
-            || config.location.contains(.bottom)
+        || config.location.contains(.leading)
+        || config.location.contains(.top)
+        || config.location.contains(.bottom)
         let notAll = !config.location.contains(.all)
         let valid = noOpposingVerticals && noOpposingHorizontals && atLeastOneLocation && notAll
-        #if DEBUG
+#if DEBUG
         assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
-        #endif // DEBUG
+#endif // DEBUG
         if !valid {
             SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
     }
-    
-    // MARK: SentryUserFeedbackWidgetDelegate
-    
-    func capture(feedback: SentryFeedback) {
-        delegate?.capture(feedback: feedback)
+
+    func observeScreenshots() {
+        if configuration.showFormForScreenshots {
+            NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        }
+    }
+
+    @objc func userCapturedScreenshot() {
+        stopObservingScreenshots()
+        let image = screenshotProvider.appScreenshots().first
+        guard let presenter = presenter else {
+            SentryLog.warning("No UIViewController available to present form.")
+            return
+        }
+        showForm(presenter: presenter, screenshot: image)
+    }
+
+    func stopObservingScreenshots() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+    }
+
+    var presenter: UIViewController? {
+        if let customButton = configuration.customButton {
+            return customButton.controller
+        }
+        
+        return widget?.rootVC
+    }
+}
+
+extension UIView {
+    var controller: UIViewController? {
+        var responder = next
+        while responder != nil {
+            guard let resolvedResponder = responder else { break }
+            let klass = type(of: resolvedResponder)
+            guard klass.isSubclass(of: UIViewController.self) else {
+                responder = resolvedResponder.next
+                continue
+            }
+            return resolvedResponder as? UIViewController
+        }
+        return nil
     }
 }
 

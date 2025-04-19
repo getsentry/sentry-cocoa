@@ -5,7 +5,16 @@ import UIKit
 
 struct SentrySDKWrapper {
     static let shared = SentrySDKWrapper()
-    
+
+    let feedbackButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle("BYOB Feedback", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.accessibilityIdentifier = "io.sentry.feedback.custom-button"
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
@@ -239,6 +248,10 @@ extension SentrySDKWrapper {
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
+
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.ui-test.use-custom-feedback-button") {
+            config.customButton = feedbackButton
+        }
     }
     
     func configureHooks(config: SentryUserFeedbackConfiguration) {

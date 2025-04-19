@@ -114,7 +114,7 @@ extension UserFeedbackUITests {
     }
     
     // MARK: Tests validating happy path / successful submission
-    
+
     func testSubmitFullyFilledCustomForm() throws {
         launchApp(args: ["--io.sentry.feedback.dont-use-sentry-user"])
 
@@ -198,7 +198,35 @@ extension UserFeedbackUITests {
         XCTAssertNotNil(dict["event_id"])
         XCTAssertEqual(try XCTUnwrap(dict["item_header_type"] as? String), "feedback")
     }
-    
+
+    func testSubmitCustomButton() throws {
+        launchApp(args: [
+            "--io.sentry.ui-test.use-custom-feedback-button",
+            "--io.sentry.feedback.dont-use-sentry-user"
+        ])
+
+        try retrieveAppUnderTestApplicationSupportDirectory()
+        try assertHookMarkersNotExist()
+        errorsAreaTabBarButton.tap()
+
+        customButton.tap()
+        XCTAssert(nameField.waitForExistence(timeout: 1))
+        try assertOnlyHookMarkersExist(names: [.onFormOpen])
+
+        let testName = "Andrew"
+        let testEmail = "custom@email.com"
+        let testMessage = "UITest user feedback"
+
+        fillInFields(testMessage, testName, testEmail)
+
+        submit()
+
+        try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
+        XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": testEmail, "name": testName])
+
+        try assertEnvelopeContents(testMessage, testEmail, testName)
+    }
+
     func dictionaryFromSuccessHookFile() throws -> [String: String] {
         let actual = try getMarkerFileContents(type: .onSubmitSuccess)
         let data = try XCTUnwrap(Data(base64Encoded: actual))
@@ -459,6 +487,28 @@ extension UserFeedbackUITests {
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
     }
+
+    func testFormShowsAndDismissesProperlyWithCustomButton() {
+        launchApp(args: ["--io.sentry.ui-test.use-custom-feedback-button"])
+
+        customButton.tap()
+        cancelButton.tap()
+
+        XCTAssert(customButton.isHittable)
+    }
+
+    func testNoAutomaticallyInjectedWidgetWithCustomButton() {
+        launchApp(args: ["--io.sentry.ui-test.use-custom-feedback-button"])
+
+        XCTAssertFalse(widgetButton.isHittable)
+        XCTAssert(customButton.isHittable)
+
+        customButton.tap()
+        cancelButton.tap()
+
+        XCTAssertFalse(widgetButton.isHittable)
+        XCTAssert(customButton.isHittable)
+    }
 }
 
 // MARK: UI Element access
@@ -475,6 +525,10 @@ extension UserFeedbackUITests {
         app.otherElements["io.sentry.feedback.widget"]
     }
     
+    var customButton: XCUIElement {
+        app.buttons["io.sentry.feedback.custom-button"]
+    }
+
     var nameField: XCUIElement {
         app.textFields["io.sentry.feedback.form.name"]
     }
@@ -493,6 +547,10 @@ extension UserFeedbackUITests {
     
     var extrasAreaTabBarButton: XCUIElement {
         app.buttons["Extra"]
+    }
+    
+    var errorsAreaTabBarButton: XCUIElement {
+        app.buttons["Errors"]
     }
     
     var dataMarshalingField: XCUIElement {

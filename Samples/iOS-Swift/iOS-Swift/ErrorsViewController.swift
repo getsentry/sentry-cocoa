@@ -13,6 +13,13 @@ class ErrorsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addDSNDisplay(self, vcview: dsnView)
+
+        if ProcessInfo.processInfo.arguments.contains("--io.sentry.ui-test.use-custom-feedback-button") {
+            let button = SentrySDKWrapper.shared.feedbackButton
+            view.addSubview(button)
+            button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8).isActive = true
+            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8).isActive = true
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
