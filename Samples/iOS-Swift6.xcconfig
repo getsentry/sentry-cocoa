@@ -22,5 +22,5 @@
 #include "Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift6
-INFOPLIST_FILE = iOS-Swift6/Info.plist
+INFOPLIST_FILE = iOS-Swift/iOS-Swift6/Info.plist
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
