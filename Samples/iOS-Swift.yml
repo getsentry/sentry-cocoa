@@ -23,11 +23,34 @@ targets:
       - Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: iOS-SwiftClip
     configFiles:
       Debug: iOS-Swift.xcconfig
       Release: iOS-Swift.xcconfig
       Test: iOS-Swift.xcconfig
       TestCI: iOS-Swift.xcconfig
+    postCompileScripts:
+      - script: Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS-SwiftClip:
+    type: application.on-demand-install-capable
+    platform: auto
+    sources:
+      - iOS-Swift/iOS-SwiftClip
+      - Shared/GitInjections.swift
+      - Shared/screenshot.png
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: iOS-SwiftClip.xcconfig
+      Release: iOS-SwiftClip.xcconfig
+      Test: iOS-SwiftClip.xcconfig
+      TestCI: iOS-SwiftClip.xcconfig
     postCompileScripts:
       - script: Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
