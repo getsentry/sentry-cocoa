@@ -11,7 +11,7 @@ on:
 
       # test changes to benchmarking implementation
       - "Samples/iOS-Swift/**"
-      - "Samples/iOS-Swift/PerformanceBenchmarks/**"
+      - "Samples/iOS-Swift/iOS-Benchmarking/**"
       - ".github/workflows/benchmarking.yml"
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
@@ -48,8 +48,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/PerformanceBenchmarks/**') }}
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Benchmarking/**') }}
       - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -77,7 +77,7 @@ jobs:
           name: DerivedData-Xcode
           path: |
             **/Debug-iphoneos/iOS-Swift.app
-            **/Debug-iphoneos/PerformanceBenchmarks-Runner.app
+            **/Debug-iphoneos/iOS-Benchmarking-Runner.app
 
   run-ui-tests-with-sauce:
     name: Run benchmarks on Sauce Labs

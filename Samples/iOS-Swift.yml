@@ -69,17 +69,36 @@ targets:
       Release: iOS-Swift-UITests.xcconfig
       Test: iOS-Swift-UITests.xcconfig
       TestCI: iOS-Swift-UITests.xcconfig
+  iOS-Benchmarking:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS-Swift/iOS-Benchmarking
+    configFiles:
+      Debug: iOS-Benchmarking.xcconfig
+      Release: iOS-Benchmarking.xcconfig
+      Test: iOS-Benchmarking.xcconfig
+      TestCI: iOS-Benchmarking.xcconfig
 schemes:
   iOS-Swift:
     build:
       targets:
         iOS-Swift: all
+        iOS-SwiftClip: all
         iOS-Swift-UITests: test
+        iOS-Benchmarking: test
     test:
       targets:
         - iOS-Swift-UITests
       config: Test
       deleteScreenshotsWhenEachTestSucceeds: false
-      gatherCoverageData: true
-      coverageTargets:
-        - Sentry/Sentry
+  iOS-Benchmarking:
+    build:
+      targets:
+        iOS-Swift: test
+        iOS-SwiftClip: test
+        iOS-Benchmarking: test
+    test:
+      targets:
+        - iOS-Benchmarking
+      config: Release
