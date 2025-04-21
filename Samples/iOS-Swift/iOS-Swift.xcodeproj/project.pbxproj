@@ -17,12 +17,9 @@
 		841C8A262DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
-		848A256D286E3351008A8858 /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */; };
 		84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71E32C8BBBEC0045B828 /* DSNDisplayViewController.swift */; };
 		84BA71F32C8F74080045B828 /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA71F02C8BC55A0045B828 /* Toasts.swift */; };
 		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
-		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
-		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84EEE6642D2CABF500010A9D /* SentrySDKWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EEE6612D28B35700010A9D /* SentrySDKWrapper.swift */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		924857562C89A86300774AC3 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924857552C89A85F00774AC3 /* MainViewController.swift */; };
@@ -88,16 +85,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		848A256E286E3351008A8858 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D8269A5B274C100300BD5BD5 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -149,7 +136,6 @@
 		841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentVariableTableViewCell.swift; sourceTree = "<group>"; };
 		8476702E2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SentryAppSetup.h"; sourceTree = "<group>"; };
 		8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SentryAppSetup.m"; sourceTree = "<group>"; };
-		848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PerformanceBenchmarks.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A2578286E3490008A8858 /* PerformanceBenchmarks-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PerformanceBenchmarks-Info.plist"; sourceTree = "<group>"; };
 		849C4A682D66CA1600FA632D /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
@@ -241,13 +227,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		848A256A286E3351008A8858 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D8269A36274C095E00BD5BD5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -322,7 +301,6 @@
 			children = (
 				D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */,
 				D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */,
-				848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */,
 				D8F71A4C2CDD03B900334022 /* iOS-Swift6.app */,
 				D8F71A6B2CDD03BB00334022 /* iOS-Swift6UITests.xctest */,
 			);
@@ -537,24 +515,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		848A2560286E3351008A8858 /* PerformanceBenchmarks */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 848A2570286E3351008A8858 /* Build configuration list for PBXNativeTarget "PerformanceBenchmarks" */;
-			buildPhases = (
-				848A2565286E3351008A8858 /* Sources */,
-				848A256A286E3351008A8858 /* Frameworks */,
-				848A256C286E3351008A8858 /* Resources */,
-				848A256E286E3351008A8858 /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = PerformanceBenchmarks;
-			productName = "iOS-SwiftUITests";
-			productReference = 848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		D8269A38274C095E00BD5BD5 /* iOS13-Swift */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8269A4D274C096000BD5BD5 /* Build configuration list for PBXNativeTarget "iOS13-Swift" */;
@@ -641,10 +601,6 @@
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
-					848A2560286E3351008A8858 = {
-						LastSwiftMigration = 1340;
-						TestTargetID = 637AFDA5243B02760034958B;
-					};
 					D8269A38274C095E00BD5BD5 = {
 						CreatedOnToolsVersion = 13.1;
 					};
@@ -676,7 +632,6 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				848A2560286E3351008A8858 /* PerformanceBenchmarks */,
 				D8269A38274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA48274C244F004DF43C /* iOS13-SwiftTests */,
 				D8F71A4B2CDD03B900334022 /* iOS-Swift6 */,
@@ -686,14 +641,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		848A256C286E3351008A8858 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				848A256D286E3351008A8858 /* fatal-error-binary-images-message2.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D8269A37274C095E00BD5BD5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -773,15 +720,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		848A2565286E3351008A8858 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */,
-				84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D8269A35274C095E00BD5BD5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1046,56 +984,6 @@
 			};
 			name = Release;
 		};
-		848A2571286E3351008A8858 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Benchmarking.xctrunner";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "iOS-Swift";
-			};
-			name = Debug;
-		};
-		848A2572286E3351008A8858 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "iOS-Swift";
-			};
-			name = Release;
-		};
 		84D4FE8028ECD1EA00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */;
@@ -1154,30 +1042,6 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Test;
-		};
-		84D4FE8328ECD1EA00EDAAFE /* Test */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "iOS-Swift";
 			};
 			name = Test;
 		};
@@ -1301,30 +1165,6 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALIDATE_PRODUCT = YES;
-			};
-			name = TestCI;
-		};
-		84D4FE8B28ECD1ED00EDAAFE /* TestCI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "iOS-Swift";
 			};
 			name = TestCI;
 		};
@@ -1758,17 +1598,6 @@
 				637AFDB9243B02770034958B /* Release */,
 				84D4FE8828ECD1ED00EDAAFE /* TestCI */,
 				84D4FE8028ECD1EA00EDAAFE /* Test */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		848A2570286E3351008A8858 /* Build configuration list for PBXNativeTarget "PerformanceBenchmarks" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				848A2571286E3351008A8858 /* Debug */,
-				848A2572286E3351008A8858 /* Release */,
-				84D4FE8B28ECD1ED00EDAAFE /* TestCI */,
-				84D4FE8328ECD1EA00EDAAFE /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
