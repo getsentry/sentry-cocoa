@@ -150,3 +150,6 @@ session-replay-camera-test-xcode:
 
 ios-swift-xcode:
 	xcodegen --spec Samples/iOS-Swift.yml
+
+ios-swift6-xcode:
+	xcodegen --spec Samples/iOS-Swift6.yml
