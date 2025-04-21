@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
