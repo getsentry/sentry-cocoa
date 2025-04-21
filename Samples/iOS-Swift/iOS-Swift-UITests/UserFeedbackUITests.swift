@@ -221,6 +221,8 @@ extension UserFeedbackUITests {
 
         sendButton.tap()
 
+        customButton.waitForExistence("Custom button did not reappear, form might not have been dismissed correctly")
+
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["message": "UITest user feedback", "email": testEmail, "name": testName])
 
