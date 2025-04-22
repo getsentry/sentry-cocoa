@@ -66,12 +66,6 @@ static SentryTouchTracker *_touchTracker;
     return self;
 }
 
-/**
- * This overload enables direct manual integration without the standard Sentry installation path.
- * Specifically designed for scenarios where automatic integration via installWithOptions isn't
- * desired but full session replay functionality is still needed, e.g. when using Sentry in a non-UI
- * context.
- */
 - (instancetype)initForManualUse:(nonnull SentryOptions *)options
 {
     if (self = [super init]) {
@@ -128,6 +122,8 @@ static SentryTouchTracker *_touchTracker;
     }
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+
+    // The asset worker queue is used to work on video and frames data.
 
     [self moveCurrentReplay];
     [self cleanUp];
