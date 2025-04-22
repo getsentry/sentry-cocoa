@@ -260,8 +260,8 @@ static SentryTouchTracker *_touchTracker;
 
     NSError *error = nil;
     if (![[NSFileManager defaultManager] removeItemAtURL:video.path error:&error]) {
-        SENTRY_LOG_WARN(@"[Session Replay] Could not delete replay segment from disk: %@",
-            error.localizedDescription);
+        SENTRY_LOG_DEBUG(
+            @"Could not delete replay segment from disk: %@", error.localizedDescription);
     }
 }
 
@@ -548,7 +548,7 @@ static SentryTouchTracker *_touchTracker;
 {
     [SentrySDK.currentHub unregisterSessionListener:self];
     _touchTracker = nil;
-    [self stop];
+    [self pause];
 }
 
 - (void)dealloc
@@ -694,6 +694,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
+
     if (connected) {
         [_sessionReplay resume];
     } else {
