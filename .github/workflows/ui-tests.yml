@@ -116,10 +116,10 @@ jobs:
           - runs-on: macos-13
             xcode: "14.3.1"
 
-          # As of 25th March 2025, the default iOS simulator version is 17.5 for macOS 14 and Xcode 15.4; see
-          # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#installed-sdks
-          - runs-on: macos-14
-            xcode: "15.4"
+          # As of 18 April 2025, the preinstalled iOS simulator version is 18.4 for macOS 15 and Xcode 16.3; see
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
+          - runs-on: macos-16
+            xcode: "16.3"
 
     steps:
       - uses: actions/checkout@v4
@@ -128,6 +128,10 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - run: brew install xcodegen
+      - run: make ios-swift-xcode
+        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift
@@ -167,6 +171,9 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
+
+      - run: make ios-swift6-xcode
+        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6

@@ -1,0 +1,59 @@
+name: iOS-Swift6_xcodegen
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../Sentry.xcodeproj
+fileGroups:
+  - Shared/Config
+  - iOS-Swift6.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-Swift6:
+    type: application
+    platform: auto
+    sources:
+      - iOS-Swift/iOS-Swift6
+      - Shared/GitInjections.swift
+      - Shared/screenshot.png
+      - Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: iOS-Swift6.xcconfig
+      Release: iOS-Swift6.xcconfig
+      Test: iOS-Swift6.xcconfig
+      TestCI: iOS-Swift6.xcconfig
+    postCompileScripts:
+      - script: Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS-Swift6-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS-Swift/iOS-Swift6-UITests
+    configFiles:
+      Debug: iOS-Swift6-UITests.xcconfig
+      Release: iOS-Swift6-UITests.xcconfig
+      Test: iOS-Swift6-UITests.xcconfig
+      TestCI: iOS-Swift6-UITests.xcconfig
+schemes:
+  iOS-Swift6:
+    build:
+      targets:
+        iOS-Swift6: all
+        iOS-Swift6-UITests: test
+    test:
+      targets:
+        - iOS-Swift6-UITests
+      config: Test
+      deleteScreenshotsWhenEachTestSucceeds: false

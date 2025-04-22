@@ -10,13 +10,17 @@ platform :ios do
       build_number: ENV["FASTLANE_BUILD_NUMBER"],
       xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
     )
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift_xcodegen.xcodeproj"
+    )
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
     version = get_version_number(
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      xcodeproj: "Samples/iOS-Swift_xcodegen.xcodeproj",
       target: "iOS-Swift"
       )
     new_version = version.split("-", -1)[0]
@@ -95,7 +99,7 @@ platform :ios do
     # The log output will print a warning: "No output path received from gym"
     # See: https://github.com/fastlane/fastlane/issues/22276#issuecomment-2491517911
     build_ios_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
       scheme: "iOS-Swift",
       include_bitcode: false,
       include_symbols: true,
@@ -124,7 +128,7 @@ platform :ios do
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true
@@ -151,7 +155,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -project ../Samples/iOS-Swift_xcodegen.xcodeproj -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
@@ -175,8 +179,8 @@ platform :ios do
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift-Benchmarking",
+      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
+      scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
@@ -242,7 +246,7 @@ platform :ios do
     result_bundle_path = "test_results/ui-tests-ios-swift6.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift6_xcodegen.xcodeproj",
       scheme: "iOS-Swift6",
       configuration: configuration,
       xcodebuild_formatter: "xcbeautify --report junit",
@@ -270,7 +274,7 @@ platform :ios do
     result_bundle_path = "test_results/ui-tests-ios-swift.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
