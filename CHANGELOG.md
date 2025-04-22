@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.49.1
 
 ### Fixes
 
