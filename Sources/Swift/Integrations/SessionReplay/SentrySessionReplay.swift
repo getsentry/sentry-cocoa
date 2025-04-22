@@ -17,6 +17,7 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func currentScreenNameForSessionReplay() -> String?
 }
 
+// swiftlint:disable type_body_length
 @objcMembers
 class SentrySessionReplay: NSObject {
     private(set) var isFullSession = false
@@ -60,7 +61,6 @@ class SentrySessionReplay: NSObject {
          delegate: SentrySessionReplayDelegate,
          dispatchQueue: SentryDispatchQueueWrapper,
          displayLinkWrapper: SentryDisplayLinkWrapper) {
-
         self.dispatchQueue = dispatchQueue
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
@@ -71,13 +71,19 @@ class SentrySessionReplay: NSObject {
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        super.init()
     }
     
-    deinit { displayLink.invalidate() }
+    deinit {
+        disconnectDisplayLink()
+    }
 
     func start(rootView: UIView, fullSession: Bool) {
-        guard !isRunning else { return }
-        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        guard !isRunning else {
+            SentryLog.warning("[Session Replay] Already running, ignoring request to start")
+            return
+        }
+        connectDisplayLink()
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
         videoSegmentStart = nil
@@ -109,7 +115,7 @@ class SentrySessionReplay: NSObject {
         lock.lock()
         defer { lock.unlock() }
         
-        displayLink.invalidate()
+        disconnectDisplayLink()
         if isFullSession {
             prepareSegmentUntil(date: dateProvider.date())
         }
@@ -178,7 +184,7 @@ class SentrySessionReplay: NSObject {
     }
 
     @objc 
-    private func newFrame(_ sender: CADisplayLink) {
+    private func displayLinkDidUpdateAction(_ sender: CADisplayLink) {
         guard let lastScreenShot = lastScreenShot, isRunning &&
                 !(isFullSession && isSessionPaused) //If replay is in session mode but it is paused we dont take screenshots
         else { return }
@@ -328,6 +334,22 @@ class SentrySessionReplay: NSObject {
             replayMaker.addFrameAsync(image: image, forScreen: screen)
         }
     }
-}
 
+    // - MARK: - Display Link
+
+    func connectDisplayLink() {
+        if #available(iOS 15.0, *) {
+            let preferredFrameRateRange = CAFrameRateRange(minimum: Float(replayOptions.frameRate), maximum: Float(replayOptions.frameRate))
+            displayLink.link(withTarget: self, selector: #selector(displayLinkDidUpdateAction(_:)), preferredFrameRateRange: preferredFrameRateRange)
+        } else {
+            let preferredFramesPerSecond = Int(replayOptions.frameRate)
+            displayLink.link(withTarget: self, selector: #selector(displayLinkDidUpdateAction(_:)), preferredFramesPerSecond: preferredFramesPerSecond)
+        }
+    }
+
+    func disconnectDisplayLink() {
+        displayLink.invalidate()
+    }
+}
+// swiftlint:enable type_body_length
 #endif
