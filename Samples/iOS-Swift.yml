@@ -20,6 +20,13 @@ targets:
       - iOS-Swift/iOS-Swift
       - Shared/GitInjections.swift
       - Shared/DSNStorage.swift
+      - Shared/SpanExtension.swift
+      - Shared/UIViewControllerExtension.swift
+      - Shared/UIViewExtension.swift
+      - Shared/RandomErrors.swift
+      - Shared/SpanObserver.swift
+      - Shared/UIAssert.swift
+      - Shared/AssertView.swift
       - Shared/screenshot.png
       - Shared/SampleAssets.xcassets
     dependencies:

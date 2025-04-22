@@ -9,6 +9,14 @@
 /* Begin PBXBuildFile section */
 		62C97DBF2CC69B0300DDA204 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97DB92CC69B0200DDA204 /* SampleAssets.xcassets */; };
 		84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72A52C93698E0045B828 /* GitInjections.swift */; };
+		84E1770D2DB7186B00C11610 /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1770C2DB7186B00C11610 /* DSNStorage.swift */; };
+		84E1770F2DB718AA00C11610 /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1770E2DB718AA00C11610 /* UIViewControllerExtension.swift */; };
+		84E177122DB718F700C11610 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E177102DB718F700C11610 /* SpanObserver.swift */; };
+		84E177132DB718F700C11610 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E177112DB718F700C11610 /* UIAssert.swift */; };
+		84E177162DB7193500C11610 /* SpanExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E177152DB7193500C11610 /* SpanExtension.swift */; };
+		84E177182DB7195200C11610 /* AssertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E177172DB7195200C11610 /* AssertView.swift */; };
+		84E1771F2DB7198C00C11610 /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1771D2DB7198C00C11610 /* RandomErrors.swift */; };
+		84E177202DB7198C00C11610 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1771E2DB7198C00C11610 /* UIViewExtension.swift */; };
 		924857562C89A86300774AC3 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924857552C89A85F00774AC3 /* MainViewController.swift */; };
 		D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */; };
 		D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */; };
@@ -82,6 +90,14 @@
 		7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewController.swift; sourceTree = "<group>"; };
 		849C4A682D66CA1600FA632D /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
 		84BA72A52C93698E0045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84E1770C2DB7186B00C11610 /* DSNStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
+		84E1770E2DB718AA00C11610 /* UIViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtension.swift; sourceTree = "<group>"; };
+		84E177102DB718F700C11610 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
+		84E177112DB718F700C11610 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
+		84E177152DB7193500C11610 /* SpanExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanExtension.swift; sourceTree = "<group>"; };
+		84E177172DB7195200C11610 /* AssertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssertView.swift; sourceTree = "<group>"; };
+		84E1771D2DB7198C00C11610 /* RandomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
+		84E1771E2DB7198C00C11610 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		924857552C89A85F00774AC3 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -187,6 +203,14 @@
 		84BA72A62C93698E0045B828 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				84E1770E2DB718AA00C11610 /* UIViewControllerExtension.swift */,
+				84E1770C2DB7186B00C11610 /* DSNStorage.swift */,
+				84E177172DB7195200C11610 /* AssertView.swift */,
+				84E1771D2DB7198C00C11610 /* RandomErrors.swift */,
+				84E1771E2DB7198C00C11610 /* UIViewExtension.swift */,
+				84E177152DB7193500C11610 /* SpanExtension.swift */,
+				84E177102DB718F700C11610 /* SpanObserver.swift */,
+				84E177112DB718F700C11610 /* UIAssert.swift */,
 				84BA72A52C93698E0045B828 /* GitInjections.swift */,
 				849C4A682D66CA1600FA632D /* screenshot.png */,
 			);
@@ -449,6 +473,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8BC843E2B021C5200A662B7 /* SwiftUIView.swift in Sources */,
+				84E177162DB7193500C11610 /* SpanExtension.swift in Sources */,
+				84E177182DB7195200C11610 /* AssertView.swift in Sources */,
+				84E1770D2DB7186B00C11610 /* DSNStorage.swift in Sources */,
+				84E177122DB718F700C11610 /* SpanObserver.swift in Sources */,
+				84E177132DB718F700C11610 /* UIAssert.swift in Sources */,
+				84E1770F2DB718AA00C11610 /* UIViewControllerExtension.swift in Sources */,
+				84E1771F2DB7198C00C11610 /* RandomErrors.swift in Sources */,
+				84E177202DB7198C00C11610 /* UIViewExtension.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
 				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
 				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
