@@ -9,6 +9,7 @@
 - Truncation of Swift crash messages (#5036)
 - Add error logging for move current replay to last path (#5083)
 - Async safe log for backtrace in CPPException (#5098)
+- Add session start for SDK start after didBecomeActive (#5121)
 
 ## 8.49.0
 
