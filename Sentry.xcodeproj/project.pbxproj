@@ -1992,8 +1992,6 @@
 		D456B4372D706BFB007068CB /* SentrySpanDataKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySpanDataKey.h; path = include/SentrySpanDataKey.h; sourceTree = "<group>"; };
 		D468C0612D3669A200964230 /* SentryFileIOTracker+SwiftHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryFileIOTracker+SwiftHelpers.swift"; sourceTree = "<group>"; };
 		D46D45E12D5F3FD600A1CB35 /* Sentry_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sentry_Base.xctestplan; sourceTree = "<group>"; };
-		D46D45E32D5F402100A1CB35 /* iOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
-		D46D45E42D5F403E00A1CB35 /* iOS-Swift-Benchmarking_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS-Swift-Benchmarking_Base.xctestplan"; path = "Plans/iOS-Swift-Benchmarking_Base.xctestplan"; sourceTree = SOURCE_ROOT; };
 		D46D45E52D5F407200A1CB35 /* iOS-SwiftUI_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS-SwiftUI_Base.xctestplan"; path = "Plans/iOS-SwiftUI_Base.xctestplan"; sourceTree = SOURCE_ROOT; };
 		D46D45E62D5F407F00A1CB35 /* iOS13-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS13-Swift_Base.xctestplan"; path = "Plans/iOS13-Swift_Base.xctestplan"; sourceTree = SOURCE_ROOT; };
 		D46D45E72D5F40ED00A1CB35 /* tvOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "tvOS-Swift_Base.xctestplan"; path = "Plans/tvOS-Swift_Base.xctestplan"; sourceTree = SOURCE_ROOT; };
@@ -3882,8 +3880,6 @@
 			isa = PBXGroup;
 			children = (
 				D4A236062D5F846200D55C58 /* iOS-ObjectiveC_Base.xctestplan */,
-				D46D45E32D5F402100A1CB35 /* iOS-Swift_Base.xctestplan */,
-				D46D45E42D5F403E00A1CB35 /* iOS-Swift-Benchmarking_Base.xctestplan */,
 				D4A236072D5F846F00D55C58 /* iOS-Swift6_Base.xctestplan */,
 				D46D45E52D5F407200A1CB35 /* iOS-SwiftUI_Base.xctestplan */,
 				D46D45E62D5F407F00A1CB35 /* iOS13-Swift_Base.xctestplan */,
