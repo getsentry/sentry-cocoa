@@ -17,7 +17,7 @@ targets:
     type: application
     platform: auto
     sources:
-      - iOS-Swift/iOS13-Swift
+      - iOS13-Swift
       - Shared/GitInjections.swift
       - Shared/DSNStorage.swift
       - Shared/SpanExtension.swift
@@ -49,7 +49,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift/iOS13-Swift-UITests
+      - iOS13-Swift-UITests
     configFiles:
       Debug: iOS13-Swift-UITests.xcconfig
       Release: iOS13-Swift-UITests.xcconfig
