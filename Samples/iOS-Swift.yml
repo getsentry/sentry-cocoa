@@ -1,4 +1,4 @@
-name: iOS-Swift_xcodegen
+name: iOS-Swift
 configs:
   Debug: debug
   Test: debug
