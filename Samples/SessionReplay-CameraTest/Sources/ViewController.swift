@@ -7,6 +7,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var backgroundLabel: UILabel!
     @IBOutlet weak var controlsContainerView: UIView!
 
+    @IBOutlet weak var enableSentrySwitch: UISwitch!
     @IBOutlet weak var enableSessionReplaySwitch: UISwitch!
     @IBOutlet weak var useExperimentalViewRendererSwitch: UISwitch!
 
@@ -94,6 +95,9 @@ class ViewController: UIViewController {
         } else if sender === useExperimentalViewRendererSwitch {
             AppDelegate.isExperimentalViewRendererEnabled = sender.isOn
             print("Use experimental view renderer flag changed to: \(AppDelegate.isExperimentalViewRendererEnabled)")
+        } else if sender === enableSentrySwitch {
+            AppDelegate.isSentryEnabled = sender.isOn
+            print("Enable Sentry flag changed to: \(AppDelegate.isSentryEnabled)")
         }
         AppDelegate.reloadSentrySDK()
     }

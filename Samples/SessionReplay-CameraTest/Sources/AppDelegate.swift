@@ -4,6 +4,7 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    static var isSentryEnabled = true
     static var isSessionReplayEnabled = true
     static var isExperimentalViewRendererEnabled = true
 
@@ -17,6 +18,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if SentrySDK.isEnabled {
             print("SentrySDK already started, closing it")
             SentrySDK.close()
+        }
+
+        if !isSentryEnabled {
+            print("SentrySDK disabled")
+            return
         }
 
         SentrySDK.start { options in
