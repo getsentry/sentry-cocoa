@@ -22,7 +22,7 @@
 #include "Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Benchmarking
-INFOPLIST_FILE = iOS-Benchmarking/Info.plist
+INFOPLIST_FILE = iOS-Swift/iOS-Benchmarking/Info.plist
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 

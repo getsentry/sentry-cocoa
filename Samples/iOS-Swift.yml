@@ -17,7 +17,7 @@ targets:
     type: application
     platform: auto
     sources:
-      - iOS-Swift
+      - iOS-Swift/iOS-Swift
       - Shared/GitInjections.swift
       - Shared/DSNStorage.swift
       - Shared/SpanExtension.swift
@@ -49,7 +49,7 @@ targets:
     type: application.on-demand-install-capable
     platform: auto
     sources:
-      - iOS-SwiftClip
+      - iOS-Swift/iOS-SwiftClip
       - Shared/GitInjections.swift
       - Shared/DSNStorage.swift
       - Shared/screenshot.png
@@ -72,7 +72,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift-UITests
+      - iOS-Swift/iOS-Swift-UITests
     configFiles:
       Debug: iOS-Swift-UITests.xcconfig
       Release: iOS-Swift-UITests.xcconfig
@@ -82,7 +82,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Benchmarking
+      - iOS-Swift/iOS-Benchmarking
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig

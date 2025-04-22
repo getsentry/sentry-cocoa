@@ -11,7 +11,7 @@ on:
 
       # test changes to benchmarking implementation
       - "Samples/iOS-Swift/**"
-      - "Samples/iOS-Benchmarking/**"
+      - "Samples/iOS-Swift/iOS-Benchmarking/**"
       - ".github/workflows/benchmarking.yml"
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
@@ -42,14 +42,14 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-benchmark-runner-cache
         uses: actions/cache@v4
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Benchmarking/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Benchmarking/**') }}
       - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

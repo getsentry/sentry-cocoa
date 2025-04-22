@@ -22,8 +22,8 @@
 #include "Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.Clip
-INFOPLIST_FILE = iOS-SwiftClip/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftClip/iOS_SwiftClip.entitlements
+INFOPLIST_FILE = iOS-Swift/iOS-SwiftClip/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-Swift/iOS-SwiftClip/iOS_SwiftClip.entitlements
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift.Clip
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift.Clip
