@@ -17,7 +17,7 @@ targets:
     type: application
     platform: auto
     sources:
-      - iOS-Swift/iOS-Swift6
+      - iOS-Swift6
       - Shared/GitInjections.swift
       - Shared/screenshot.png
       - Shared/SampleAssets.xcassets
@@ -40,7 +40,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift/iOS-Swift6-UITests
+      - iOS-Swift6-UITests
     configFiles:
       Debug: iOS-Swift6-UITests.xcconfig
       Release: iOS-Swift6-UITests.xcconfig
