@@ -246,7 +246,7 @@ platform :ios do
     result_bundle_path = "test_results/ui-tests-ios-swift6.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift6_xcodegen.xcodeproj",
       scheme: "iOS-Swift6",
       configuration: configuration,
       xcodebuild_formatter: "xcbeautify --report junit",
