@@ -19,6 +19,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
     private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
     let screenshotProvider: SentryScreenshot
+    weak var customButton: UIButton?
 
     public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
@@ -47,6 +48,10 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
         }
 
         observeScreenshots()
+    }
+
+    deinit {
+        customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
     }
 
     @objc func showForm(sender: UIButton) {
@@ -148,6 +153,8 @@ private extension SentryUserFeedbackIntegrationDriver {
 }
 
 extension UIView {
+    /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
+    /// - returns: The innermost `UIViewController` instance managing the receiving view.
     var controller: UIViewController? {
         var responder = next
         while responder != nil {

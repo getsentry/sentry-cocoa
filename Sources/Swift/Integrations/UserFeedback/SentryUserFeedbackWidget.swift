@@ -65,7 +65,7 @@ class SentryUserFeedbackWidget {
 
     class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
         let defaultWidgetSpacing: CGFloat = 8
-        unowned let button: SentryUserFeedbackWidgetButtonView
+        weak var button: SentryUserFeedbackWidgetButtonView?
         init(config: SentryUserFeedbackConfiguration, button: SentryUserFeedbackWidgetButtonView) {
             self.button = button
             super.init(nibName: nil, bundle: nil)
@@ -89,21 +89,21 @@ class SentryUserFeedbackWidget {
         }
 
         required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+            fatalError("SentryUserFeedbackWidget.RootViewController is not intended to be initialized from a nib or storyboard.")
         }
 
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            button.updateAccessibilityFrame()
+            button?.updateAccessibilityFrame()
         }
 
         func setWidget(visible: Bool, animated: Bool) {
             if animated {
                 UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                    self.button.alpha = visible ? 1 : 0
+                    self.button?.alpha = visible ? 1 : 0
                 }
             } else {
-                button.isHidden = !visible
+                button?.isHidden = !visible
             }
 
             displayingForm = !visible

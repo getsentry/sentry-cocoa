@@ -249,7 +249,7 @@ extension SentrySDKWrapper {
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
 
-        if ProcessInfo.processInfo.arguments.contains("--io.sentry.ui-test.use-custom-feedback-button") {
+        if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
             config.customButton = feedbackButton
         }
     }
