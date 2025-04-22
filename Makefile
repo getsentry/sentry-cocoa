@@ -153,3 +153,6 @@ ios-swift-xcode:
 
 ios-swift6-xcode:
 	xcodegen --spec Samples/iOS-Swift6.yml
+
+ios13-swift-xcode:
+	xcodegen --spec Samples/iOS13-Swift.yml
