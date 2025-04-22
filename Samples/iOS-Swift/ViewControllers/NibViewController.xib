@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="NibViewController">
+            <connections>
+                <outlet property="button" destination="ibQ-eV-JrV" id="nZ3-b4-IoM"/>
+                <outlet property="view" destination="iN0-l3-epB" id="5dT-lc-Bsm"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ibQ-eV-JrV">
+                    <rect key="frame" x="132" y="431" width="150" height="44"/>
+                    <accessibility key="accessibilityConfiguration" label="lonelyButton"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="44" id="wa2-1C-M44"/>
+                        <constraint firstAttribute="width" constant="150" id="zeE-R7-gWo"/>
+                    </constraints>
+                    <state key="normal" title="a lonely button">
+                        <color key="titleColor" systemColor="systemGreenColor"/>
+                    </state>
+                </button>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="ibQ-eV-JrV" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="047-gm-O55"/>
+                <constraint firstItem="ibQ-eV-JrV" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="dtC-OY-njL"/>
+            </constraints>
+            <point key="canvasLocation" x="139" y="93"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
