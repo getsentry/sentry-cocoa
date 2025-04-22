@@ -56,9 +56,12 @@ class SentrySessionReplay: NSObject {
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        super.init()
     }
     
-    deinit { displayLink.invalidate() }
+    deinit {
+        disconnectDisplayLink()
+    }
 
     func start(rootView: UIView, fullSession: Bool) {
         SentryLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
@@ -66,7 +69,7 @@ class SentrySessionReplay: NSObject {
             SentryLog.debug("[Session Replay] Session replay is already running, not starting again")
             return 
         }
-        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        connectDisplayLink()
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
         videoSegmentStart = nil
@@ -101,7 +104,7 @@ class SentrySessionReplay: NSObject {
         lock.lock()
         defer { lock.unlock() }
         
-        displayLink.invalidate()
+        disconnectDisplayLink()
         if isFullSession {
             prepareSegmentUntil(date: dateProvider.date())
         }
@@ -128,7 +131,7 @@ class SentrySessionReplay: NSObject {
         }
         
         videoSegmentStart = nil
-        displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
+        connectDisplayLink()
     }
 
     func captureReplayFor(event: Event) {
@@ -194,7 +197,7 @@ class SentrySessionReplay: NSObject {
     }
 
     @objc 
-    private func newFrame(_ sender: CADisplayLink) {
+    private func displayLinkDidUpdateAction(_ sender: CADisplayLink) {
         guard let lastScreenShot = lastScreenShot, isRunning &&
                 !(isFullSession && isSessionPaused) //If replay is in session mode but it is paused we dont take screenshots
         else { return }
@@ -362,7 +365,22 @@ class SentrySessionReplay: NSObject {
             replayMaker.addFrameAsync(image: image, forScreen: screen)
         }
     }
+
+    // - MARK: - Display Link
+
+    func connectDisplayLink() {
+        if #available(iOS 15.0, *) {
+            let preferredFrameRateRange = CAFrameRateRange(minimum: Float(replayOptions.frameRate), maximum: Float(replayOptions.frameRate))
+            displayLink.link(withTarget: self, selector: #selector(displayLinkDidUpdateAction(_:)), preferredFrameRateRange: preferredFrameRateRange)
+        } else {
+            let preferredFramesPerSecond = Int(replayOptions.frameRate)
+            displayLink.link(withTarget: self, selector: #selector(displayLinkDidUpdateAction(_:)), preferredFramesPerSecond: preferredFramesPerSecond)
+        }
+    }
+
+    func disconnectDisplayLink() {
+        displayLink.invalidate()
+    }
 }
 // swiftlint:enable type_body_length
-
 #endif
