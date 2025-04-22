@@ -19,6 +19,7 @@ targets:
     sources:
       - iOS-Swift/iOS-Swift
       - Shared/GitInjections.swift
+      - Shared/DSNStorage.swift
       - Shared/screenshot.png
       - Shared/SampleAssets.xcassets
     dependencies:
@@ -43,6 +44,7 @@ targets:
     sources:
       - iOS-Swift/iOS-SwiftClip
       - Shared/GitInjections.swift
+      - Shared/DSNStorage.swift
       - Shared/screenshot.png
     dependencies:
       - target: Sentry/Sentry
