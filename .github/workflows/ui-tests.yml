@@ -129,6 +129,7 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
+      - run: brew install xcodegen
       - run: make ios-swift-xcode
         name: XcodeGen iOS-Swift project
 
