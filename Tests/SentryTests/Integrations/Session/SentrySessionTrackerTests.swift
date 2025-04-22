@@ -361,7 +361,21 @@ class SentrySessionTrackerTests: XCTestCase {
         
         assertNotificationNames(notificationNames)
     }
-    
+
+    func testForegroundBeforeStart() {
+        // -- Arrange --
+        goToForeground()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+
+    // MARK: - Helpers
+
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }

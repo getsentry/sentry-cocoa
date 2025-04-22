@@ -10,6 +10,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
+#import "SentryUIApplication.h"
 
 #import "SentryProfilingConditionals.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -83,6 +84,13 @@
         addObserver:self
            selector:@selector(willTerminate)
                name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+
+    // Edge case: When starting the SDK after the app did become active, we need to call
+    //            didBecomeActive manually to start the session. This is the case when
+    //            closing the SDK and starting it again.
+    if ([self isAppActive]) {
+        [self didBecomeActive];
+    }
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -175,6 +183,10 @@
         if (secondsInBackground * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
             [hub endSessionWithTimestamp:self.lastInForeground];
             [hub startSession];
+        } else {
+            SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the background for %f seconds. Not "
+                             @"starting a new session.",
+                secondsInBackground);
         }
     }
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
@@ -213,6 +225,18 @@
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     self.wasDidBecomeActiveCalled = NO;
+}
+
+- (BOOL)isAppActive
+{
+    BOOL isAppActive = NO;
+#if SENTRY_HAS_UIKIT
+    SentryUIApplication *application = SentryDependencyContainer.sharedInstance.application;
+    if (application.applicationState == UIApplicationStateActive) {
+        isAppActive = YES;
+    }
+#endif
+    return isAppActive;
 }
 
 @end
