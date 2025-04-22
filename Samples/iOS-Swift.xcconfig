@@ -23,7 +23,7 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift
 INFOPLIST_FILE = iOS-Swift/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-Swift/iOS-Swift/iOS-Swift.entitlements
+CODE_SIGN_ENTITLEMENTS = iOS-Swift/iOS-Swift.entitlements
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift
@@ -34,6 +34,6 @@ PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
 
 CODE_SIGN_STYLE = Manual
 
-SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
