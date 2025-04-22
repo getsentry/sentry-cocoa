@@ -105,7 +105,7 @@ jobs:
             ./fastlane/test_output/**
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V3 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V4 # Up the version with every change to keep track of flaky tests
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -120,6 +120,11 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#installed-sdks
           - runs-on: macos-14
             xcode: "15.4"
+
+          # As of 22 April 2025, the default iOS simulator version is 18.4 for macOS 15 and Xcode 16.3; see
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md#installed-sdks
+          - runs-on: macos-15
+            xcode: "16.3"
 
     steps:
       - uses: actions/checkout@v4
