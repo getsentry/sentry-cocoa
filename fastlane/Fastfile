@@ -1,14 +1,14 @@
 default_platform(:ios)
 
 platform :ios do
-  ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
-  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  ios_swift_infoplist_path = "./Samples/iOS-Swift/Info.plist"
+  ios_swift_clip_infoplist_path = "./Samples/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
 
   lane :bump_build_number do
     increment_build_number(
       build_number: ENV["FASTLANE_BUILD_NUMBER"],
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
+      xcodeproj: "./Samples/iOS-Swift.xcodeproj"
     )
     increment_build_number(
       build_number: ENV["FASTLANE_BUILD_NUMBER"],
@@ -27,7 +27,7 @@ platform :ios do
 
     # We also need to replace the MARKETING_VERSION otherwise the build will fail with
     # error: The CFBundleShortVersionString of an App Clip ('8.9.0-beta.1') must match that of its containing parent app ('8.9.0').
-    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
+    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift.xcodeproj/project.pbxproj"
 
     set_info_plist_value(
       path: ios_swift_infoplist_path,
