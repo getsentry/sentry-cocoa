@@ -78,7 +78,7 @@ static SentryCrashStackCursor g_stackCursor;
 static NEVER_INLINE void
 captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
 {
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Entering captureStackTrace");
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
     if (tinfo != nullptr && strcmp(tinfo->name(), "NSException") == 0) {
         return;
@@ -100,7 +100,7 @@ void
 __cxa_throw(
     void *thrown_exception, std::type_info *tinfo, void (*dest)(void *)) KEEP_FUNCTION_IN_STACKTRACE
 {
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Entering __cxa_throw");
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Entering __cxa_throw");
 
     static cxa_throw_type orig_cxa_throw = NULL;
     if (g_cxaSwapEnabled == false) {
@@ -183,6 +183,22 @@ CPPExceptionTerminate(void)
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
             sentrycrashsc_initSelfThread(&g_stackCursor, 0);
         } else {
+
+            // When we reach this point, the stack has already been unwound and the original stack
+            // frame where the exception was thrown is lost. This is because __cxa_rethrow is called
+            // after the exception has propagated up the call stack and the stack frames have been
+            // cleaned up. Therefore, any attempt to capture the stacktrace here would only show the
+            // current location in the  exception handling code, not where the exception originated.
+            //
+            // This is why we use a fishhook via sentrycrashct_swap to intercept __cxa_throw
+            // instead. When an exception is first thrown, __cxa_throw is called before any stack
+            // unwinding occurs, allowing us to capture the complete stacktrace at the exact point
+            // where the exception originated. This gives us much more useful debugging information
+            // about where and why the exception was thrown with a slight overhead of getting the
+            // stacktrace for every C++ exception. Sadly, there is no reliable way to know if an
+            // exception is going to be handled or not in __cxa_throw, so we can't avoid the
+            // overhead.
+
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Discovering what kind of exception was thrown.");
             g_captureNextStackTrace = false;
             try {
