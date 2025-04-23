@@ -742,7 +742,7 @@
 			name = "iOS-Swift-UITests";
 			packageProductDependencies = (
 			);
-			productName = "iOS-SwiftUITests";
+			productName = "iOS-Swift-UITests";
 			productReference = 7B64386826A6C544000D0F65 /* iOS-Swift-UITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
@@ -761,7 +761,7 @@
 				848A2563286E3351008A8858 /* PBXTargetDependency */,
 			);
 			name = PerformanceBenchmarks;
-			productName = "iOS-SwiftUITests";
+			productName = "iOS-Swift-UITests";
 			productReference = 848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
@@ -1563,7 +1563,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift-UITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Swift-UITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "SENTRY_UI_TEST $(inherited)";
 				SWIFT_VERSION = 5.0;
@@ -1588,7 +1588,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift-UITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-Swift-UITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "SENTRY_UI_TEST $(inherited)";
 				SWIFT_VERSION = 5.0;
@@ -1755,7 +1755,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift-UITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Swift-UITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "SENTRY_UI_TEST $(inherited)";
 				SWIFT_VERSION = 5.0;
@@ -1995,7 +1995,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Swift-UITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Swift-UITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "SENTRY_UI_TEST $(inherited)";
 				SWIFT_VERSION = 5.0;
