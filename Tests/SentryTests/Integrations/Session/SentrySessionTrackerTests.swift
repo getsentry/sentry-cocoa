@@ -13,6 +13,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
 
+        let application: TestSentryUIApplication
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         lazy var fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
@@ -27,6 +28,10 @@ class SentrySessionTrackerTests: XCTestCase {
             client = TestClient(options: options)
             
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            application = TestSentryUIApplication()
+
+            application.applicationState = .inactive
+            SentryDependencyContainer.sharedInstance().application = application
         }
         
         func getSut() -> SessionTracker {
@@ -362,7 +367,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNotificationNames(notificationNames)
     }
 
-    func testForegroundBeforeStart() {
+    func testForegroundBeforeStart_shoudStartSession() {
         // -- Arrange --
         goToForeground()
 
@@ -381,18 +386,26 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToForeground() {
+        // It is expected that the app state is active when the didBecomeActive is called
+        fixture.application.applicationState = .active
         Dynamic(sut).didBecomeActive()
     }
     
     private func goToBackground() {
-        willResignActive()
+        // It is expected that the app state is background when the willResignActive is called
+        fixture.application.applicationState = .background
+        Dynamic(sut).willResignActive()
     }
     
     private func willResignActive() {
+        // It is expected that the app state is inactive when the willResignActive is called
+        fixture.application.applicationState = .inactive
         Dynamic(sut).willResignActive()
     }
     
     private func hybridSdkDidBecomeActive() {
+        // It is expected that the app state is active when the didBecomeActive is called
+        fixture.application.applicationState = .active
         Dynamic(sut).didBecomeActive()
     }
     
@@ -583,5 +596,13 @@ class SentrySessionTrackerTests: XCTestCase {
             SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
             SentryNSNotificationCenterWrapper.willTerminateNotificationName
         ], notificationNames)
+    }
+
+    private class TestSentryUIApplication: SentryUIApplication {
+        private var _underlyingAppState: UIApplication.State = .active
+        override var applicationState: UIApplication.State {
+            get { _underlyingAppState }
+            set { _underlyingAppState = newValue }
+        }
     }
 }
