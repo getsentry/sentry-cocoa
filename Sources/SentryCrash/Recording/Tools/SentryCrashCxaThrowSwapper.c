@@ -145,9 +145,15 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
     SENTRY_ASYNC_SAFE_LOG_TRACE(
         "Performing rebinding with section %s,%s", dataSection->segname, dataSection->sectname);
 
-    const bool isDataConst = strcmp(dataSection->segname, SEG_DATA_CONST) == 0;
     uint32_t *indirect_symbol_indices = indirect_symtab + dataSection->reserved1;
     void **indirect_symbol_bindings = (void **)((uintptr_t)slide + dataSection->addr);
+
+    // The SEG_DATA_CONST is read-only by default, so we need to make it writable
+    // before we can modify the indirect symbol bindings.
+    const bool isDataConst = strcmp(dataSection->segname, SEG_DATA_CONST) == 0;
+
+    // As the default protection for the SEG_DATA_CONST is read-only we set the default
+    // oldProtection to VM_PROT_READ.
     vm_prot_t oldProtection = VM_PROT_READ;
     if (isDataConst) {
         oldProtection = sentrycrash_macho_getSectionProtection(indirect_symbol_bindings);

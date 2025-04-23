@@ -26,6 +26,7 @@
 #import "SentryCrashMach-O.h"
 #import <XCTest/XCTest.h>
 #import <mach-o/loader.h>
+#import <mach/mach.h>
 
 @interface SentryCrashMach_O_Tests : XCTestCase
 @end
@@ -34,6 +35,8 @@
 
 - (void)testGetCommandByTypeFromHeader_SegmentArchDependent
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -50,15 +53,19 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the command is found correctly
+    // Act
     const struct load_command *result
         = sentrycrash_macho_getCommandByTypeFromHeader(testHeader, LC_SEGMENT_ARCH_DEPENDENT);
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(result->cmd, LC_SEGMENT_ARCH_DEPENDENT);
 }
 
 - (void)testGetCommandByTypeFromHeader_Symtab
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -75,15 +82,19 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the command is found correctly
+    // Act
     const struct load_command *result
         = sentrycrash_macho_getCommandByTypeFromHeader(testHeader, LC_SYMTAB);
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(result->cmd, LC_SYMTAB);
 }
 
 - (void)testGetCommandByTypeFromHeader_NotFound
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -100,22 +111,28 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the command is not found for a different type
+    // Act
     const struct load_command *result
         = sentrycrash_macho_getCommandByTypeFromHeader(testHeader, LC_DYSYMTAB);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetCommandByTypeFromHeader_InvalidHeader
 {
-    // Test with an invalid header
+    // Arrange & Act
     const struct load_command *result
         = sentrycrash_macho_getCommandByTypeFromHeader(NULL, LC_SEGMENT_ARCH_DEPENDENT);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetCommandByTypeFromHeader_InvalidCommand
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -132,13 +149,18 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
+    // Act
     const struct load_command *result
         = sentrycrash_macho_getCommandByTypeFromHeader(testHeader, UINT32_MAX);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSegmentByNameFromHeader_TextSegment
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -156,15 +178,19 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the segment is found correctly
+    // Act
     const segment_command_t *result
         = sentrycrash_macho_getSegmentByNameFromHeader(testHeader, "__TEXT");
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(strcmp(result->segname, "__TEXT"), 0);
 }
 
 - (void)testGetSegmentByNameFromHeader_DataSegment
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -182,15 +208,19 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the segment is found correctly
+    // Act
     const segment_command_t *result
         = sentrycrash_macho_getSegmentByNameFromHeader(testHeader, "__DATA");
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(strcmp(result->segname, "__DATA"), 0);
 }
 
 - (void)testGetSegmentByNameFromHeader_NotFound
 {
+    // Arrange
+
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -208,22 +238,26 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
-    // Verify that the segment is not found for an invalid name
+    // Act
     const segment_command_t *result
         = sentrycrash_macho_getSegmentByNameFromHeader(testHeader, "__INVALID");
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSegmentByNameFromHeader_InvalidHeader
 {
-    // Test with an invalid header
+    // Arrange & Act
     const segment_command_t *result = sentrycrash_macho_getSegmentByNameFromHeader(NULL, "__TEXT");
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSegmentByNameFromHeader_InvalidSegment
 {
-
+    // Arrange
     // Create a test Mach-O header
     mach_header_t header;
     header.ncmds = 1;
@@ -241,13 +275,18 @@
 
     const mach_header_t *testHeader = (mach_header_t *)buffer;
 
+    // Act
     const segment_command_t *result
         = sentrycrash_macho_getSegmentByNameFromHeader(testHeader, NULL);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSectionByTypeFlagFromSegment_NonLazySymbolPointers
 {
+    // Arrange
+
     // Create a test segment
     segment_command_t segment;
     strcpy(segment.segname, "__DATA");
@@ -265,9 +304,11 @@
 
     const segment_command_t *testSegment = (segment_command_t *)buffer;
 
-    // Verify that the section is found correctly
+    // Act
     const section_t *result = sentrycrash_macho_getSectionByTypeFlagFromSegment(
         testSegment, S_NON_LAZY_SYMBOL_POINTERS);
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(result->flags & SECTION_TYPE, S_NON_LAZY_SYMBOL_POINTERS);
     XCTAssertEqual(strcmp(result->sectname, "__nl_symbol_ptr"), 0);
@@ -275,6 +316,8 @@
 
 - (void)testGetSectionByTypeFlagFromSegment_LazySymbolPointers
 {
+    // Arrange
+
     // Create a test segment
     segment_command_t segment;
     strcpy(segment.segname, "__DATA");
@@ -292,9 +335,11 @@
 
     const segment_command_t *testSegment = (segment_command_t *)buffer;
 
-    // Verify that the section is found correctly
+    // Act
     const section_t *result
         = sentrycrash_macho_getSectionByTypeFlagFromSegment(testSegment, S_LAZY_SYMBOL_POINTERS);
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(result->flags & SECTION_TYPE, S_LAZY_SYMBOL_POINTERS);
     XCTAssertEqual(strcmp(result->sectname, "__la_symbol_ptr"), 0);
@@ -302,6 +347,7 @@
 
 - (void)testGetSectionByTypeFlagFromSegment_Regular
 {
+    // Arrange
     // Create a test segment
     segment_command_t segment;
     strcpy(segment.segname, "__DATA");
@@ -319,9 +365,11 @@
 
     const segment_command_t *testSegment = (segment_command_t *)buffer;
 
-    // Verify that the section is found correctly
+    // Act
     const section_t *result
         = sentrycrash_macho_getSectionByTypeFlagFromSegment(testSegment, S_REGULAR);
+
+    // Assert
     XCTAssertNotEqual(result, NULL);
     XCTAssertEqual(result->flags & SECTION_TYPE, S_REGULAR);
     XCTAssertEqual(strcmp(result->sectname, "__const"), 0);
@@ -329,6 +377,8 @@
 
 - (void)testGetSectionByTypeFlagFromSegment_NotFound
 {
+    // Arrange
+
     // Create a test segment
     segment_command_t segment;
     strcpy(segment.segname, "__DATA");
@@ -346,22 +396,29 @@
 
     const segment_command_t *testSegment = (segment_command_t *)buffer;
 
-    // Verify that the section is not found for a different type flag
+    // Act
     const section_t *result
         = sentrycrash_macho_getSectionByTypeFlagFromSegment(testSegment, S_ATTR_DEBUG);
+
+    // Assert
+    // Verify that the section is not found for a different type flag
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSectionByTypeFlagFromSegment_InvalidSegment
 {
-    // Test with an invalid segment
+    // Arrange & Act
     const section_t *result
         = sentrycrash_macho_getSectionByTypeFlagFromSegment(NULL, S_NON_LAZY_SYMBOL_POINTERS);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSectionByTypeFlagFromSegment_InvalidFlag
 {
+    // Arrange
+
     // Create a test segment
     segment_command_t segment;
     strcpy(segment.segname, "__DATA");
@@ -379,14 +436,19 @@
 
     const segment_command_t *testSegment = (segment_command_t *)buffer;
 
+    // Act
     // Use UINT32_MAX as the flag and ensure we're not crashing
     const section_t *result
         = sentrycrash_macho_getSectionByTypeFlagFromSegment(testSegment, UINT32_MAX);
+
+    // Assert
     XCTAssertEqual(result, NULL);
 }
 
 - (void)testGetSectionProtection_ReadOnlyProtection
 {
+    // Arrange
+
     // Create a memory region with read-only protection
     vm_address_t address;
     vm_size_t size = getpagesize();
@@ -397,10 +459,10 @@
     result = vm_protect(mach_task_self(), address, size, FALSE, expectedProtection);
     XCTAssertEqual(result, KERN_SUCCESS);
 
-    // Call the function under test
+    // Act
     vm_prot_t actualProtection = sentrycrash_macho_getSectionProtection((void *)address);
 
-    // Verify the expected protection
+    // Assert
     XCTAssertEqual(actualProtection, expectedProtection);
 
     // Deallocate the memory region
@@ -410,6 +472,8 @@
 
 - (void)testGetSectionProtection_ExecutableProtection
 {
+    // Arrange
+
     // Create a memory region with executable protection
     vm_address_t address;
     vm_size_t size = getpagesize();
@@ -420,10 +484,10 @@
     result = vm_protect(mach_task_self(), address, size, FALSE, expectedProtection);
     XCTAssertEqual(result, KERN_SUCCESS);
 
-    // Call the function under test
+    // Act
     vm_prot_t actualProtection = sentrycrash_macho_getSectionProtection((void *)address);
 
-    // Verify the expected protection
+    // Assert
     XCTAssertEqual(actualProtection, expectedProtection);
 
     // Deallocate the memory region
@@ -433,6 +497,8 @@
 
 - (void)testGetSectionProtection_NoAccessProtection
 {
+    // Arrange
+
     // Create a memory region with no access protection
     vm_address_t address;
     vm_size_t size = getpagesize();
@@ -443,10 +509,10 @@
     result = vm_protect(mach_task_self(), address, size, FALSE, expectedProtection);
     XCTAssertEqual(result, KERN_SUCCESS);
 
-    // Call the function under test
+    // Act
     vm_prot_t actualProtection = sentrycrash_macho_getSectionProtection((void *)address);
 
-    // Verify the expected protection
+    // Assert
     XCTAssertEqual(actualProtection, expectedProtection);
 
     // Deallocate the memory region
@@ -454,18 +520,20 @@
     XCTAssertEqual(result, KERN_SUCCESS);
 }
 
-- (void)testGetSectionProtection_FailureScenario
+- (void)testGetSectionProtection_WithInvalidMemoryAddress_ReturnsDefaultProtection
 {
-    // Call the function under test with an invalid memory address
+    // Arrange
     vm_address_t invalidAddress = 0xFFFFFFFFFFFFFFFFULL;
+
+    // Act
     vm_prot_t actualProtection = sentrycrash_macho_getSectionProtection((void *)invalidAddress);
 
-    // Verify the expected default protection value
+    // Assert
     XCTAssertEqual(
         actualProtection, VM_PROT_READ, @"Expected default protection value of VM_PROT_READ");
 }
 
-- (void)testGetSectionProtection_PassingNULL_IsRead_Excecute
+- (void)testGetSectionProtection_PassingNULL_ReturnsDefaultProtection
 {
     // Arrange
     vm_prot_t expectedProtection = VM_PROT_READ | VM_PROT_EXECUTE;
@@ -474,7 +542,8 @@
     vm_prot_t actualProtection = sentrycrash_macho_getSectionProtection((void *)NULL);
 
     // Assert
-    XCTAssertEqual(actualProtection, expectedProtection);
+    XCTAssertEqual(actualProtection, expectedProtection,
+        @"Expected default protection value of VM_PROT_READ | VM_PROT_EXECUTE");
 }
 
 @end
