@@ -9,6 +9,7 @@
 - Truncation of Swift crash messages (#5036)
 - Add error logging for move current replay to last path (#5083)
 - Async safe log for backtrace in CPPException (#5098)
+- Correctly rate limit envelopes from the new UI profiling system (#5131)
 
 ## 8.49.0
 
