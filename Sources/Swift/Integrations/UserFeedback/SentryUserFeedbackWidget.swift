@@ -8,7 +8,7 @@ import UIKit
 var displayingForm = false
 
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
-    func showForm(presenter: UIViewController)
+    func showForm()
 }
 
 @available(iOS 13.0, *)
@@ -30,8 +30,7 @@ class SentryUserFeedbackWidget {
     }
 
     @objc func showForm() {
-        self.delegate?.showForm(presenter: rootVC)
-        self.setWidget(visible: false, animated: config.animations)
+        self.delegate?.showForm()
     }
 
     class Window: UIWindow {
@@ -57,10 +56,6 @@ class SentryUserFeedbackWidget {
             }
             return result
         }
-    }
-
-    func setWidget(visible: Bool, animated: Bool) {
-        rootVC.setWidget(visible: visible, animated: animated)
     }
 
     class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {

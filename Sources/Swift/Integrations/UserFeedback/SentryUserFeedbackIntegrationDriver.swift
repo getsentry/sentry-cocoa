@@ -55,7 +55,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
     }
 
     @objc func showForm(sender: UIButton) {
-        sender.controller?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
+        presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
     }
@@ -71,15 +71,15 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         presenter?.dismiss(animated: configuration.animations) {
             self.configuration.onFormClose?()
         }
-        widget?.setWidget(visible: true, animated: configuration.animations)
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
     }
 }
 
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOSApplicationExtension 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
-    func showForm(presenter: UIViewController) {
-        showForm(presenter: presenter, screenshot: nil)
+    func showForm() {
+        showForm(screenshot: nil)
     }
 }
 
@@ -87,7 +87,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 @available(iOSApplicationExtension 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        widget?.setWidget(visible: true, animated: configuration.animations)
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
         configuration.onFormClose?()
     }
 }
@@ -95,11 +95,11 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 // MARK: Private
 @available(iOSApplicationExtension 13.0, *)
 private extension SentryUserFeedbackIntegrationDriver {
-    func showForm(presenter: UIViewController, screenshot: UIImage?) {
+    func showForm(screenshot: UIImage?) {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self
-        widget?.setWidget(visible: false, animated: configuration.animations)
-        presenter.present(form, animated: configuration.animations) {
+        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        presenter?.present(form, animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
     }
@@ -131,12 +131,7 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
-        let image = screenshotProvider.appScreenshots().first
-        guard let presenter = presenter else {
-            SentryLog.warning("No UIViewController available to present form.")
-            return
-        }
-        showForm(presenter: presenter, screenshot: image)
+        showForm(screenshot: screenshotProvider.appScreenshots().first)
     }
 
     func stopObservingScreenshots() {
