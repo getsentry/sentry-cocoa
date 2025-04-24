@@ -5,6 +5,7 @@
 ### Improvements
 
 - More logging for Session Replay video info (#5132)
+- Use wider compatible video encoding options for Session Replay (#5134)
 
 ## 8.49.1
 
