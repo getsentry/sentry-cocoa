@@ -13,8 +13,7 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
-NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk";
-NSString *const kSentryDataCategoryNameUIProfilingChunk = @"profile_chunk_ui";
+NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
@@ -43,9 +42,6 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeProfileChunk]) {
         return kSentryDataCategoryProfileChunk;
-    }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeUIProfilingChunk]) {
-        return kSentryDataCategoryUIProfilingChunk;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
         return kSentryDataCategoryReplay;
@@ -101,9 +97,6 @@ sentryDataCategoryForString(NSString *value)
     }
     if ([value isEqualToString:kSentryDataCategoryNameProfileChunk]) {
         return kSentryDataCategoryProfileChunk;
-    }
-    if ([value isEqualToString:kSentryDataCategoryNameUIProfilingChunk]) {
-        return kSentryDataCategoryUIProfilingChunk;
     }
     if ([value isEqualToString:kSentryDataCategoryNameReplay]) {
         return kSentryDataCategoryReplay;
