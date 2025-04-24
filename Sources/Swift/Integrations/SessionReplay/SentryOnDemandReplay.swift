@@ -4,6 +4,7 @@
 @_implementationOnly import _SentryPrivate
 import AVFoundation
 import CoreGraphics
+import CoreMedia
 import Foundation
 import UIKit
 
@@ -189,13 +190,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 }
                 lastImageSize = image.size
                 
-                // Generate the presentation time for the current frame using integer math.
-                // This avoids floating-point rounding issues and ensures frame-accurate timing,
-                // which is critical for AVAssetWriter at low frame rates like 1 FPS.
-                // By defining timePerFrame as (1 / frameRate) and multiplying it by the frame index,
-                // we guarantee consistent spacing between frames and precise control over the timeline.
-                let timePerFrame = CMTimeMake(value: 1, timescale: Int32(self.frameRate))
-                let presentTime = CMTimeMultiply(timePerFrame, multiplier: Int32(frameCount))
+                let presentTime = SentryOnDemandReplay.calculatePresentationTime(
+                    forFrameAtIndex: frameCount,
+                    frameRate: self.frameRate
+                ).timeValue
                 if currentPixelBuffer.append(image: image, presentationTime: presentTime) != true {
                     videoWriter.cancelWriting()
                     result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
@@ -261,6 +259,28 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel
             ] as [String: Any]
         ]
+    }
+
+    /// Calculates the presentation time for a frame at a given index and frame rate.
+    ///
+    /// The return value is an `NSValue` containing a `CMTime` object representing the calculated presentation time.
+    /// The `CMTime` must be wrapped as this class is exposed to Objective-C via `Sentry-Swift.h`, and Objective-C does not support `CMTime`
+    /// as a return value.
+    ///
+    /// - Parameters:
+    ///   - index: Index of the frame, counted from 0.
+    ///   - frameRate: Number of frames per second.
+    /// - Returns: `NSValue` containing the `CMTime` representing the calculated presentation time. Can be accessed using the `timeValue` property.
+    internal static func calculatePresentationTime(forFrameAtIndex index: Int, frameRate: Int) -> NSValue {
+        // Generate the presentation time for the current frame using integer math.
+        // This avoids floating-point rounding issues and ensures frame-accurate timing,
+        // which is critical for AVAssetWriter at low frame rates like 1 FPS.
+        // By defining timePerFrame as (1 / frameRate) and multiplying it by the frame index,
+        // we guarantee consistent spacing between frames and precise control over the timeline.
+        let timePerFrame = CMTimeMake(value: 1, timescale: Int32(frameRate))
+        let presentTime = CMTimeMultiply(timePerFrame, multiplier: Int32(index))
+
+        return NSValue(time: presentTime)
     }
 }
 
