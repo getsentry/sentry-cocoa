@@ -244,7 +244,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return frames
     }
 
-    private func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
+    internal func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
         return [
             // The codec type for the video. H.264 (AVC) is the most widely supported codec across platforms,
             // including web browsers, QuickTime, VLC, and mobile devices.
