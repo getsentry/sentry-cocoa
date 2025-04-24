@@ -223,25 +223,10 @@ static SentryTouchTracker *_touchTracker;
     }
     NSDate *end = [beginning dateByAddingTimeInterval:duration];
 
-    // This method is called from a background thread, so we can synchronize the creation of the
-    // video with a dispatch group.
-    __block NSArray<SentryVideoInfo *> *videos;
-    __block NSError *_Nullable error;
-
-    dispatch_group_t group = dispatch_group_create();
-    dispatch_group_enter(group);
-    [resumeReplayMaker
-        createVideoAsyncWithBeginning:beginning
-                                  end:end
-                           completion:^(NSArray<SentryVideoInfo *> *_Nullable resultVideos,
-                               NSError *_Nullable resultError) {
-                               videos = resultVideos;
-                               error = resultError;
-                               dispatch_group_leave(group);
-                           }];
-    // Wait for the video creation to finish without a timeout, because the video creation is
-    // expected to finish in a reasonable time frame.
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    NSError *error;
+    NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker createVideoWithBeginning:beginning
+                                                                                 end:end
+                                                                               error:&error];
 
     // Either error or videos should be set.
     if (error != nil) {

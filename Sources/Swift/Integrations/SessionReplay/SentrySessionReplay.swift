@@ -157,7 +157,7 @@ class SentrySessionReplay: NSObject {
         startFullReplay()
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCaptureAsync(startedAt: replayStart, replayType: .buffer)
+        createAndCaptureInBackground(startedAt: replayStart, replayType: .buffer)
         return true
     }
 
@@ -218,13 +218,13 @@ class SentrySessionReplay: NSObject {
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
         let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCaptureAsync(startedAt: segmentStart, replayType: .session)
+        createAndCaptureInBackground(startedAt: segmentStart, replayType: .session)
     }
 
-    private func createAndCaptureAsync(startedAt: Date, replayType: SentryReplayType) {
+    private func createAndCaptureInBackground(startedAt: Date, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] Creating replay video started at date: \(startedAt), replayType: \(replayType)")
         // Creating a video is computationally expensive, therefore perform it on a background queue.
-        self.replayMaker.createVideoAsyncWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
+        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
             if let error = error {
                 SentryLog.error("[Session Replay] Could not create replay video - \(error.localizedDescription)")
             }

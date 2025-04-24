@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
@@ -137,66 +137,72 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return _frames.first?.time
     }
 
-    func createVideoAsyncWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]?, Error?) -> Void) {
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]?, Error?) -> Void) {
         // Note: In Swift it is best practice to use `Result<Value, Error>` instead of `(Value?, Error?)`
         //       Due to interoperability with Objective-C and @objc, we can not use Result for the completion callback.
-        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
-
-        // Dispatch the video creation to a background queue to avoid blocking the calling queue.
+        SentryLog.debug("[Session Replay] Creating video in background with beginning: \(beginning), end: \(end)")
         processingQueue.dispatchAsync {
-            SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end), current queue: \(self.processingQueue.queue.label)")
-            
-            let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
-     
             do {
-                // Use a semaphore to wait for each video segment to finish.
-                let semaphore = DispatchSemaphore(value: 0)
-                var currentError: Error?
-                var frameIndex = 0
-                var videos = [SentryVideoInfo]()
-                while frameIndex < videoFrames.count {
-                    let frame = videoFrames[frameIndex]
-                    let outputFileURL = URL(fileURLWithPath: self._outputPath)
-                        .appendingPathComponent("\(frame.time.timeIntervalSinceReferenceDate)")
-                        .appendingPathExtension("mp4")
-                    self.renderVideo(with: videoFrames, from: frameIndex, at: outputFileURL) { result in
-                        // Do not use `processingQueue` here, since it will be blocked by the semaphore.
-                        switch result {
-                        case .success(let videoResult):
-                            frameIndex = videoResult.finalFrameIndex
-                            if let videoInfo = videoResult.info {
-                                videos.append(videoInfo)
-                            }
-                        case .failure(let error):
-                            SentryLog.error("[Session Replay] Failed to render video with error: \(error)")
-                            currentError = error
-                        }
-                        semaphore.signal()
-                    }
-
-                    // Calling semaphore.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
-                    // It is imporant that the renderVideo completion block signals the semaphore.
-                    // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
-                    // Otherwise, it could lead to queue starvation and a deadlock.
-                    if semaphore.wait(timeout: .now() + 2) == .timedOut {
-                        SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
-                        currentError = SentryOnDemandReplayError.errorRenderingVideo
-                        break
-                    }
-
-                    // If there was an error, throw it to exit the loop.
-                    if let error = currentError {
-                        throw error
-                    }
-
-                    SentryLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameIndex)")
-                }
+                let videos = try self.createVideoWith(beginning: beginning, end: end)
+                SentryLog.debug("[Session Replay] Finished creating video in backgroundwith \(videos.count) segments")
                 completion(videos, nil)
             } catch {
-                SentryLog.error("[Session Replay] Failed to create video with error: \(error)")
+                SentryLog.error("[Session Replay] Failed to create video in background with error: \(error)")
                 completion(nil, error)
             }
         }
+    }
+
+    func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
+
+        let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
+    
+        var frameCount = 0
+        var videos = [SentryVideoInfo]()
+
+        while frameCount < videoFrames.count {
+            let outputFileURL = URL(fileURLWithPath: _outputPath)
+                .appendingPathComponent("\(videoFrames[frameCount].time.timeIntervalSinceReferenceDate)")
+                .appendingPathExtension("mp4")
+
+            let group = DispatchGroup()
+            var currentError: Error?
+
+            group.enter()
+            self.renderVideo(with: videoFrames, from: frameCount, at: outputFileURL) { result in
+                // Do not use `processingQueue` here, since it will be blocked by the semaphore.
+                switch result {
+                case .success(let videoResult):
+                    frameCount = videoResult.finalFrameIndex
+                    if let videoInfo = videoResult.info {
+                        videos.append(videoInfo)
+                    }
+                case .failure(let error):
+                    SentryLog.error("[Session Replay] Failed to render video with error: \(error)")
+                    currentError = error
+                }
+                group.leave()
+            }
+
+            // Calling semaphore.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
+            // It is imporant that the renderVideo completion block signals the semaphore.
+            // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
+            // Otherwise, it could lead to queue starvation and a deadlock.
+            guard group.wait(timeout: .now() + 2) == .success else {
+                SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
+                currentError = SentryOnDemandReplayError.errorRenderingVideo
+                break
+            }
+
+            // If there was an error, throw it to exit the loop.
+            if let error = currentError {
+                throw error
+            }
+
+            SentryLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
+        }
+        return videos
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity
@@ -402,4 +408,4 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
-// swiftlint:enable file_length
+// swiftlint:enable file_length type_body_length
