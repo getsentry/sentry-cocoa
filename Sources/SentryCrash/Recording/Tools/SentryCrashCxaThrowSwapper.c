@@ -353,7 +353,7 @@ sentrycrashct_unswap_cxa_throw(void)
     SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
 
     if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0) {
-        SENTRY_ASYNC_SAFE_LOG_WARN("No original handlers to restore");
+        SENTRY_ASYNC_SAFE_LOG_INFO("No original __cxa_throw handlers to restore");
         return -1;
     }
 

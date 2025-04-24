@@ -165,4 +165,17 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("fileManagerSwizzling"))
     }
+
+    func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssert(features.contains("unhandledCPPExceptionsV2"))
+    }
 }

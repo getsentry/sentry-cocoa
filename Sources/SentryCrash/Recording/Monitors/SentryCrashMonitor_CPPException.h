@@ -36,6 +36,8 @@ extern "C" {
  */
 SentryCrashMonitorAPI *sentrycrashcm_cppexception_getAPI(void);
 
+void sentrycrashcm_cppexception_enable_V2(void);
+
 /** For testing.
  */
 void sentrycrashcm_cppexception_callOriginalTerminationHandler(void);

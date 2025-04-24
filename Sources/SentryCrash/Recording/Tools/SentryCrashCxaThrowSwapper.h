@@ -59,6 +59,11 @@ typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
  */
 int sentrycrashct_swap_cxa_throw(const cxa_throw_type handler);
 
+/**
+ * Unswaps the C++ exception throw handler.
+ *
+ * @return 0 if successful
+ */
 int sentrycrashct_unswap_cxa_throw(void);
 
 #ifdef __cplusplus

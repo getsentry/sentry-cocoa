@@ -267,7 +267,6 @@ initialize(void)
     if (!isInitialized) {
         isInitialized = true;
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
-        sentrycrashct_swap_cxa_throw(captureStackTrace);
     }
 }
 
@@ -284,9 +283,16 @@ setEnabled(bool isEnabled)
         } else {
             std::set_terminate(g_originalTerminateHandler);
             g_originalTerminateHandler = NULL;
+            sentrycrashct_unswap_cxa_throw();
         }
         g_captureNextStackTrace = isEnabled;
     }
+}
+
+void
+sentrycrashcm_cppexception_enable_V2(void)
+{
+    sentrycrashct_swap_cxa_throw(captureStackTrace);
 }
 
 static bool

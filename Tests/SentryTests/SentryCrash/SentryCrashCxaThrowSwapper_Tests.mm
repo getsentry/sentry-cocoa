@@ -238,4 +238,9 @@ testExceptionHandler(
     [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
+- (void)testUnswapWithoutSwappingBefore
+{
+    XCTAssertEqual(sentrycrashct_unswap_cxa_throw(), -1);
+}
+
 @end
