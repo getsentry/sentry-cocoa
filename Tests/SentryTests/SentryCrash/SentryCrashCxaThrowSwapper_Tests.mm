@@ -209,8 +209,33 @@ testExceptionHandler(
     XCTAssertEqual(g_exceptionHandlerInvocations, 2);
 }
 
-// no except function with a no https://en.cppreference.com/w/cpp/language/noexcept
+- (void)testSwapCxaThrowHandler_RuntimeErrorFromBGThread
+{
+    // Arrange
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Exception handler called"];
+    expectation.expectedFulfillmentCount = 2;
 
-// throwing from another thread
+    g_exceptionHandlerBlock = ^(NSString *exceptionWhat, NSString *typeInfoName) {
+        // The type name should be "St13runtime_error" or similar (mangled C++ name)
+        XCTAssertTrue([typeInfoName containsString:@"runtime_error"]);
+        XCTAssertEqualObjects(exceptionWhat, @"Runtime errrrrrorrrr!");
+
+        [expectation fulfill];
+    };
+
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Act
+        try {
+            throw std::runtime_error("Runtime errrrrrorrrr!");
+        } catch (...) {
+            [expectation fulfill];
+        }
+    });
+
+    // Assert
+    [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
 
 @end
