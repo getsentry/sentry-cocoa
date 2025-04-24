@@ -12,7 +12,6 @@
 
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
-- Fix thread inversion warning in session replay (#5018)
 - Truncation of Swift crash messages (#5036)
 - Add error logging for move current replay to last path (#5083)
 - Async safe log for backtrace in CPPException (#5098)

@@ -227,6 +227,7 @@ class SentrySessionReplay: NSObject {
         self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
             if let error = error {
                 SentryLog.error("[Session Replay] Could not create replay video - \(error.localizedDescription)")
+                return
             }
             guard let videos = videos else {
                 SentryLog.warning("[Session Replay] Finished replay video creation without any segments")
@@ -236,7 +237,7 @@ class SentrySessionReplay: NSObject {
             for video in videos {
                 self.newSegmentAvailable(videoInfo: video, replayType: replayType)
             }
-            SentryLog.debug("[Session Replay] Finished replay video creation with \(videos.count) segments")
+            SentryLog.debug("[Session Replay] Finished processing replay video with \(videos.count) segments")
         }
     }
 
