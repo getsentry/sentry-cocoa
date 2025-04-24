@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Improve session replay frame presentation timing calculations (#5133)
+
 ## 8.49.1
 
 ### Fixes
