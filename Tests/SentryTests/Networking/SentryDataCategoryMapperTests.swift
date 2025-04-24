@@ -10,7 +10,6 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("attachment"), .attachment)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile"), .profile)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile_chunk"), .profileChunk)
-        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile_chunk_ui"), .uiProfilingChunk)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("statsd"), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("replay_video"), .replay)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("feedback"), .feedback)
@@ -31,8 +30,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForNSUInteger(10), .profileChunk)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .span)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(12), .feedback)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(13), .uiProfilingChunk)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(14), .unknown)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(13), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(13), "Failed to map unknown category number to case .unknown")
     }
