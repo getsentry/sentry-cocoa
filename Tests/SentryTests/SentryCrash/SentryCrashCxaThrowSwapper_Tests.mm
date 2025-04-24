@@ -43,6 +43,7 @@ testExceptionHandler(
     [super setUp];
     g_exceptionHandlerBlock = nil;
     g_exceptionHandlerInvocations = 0;
+    sentrycrashct_unswap();
 }
 
 - (void)testSwapCxaThrowHandler_RuntimeError
@@ -207,5 +208,9 @@ testExceptionHandler(
 
     XCTAssertEqual(g_exceptionHandlerInvocations, 2);
 }
+
+// no except function with a no https://en.cppreference.com/w/cpp/language/noexcept
+
+// throwing from another thread
 
 @end

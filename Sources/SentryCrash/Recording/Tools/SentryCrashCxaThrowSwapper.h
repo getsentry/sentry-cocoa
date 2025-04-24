@@ -36,6 +36,7 @@ typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
 #else
 typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
 #endif
+
 /**
  * Swaps the current C++ exception throw handler with a custom one.
  * This allows intercepting C++ exceptions when they are thrown.
@@ -57,6 +58,8 @@ typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
  * @return 0 if successful
  */
 int sentrycrashct_swap(const cxa_throw_type handler);
+
+int sentrycrashct_unswap(void);
 
 #ifdef __cplusplus
 }
