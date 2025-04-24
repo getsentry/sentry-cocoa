@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Use wider compatible video encoding options for Session Replay (#5134)
+
 ## 8.49.1
 
 ### Fixes
