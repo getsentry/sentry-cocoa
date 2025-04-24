@@ -143,7 +143,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         return videos
     }
-    
+
+    // swiftlint:disable:next function_body_length
     private func renderVideo(with videoFrames: [SentryReplayFrame], from: inout Int, at outputFileURL: URL) throws -> SentryVideoInfo? {
         guard from < videoFrames.count, let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else { return nil }
         let videoWidth = image.size.width * CGFloat(videoScale)
@@ -188,7 +189,13 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 }
                 lastImageSize = image.size
                 
-                let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
+                // Generate the presentation time for the current frame using integer math.
+                // This avoids floating-point rounding issues and ensures frame-accurate timing,
+                // which is critical for AVAssetWriter at low frame rates like 1 FPS.
+                // By defining timePerFrame as (1 / frameRate) and multiplying it by the frame index,
+                // we guarantee consistent spacing between frames and precise control over the timeline.
+                let timePerFrame = CMTimeMake(value: 1, timescale: Int32(self.frameRate))
+                let presentTime = CMTimeMultiply(timePerFrame, multiplier: Int32(frameCount))
                 if currentPixelBuffer.append(image: image, presentationTime: presentTime) != true {
                     videoWriter.cancelWriting()
                     result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
