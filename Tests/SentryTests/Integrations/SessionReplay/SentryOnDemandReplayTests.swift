@@ -1,3 +1,4 @@
+import AVFoundation
 import CoreMedia
 import Foundation
 @testable import Sentry
@@ -284,6 +285,66 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(time.timeValue.value, -3)
         XCTAssertEqual(time.timeValue.timescale, 4)
         XCTAssertEqual(time.timeValue.seconds, -0.75)
+    }
+
+    // This test case with zero size is not particularly handled, but used
+    // to lock down the expected behaviour.
+    func testCreateVideoSettings_zeroSize_shouldReturnFullSettings() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        // -- Act --
+        let settings = sut.createVideoSettings(width: 0, height: 0)
+
+        // -- Assert --
+        XCTAssertEqual(settings.count, 5)
+        XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
+        XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 0)
+        XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 0)
+        
+        let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
+
+        XCTAssertEqual(compressionProperties.count, 4)
+        XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
+        XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
+        XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, sut.frameRate)
+        
+        let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
+
+        XCTAssertEqual(colorProperties.count, 3)
+        XCTAssertEqual(colorProperties[AVVideoColorPrimariesKey] as? String, AVVideoColorPrimaries_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoTransferFunctionKey] as? String, AVVideoTransferFunction_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoYCbCrMatrixKey] as? String, AVVideoYCbCrMatrix_ITU_R_709_2)
+    }
+
+    func testCreateVideoSettings_anySize_shouldReturnFullSettings() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        // -- Act --
+        let settings = sut.createVideoSettings(width: 100, height: 100)
+
+        // -- Assert --
+        XCTAssertEqual(settings.count, 5)
+        XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
+        XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 100)
+        XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 100)
+        
+        let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
+
+        XCTAssertEqual(compressionProperties.count, 4)
+        XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
+        XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
+        XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, sut.frameRate)
+        
+        let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
+
+        XCTAssertEqual(colorProperties.count, 3)
+        XCTAssertEqual(colorProperties[AVVideoColorPrimariesKey] as? String, AVVideoColorPrimaries_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoTransferFunctionKey] as? String, AVVideoTransferFunction_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoYCbCrMatrixKey] as? String, AVVideoYCbCrMatrix_ITU_R_709_2)
     }
 }
 #endif
