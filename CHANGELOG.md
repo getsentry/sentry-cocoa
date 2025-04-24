@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Add separate method to get video info with more logging (#5132)
+- More logging for Session Replay video info (#5132)
 
 ## 8.49.1
 

@@ -225,9 +225,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             case .writing:
                 SentryLog.error("[Session Replay] Finish writing video was called with status writing, this is unexpected! Completing with no video info")
             case .cancelled:
-                SentryLog.warning("[Session Replay] Finish writing video was cancelled, completing with no video info")
+                SentryLog.warning("[Session Replay] Finish writing video was cancelled, completing with no video info.")
             case .completed:
-                SentryLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes")
+                SentryLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
                 do {
                     result = try strongSelf.getVideoInfo(
                         from: outputFileURL,
