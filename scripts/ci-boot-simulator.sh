@@ -48,3 +48,10 @@ esac
 
 echo "Booting simulator $SIMULATOR"
 xcrun simctl boot "$SIMULATOR"
+
+# Wait for the simulator to boot
+# We need to wait for the simulator to boot to avoid the test to fail due to timeout (because the simulator is not booted yet)
+xcrun simctl bootstatus "$SIMULATOR"
+
+# Print details about the booted simulator, iOS version, etc.
+xcrun simctl list devices --json | jq '.devices | to_entries[] | select(.value[] | .state == "Booted")'

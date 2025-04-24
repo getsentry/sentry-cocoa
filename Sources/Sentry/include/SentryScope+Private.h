@@ -20,7 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
-@property (atomic, strong) SentryPropagationContext *propagationContext;
+/**
+ * The propagation context has a setter, requiring it to be nonatomic
+ */
+@property (nonatomic, strong) SentryPropagationContext *propagationContext;
 
 @property (nonatomic, nullable, copy) NSString *currentScreen;
 

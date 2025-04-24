@@ -61,33 +61,42 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func sampleRateEdited(_ sender: UITextField) {
-        SentrySDKOverrides.Profiling.sampleRate = getSampleRateOverride(field: sender)
+        var sampleRate = SentrySDKOverrides.Profiling.sampleRate
+        sampleRate.floatValue = getSampleRateOverride(field: sender)
     }
 
     @IBAction func tracesSampleRateEdited(_ sender: UITextField) {
-        SentrySDKOverrides.Tracing.sampleRate = getSampleRateOverride(field: sender)
+        var sampleRate = SentrySDKOverrides.Tracing.sampleRate
+        sampleRate.floatValue = getSampleRateOverride(field: sender)
     }
 
     @IBAction func profileAppStartsToggled(_ sender: UISwitch) {
-        SentrySDKOverrides.Profiling.profileAppStarts = sender.isOn
+        var disableAppStartProfiling = SentrySDKOverrides.Profiling.disableAppStartProfiling
+        disableAppStartProfiling.boolValue = sender.isOn
     }
 
     @IBAction func defineProfilesSampleRateToggled(_ sender: UISwitch) {
         sampleRateField.isEnabled = sender.isOn
-        SentrySDKOverrides.Profiling.sampleRate = getSampleRateOverride(field: sampleRateField)
+        
+        var sampleRate = SentrySDKOverrides.Profiling.sampleRate
+        sampleRate.floatValue = getSampleRateOverride(field: sampleRateField)
     }
 
     @IBAction func defineTracesSampleRateToggled(_ sender: UISwitch) {
         tracesSampleRateField.isEnabled = sender.isOn
-        SentrySDKOverrides.Tracing.sampleRate = getSampleRateOverride(field: tracesSampleRateField)
+        
+        var sampleRate = SentrySDKOverrides.Tracing.sampleRate
+        sampleRate.floatValue = getSampleRateOverride(field: tracesSampleRateField)
     }
 
     @IBAction func traceLifecycleToggled(_ sender: UISwitch) {
-        SentrySDKOverrides.Profiling.manualLifecycle = !sender.isOn
+        var manualLifecycle = SentrySDKOverrides.Profiling.manualLifecycle
+        manualLifecycle.boolValue = !sender.isOn
     }
 
     @IBAction func sessionSampleRateChanged(_ sender: UITextField) {
-        SentrySDKOverrides.Profiling.sessionSampleRate = getSampleRateOverride(field: sender)
+        var sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate
+        sessionSampleRate.floatValue = getSampleRateOverride(field: sender)
     }
 
     // MARK: UITextFieldDelegate

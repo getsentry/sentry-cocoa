@@ -89,8 +89,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.schema-override-precedence"
-            isEnabled = "NO">
+            argument = "--io.sentry.schema-environment-variable-precedence"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-lifecycle-manual"
@@ -234,6 +234,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.no-auto-inject-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-filemanager-swizzling"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
