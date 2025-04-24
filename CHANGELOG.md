@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add separate method to get video info with more logging (#5132)
+
 ## 8.49.1
 
 ### Fixes
