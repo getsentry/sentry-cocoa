@@ -57,9 +57,9 @@ typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
  * @param handler The new exception throw handler to install
  * @return 0 if successful
  */
-int sentrycrashct_swap(const cxa_throw_type handler);
+int sentrycrashct_swap_cxa_throw(const cxa_throw_type handler);
 
-int sentrycrashct_unswap(void);
+int sentrycrashct_unswap_cxa_throw(void);
 
 #ifdef __cplusplus
 }

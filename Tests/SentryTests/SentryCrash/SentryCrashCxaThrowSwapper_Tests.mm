@@ -38,12 +38,12 @@ testExceptionHandler(
 
 @implementation SentryCrashCxaThrowSwapper_Tests
 
-- (void)setUp
+- (void)tearDown
 {
-    [super setUp];
+    [super tearDown];
     g_exceptionHandlerBlock = nil;
     g_exceptionHandlerInvocations = 0;
-    sentrycrashct_unswap();
+    sentrycrashct_unswap_cxa_throw();
 }
 
 - (void)testSwapCxaThrowHandler_RuntimeError
@@ -60,7 +60,7 @@ testExceptionHandler(
         [expectation fulfill];
     };
 
-    sentrycrashct_swap(testExceptionHandler);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
 
     // Act
     try {
@@ -87,7 +87,7 @@ testExceptionHandler(
         [expectation fulfill];
     };
 
-    sentrycrashct_swap(testExceptionHandler);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
 
     // Act
     @try {
@@ -114,7 +114,7 @@ testExceptionHandler(
         [expectation fulfill];
     };
 
-    sentrycrashct_swap(testExceptionHandler);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
 
     // Act
     try {
@@ -146,7 +146,7 @@ testExceptionHandler(
         [expectation fulfill];
     };
 
-    sentrycrashct_swap(testExceptionHandler);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
 
     // Act
     try {
@@ -189,7 +189,7 @@ testExceptionHandler(
         [expectation fulfill];
     };
 
-    sentrycrashct_swap(testExceptionHandler);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
 
     // Act
     try {

@@ -159,7 +159,7 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 
 static void
 perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nlist_t *symtab,
-    char *strtab, uint32_t *indirect_symtab)
+    char *strtab, uint32_t *indirect_symtab, bool is_swapping_cxa_throw)
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE(
         "Processing section %s,%s", dataSection->segname, dataSection->sectname);
@@ -196,7 +196,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
         if (symbol_name_longer_than_1 && strcmp(&symbol_name[1], g_cxa_throw_name) == 0) {
             Dl_info info;
             if (dladdr(dataSection, &info) != 0) {
-                if (g_cxa_throw_handler != NULL) {
+                if (is_swapping_cxa_throw) {
                     // Swapping: Store original and set new handler
                     SentryCrashAddressPair pair
                         = { (uintptr_t)info.dli_fbase, (uintptr_t)indirect_symbol_bindings[i] };
@@ -238,7 +238,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
 
 static void
 process_segment(const struct mach_header *header, intptr_t slide, const char *segname,
-    nlist_t *symtab, char *strtab, uint32_t *indirect_symtab)
+    nlist_t *symtab, char *strtab, uint32_t *indirect_symtab, bool is_swapping_cxa_throw)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Processing segment %s", segname);
 
@@ -251,11 +251,12 @@ process_segment(const struct mach_header *header, intptr_t slide, const char *se
             segment, S_NON_LAZY_SYMBOL_POINTERS);
 
         if (lazy_sym_sect != NULL) {
-            perform_rebinding_with_section(lazy_sym_sect, slide, symtab, strtab, indirect_symtab);
+            perform_rebinding_with_section(
+                lazy_sym_sect, slide, symtab, strtab, indirect_symtab, is_swapping_cxa_throw);
         }
         if (non_lazy_sym_sect != NULL) {
             perform_rebinding_with_section(
-                non_lazy_sym_sect, slide, symtab, strtab, indirect_symtab);
+                non_lazy_sym_sect, slide, symtab, strtab, indirect_symtab, is_swapping_cxa_throw);
         }
     } else {
         SENTRY_ASYNC_SAFE_LOG_WARN("Segment %s not found", segname);
@@ -263,7 +264,8 @@ process_segment(const struct mach_header *header, intptr_t slide, const char *se
 }
 
 static void
-rebind_symbols_for_image(const struct mach_header *header, intptr_t slide)
+rebind_symbols_for_image(
+    const struct mach_header *header, intptr_t slide, bool is_swapping_cxa_throw)
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Rebinding symbols for image with slide %p", (void *)slide);
 
@@ -301,12 +303,21 @@ rebind_symbols_for_image(const struct mach_header *header, intptr_t slide)
     // Get indirect symbol table (array of uint32_t indices into symbol table)
     uint32_t *indirect_symtab = (uint32_t *)(linkedit_base + dysymtab_cmd->indirectsymoff);
 
-    process_segment(header, slide, SEG_DATA, symtab, strtab, indirect_symtab);
-    process_segment(header, slide, SEG_DATA_CONST, symtab, strtab, indirect_symtab);
+    process_segment(
+        header, slide, SEG_DATA, symtab, strtab, indirect_symtab, is_swapping_cxa_throw);
+    process_segment(
+        header, slide, SEG_DATA_CONST, symtab, strtab, indirect_symtab, is_swapping_cxa_throw);
+}
+
+typedef void (*dyld_image_callback)(const struct mach_header *mh, intptr_t vmaddr_slide);
+static void
+rebind_symbols_for_image_wrapper(const struct mach_header *mh, intptr_t vmaddr_slide)
+{
+    rebind_symbols_for_image(mh, vmaddr_slide, true);
 }
 
 int
-sentrycrashct_swap(const cxa_throw_type handler)
+sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Swapping __cxa_throw handler");
 
@@ -324,37 +335,36 @@ sentrycrashct_swap(const cxa_throw_type handler)
 
     if (g_cxa_throw_handler == NULL) {
         g_cxa_throw_handler = handler;
-        _dyld_register_func_for_add_image(rebind_symbols_for_image);
+        _dyld_register_func_for_add_image(rebind_symbols_for_image_wrapper);
     } else {
         g_cxa_throw_handler = handler;
         uint32_t c = _dyld_image_count();
         for (uint32_t i = 0; i < c; i++) {
-            rebind_symbols_for_image(_dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i));
+            rebind_symbols_for_image(
+                _dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i), true);
         }
     }
     return 0;
 }
 
 int
-sentrycrashct_unswap(void)
+sentrycrashct_unswap_cxa_throw(void)
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
 
-    if (g_cxa_originals == NULL || g_cxa_originals_count == 0) {
+    if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0) {
         SENTRY_ASYNC_SAFE_LOG_WARN("No original handlers to restore");
         return -1;
     }
 
-    // Set to NULL to indicate we're unswapping
-    g_cxa_throw_handler = NULL;
-
     // Iterate through all loaded images
     uint32_t image_count = _dyld_image_count();
     for (uint32_t i = 0; i < image_count; i++) {
-        rebind_symbols_for_image(_dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i));
+        rebind_symbols_for_image(_dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i), false);
     }
 
     sentrycrashct_clear_pairs();
+    g_cxa_throw_handler = NULL;
 
     return 0;
 }
