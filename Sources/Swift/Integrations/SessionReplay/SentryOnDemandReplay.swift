@@ -156,8 +156,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
         SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
 
-        let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
-    
+        let videoFrames = self.filterFrames(beginning: beginning, end: end)
+
         var frameCount = 0
         var videos = [SentryVideoInfo]()
 
@@ -189,7 +189,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             // It is imporant that the renderVideo completion block signals the semaphore.
             // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
             // Otherwise, it could lead to queue starvation and a deadlock.
-            guard group.wait(timeout: .now() + 2) == .success else {
+            guard group.wait(timeout: .now() + 120) == .success else {
                 SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
                 currentError = SentryOnDemandReplayError.errorRenderingVideo
                 break
@@ -304,7 +304,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
                 let presentTime = CMTime(seconds: Double(frameIndex), preferredTimescale: CMTimeScale(1 / self.frameRate))
                 guard currentPixelBuffer.append(image: image, presentationTime: presentTime) == true else {
-                    SentryLog.debug("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                    SentryLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
                     videoWriter.cancelWriting()
                     return completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
                 }
@@ -313,6 +313,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             frameIndex += 1
         }
     }
+
     // swiftlint:enable function_body_length cyclomatic_complexity
 
     private func finishVideo(
@@ -367,7 +368,17 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
 
+    private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
+        var frames = [SentryReplayFrame]()
+        // Using dispatch queue as sync mechanism since we need a queue already to generate the video.
+        processingQueue.dispatchSync {
+            frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
+        }
+        return frames
+    }
+
     fileprivate func getVideoInfo(from outputFileURL: URL, usedFrames: [SentryReplayFrame], videoWidth: Int, videoHeight: Int) throws -> SentryVideoInfo {
+        SentryLog.debug("[Session Replay] Getting video info from file: \(outputFileURL.path), width: \(videoWidth), height: \(videoHeight), used frames count: \(usedFrames.count)")
         let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
         guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
             SentryLog.warning("[Session Replay] Failed to read video size from video file, reason: size attribute not found")

@@ -26,9 +26,12 @@ class SentryOnDemandReplayTests: XCTestCase {
     }
     
     private func getSut(trueDispatchQueueWrapper: Bool = false) -> SentryOnDemandReplay {
-        return SentryOnDemandReplay(outputPath: outputPath.path,
-                                    workingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
-                                    dateProvider: dateProvider)
+        return SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
+            assetWorkerQueue: trueDispatchQueueWrapper ? SentryDispatchQueueWrapper() : TestSentryDispatchQueueWrapper(),
+            dateProvider: dateProvider
+        )
     }
     
     func testAddFrame() {
@@ -107,11 +110,15 @@ class SentryOnDemandReplayTests: XCTestCase {
     }
     
     func testAddFrameIsThreadSafe() {
-        let queue = SentryDispatchQueueWrapper()
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
-                                       workingQueue: queue,
-                                       dateProvider: dateProvider)
-        
+        let processingQueue = SentryDispatchQueueWrapper()
+        let workerQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: workerQueue,
+            dateProvider: dateProvider
+        )
+
         dateProvider.driftTimeForEveryRead = true
         dateProvider.driftTimeInterval = 1
         let group = DispatchGroup()
@@ -125,16 +132,20 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
         
         group.wait()
-        queue.queue.sync {} //Wait for all enqueued operation to finish
+        processingQueue.queue.sync {} // Wait for all enqueued operation to finish
         XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
     }
     
     func testReleaseIsThreadSafe() {
-        let queue = SentryDispatchQueueWrapper()
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
-                                       workingQueue: queue,
-                                       dateProvider: dateProvider)
-                
+        let processingQueue = SentryDispatchQueueWrapper()
+        let workerQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: workerQueue,
+            dateProvider: dateProvider
+        )
+
         sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
                 
         let group = DispatchGroup()
@@ -149,24 +160,30 @@ class SentryOnDemandReplayTests: XCTestCase {
         
         group.wait()
         
-        queue.queue.sync {} //Wait for all enqueued operation to finish
+        processingQueue.queue.sync {} //Wait for all enqueued operation to finish
         XCTAssertEqual(sut.frames.count, 0)
     }
     
     func testInvalidWriter() throws {
-        let queue = TestSentryDispatchQueueWrapper()
-        let sut = SentryOnDemandReplay(outputPath: outputPath.path,
-                                       workingQueue: queue,
-                                       dateProvider: dateProvider)
-        
+        // -- Arrange --
+        let processingQueue = SentryDispatchQueueWrapper()
+        let workerQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: workerQueue,
+            dateProvider: dateProvider
+        )
+
         let start = dateProvider.date()
         sut.addFrameAsync(image: UIImage.add)
         dateProvider.advance(by: 1)
         let end = dateProvider.date()
         
-        //Creating a file where the replay would be written to cause an error in the writer
+        // Creating a file where the replay would be written to cause an error in the writer
         try Data("tempFile".utf8).write(to: outputPath.appendingPathComponent("0.0.mp4"))
-        
+
+        // -- Act & Assert --
         XCTAssertThrowsError(try sut.createVideoWith(beginning: start, end: end))
     }
     

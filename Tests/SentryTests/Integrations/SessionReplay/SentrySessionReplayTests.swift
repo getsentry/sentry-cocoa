@@ -35,11 +35,22 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         var lastCallToCreateVideo: CreateVideoCall?
-        func createVideoAsyncWith(
+        func createVideoInBackgroundWith(
             beginning: Date,
             end: Date,
             completion: @escaping ([Sentry.SentryVideoInfo]?, (any Error)?) -> Void
         ) {
+            // Note: This implementation is just to satisfy the protocol.
+            // If possible, keep the tests logic the synchronous version `createVideoWith`
+            do {
+                let videos = try createVideoWith(beginning: beginning, end: end)
+                completion(videos, nil)
+            } catch {
+                completion(nil, error)
+            }
+        }
+
+        func createVideoWith(beginning: Date, end: Date) throws -> [Sentry.SentryVideoInfo] {
             lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
@@ -47,7 +58,7 @@ class SentrySessionReplayTests: XCTestCase {
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(overrideBeginning ?? beginning), frameCount: 5, frameRate: 1, start: overrideBeginning ?? beginning, end: end, fileSize: 10, screens: screens)
             
             createVideoCallBack?(videoInfo)
-            return completion([videoInfo], nil)
+            return [videoInfo]
         }
         
         var lastFrame: UIImage?
@@ -80,7 +91,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastReplayId: SentryId?
         var currentScreen: String?
         
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper(), touchTracker: SentryTouchTracker? = nil) -> SentrySessionReplay {
+        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), touchTracker: SentryTouchTracker? = nil) -> SentrySessionReplay {
             return SentrySessionReplay(replayOptions: options,
                                        replayFolderPath: cacheFolder,
                                        screenshotProvider: screenshotProvider,
@@ -89,7 +100,6 @@ class SentrySessionReplayTests: XCTestCase {
                                        touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                                        dateProvider: dateProvider,
                                        delegate: self,
-                                       dispatchQueue: dispatchQueue,
                                        displayLinkWrapper: displayLink)
         }
         
