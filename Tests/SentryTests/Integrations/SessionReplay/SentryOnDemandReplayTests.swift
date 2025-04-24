@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreMedia
 import Foundation
 @testable import Sentry
 import SentryTestUtils
@@ -220,6 +221,86 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(videos.first)
+    }
+  
+    func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {
+        // -- Arrange --
+        let framesPerSecond = 1
+
+        // -- Act --
+        let zeroIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 0, frameRate: framesPerSecond)
+        let firstIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1, frameRate: framesPerSecond)
+        let secondIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 2, frameRate: framesPerSecond)
+        let largeIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1_337, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(zeroIndexTime.timeValue.value, 0)
+        XCTAssertEqual(zeroIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(zeroIndexTime.timeValue.seconds, 0)
+
+        XCTAssertEqual(firstIndexTime.timeValue.value, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.seconds, 1)
+
+        XCTAssertEqual(secondIndexTime.timeValue.value, 2)
+        XCTAssertEqual(secondIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(secondIndexTime.timeValue.seconds, 2)
+
+        XCTAssertEqual(largeIndexTime.timeValue.value, 1_337)
+        XCTAssertEqual(largeIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(largeIndexTime.timeValue.seconds, 1_337)
+    }
+
+    func testCalculatePresentationTime_withMoreThanOneFPS_shouldReturnTiming() {
+        // -- Arrange --
+        let framesPerSecond = 4
+
+        // -- Act --
+        let zeroIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 0, frameRate: framesPerSecond)
+        let firstIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1, frameRate: framesPerSecond)
+        let secondIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 2, frameRate: framesPerSecond)
+        let largeIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1_337, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(zeroIndexTime.timeValue.value, 0)
+        XCTAssertEqual(zeroIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(zeroIndexTime.timeValue.seconds, 0)
+
+        XCTAssertEqual(firstIndexTime.timeValue.value, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(firstIndexTime.timeValue.seconds, 0.25)
+
+        XCTAssertEqual(secondIndexTime.timeValue.value, 2)
+        XCTAssertEqual(secondIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(secondIndexTime.timeValue.seconds, 0.5)
+
+        XCTAssertEqual(largeIndexTime.timeValue.value, 1_337)
+        XCTAssertEqual(largeIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(largeIndexTime.timeValue.seconds, 334.25)
+    }
+
+    func testCalculatePresentationTime_withNegativeFPS_shouldReturnInvalidTime() {
+        // -- Arrange --
+        let framesPerSecond = -4
+
+        // -- Act --
+        let time = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 3, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertFalse(time.timeValue.isValid)
+    }
+
+    func testCalculatePresentationTime_withNegativeIndex_shouldReturnNegativeTime() {
+        // -- Arrange --
+        let framesPerSecond = 4
+
+        // -- Act --
+        let time = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: -3, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(time.timeValue.value, -3)
+        XCTAssertEqual(time.timeValue.timescale, 4)
+        XCTAssertEqual(time.timeValue.seconds, -0.75)
     }
 
     // This test case with zero size is not particularly handled, but used
