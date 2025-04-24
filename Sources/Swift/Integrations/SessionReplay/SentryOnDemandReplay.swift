@@ -271,6 +271,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         let minFrame = usedFrames.min(by: { $0.time < $1.time })
         guard let start = minFrame?.time else {
+            // Note: This code path is currently not reached, because the `getVideoInfo` method is only called after the video is successfully created, therefore at least one frame was used.
+            // The compiler still requires us to unwrap the optional value, and we
+            // do not permit force-unwrapping.
             SentryLog.warning("[Session Replay] Failed to read video start time from used frames, reason: no frames found")
             throw SentryOnDemandReplayError.cantReadVideoStartTime
         }
