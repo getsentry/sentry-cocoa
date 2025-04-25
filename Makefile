@@ -143,6 +143,4 @@ release-pod:
 
 xcode:
 	xcodegen --spec Samples/SessionReplay-CameraTest/project.yml
-
-ios-swift-xcode:
 	xcodegen --spec Samples/iOS-Swift.yml
