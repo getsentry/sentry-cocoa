@@ -8,8 +8,11 @@ init:
 	rbenv exec bundle install
 	./scripts/update-tooling-versions.sh
 	yarn install
-	
-# installs the tools needed to run CI test tasks locally
+
+.PHONY: init-ci-build
+init-ci-build:
+	brew bundle --file Brewfile-ci-build
+
 .PHONY: init-ci-test
 init-ci-test:
 	brew bundle --file Brewfile-ci-test
