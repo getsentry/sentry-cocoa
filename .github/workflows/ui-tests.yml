@@ -117,7 +117,7 @@ jobs:
 
           - runs-on: macos-14
             xcode: "15.4"
-            device: "iPhone 15 (17.2)"
+            device: "iPhone 15 (17.5)"
 
           - runs-on: macos-15
             xcode: "16.3"
