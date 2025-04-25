@@ -231,11 +231,6 @@ struct ContentView: View {
                             NavigationLink(destination: FormScreen()) {
                                 Text("Form Screen")
                             }
-
-                            NavigationLink(destination: DelayedFullDisplayView()) {
-                                Text("Delayed Full Display")
-                                    .accessibilityIdentifier("button.destination.full-display-deplayed")
-                            }
                         }
                         .background(Color.white)
                     }
