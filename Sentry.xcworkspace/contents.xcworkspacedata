@@ -32,6 +32,21 @@
          location = "group:Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS-Swift_xcodegen.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS-Swift6_xcodegen.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS13-Swift_xcodegen.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
    </Group>
