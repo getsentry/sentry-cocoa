@@ -11,7 +11,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling"])
+#else
         XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
+#endif
     }
 
     func testEnableAllFeatures() throws {
@@ -80,6 +84,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(result, [])
     }
 
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the tested property.")
     func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --
@@ -92,6 +97,40 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssert(features.contains("experimentalViewRenderer"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableViewRendererV2_isEnabled_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.sessionReplay.enableViewRendererV2 = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("experimentalViewRenderer"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableViewRendererV2_isNotEnabled_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.sessionReplay.enableViewRendererV2 = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("experimentalViewRenderer"))
 #else
         throw XCTSkip("Test not supported on this platform")
 #endif
