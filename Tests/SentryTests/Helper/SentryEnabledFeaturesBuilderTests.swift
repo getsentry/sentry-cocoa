@@ -11,7 +11,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling"])
     }
 
     func testEnableAllFeatures() throws {
