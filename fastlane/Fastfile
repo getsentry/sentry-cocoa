@@ -87,8 +87,13 @@ platform :ios do
     sync_code_signing(
       type: "appstore",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
-      
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.iOS-Swift-UITests",
+        "io.sentry.iOS-Benchmarking"
+      ],
+
       # Directly cloning the branch instead of using a shallow clone fixes the rare error:
       #   fatal: a branch named 'master' already exists in GitHub Action workflows.
       git_branch: "master",
