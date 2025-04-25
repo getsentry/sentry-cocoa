@@ -1,4 +1,6 @@
 name: iOS-Swift6_xcodegen
+createIntermediateGroups: true
+generateEmptyDirectories: true
 configs:
   Debug: debug
   Test: debug
