@@ -12,6 +12,7 @@ projectReferences:
 fileGroups:
   - Shared/Config
   - iOS13-Swift.yml
+  - ../Plans/iOS13-Swift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -64,7 +65,6 @@ schemes:
         iOS13-Swift: all
         iOS13-Swift-UITests: test
     test:
-      targets:
-        - iOS13-Swift-UITests
       config: Test
-      deleteScreenshotsWhenEachTestSucceeds: false
+      testPlans:
+        - path: ../Plans/iOS13-Swift_Base.xctestplan
