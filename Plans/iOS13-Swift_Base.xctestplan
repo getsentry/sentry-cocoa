@@ -11,7 +11,7 @@
   "defaultOptions" : {
     "codeCoverage" : false,
     "targetForVariableExpansion" : {
-      "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
+      "containerPath" : "container:iOS13-Swift.xcodeproj",
       "identifier" : "D8269A38274C095E00BD5BD5",
       "name" : "iOS13-Swift"
     },
@@ -20,8 +20,8 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
-        "identifier" : "876088591BAEBC4B16AB4795",
+        "containerPath" : "container:iOS13-Swift.xcodeproj",
+        "identifier" : "D09A2A83D1387A9EF644FA56",
         "name" : "iOS13-Swift-UITests"
       }
     }
