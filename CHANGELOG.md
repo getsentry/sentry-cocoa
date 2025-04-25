@@ -6,6 +6,10 @@
 
 - Added ability to bring your own button for user feedback form display (#5107)
 
+### Fixes
+
+- Race conditions in ANRTrackerV1 (#5137)
+
 ### Improvements
 
 - Improve session replay frame presentation timing calculations (#5133)
