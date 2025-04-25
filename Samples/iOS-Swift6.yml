@@ -12,6 +12,7 @@ projectReferences:
 fileGroups:
   - Shared/Config
   - iOS-Swift6.yml
+  - ../Plans/iOS-Swift6_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -55,7 +56,6 @@ schemes:
         iOS-Swift6: all
         iOS-Swift6-UITests: test
     test:
-      targets:
-        - iOS-Swift6-UITests
       config: Test
-      deleteScreenshotsWhenEachTestSucceeds: false
+      testPlans:
+        - path: ../Plans/iOS-Swift6_Base.xctestplan

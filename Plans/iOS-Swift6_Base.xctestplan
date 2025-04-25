@@ -1,0 +1,24 @@
+{
+   "configurations" : [
+     {
+       "id" : "909225DF-87C5-4ED2-96FD-C6723E160197",
+       "name" : "Configuration 1",
+       "options" : {
+
+       }
+     }
+   ],
+   "defaultOptions" : {
+     "uiTestingScreenshotsLifetime" : "keepAlways"
+   },
+   "testTargets" : [
+     {
+       "target" : {
+         "containerPath" : "container:iOS-Swift.xcodeproj",
+         "identifier" : "7B64386726A6C544000D0F65",
+         "name" : "iOS-Swift6-UITests"
+       }
+     }
+   ],
+   "version" : 1
+ }
