@@ -9,8 +9,10 @@
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
+#    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
 #    import "SentryTimeToDisplayTracker.h"
+#    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 #    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
@@ -127,8 +129,8 @@
         NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
-                                       operation:SentrySpanOperation.uiLoad
-                                          origin:SentryTraceOrigin.autoUIViewController];
+                                       operation:SentrySpanOperationUiLoad
+                                          origin:SentryTraceOriginAutoUIViewController];
 
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
@@ -218,6 +220,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(
+                @"Not tracking UIViewController.viewWillAppear because there is no active span.");
             callbackToOrigin();
             return;
         }
@@ -226,8 +230,8 @@
             SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewWillAppear");
             [self.tracker measureSpanWithDescription:@"viewWillAppear"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOrigin.autoUIViewController
+                                           operation:SentrySpanOperationUiLoad
+                                              origin:SentryTraceOriginAutoUIViewController
                                              inBlock:callbackToOrigin];
         };
 
@@ -285,6 +289,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.%@ because there is no active span.",
+                lifecycleMethod);
             callbackToOrigin();
             return;
         }
@@ -292,8 +298,8 @@
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:lifecycleMethod
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOrigin.autoUIViewController
+                                           operation:SentrySpanOperationUiLoad
+                                              origin:SentryTraceOriginAutoUIViewController
                                              inBlock:callbackToOrigin];
         };
 
@@ -329,6 +335,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewWillLayoutSubviews because there "
+                             @"is no active span.");
             callbackToOrigin();
             return;
         }
@@ -336,15 +344,15 @@
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOrigin.autoUIViewController
+                                           operation:SentrySpanOperationUiLoad
+                                              origin:SentryTraceOriginAutoUIViewController
                                              inBlock:callbackToOrigin];
 
             SentrySpanId *layoutSubViewId =
                 [self.tracker startSpanWithName:@"layoutSubViews"
                                      nameSource:kSentryTransactionNameSourceComponent
-                                      operation:SentrySpanOperation.uiLoad
-                                         origin:SentryTraceOrigin.autoUIViewController];
+                                      operation:SentrySpanOperationUiLoad
+                                         origin:SentryTraceOriginAutoUIViewController];
 
             objc_setAssociatedObject(controller,
                 &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, layoutSubViewId,
@@ -379,6 +387,8 @@
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
+            SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewDidLayoutSubviews because there "
+                             @"is no active span.");
             callbackToOrigin();
             return;
         }
@@ -393,8 +403,8 @@
 
             [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
                                           nameSource:kSentryTransactionNameSourceComponent
-                                           operation:SentrySpanOperation.uiLoad
-                                              origin:SentryTraceOrigin.autoUIViewController
+                                           operation:SentrySpanOperationUiLoad
+                                              origin:SentryTraceOriginAutoUIViewController
                                              inBlock:callbackToOrigin];
 
             objc_setAssociatedObject(controller,
@@ -439,6 +449,9 @@
         block();
         [spansInExecution removeObject:description];
     } else {
+        SENTRY_LOG_DEBUG(@"Skipping tracking the method %@ for %@, cause we're already tracking it "
+                         @"for a parent or child class.",
+            description, viewController);
         callbackToOrigin();
     }
 }
@@ -456,8 +469,8 @@
     } else {
         [self.tracker measureSpanWithDescription:description
                                       nameSource:kSentryTransactionNameSourceComponent
-                                       operation:SentrySpanOperation.uiLoad
-                                          origin:SentryTraceOrigin.autoUIViewController
+                                       operation:SentrySpanOperationUiLoad
+                                          origin:SentryTraceOriginAutoUIViewController
                                     parentSpanId:spanId
                                          inBlock:callbackToOrigin];
     }

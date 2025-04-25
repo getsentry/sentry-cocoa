@@ -6,7 +6,6 @@
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
 @class SentryEnvelope;
-@class SentryFeedback;
 @class SentryNSTimerFactory;
 @class SentrySession;
 @class SentryTracer;
@@ -35,9 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryClient *_Nullable)client;
 
-- (void)captureCrashEvent:(SentryEvent *)event;
+- (void)captureFatalEvent:(SentryEvent *)event;
 
-- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+#if SENTRY_HAS_UIKIT
+- (void)captureFatalAppHangEvent:(SentryEvent *)event;
+#endif // SENTRY_HAS_UIKIT
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
@@ -64,7 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
-- (void)captureFeedback:(SentryFeedback *)feedback;
 
 - (void)registerSessionListener:(id<SentrySessionListener>)listener;
 - (void)unregisterSessionListener:(id<SentrySessionListener>)listener;

@@ -1,6 +1,130 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+
+## 8.49.1
+
+### Fixes
+
+- Crash in setMeasurement when name is nil (#5064)
+- Make setMeasurement thread safe (#5067, #5078)
+- Truncation of Swift crash messages (#5036)
+- Add error logging for move current replay to last path (#5083)
+- Async safe log for backtrace in CPPException (#5098)
+
+## 8.49.0
+
+### Features
+
+- New continuous profiling configuration API (#4952 and #5063)
+
+> [!Important]
+> With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
+>
+> - `SentryOptions.enableProfiling`
+> - `SentryOptions.isProfilingEnabled`
+> - `SentryOptions.profilesSampleRate`
+> - `SentryOptions.profilesSampler`
+> - `SentryOptions.enableLaunchProfiling`
+>
+> Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above APIs are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is its default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
+
+### Fixes
+
+- Continuous profile stop requests are cancelled by subsequent timely calls to start (#4993)
+
+### Improvements
+
+- Remove SDK side character limit of 8192 for SentryMessage (#5005) Now, the backend handles the character limit, which has the advantage of showing in the UI when the message was truncated.
+
+## 8.48.0
+
+### Features
+
+- Add extension for `FileManager` to track file I/O operations with Sentry (#4863)
+
+### Improvements
+
+- Slightly speed up adding breadcrumbs (#4984)
+
+### Fixes
+
+- Fixes experimental Replay view renderer options initialisation (#4988)
+
+## 8.47.0
+
+> [!Important]
+> This version fixes an important bug for applying scope data to crash events (#4969).
+>
+> Previously, the SDK always set the event's user to the user of the scope of the app launch after the crash event, which could result in incorrect user data if the user changed between the crash and the next launch.
+> Additionally, if specific properties on the crash event were nil, the SDK replaced them with values from the scope of the app launch after the crash event. This affected the following event properties: tags, extra, fingerprints, breadcrumbs, dist, environment, level, and trace context. However, since most of these properties are infrequently nil, the fix should have minimal impact on most users.
+
+### Deprecations
+
+- Some profiling API are deprecated in favor of new ways to manage starting and stopping continuous profiling sessions (#4854)
+
+### Features
+
+- Add extension for `Data` to track file I/O operations with Sentry (#4862)
+- Send fatal app hang session updates (#4921) only when enabling the option `enableAppHangTrackingV2`.
+- Add experimental flag `options.sessionReplay.enableExperimentalViewRenderer` to enable up to 5x times more performance in Session Replay (#4940)
+
+### Fixes
+
+- Correctly finish TTFD span when no new frame (#4941)
+- Only delete envelopes when receiving HTTP 200 (#4956)
+- Set foreground true for watchdog terminations (#4953)
+- Fix removing value from context not updating observer context (#4960)
+- Fix wrongly applying scope to crash events (#4969)
+- Changed parameter of `SDKInfo.initWithOptions` to be nullable (#4968)
+
+### Improvements
+
+- More debug logs for UIViewController tracing (#4942)
+- Avoid creating unnecessary User Interaction transactions (#4957)
+
+## 8.46.0
+
+### Features
+
+- Report fatal app hangs (#4889) only when enabling the option `enableAppHangTrackingV2`
+- New user feedback API and Widget (#4874)
+
+### Improvements
+
+- Log message when setting user before starting the SDK (#4882)
+- Add experimental flag to disable swizzling of `NSData` individually (#4859)
+- Replace calls of `SentryScope.useSpan` with callback to direct span accessor (#4896)
+- Slightly reduce size of SentryCrashReports (#4915)
+
+### Fixes
+
+- Fix rare memory access issue for auto tracing (#4894). For more details, see issue (#4887).
+- Move assignment of file IO span origin outside of block (#4888)
+- Deadline timeout crash in SentryTracer (#4911)
+- Improve memory-safety by converting Swift constants to Objective-C (#4910)
+- Fix C++ compilation error due to changes in Xcode 16.3 beta's compiler toolchain (#4917 and #4918)
+
+### Internal
+
+- Add injectable mask and view renderer (#4938)
+
 ## 8.45.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disabling the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Features
 
@@ -29,6 +153,11 @@
 - Remove internal unknown dict for Breadcrumbs (#4803) This potentially only impacts hybrid SDKs.
 
 ## 8.44.0
+
+> [!WARNING]
+> We have been made aware that this version can cause crashes in certain configurations when using network tracking, file I/O tracking, or CoreData tracking features.
+> We recommend staying on version 8.43.0 or disable the mentioned features until a fix is released.
+> See issue [#4887](https://github.com/getsentry/sentry-cocoa/issues/4887) for more details.
 
 ### Fixes
 

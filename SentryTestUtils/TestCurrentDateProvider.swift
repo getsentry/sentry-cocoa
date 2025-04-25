@@ -8,12 +8,11 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
     public var driftTimeForEveryRead = false
     public var driftTimeInterval = 0.1
     private var _systemUptime: TimeInterval = 0
-    
+
     public init() {
     }
-    
-    public func date() -> Date {
 
+    public func date() -> Date {
         defer {
             if driftTimeForEveryRead {
                 internalDate = internalDate.addingTimeInterval(driftTimeInterval)
@@ -28,7 +27,7 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
         setDate(date: TestCurrentDateProvider.defaultStartingDate)
         internalSystemTime = 0
     }
-    
+
     public func setDate(date: Date) {
         internalDate = date
     }
@@ -43,7 +42,7 @@ public class TestCurrentDateProvider: SentryCurrentDateProvider {
         setDate(date: date().addingTimeInterval(nanoseconds.toTimeInterval()))
         internalSystemTime += nanoseconds
     }
-    
+
     public func advanceBy(interval: TimeInterval) {
         setDate(date: date().addingTimeInterval(interval))
         internalSystemTime += interval.toNanoSeconds()

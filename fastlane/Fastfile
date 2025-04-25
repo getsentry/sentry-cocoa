@@ -91,7 +91,10 @@ platform :ios do
       clone_branch_directly: true
     )
 
-    build_app(
+    # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
+    # The log output will print a warning: "No output path received from gym"
+    # See: https://github.com/fastlane/fastlane/issues/22276#issuecomment-2491517911
+    build_ios_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       include_bitcode: false,
@@ -221,52 +224,88 @@ platform :ios do
   end
 
   lane :ui_tests_ios_swiftui do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swiftui.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
   
-    lane :ui_tests_ios_swift6 do |options|
+  lane :ui_tests_ios_swift6 do |options|
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swift6.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift6",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_ios_objc do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-objc.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_ios_swift do |options|
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-ios-swift.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
   lane :ui_tests_tvos_swift do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-tvos-swift.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
-      configuration: configuration
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
   
   desc "Run Duplication test"
   lane :duplication_test do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/duplication-test.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
-      scheme: "DuplicatedSDKTest"
+      scheme: "DuplicatedSDKTest",
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 

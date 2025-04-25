@@ -384,3 +384,38 @@ We can also start with this option to evaluate Swift Codable and switch to optio
 #### Cons
 
 1. Duplicate code.
+
+## Platform version support
+
+Date: March 11, 2025
+Contributors: @armcknight, @philipphofmann, @kahest
+
+We will support versions of each platform going back 4 major versions, but we support no version which is not debuggable by the current Xcode required to submit apps to stores. There are 3 considerations:
+
+1. The distribution of events we receive from the various versions of iOS etc in the wild.
+1. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
+1. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
+
+Our major-4 standard would place us right in the middle of the earliest Xcode and GitHub Actions supported versions, which seems like a reasonable standard.
+
+Those versions that cannot be automatically tested with GitHub Actions shall be declared as "best effort" support.
+
+See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846.
+
+## Use preinstalled GH actions simulators
+
+Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
+
+## Do not use Swift String constants in ObjC code
+
+Date: April 11, 2025
+Contributors: @philipphofmann, @philprime, @kahest
+
+Due to a potential memory-management bug in the Swift standard library for bridging `String` to Objective-C, we experienced SDK crashes when accessing Swift String constants from an Objective-C `NSBlock` closure.
+
+To avoid this issue, we should not use Swift String constants in Objective-C code and instead define them as Objective-C constants.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/4887
+- https://github.com/getsentry/sentry-cocoa/pull/4910

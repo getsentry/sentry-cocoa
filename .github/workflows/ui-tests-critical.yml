@@ -6,11 +6,14 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - '.github/workflows/ui-tests-critical.yml'
-      - 'fastlane/**'
-      - 'TestSamples/**'
-      - '**/*.xctestplan'
+      - "Sources/**"
+      - ".github/workflows/ui-tests-critical.yml"
+      - "fastlane/**"
+      - "TestSamples/**"
+      - "**/*.xctestplan"
+      # Explicitly list used scripts to avoid unnecessary runs
+      - "scripts/ci-boot-simulator.sh"
+      - "scripts/ci-select-xcode.sh"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -34,7 +37,7 @@ jobs:
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
 
   run-tests:
-    name: Test iOS ${{matrix.os-version}} on ${{matrix.device}} Simulator
+    name: Test iOS on Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
     needs: [build-sample]
     runs-on: ${{matrix.runs-on}}
     env:
@@ -51,23 +54,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 14"
-            os-version: "16.4"
-            force-sim-runtime: true
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
+          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - runs-on: macos-15
             xcode: "16.2"
-            device: "iPhone 16"
-            os-version: "18.2"
 
     steps:
       - uses: actions/checkout@v4
-      - name: Create ${{matrix.device}} (${{matrix.os-version}}) Simulator using Xcode ${{matrix.xcode}}
-        run: ./scripts/create-simulator.sh "${{matrix.xcode}}" "${{matrix.os-version}}" "${{matrix.device}}" "${{matrix.force-sim-runtime}}"
+
       - name: Install tooling
         run: make init-ci-test
 
@@ -76,19 +77,26 @@ jobs:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
 
+      - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
+
+      - name: Install App
+        run: xcrun simctl install booted ${{env.APP_PATH}}
+
       - name: Run Maestro Flows
         run: |
-          xcrun simctl install booted ${{env.APP_PATH}}
-
           maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
-
-      - name: Delete Simulator
-        if: always()
-        run: ./scripts/delete-simulator.sh
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: maestro-logs-${{matrix.device}}-${{matrix.os-version}}
+          name: maestro-logs-${{matrix.xcode}}
           path: ${{env.MAESTRO_LOGS_PATH}}
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-${{matrix.xcode}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**

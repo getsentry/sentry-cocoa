@@ -332,16 +332,19 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
+    SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
+
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     // only write profile payloads to disk for UI tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
-        sentry_writeProfileFile(JSONData);
+        sentry_writeProfileFile(JSONData, true /*continuous*/);
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     const auto header =
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
                                                 length:JSONData.length];
+    header.platform = @"cocoa";
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
@@ -386,7 +389,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     }
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-    sentry_writeProfileFile(JSONData);
+    sentry_writeProfileFile(JSONData, false /*continuous*/);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile

@@ -29,10 +29,10 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 16.3
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -50,30 +50,25 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
-            xcode: 15.4
-            runs-on: macos-14
           - scheme: iOS13-Swift
-            xcode: 15.4
-            runs-on: macos-14
           - scheme: watchOS-Swift WatchKit App
-            xcode: 15.4
-            runs-on: macos-14
-          # Only compiles on Xcode 16+
           - scheme: macOS-SwiftUI
-            xcode: 16.2
-            runs-on: macos-15
+          - scheme: SessionReplay-CameraTest
+          - scheme: visionOS-Swift
+
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}
+      - run: ./scripts/ci-select-xcode.sh 16.3
 
-      # Disable code signing. We just want to make sure these compile.
+      # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
+      #       we did not yet migrate this step to use the script yet.
       - run: >-
           env NSUnbufferedIO=YES
           xcodebuild
@@ -82,6 +77,14 @@ jobs:
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build
+
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-scheme-${{matrix.scheme}}
+          path: |
+            raw-build-output.log
 
   build-xcframework:
     name: Build XCFramework
@@ -127,7 +130,7 @@ jobs:
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework
           path: |

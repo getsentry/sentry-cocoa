@@ -20,6 +20,7 @@ class SentryHubTests: XCTestCase {
         let sentryCrashWrapper = TestSentryCrashWrapper.sharedInstance()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
+        let abnormalSession: SentrySession
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
         let traceOrigin = "auto"
@@ -44,6 +45,10 @@ class SentryHubTests: XCTestCase {
             crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
             crashedSession.environment = options.environment
+            
+            abnormalSession = SentrySession(releaseName: "1.0.0", distinctId: "")
+            abnormalSession.endAbnormal(withTimestamp: currentDateProvider.date())
+            abnormalSession.environment = options.environment
         }
         
         func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
@@ -66,6 +71,7 @@ class SentryHubTests: XCTestCase {
         fixture = Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteAbnormalSession()
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -75,6 +81,7 @@ class SentryHubTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteAbnormalSession()
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -826,7 +833,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(0, fixture.client.captureExceptionWithScopeInvocations.count)
     }
     
-    func testCaptureCrashEvent_CrashedSessionExists() {
+    func testCaptureFatalEvent_CrashedSessionExists() {
         sut = fixture.getSut(fixture.options, fixture.scope)
         givenCrashedSession()
         
@@ -834,15 +841,15 @@ class SentryHubTests: XCTestCase {
         
         let environment = "test"
         sut.configureScope { $0.setEnvironment(environment) }
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         assertEventSentWithSession(scopeEnvironment: environment)
         
         // Make sure further crash events are sent
-        sut.captureCrash(fixture.event)
-        assertCrashEventSent()
+        sut.captureFatalEvent(fixture.event)
+        assertFatalEventSent()
     }
     
-    func testCaptureCrashEvent_ManualSessionTracking_CrashedSessionExists() {
+    func testCaptureFatalEvent_ManualSessionTracking_CrashedSessionExists() {
         givenAutoSessionTrackingDisabled()
         
         givenCrashedSession()
@@ -851,51 +858,51 @@ class SentryHubTests: XCTestCase {
         
         let environment = "test"
         sut.configureScope { $0.setEnvironment(environment) }
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         
         assertEventSentWithSession(scopeEnvironment: environment)
         
         // Make sure further crash events are sent
-        sut.captureCrash(fixture.event)
-        assertCrashEventSent()
+        sut.captureFatalEvent(fixture.event)
+        assertFatalEventSent()
     }
     
-    func testCaptureCrashEvent_CrashedSessionDoesNotExist() {
+    func testCaptureFatalEvent_CrashedSessionDoesNotExist() {
         sut.startSession() // there is already an existing session
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         
         assertNoCrashedSessionSent()
-        assertCrashEventSent()
+        assertFatalEventSent()
     }
     
     /**
      * When autoSessionTracking is just enabled and there is a previous crash on the disk there is no session on the disk.
      */
-    func testCaptureCrashEvent_CrashExistsButNoSessionExists() {
-        sut.captureCrash(fixture.event)
+    func testCaptureFatalEvent_CrashExistsButNoSessionExists() {
+        sut.captureFatalEvent(fixture.event)
         
-        assertCrashEventSent()
+        assertFatalEventSent()
     }
     
-    func testCaptureCrashEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
+    func testCaptureFatalEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
         givenAutoSessionTrackingDisabled()
         
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         
-        assertCrashEventSent()
+        assertFatalEventSent()
     }
     
-    func testCaptureCrashEvent_ClientIsNil() {
+    func testCaptureFatalEvent_ClientIsNil() {
         sut = fixture.getSut()
         sut.bindClient(nil)
         
         givenCrashedSession()
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         
         assertNoEventsSent()
     }
     
-    func testCaptureCrashEvent_ClientHasNoReleaseName() {
+    func testCaptureFatalEvent_ClientHasNoReleaseName() {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
@@ -903,10 +910,108 @@ class SentryHubTests: XCTestCase {
         sut.bindClient(client)
         
         givenCrashedSession()
-        sut.captureCrash(fixture.event)
+        sut.captureFatalEvent(fixture.event)
         
         assertNoEventsSent()
     }
+    
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
+        // Arrange
+        sut = fixture.getSut(fixture.options, fixture.scope)
+        givenAbnormalSession()
+        
+        assertNoAbnormalSessionSent()
+        
+        let environment = "test"
+        sut.configureScope { $0.setEnvironment(environment) }
+        
+        // Act
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertEventSentWithSession(scopeEnvironment: environment, sessionStatus: .abnormal, abnormalMechanism: "anr_foreground")
+    }
+    
+    func testCaptureFatalAppHangEvent_ManualSessionTracking_AbnormalSessionExists() {
+        // Arrange
+        givenAutoSessionTrackingDisabled()
+        givenAbnormalSession()
+        assertNoAbnormalSessionSent()
+        
+        let environment = "test"
+        sut.configureScope { $0.setEnvironment(environment) }
+        
+        // Act
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertEventSentWithSession(scopeEnvironment: environment, sessionStatus: .abnormal, abnormalMechanism: "anr_foreground")
+    }
+    
+    func testCaptureFatalAppHangEvent_AbnormalSessionDoesNotExist() {
+        // Arrange
+        sut.startSession() // there is already an existing session
+        
+        // Act
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertNoAbnormalSessionSent()
+        assertFatalEventSent()
+    }
+    
+    /**
+     * When autoSessionTracking is just enabled and there is a previous fatal app hang on the disk there is no session on the disk.
+     */
+    func testCaptureFatalAppHangEvent_FatalAppHangExistsButNoSessionExists() {
+        // Act
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertFatalEventSent()
+    }
+    
+    func testCaptureFatalAppHangEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
+        // Arrange
+        givenAutoSessionTrackingDisabled()
+        
+        // Act
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertFatalEventSent()
+    }
+    
+    func testCaptureFatalAppHangEvent_ClientIsNil() {
+        // Arrange
+        sut = fixture.getSut()
+        sut.bindClient(nil)
+        
+        // Act
+        givenAbnormalSession()
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertNoEventsSent()
+    }
+    
+    func testCaptureFatalAppHangEvent_ClientHasNoReleaseName() {
+        // Arrange
+        sut = fixture.getSut()
+        let options = fixture.options
+        options.releaseName = nil
+        let client = SentryClient(options: options)
+        sut.bindClient(client)
+        
+        // Act
+        givenAbnormalSession()
+        sut.captureFatalAppHang(fixture.event)
+        
+        // Assert
+        assertNoEventsSent()
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1239,6 +1344,12 @@ class SentryHubTests: XCTestCase {
         sut.startSession()
     }
     
+    private func givenAbnormalSession() {
+        fixture.fileManager.storeAbnormalSession(fixture.abnormalSession)
+        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+        sut.startSession()
+    }
+    
     private func givenAutoSessionTrackingDisabled() {
         let options = fixture.options
         options.enableAutoSessionTracking = false
@@ -1276,27 +1387,34 @@ class SentryHubTests: XCTestCase {
         }))
     }
     
+    private func assertNoAbnormalSessionSent() {
+        XCTAssertFalse(fixture.client.captureSessionInvocations.invocations.contains(where: { session in
+            return session.status == SentrySessionStatus.abnormal
+        }))
+    }
+    
     private func assertNoEventsSent() {
         XCTAssertEqual(0, fixture.client.captureEventInvocations.count)
-        XCTAssertEqual(0, fixture.client.captureCrashEventWithSessionInvocations.count)
+        XCTAssertEqual(0, fixture.client.captureFatalEventWithSessionInvocations.count)
+        XCTAssertEqual(0, fixture.client.captureFatalEventInvocations.count)
     }
     
     private func assertEventSent() {
         let arguments = fixture.client.captureEventWithScopeInvocations
         XCTAssertEqual(1, arguments.count)
         XCTAssertEqual(fixture.event, arguments.first?.event)
-        XCTAssertFalse(arguments.first?.event.isCrashEvent ?? true)
+        XCTAssertFalse(arguments.first?.event.isFatalEvent ?? true)
     }
     
-    private func assertCrashEventSent() {
-        let arguments = fixture.client.captureCrashEventInvocations
+    private func assertFatalEventSent() {
+        let arguments = fixture.client.captureFatalEventInvocations
         XCTAssertEqual(1, arguments.count)
         XCTAssertEqual(fixture.event, arguments.first?.event)
-        XCTAssertTrue(arguments.first?.event.isCrashEvent ?? false)
+        XCTAssertTrue(arguments.first?.event.isFatalEvent ?? false)
     }
     
-    private func assertEventSentWithSession(scopeEnvironment: String) {
-        let arguments = fixture.client.captureCrashEventWithSessionInvocations
+    private func assertEventSentWithSession(scopeEnvironment: String, sessionStatus: SentrySessionStatus = .crashed, abnormalMechanism: String? = nil) {
+        let arguments = fixture.client.captureFatalEventWithSessionInvocations
         XCTAssertEqual(1, arguments.count)
         
         let argument = arguments.first
@@ -1304,11 +1422,9 @@ class SentryHubTests: XCTestCase {
         
         let session = argument?.session
         XCTAssertEqual(fixture.currentDateProvider.date(), session?.timestamp)
-        XCTAssertEqual(SentrySessionStatus.crashed, session?.status)
+        XCTAssertEqual(sessionStatus, session?.status)
+        XCTAssertEqual(abnormalMechanism, session?.abnormalMechanism)
         XCTAssertEqual(fixture.options.environment, session?.environment)
-        
-        let event = argument?.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        XCTAssertEqual(event?.environment, scopeEnvironment)
     }
     
     private func assertSessionWithIncrementedErrorCountedAdded() throws {

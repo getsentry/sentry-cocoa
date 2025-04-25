@@ -9,20 +9,19 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
-        lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: dateProvider)
-
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
 
         init() {
-            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue,
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
 
         func getSut(name: String, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(name: name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+            return SentryTimeToDisplayTracker(name: name, waitForFullDisplay: waitForFullDisplay, dispatchQueueWrapper: dispatchQueue)
         }
         
         func getTracer() throws -> SentryTracer {
@@ -30,7 +29,6 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
             let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
-                $0.timerFactory = self.timerFactory
             }))
         }
     }
@@ -40,7 +38,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     override func setUp() {
         super.setUp()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
     }
 
     override func tearDown() {
@@ -90,8 +88,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttidSpan.timestamp, fixture.dateProvider.date())
         XCTAssertEqual(ttidSpan.isFinished, true)
         XCTAssertEqual(ttidSpan.spanDescription, "UIViewController initial display")
-        XCTAssertEqual(ttidSpan.operation, SentrySpanOperation.uiLoadInitialDisplay)
-        XCTAssertEqual(ttidSpan.origin, "auto.ui.time_to_display")
+        XCTAssertEqual(ttidSpan.operation, SentrySpanOperationUiLoadInitialDisplay)
+        XCTAssertEqual(ttidSpan.origin, SentryTraceOriginAutoUITimeToDisplay)
 
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
 
@@ -174,8 +172,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.status, .ok)
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display")
-        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperation.uiLoadFullDisplay)
-        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(sut.fullDisplaySpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
         
@@ -279,8 +277,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
-        // Timeout for tracer times out
-        try fixture.timerFactory.fire()
+        // Deadline timeout for tracer times out
+        fixture.dispatchQueue.invokeLastDispatchAfter()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
@@ -296,8 +294,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttfdSpan?.timestamp, ttidSpan?.timestamp)
         XCTAssertEqual(ttfdSpan?.status, .deadlineExceeded)
         XCTAssertEqual(ttfdSpan?.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(ttfdSpan?.operation, SentrySpanOperation.uiLoadFullDisplay)
-        XCTAssertEqual(ttfdSpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(ttfdSpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(ttfdSpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
     }
@@ -329,8 +327,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
 
-        // Timeout for tracer times out
-        try fixture.timerFactory.fire()
+        // Deadline timeout for tracer times out
+        fixture.dispatchQueue.invokeLastDispatchAfter()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
         sut.reportFullyDisplayed()
@@ -440,8 +438,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.status, .deadlineExceeded)
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperation.uiLoadFullDisplay)
-        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(sut.fullDisplaySpan?.origin, SentryTraceOriginManualUITimeToDisplay)
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
@@ -477,11 +475,91 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(fullDisplaySpan.status, .deadlineExceeded)
 
         XCTAssertEqual(fullDisplaySpan.spanDescription, "UIViewController full display - Deadline Exceeded")
-        XCTAssertEqual(fullDisplaySpan.operation, SentrySpanOperation.uiLoadFullDisplay)
-        XCTAssertEqual(fullDisplaySpan.origin, "manual.ui.time_to_display")
+        XCTAssertEqual(fullDisplaySpan.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(fullDisplaySpan.origin, SentryTraceOriginManualUITimeToDisplay)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
         XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+    }
+    
+    func testFinishSpansIfNotFinished_FullyDisplayedRecorded_ButNoNewFrame() throws {
+        // Arrange
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
+        let tracer = try fixture.getTracer()
+        
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+
+        sut.start(for: tracer)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 10))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
+        sut.reportFullyDisplayed()
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 12))
+        
+        // Act
+        sut.finishSpansIfNotFinished()
+        
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 13))
+        tracer.finish()
+        
+        // Assert
+        let ttidSpan = try XCTUnwrap(sut.initialDisplaySpan)
+        XCTAssertEqual(ttidSpan.startTimestamp, Date(timeIntervalSince1970: 9))
+        XCTAssertEqual(ttidSpan.timestamp, Date(timeIntervalSince1970: 10))
+        XCTAssertEqual(ttidSpan.status, .ok)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 1_000)
+        
+        let ttfdSpan = try XCTUnwrap(sut.fullDisplaySpan)
+        XCTAssertEqual(ttfdSpan.startTimestamp, ttidSpan.startTimestamp)
+        XCTAssertEqual(ttfdSpan.timestamp, Date(timeIntervalSince1970: 12))
+        XCTAssertEqual(ttfdSpan.status, .ok)
+        XCTAssertEqual(ttfdSpan.spanDescription, "UIViewController full display")
+        XCTAssertEqual(ttfdSpan.operation, SentrySpanOperationUiLoadFullDisplay)
+        XCTAssertEqual(ttfdSpan.origin, SentryTraceOriginManualUITimeToDisplay)
+        
+        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
+    }
+    
+    func testFinishSpansIfNotFinished_FullyDisplayedRecorded_RemovesListener() throws {
+        // Arrange
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
+        let tracer = try fixture.getTracer()
+        
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+
+        sut.start(for: tracer)
+
+        sut.reportFullyDisplayed()
+        
+        // Act
+        sut.finishSpansIfNotFinished()
+
+        // Assert
+        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0, "Frames tracker listener should be removed")
+    }
+    
+    func testFinishSpansIfNotFinished_RemovesFramesTrackerListener() throws {
+        // Arrange
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        let tracer = try fixture.getTracer()
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+        sut.start(for: tracer)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 10))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Act
+        sut.finishSpansIfNotFinished()
+        
+        // Assert
+        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0, "Frames tracker listener should be removed")
     }
 
     private func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {

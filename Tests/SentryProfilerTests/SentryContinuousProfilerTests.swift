@@ -105,7 +105,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentrySDK.close()
         try assertContinuousProfileStoppage()
     }
-    
+
     func testStartingAPerformanceTransactionDoesNotStartProfiler() throws {
         let manualSpan = try fixture.newTransaction()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -161,6 +161,34 @@ final class SentryContinuousProfilerTests: XCTestCase {
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
     }
+
+    func testStoppingAndStartingAgainBeforeFinalChunkCompletesResultsInOneProfile() throws {
+        // arrange
+        SentryContinuousProfiler.start()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // act
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.stop()
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.start()
+
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        fixture.currentDateProvider.advanceBy(interval: 1)
+        SentryContinuousProfiler.stop()
+
+        // assert
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        try fixture.timeoutTimerFactory.check()
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
 }
 
 private extension SentryContinuousProfilerTests {
@@ -214,6 +242,7 @@ private extension SentryContinuousProfilerTests {
         XCTAssertEqual(1, envelope.items.count)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
+        XCTAssertEqual("cocoa", profileItem.header.platform)
         let data = profileItem.data
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 

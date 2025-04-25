@@ -117,12 +117,12 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testEnvelopeWithData() throws {
-        let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
+        let itemData = Data("{}\n{\"length\":0,\"type\":\"attachment\"}\n".utf8)
         XCTAssertNotNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
     
     func testEnvelopeWithDataLengthGtZero() throws {
-        let itemData = "{}\n{\"length\":1,\"type\":\"attachment\"}\n".data(using: .utf8)!
+        let itemData = Data("{}\n{\"length\":1,\"type\":\"attachment\"}\n".utf8)
         XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
 
@@ -476,5 +476,22 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         event.exceptions = [TestData.exception]
         event.exceptions?.first?.mechanism?.handled = false
         return SentryEnvelope(event: event)
+    }
+    
+    func testSetTrace() {
+        // -- Arrange --
+        let traceId = SentryId()
+        let spanId = SentrySpanId()
+        
+        let scope = Scope()
+        let hub = TestHub(client: nil, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        
+        // -- Act --
+        PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
+        
+        // -- Assert --        
+        XCTAssertEqual(scope.propagationContext?.traceId, traceId)
+        XCTAssertEqual(scope.propagationContext?.spanId, spanId)
     }
 }

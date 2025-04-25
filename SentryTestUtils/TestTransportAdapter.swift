@@ -20,8 +20,10 @@ public class TestTransportAdapter: SentryTransportAdapter {
     public override func store(_ event: Event, traceContext: TraceContext?) {
         storeEventInvocations.record((event, traceContext))
     }
-
+    
+    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. See TestClient.captureFeedbackInvocations, used in SentrySDKTests.testCaptureFeedback.")
     public var userFeedbackInvocations = Invocations<UserFeedback>()
+    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. See TestClient.capture(feedback:scope:), used in SentrySDKTests.testCaptureFeedback.")
     public override func send(userFeedback: UserFeedback) {
         userFeedbackInvocations.record(userFeedback)
     }

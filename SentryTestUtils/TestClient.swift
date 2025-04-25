@@ -96,15 +96,15 @@ public class TestClient: SentryClient {
         return SentryId()
     }
     
-    public var captureCrashEventInvocations = Invocations<(event: Event, scope: Scope)>()
-    public override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
-        captureCrashEventInvocations.record((event, scope))
+    public var captureFatalEventInvocations = Invocations<(event: Event, scope: Scope)>()
+    public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+        captureFatalEventInvocations.record((event, scope))
         return SentryId()
     }
     
-    public var captureCrashEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
-    public override func captureCrash(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureCrashEventWithSessionInvocations.record((event, session, scope))
+    public var captureFatalEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
+    public override func captureFatalEvent(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
+        captureFatalEventWithSessionInvocations.record((event, session, scope))
         return SentryId()
     }
     
@@ -113,9 +113,16 @@ public class TestClient: SentryClient {
         saveCrashTransactionInvocations.record((transaction, scope))
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See captureFeedbackInvocations.")
     public var captureUserFeedbackInvocations = Invocations<UserFeedback>()
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See capture(feedback:scope:).")
     public override func capture(userFeedback: UserFeedback) {
         captureUserFeedbackInvocations.record(userFeedback)
+    }
+    
+    public var captureFeedbackInvocations = Invocations<(SentryFeedback, Scope)>()
+    public override func capture(feedback: SentryFeedback, scope: Scope) {
+        captureFeedbackInvocations.record((feedback, scope))
     }
     
     public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()

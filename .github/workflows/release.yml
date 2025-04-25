@@ -1,4 +1,6 @@
-name: Release ${{ github.event.inputs.version }}
+name: Release
+run-name: Release ${{ github.event.inputs.version }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -15,19 +17,19 @@ on:
 jobs:
   prepare_framework:
     runs-on: macos-13-xlarge
-    name: 'Create XCFramework'
+    name: "Create XCFramework"
     steps:
       - uses: actions/checkout@v4
-    
-      - name: 'Generate XCFramework'
+
+      - name: "Generate XCFramework"
         run: |
           ./scripts/ci-select-xcode.sh 15.2
           make bump-version TO=${{ github.event.inputs.version }}
           # We need to build the framework during release to get it's SHA value
           # the framework will be saved as an artefact and we will use the same
           # binary for the entire release process to avoid the SHA to change
-          make build-xcframework 
-            
+          make build-xcframework
+
       - uses: actions/upload-artifact@v4
         with:
           name: xcframeworks.zip
@@ -40,12 +42,12 @@ jobs:
 
   job_release:
     runs-on: ubuntu-latest
-    name: 'Release a new version'
+    name: "Release a new version"
     needs: prepare_framework
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@0d564482f06ca65fa9e77e2510873638c82206f2 # v1.11.5
+        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -54,16 +56,16 @@ jobs:
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
-          
+
       - uses: actions/download-artifact@v4
         with:
           name: xcframeworks.zip
           path: Carthage/
-          
+
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
       - run: export GITHUB_RUN_ID=${{ github.run_id }}
-      
+
       - name: Prepare release
         uses: getsentry/action-prepare-release@v1
         env:

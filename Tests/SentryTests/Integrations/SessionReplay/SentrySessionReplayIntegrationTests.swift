@@ -224,7 +224,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -252,7 +252,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -280,7 +280,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
-        crash.isCrashEvent = true
+        crash.isFatalEvent = true
         SentryGlobalEventProcessor.shared().reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -576,7 +576,68 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         XCTAssertEqual(window.subviews.count, 0, "Mask preview should not appear in production")
     }
-    
+
+    func testMoveCurrentReplay_whenLastFileExistsWithoutCurrent_shouldBeRemoved() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+
+        let replayFolder = sut.replayDirectory()
+        try FileManager.default.createDirectory(atPath: replayFolder.path, withIntermediateDirectories: true)
+
+        let currentReplayPath = replayFolder.appendingPathComponent("replay.current")
+        // Cleanup stale files from previous tests
+        if FileManager.default.fileExists(atPath: currentReplayPath.path) {
+            try FileManager.default.removeItem(atPath: currentReplayPath.path)
+        }
+
+        let lastReplayPath = replayFolder.appendingPathComponent("replay.last")
+        let lastData = Data("last".utf8)
+        try lastData.write(to: lastReplayPath)
+
+        // Validate pre-condition
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        // -- Act --
+        sut.moveCurrentReplay()
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
+    }
+
+    func testMoveCurrentReplay_whenLastFileExistsWithCurrent_shouldBeReplaced() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+
+        let replayFolder = sut.replayDirectory()
+        try FileManager.default.createDirectory(atPath: replayFolder.path, withIntermediateDirectories: true)
+
+        let currentReplayPath = replayFolder.appendingPathComponent("replay.current")
+        let currentData = Data("current".utf8)
+        try currentData.write(to: currentReplayPath)
+
+        let lastReplayPath = replayFolder.appendingPathComponent("replay.last")
+        let lastData = Data("last".utf8)
+        try lastData.write(to: lastReplayPath)
+
+        // Validate pre-condition
+        XCTAssertTrue(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        // -- Act --
+        sut.moveCurrentReplay()
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        let writtenLastData = try Data(contentsOf: lastReplayPath)
+        XCTAssertEqual(writtenLastData, currentData)
+    }
+
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"

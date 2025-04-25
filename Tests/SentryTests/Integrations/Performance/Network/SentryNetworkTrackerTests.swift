@@ -73,7 +73,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testCaptureCompletion() throws {
         let task = createDataTask()
-        let span = spanForTask(task: task)!
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         try assertCompletedSpan(task, span)
     }
@@ -110,20 +110,20 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testCaptureDownloadTask() throws {
         let task = createDownloadTask()
-        let span = spanForTask(task: task)
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         XCTAssertNotNil(span)
         try setTaskState(task, state: .completed)
-        XCTAssertTrue(span!.isFinished)
+        XCTAssertTrue(span.isFinished)
     }
 
     func testCaptureUploadTask() throws {
         let task = createUploadTask()
-        let span = spanForTask(task: task)
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         XCTAssertNotNil(span)
         try setTaskState(task, state: .completed)
-        XCTAssertTrue(span!.isFinished)
+        XCTAssertTrue(span.isFinished)
     }
 
     func testIgnoreStreamTask() {
@@ -156,7 +156,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(span)
     }
 
-    func testDisabledTracker() {
+    func testDisabledTracker() throws {
         let sut = fixture.getSut()
         sut.disable()
         let task = createUploadTask()
@@ -165,7 +165,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = Dynamic(transaction).children as [Span]?
 
-        XCTAssertEqual(spans!.count, 0)
+        XCTAssertEqual(try XCTUnwrap(spans).count, 0)
     }
 
     func testFinishedSpan() {
@@ -198,7 +198,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         tracer.finish()
 
         let spans = Dynamic(tracer).children as [Span]?
-        let span = spans!.first!
+        let span = try XCTUnwrap(spans?.first)
 
         advanceTime(bySeconds: 5)
 
@@ -206,21 +206,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         try setTaskState(task, state: .completed)
         XCTAssertTrue(span.isFinished)
 
-        assertSpanDuration(span: span, expectedDuration: 5)
-        assertSpanDuration(span: tracer, expectedDuration: 5)
+        try assertSpanDuration(span: span, expectedDuration: 5)
+        try assertSpanDuration(span: tracer, expectedDuration: 5)
     }
 
-    func testCaptureCancelledRequest() {
-        assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
+    func testCaptureCancelledRequest() throws {
+        try assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
     }
 
-    func testCaptureSuspendedRequest() {
-        assertStatus(status: .aborted, state: .suspended, response: URLResponse())
+    func testCaptureSuspendedRequest() throws {
+        try assertStatus(status: .aborted, state: .suspended, response: URLResponse())
     }
 
     func testCaptureRequestWithError() throws {
         let task = createDataTask()
-        let span = spanForTask(task: task)!
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
         try setTaskState(task, state: .completed)
@@ -228,17 +228,17 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.status, .unknownError)
     }
 
-    func testSpanDescriptionNameWithGet() {
+    func testSpanDescriptionNameWithGet() throws {
         let task = createDataTask()
-        let span = spanForTask(task: task)!
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testUrl)")
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
 
-    func testSpanDescriptionNameWithPost() {
+    func testSpanDescriptionNameWithPost() throws {
         let task = createDataTask(method: "POST")
-        let span = spanForTask(task: task)!
+        let span = try XCTUnwrap(spanForTask(task: task))
 
         XCTAssertEqual(span.spanDescription, "POST \(SentryNetworkTrackerTests.testUrl)")
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
@@ -261,10 +261,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         objc_removeAssociatedObjects(task)
 
-        XCTAssertFalse(spans!.first!.isFinished)
+        XCTAssertFalse(try XCTUnwrap(spans?.first?.isFinished))
 
         try setTaskState(task, state: .completed)
-        XCTAssertFalse(spans!.first!.isFinished)
+        XCTAssertFalse(try XCTUnwrap(spans?.first?.isFinished))
     }
 
     func testTaskStateChangedForRunning() throws {
@@ -275,10 +275,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = Dynamic(transaction).children as [Span]?
         task.state = .running
-        XCTAssertFalse(spans!.first!.isFinished)
+        XCTAssertFalse(try XCTUnwrap(spans?.first?.isFinished))
 
         try setTaskState(task, state: .completed)
-        XCTAssertTrue(spans!.first!.isFinished)
+        XCTAssertTrue(try XCTUnwrap(spans?.first?.isFinished))
     }
 
     func testTaskWithoutCurrentRequest() {
@@ -300,53 +300,53 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         task.setError(NSError(domain: "TEST_ERROR", code: -1, userInfo: nil))
         sut.urlSessionTask(task, setState: .running)
-        XCTAssertFalse(spans!.first!.isFinished)
+        XCTAssertFalse(try XCTUnwrap(spans?.first).isFinished)
 
         try setTaskState(task, state: .completed)
-        XCTAssertTrue(spans!.first!.isFinished)
+        XCTAssertTrue(try XCTUnwrap(spans?.first).isFinished)
     }
 
-    func testCaptureResponses() {
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
-        assertStatus(status: .undefined, state: .completed, response: createResponse(code: 300))
-        assertStatus(status: .invalidArgument, state: .completed, response: createResponse(code: 400))
-        assertStatus(status: .unauthenticated, state: .completed, response: createResponse(code: 401))
-        assertStatus(status: .permissionDenied, state: .completed, response: createResponse(code: 403))
-        assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
-        assertStatus(status: .aborted, state: .completed, response: createResponse(code: 409))
-        assertStatus(status: .resourceExhausted, state: .completed, response: createResponse(code: 429))
-        assertStatus(status: .internalError, state: .completed, response: createResponse(code: 500))
-        assertStatus(status: .unimplemented, state: .completed, response: createResponse(code: 501))
-        assertStatus(status: .unavailable, state: .completed, response: createResponse(code: 503))
-        assertStatus(status: .deadlineExceeded, state: .completed, response: createResponse(code: 504))
-        assertStatus(status: .undefined, state: .completed, response: URLResponse())
+    func testCaptureResponses() throws {
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        try assertStatus(status: .undefined, state: .completed, response: createResponse(code: 300))
+        try assertStatus(status: .invalidArgument, state: .completed, response: createResponse(code: 400))
+        try assertStatus(status: .unauthenticated, state: .completed, response: createResponse(code: 401))
+        try assertStatus(status: .permissionDenied, state: .completed, response: createResponse(code: 403))
+        try assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
+        try assertStatus(status: .aborted, state: .completed, response: createResponse(code: 409))
+        try assertStatus(status: .resourceExhausted, state: .completed, response: createResponse(code: 429))
+        try assertStatus(status: .internalError, state: .completed, response: createResponse(code: 500))
+        try assertStatus(status: .unimplemented, state: .completed, response: createResponse(code: 501))
+        try assertStatus(status: .unavailable, state: .completed, response: createResponse(code: 503))
+        try assertStatus(status: .deadlineExceeded, state: .completed, response: createResponse(code: 504))
+        try assertStatus(status: .undefined, state: .completed, response: URLResponse())
     }
 
-    func testBreadcrumb() {
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+    func testBreadcrumb() throws {
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
 
-        XCTAssertEqual(breadcrumb!.category, "http")
-        XCTAssertEqual(breadcrumb!.level, .info)
-        XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["status_code"] as? NSNumber), NSNumber(value: 200))
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 200))
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["request_body_size"] as? Int64), DATA_BYTES_SENT)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["response_body_size"] as? Int64), DATA_BYTES_RECEIVED)
-        XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
-        XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
-        XCTAssertNotNil(breadcrumb!.data!["request_start"])
-        XCTAssertTrue(breadcrumb!.data!["request_start"] is Date)
-        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["status_code"] as? NSNumber), NSNumber(value: 200))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 200))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["request_body_size"] as? Int64), DATA_BYTES_SENT)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["response_body_size"] as? Int64), DATA_BYTES_RECEIVED)
+        XCTAssertEqual(breadcrumb.data?["http.query"] as? String, "query=value&query2=value2")
+        XCTAssertEqual(breadcrumb.data?["http.fragment"] as? String, "fragment")
+        XCTAssertNotNil(breadcrumb.data?["request_start"])
+        XCTAssertTrue(breadcrumb.data?["request_start"] is Date)
+        XCTAssertNil(breadcrumb.data?["graphql_operation_name"])
     }
 
     func testNetworkBreadcrumbForSessionReplay() throws {
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
 
@@ -376,7 +376,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         tracer.enableNetworkBreadcrumbs()
         let task = createDataTask()
         tracer.urlSessionTaskResume(task)
-        task.setResponse(createResponse(code: 200))
+        task.setResponse(try createResponse(code: 200))
         tracer.urlSessionTask(task, setState: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
@@ -402,7 +402,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
     }
 
-    func testBreadcrumb_GraphQLEnabled() {
+    func testBreadcrumb_GraphQLEnabled() throws {
         let body = """
         {
             "operationName": "someOperationName",
@@ -412,14 +412,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         """
         fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
         fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
-        XCTAssertEqual(breadcrumb!.data!["graphql_operation_name"] as? String, "someOperationName")
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        XCTAssertEqual(breadcrumb.data?["graphql_operation_name"] as? String, "someOperationName")
     }
 
-    func testBreadcrumb_GraphQLEnabledInvalidData() {
+    func testBreadcrumb_GraphQLEnabledInvalidData() throws {
         let body = """
         [
             {"message": "arrays are valid json"}
@@ -427,15 +427,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         """
         fixture.nsUrlRequest.httpBody = body.data(using: .utf8)
         fixture.nsUrlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
-        XCTAssertNil(breadcrumb!.data!["graphql_operation_name"])
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        XCTAssertNil(breadcrumb.data?["graphql_operation_name"])
     }
 
-    func testNoBreadcrumb_DisablingBreadcrumb() {
-        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
+    func testNoBreadcrumb_DisablingBreadcrumb() throws {
+        try assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
             $0.disable()
             $0.enableNetworkTracking()
         }
@@ -444,48 +444,48 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
 
-    func testBreadcrumb_DisablingNetworkTracking() {
+    func testBreadcrumb_DisablingNetworkTracking() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
 
         sut.urlSessionTaskResume(task)
-        task.setResponse(createResponse(code: 200))
+        task.setResponse(try createResponse(code: 200))
 
         sut.urlSessionTask(task, setState: .completed)
 
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(breadcrumbs?.count, 1)
 
-        let breadcrumb = breadcrumbs!.first
-        XCTAssertEqual(breadcrumb!.category, "http")
-        XCTAssertEqual(breadcrumb!.level, .info)
-        XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
+        let breadcrumb = try XCTUnwrap(breadcrumbs?.first)
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
     }
 
     func testBreadcrumbWithoutSpan() throws {
         let task = createDataTask()
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
 
         objc_removeAssociatedObjects(task)
 
         try setTaskState(task, state: .completed)
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
 
-        XCTAssertEqual(breadcrumb!.category, "http")
-        XCTAssertEqual(breadcrumb!.level, .info)
-        XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
     }
 
     func testNoDuplicatedBreadcrumbs() throws {
         let task = createDataTask()
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
 
         objc_removeAssociatedObjects(task)
 
@@ -501,7 +501,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testWhenNoSpan_RemoveObserver() throws {
         let task = createDataTask()
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
 
         objc_removeAssociatedObjects(task)
 
@@ -512,49 +512,49 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
 
-    func testBreadcrumbNotFound() {
-        assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
+    func testBreadcrumbNotFound() throws {
+        try assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
 
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["status_code"] as? NSNumber), NSNumber(value: 404))
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 404))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["status_code"] as? NSNumber), NSNumber(value: 404))
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["reason"] as? String), HTTPURLResponse.localizedString(forStatusCode: 404))
     }
 
     func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() throws {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
 
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
 
         try setTaskState(task, state: .completed)
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
 
-        XCTAssertEqual(breadcrumb!.category, "http")
-        XCTAssertEqual(breadcrumb!.level, .error)
-        XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["url"] as? String), SentryNetworkTrackerTests.testUrl)
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "GET")
-        XCTAssertNil(breadcrumb!.data!["status_code"])
-        XCTAssertNil(breadcrumb!.data!["reason"])
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .error)
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
+        XCTAssertNil(breadcrumb.data?["status_code"])
+        XCTAssertNil(breadcrumb.data?["reason"])
     }
 
     func testBreadcrumbPost() throws {
         let task = createDataTask(method: "POST")
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
 
         try setTaskState(task, state: .completed)
 
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        let breadcrumb = breadcrumbs!.first
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
 
-        XCTAssertEqual(try XCTUnwrap(breadcrumb!.data!["method"] as? String), "POST")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "POST")
     }
 
     func test_NoBreadcrumb_forSentryAPI() throws {
@@ -579,13 +579,69 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
     
+    func test_Breadcrumb_HTTP200_HasLevelInfo() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(try createResponse(code: 200))
+        let _ = try XCTUnwrap(spanForTask(task: task))
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(200, data["status_code"] as? Int)
+        XCTAssertEqual("no error", data["reason"] as? String)
+    }
+    
+    func test_Breadcrumb_HTTP399_HasLevelInfo() throws {
+        // Arrange
+        fixture.options.enableAutoPerformanceTracing = false
+
+        let task = createDataTask()
+        task.setResponse(try createResponse(code: 399))
+        let _ = try XCTUnwrap(spanForTask(task: task))
+        
+        //Act
+        try setTaskState(task, state: .completed)
+        
+        //Assert
+        let breadcrumbsDynamic = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumbs = try XCTUnwrap(breadcrumbsDynamic)
+        XCTAssertEqual(breadcrumbs.count, 1)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.level, .info)
+        XCTAssertEqual(breadcrumb.type, "http")
+        
+        let data = try XCTUnwrap(breadcrumb.data)
+        XCTAssertEqual(SentryNetworkTrackerTests.testUrl, data["url"] as? String)
+        XCTAssertEqual("GET", data["method"] as? String)
+        XCTAssertEqual(399, data["status_code"] as? Int)
+        XCTAssertEqual("redirected", data["reason"] as? String)
+    }
+    
     func test_Breadcrumb_HTTP400_HasLevelWarning() throws {
         // Arrange
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 400))
-        let _ = spanForTask(task: task)!
+        task.setResponse(try createResponse(code: 400))
+        let _ = try XCTUnwrap(spanForTask(task: task))
         
         //Act
         try setTaskState(task, state: .completed)
@@ -612,8 +668,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 499))
-        let _ = spanForTask(task: task)!
+        task.setResponse(try createResponse(code: 499))
+        let _ = try XCTUnwrap(spanForTask(task: task))
         
         //Act
         try setTaskState(task, state: .completed)
@@ -640,9 +696,9 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 400))
+        task.setResponse(try createResponse(code: 400))
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
-        let _ = spanForTask(task: task)!
+        let _ = try XCTUnwrap(spanForTask(task: task))
         
         //Act
         try setTaskState(task, state: .completed)
@@ -669,8 +725,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 500))
-        let _ = spanForTask(task: task)!
+        task.setResponse(try createResponse(code: 500))
+        let _ = try XCTUnwrap(spanForTask(task: task))
         
         //Act
         try setTaskState(task, state: .completed)
@@ -697,8 +753,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.options.enableAutoPerformanceTracing = false
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 599))
-        let _ = spanForTask(task: task)!
+        task.setResponse(try createResponse(code: 599))
+        let _ = try XCTUnwrap(spanForTask(task: task))
         
         //Act
         try setTaskState(task, state: .completed)
@@ -793,7 +849,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(1, spans?.count)
-        let span = spans!.first!
+        let span = try XCTUnwrap(spans?.first)
 
         XCTAssertTrue(span.isFinished)
         //Test if it has observers. Nil means no observers
@@ -887,49 +943,49 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
     }
 
-    func testIsTargetMatch() {
+    func testIsTargetMatch() throws {
         // Default: all urls
-        let defaultRegex = try! NSRegularExpression(pattern: ".*")
+        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
         let sut = fixture.getSut()
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: [ defaultRegex ]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: [ defaultRegex ]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [ defaultRegex ]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [ defaultRegex ]))
 
         // Strings: hostname
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost"]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost-but-not-really")!, withTargets: ["localhost"])) // works because of `contains`
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["localhost"]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost"]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost-but-not-really")), withTargets: ["localhost"])) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost"]))
 
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["www.example.com"]))
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://api.example.com/api/projects")!, withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com.evil.com/api/projects")!, withTargets: ["www.example.com"])) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["www.example.com"]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["www.example.com"]))
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://api.example.com/api/projects")), withTargets: ["www.example.com"]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com.evil.com/api/projects")), withTargets: ["www.example.com"])) // works because of `contains`
 
         // Test regex
-        let regex = try! NSRegularExpression(pattern: "http://www.example.com/api/.*")
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: [regex]))
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: [regex]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: [regex]))
+        let regex = try XCTUnwrap(NSRegularExpression(pattern: "http://www.example.com/api/.*"))
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [regex]))
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: [regex]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [regex]))
 
         // Regex and string
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost", regex]))
-        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: ["localhost", regex]))
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["localhost", regex]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", regex]))
+        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: ["localhost", regex]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost", regex]))
 
         // String and integer (which isn't valid, make sure it doesn't crash)
-        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost", 123]))
+        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", 123]))
     }
 
-    func testCaptureHTTPClientErrorRequest() {
+    func testCaptureHTTPClientErrorRequest() throws {
         let sut = fixture.getSut()
 
-        let url = URL(string: "https://www.domain.com/api?query=myQuery#myFragment")!
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=myQuery#myFragment"))
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
         request.allHTTPHeaderFields = headers
 
         let task = URLSessionDataTaskMock(request: request)
-        task.setResponse(createResponse(code: 500))
+        task.setResponse(try createResponse(code: 500))
 
         sut.urlSessionTask(task, setState: .completed)
 
@@ -937,7 +993,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTFail("Expected to capture 1 event")
             return
         }
-        let sentryRequest = envelope.event.request!
+        let sentryRequest = try XCTUnwrap(envelope.event.request)
 
         XCTAssertEqual(sentryRequest.url, "https://www.domain.com/api")
         XCTAssertEqual(sentryRequest.method, "GET")
@@ -955,19 +1011,19 @@ class SentryNetworkTrackerTests: XCTestCase {
             var request = $0
             
             request.httpMethod = "POST"
-            request.httpBody = """
+            request.httpBody = Data("""
             {
                 "operationName": "someOperationName",
                 "variables": { "a": 1 },
                 "query": "query someOperationName { someField }"
             }
-            """.data(using: .utf8)
+            """.utf8)
             request.allHTTPHeaderFields = ["content-type": "application/json"]
             
             return request
         }
-        task.setResponse(createResponse(code: 500))
-        
+        task.setResponse(try createResponse(code: 500))
+
         sut.urlSessionTask(task, setState: .completed)
         
         let envelope = try XCTUnwrap(
@@ -989,37 +1045,37 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(operationName, "someOperationName")
     }
 
-    func testCaptureHTTPClientErrorRequest_noSecurityInfo() {
+    func testCaptureHTTPClientErrorRequest_noSecurityInfo() throws {
         let sut = fixture.getSut()
 
-        let url = URL(string: "https://user:password@www.domain.com/api?query=myQuery#myFragment")!
+        let url = try XCTUnwrap(URL(string: "https://user:password@www.domain.com/api?query=myQuery#myFragment"))
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = fixture.securityHeader
 
         let task = URLSessionDataTaskMock(request: request)
-        task.setResponse(createResponse(code: 500))
+        task.setResponse(try createResponse(code: 500))
         sut.urlSessionTask(task, setState: .completed)
 
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")
             return
         }
-        let sentryRequest = envelope.event.request!
+        let sentryRequest = try XCTUnwrap(envelope.event.request)
 
         XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
         XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
     }
 
-    func testCaptureHTTPClientErrorResponse() {
+    func testCaptureHTTPClientErrorResponse() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
 
         let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
-        let response = HTTPURLResponse(
+        let response = try XCTUnwrap(HTTPURLResponse(
             url: SentryNetworkTrackerTests.fullUrl,
             statusCode: 500,
             httpVersion: "1.1",
-            headerFields: headers)!
+            headerFields: headers))
         task.setResponse(response)
 
         sut.urlSessionTask(task, setState: .completed)
@@ -1028,24 +1084,24 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTFail("Expected to capture 1 event")
             return
         }
-        let sentryResponse = envelope.event.context?["response"]
+        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
 
-        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 500)
-        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["test": "test"])
-        XCTAssertNil(sentryResponse?["cookies"])
-        XCTAssertEqual(sentryResponse?["body_size"] as? NSNumber, 256)
+        XCTAssertEqual(sentryResponse["status_code"] as? NSNumber, 500)
+        XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["test": "test"])
+        XCTAssertNil(sentryResponse["cookies"])
+        XCTAssertEqual(sentryResponse["body_size"] as? NSNumber, 256)
     }
 
-    func testCaptureHTTPClientErrorResponse_noSecurityHeader() {
+    func testCaptureHTTPClientErrorResponse_noSecurityHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
 
         let headers = fixture.securityHeader
-        let response = HTTPURLResponse(
+        let response = try XCTUnwrap(HTTPURLResponse(
             url: SentryNetworkTrackerTests.fullUrl,
             statusCode: 500,
             httpVersion: "1.1",
-            headerFields: headers)!
+            headerFields: headers))
         task.setResponse(response)
         sut.urlSessionTask(task, setState: .completed)
 
@@ -1053,63 +1109,62 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTFail("Expected to capture 1 event")
             return
         }
-        let sentryResponse = envelope.event.context?["response"]
+        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
 
-        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["VALID_HEADER": "value"])
+        XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["VALID_HEADER": "value"])
     }
 
-    func testCaptureHTTPClientErrorException() {
+    func testCaptureHTTPClientErrorException() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
-        task.setResponse(createResponse(code: 500))
+        task.setResponse(try createResponse(code: 500))
 
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        XCTAssertEqual(envelope.event.exceptions!.count, 1)
-        let exception = envelope.event.exceptions!.first!
+        let envelope = try XCTUnwrap(self.fixture.hub.capturedEventsWithScopes.first)
+        
+        let exceptions = try XCTUnwrap(envelope.event.exceptions)
+        XCTAssertEqual(exceptions.count, 1)
+        let exception = try XCTUnwrap(exceptions.first)
 
         XCTAssertEqual(exception.type, "HTTPClientError")
         XCTAssertEqual(exception.value, "HTTP Client Error with status code: 500")
 
-        let stackTrace = exception.stacktrace!
-        XCTAssertTrue(stackTrace.snapshot!.boolValue)
+        let stackTrace = try XCTUnwrap(exception.stacktrace)
+        XCTAssertTrue(try XCTUnwrap(stackTrace.snapshot).boolValue)
         XCTAssertNotNil(stackTrace.frames)
     }
 
-    func testDoesNotCaptureHTTPClientErrorIfDisabled() {
+    func testDoesNotCaptureHTTPClientErrorIfDisabled() throws {
         let sut = fixture.getSut()
         sut.disable()
         sut.enableNetworkTracking()
         sut.enableNetworkBreadcrumbs()
 
         let task = createDataTask()
-        task.setResponse(createResponse(code: 500))
+        task.setResponse(try createResponse(code: 500))
 
         sut.urlSessionTask(task, setState: .completed)
 
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
-    func testDoesNotCaptureHTTPClientErrorIfNotStatusCodeRange() {
+    func testDoesNotCaptureHTTPClientErrorIfNotStatusCodeRange() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
-        task.setResponse(createResponse(code: 200))
+        task.setResponse(try createResponse(code: 200))
 
         sut.urlSessionTask(task, setState: .completed)
 
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
-    func testDoesNotCaptureHTTPClientErrorIfNotTarget() {
+    func testDoesNotCaptureHTTPClientErrorIfNotTarget() throws {
         fixture.options.failedRequestTargets = ["www.example.com"]
 
         let sut = fixture.getSut()
         let task = createDataTask()
-        task.setResponse(createResponse(code: 500))
+        task.setResponse(try createResponse(code: 500))
 
         sut.urlSessionTask(task, setState: .completed)
 
@@ -1121,7 +1176,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.state = state
     }
 
-    private func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) {
+    private func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) throws {
         let sut = fixture.getSut()
         configSut?(sut)
 
@@ -1132,7 +1187,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let spans = Dynamic(transaction).children as [Span]?
-        let span = spans!.first!
+        let span = try XCTUnwrap(spans?.first)
 
         task.setResponse(response)
 
@@ -1141,7 +1196,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let httpStatusCode = span.data["http.response.status_code"] as? String
 
         if let httpResponse = response as? HTTPURLResponse {
-            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode!)
+            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode)
         } else {
             XCTAssertNil(httpStatusCode)
         }
@@ -1154,7 +1209,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let graphql = span.data["graphql_operation_name"] as? String
 
         XCTAssertEqual(path, "https://www.domain.com/api")
-        XCTAssertEqual(method, task.currentRequest!.httpMethod)
+        XCTAssertEqual(method, try XCTUnwrap(task.currentRequest?.httpMethod))
         XCTAssertEqual(requestType, "fetch")
         XCTAssertEqual(query, "query=value&query2=value2")
         XCTAssertEqual(fragment, "fragment")
@@ -1194,16 +1249,16 @@ class SentryNetworkTrackerTests: XCTestCase {
         return SentrySDK.startTransaction(name: SentryNetworkTrackerTests.transactionName, operation: SentryNetworkTrackerTests.transactionOperation, bindToScope: true)
     }
 
-    private func createResponse(code: Int) -> URLResponse {
-        return HTTPURLResponse(url: SentryNetworkTrackerTests.fullUrl, statusCode: code, httpVersion: "1.1", headerFields: nil)!
+    private func createResponse(code: Int) throws -> URLResponse {
+        return try XCTUnwrap(HTTPURLResponse(url: SentryNetworkTrackerTests.fullUrl, statusCode: code, httpVersion: "1.1", headerFields: nil))
     }
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
     }
 
-    private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
-        let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
+    private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) throws {
+        let duration = try XCTUnwrap(span.timestamp).timeIntervalSince(span.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)
     }
 

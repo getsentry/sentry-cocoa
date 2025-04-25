@@ -1169,10 +1169,6 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
         writer->addUUIDElement(writer, SentryCrashField_UUID, image->uuid);
         writer->addIntegerElement(writer, SentryCrashField_CPUType, image->cpuType);
         writer->addIntegerElement(writer, SentryCrashField_CPUSubType, image->cpuSubType);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMajorVersion, image->majorVersion);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image->minorVersion);
-        writer->addUIntegerElement(
-            writer, SentryCrashField_ImageRevisionVersion, image->revisionVersion);
         if (image->crashInfoMessage != NULL) {
             writer->addStringElement(
                 writer, SentryCrashField_ImageCrashInfoMessage, image->crashInfoMessage);
@@ -1189,6 +1185,10 @@ static void
 binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void *context)
 {
     SentryCrashReportWriter *writer = (SentryCrashReportWriter *)context;
+    // We can only retrieve the crash info after a crash occurred. So we need to
+    // fetch it when writing the crash report.
+    // Swift puts its fatalErrors into the crash info message.
+    sentrycrashdl_getCrashInfo(image->address, image);
     writeBinaryImage(writer, NULL, image);
 }
 

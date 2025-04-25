@@ -37,7 +37,14 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var showFormForScreenshots: Bool = false
-    
+
+    /**
+     * Install a hook for the specified button to show the form when it is pressed.
+     * - note: If this is set, `configureWidget` is ignored.
+     * - note: Default: `nil`
+     */
+    public var customButton: UIButton?
+
     /**
      * Configuration settings specific to the managed UI form to gather user input.
      * - note: Default: `nil`
@@ -52,12 +59,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var tags: [String: Any]?
-    
-    /**
-     * Sets the email and name field text content to `SentryUser.email` and `SentryUser.name`.
-     * - note: Default: `true`
-     */
-    public var useSentryUser: Bool = true
     
     /**
      * Called when the managed feedback form is opened.

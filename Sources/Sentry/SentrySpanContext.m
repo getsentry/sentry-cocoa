@@ -3,6 +3,7 @@
 #import "SentrySampleDecision+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigin.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                         parentId:parentId
                        operation:operation
                  spanDescription:description
-                          origin:SentryTraceOrigin.manual
+                          origin:SentryTraceOriginManual
                          sampled:sampled];
 }
 
@@ -86,10 +87,16 @@ NS_ASSUME_NONNULL_BEGIN
         _spanDescription = description;
         _origin = origin;
 
-        SENTRY_LOG_DEBUG(
-            @"Created span context with trace ID %@; span ID %@; parent span ID %@; operation %@",
-            traceId.sentryIdString, spanId.sentrySpanIdString, parentId.sentrySpanIdString,
-            operation);
+        if (parentId == nil) {
+            SENTRY_LOG_DEBUG(
+                @"Created root span context with trace ID %@; span ID %@; operation %@",
+                traceId.sentryIdString, spanId.sentrySpanIdString, operation);
+        } else {
+            SENTRY_LOG_DEBUG(@"Created span context with trace ID %@; span ID %@; parent span ID "
+                             @"%@; operation %@",
+                traceId.sentryIdString, spanId.sentrySpanIdString, parentId.sentrySpanIdString,
+                operation);
+        }
     }
     return self;
 }

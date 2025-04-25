@@ -12,7 +12,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -23,6 +23,7 @@
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
@@ -227,9 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
     return sessionCopy;
 }
 
-- (void)captureCrashEvent:(SentryEvent *)event
+- (void)captureFatalEvent:(SentryEvent *)event
 {
-    [self captureCrashEvent:event withScope:self.scope];
+    [self captureFatalEvent:event withScope:self.scope];
 }
 
 /**
@@ -238,9 +239,9 @@ NS_ASSUME_NONNULL_BEGIN
  * currently no way to know which one belongs to the crashed session, so we send the session with
  * the first crash event we receive.
  */
-- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    event.isCrashEvent = YES;
+    event.isFatalEvent = YES;
 
     SentryClient *client = _client;
     if (client == nil) {
@@ -254,12 +255,48 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        [client captureCrashEvent:event withSession:crashedSession withScope:scope];
+        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
         [fileManager deleteCrashedSession];
     } else {
-        [client captureCrashEvent:event withScope:scope];
+        [client captureFatalEvent:event withScope:scope];
     }
 }
+
+#if SENTRY_HAS_UIKIT
+
+/**
+ * This method expects an abnormal session already stored to disk. For more info checkout: @c
+ * SentryCrashIntegrationSessionHandler
+ */
+- (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    // We treat fatal app hang events similar to crashes.
+    event.isFatalEvent = YES;
+
+    SentryClient *_Nullable client = _client;
+    if (client == nil) {
+        return;
+    }
+
+    SentryFileManager *fileManager = [client fileManager];
+    SentrySession *abnormalSession = [fileManager readAbnormalSession];
+
+    // It can occur that there is no session yet because autoSessionTracking was just enabled or
+    // users didn't start a manual session yet, and there is a previous fatal app hang on disk. In
+    // this case, we just send the fatal app hang event.
+    if (abnormalSession == nil) {
+        [client captureFatalEvent:event withScope:self.scope];
+        return;
+    }
+
+    // Users won't see the anr_foreground mechanism in the UI. The Sentry UI will present release
+    // health and session statistics as app hangs.
+    abnormalSession.abnormalMechanism = @"anr_foreground";
+    [client captureFatalEvent:event withSession:abnormalSession withScope:self.scope];
+    [fileManager deleteAbnormalSession];
+}
+
+#endif // SENTRY_HAS_UIKIT
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
@@ -345,7 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOrigin.manual]];
+                                                       origin:SentryTraceOriginManual]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -356,7 +393,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation
-                                                       origin:SentryTraceOrigin.manual]
+                                                       origin:SentryTraceOriginManual]
                                  bindToScope:bindToScope];
 }
 
@@ -428,10 +465,11 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleTraceProfile(samplingContext, tracesSamplerDecision, self.client.options);
-
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
+    if (![self.client.options isContinuousProfilingEnabled]) {
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
+            samplingContext, tracesSamplerDecision, self.client.options);
+        configuration.profilesSamplerDecision = profilesSamplerDecision;
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext

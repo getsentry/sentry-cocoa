@@ -59,6 +59,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
         fixture.client.fileManager.deleteAppState()
+        fixture.client.fileManager.deleteAppState()
+        fixture.client.fileManager.deleteAppHangEvent()
         
         SentrySDK.setStart(fixture.options)
     }
@@ -67,7 +69,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         super.tearDown()
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAbnormalSession()
         fixture.client.fileManager.deleteAppState()
+        fixture.client.fileManager.deleteAppHangEvent()
         
         clearTestState()
     }
@@ -144,6 +148,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
     }
     
     #endif
@@ -156,6 +161,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
     }
     
     func testEndSessionAsCrashed_NoCrashLastLaunch() {
@@ -169,6 +175,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
     }
 
     func testEndSessionAsCrashed_NoCurrentSession() {
@@ -179,7 +186,137 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
     }
+    
+    // Abnormal sessions only work when we the SDK can detect fatal app hang events. These only work on iOS, tvOS and macCatalyst
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
+    func testEndSessionAsAbnormal_NoHubBound() {
+        // Arrange
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        let fileManager = fixture.client.fileManager
+        XCTAssertNil(fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
+    func testEndSessionAsAbnormal_NoCurrentSession() {
+        // Arrange
+        SentrySDK.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        let fileManager = fixture.client.fileManager
+        XCTAssertNil(fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
+    func testEndSessionAsAbnormal_NoAppHangEvent() {
+        // Arrange
+        SentrySDK.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        let session = givenCurrentSession()
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        let fileManager = fixture.client.fileManager
+        XCTAssertEqual(session, fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
+    func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
+        // Arrange
+        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(options: fixture.options)
+        fixture.client.fileManager = fileManager
+        
+        SentrySDK.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        let session = givenCurrentSession()
+        let appHangEvent = Event()
+        fileManager.storeAppHang(appHangEvent)
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        XCTAssertEqual(session, fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
+    func testEndSessionAsAbnormal_AppHangEvent_EndsSessionAsAbnormal() throws {
+        // Arrange
+        SentrySDK.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        let session = givenCurrentSession()
+        
+        let fileManager = fixture.client.fileManager
+        let appHangEvent = Event()
+        fileManager.storeAppHang(appHangEvent)
+        
+        // Act
+        sut.install(with: Options())
+        
+        // Assert
+        XCTAssertNil(fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+        
+        let actualSession = try XCTUnwrap(fileManager.readAbnormalSession())
+        
+        XCTAssertEqual(SentrySessionStatus.abnormal, actualSession.status)
+        XCTAssertEqual(session.started.timeIntervalSince1970, actualSession.started.timeIntervalSince1970, accuracy: 0.001)
+        
+        let appHangEventTimestamp = try XCTUnwrap(appHangEvent.timestamp)
+        let sessionEndTimestamp = try XCTUnwrap(actualSession.timestamp)
+        XCTAssertEqual(appHangEventTimestamp.timeIntervalSince1970, sessionEndTimestamp.timeIntervalSince1970, accuracy: 0.001)
+    }
+    
+    func testEndSessionAsAbnormal_AppHangEventAndCrash_EndsSessionAsCrashed() throws {
+        // Arrange
+        let expectedCrashedSession = givenCrashedSession()
+        SentrySDK.setCurrentHub(fixture.hub)
+        let fileManager = fixture.client.fileManager
+        let appHangEvent = Event()
+        fileManager.storeAppHang(appHangEvent)
+        
+        try advanceTime(bySeconds: 10)
+        
+        // Act
+        let sut = fixture.getSut()
+        sut.install(with: Options())
+        
+        // Assert
+        assertCrashedSessionStored(expected: expectedCrashedSession)
+        XCTAssertNil(fileManager.readAbnormalSession())
+    }
+    
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
@@ -549,5 +686,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) throws {
         try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))
+    }
+}
+
+private class DeleteAppHangWhenCheckingExistenceFileManager: SentryFileManager {
+    
+    override func appHangEventExists() -> Bool {
+        let result = super.appHangEventExists()
+        self.deleteAppHangEvent()
+        return result
     }
 }

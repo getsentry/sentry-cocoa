@@ -12,6 +12,8 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentrySpanDataKey.h"
+#import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
@@ -32,8 +34,14 @@
 
 NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
-+ (instancetype)sharedInstance
++ (instancetype _Nullable)sharedInstance
 {
+    // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
+    // initialize the depency container without any configured SDK options. This is a known issue
+    // and needs to be fixed in general.
+    if (!SentrySDK.isEnabled) {
+        return nil;
+    }
     return SentryDependencyContainer.sharedInstance.fileIOTracker;
 }
 
@@ -101,7 +109,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     id<SentrySpan> span = [self startTrackingReadingFilePath:path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(path);
 
@@ -121,7 +129,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     id<SentrySpan> span = [self startTrackingReadingFilePath:path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(path, readOptionsMask, error);
 
@@ -148,7 +156,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
     id<SentrySpan> span = [self startTrackingReadingFilePath:url.path
                                                       origin:origin
-                                                   operation:SentrySpanOperation.fileRead];
+                                                   operation:SentrySpanOperationFileRead];
 
     NSData *result = method(url, readOptionsMask, error);
 
@@ -181,6 +189,13 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation
+{
+    return [self spanForPath:path origin:origin operation:operation size:0];
+}
+
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
@@ -193,23 +208,30 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return nil;
     }
 
-    __block id<SentrySpan> ioSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:operation
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:size]];
-        ioSpan.origin = origin;
-    }];
+    NSString *spanDescription = [self transactionDescriptionForFile:path fileSize:size];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    if (currentSpan == NULL) {
+        SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
+        return nil;
+    }
 
+    id<SentrySpan> _Nullable ioSpan = [currentSpan startChildWithOperation:operation
+                                                               description:spanDescription];
     if (ioSpan == nil) {
         SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
         return nil;
     }
 
-    SENTRY_LOG_DEBUG(@"Automatically started a new span with description: %@, operation: %@",
-        ioSpan.description, operation);
+    ioSpan.origin = origin;
+    [ioSpan setDataValue:path forKey:SentrySpanDataKeyFilePath];
+    if (size > 0) {
+        [ioSpan setDataValue:[NSNumber numberWithUnsignedInteger:size]
+                      forKey:SentrySpanDataKeyFileSize];
+    }
 
-    [ioSpan setDataValue:path forKey:SentrySpanDataKey.filePath];
+    SENTRY_LOG_DEBUG(
+        @"Automatically started a new span with description: %@, operation: %@, origin: %@",
+        ioSpan.description, operation, origin);
 
     [self mainThreadExtraInfo:ioSpan];
 
@@ -252,7 +274,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 {
     return [self spanForPath:path
                       origin:origin
-                   operation:SentrySpanOperation.fileWrite
+                   operation:SentrySpanOperationFileWrite
                         size:data.length];
 }
 
@@ -292,7 +314,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
 {
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length]
-                forKey:SentrySpanDataKey.fileSize];
+                forKey:SentrySpanDataKeyFileSize];
     [span finish];
 
     SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);

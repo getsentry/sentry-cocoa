@@ -14,16 +14,55 @@
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
+    NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
         options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
-        options.tracesSampleRate = @1.0;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
-        if ([args containsObject:@"--io.sentry.profiling.enable"]) {
-            options.profilesSampleRate = @1;
+
+        if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
+            options.tracesSampler = ^(SentrySamplingContext *_Nonnull samplingContext) {
+                return @([env[@"--io.sentry.tracesSamplerValue"] doubleValue]);
+            };
         }
+
+        options.tracesSampleRate = @1.0;
+        if (env[@"--io.sentry.tracesSampleRate"] != nil) {
+            options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
+        }
+
+        if (![args containsObject:@"--io.sentry.disable-ui-profiling"]) {
+            options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
+                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
+                    ? SentryProfileLifecycleManual
+                    : SentryProfileLifecycleTrace;
+
+                profiling.sessionSampleRate = 1.f;
+                if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
+                    profiling.sessionSampleRate =
+                        [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
+                }
+            };
+        }
+
+        if (env[@"--io.sentry.profilesSampleRate"] != nil) {
+            options.profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
+        }
+
+        if (env[@"--io.sentry.profilesSamplerValue"] != nil) {
+            options.profilesSampler
+                = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
+            {
+                return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
+            };
+        }
+
+        if (![args containsObject:@"--io.sentry.disable-app-start-profiling"]) {
+            options.enableAppLaunchProfiling = YES;
+        }
+
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
@@ -36,6 +75,10 @@
 
         options.experimental.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
+        options.sessionReplay.enableExperimentalViewRenderer
+            = ![args containsObject:@"--disable-experimental-view-renderer"];
+        options.sessionReplay.enableFastViewRendering
+            = ![args containsObject:@"--disable-fast-view-renderer"];
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
@@ -55,11 +98,11 @@
                 config.useShakeGesture = YES;
                 config.showFormForScreenshots = YES;
                 config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
-                    if ([args containsObject:@"--io.sentry.feedback.auto-inject-widget"]) {
+                    if ([args containsObject:@"--io.sentry.feedback.no-auto-inject-widget"]) {
+                        widget.autoInject = NO;
+                    } else {
                         widget.labelText = @"Report Jank";
                         widget.layoutUIOffset = layoutOffset;
-                    } else {
-                        widget.autoInject = NO;
                     }
 
                     if ([args containsObject:@"--io.sentry.feedback.no-widget-text"]) {
@@ -74,9 +117,14 @@
                     uiForm.submitButtonLabel = @"Report that jank";
                     uiForm.messagePlaceholder
                         = @"Describe the nature of the jank. Its essence, if you will.";
+                    uiForm.useSentryUser = YES;
                 };
                 config.configureTheme = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
                     theme.font = [UIFont fontWithName:@"ChalkboardSE-Regular" size:25];
+                    theme.outlineStyle =
+                        [[SentryFormElementOutlineStyle alloc] initWithColor:UIColor.purpleColor
+                                                                cornerRadius:10
+                                                                outlineWidth:4];
                 };
                 config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
                     NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";

@@ -6,20 +6,16 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
-        let userFeedback: UserFeedback
+        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
+        let userFeedback: UserFeedback = TestData.userFeedback
         let path = "test.log"
-        let data = "hello".data(using: .utf8)
+        let data = Data("hello".utf8)
         
         let maxAttachmentSize: UInt = 5 * 1_024 * 1_024
         let dataAllowed: Data
         let dataTooBig: Data
         
         init() {
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "It doesn't work!"
-            userFeedback.email = "john@me.com"
-            userFeedback.name = "John Me"
-            
             dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentSize)))
             dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentSize) + 1))
         }
@@ -49,7 +45,7 @@ class SentryEnvelopeTests: XCTestCase {
             return event
         }
     }
-
+    
     private let fixture = Fixture()
 
     override func setUp() {
@@ -206,6 +202,7 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
+    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. This test case can be removed when SentryUserFeedback is removed.")
     func testInitWithUserFeedback() throws {
         let userFeedback = fixture.userFeedback
         
@@ -243,7 +240,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitWithFileAttachment() {
-        writeDataToFile(data: fixture.data ?? Data())
+        writeDataToFile(data: fixture.data)
         
         let attachment = Attachment(path: fixture.path)
         
@@ -256,13 +253,13 @@ class SentryEnvelopeTests: XCTestCase {
 
         XCTAssertEqual(header.attachmentType, .eventAttachment)
         XCTAssertEqual("attachment", envelopeItem.header.type)
-        XCTAssertEqual(UInt(fixture.data?.count ?? 0), envelopeItem.header.length)
+        XCTAssertEqual(UInt(fixture.data.count), envelopeItem.header.length)
         XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
     }
 
     func testInitWith_ViewHierarchy_Attachment() {
-        writeDataToFile(data: fixture.data ?? Data())
+        writeDataToFile(data: fixture.data)
 
         let attachment = Attachment(path: fixture.path, filename: "filename", contentType: "text", attachmentType: .viewHierarchy)
 

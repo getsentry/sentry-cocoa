@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentrySpanOperation.h"
 #    import "SentrySwizzleWrapper.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryLog.h>
@@ -99,10 +100,10 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
         [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
         [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
         [senderClass isSubclassOfClass:[UIPageControl class]]) {
-        return SentrySpanOperation.uiActionClick;
+        return SentrySpanOperationUiActionClick;
     }
 
-    return SentrySpanOperation.uiAction;
+    return SentrySpanOperationUiAction;
 }
 
 /**
@@ -131,10 +132,10 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
 
 + (BOOL)isUIEventOperation:(NSString *)operation
 {
-    if ([operation isEqualToString:SentrySpanOperation.uiAction]) {
+    if ([operation isEqualToString:SentrySpanOperationUiAction]) {
         return YES;
     }
-    if ([operation isEqualToString:SentrySpanOperation.uiActionClick]) {
+    if ([operation isEqualToString:SentrySpanOperationUiActionClick]) {
         return YES;
     }
     return NO;

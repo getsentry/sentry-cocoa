@@ -12,10 +12,11 @@ SENTRY_NO_INIT
  * Convenience accessor to the shared instance of the tracker in the dependency container.
  *
  * @note Can be used from Swift without import the entire dependency container.
+ * @note If the SentrySDK is not enabled this will return nil.
  *
  * @return The shared instance of the tracker.
  */
-+ (instancetype)sharedInstance;
++ (instancetype _Nullable)sharedInstance;
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
@@ -79,6 +80,17 @@ SENTRY_NO_INIT
                                       origin:(NSString *)origin
                                       method:(BOOL (^)(NSString *, NSData *,
                                                  NSDictionary<NSFileAttributeKey, id> *))method;
+
+// MARK: - Internal Methods available for Swift Extension
+
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation;
+
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                                origin:(NSString *)origin
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size;
 
 @end
 

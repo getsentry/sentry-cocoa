@@ -13,16 +13,18 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Properties
     
     lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
-    let action: (SentryUserFeedbackWidgetButtonView) -> Void
+    let target: AnyObject
+    let selector: Selector
     let config: SentryUserFeedbackConfiguration
     lazy var megaphone = SentryUserFeedbackWidgetButtonMegaphoneIconView(config: config)
     
     // MARK: Initialization
     
     //swiftlint:disable function_body_length
-    init(config: SentryUserFeedbackConfiguration, action: @escaping (SentryUserFeedbackWidgetButtonView) -> Void) {
-        self.action = action
+    init(config: SentryUserFeedbackConfiguration, target: AnyObject, selector: Selector) {
         self.config = config
+        self.target = target
+        self.selector = selector
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         isAccessibilityElement = true
@@ -101,7 +103,7 @@ class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Actions
     
     @objc func buttonPressed() {
-        self.action(self)
+        let _ = target.perform(selector)
     }
     
     // MARK: UI Elements
@@ -167,10 +169,10 @@ class SentryUserFeedbackWidgetButtonView: UIView {
         
         if UIScreen.main.traitCollection.userInterfaceStyle == .dark {
             lozengeLayer.fillColor = config.darkTheme.background.cgColor
-            lozengeLayer.strokeColor = config.darkTheme.outlineStyle.outlineColor.cgColor
+            lozengeLayer.strokeColor = config.darkTheme.outlineStyle.color.cgColor
         } else {
             lozengeLayer.fillColor = config.theme.background.cgColor
-            lozengeLayer.strokeColor = config.theme.outlineStyle.outlineColor.cgColor
+            lozengeLayer.strokeColor = config.theme.outlineStyle.color.cgColor
         }
         
         let iconSizeDifference = (scaledIconSize - svgSize) / 2

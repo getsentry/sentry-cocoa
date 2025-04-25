@@ -77,6 +77,10 @@ SENTRY_NO_INIT
 - (SentrySession *_Nullable)readCrashedSession;
 - (void)deleteCrashedSession;
 
+- (void)storeAbnormalSession:(SentrySession *)session;
+- (SentrySession *_Nullable)readAbnormalSession;
+- (void)deleteAbnormalSession;
+
 #pragma mark - LastInForeground
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp;
 - (NSDate *_Nullable)readTimestampLastInForeground;
@@ -101,6 +105,7 @@ SENTRY_NO_INIT
 #pragma mark - AppHangs
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
 - (nullable SentryEvent *)readAppHangEvent;
+- (BOOL)appHangEventExists;
 - (void)deleteAppHangEvent;
 
 #pragma mark - File Operations
@@ -138,7 +143,8 @@ SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
  * Retrieve the contents of the launch profile config file, which stores the sample rates used to
  * decide whether or not to profile this launch.
  */
-SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void);
+SENTRY_EXTERN NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfiguration(
+    void);
 
 /**
  * Write a config file that stores the sample rates used to determine whether this launch should

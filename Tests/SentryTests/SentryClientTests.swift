@@ -39,6 +39,8 @@ class SentryClientTest: XCTestCase {
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
+        let feedback = SentryFeedback(message: "A test message", name: "Abe Tester", email: "abe.tester@sentry.io", source: .custom, associatedEventId: SentryId())
+        
         init() throws {
             session = SentrySession(releaseName: "release", distinctId: "some-id")
             session.incrementErrors()
@@ -124,6 +126,7 @@ class SentryClientTest: XCTestCase {
         
         var eventWithCrash: Event {
             let event = TestData.event
+            event.level = .fatal
             let exception = Exception(value: "value", type: "type")
             let mechanism = Mechanism(type: "mechanism")
             mechanism.handled = false
@@ -403,7 +406,7 @@ class SentryClientTest: XCTestCase {
 
         let expectProcessorCall = expectation(description: "Processor Call")
         let processor = TestAttachmentProcessor { atts, e in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             XCTAssertEqual(event, e)
             expectProcessorCall.fulfill()
@@ -426,7 +429,7 @@ class SentryClientTest: XCTestCase {
         let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
 
         let processor = TestAttachmentProcessor { atts, _ in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             return result
         }
@@ -448,7 +451,7 @@ class SentryClientTest: XCTestCase {
         let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
         
         let processor = TestAttachmentProcessor { atts, _ in
-            var result = atts ?? []
+            var result = atts
             result.append(extraAttachment)
             return result
         }
@@ -724,25 +727,31 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
     }
 
-    func testCaptureCrashEventWithSession() throws {
-        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.session, with: fixture.scope)
+    func testCaptureFatalEventWithSession() throws {
+        let scope = fixture.scope
+        scope.setLevel(SentryLevel.info)
+        let user = fixture.user
+        scope.setUser(user)
+
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.session, with: scope)
 
         eventId.assertIsNotEmpty()
         
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
-        XCTAssertEqual(fixture.event.eventId, args.event.eventId)
-        XCTAssertEqual(fixture.event.message, args.event.message)
-        XCTAssertEqual("value", args.event.tags?["key"] ?? "")
-        XCTAssertEqual(fixture.session, args.session)
+        let event = args.event
+        XCTAssertEqual(event.eventId, fixture.event.eventId)
+        XCTAssertEqual(event.message, fixture.event.message)
+        XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
+        XCTAssertEqual(args.session, fixture.session)
     }
-    
+
     func testCaptureCrashWithSession_DoesntOverideStacktrace() throws {
         let event = TestData.event
         event.threads = nil
         event.debugMeta = nil
         
-        fixture.getSut().captureCrash(event, with: fixture.session, with: fixture.scope)
+        fixture.getSut().captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         let args = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
@@ -750,33 +759,55 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(args.event.debugMeta)
     }
     
-    func testCaptureCrashEvent() throws {
-        let eventId = fixture.getSut().captureCrash(fixture.event, with: fixture.scope)
+    func testCaptureFatalEvent() throws {
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.scope)
 
         eventId.assertIsNotEmpty()
         
         let event = try lastSentEventWithAttachment()
         XCTAssertEqual(fixture.event.eventId, event.eventId)
         XCTAssertEqual(fixture.event.message, event.message)
-        XCTAssertEqual("value", event.tags?["key"] ?? "")
+        XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
     }
     
     func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() throws {
+        // Arrange
         let oomEvent = TestData.oomEvent
-        
-        _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
+        oomEvent.context = ["device":
+                                [
+                                    "free_memory": 1_000,
+                                    "orientation": "landscape",
+                                    "charging": true,
+                                    "battery_level": 60,
+                                    "thermal_state": "nominal",
+                                    "something": "else"
+                                ],
+                            "app": [
+                                "app_memory": 1_000,
+                                "something": "else"
+                            ]
+        ]
 
+        // Act
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: fixture.scope)
+
+        // Assert
         let event = try lastSentEventWithAttachment()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
 
         let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
-        XCTAssertEqual(deviceContext.count, 0)
+        XCTAssertEqual(deviceContext.count, 1)
+        XCTAssertEqual(deviceContext["something"] as? String, "else")
+
+        let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+        XCTAssertEqual(appContext.count, 1)
+        XCTAssertEqual(appContext["something"] as? String, "else")
     }
     
     func testCaptureOOMEvent_WithNoContext_ContextNotModified() throws {
         let oomEvent = TestData.oomEvent
         
-        _ = fixture.getSut().captureCrash(oomEvent, with: Scope())
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: Scope())
 
         let actual = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
@@ -788,19 +819,57 @@ class SentryClientTest: XCTestCase {
         let scope = Scope()
         scope.setContext(value: ["some": "thing"], key: "any")
         
-        _ = fixture.getSut().captureCrash(oomEvent, with: scope)
+        _ = fixture.getSut().captureFatalEvent(oomEvent, with: scope)
 
         let actual = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
         XCTAssertEqual(oomEvent.context?.count, actual.context?.count)
     }
-    
+
+    func testCaptureFatalEventWithSession_DoesntApplyCurrentScope() throws {
+        // Arrange
+        let scope = fixture.scope
+        scope.setLevel(SentryLevel.info)
+        let user = fixture.user
+        user.email = "not@me.com"
+        scope.setUser(user)
+
+        // Act
+        let eventId = fixture.getSut().captureFatalEvent(fixture.eventWithCrash, with: fixture.session, with: scope)
+
+        // Assert
+        eventId.assertIsNotEmpty()
+        let event = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last?.event)
+
+        let expectedUser = try XCTUnwrap(TestData.user)
+        let expectedContext = TestData.context
+        XCTAssertEqual(event.user, expectedUser)
+        XCTAssertEqual(event.level, .fatal)
+        XCTAssertEqual(event.context?.count, expectedContext.count)
+    }
+
+    func testCaptureFatalEventWithSession_ScopeWithSpan_NotAppliedToFatalEvent() throws {
+        // Arrange
+        let scope = fixture.scope
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "", operation: ""), hub: nil)
+        let event = fixture.eventWithCrash
+
+        // Act
+        let eventId = fixture.getSut().captureFatalEvent(event, with: fixture.session, with: scope)
+
+        // Assert
+        eventId.assertIsNotEmpty()
+        let capturedEvent = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last?.event)
+
+        XCTAssertNil(capturedEvent.context?["trace"])
+    }
+
     func testCaptureCrash_DoesntOverideStacktraceFor() throws {
         let event = TestData.event
         event.threads = nil
         event.debugMeta = nil
         
-        fixture.getSut().captureCrash(event, with: fixture.scope)
+        fixture.getSut().captureFatalEvent(event, with: fixture.scope)
         
         let actual = try lastSentEventWithAttachment()
         XCTAssertNil(actual.threads)
@@ -808,18 +877,18 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureCrash_NoExtraContext() throws {
+        // Arrange
         let event = TestData.event
+        let expectedMyContext = ["context": "value"]
+        event.context = ["my": expectedMyContext]
 
-        fixture.getSut().captureCrash(event, with: fixture.scope)
+        // Act
+        fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
+        // Assert
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(1, actual.context?["device"]?.count, "The device context should only contain free_memory")
-        
-        let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
-        XCTAssertEqual(eventFreeMemory, 2_000)
-        
-        XCTAssertNil(actual.context?["app"], "The app context should be nil")
-        XCTAssertNil(actual.context?["culture"], "The culture context should be nil")
+        XCTAssertEqual(actual.context?.count, 1)
+        XCTAssertEqual(actual.context?["my"] as? [String: String], expectedMyContext)
     }
 
     func testCaptureEvent_AddCurrentMemoryStorageAndCPUCoreCount() throws {
@@ -1042,7 +1111,7 @@ class SentryClientTest: XCTestCase {
             session
         }
             .assertIsNotEmpty()
-        fixture.getSut().captureCrash(fixture.event, with: session, with: Scope())
+        fixture.getSut().captureFatalEvent(fixture.event, with: session, with: Scope())
             .assertIsNotEmpty()
         
         // No sessions sent
@@ -1166,7 +1235,8 @@ class SentryClientTest: XCTestCase {
         let serializedSpans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
         XCTAssertEqual(1, serializedSpans.count)
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(message: fixture.messageAsString)
@@ -1174,27 +1244,31 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testDisabled_MessageNotSent() {
         let sut = fixture.getSutDisabledSdk()
         let eventId = sut.capture(message: fixture.messageAsString)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ExceptionNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(exception: exception)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ErrorNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(error: error)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_SessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         fixture.getSut(configureOptions: { options in
@@ -1203,17 +1277,19 @@ class SentryClientTest: XCTestCase {
 
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_EventWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureCrash(Event(), with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(Event(), with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ExceptionWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1225,7 +1301,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertNothingSent()
     }
-
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testNoDsn_ErrorWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
@@ -1238,18 +1315,22 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateNil_EventNotSampled() throws {
         try assertSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateBiggerRandom_EventNotSampled() throws {
         try assertSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateEqualsRandom_EventNotSampled() throws {
         try assertSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertSampleRate is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, these deprecation annotations can go away.")
     func testSampleRateSmallerRandom_EventSampled() throws {
         try assertSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
@@ -1464,23 +1545,54 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.beforeSend)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
-    
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testNoDsn_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testDisabled_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
     func testDisabled_UserFeedbackNotSent() {
         let sut = fixture.getSutDisabledSdk()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
         assertNothingSent()
     }
     
+    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testCaptureFeedback_WithEmptyEventId when -[SentryClient captureUserFeedback:] is removed.")
     func testCaptureUserFeedback_WithEmptyEventId() {
         let sut = fixture.getSut()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
+    }
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotation can go away.")
+    func testNoDsn_FeedbackNotSent() {
+        let sut = fixture.getSutWithNoDsn()
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        assertNothingSent()
+    }
+    
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotation can go away.")
+    func testDisabled_FeedbackNotSent() {
+        let sut = fixture.getSutDisabledSdk()
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        assertNothingSent()
+    }
+    
+    func testCaptureFeedback_WithEmptyEventId() throws {
+        let sut = fixture.getSut()
+        XCTAssertTrue(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+        XCTAssertFalse(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
+        let invocation = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event: Event = invocation.0
+        let feedbackContext = try XCTUnwrap(event.context?["feedback"])
+        XCTAssertEqual(feedbackContext["message"] as? String, fixture.feedback.message)
+        XCTAssertEqual(feedbackContext["name"] as? String, fixture.feedback.name)
+        XCTAssertEqual(feedbackContext["contact_email"] as? String, fixture.feedback.email)
+        XCTAssertEqual(feedbackContext["source"] as? String, fixture.feedback.source.serialize)
+        XCTAssertEqual(feedbackContext["associated_event_id"] as? String, fixture.feedback.associatedEventId?.sentryIdString)
     }
 
     func testDistIsSet() throws {
@@ -1698,7 +1810,7 @@ class SentryClientTest: XCTestCase {
             options.onCrashedLastRun = { _ in
                 onCrashedLastRunCalled = true
             }
-        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertTrue(onCrashedLastRunCalled)
     }
@@ -1714,7 +1826,7 @@ class SentryClientTest: XCTestCase {
             options.onCrashedLastRun = { _ in
                 onCrashedLastRunCalled = true
             }
-        }).captureCrash(event, with: fixture.session, with: fixture.scope)
+        }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
         
         XCTAssertFalse(onCrashedLastRunCalled)
     }
@@ -1730,15 +1842,15 @@ class SentryClientTest: XCTestCase {
             }
         })
         
-        client.captureCrash(event, with: fixture.scope)
-        client.captureCrash(TestData.event, with: fixture.scope)
+        client.captureFatalEvent(event, with: fixture.scope)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
         
         XCTAssertTrue(onCrashedLastRunCalled)
     }
     
     func testOnCrashedLastRun_WithoutCallback_DoesNothing() {
         let client = fixture.getSut()
-        client.captureCrash(TestData.event, with: fixture.scope)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
     
     func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
@@ -1754,9 +1866,9 @@ class SentryClientTest: XCTestCase {
                 captureCrash!()
             }
         })
-        captureCrash = { client.captureCrash(event, with: self.fixture.scope) }
+        captureCrash = { client.captureFatalEvent(event, with: self.fixture.scope) }
         
-        client.captureCrash(event, with: fixture.scope)
+        client.captureFatalEvent(event, with: fixture.scope)
         
         wait(for: [callbackExpectation], timeout: 0.1)
     }
@@ -1815,7 +1927,7 @@ class SentryClientTest: XCTestCase {
         let scope = Scope()
 
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("view-hierarchy.json")
-        try "data".data(using: .utf8)?.write(to: tempFile)
+        try Data("data".utf8).write(to: tempFile)
 
         scope.addCrashReportAttachment(inPath: tempFile.path)
 
@@ -1973,13 +2085,13 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(header.sdkInfo?.version, "1.0.0")
     }
     
-    func testCaptureCrashEventSetReplayInScope() {
+    func testCaptureFatalEventSetReplayInScope() {
         let sut = fixture.getSut()
         let event = Event()
-        event.isCrashEvent = true
+        event.isFatalEvent = true
         let scope = Scope()
         event.context = ["replay": ["replay_id": "someReplay"]]
-        sut.captureCrash(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
+        sut.captureFatalEvent(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
         XCTAssertEqual(scope.replayId, "someReplay")
     }
 }
@@ -2094,7 +2206,8 @@ private extension SentryClientTest {
     private func shortenIntegrations(_ integrations: [String]?) -> [String]? {
         return integrations?.map { $0.replacingOccurrences(of: "Sentry", with: "").replacingOccurrences(of: "Integration", with: "") }
     }
-
+    
+    @available(*, deprecated, message: "Remove check on transportAdapter.userFeedbackInvocations when SentryUserFeedback is removed in favor of SentryFeedback. Then this deprecation annotation can be removed.")
     private func assertNothingSent() {
         XCTAssertTrue(fixture.transport.sentEnvelopes.isEmpty)
         XCTAssertEqual(0, fixture.transportAdapter.sentEventsWithSessionTraceState.count)
@@ -2125,13 +2238,13 @@ private extension SentryClientTest {
     
     class TestAttachmentProcessor: NSObject, SentryClientAttachmentProcessor {
         
-        var callback: (([Attachment]?, Event) -> [Attachment]?)
+        var callback: (([Attachment], Event) -> [Attachment])
         
-        init(callback: @escaping ([Attachment]?, Event) -> [Attachment]?) {
+        init(callback: @escaping ([Attachment], Event) -> [Attachment]) {
             self.callback = callback
         }
         
-        func processAttachments(_ attachments: [Attachment]?, for event: Event) -> [Attachment]? {
+        func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
             return callback(attachments, event)
         }
     }
@@ -2154,6 +2267,7 @@ private extension SentryClientTest {
     }
 #endif
     
+    @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotations can be removed.")
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
         fixture.random.value = randomValue
         

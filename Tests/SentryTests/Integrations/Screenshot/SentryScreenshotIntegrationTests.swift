@@ -70,7 +70,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 1)
+        XCTAssertEqual(newAttachmentList.count, 1)
     }
     
     func test_attachScreenShot_withException() {
@@ -80,7 +80,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 1)
+        XCTAssertEqual(newAttachmentList.count, 1)
     }
     
     func test_attachScreenShot_withError_keepAttachments() {
@@ -91,8 +91,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([attachment], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 2)
-        XCTAssertEqual(newAttachmentList?.first, attachment)
+        XCTAssertEqual(newAttachmentList.count, 2)
+        XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
     func test_attachScreenShot_withException_keepAttachments() {
@@ -104,8 +104,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([attachment], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 2)
-        XCTAssertEqual(newAttachmentList?.first, attachment)
+        XCTAssertEqual(newAttachmentList.count, 2)
+        XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
     func test_noScreenshot_attachment() {
@@ -114,17 +114,17 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
     
-    func test_noScreenShot_CrashEvent() {
+    func test_noScreenShot_FatalEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.isCrashEvent = true
+        event.isFatalEvent = true
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 
 #if os(iOS) || targetEnvironment(macCatalyst)
@@ -133,7 +133,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([], for: TestData.metricKitEvent)
         
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     
@@ -154,7 +154,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
         
-        XCTAssertEqual(newAttachmentList?.count, 0)
+        XCTAssertEqual(newAttachmentList.count, 0)
     }
     
     func test_noScreenshot_keepAttachment() {
@@ -165,8 +165,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         let newAttachmentList = sut.processAttachments([attachment], for: event)
         
-        XCTAssertEqual(newAttachmentList?.count, 1)
-        XCTAssertEqual(newAttachmentList?.first, attachment)
+        XCTAssertEqual(newAttachmentList.count, 1)
+        XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
     func test_Attachments_Info() {
@@ -174,7 +174,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         let event = Event(error: NSError(domain: "", code: -1))
         fixture.screenshot.result = [Data(repeating: 0, count: 1), Data(repeating: 0, count: 2), Data(repeating: 0, count: 3)]
         
-        let newAttachmentList = sut.processAttachments([], for: event) ?? []
+        let newAttachmentList = sut.processAttachments([], for: event)
         
         XCTAssertEqual(newAttachmentList.count, 3)
         XCTAssertEqual(try XCTUnwrap(newAttachmentList.first).filename, "screenshot.png")

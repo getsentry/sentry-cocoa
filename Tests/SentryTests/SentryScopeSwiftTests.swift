@@ -231,17 +231,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
     }
     
-    func testApplyToEvent_ScopeWithSpan_NotAppliedToCrashEvent() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        let event = fixture.event
-        event.isCrashEvent = true
-        
-        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
-        XCTAssertNil(fixture.event.context?["trace"])
-        XCTAssertNil(actual?.transaction)
-    }
-    
     func testApplyToEvent_EventWithDist() {
         let event = fixture.event
         event.dist = "myDist"
@@ -271,7 +260,18 @@ class SentryScopeSwiftTests: XCTestCase {
         
         XCTAssertEqual(event.environment, actual?.environment)
     }
-    
+
+    func testApplyToEvent_ForFatalEvent_DoesNotApplyScope() {
+        let event = fixture.event
+        event.isFatalEvent = true
+
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
+
+        XCTAssertNil(actual?.tags)
+        XCTAssertNil(actual?.extra)
+    }
+
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpan() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (span) in
@@ -279,6 +279,7 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
         let scope = fixture.scope
         scope.span = fixture.transaction
@@ -311,6 +312,7 @@ class SentryScopeSwiftTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanLock_IsReentrant() {
         let expect = expectation(description: "finish on time")
         let scope = fixture.scope
@@ -324,6 +326,7 @@ class SentryScopeSwiftTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testSpan_FromMultipleThreads() {
         let scope = fixture.scope
         
@@ -358,6 +361,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(serialized["breadcrumbs"])
     }
     
+    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
         fixture.scope.useSpan { (_) in
@@ -768,7 +772,97 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setUser(user)
         })
     }
-    
+
+    func testRemoveContextForKey_keyNotFound_shouldNotChangeContext() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        // -- Act --
+        scope.removeContext(key: "C")
+
+        // -- Assert --
+        let actual = scope.serialize()["context"] as? NSDictionary
+        let expected: NSDictionary = ["A": ["AA": 1], "B": ["BB": "2"]]
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testRemoveContextForKey_keyFound_shouldRemoveKeyValuePairFromContext() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        // -- Act --
+        scope.removeContext(key: "B")
+
+        // -- Assert --
+        let actual = scope.serialize()["context"] as? NSDictionary
+        let expected: NSDictionary = ["A": ["AA": 1]]
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testRemoveContextForKey_keyNotFound_shouldUpdateAllObserverContexts() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        let observer1 = TestScopeObserver()
+        scope.add(observer1)
+        let observer2 = TestScopeObserver()
+        scope.add(observer2)
+
+        // -- Act --
+        scope.removeContext(key: "C")
+
+        // -- Assert --
+        let expected: NSDictionary = ["A": ["AA": 1], "B": ["BB": "2"]]
+        XCTAssertEqual(observer1.context as? NSDictionary, expected)
+        XCTAssertEqual(observer2.context as? NSDictionary, expected)
+    }
+
+    func testRemoveContextForKey_keyFound_shouldUpdateAllObserverContexts() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.setContext(value: ["AA": 1], key: "A")
+        scope.setContext(value: ["BB": "2"], key: "B")
+
+        let observer1 = TestScopeObserver()
+        scope.add(observer1)
+        let observer2 = TestScopeObserver()
+        scope.add(observer2)
+
+        // -- Act --
+        scope.removeContext(key: "B")
+
+        // -- Assert --
+        let expected: NSDictionary = ["A": ["AA": 1]]
+        XCTAssertEqual(observer1.context as? NSDictionary, expected)
+        XCTAssertEqual(observer2.context as? NSDictionary, expected)
+    }
+
+    func testScopeObserver_setPropagationContext_UpdatesTraceContext() throws {
+        // -- Arrange --
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let traceId = SentryId(uuidString: "12345678123456781234567812345678")
+        let spanId = SpanId(value: "1234567812345678")
+        let propagationContext = SentryPropagationContext(trace: traceId, spanId: spanId)
+        
+        // -- Act --
+        sut.propagationContext = propagationContext
+        
+        // -- Assert -- 
+        let traceContext = try XCTUnwrap(observer.traceContext)
+        XCTAssertEqual(2, traceContext.count)
+        XCTAssertEqual(traceId.sentryIdString, traceContext["trace_id"] as? String)
+        XCTAssertEqual(spanId.sentrySpanIdString, traceContext["span_id"] as? String)
+    }
+
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {

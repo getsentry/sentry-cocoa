@@ -81,6 +81,26 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.ui-test.use-custom-feedback-button"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.disable-ui-profiling"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-app-hang-tracking-v2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.schema-environment-variable-precedence"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--io.sentry.profile-lifecycle-manual"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--disable-time-to-full-display-tracing"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -134,7 +154,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.all-defaults"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--skip-sentry-init"
@@ -157,10 +177,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.enableContinuousProfiling"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--io.sentry.wipe-data"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -177,7 +193,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--profile-app-launches"
+            argument = "--io.sentry.disable-app-start-profiling"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -221,8 +237,12 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.feedback.auto-inject-widget"
-            isEnabled = "YES">
+            argument = "--io.sentry.feedback.no-auto-inject-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-filemanager-swizzling"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
@@ -273,6 +293,11 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "--io.sentry.user.name"
+            value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "--io.sentry.profile-session-sample-rate"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>

@@ -5,7 +5,6 @@
 @class SentryAttachment;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryFeedback;
 @class SentryId;
 @class SentryReplayEvent;
 @class SentryReplayRecording;
@@ -16,9 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
 
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
-                                                    forEvent:(SentryEvent *)event;
+- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
+                                           forEvent:(SentryEvent *)event;
 
 @end
 
@@ -37,9 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
                      withScope:(SentryScope *)scope
         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
@@ -73,13 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-
-/**
- * Captures a new-style user feedback and sends it to Sentry.
- * @param feedback The user feedback to send to Sentry.
- */
-- (void)captureFeedback:(SentryFeedback *)feedback
-              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
 @end
 

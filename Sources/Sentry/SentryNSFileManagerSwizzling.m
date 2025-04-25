@@ -1,6 +1,7 @@
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryLog.h"
 #import "SentrySwizzle.h"
+#import "SentryTraceOrigin.h"
 #import <objc/runtime.h>
 
 @interface SentryNSFileManagerSwizzling ()
@@ -23,8 +24,15 @@
 {
     self.tracker = tracker;
 
+    if (!options.enableSwizzling) {
+        SENTRY_LOG_DEBUG(
+            @"Auto-tracking of NSFileManager is disabled because enableSwizzling is false");
+        return;
+    }
+
     if (!options.experimental.enableFileManagerSwizzling) {
-        SENTRY_LOG_DEBUG(@"Experimental auto-tracking of FileManager is disabled")
+        SENTRY_LOG_DEBUG(@"Auto-tracking of NSFileManager is disabled because "
+                         @"enableFileManagerSwizzling is false");
         return;
     }
 
@@ -59,7 +67,7 @@
                     measureNSFileManagerCreateFileAtPath:path
                                                     data:data
                                               attributes:attributes
-                                                  origin:SentryTraceOrigin.autoNSData
+                                                  origin:SentryTraceOriginAutoNSData
                                                   method:^BOOL(NSString *path, NSData *data,
                                                       NSDictionary<NSFileAttributeKey, id>
                                                           *attributes) {

@@ -15,21 +15,30 @@
     [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
 }
 
-- (void)testCPUBenchmark
+- (void)testProfilerCPUUsage
 {
     XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < 20; j++) {
         XCUIApplication *app = [[XCUIApplication alloc] init];
-        app.launchArguments =
-            [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
+
+        app.launchArguments = [app.launchArguments arrayByAddingObjectsFromArray:@[
+            @"--io.sentry.test.benchmarking", @"--io.sentry.disable-app-start-profiling"
+        ]];
+
+        NSMutableDictionary<NSString *, NSString *> *mutableEnvironment
+            = app.launchEnvironment.mutableCopy;
+        mutableEnvironment[@"--io.sentry.profilesSampleRate"] = @"1";
+        app.launchEnvironment = mutableEnvironment;
+
         [app launch];
         [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
 
         [app.buttons[@"startTransactionMainThread"] tap];
 
-        [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
+        [app.tabBars[@"Tab Bar"].buttons[@"More"] tap];
+        [app.staticTexts[@"Benchmarking"] tap];
 
         [app.buttons[@"Benchmark start"] tap];
 

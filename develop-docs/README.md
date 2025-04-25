@@ -37,7 +37,9 @@ You can include the `--force` option to regenerate an existing profile.
 
 Reach out to a [CODEOWNER](https://github.com/getsentry/sentry-cocoa/blob/main/.github/CODEOWNERS) if you need access to the match git repository.
 
-## Unit Tests with Thread Sanitizer
+## Testing
+
+### Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
 To ignore false positives or known issues, use the `SENTRY_DISABLE_THREAD_SANITIZER` macro or the [suppression file](../Sources/Resources/ThreadSanitizer.sup).
@@ -45,14 +47,14 @@ It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to t
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
 The profiler doesn't work with TSAN attached, so tests that run the profiler will be skipped.
 
-### Further Reading
+#### Further Reading
 
 - [ThreadSanitizerSuppressions](https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
 - [Running Tests with Clang's AddressSanitizer](https://pspdfkit.com/blog/2016/test-with-asan/)
 - [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
 - [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
 
-## Using Xcode Test Plans
+### Using Xcode Test Plans
 
 Test plans in Xcode provide a convenient way to organize and configure test execution.
 They allow us to segment tests into different groups and configure specific test environments without creating additional targets or schemes.
@@ -69,7 +71,7 @@ Some of the features of test plans are:
 
 Additional outputs are written to the Xcode results (`.xcresult`) files, which can be found in the `~/Library/Developer/Xcode/DerivedData/.../Logs/Test/` directory.
 
-### Base Test Plans
+#### Base Test Plans
 
 We maintain "base" test plans that automatically include all new tests as they are configured by defining a list skipped tests.
 This prevents tests from being accidentally excluded and provides convenience when adding new test files.
@@ -77,48 +79,52 @@ This prevents tests from being accidentally excluded and provides convenience wh
 In case a test is manually marked as skipped in the test plan, it should be added to another test plan (which must also be used in the CI workflow).
 When using `xcodebuild` to run tests, only the default test plan is executed unless explicitly specified with the -testPlan argument.
 
-### Test Plan Organization
+#### Test Plan Organization
 
 Test plans are stored in the repository root since they are shared between sample apps and SDK targets.
 This central location makes them easily accessible while maintaining the relationship between plans and schemes.
 
-### UI Test Recording
+#### UI Test Recording
 
 It is possible to record UI tests by changing the test plan configuration `Automatic Screen Capture` to `On, and keep all` or `On, and delete if test succeeds`.
 
 After running the tests with the configuration set, it is possible to open the test results in Xcode, inspect the tests in detail by double clicking them.
 
-![UI Test Capture Settings](./images/xcode_test_plan_uicapture_settings.png)
+![UI Test Capture Settings](./xcode_test_plan_uicapture_settings.png)
 
 The details of the test case will display the UI Test history and also display playback of the screen captures.
 
-![UI Test Capture Playback](./images/xcode_test_plan_uicapture_playback.png)
+![UI Test Capture Playback](./xcode_test_plan_uicapture_playback.png)
 
-### Further Resources
+#### Further Resources
 
 For more details on test plans and their capabilities, refer to:
 
 - [WWDC21 video on Test Plans](https://developer.apple.com/videos/play/wwdc2021/10296/)
 - [Apple's documentation on Test Plans](https://developer.apple.com/documentation/xcode/running-tests-and-interpreting-results)
 
-## Test Logs
+### Test Logs
 
 The [`SentryTestLogConfig`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/Tests/SentryTests/TestUtils/SentryTestLogConfig.m) sets the log level to debug in `load`, so we understand what's going on during out tests.
 The [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/SentryTestUtils/ClearTestState.swift#L25) method does the same, in case a test changes the log level.
 
-## UI Tests
+### UI Tests
 
 CI runs UI tests on simulators via the `ui-tests.yml` workflow for every PR and every commit on main.
 
-### Saucelabs
+#### Saucelabs
 
 You can find the available devices on [their website](https://saucelabs.com/platform/supported-browsers-devices). Another way to check their available devices is to go to [live app testing](https://app.saucelabs.com/live/app-testing), go to iOS-Swift and click on choose device. This brings the full list of devices with more details.
 
-### Performance benchmarking
+### Test Expectations
+
+We recommend using `XCTAssertEqual(<VALUE>, <EXPECTED VALUE>)` over `XCTAssertEqual(<EXPECTED VALUE>, <VALUE>)` for no strong reason, but to align so tests are consistent and therefore easier to read.
+
+## Performance benchmarking
 
 Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`PerformanceBenchmarks` target) using the iOS-Swift sample app, under the `iOS-Swift-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
 
-#### Test procedure
+### Test procedure
 
 - Tap the button to start a Sentry transaction with the associated profiling.
 - Run a loop performing large amount of calculations to use as much CPU as possible. This simulates something an app developer would want to profile in a real world scenario.
@@ -127,7 +133,7 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
 - Calculate the total time used by app threads and separately, the profiler's thread. Keep separated by system call and user call times.
 - Write these four values as CSV into the text field accessible as an XCUIElement in the runner app.
 
-#### Test Plan
+### Test Plan
 
 - Run the procedure 20 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
   - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials.
@@ -161,9 +167,15 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock, and aren't suitable for SentryCrash.
+
+### SentryCrash Logging
+
+In SentryCrash we have to use SentryAsyncSafeLog and we can't use NSLog, as it's not async-safe. Therefore, logging to the console is disabled for log messages from SentryAsyncSafeLog. You can enable it by setting `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1`, but you MUST NEVER commit this change. SentryAsyncSafeLog writes its messages to the file `/Caches/io.sentry/async.log`. The default log level is error. To see all log messages set `SENTRY_ASYNC_SAFE_LOG_LEVEL` in `SentryAsyncSafeLog.h` to `SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE`.
 
 ## Profiling
+
+### Transaction profiling
 
 The profiler runs on a dedicated thread, and on a predefined interval will enumerate all other threads and gather the backtrace on each non-idle thread.
 
@@ -173,9 +185,35 @@ If enabled and sampled in (controlled by `SentryOptions.profilesSampleRate` or `
 
 The profiler will automatically time out if it is not stopped within 30 seconds, and also stops automatically if the app is sent to the background.
 
-There's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`.
+With transaction profiling, there's only ever one profiler instance running at a time, but instances that have timed out will be kept in memory until all traces that ran concurrently with it have finished and serialized to envelopes. The associations between profiler instances and traces are maintained in `SentryProfiledTracerConcurrency`.
 
-App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so.
+App launches can be automatically profiled if configured with `SentryOptions.enableAppLaunchProfiling`. If enabled, when `SentrySDK.startWithOptions` is called, `SentryLaunchProfiling.configureLaunchProfiling` will get a sample rate for traces and profiles with their respective options, and store those rates in a file to be read on the next launch. On each launch, `SentryLaunchProfiling.startLaunchProfile` checks for the presence of that file is used to decide whether to start an app launch profiled trace, and afterwards retrieves those rates to initialize a `SentryTransactionContext` and `SentryTracerConfiguration`, and provides them to a new `SentryTracer` instance, which is what actually starts the profiler. There is no hub at this time; also in the call to `SentrySDK.startWithOptions`, any current profiled launch trace is attempted to be finished, and the hub that exists by that time is provided to the `SentryTracer` instance via `SentryLaunchProfiling.stopAndTransmitLaunchProfile` so that when it needs to transmit the transaction envelope, the infrastructure is in place to do so. If TTID/TTFD tracking is also enabled, then the launch profile is stopped when the SDK detects that initial/full display have completed, instead of when `SentrySDK.startWithOptions` is called.
+
+### Continuous profiling (beta)
+
+With continuous profiling, there's also only ever one profiler instance running at a time. They are either started manually by customers or automatically based on active root span counts. They aren't tied to transactions otherwise so are immediately captured in envelopes when stopped.
+
+### UI Profiling
+
+Also referred to in implementation as continuous profiling V2. Essentially a combination of transaction-based profiling (although now focused on "root spans" instead of transactions) for the trace lifecycle and continuous profiling beta for the manual lifecycle, with the exception that manual mode also respects a configured sample rate.
+
+The sample apps are configured by default to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
+
+### Sample apps
+
+The iOS-Swift and iOS-ObjectiveC sample apps have schema launch args and environment variables available to customize how the SDK is configured.
+
+In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults`. They interact with schema launch arguments and environment variables as follows: - Boolean flags are ORed together: if either a `true` is set in User Defaults, or a launch argument is set, then the override takes effect. - Values written to user defaults take precedence over schema environment variables by default. If you want to give precedence to schema environment vars over user defaults values, enable the launch arg `--io.sentry.schema-environment-variable-precedence`.
+
+Note that if a key we use to write a boolean value to defaults isn't present in defaults, then UserDefaults returns `false` for the query by default. We write all environment variables as strings, so that by default, if the associated key isn't present, `UserDefaults` returns `nil` (if we directly wrote and read Floats, for example, defaults would return `0` if the key isn't present, and we'd have to do more work to disambiguate that from having overridden it to 0, for cases where 0 isn't the default we want to set in the sample app).
+
+You can see the current override value being used in the "Features" tab.
+
+You can also remove all stored values in user defaults by launching with `--io.sentry.wipe-data`. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
+
+Note that in-app overrides don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
+
+### Testing
 
 In testing and debug environments, when a profile payload is serialized for transmission, the dictionary will also be written to a file in NSCachesDirectory that can be retrieved by a sample app. This helps with UI tests that want to verify the contents of a profile after some app interaction. See `iOS-Swift.ProfilingViewController.viewLastProfile` and `iOS-Swift-UITests.ProfilingUITests`.
 

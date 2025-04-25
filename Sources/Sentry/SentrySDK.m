@@ -20,6 +20,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
+#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -260,7 +261,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_manageTraceProfilerOnStartSDK(options, hub);
+        sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 
@@ -274,15 +275,24 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK startWithOptions:options];
 }
 
-+ (void)captureCrashEvent:(SentryEvent *)event
++ (void)captureFatalEvent:(SentryEvent *)event
 {
-    [SentrySDK.currentHub captureCrashEvent:event];
+    [SentrySDK.currentHub captureFatalEvent:event];
 }
 
-+ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
+    [SentrySDK.currentHub captureFatalEvent:event withScope:scope];
 }
+
+#if SENTRY_HAS_UIKIT
+
++ (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    [SentrySDK.currentHub captureFatalAppHangEvent:event];
+}
+
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
@@ -421,13 +431,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureFeedback:feedback];
 }
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-+ (void)showUserFeedbackForm
-{
-    // TODO: implement
-}
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentrySDK.currentHub addBreadcrumb:crumb];
@@ -440,6 +443,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)setUser:(SentryUser *_Nullable)user
 {
+    if (![SentrySDK isEnabled]) {
+        // We must log with level fatal because only fatal messages get logged even when the SDK
+        // isn't started. We've seen multiple times that users try to set the user before starting
+        // the SDK, and it confuses them. Ideally, we would do something to store the user and set
+        // it once we start the SDK, but this is a breaking change, so we live with the workaround
+        // for now.
+        SENTRY_LOG_FATAL(@"The SDK is disabled, so setUser doesn't work. Please ensure to start "
+                         @"the SDK before setting the user.");
+    }
+
     [SentrySDK.currentHub setUser:user];
 }
 
@@ -604,12 +617,34 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to start a continuous profiling session.");
+            @"altogether) before attempting to start a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
+        return;
+    }
+
+    if (options.profiling != nil) {
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+            SENTRY_LOG_WARN(
+                @"The profiling lifecycle is set to trace, so you cannot start profile sessions "
+                @"manually. See SentryProfileLifecycle for more information.");
+            return;
+        }
+
+        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+            SENTRY_LOG_DEBUG(
+                @"The profiling session has been sampled out, no profiling will take place.");
+            return;
+        }
+    }
+
+    if ([SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"There is already a profile session running.");
         return;
     }
 
@@ -618,12 +653,26 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
-    if (![currentHub.client.options isContinuousProfilingEnabled]) {
+    SentryOptions *options = currentHub.client.options;
+    if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
             @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to stop a continuous profiling session.");
+            @"altogether) before attempting to stop a continuous profiling session. This behavior "
+            @"relies on deprecated options and will change in a future version.");
+        return;
+    }
+
+    if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+        SENTRY_LOG_WARN(
+            @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "
+            @"manually. See SentryProfileLifecycle for more information.");
+        return;
+    }
+
+    if (![SentryContinuousProfiler isCurrentlyProfiling]) {
+        SENTRY_LOG_WARN(@"No profile session to stop.");
         return;
     }
 
