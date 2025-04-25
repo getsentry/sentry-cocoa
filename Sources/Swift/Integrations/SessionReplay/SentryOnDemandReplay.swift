@@ -236,25 +236,15 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             return completion(.failure(SentryOnDemandReplayError.cantCreatePixelBuffer))
         }
         videoWriter.add(videoWriterInput)
-
         videoWriter.startWriting()
         videoWriter.startSession(atSourceTime: .zero)
 
-        // Append frames to the video writer input in a pull-style manner when the input is ready to receive more media data.
-        //
-        // Inside the callback:
-        // 1. We append media data until `isReadyForMoreMediaData` becomes false
-        // 2. Or until there's no more media data to process (then we mark input as finished)
-        // 3. If we don't mark the input as finished, the callback will be invoked again
-        //    when the input is ready for more data
-        //
-        // By setting the queue to the asset worker queue, we ensure that the callback is invoked on the asset worker queue.
-        // This is important to avoid a deadlock, as this method is called on the processing queue.
         var lastImageSize: CGSize = image.size
         var usedFrames = [SentryReplayFrame]()
         var frameIndex = from
 
-        // Convenience wrapper to handle the completion callback
+        // Convenience wrapper to handle the completion callback to return the video info and the final frame index
+        // It is not possible to use an inout frame index here, because the closure is escaping and the frameIndex variable is captured.
         let deferredCompletionCallback: (Result<SentryVideoInfo?, Error>) -> Void = { result in
             switch result {
             case .success(let videoResult):
@@ -266,19 +256,30 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 completion(.failure(error))
             }
         }
+        
+        // Append frames to the video writer input in a pull-style manner when the input is ready to receive more media data.
+        //
+        // Inside the callback:
+        // 1. We append media data until `isReadyForMoreMediaData` becomes false
+        // 2. Or until there's no more media data to process (then we mark input as finished)
+        // 3. If we don't mark the input as finished, the callback will be invoked again
+        //    when the input is ready for more data
+        //
+        // By setting the queue to the asset worker queue, we ensure that the callback is invoked on the asset worker queue.
+        // This is important to avoid a deadlock, as this method is called on the processing queue.
         videoWriterInput.requestMediaDataWhenReady(on: assetWorkerQueue.queue) { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 SentryLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
                 return deferredCompletionCallback(.success(nil))
             }
             guard videoWriter.status == .writing else {
                 SentryLog.warning("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
                 videoWriter.cancelWriting()
-                return completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+                return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             }
             guard frameIndex < videoFrames.count else {
                 SentryLog.debug("[Session Replay] No more frames available to process, finishing the video")
-                return self.finishVideo(
+                return strongSelf.finishVideo(
                     outputFileURL: outputFileURL,
                     usedFrames: usedFrames,
                     videoHeight: Int(videoHeight),
@@ -292,7 +293,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             if let image = UIImage(contentsOfFile: frame.imagePath) {
                 guard lastImageSize == image.size else {
                     SentryLog.debug("[Session Replay] Image size changed, finishing the video")
-                    return self.finishVideo(
+                    return strongSelf.finishVideo(
                         outputFileURL: outputFileURL,
                         usedFrames: usedFrames,
                         videoHeight: Int(videoHeight),
@@ -305,12 +306,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
                 let presentTime = SentryOnDemandReplay.calculatePresentationTime(
                     forFrameAtIndex: frameIndex,
-                    frameRate: self.frameRate
+                    frameRate: strongSelf.frameRate
                 ).timeValue
                 guard currentPixelBuffer.append(image: image, presentationTime: presentTime) == true else {
                     SentryLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
                     videoWriter.cancelWriting()
-                    return completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+                    return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
                 }
                 usedFrames.append(frame)
             }
