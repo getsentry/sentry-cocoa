@@ -21,8 +21,17 @@
 #include "Shared/Config/Swift.xcconfig"
 #include "Shared/Config/Metal.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Benchmarking
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Benchmarking
 INFOPLIST_FILE = iOS-Benchmarking/Info.plist
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.iOS-Benchmarking.xctrunner
+PROVISIONING_PROFILE_SPECIFIER_Test =
+PROVISIONING_PROFILE_SPECIFIER_TestCI =
+PROVISIONING_PROFILE_SPECIFIER_Release =
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
