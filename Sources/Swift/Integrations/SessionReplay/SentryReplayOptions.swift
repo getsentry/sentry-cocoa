@@ -107,17 +107,32 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses = [AnyClass]()
 
     /**
-     * Enables the up to 5x faster experimental view renderer used by the Session Replay integration.
+     * Alias for ``enableViewRendererV2``.
+     *
+     * This flag is deprecated and will be removed in a future version.
+     * Please use ``enableViewRendererV2`` instead.
+     */
+    @available(*, deprecated, renamed: "enableViewRendererV2")
+    public var enableExperimentalViewRenderer: Bool {
+        get {
+            enableViewRendererV2
+        }
+        set {
+            enableViewRendererV2 = newValue
+        }
+    }
+
+    /**
+     * Enables the up to 5x faster new view renderer used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing 
      * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
-     * **up to 4-5x faster rendering** (reducing `~160ms` to `~36ms` per frame).
+     * **up to 4-5x faster rendering** (reducing `~160ms` to `~36ms` per frame) on older devices.
      *
-     * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
-     *               view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). Eventually, we will
-     *               remove this feature flag and use the experimental view renderer by default.
+     * - Experiment: In case you are noticing issues with the new view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). 
+     *               Eventually, we will remove this feature flag and use the new view renderer by default.
      */
-    public var enableExperimentalViewRenderer = false
+    public var enableViewRendererV2 = true
 
     /**
      * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
@@ -130,7 +145,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
-     * - Note: This flag can only be used together with `enableExperimentalViewRenderer` with up to 20% faster render times.
+     * - Note: This flag can only be used together with `enableViewRendererV2` with up to 20% faster render times.
      * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
@@ -201,12 +216,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true, enableExperimentalViewRenderer: Bool = false, enableFastViewRendering: Bool = false) {
+    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true, enableViewRendererV2: Bool = false, enableFastViewRendering: Bool = false) {
         self.sessionSampleRate = sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
-        self.enableExperimentalViewRenderer = enableExperimentalViewRenderer
+        self.enableViewRendererV2 = enableViewRendererV2
         self.enableFastViewRendering = enableFastViewRendering
     }
 
@@ -215,14 +230,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? true
         let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? true
-        let enableExperimentalViewRenderer = (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue ?? false
+        let enableViewRendererV2 = (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue ?? false
         let enableFastViewRendering = (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue ?? false
         self.init(
             sessionSampleRate: sessionSampleRate,
             onErrorSampleRate: onErrorSampleRate,
             maskAllText: maskAllText,
             maskAllImages: maskAllImages,
-            enableExperimentalViewRenderer: enableExperimentalViewRenderer,
+            enableViewRendererV2: enableViewRendererV2,
             enableFastViewRendering: enableFastViewRendering
         )
         self.maskedViewClasses = ((dictionary["maskedViewClasses"] as? NSArray) ?? []).compactMap({ element in
