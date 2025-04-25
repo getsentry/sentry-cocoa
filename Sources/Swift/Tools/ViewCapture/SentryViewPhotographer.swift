@@ -19,16 +19,16 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     /// - Parameters:
     ///   - renderer: Implementation of the view renderer.
     ///   - redactOptions: Options provided to redact sensitive information.
-    ///   - enableExperimentalMaskRenderer: Flag to enable experimental view renderer.
-    /// - Note: The option `enableExperimentalMaskRenderer` is an internal flag, which is not part of the public API.
+    ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
+    /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
     ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
     init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
-        enableExperimentalMaskRenderer: Bool
+        enableMaskRendererV2: Bool
     ) {
         self.renderer = renderer
-        self.maskRenderer = enableExperimentalMaskRenderer ? SentryExperimentalMaskRenderer() : SentryDefaultMaskRenderer()
+        self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
         redactBuilder = UIRedactBuilder(options: redactOptions)
         super.init()
     }

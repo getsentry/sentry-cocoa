@@ -49,14 +49,15 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
-#if os(iOS) && !SENTRY_NO_UIKIT
-        if options.sessionReplay.enableExperimentalViewRenderer {
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        if options.sessionReplay.enableViewRendererV2 {
+            // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
         if options.sessionReplay.enableFastViewRendering {
             features.append("fastViewRendering")
         }
-#endif // #if os(iOS) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
         if options.experimental.enableDataSwizzling {
             features.append("dataSwizzling")
