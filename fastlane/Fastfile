@@ -289,7 +289,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift",
       configuration: configuration,
-      destination: "platform=iphonesimulator",
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
