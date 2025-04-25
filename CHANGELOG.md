@@ -2,9 +2,27 @@
 
 ## Unreleased
 
+> ![Important]
+> This version enables the better view renderer V2 used by Session Replay by default.
+> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
+>
+> In case you are noticing issues with view rendering, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
+
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+
 ### Fixes
 
 - Correctly rate limit envelopes from the new UI profiling system (#5131)
+- Race condition in ANRTrackerV1 (#5137)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+- GA of better session replay view renderer V2 (#5054)
 
 ## 8.49.1
 

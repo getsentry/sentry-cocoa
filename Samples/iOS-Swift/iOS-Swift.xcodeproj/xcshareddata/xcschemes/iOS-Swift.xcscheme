@@ -81,6 +81,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.ui-test.use-custom-feedback-button"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.disable-ui-profiling"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -150,7 +154,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.all-defaults"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--skip-sentry-init"
