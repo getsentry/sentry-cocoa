@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23091" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="b3U-zQ-JdB">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23079"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Main View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="MainViewController" customModule="iOS13_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sentry Test App (SwiftUI)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AHQ-Ck-5RQ">
+                                <rect key="frame" x="110.5" y="108" width="193" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="YCS-AD-9ZR">
+                                <rect key="frame" x="16" y="136.5" width="382" height="150"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gup-Ip-5r6">
+                                        <rect key="frame" x="0.0" y="0.0" width="382" height="30"/>
+                                        <state key="normal" title="captureMessage"/>
+                                        <connections>
+                                            <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ac3-qb-QmZ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yU3-L3-OGp">
+                                        <rect key="frame" x="0.0" y="30" width="382" height="30"/>
+                                        <state key="normal" title="captureError"/>
+                                        <connections>
+                                            <action selector="captureError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xoq-xg-ecS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SjB-JA-mRa">
+                                        <rect key="frame" x="0.0" y="60" width="382" height="30"/>
+                                        <state key="normal" title="captureTransaction"/>
+                                        <connections>
+                                            <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="p2Y-rq-BX4"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ZK-9G-NBW">
+                                        <rect key="frame" x="0.0" y="90" width="382" height="30"/>
+                                        <state key="normal" title="crash"/>
+                                        <connections>
+                                            <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Zoz-fJ-17Y"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ANQ-Az-4NG" userLabel="Show SwiftUI">
+                                        <rect key="frame" x="0.0" y="120" width="382" height="30"/>
+                                        <state key="normal" title="Show SwiftUI"/>
+                                        <connections>
+                                            <segue destination="F5J-3Y-bGd" kind="show" id="ZFh-G7-YHg"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="YCS-AD-9ZR" firstAttribute="top" secondItem="AHQ-Ck-5RQ" secondAttribute="bottom" constant="8" id="C6O-ed-Wm4"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="YCS-AD-9ZR" secondAttribute="trailing" constant="16" id="UmB-IK-GWd"/>
+                            <constraint firstItem="YCS-AD-9ZR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="aDn-Pr-9ka"/>
+                            <constraint firstItem="AHQ-Ck-5RQ" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="eKc-db-HWf"/>
+                            <constraint firstItem="AHQ-Ck-5RQ" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="geW-bg-9Dm"/>
+                            <constraint firstItem="YCS-AD-9ZR" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="itZ-uL-vkb"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="3qk-Gm-pct"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-72" y="72"/>
+        </scene>
+        <!--SwiftUI View Controller-->
+        <scene sceneID="48d-6X-7fM">
+            <objects>
+                <viewController id="F5J-3Y-bGd" customClass="SwiftUIViewController" customModule="iOS13_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="9Zf-Bj-AMT">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="Inp-m6-7gi"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="LrA-Es-JLl"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PrT-Lt-aep" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="588" y="72"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="7KY-f4-PyN">
+            <objects>
+                <navigationController id="b3U-zQ-JdB" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="QvU-Pl-yL9">
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="tbm-fh-tzN"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Lyf-cN-iTH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-774" y="72"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
