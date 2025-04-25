@@ -7,10 +7,6 @@ init:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	./scripts/update-tooling-versions.sh
-	
-	# The node version manager is optional, so we don't fail if it's not installed.
-	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
-	
 	yarn install
 	
 # installs the tools needed to run CI test tasks locally

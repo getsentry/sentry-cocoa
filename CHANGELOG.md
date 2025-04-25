@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+
+### Improvements
+
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+
+## 8.49.1
+
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
