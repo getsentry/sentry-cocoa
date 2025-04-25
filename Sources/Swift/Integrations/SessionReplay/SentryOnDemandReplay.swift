@@ -304,7 +304,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 lastImageSize = image.size
 
                 let presentTime = SentryOnDemandReplay.calculatePresentationTime(
-                    forFrameAtIndex: frameCount,
+                    forFrameAtIndex: frameIndex,
                     frameRate: self.frameRate
                 ).timeValue
                 guard currentPixelBuffer.append(image: image, presentationTime: presentTime) == true else {
@@ -319,7 +319,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
 
     // swiftlint:enable function_body_length cyclomatic_complexity
-
     private func finishVideo(
         outputFileURL: URL,
         usedFrames: [SentryReplayFrame],
