@@ -119,8 +119,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     func releaseFramesUntil(_ date: Date) {
+        SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
         processingQueue.dispatchAsync {
-            SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
                 let fileUrl = URL(fileURLWithPath: first.imagePath)
@@ -163,8 +163,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         var videos = [SentryVideoInfo]()
 
         while frameCount < videoFrames.count {
+            let frame = videoFrames[frameCount]
             let outputFileURL = URL(fileURLWithPath: _outputPath)
-                .appendingPathComponent("\(videoFrames[frameCount].time.timeIntervalSinceReferenceDate)")
+                .appendingPathComponent("\(frame.time.timeIntervalSinceReferenceDate)")
                 .appendingPathExtension("mp4")
 
             let group = DispatchGroup()
@@ -172,10 +173,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             group.enter()
             self.renderVideo(with: videoFrames, from: frameCount, at: outputFileURL) { result in
-                // Do not use `processingQueue` here, since it will be blocked by the semaphore.
                 switch result {
                 case .success(let videoResult):
+                    // Set the frame count/offset to the new index that is returned by the completion block.
+                    // This is important to avoid processing the same frame multiple times.
                     frameCount = videoResult.finalFrameIndex
+
+                    // Append the video info to the videos array.
+                    // In case no video info is returned, skip the segment.
                     if let videoInfo = videoResult.info {
                         videos.append(videoInfo)
                     }
@@ -186,11 +191,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 group.leave()
             }
 
-            // Calling semaphore.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
-            // It is imporant that the renderVideo completion block signals the semaphore.
+            // Calling group.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
+            // It is imporant that the renderVideo completion block signals the group.
             // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
-            // Otherwise, it could lead to queue starvation and a deadlock.
-            guard group.wait(timeout: .now() + 120) == .success else {
+            // Otherwise, it could lead to queue starvation and a deadlock/timeout.
+            guard group.wait(timeout: .now() + 2) == .success else {
                 SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
                 currentError = SentryOnDemandReplayError.errorRenderingVideo
                 break
@@ -232,7 +237,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         SentryLog.debug("[Session Replay] Creating pixel buffer based video writer input")
         let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings(width: videoWidth, height: videoHeight))
         guard let currentPixelBuffer = SentryPixelBuffer(size: pixelSize, videoWriterInput: videoWriterInput) else {
-            SentryLog.debug("[Session Replay] Failed to create pixel buffer, reason: \(SentryOnDemandReplayError.cantCreatePixelBuffer)")
+            SentryLog.error("[Session Replay] Failed to create pixel buffer, reason: \(SentryOnDemandReplayError.cantCreatePixelBuffer)")
             return completion(.failure(SentryOnDemandReplayError.cantCreatePixelBuffer))
         }
         videoWriter.add(videoWriterInput)
@@ -315,6 +320,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 }
                 usedFrames.append(frame)
             }
+
+            // Increment the frame index even if the image could not be appended to the pixel buffer.
+            // This is important to avoid an infinite loop.
             frameIndex += 1
         }
     }
@@ -388,7 +396,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             SentryLog.warning("[Session Replay] Failed to read video size from video file, reason: size attribute not found")
             throw SentryOnDemandReplayError.cantReadVideoSize
         }
-
         let minFrame = usedFrames.min(by: { $0.time < $1.time })
         guard let start = minFrame?.time else {
             // Note: This code path is currently not reached, because the `getVideoInfo` method is only called after the video is successfully created, therefore at least one frame was used.
