@@ -66,6 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: brew install xcodegen
       - run: make xcode
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
