@@ -23,10 +23,10 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift-UITests
 
-PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift
-PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift
-PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.iOS-Swift
-PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-Swift
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-SwiftUITests.xctrunner
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-SwiftUITests.xctrunner
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.iOS-SwiftUITests.xctrunner
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-SwiftUITests.xctrunner
 PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
 PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
 
