@@ -51,6 +51,7 @@ import Foundation
 
 #if os(iOS) && !SENTRY_NO_UIKIT
         if options.sessionReplay.enableViewRendererV2 {
+            // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
         if options.sessionReplay.enableFastViewRendering {
