@@ -90,8 +90,8 @@ platform :ios do
       app_identifier: [
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.iOS-Swift-UITests",
-        "io.sentry.iOS-Benchmarking"
+        "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.iOS-Benchmarking.xctrunner"
       ],
 
       # Directly cloning the branch instead of using a shallow clone fixes the rare error:
