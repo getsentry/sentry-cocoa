@@ -5,7 +5,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     static var isSessionReplayEnabled = true
-    static var isExperimentalViewRendererEnabled = true
+    static var isViewRendererV2Enabled = true
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         AppDelegate.reloadSentrySDK()
@@ -26,17 +26,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
             options.sessionReplay.sessionSampleRate = Self.isSessionReplayEnabled ? 1.0 : 0.0
+            options.sessionReplay.enableViewRendererV2 = Self.isViewRendererV2Enabled
+            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = false
 
             options.initialScope = { scope in
                 scope.injectGitInformation()
                 scope.setTag(value: "session-replay-camera-test", key: "sample-project")
                 return scope
             }
-
-            // Experimental features
-            options.sessionReplay.enableExperimentalViewRenderer = Self.isExperimentalViewRendererEnabled
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
         }
     }
 
