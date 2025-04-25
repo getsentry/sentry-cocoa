@@ -172,6 +172,10 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
 
+      - run: make init-ci-build
+      - run: make xcode
+        name: XcodeGen iOS-Swift project
+
       - run: make ios-swift6-xcode
         name: XcodeGen iOS-Swift project
 
