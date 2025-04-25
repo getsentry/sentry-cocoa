@@ -8,14 +8,26 @@
 >
 > In case you are noticing issues with the new view renderer, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
 
-## Improvements
+### Features
 
+- Added ability to bring your own button for user feedback form display (#5107)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
 - GA of new session replay view renderer (#5054)
+
+## 8.49.1
 
 ### Fixes
 
 - Crash in setMeasurement when name is nil (#5064)
-- Make setMeasurement thread safe (#5067)
+- Make setMeasurement thread safe (#5067, #5078)
+- Truncation of Swift crash messages (#5036)
+- Add error logging for move current replay to last path (#5083)
+- Async safe log for backtrace in CPPException (#5098)
 
 ## 8.49.0
 

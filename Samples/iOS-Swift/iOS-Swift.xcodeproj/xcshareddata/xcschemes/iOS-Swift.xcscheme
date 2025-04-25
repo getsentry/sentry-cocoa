@@ -81,6 +81,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--io.sentry.ui-test.use-custom-feedback-button"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--io.sentry.disable-ui-profiling"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -89,8 +93,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--io.sentry.schema-override-precedence"
-            isEnabled = "NO">
+            argument = "--io.sentry.schema-environment-variable-precedence"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.profile-lifecycle-manual"
@@ -150,7 +154,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.all-defaults"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--skip-sentry-init"
@@ -234,6 +238,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--io.sentry.feedback.no-auto-inject-widget"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--disable-filemanager-swizzling"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

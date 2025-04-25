@@ -464,6 +464,13 @@ static BOOL appStartMeasurementRead;
     }
 }
 
+- (NSDictionary<NSString *, SentryMeasurementValue *> *)measurements
+{
+    @synchronized(_measurements) {
+        return _measurements.copy;
+    }
+}
+
 - (void)finish
 {
     [self finishWithStatus:kSentrySpanStatusOk];

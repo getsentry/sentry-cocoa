@@ -26,6 +26,12 @@
 		840DDB2A2D9EFD49000C17F7 /* BenchmarkingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB292D9EFD49000C17F7 /* BenchmarkingViewController.swift */; };
 		840DDB2C2D9F02CB000C17F7 /* SentrySDKOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB2B2D9F02CB000C17F7 /* SentrySDKOverrides.swift */; };
 		840DDB2D2D9F02CB000C17F7 /* SentrySDKOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DDB2B2D9F02CB000C17F7 /* SentrySDKOverrides.swift */; };
+		841C8A202DA7266E00DCA74F /* FeaturesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A1F2DA7266E00DCA74F /* FeaturesViewController.swift */; };
+		841C8A212DA7266E00DCA74F /* FeaturesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A1F2DA7266E00DCA74F /* FeaturesViewController.swift */; };
+		841C8A232DA7273400DCA74F /* LaunchArgumentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A222DA7273400DCA74F /* LaunchArgumentTableViewCell.swift */; };
+		841C8A242DA7273400DCA74F /* LaunchArgumentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A222DA7273400DCA74F /* LaunchArgumentTableViewCell.swift */; };
+		841C8A262DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */; };
+		841C8A272DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		847670302BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m in Sources */ = {isa = PBXBuildFile; fileRef = 8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */; };
@@ -279,6 +285,9 @@
 		7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
 		840DDB292D9EFD49000C17F7 /* BenchmarkingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkingViewController.swift; sourceTree = "<group>"; };
 		840DDB2B2D9F02CB000C17F7 /* SentrySDKOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKOverrides.swift; sourceTree = "<group>"; };
+		841C8A1F2DA7266E00DCA74F /* FeaturesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesViewController.swift; sourceTree = "<group>"; };
+		841C8A222DA7273400DCA74F /* LaunchArgumentTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArgumentTableViewCell.swift; sourceTree = "<group>"; };
+		841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentVariableTableViewCell.swift; sourceTree = "<group>"; };
 		8476702E2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SentryAppSetup.h"; sourceTree = "<group>"; };
 		8476702F2BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SentryAppSetup.m"; sourceTree = "<group>"; };
 		848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PerformanceBenchmarks.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -506,6 +515,9 @@
 				637AFDB7243B02770034958B /* Info.plist */,
 				D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */,
 				D8BCCDE12CAFDE9400E8A030 /* Sample.xcconfig */,
+				841C8A1F2DA7266E00DCA74F /* FeaturesViewController.swift */,
+				841C8A222DA7273400DCA74F /* LaunchArgumentTableViewCell.swift */,
+				841C8A252DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift */,
 			);
 			path = "iOS-Swift";
 			sourceTree = "<group>";
@@ -1135,6 +1147,7 @@
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
+				841C8A202DA7266E00DCA74F /* FeaturesViewController.swift in Sources */,
 				84AB90712A5001000054C99A /* ProfilingViewController.swift in Sources */,
 				840DDB2A2D9EFD49000C17F7 /* BenchmarkingViewController.swift in Sources */,
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
@@ -1142,6 +1155,7 @@
 				847670302BAA4AFA001A4E31 /* NSObject+SentryAppSetup.m in Sources */,
 				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
 				D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */,
+				841C8A232DA7273400DCA74F /* LaunchArgumentTableViewCell.swift in Sources */,
 				D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */,
 				D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */,
 				7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */,
@@ -1151,6 +1165,7 @@
 				629EC8AD2B0B537400858855 /* TriggerAppHang.swift in Sources */,
 				D8AE48C92C57DC2F0092A2A6 /* WebViewController.swift in Sources */,
 				84EEE6632D28B35700010A9D /* SentrySDKWrapper.swift in Sources */,
+				841C8A272DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
 				84ACC43C2A73CB5900932A18 /* ProfilingNetworkScanner.swift in Sources */,
 				D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */,
@@ -1187,8 +1202,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841C8A212DA7266E00DCA74F /* FeaturesViewController.swift in Sources */,
 				D8BC843E2B021C5200A662B7 /* SwiftUIView.swift in Sources */,
 				D8832B1A2AF5000F00C522B0 /* TopViewControllerInspector.swift in Sources */,
+				841C8A242DA7273400DCA74F /* LaunchArgumentTableViewCell.swift in Sources */,
 				D8AE48CF2C57E0BD0092A2A6 /* WebViewController.swift in Sources */,
 				84BA71F22C8F73FD0045B828 /* DSNDisplayViewController.swift in Sources */,
 				D8444E56275F79590042F4DE /* UIViewExtension.swift in Sources */,
@@ -1215,6 +1232,7 @@
 				D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */,
 				629EC8BB2B0B5BAE00858855 /* TriggerAppHang.swift in Sources */,
 				D80D021B29EE9E3D0084393D /* ErrorsViewController.swift in Sources */,
+				841C8A262DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */,
 				D8444E53275F792A0042F4DE /* UIAssert.swift in Sources */,
 				D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */,
 				D8444E54275F794D0042F4DE /* SpanObserver.swift in Sources */,

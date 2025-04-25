@@ -11,7 +11,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssertEqual(features, ["captureFailedRequests"])
+        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
     }
 
     func testEnableAllFeatures() throws {
@@ -147,5 +147,57 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #else
         throw XCTSkip("Test not supported on this platform")
 #endif
+    }
+
+    func testEnableDataSwizzling_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableDataSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssert(features.contains("dataSwizzling"))
+    }
+
+    func testEnableDataSwizzling_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableDataSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("dataSwizzling"))
+    }
+
+    func testEnableFileManagerSwizzling_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableFileManagerSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssert(features.contains("fileManagerSwizzling"))
+    }
+
+    func testEnableFileManagerSwizzling_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableFileManagerSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("fileManagerSwizzling"))
     }
 }
