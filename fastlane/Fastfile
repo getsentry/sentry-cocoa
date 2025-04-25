@@ -99,7 +99,7 @@ platform :ios do
     # The log output will print a warning: "No output path received from gym"
     # See: https://github.com/fastlane/fastlane/issues/22276#issuecomment-2491517911
     build_ios_app(
-      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
+      workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       include_bitcode: false,
       include_symbols: true,
@@ -128,7 +128,7 @@ platform :ios do
     )
 
     build_app(
-      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
+      workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true
@@ -155,7 +155,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -project ../Samples/iOS-Swift_xcodegen.xcodeproj -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
@@ -179,7 +179,7 @@ platform :ios do
     )
 
     build_app(
-      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
+      workspace: "Sentry.xcworkspace",
       scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
@@ -274,7 +274,7 @@ platform :ios do
     result_bundle_path = "test_results/ui-tests-ios-swift.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
-      project: "Samples/iOS-Swift_xcodegen.xcodeproj",
+      workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer],
