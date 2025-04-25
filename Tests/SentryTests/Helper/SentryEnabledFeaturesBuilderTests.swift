@@ -11,7 +11,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
         XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling"])
+#else
+        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
+#endif
     }
 
     func testEnableAllFeatures() throws {
