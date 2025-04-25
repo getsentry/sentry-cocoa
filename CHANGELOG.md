@@ -6,6 +6,16 @@
 
 - Fix thread inversion warning in session replay (#5018)
 
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+
 ## 8.49.1
 
 ### Fixes

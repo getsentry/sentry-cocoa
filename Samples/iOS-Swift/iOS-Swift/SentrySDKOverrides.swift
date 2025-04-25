@@ -53,6 +53,8 @@ public enum SentrySDKOverrides {
         case requireEmail = "--io.sentry.feedback.require-email"
         case requireName = "--io.sentry.feedback.require-name"
         case noAnimations = "--io.sentry.feedback.no-animations"
+        case injectScreenshot = "--io.sentry.feedback.inject-screenshot"
+        case useCustomFeedbackButton = "--io.sentry.feedback.use-custom-feedback-button"
 
         public var boolValue: Bool {
             get {
