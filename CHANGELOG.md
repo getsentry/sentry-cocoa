@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Race conditions in ANRTrackerV1 (#5137)
+- Race condition in ANRTrackerV1 (#5137)
 
 ### Improvements
 
