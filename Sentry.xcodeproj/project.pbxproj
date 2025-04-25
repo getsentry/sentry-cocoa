@@ -1847,6 +1847,7 @@
 		844EDCE42947DC3100C86F34 /* SentryNSTimerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSTimerFactory.m; sourceTree = "<group>"; };
 		844EDCE72947DCD700C86F34 /* TestSentryNSTimerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryNSTimerFactory.swift; sourceTree = "<group>"; };
 		844EDD6B2949387000C86F34 /* SentryMetricProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMetricProfiler.h; path = Sources/Sentry/include/SentryMetricProfiler.h; sourceTree = SOURCE_ROOT; };
+		8452E77D2DBC43CF0087020B /* Brewfile-ci-build */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Brewfile-ci-build"; sourceTree = "<group>"; };
 		8453421128BE855D00C22EEC /* SentrySampleDecision.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySampleDecision.m; sourceTree = "<group>"; };
 		8453421528BE8A9500C22EEC /* SentrySpanStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySpanStatus.m; sourceTree = "<group>"; };
 		8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryMetricProfiler.mm; path = Sources/Sentry/SentryMetricProfiler.mm; sourceTree = SOURCE_ROOT; };
@@ -4177,6 +4178,7 @@
 				843BD6282AD8752300B0098F /* .clang-format */,
 				844DA80B28246D5000E6B62E /* Brewfile */,
 				849DF0522D00270A00A202DF /* Brewfile-ci-test */,
+				8452E77D2DBC43CF0087020B /* Brewfile-ci-build */,
 				846F90332D56F59D009E86C1 /* Brewfile-ci-deploy */,
 			);
 			name = Aux;

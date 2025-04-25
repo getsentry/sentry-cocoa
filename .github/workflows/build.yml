@@ -36,7 +36,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - run: brew install xcodegen
+      - run: make init-ci-build
       - run: make xcode
       - name: Run Fastlane
         env:
@@ -68,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.3
-      - run: brew install xcodegen
+      - run: make init-ci-build
       - run: make xcode
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
