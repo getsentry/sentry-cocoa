@@ -1,6 +1,8 @@
 @testable import Sentry
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 
     /// This uses an actual dispatch queue and a thread wrapper so the thread sanitizer can find threading problems in the implementation.
@@ -26,3 +28,5 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
 }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
