@@ -10,7 +10,7 @@
   ],
   "defaultOptions" : {
     "targetForVariableExpansion" : {
-      "containerPath" : "container:iOS-Swift_xcodegen.xcodeproj",
+      "containerPath" : "container:iOS-Swift.xcodeproj",
       "identifier" : "637AFDA5243B02760034958B",
       "name" : "iOS-Swift"
     },
@@ -19,8 +19,8 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:iOS-Swift_xcodegen.xcodeproj",
-        "identifier" : "7B64386726A6C544000D0F65",
+        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "identifier" : "0217293F044A3AEED8E37A25",
         "name" : "iOS-Swift-UITests"
       }
     }

@@ -11,7 +11,7 @@
   "defaultOptions" : {
     "codeCoverage" : false,
     "targetForVariableExpansion" : {
-      "containerPath" : "container:iOS-Swift_xcodegen.xcodeproj",
+      "containerPath" : "container:iOS-Swift.xcodeproj",
       "identifier" : "637AFDA5243B02760034958B",
       "name" : "iOS-Swift"
     },
@@ -20,8 +20,8 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:iOS-Swift_xcodegen.xcodeproj",
-        "identifier" : "848A2560286E3351008A8858",
+        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "identifier" : "E7C8F9BC5364F0980E0B827C",
         "name" : "iOS-Benchmarking"
       }
     }

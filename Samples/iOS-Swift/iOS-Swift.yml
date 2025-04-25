@@ -12,8 +12,8 @@ projectReferences:
 fileGroups:
   - ../Shared/Config
   - iOS-Swift.yml
-  - ../Plans/iOS-Swift_Base.xctestplan
-  - ../Plans/iOS-Benchmarking_Base.xctestplan
+  - ../../Plans/iOS-Swift_Base.xctestplan
+  - ../../Plans/iOS-Benchmarking_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -181,7 +181,7 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../Plans/iOS-Swift_Base.xctestplan
+        - path: ../../Plans/iOS-Swift_Base.xctestplan
   iOS-Benchmarking:
     build:
       targets:
@@ -191,4 +191,4 @@ schemes:
     test:
       config: Release
       testPlans:
-        - path: ../Plans/iOS-Benchmarking_Base.xctestplan
+        - path: ../../Plans/iOS-Benchmarking_Base.xctestplan

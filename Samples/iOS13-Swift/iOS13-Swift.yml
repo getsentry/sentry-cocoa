@@ -12,7 +12,7 @@ projectReferences:
 fileGroups:
   - ../Shared/Config
   - iOS13-Swift.yml
-  - ../Plans/iOS13-Swift_Base.xctestplan
+  - ../../Plans/iOS13-Swift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -67,4 +67,4 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../Plans/iOS13-Swift_Base.xctestplan
+        - path: ../../Plans/iOS13-Swift_Base.xctestplan
