@@ -36,7 +36,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - run: brew install xcodegen
+      - run: make init-ci-build
       - run: make xcode
       - name: Run Fastlane
         env:

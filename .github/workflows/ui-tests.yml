@@ -129,7 +129,7 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      - run: brew install xcodegen
+      - run: make init-ci-build
       - run: make xcode
         name: XcodeGen iOS-Swift project
 
@@ -171,10 +171,6 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
-
-      - run: brew install xcodegen
-      - run: make xcode
-        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
