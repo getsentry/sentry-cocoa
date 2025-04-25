@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-### Fixes
-
-- Fix thread inversion warning in session replay (#5018)
-
 ### Features
 
 - Added ability to bring your own button for user feedback form display (#5107)
+
+### Fixes
+
+- Fix thread inversion warning in session replay (#5018)
 
 ### Improvements
 

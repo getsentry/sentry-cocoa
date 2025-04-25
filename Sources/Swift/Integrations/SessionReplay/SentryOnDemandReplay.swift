@@ -157,9 +157,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
         SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
 
-        let videoFrames = self.filterFrames(beginning: beginning, end: end)
-
+        let videoFrames = filterFrames(beginning: beginning, end: end)
         var frameCount = 0
+
         var videos = [SentryVideoInfo]()
 
         while frameCount < videoFrames.count {
