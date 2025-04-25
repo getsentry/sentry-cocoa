@@ -1,4 +1,6 @@
 name: SessionReplay-CameraTest
+createIntermediateGroups: true
+generateEmptyDirectories: true
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
