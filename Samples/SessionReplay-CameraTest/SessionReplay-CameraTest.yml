@@ -6,7 +6,7 @@ projectReferences:
     path: ../../Sentry.xcodeproj
 fileGroups:
   - ../Shared/Config
-  - project.yml
+  - SessionReplay-CameraTest.yml
 options:
   bundleIdPrefix: io.sentry
 targets:
