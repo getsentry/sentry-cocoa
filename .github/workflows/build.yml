@@ -67,37 +67,14 @@ jobs:
       - uses: actions/checkout@v4
       - run: ./scripts/ci-select-xcode.sh 16.3
       - run: brew install xcodegen
-        if: ${{ contains(matrix.scheme, 'SessionReplay-CameraTest') || contains(matrix.scheme, 'iOS13') }}
-      - run: make session-replay-camera-test-xcode
-        if: ${{ contains(matrix.scheme, 'SessionReplay-CameraTest') }}
-      - run: make ios13-swift-xcode
-        if: ${{ contains(matrix.scheme, 'iOS13') }}
+      - run: make xcode
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
-      - if: ${{ !contains(matrix.scheme, 'SessionReplay-CameraTest') && !contains(matrix.scheme, 'iOS13')}}
-        run: >-
+      - run: >-
           env NSUnbufferedIO=YES
           xcodebuild
           -workspace Sentry.xcworkspace
-          -scheme '${{matrix.scheme}}'
-          -configuration Debug
-          CODE_SIGNING_ALLOWED="NO"
-          build
-      - if: ${{ contains(matrix.scheme, 'SessionReplay-CameraTest') }}
-        run: >-
-          env NSUnbufferedIO=YES
-          xcodebuild
-          -project Samples/${{matrix.scheme}}/${{matrix.scheme}}.xcodeproj
-          -scheme '${{matrix.scheme}}'
-          -configuration Debug
-          CODE_SIGNING_ALLOWED="NO"
-          build
-      - if: ${{ contains(matrix.scheme, 'iOS13') }}
-        run: >-
-          env NSUnbufferedIO=YES
-          xcodebuild
-          -project Samples/${{matrix.scheme}}/${{matrix.scheme}}.xcodeproj
           -scheme '${{matrix.scheme}}'
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
