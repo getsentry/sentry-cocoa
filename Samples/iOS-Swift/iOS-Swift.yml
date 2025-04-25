@@ -12,7 +12,8 @@ projectReferences:
 fileGroups:
   - ../Shared/Config
   - iOS-Swift.yml
-  - ../Plans
+  - ../Plans/iOS-Swift_Base.xctestplan
+  - ../Plans/iOS-Benchmarking_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
