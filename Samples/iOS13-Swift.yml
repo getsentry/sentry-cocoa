@@ -1,4 +1,6 @@
 name: iOS13-Swift_xcodegen
+createIntermediateGroups: true
+generateEmptyDirectories: true
 configs:
   Debug: debug
   Test: debug
