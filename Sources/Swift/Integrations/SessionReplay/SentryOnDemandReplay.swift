@@ -4,6 +4,7 @@
 @_implementationOnly import _SentryPrivate
 import AVFoundation
 import CoreGraphics
+import CoreMedia
 import Foundation
 import UIKit
 
@@ -143,7 +144,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
         return videos
     }
-    
+
+    // swiftlint:disable:next function_body_length
     private func renderVideo(with videoFrames: [SentryReplayFrame], from: inout Int, at outputFileURL: URL) throws -> SentryVideoInfo? {
         guard from < videoFrames.count, let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else { return nil }
         let videoWidth = image.size.width * CGFloat(videoScale)
@@ -188,7 +190,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 }
                 lastImageSize = image.size
                 
-                let presentTime = CMTime(seconds: Double(frameCount), preferredTimescale: CMTimeScale(1 / self.frameRate))
+                let presentTime = SentryOnDemandReplay.calculatePresentationTime(
+                    forFrameAtIndex: frameCount,
+                    frameRate: self.frameRate
+                ).timeValue
                 if currentPixelBuffer.append(image: image, presentationTime: presentTime) != true {
                     videoWriter.cancelWriting()
                     result = .failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo )
@@ -244,16 +249,84 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return frames
     }
 
-    private func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
+    internal func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
         return [
+            // The codec type for the video. H.264 (AVC) is the most widely supported codec across platforms,
+            // including web browsers, QuickTime, VLC, and mobile devices.
             AVVideoCodecKey: AVVideoCodecType.h264,
+
+            // The dimensions of the video frame in pixels.
             AVVideoWidthKey: width,
             AVVideoHeightKey: height,
+
+            // AVVideoCompressionPropertiesKey contains advanced compression settings.
             AVVideoCompressionPropertiesKey: [
+                // Specifies the average bit rate used for encoding. A higher bit rate increases visual quality
+                // at the cost of file size. Choose a value appropriate for your resolution (e.g., 1 Mbps for 720p).
                 AVVideoAverageBitRateKey: bitRate,
-                AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel
+
+                // Selects the H.264 Main profile with an automatic level.
+                // This avoids using the Baseline profile, which lacks key features like CABAC entropy coding
+                // and causes issues in decoders like VideoToolbox, especially at non-standard frame rates (1 FPS).
+                // The Main profile is well supported by both hardware and software decoders.
+                AVVideoProfileLevelKey: AVVideoProfileLevelH264MainAutoLevel,
+
+                // Prevents the use of B-frames (bidirectional predicted frames).
+                // B-frames reference both past and future frames, which can break compatibility
+                // with certain hardware decoders and make accurate seeking harder, especially in timelapse videos
+                // where each frame is independent and must be decodable on its own.
+                AVVideoAllowFrameReorderingKey: false,
+
+                // Ensures that every frame is a keyframe (also called an I-frame).
+                // This is crucial in a 1 FPS timelapse context because:
+                // 1. It guarantees that every frame can be displayed without relying on previous frames.
+                // 2. It enables precise seeking and smooth scrubbing across all video players.
+                AVVideoMaxKeyFrameIntervalKey: frameRate // e.g., 1 for 1 FPS
+            ] as [String: Any],
+
+            // Explicitly sets the video color space to ITU-R BT.709 (the standard for HD video).
+            // This improves color accuracy and ensures consistent rendering across platforms and browsers,
+            // especially when the source content is rendered using UIKit/AppKit (e.g., UIColor, UIImage, UIView).
+            // Without these, decoders may guess or default to BT.601, resulting in incorrect gamma or saturation.
+            AVVideoColorPropertiesKey: [
+                // Specifies the color primaries — i.e., the chromaticities of red, green, and blue.
+                // BT.709 is the standard for HD content and matches sRGB color primaries,
+                // ensuring accurate color reproduction when rendered on most displays.
+                AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
+
+                // Defines the transfer function (optical-electrical transfer function).
+                // BT.709 matches sRGB gamma (~2.2) and ensures that brightness/contrast levels
+                // look correct on most screens and in browsers using HTML5 <video>.
+                AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
+
+                // Specifies how YUV components are encoded from RGB.
+                // BT.709 YCbCr matrix ensures correct conversion and consistent luminance/chrominance scaling.
+                // Without this, colors might appear washed out or overly saturated.
+                AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2
             ] as [String: Any]
         ]
+    }
+
+    /// Calculates the presentation time for a frame at a given index and frame rate.
+    ///
+    /// The return value is an `NSValue` containing a `CMTime` object representing the calculated presentation time.
+    /// The `CMTime` must be wrapped as this class is exposed to Objective-C via `Sentry-Swift.h`, and Objective-C does not support `CMTime`
+    /// as a return value.
+    ///
+    /// - Parameters:
+    ///   - index: Index of the frame, counted from 0.
+    ///   - frameRate: Number of frames per second.
+    /// - Returns: `NSValue` containing the `CMTime` representing the calculated presentation time. Can be accessed using the `timeValue` property.
+    internal static func calculatePresentationTime(forFrameAtIndex index: Int, frameRate: Int) -> NSValue {
+        // Generate the presentation time for the current frame using integer math.
+        // This avoids floating-point rounding issues and ensures frame-accurate timing,
+        // which is critical for AVAssetWriter at low frame rates like 1 FPS.
+        // By defining timePerFrame as (1 / frameRate) and multiplying it by the frame index,
+        // we guarantee consistent spacing between frames and precise control over the timeline.
+        let timePerFrame = CMTimeMake(value: 1, timescale: Int32(frameRate))
+        let presentTime = CMTimeMultiply(timePerFrame, multiplier: Int32(index))
+
+        return NSValue(time: presentTime)
     }
 }
 
