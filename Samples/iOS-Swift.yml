@@ -98,8 +98,6 @@ schemes:
       targets:
         iOS-Swift: all
         iOS-SwiftClip: all
-        iOS-Swift-UITests: test
-        iOS-Benchmarking: test
     run:
       commandLineArguments:
         "--io.sentry.disable-everything": false
