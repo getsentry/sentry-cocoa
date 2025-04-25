@@ -1,30 +1,30 @@
 {
-   "configurations" : [
-     {
-       "id" : "FAE580D4-3ECE-43E4-B68C-99AEF78953B4",
-       "name" : "Configuration 1",
-       "options" : {
+  "configurations" : [
+    {
+      "id" : "FAE580D4-3ECE-43E4-B68C-99AEF78953B4",
+      "name" : "Configuration 1",
+      "options" : {
 
-       }
-     }
-   ],
-   "defaultOptions" : {
-     "codeCoverage" : false,
-     "targetForVariableExpansion" : {
-       "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
-       "identifier" : "D8269A38274C095E00BD5BD5",
-       "name" : "iOS13-Swift"
-     },
-     "uiTestingScreenshotsLifetime" : "keepAlways"
-   },
-   "testTargets" : [
-     {
-       "target" : {
-         "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
-         "identifier" : "D85DAA48274C244F004DF43C",
-         "name" : "iOS13-Swift-UITests"
-       }
-     }
-   ],
-   "version" : 1
- }
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
+      "identifier" : "D8269A38274C095E00BD5BD5",
+      "name" : "iOS13-Swift"
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS13-Swift_xcodegen.xcodeproj",
+        "identifier" : "876088591BAEBC4B16AB4795",
+        "name" : "iOS13-Swift-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}
