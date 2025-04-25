@@ -99,6 +99,9 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
+          # TODO: Remove this once we have a real test
+          exit 1
+
           set -o pipefail && saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
@@ -115,6 +118,10 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
           script: |
+            // TODO: Remove this once we have a real test
+            core.setOutput('RETRY_TEST', 'true');
+            return;
+
             const fs = require('fs');
             const { execSync } = require('child_process');
 
@@ -149,7 +156,7 @@ jobs:
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
-        if: ${{ steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
+        if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
