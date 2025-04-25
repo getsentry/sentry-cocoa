@@ -207,6 +207,22 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(secondVideo.height, 10)
     }
 
+    func testGenerateVideoInfo_whenNoFramesAdded_shouldNotThrowError() throws {
+        // -- Arrange --
+        let sut = getSut()
+        dateProvider.driftTimeForEveryRead = true
+        dateProvider.driftTimeInterval = 1
+
+        // -- Act --
+        let videos = try sut.createVideoWith(
+            beginning: Date(timeIntervalSinceReferenceDate: 0),
+            end: Date(timeIntervalSinceReferenceDate: 10)
+        )
+
+        // -- Assert --
+        XCTAssertNil(videos.first)
+    }
+  
     func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {
         // -- Arrange --
         let framesPerSecond = 1

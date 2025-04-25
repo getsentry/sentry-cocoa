@@ -208,7 +208,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         // and finish multiple times. Most importantly, the code covers every start with one finish.
         XCTAssertEqual(fixture.threadWrapper.threadStartedInvocations.count, fixture.threadWrapper.threadFinishedInvocations.count, "The number of started and finished threads should be equal, otherwise the ANR tracker could run.")
     }
-    
+
     // swiftlint:disable test_case_accessibility
     // Protocl implementation can't be private
     

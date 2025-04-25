@@ -8,6 +8,7 @@ import CoreMedia
 import Foundation
 import UIKit
 
+// swiftlint:disable type_body_length
 @objcMembers
 class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
@@ -217,21 +218,39 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
         group.enter()
         videoWriter.inputs.forEach { $0.markAsFinished() }
-        videoWriter.finishWriting {
+        videoWriter.finishWriting { [weak self] in
             defer { group.leave() }
-            if videoWriter.status == .completed {
+
+            SentryLog.debug("[Session Replay] Finished video writing, status: \(videoWriter.status)")
+            guard let strongSelf = self else {
+                SentryLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
+                return
+            }
+
+            switch videoWriter.status {
+            case .writing:
+                SentryLog.error("[Session Replay] Finish writing video was called with status writing, this is unexpected! Completing with no video info")
+            case .cancelled:
+                SentryLog.warning("[Session Replay] Finish writing video was cancelled, completing with no video info.")
+            case .completed:
+                SentryLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
                 do {
-                    let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
-                    guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
-                        finishError = SentryOnDemandReplayError.cantReadVideoSize
-                        return
-                    }
-                    guard let start = usedFrames.min(by: { $0.time < $1.time })?.time else { return }
-                    let duration = TimeInterval(usedFrames.count / self.frameRate)
-                    result = SentryVideoInfo(path: outputFileURL, height: Int(videoHeight), width: Int(videoWidth), duration: duration, frameCount: usedFrames.count, frameRate: self.frameRate, start: start, end: start.addingTimeInterval(duration), fileSize: fileSize, screens: usedFrames.compactMap({ $0.screenName }))
+                    result = try strongSelf.getVideoInfo(
+                        from: outputFileURL,
+                        usedFrames: usedFrames,
+                        videoWidth: Int(videoWidth),
+                        videoHeight: Int(videoHeight)
+                    )
                 } catch {
+                    SentryLog.warning("[Session Replay] Failed to create video info from file attributes, reason: \(error.localizedDescription)")
                     finishError = error
                 }
+            case .failed, .unknown:
+                SentryLog.warning("[Session Replay] Finish writing video failed, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                finishError = videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo
+            @unknown default:
+                SentryLog.warning("[Session Replay] Finish writing video failed, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                finishError = videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo
             }
         }
         group.wait()
@@ -242,11 +261,40 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
         var frames = [SentryReplayFrame]()
-        //Using dispatch queue as sync mechanism since we need a queue already to generate the video.
-        workingQueue.dispatchSync({
+        // Using dispatch queue as sync mechanism since we need a queue already to generate the video.
+        workingQueue.dispatchSync {
             frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
-        })
+        }
         return frames
+    }
+
+    fileprivate func getVideoInfo(from outputFileURL: URL, usedFrames: [SentryReplayFrame], videoWidth: Int, videoHeight: Int) throws -> SentryVideoInfo {
+        SentryLog.debug("[Session Replay] Getting video info from file: \(outputFileURL.path), width: \(videoWidth), height: \(videoHeight), used frames count: \(usedFrames.count)")
+        let fileAttributes = try FileManager.default.attributesOfItem(atPath: outputFileURL.path)
+        guard let fileSize = fileAttributes[FileAttributeKey.size] as? Int else {
+            SentryLog.warning("[Session Replay] Failed to read video size from video file, reason: size attribute not found")
+            throw SentryOnDemandReplayError.cantReadVideoSize
+        }
+        let minFrame = usedFrames.min(by: { $0.time < $1.time })
+        guard let start = minFrame?.time else {
+            // Note: This code path is currently not reached, because the `getVideoInfo` method is only called after the video is successfully created, therefore at least one frame was used.
+            // The compiler still requires us to unwrap the optional value, and we do not permit force-unwrapping.
+            SentryLog.warning("[Session Replay] Failed to read video start time from used frames, reason: no frames found")
+            throw SentryOnDemandReplayError.cantReadVideoStartTime
+        }
+        let duration = TimeInterval(usedFrames.count / self.frameRate)
+        return SentryVideoInfo(
+            path: outputFileURL,
+            height: videoHeight,
+            width: videoWidth,
+            duration: duration,
+            frameCount: usedFrames.count,
+            frameRate: self.frameRate,
+            start: start,
+            end: start.addingTimeInterval(duration),
+            fileSize: fileSize,
+            screens: usedFrames.compactMap({ $0.screenName })
+        )
     }
 
     internal func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {
@@ -329,6 +377,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return NSValue(time: presentTime)
     }
 }
+// swiftlint:enable type_body_length
 
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
