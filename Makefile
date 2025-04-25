@@ -145,6 +145,4 @@ xcode:
 	xcodegen --spec Samples/SessionReplay-CameraTest/project.yml
 	xcodegen --spec Samples/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6.yml
-
-ios13-swift-xcode:
 	xcodegen --spec Samples/iOS13-Swift.yml
