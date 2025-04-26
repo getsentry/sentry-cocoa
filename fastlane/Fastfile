@@ -181,7 +181,7 @@ platform :ios do
     build_ios_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Benchmarking",
-      configuration: "Release",
+      configuration: "Test",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       include_bitcode: false,
