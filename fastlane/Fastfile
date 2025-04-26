@@ -178,16 +178,12 @@ platform :ios do
       clone_branch_directly: true
     )
 
-    build_ios_app(
+    build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Benchmarking",
-      configuration: "TestCI",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      include_bitcode: false,
-      include_symbols: true,
-      export_method: "development",
-      archive_path: "iOS-Benchmarking"
+      skip_archive: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
