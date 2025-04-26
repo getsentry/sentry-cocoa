@@ -33,6 +33,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - run: make init-ci-build
+      - run: make xcode
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - name: Cache iOS-Swift App and dSYM build products
