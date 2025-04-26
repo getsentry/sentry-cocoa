@@ -20,7 +20,7 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-#include "../Sources/Configuration/Versioning.xcconfig"
+#include "../../Sources/Configuration/Versioning.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift
 INFOPLIST_FILE = iOS-Swift/Info.plist
