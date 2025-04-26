@@ -28,6 +28,8 @@
 		84B5A92A2DBD50F5003327C9 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
 		84B5A92B2DBD5125003327C9 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */; };
 		84B5A92C2DBD51DD003327C9 /* NSObject+SentryAppSetup.m in Sources */ = {isa = PBXBuildFile; fileRef = 84B5A91E2DBD2491003327C9 /* NSObject+SentryAppSetup.m */; };
+		84B5A9E82DBD7689003327C9 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427FC25876DE700056519 /* Tongariro.jpg */; };
+		84B5A9E92DBD76A5003327C9 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62C97D9D2CC6997E00DDA204 /* SampleAssets.xcassets */; };
 		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
@@ -160,7 +162,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		84B5A8F52DBD1A86003327C9 /* macOS-Swift-Other */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "macOS-Swift-Other"; sourceTree = "<group>"; };
 		84B5A9102DBD1AA4003327C9 /* macOS-Swift-UITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "macOS-Swift-UITests"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -212,8 +213,6 @@
 				84B5A9232DBD5068003327C9 /* Shared */,
 				84BA72AD2C9369B80045B828 /* Shared */,
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
-				637AFDED243B04320034958B /* macOS-Swift */,
-				84B5A8F52DBD1A86003327C9 /* macOS-Swift-Other */,
 				84B5A9102DBD1AA4003327C9 /* macOS-Swift-UITests */,
 				637AFDEC243B04320034958B /* Products */,
 				637AFDFE243B07420034958B /* Frameworks */,
@@ -230,17 +229,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		637AFDED243B04320034958B /* macOS-Swift */ = {
-			isa = PBXGroup;
-			children = (
-				7B3427FC25876DE700056519 /* Tongariro.jpg */,
-				62C97D9D2CC6997E00DDA204 /* SampleAssets.xcassets */,
-				637AFDF7243B04340034958B /* Info.plist */,
-				637AFDF8243B04340034958B /* macOS_Swift.entitlements */,
-			);
-			path = "macOS-Swift";
-			sourceTree = "<group>";
-		};
 		637AFDFE243B07420034958B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -252,6 +240,10 @@
 		84B5A9232DBD5068003327C9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				637AFDF7243B04340034958B /* Info.plist */,
+				637AFDF8243B04340034958B /* macOS_Swift.entitlements */,
+				62C97D9D2CC6997E00DDA204 /* SampleAssets.xcassets */,
+				7B3427FC25876DE700056519 /* Tongariro.jpg */,
 				7B948A03275E459C00F04173 /* macOS-Swift-Bridging-Header.h */,
 				924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */,
 				7B948A08275E498E00F04173 /* CppWrapper.h */,
@@ -314,9 +306,6 @@
 			);
 			dependencies = (
 				84B5A91B2DBD1C09003327C9 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				84B5A8F52DBD1A86003327C9 /* macOS-Swift-Other */,
 			);
 			name = "macOS-Swift-Other";
 			packageProductDependencies = (
@@ -464,6 +453,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84B5A9E92DBD76A5003327C9 /* SampleAssets.xcassets in Resources */,
+				84B5A9E82DBD7689003327C9 /* Tongariro.jpg in Resources */,
 				84B5A9262DBD5099003327C9 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -706,13 +697,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift/macOS_Swift.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "macOS-Swift/Info.plist";
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -730,13 +721,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift/macOS_Swift.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "macOS-Swift/Info.plist";
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -755,7 +746,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift-Other/macOS_Swift_Other.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -763,10 +754,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sentry. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -790,7 +778,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift-Other/macOS_Swift_Other.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -798,10 +786,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sentry. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -921,13 +906,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift/macOS_Swift.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "macOS-Swift/Info.plist";
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -946,7 +931,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift-Other/macOS_Swift_Other.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -954,10 +939,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sentry. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1054,13 +1036,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift/macOS_Swift.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "macOS-Swift/Info.plist";
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1079,7 +1061,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "macOS-Swift-Other/macOS_Swift_Other.entitlements";
+				CODE_SIGN_ENTITLEMENTS = shared/macOS_Swift.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1087,10 +1069,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sentry. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_FILE = Shared/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
