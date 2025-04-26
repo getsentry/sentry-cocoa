@@ -183,6 +183,8 @@ platform :ios do
       scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
+      destination: "generic/platform=iOS Simulator",
+      xcargs: "-sdk 'iphonesimulator'",
       skip_archive: true
     )
 
