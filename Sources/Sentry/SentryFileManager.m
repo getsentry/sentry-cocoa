@@ -646,7 +646,38 @@ NSString *_Nullable sentryStaticCachesPath(void)
             SENTRY_LOG_WARN(@"No caches directory location reported.");
             return;
         }
-        sentryStaticCachesPath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+        NSString *sandboxedCachesDirectory = cachesDirectory;
+
+#if TARGET_OS_OSX
+        // for macOS apps, we need to ensure our own sandbox so that this path is not shared between all apps that ship the SDK
+        NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
+        if (bundleIdentifier == nil) {
+            SENTRY_LOG_WARN(@"No bundle identifier, cannot read/write launch profile config file.");
+            sentryStaticCachesPath = nil;
+            return;
+        }
+        if (bundleIdentifier.length == 0) {
+            SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, cannot construct path for caches directory.");
+            sentryStaticCachesPath = nil;
+            return;
+        }
+
+        if (![cachesDirectory containsString:bundleIdentifier]) {
+            // the mac app is not sandboxed, we need to create a caches path scoped by the bundle ID
+            sandboxedCachesDirectory = [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
+        }
+#endif // TARGET_OS_OSX
+
+        NSString *_sentryStaticCachesPath = [sandboxedCachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+        NSError *error;
+        if (!createDirectoryIfNotExists(_sentryStaticCachesPath, &error)) {
+            SENTRY_LOG_ERROR(@"Could not create caches directory (%@).", error);
+            return;
+        }
+
+        sentryStaticCachesPath = _sentryStaticCachesPath;
     });
     return sentryStaticCachesPath;
 }

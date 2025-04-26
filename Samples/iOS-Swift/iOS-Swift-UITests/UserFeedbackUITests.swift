@@ -8,6 +8,7 @@ class UserFeedbackUITests: BaseUITest {
     let fm = FileManager.default
     
     /// The Application Support directory is different between this UITest runner app and the target app under test. We have to retrieve the target app's app support directory using UI elements and store it here for usage.
+    /// - note: The SDK does not use application support for anything. We only use the app support directory for these tests to write marker files from the app indicating which feedback hooks have fired.
     var appSupportDirectory: String?
     
     override func setUp() {

@@ -13,15 +13,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             options.tracesSampleRate = 1.0
             
             let args = ProcessInfo.processInfo.arguments
-            
-            if args.contains("--io.sentry.profiling.enable") {
-                options.profilesSampleRate = 1
+
+            options.configureProfiling = {
+                $0.profileAppStarts = true
+                $0.sessionSampleRate = 1
             }
+
+            options.enableUncaughtNSExceptionReporting = false
+
+            if args.contains("--disable-auto-performance-tracing") {
+                options.enableAutoPerformanceTracing = false
+            }
+
             if #available(macOS 12.0, *), !args.contains("--disable-metrickit-integration") {
                 options.enableMetricKit = true
                 options.enableMetricKitRawPayload = true
             }
-            
+
             options.initialScope = { scope in
                 if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
                     scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))

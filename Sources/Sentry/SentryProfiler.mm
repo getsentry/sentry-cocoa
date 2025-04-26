@@ -151,6 +151,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     // to remove stale versions of the file before it gets used to potentially start a launch
     // profile that shouldn't have started, so we check here for this
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.wipe-data"]) {
+        SENTRY_LOG_DEBUG(@"Removing cache directory on load");
         const auto caches = [NSSearchPathForDirectoriesInDomains(
             NSCachesDirectory, NSUserDomainMask, YES) firstObject];
         if ([NSFileManager.defaultManager fileExistsAtPath:caches]) {

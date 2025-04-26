@@ -6,6 +6,8 @@ class ViewController: NSViewController {
 
     private let diskWriteException = DiskWriteException()
     
+    @IBOutlet weak var uiTestDataMarshalingField: NSTextField!
+
     @IBAction func addBreadCrumb(_ sender: Any) {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
@@ -28,7 +30,7 @@ class ViewController: NSViewController {
     }
     
     @IBAction func captureException(_ sender: Any) {
-        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
+        let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: nil)
         let scope = Scope()
         scope.setLevel(.fatal)
         SentrySDK.capture(exception: exception, scope: scope)
@@ -105,6 +107,75 @@ class ViewController: NSViewController {
         windowController.showWindow(self)
     }
     
+    @IBAction func stopProfile(_ sender: Any) {
+        SentrySDK.stopProfiler()
+    }
+
+    @IBAction func retrieveProfileChunk(_ sender: Any) {
+        uiTestDataMarshalingField.stringValue = "<fetching...>"
+        withProfile(continuous: true) { file in
+            handleContents(file: file)
+        }
+    }
+
+    func withProfile(continuous: Bool, block: (URL?) -> Void) {
+        let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+        let fm = FileManager.default
+        let dir = "\(cachesDirectory)/\(Bundle.main.bundleIdentifier!)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
+        let count = try! fm.contentsOfDirectory(atPath: dir).count
+        //swiftlint:disable empty_count
+        guard continuous || count > 0 else {
+            //swiftlint:enable empty_count
+            uiTestDataMarshalingField.stringValue = "<missing>"
+            return
+        }
+        let fileName = "profile\(continuous ? 0 : count - 1)"
+        let fullPath = "\(dir)/\(fileName)"
+
+        if fm.fileExists(atPath: fullPath) {
+            let url = NSURL.fileURL(withPath: fullPath)
+            block(url)
+            do {
+                try fm.removeItem(atPath: fullPath)
+            } catch {
+                SentrySDK.capture(error: error)
+            }
+            return
+        }
+
+        block(nil)
+    }
+
+    func handleContents(file: URL?) {
+        guard let file = file else {
+            uiTestDataMarshalingField.stringValue = "<missing>"
+            return
+        }
+
+        do {
+            let data = try Data(contentsOf: file)
+            let contents = data.base64EncodedString()
+            print("[iOS-Swift] [debug] [ProfilingViewController] contents of file at \(file): \(String(describing: String(data: data, encoding: .utf8)))")
+            uiTestDataMarshalingField.stringValue = contents
+        } catch {
+            SentrySDK.capture(error: error)
+            uiTestDataMarshalingField.stringValue = "<empty>"
+        }
+    }
+
+    @IBAction func checkProfileMarkerFileExistence(_ sender: Any) {
+
+    }
+
+    @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
+        let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
+        if FileManager.default.fileExists(atPath: launchProfileMarkerPath) {
+            uiTestDataMarshalingField.stringValue = "<exists>"
+        } else {
+            uiTestDataMarshalingField.stringValue = "<missing>"
+        }
+    }
+
     func asyncCrash1() {
         DispatchQueue.main.async {
             self.asyncCrash2()

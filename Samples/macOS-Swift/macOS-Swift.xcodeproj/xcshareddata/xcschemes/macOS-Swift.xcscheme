@@ -33,6 +33,19 @@
             default = "YES">
          </TestPlanReference>
       </TestPlans>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "84B5A90E2DBD1AA4003327C9"
+               BuildableName = "macOS-Swift-UITests.xctest"
+               BlueprintName = "macOS-Swift-UITests"
+               ReferencedContainer = "container:macOS-Swift.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
