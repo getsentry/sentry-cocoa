@@ -121,7 +121,7 @@ class ViewController: NSViewController {
     func withProfile(continuous: Bool, block: (URL?) -> Void) {
         let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
-        let dir = "\(cachesDirectory)/\(Bundle.main.bundleIdentifier!)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
+        let dir = "\(cachesDirectory)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
         let count = try! fm.contentsOfDirectory(atPath: dir).count
         //swiftlint:disable empty_count
         guard continuous || count > 0 else {

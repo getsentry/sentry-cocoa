@@ -24,7 +24,7 @@ final class macOS_Swift_UITests: XCTestCase {
         let otherApp = XCUIApplication(bundleIdentifier: "io.sentry.macOS-Swift-Other")
 
         func performSequence(app: XCUIApplication) throws {
-            mainApp.launchArguments.append(contentsOf: [
+            app.launchArguments.append(contentsOf: [
                 "--disable-auto-performance-tracing",
 
                 // sets a marker function to run in a load command that the launch profile should detect
@@ -35,6 +35,7 @@ final class macOS_Swift_UITests: XCTestCase {
 
                 "--io.sentry.wipe-data"
             ])
+            app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
             try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false)
             app.launchArguments.removeAll(where: { $0 == "--io.sentry.wipe-data" })
             try launchAndConfigureSubsequentLaunches(app: app, terminatePriorSession: true, shouldProfileThisLaunch: true)

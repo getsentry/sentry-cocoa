@@ -5,6 +5,7 @@ import Sentry
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        print("ProcessInfo.processInfo.arguments: \(ProcessInfo.processInfo.arguments)")
 
         // Insert code here to initialize your application
         SentrySDK.start { options in
