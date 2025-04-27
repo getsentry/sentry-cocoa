@@ -17,37 +17,24 @@ final class MacOSSwiftUITests: XCTestCase {
 
     @MainActor
     func testMacAppsDontEnableLaunchProfilingForEachOther() throws {
-        // this app enables launch profiling
-        let mainApp = XCUIApplication(bundleIdentifier: "io.sentry.macOS-Swift")
+        func performSequence(appBundleID: String, shouldProfileLaunches: Bool, wipeData: Bool) throws {
+            // one launch to configure launch profiling for the next launch
+            let app = XCUIApplication(bundleIdentifier: appBundleID)
 
-        // this app explicitly disables launch profiling
-        let otherApp = XCUIApplication(bundleIdentifier: "io.sentry.macOS-Swift-Other")
+//            if wipeData {
+//                app.launchArguments = ["--io.sentry.wipe-data"]
+//            }
 
-        func performSequence(appBundleID: String) throws {
-            func performStep(shouldProfileLaunch: Bool) throws {
-                let app = XCUIApplication(bundleIdentifier: appBundleID)
-                app.launchArguments.append(contentsOf: [
-                    "--disable-auto-performance-tracing",
+            try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches)
+            app.terminate()
 
-                    // sets a marker function to run in a load command that the launch profile should detect
-                    "--io.sentry.slow-load-method",
-
-                    // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-                    "--io.sentry.continuous-profiler-immediate-stop"
-                ])
-                if !shouldProfileLaunch {
-                    app.launchArguments.append("--io.sentry.wipe-data")
-                }
-                app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
-                try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunch)
-                app.terminate()
-            }
-            try performStep(shouldProfileLaunch: false)
-            try performStep(shouldProfileLaunch: true)
+            // second launch to profile a launch if configured
+            try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunches, shouldProfileNextLaunch: shouldProfileLaunches)
+            app.terminate()
         }
 
-        try performSequence(appBundleID: "io.sentry.macOS-Swift")
-        try performSequence(appBundleID: "io.sentry.macOS-Swift-Other")
+        try performSequence(appBundleID: "io.sentry.macOS-Swift", shouldProfileLaunches: true, wipeData: true)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Other", shouldProfileLaunches: false, wipeData: false)
     }
 }
 
@@ -62,7 +49,8 @@ private extension MacOSSwiftUITests {
      */
     func launchAndConfigureSubsequentLaunches(
         app: XCUIApplication,
-        shouldProfileThisLaunch: Bool
+        shouldProfileThisLaunch: Bool,
+        shouldProfileNextLaunch: Bool
     ) throws {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
@@ -77,19 +65,29 @@ private extension MacOSSwiftUITests {
             "--io.sentry.continuous-profiler-immediate-stop"
         ])
 
-        app.launch()
-        
-        XCTAssert(try checkLaunchProfileMarkerFileExistence(app: app))
+        app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
 
-        guard shouldProfileThisLaunch else {
-            return
+        if shouldProfileNextLaunch {
+            app.launchArguments.append("--io.sentry.enable-profile-app-starts")
         }
+
+        app.launch()
+
+        XCTAssertEqual(try checkLaunchProfileMarkerFileExistence(app: app), shouldProfileNextLaunch)
 
         stopContinuousProfiler(app: app)
         retrieveFirstProfileChunkData(app: app)
 
-        let lastProfile = try marshalJSONDictionaryFromApp(app: app)
-        let sampledProfile = try XCTUnwrap(lastProfile["profile"] as? [String: Any])
+        guard let lastProfile = try marshalJSONDictionaryFromApp(app: app, shouldProfile: shouldProfileThisLaunch) else {
+            XCTAssertFalse(shouldProfileThisLaunch)
+            return
+        }
+
+        try assertProfileContents(profile: lastProfile)
+    }
+
+    func assertProfileContents(profile: [String: Any]) throws {
+        let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
         let stackFunctions = stacks.map({ stack in
@@ -136,7 +134,6 @@ private extension MacOSSwiftUITests {
 
     func stopContinuousProfiler(app: XCUIApplication) {
         app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].afterWaitingForExistence("Couldn't find button to stop continuous profiler").tap()
-        app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].tap()
     }
 
     func checkLaunchProfileMarkerFileExistence(app: XCUIApplication) throws -> Bool {
@@ -150,16 +147,22 @@ private extension MacOSSwiftUITests {
         case emptyFile
     }
 
-    func marshalJSONDictionaryFromApp(app: XCUIApplication) throws -> [String: Any] {
+    func marshalJSONDictionaryFromApp(app: XCUIApplication, shouldProfile: Bool) throws -> [String: Any]? {
         let string = try XCTUnwrap(app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"].afterWaitingForExistence("Couldn't find data marshaling text field.").value as? NSString)
-        if string == "<missing>" {
-            throw Error.missingFile
+
+        if shouldProfile {
+            if string == "<missing>" {
+                throw Error.missingFile
+            }
+            if string == "<empty>" {
+                throw Error.emptyFile
+            }
+            let data = try XCTUnwrap(Data(base64Encoded: string as String))
+            return try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        } else {
+            XCTAssertEqual("<missing>", string)
+            return nil
         }
-        if string == "<empty>" {
-            throw Error.emptyFile
-        }
-        let data = try XCTUnwrap(Data(base64Encoded: string as String))
-        return try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
 }
 

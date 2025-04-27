@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let args = ProcessInfo.processInfo.arguments
 
             options.configureProfiling = {
-                $0.profileAppStarts = true
+                $0.profileAppStarts = ProcessInfo.processInfo.arguments.contains("--io.sentry.enable-profile-app-starts")
                 $0.sessionSampleRate = 1
             }
 
