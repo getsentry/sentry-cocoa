@@ -646,7 +646,54 @@ NSString *_Nullable sentryStaticCachesPath(void)
             SENTRY_LOG_WARN(@"No caches directory location reported.");
             return;
         }
-        sentryStaticCachesPath = cachesDirectory;
+
+        NSString *sandboxedCachesDirectory = cachesDirectory;
+
+#if TARGET_OS_OSX
+        // per https://github.com/getsentry/sentry-cocoa/issues/5142, we previously were writing
+        // config files to the top-level cache directory for non-sandboxed apps. we need to delete
+        // anything that was previously there. this isn't needed for any app shipping this version
+        // of the SDK or later, but will help other apps that haven't yet gotten an update.
+        NSString *topLevelSentryCache =
+            [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+        if ([NSFileManager.defaultManager fileExistsAtPath:topLevelSentryCache]) {
+            _non_thread_safe_removeFileAtPath(topLevelSentryCache);
+        }
+
+        // for macOS apps, we need to ensure our own sandbox so that this path is not shared between
+        // all apps that ship the SDK
+        NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
+        if (bundleIdentifier == nil) {
+            SENTRY_LOG_WARN(@"No bundle identifier, cannot read/write launch profile config file.");
+            sentryStaticCachesPath = nil;
+            return;
+        }
+        if (bundleIdentifier.length == 0) {
+            SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, cannot construct path "
+                            @"for caches directory.");
+            sentryStaticCachesPath = nil;
+            return;
+        }
+
+        if (![cachesDirectory containsString:bundleIdentifier]) {
+            // the mac app is not sandboxed, we need to create a caches path scoped by the bundle ID
+            sandboxedCachesDirectory =
+        sentryStaticCachesPath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+        }
+#endif // TARGET_OS_OSX
+
+        NSString *_sentryStaticCachesPath =
+            [sandboxedCachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+
+#if TARGET_OS_OSX
+        NSError *error;
+        if (!createDirectoryIfNotExists(_sentryStaticCachesPath, &error)) {
+            SENTRY_LOG_ERROR(@"Could not create caches directory (%@).", error);
+            return;
+        }
+#endif // TARGET_OS_OSX
+
+        sentryStaticCachesPath = _sentryStaticCachesPath;
     });
     return sentryStaticCachesPath;
 }
