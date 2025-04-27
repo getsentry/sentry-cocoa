@@ -164,10 +164,6 @@ class ViewController: NSViewController {
     }
 
     @IBAction func checkProfileMarkerFileExistence(_ sender: Any) {
-
-    }
-
-    @IBAction func checkLaunchProfilingMarkerFile(_ sender: Any) {
         let launchProfileMarkerPath = ((NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! as NSString).appendingPathComponent("io.sentry") as NSString).appendingPathComponent("profileLaunch")
         if FileManager.default.fileExists(atPath: launchProfileMarkerPath) {
             uiTestDataMarshalingField.stringValue = "<exists>"

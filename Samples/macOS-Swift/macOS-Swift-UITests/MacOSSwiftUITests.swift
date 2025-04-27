@@ -1,6 +1,6 @@
 import XCTest
 
-final class macOS_Swift_UITests: XCTestCase {
+final class MacOSSwiftUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -23,31 +23,35 @@ final class macOS_Swift_UITests: XCTestCase {
         // this app explicitly disables launch profiling
         let otherApp = XCUIApplication(bundleIdentifier: "io.sentry.macOS-Swift-Other")
 
-        func performSequence(app: XCUIApplication) throws {
-            app.launchArguments.append(contentsOf: [
-                "--disable-auto-performance-tracing",
+        func performSequence(appBundleID: String) throws {
+            func performStep(shouldProfileLaunch: Bool) throws {
+                let app = XCUIApplication(bundleIdentifier: appBundleID)
+                app.launchArguments.append(contentsOf: [
+                    "--disable-auto-performance-tracing",
 
-                // sets a marker function to run in a load command that the launch profile should detect
-                "--io.sentry.slow-load-method",
+                    // sets a marker function to run in a load command that the launch profile should detect
+                    "--io.sentry.slow-load-method",
 
-                // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-                "--io.sentry.continuous-profiler-immediate-stop",
-
-                "--io.sentry.wipe-data"
-            ])
-            app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
-            try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false)
-            app.launchArguments.removeAll(where: { $0 == "--io.sentry.wipe-data" })
-            try launchAndConfigureSubsequentLaunches(app: app, terminatePriorSession: true, shouldProfileThisLaunch: true)
-            app.terminate()
+                    // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
+                    "--io.sentry.continuous-profiler-immediate-stop"
+                ])
+                if !shouldProfileLaunch {
+                    app.launchArguments.append("--io.sentry.wipe-data")
+                }
+                app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
+                try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunch)
+                app.terminate()
+            }
+            try performStep(shouldProfileLaunch: false)
+            try performStep(shouldProfileLaunch: true)
         }
 
-        try performSequence(app: mainApp)
-        try performSequence(app: otherApp)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift")
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Other")
     }
 }
 
-private extension macOS_Swift_UITests {
+private extension MacOSSwiftUITests {
     /**
      * Performs the various operations for the launch profiler test case:
      * - terminates an existing app session
@@ -58,13 +62,8 @@ private extension macOS_Swift_UITests {
      */
     func launchAndConfigureSubsequentLaunches(
         app: XCUIApplication,
-        terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool
     ) throws {
-        if terminatePriorSession {
-            app.terminate()
-        }
-
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
             "--disable-swizzling",
@@ -137,6 +136,7 @@ private extension macOS_Swift_UITests {
 
     func stopContinuousProfiler(app: XCUIApplication) {
         app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].afterWaitingForExistence("Couldn't find button to stop continuous profiler").tap()
+        app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].tap()
     }
 
     func checkLaunchProfileMarkerFileExistence(app: XCUIApplication) throws -> Bool {

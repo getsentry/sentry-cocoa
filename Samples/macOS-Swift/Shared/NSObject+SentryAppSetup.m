@@ -10,7 +10,8 @@
     NSLog(@"[iOS-Swift] Finishing app launch work");
 }
 
-+ (void)sentry_slowLoadWork {
++ (void)sentry_slowLoadWork
+{
     NSMutableString *a = [NSMutableString string];
     // 1,000,000 iterations takes about 225 milliseconds in the iPhone 15 simulator on an
     // M2 macbook pro; we might have to adapt this for CI

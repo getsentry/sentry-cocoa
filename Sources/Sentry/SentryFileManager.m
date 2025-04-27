@@ -650,7 +650,8 @@ NSString *_Nullable sentryStaticCachesPath(void)
         NSString *sandboxedCachesDirectory = cachesDirectory;
 
 #if TARGET_OS_OSX
-        // for macOS apps, we need to ensure our own sandbox so that this path is not shared between all apps that ship the SDK
+        // for macOS apps, we need to ensure our own sandbox so that this path is not shared between
+        // all apps that ship the SDK
         NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
         if (bundleIdentifier == nil) {
             SENTRY_LOG_WARN(@"No bundle identifier, cannot read/write launch profile config file.");
@@ -658,18 +659,21 @@ NSString *_Nullable sentryStaticCachesPath(void)
             return;
         }
         if (bundleIdentifier.length == 0) {
-            SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, cannot construct path for caches directory.");
+            SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, cannot construct path "
+                            @"for caches directory.");
             sentryStaticCachesPath = nil;
             return;
         }
 
         if (![cachesDirectory containsString:bundleIdentifier]) {
             // the mac app is not sandboxed, we need to create a caches path scoped by the bundle ID
-            sandboxedCachesDirectory = [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
+            sandboxedCachesDirectory =
+                [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
         }
 #endif // TARGET_OS_OSX
 
-        NSString *_sentryStaticCachesPath = [sandboxedCachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+        NSString *_sentryStaticCachesPath =
+            [sandboxedCachesDirectory stringByAppendingPathComponent:@"io.sentry"];
 
         NSError *error;
         if (!createDirectoryIfNotExists(_sentryStaticCachesPath, &error)) {
@@ -734,8 +738,9 @@ void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
     NSError *error;
-    SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
-        @"Failed to write launch profile config file: %@.", error);
+    if (![config writeToURL:launchProfileConfigFileURL() error:&error]) {
+        SENTRY_TEST_FATAL(@"Failed to write launch profile config file: %@.", error);
+    }
 }
 
 void
