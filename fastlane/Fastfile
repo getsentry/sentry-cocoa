@@ -250,6 +250,20 @@ platform :ios do
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
+  
+  lane :ui_tests_macos_swift do |options|
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui-tests-macos-swift.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "macOS-Swift",
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
+    )
+  end
 
   lane :ui_tests_ios_objc do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
