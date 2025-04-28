@@ -16,29 +16,39 @@ final class MacOSSwiftUITests: XCTestCase {
     }
 
     @MainActor
-    func testMacAppsDontEnableLaunchProfilingForEachOther() throws {
-        func performSequence(appBundleID: String, shouldProfileLaunches: Bool, wipeData: Bool) throws {
-            // one launch to configure launch profiling for the next launch
-            let app = XCUIApplication(bundleIdentifier: appBundleID)
-
-//            if wipeData {
-//                app.launchArguments = ["--io.sentry.wipe-data"]
-//            }
-
-            try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches)
-            app.terminate()
-
-            // second launch to profile a launch if configured
-            try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunches, shouldProfileNextLaunch: shouldProfileLaunches)
-            app.terminate()
-        }
-
+    func testMacAppsDontEnableLaunchProfilingForEachOther_Nonsandboxed() throws {
         try performSequence(appBundleID: "io.sentry.macOS-Swift", shouldProfileLaunches: true, wipeData: true)
         try performSequence(appBundleID: "io.sentry.macOS-Swift-Other", shouldProfileLaunches: false, wipeData: false)
+    }
+
+    @MainActor
+    func testMacAppsDontEnableLaunchProfilingForEachOther_Sandboxed() throws {
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed", shouldProfileLaunches: true, wipeData: true)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed-Other", shouldProfileLaunches: false, wipeData: false)
     }
 }
 
 private extension MacOSSwiftUITests {
+    func performSequence(appBundleID: String, shouldProfileLaunches: Bool, wipeData: Bool) throws {
+        // one launch to configure launch profiling for the next launch
+        let app = XCUIApplication(bundleIdentifier: appBundleID)
+
+        if wipeData {
+            app.launchArguments.append("--io.sentry.wipe-data")
+        }
+
+        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches)
+        app.terminate()
+
+        if wipeData {
+            app.launchArguments.removeAll { $0 == "--io.sentry.wipe-data" }
+        }
+
+        // second launch to profile a launch if configured
+        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunches, shouldProfileNextLaunch: shouldProfileLaunches)
+        app.terminate()
+    }
+
     /**
      * Performs the various operations for the launch profiler test case:
      * - terminates an existing app session
