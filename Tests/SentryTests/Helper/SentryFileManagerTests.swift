@@ -1209,6 +1209,133 @@ extension SentryFileManagerTests {
         // set the original value back so other tests don't crash
         sentryLaunchConfigFileURL = (originalURL as NSURL)
     }
+
+    func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
+        guard #unavailable(macOS 10.15) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+
+        // -- Act --
+        let result = sentryGetScopedCachesDirectory(cachesDirectoryPath)
+
+        // -- Assert
+        XCTAssertEqual(result, cachesDirectoryPath)
+    }
+
+    func testSentryGetScopedCachesDirectory_targetIsMacOS_shouldReturnPath() throws {
+        guard #available(macOS 10.15, *) else {
+            throw XCTSkip("Test is disabled for this OS version")
+        }
+
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+
+        // -- Act --
+        let result = sentryGetScopedCachesDirectory(cachesDirectoryPath)
+
+        // -- Assert
+        // Xcode unit tests are not sandboxed, therefore we expect it to use the bundle identifier to unique the path
+        // The bundle identifier will then be the xctest bundle identifier
+        XCTAssertEqual(result, "some/path/to/caches/com.apple.dt.xctest.tool")
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isSandboxed_shouldReturnInputPath() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = true
+        let bundleIdentifier: String? = nil
+        let lastPathComponent: String? = nil
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, cachesDirectoryPath)
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isNotSandboxed_withBundleIdentifier_shouldReturnScopedPath() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = false
+        let bundleIdentifier = "com.example.app"
+        let lastPathComponent: String? = nil
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, "some/path/to/caches/com.example.app")
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isNotSandboxed_withEmptyBundleIdentifier_withLastPathComponent_shouldReturnScopedPath() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = false
+        let bundleIdentifier = ""
+        let lastPathComponent = "example.app"
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, "some/path/to/caches/example.app")
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isNotSandboxed_withoutBundleIdentifier_withLastPathComponent_shouldReturnScopedPath() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = false
+        let bundleIdentifier: String? = nil
+        let lastPathComponent = "example.app"
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, "some/path/to/caches/example.app")
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isNotSandboxed_withoutBundleIdentifierOrLastPathComponent_shouldReturnNil() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = false
+        let bundleIdentifier: String? = nil
+        let lastPathComponent: String? = nil
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
 }
 
 // MARK: Private profiling tests
