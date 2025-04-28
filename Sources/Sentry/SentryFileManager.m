@@ -722,6 +722,16 @@ fixBadCachesDirectory(void)
         SENTRY_LOG_WARN(@"No caches directory location reported.");
         return;
     }
+    NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
+    if (bundleIdentifier == nil) {
+        SENTRY_LOG_ERROR(@"App does not contain an app bundle, cannot fix bad cache path.");
+        return;
+    }
+    if ([cachesDirectory containsString:bundleIdentifier]) {
+        SENTRY_LOG_DEBUG(
+            @"NSSearchPathForDirectoriesInDomains returns a sandboxed path, will not remove.");
+        return;
+    }
     NSString *oldTopLevelSentryCache =
         [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
     if ([NSFileManager.defaultManager fileExistsAtPath:oldTopLevelSentryCache]) {
@@ -739,12 +749,11 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
         fixBadCachesDirectory();
 #    endif // TARGET_OS_OSX
 
-        NSString *cachesPath = sentryStaticBasePath();
-        if (cachesPath == nil) {
+        NSString *basePath = sentryStaticBasePath();
+        if (basePath == nil) {
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
             return;
         }
-        NSString *basePath = [cachesPath stringByAppendingPathComponent:@"io.sentry"];
         NSError *error;
         if (!createDirectoryIfNotExists(basePath, &error)) {
             SENTRY_LOG_ERROR(
