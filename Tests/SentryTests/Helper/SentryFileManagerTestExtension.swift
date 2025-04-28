@@ -39,7 +39,9 @@ extension SentryFileManager {
                 }
                 .first ?? ""
 
-        let sentryPath = URL(fileURLWithPath: cachePath).appendingPathComponent("io.sentry")
+        let sentryPath = URL(fileURLWithPath: cachePath)
+            .appendingPathComponent(Bundle.main.bundleIdentifier ?? Bundle.main.executableURL?.lastPathComponent ?? "")
+            .appendingPathComponent("io.sentry")
 
         return sentryPath
     }
