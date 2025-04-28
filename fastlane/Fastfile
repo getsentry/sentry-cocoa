@@ -60,11 +60,11 @@ platform :ios do
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
          "io.sentry.cocoa.perf-test-app-sentry",
-         "io.sentry.macOS-Swift",
-         "io.sentry.macOS-Swift-Other",
-         "io.sentry.macOS-Swift-Sandboxed",
-         "io.sentry.macOS-Swift-Sandboxed-Other",
-         "io.sentry.macOS-Swift-UITests.xctrunner",
+#         "io.sentry.macOS-Swift",
+#         "io.sentry.macOS-Swift-Other",
+#         "io.sentry.macOS-Swift-Sandboxed",
+#         "io.sentry.macOS-Swift-Sandboxed-Other",
+#         "io.sentry.macOS-Swift-UITests.xctrunner",
        ],
        readonly: true
      )
@@ -266,22 +266,22 @@ platform :ios do
       force: true
     )
 
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: [
-        "io.sentry.sample.macOS-Swift",
-        "io.sentry.sample.macOS-Swift-Other",
-        "io.sentry.sample.macOS-Swift-Sandboxed",
-        "io.sentry.sample.macOS-Swift-Sandboxed-Other",
-        "io.sentry.sample.macOS-Swift-UITests.xctrunner",
-      ],
-
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
-    )
+#    sync_code_signing(
+#      type: "development",
+#      readonly: true,
+#      app_identifier: [
+#        "io.sentry.sample.macOS-Swift",
+#        "io.sentry.sample.macOS-Swift-Other",
+#        "io.sentry.sample.macOS-Swift-Sandboxed",
+#        "io.sentry.sample.macOS-Swift-Sandboxed-Other",
+#        "io.sentry.sample.macOS-Swift-UITests.xctrunner",
+#      ],
+#
+#      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
+#      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
+#      git_branch: "master",
+#      clone_branch_directly: true
+#    )
 
     run_tests(
       workspace: "Sentry.xcworkspace",
