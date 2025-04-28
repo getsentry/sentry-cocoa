@@ -1,0 +1,3 @@
+CODE_SIGN_IDENTITY = Apple Developer
+CODE_SIGN_STYLE = Manual
+PROVISIONING_PROFILE_SPECIFIER = match Development io.sentry.macOS-Swift-Sandboxed-Other

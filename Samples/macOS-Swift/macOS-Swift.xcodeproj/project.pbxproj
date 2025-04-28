@@ -63,6 +63,11 @@
 		84B5AA2A2DBEB658003327C9 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853442440C45A00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84B5AA2B2DBEB658003327C9 /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84BA72AE2C9369B80045B828 /* GitInjections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA72AC2C9369B80045B828 /* GitInjections.swift */; };
+		84DE3E132DC007F100F687E6 /* macOS-Swift.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 84DE3E122DC007F100F687E6 /* macOS-Swift.xcconfig */; };
+		84DE3E1A2DC0083700F687E6 /* macOS-Swift-UITests.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 84DE3E192DC0083700F687E6 /* macOS-Swift-UITests.xcconfig */; };
+		84DE3E1C2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 84DE3E1B2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig */; };
+		84DE3E1E2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 84DE3E1D2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig */; };
+		84DE3E202DC0083E00F687E6 /* macOS-Swift-Other.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 84DE3E1F2DC0083E00F687E6 /* macOS-Swift-Other.xcconfig */; };
 		924D21562C89FE2D00E0FEFD /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */; };
 		924D21682C8A01F800E0FEFD /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; };
 		924D21692C8A01F800E0FEFD /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 924D215D2C89FE2D00E0FEFD /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -278,6 +283,11 @@
 		84B5AA122DBEB648003327C9 /* macOS-Swift-Sandboxed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "macOS-Swift-Sandboxed.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B5AA312DBEB658003327C9 /* macOS-Swift-Sandboxed-Other.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "macOS-Swift-Sandboxed-Other.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		84BA72AC2C9369B80045B828 /* GitInjections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitInjections.swift; sourceTree = "<group>"; };
+		84DE3E122DC007F100F687E6 /* macOS-Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Swift.xcconfig"; sourceTree = "<group>"; };
+		84DE3E192DC0083700F687E6 /* macOS-Swift-UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Swift-UITests.xcconfig"; sourceTree = "<group>"; };
+		84DE3E1B2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Swift-Sandboxed-Other.xcconfig"; sourceTree = "<group>"; };
+		84DE3E1D2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Swift-Sandboxed.xcconfig"; sourceTree = "<group>"; };
+		84DE3E1F2DC0083E00F687E6 /* macOS-Swift-Other.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "macOS-Swift-Other.xcconfig"; sourceTree = "<group>"; };
 		924D21552C89FE2D00E0FEFD /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		924D216A2C8A020C00E0FEFD /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -350,6 +360,11 @@
 		637AFDE2243B04320034958B = {
 			isa = PBXGroup;
 			children = (
+				84DE3E122DC007F100F687E6 /* macOS-Swift.xcconfig */,
+				84DE3E1F2DC0083E00F687E6 /* macOS-Swift-Other.xcconfig */,
+				84DE3E1D2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig */,
+				84DE3E1B2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig */,
+				84DE3E192DC0083700F687E6 /* macOS-Swift-UITests.xcconfig */,
 				84B5A9232DBD5068003327C9 /* Shared */,
 				84BA72AD2C9369B80045B828 /* Shared */,
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
@@ -655,6 +670,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84DE3E1C2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig in Resources */,
+				84DE3E202DC0083E00F687E6 /* macOS-Swift-Other.xcconfig in Resources */,
+				84DE3E1A2DC0083700F687E6 /* macOS-Swift-UITests.xcconfig in Resources */,
+				84DE3E1E2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig in Resources */,
+				84DE3E132DC007F100F687E6 /* macOS-Swift.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1211,6 +1231,7 @@
 		};
 		84B5A92E2DBD6B24003327C9 /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84DE3E122DC007F100F687E6 /* macOS-Swift.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -1232,6 +1253,7 @@
 		};
 		84B5A92F2DBD6B24003327C9 /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84DE3E1F2DC0083E00F687E6 /* macOS-Swift-Other.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1261,6 +1283,7 @@
 		};
 		84B5A9302DBD6B24003327C9 /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84DE3E192DC0083700F687E6 /* macOS-Swift-UITests.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -1482,6 +1505,7 @@
 		};
 		84B5AA112DBEB648003327C9 /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84DE3E1D2DC0083D00F687E6 /* macOS-Swift-Sandboxed.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -1594,6 +1618,7 @@
 		};
 		84B5AA302DBEB658003327C9 /* TestCI */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84DE3E1B2DC0083C00F687E6 /* macOS-Swift-Sandboxed-Other.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
