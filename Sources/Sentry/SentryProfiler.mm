@@ -151,13 +151,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     // to remove stale versions of the file before it gets used to potentially start a launch
     // profile that shouldn't have started, so we check here for this
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.wipe-data"]) {
-        const auto caches = [NSSearchPathForDirectoriesInDomains(
-            NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-        if ([NSFileManager.defaultManager fileExistsAtPath:caches]) {
-            NSError *error;
-            SENTRY_ASSERT([NSFileManager.defaultManager removeItemAtPath:caches error:&error],
-                @"Failed to wipe application support: %@", error);
-        }
+        removeAppLaunchProfilingConfigFile();
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentry_startLaunchProfile();
