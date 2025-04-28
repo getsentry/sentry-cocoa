@@ -261,7 +261,8 @@ platform :ios do
       configuration: configuration,
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
-      result_bundle_path: "fastlane/#{result_bundle_path}"
+      result_bundle_path: "fastlane/#{result_bundle_path}",
+      skip_codesigning: true
     )
   end
 
