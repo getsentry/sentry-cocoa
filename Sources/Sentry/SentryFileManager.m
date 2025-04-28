@@ -661,6 +661,9 @@ NSString *_Nullable sentryStaticCachesPath(void)
         // Only apps running in a sandboxed environment have the `APP_SANDBOX_CONTAINER_ID` set as a
         // process environment variable. Reference implementation:
         // https://github.com/realm/realm-js/blob/a03127726939f08f608edbdb2341605938f25708/packages/realm/binding/apple/platform.mm#L58-L74
+
+        // We can not use the SentryNSProcessInfoWrapper here because this method is called before
+        // the SentryDependencyContainer is initialized.
         NSProcessInfo *processInfo = [NSProcessInfo processInfo];
         BOOL isSandboxed = processInfo.environment[@"APP_SANDBOX_CONTAINER_ID"] != nil;
         if (!isSandboxed) {
