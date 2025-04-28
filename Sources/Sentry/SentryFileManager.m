@@ -634,6 +634,11 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] && isDir;
 }
 
+/**
+ * @note This method must be statically accessible because it will be called during app launch,
+ * before any instance of  ``SentryFileManager`` exists, and so wouldn't be able to access this path
+ * from an objc property on it like the other paths.
+ */
 NSString *_Nullable sentryStaticCachesPath(void)
 {
     static NSString *_Nullable sentryStaticCachesPath = nil;
@@ -650,29 +655,45 @@ NSString *_Nullable sentryStaticCachesPath(void)
         NSString *sandboxedCachesDirectory = cachesDirectory;
 
 #if TARGET_OS_OSX
-        // for macOS apps, we need to ensure our own sandbox so that this path is not shared between
-        // all apps that ship the SDK
-        NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
-        if (bundleIdentifier == nil) {
-            SENTRY_LOG_WARN(@"No bundle identifier, cannot read/write launch profile config file.");
-            sentryStaticCachesPath = nil;
-            return;
-        }
-        if (bundleIdentifier.length == 0) {
-            SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, cannot construct path "
-                            @"for caches directory.");
-            sentryStaticCachesPath = nil;
-            return;
-        }
+        // For macOS apps, we need to ensure our own sandbox so that this path is not shared between
+        // all apps that ship the SDK.
 
-        if (![cachesDirectory containsString:bundleIdentifier]) {
-            // the mac app is not sandboxed, we need to create a caches path scoped by the bundle ID
-            sandboxedCachesDirectory =
-                [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
+        // Only apps running in a sandboxed environment have the `APP_SANDBOX_CONTAINER_ID` set as a
+        // process environment variable. Reference implementation:
+        // https://github.com/realm/realm-js/blob/a03127726939f08f608edbdb2341605938f25708/packages/realm/binding/apple/platform.mm#L58-L74
+        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+        BOOL isSandboxed = processInfo.environment[@"APP_SANDBOX_CONTAINER_ID"] != nil;
+        if (!isSandboxed) {
+            // If the macOS app is not sandboxed, we need to manually create a scoped cache
+            // directory. The cache path must be unique an stable over app launches, therefore we
+            // can not use any changing identifier.
+            SENTRY_LOG_DEBUG(
+                @"App is not sandboxed, extending default cache directory with bundle identifier.");
+
+            // The bundle identifier is used to create a unique cache directory for the app.
+            // If the bundle identifier is not available, we use the name of the executable.
+            NSString *identifier = [NSBundle.mainBundle bundleIdentifier];
+            if (identifier == nil) {
+                SENTRY_LOG_WARN(@"No bundle identifier found, using main bundle executable name.");
+                identifier = [[[NSBundle mainBundle] executablePath] lastPathComponent];
+            } else if (identifier.length == 0) {
+                SENTRY_LOG_WARN(@"Bundle identifier exists but is zero length, using main bundle "
+                                @"executable name.");
+                identifier = [[[NSBundle mainBundle] executablePath] lastPathComponent];
+            }
+            // If neither the bundle identifier nor the executable name are available, we can't
+            // create a unique and stable cache directory.
+            if (identifier == nil) {
+                SENTRY_LOG_ERROR(@"No bundle identifier found, cannot create cache directory.");
+                return;
+            }
+
+            sandboxedCachesDirectory = [cachesDirectory stringByAppendingPathComponent:identifier];
         }
 #endif // TARGET_OS_OSX
 
         sentryStaticCachesPath = sandboxedCachesDirectory;
+        SENTRY_LOG_DEBUG(@"Using static cache directory: %@", sentryStaticCachesPath);
     });
     return sentryStaticCachesPath;
 }
@@ -706,49 +727,10 @@ removeBasePath(void)
 
 NSURL *_Nullable sentryLaunchConfigFileURL = nil;
 
-#    if TARGET_OS_OSX
-/**
- * Per https://github.com/getsentry/sentry-cocoa/issues/5142, we previously were writing
- * config files to the top-level cache directory for non-sandboxed apps. we need to delete
- * anything that was previously there. this isn't needed for any app shipping this version
- * of the SDK or later, but will help other apps that haven't yet gotten an update.
- */
-void
-fixBadCachesDirectory(void)
-{
-    NSString *cachesDirectory
-        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-    if (cachesDirectory == nil) {
-        SENTRY_LOG_WARN(@"No caches directory location reported.");
-        return;
-    }
-    NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
-    if (bundleIdentifier == nil) {
-        SENTRY_LOG_ERROR(@"App does not contain an app bundle, cannot fix bad cache path.");
-        return;
-    }
-    if ([cachesDirectory containsString:bundleIdentifier]) {
-        SENTRY_LOG_DEBUG(
-            @"NSSearchPathForDirectoriesInDomains returns a sandboxed path, will not remove.");
-        return;
-    }
-    NSString *oldTopLevelSentryCache =
-        [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
-    if ([NSFileManager.defaultManager fileExistsAtPath:oldTopLevelSentryCache]) {
-        _non_thread_safe_removeFileAtPath(oldTopLevelSentryCache);
-    }
-}
-#    endif // TARGET_OS_OSX
-
 NSURL *_Nullable launchProfileConfigFileURL(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-
-#    if TARGET_OS_OSX
-        fixBadCachesDirectory();
-#    endif // TARGET_OS_OSX
-
         NSString *basePath = sentryStaticBasePath();
         if (basePath == nil) {
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
@@ -762,6 +744,7 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
         }
         sentryLaunchConfigFileURL =
             [NSURL fileURLWithPath:[basePath stringByAppendingPathComponent:@"profileLaunch"]];
+        SENTRY_LOG_DEBUG(@"Launch profile config file URL: %@", sentryLaunchConfigFileURL);
     });
     return sentryLaunchConfigFileURL;
 }
