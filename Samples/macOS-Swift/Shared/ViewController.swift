@@ -125,7 +125,7 @@ class ViewController: NSViewController {
         if cachesDirectory.contains(bundleIdentifier) {
             sandboxedCachesDirectory = cachesDirectory
         } else {
-            sandboxedCachesDirectory = cachesDirectory
+            sandboxedCachesDirectory = (cachesDirectory as NSString).appendingPathExtension(bundleIdentifier)!
         }
         return (sandboxedCachesDirectory as NSString).appendingPathComponent("io.sentry")
     }

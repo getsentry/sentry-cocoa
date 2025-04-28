@@ -5,6 +5,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryDsn.h"
 #import "SentryFileIOTrackingIntegration.h"
+#import "SentryFileManager.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
@@ -209,9 +210,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
-        self.cacheDirectoryPath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
+        self.cacheDirectoryPath = sentryStaticCachesPath();
 
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {

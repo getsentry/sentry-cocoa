@@ -650,16 +650,6 @@ NSString *_Nullable sentryStaticCachesPath(void)
         NSString *sandboxedCachesDirectory = cachesDirectory;
 
 #if TARGET_OS_OSX
-        // per https://github.com/getsentry/sentry-cocoa/issues/5142, we previously were writing
-        // config files to the top-level cache directory for non-sandboxed apps. we need to delete
-        // anything that was previously there. this isn't needed for any app shipping this version
-        // of the SDK or later, but will help other apps that haven't yet gotten an update.
-        NSString *topLevelSentryCache =
-            [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
-        if ([NSFileManager.defaultManager fileExistsAtPath:topLevelSentryCache]) {
-            _non_thread_safe_removeFileAtPath(topLevelSentryCache);
-        }
-
         // for macOS apps, we need to ensure our own sandbox so that this path is not shared between
         // all apps that ship the SDK
         NSString *bundleIdentifier = NSBundle.mainBundle.bundleIdentifier;
@@ -678,22 +668,11 @@ NSString *_Nullable sentryStaticCachesPath(void)
         if (![cachesDirectory containsString:bundleIdentifier]) {
             // the mac app is not sandboxed, we need to create a caches path scoped by the bundle ID
             sandboxedCachesDirectory =
-        sentryStaticCachesPath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+                [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
         }
 #endif // TARGET_OS_OSX
 
-        NSString *_sentryStaticCachesPath =
-            [sandboxedCachesDirectory stringByAppendingPathComponent:@"io.sentry"];
-
-#if TARGET_OS_OSX
-        NSError *error;
-        if (!createDirectoryIfNotExists(_sentryStaticCachesPath, &error)) {
-            SENTRY_LOG_ERROR(@"Could not create caches directory (%@).", error);
-            return;
-        }
-#endif // TARGET_OS_OSX
-
-        sentryStaticCachesPath = _sentryStaticCachesPath;
+        sentryStaticCachesPath = sandboxedCachesDirectory;
     });
     return sentryStaticCachesPath;
 }
@@ -727,17 +706,53 @@ removeBasePath(void)
 
 NSURL *_Nullable sentryLaunchConfigFileURL = nil;
 
+#    if TARGET_OS_OSX
+/**
+ * Per https://github.com/getsentry/sentry-cocoa/issues/5142, we previously were writing
+ * config files to the top-level cache directory for non-sandboxed apps. we need to delete
+ * anything that was previously there. this isn't needed for any app shipping this version
+ * of the SDK or later, but will help other apps that haven't yet gotten an update.
+ */
+void
+fixBadCachesDirectory(void)
+{
+    NSString *cachesDirectory
+        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+    if (cachesDirectory == nil) {
+        SENTRY_LOG_WARN(@"No caches directory location reported.");
+        return;
+    }
+    NSString *oldTopLevelSentryCache =
+        [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+    if ([NSFileManager.defaultManager fileExistsAtPath:oldTopLevelSentryCache]) {
+        _non_thread_safe_removeFileAtPath(oldTopLevelSentryCache);
+    }
+}
+#    endif // TARGET_OS_OSX
+
 NSURL *_Nullable launchProfileConfigFileURL(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+
+#    if TARGET_OS_OSX
+        fixBadCachesDirectory();
+#    endif // TARGET_OS_OSX
+
         NSString *cachesPath = sentryStaticBasePath();
         if (cachesPath == nil) {
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
             return;
         }
+        NSString *basePath = [cachesPath stringByAppendingPathComponent:@"io.sentry"];
+        NSError *error;
+        if (!createDirectoryIfNotExists(basePath, &error)) {
+            SENTRY_LOG_ERROR(
+                @"Can't create base path to store launch profile config file: %@", error);
+            return;
+        }
         sentryLaunchConfigFileURL =
-            [NSURL fileURLWithPath:[cachesPath stringByAppendingPathComponent:@"profileLaunch"]];
+            [NSURL fileURLWithPath:[basePath stringByAppendingPathComponent:@"profileLaunch"]];
     });
     return sentryLaunchConfigFileURL;
 }
