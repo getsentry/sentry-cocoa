@@ -717,6 +717,21 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
     // can not use any changing identifier.
     SENTRY_LOG_DEBUG(
         @"App is not sandboxed, extending default cache directory with bundle identifier.");
+
+    if (lastPathComponent.length > 0) {
+        // If we've already used a scoped cache directory path with the executable name in the past
+        // due to a nil or zero-length bundle identifier, we'll stick with that regardless of what
+        // is in the app identifier now.
+        NSString *executableNameBasedPath =
+            [cachesDirectory stringByAppendingPathComponent:lastPathComponent];
+        BOOL isDirectory = NO;
+        if ([NSFileManager.defaultManager fileExistsAtPath:executableNameBasedPath
+                                               isDirectory:&isDirectory]
+            && isDirectory) {
+            return executableNameBasedPath;
+        }
+    }
+
     NSString *_Nullable identifier = bundleIdentifier;
     if (identifier == nil) {
         SENTRY_LOG_WARN(@"No bundle identifier found, using main bundle executable name.");
@@ -733,6 +748,12 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
     // and cause leaks impacting other apps.
     if (identifier == nil) {
         SENTRY_LOG_ERROR(@"No bundle identifier found, cannot create cache directory.");
+        return nil;
+    }
+
+    // It's unlikely that the executable name will be zero length, but we'll cover this case anyways
+    if (identifier.length == 0) {
+        SENTRY_LOG_ERROR(@"Executable name was zero length.");
         return nil;
     }
 
