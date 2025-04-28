@@ -646,10 +646,33 @@ NSString *_Nullable sentryStaticCachesPath(void)
             SENTRY_LOG_WARN(@"No caches directory location reported.");
             return;
         }
-        sentryStaticCachesPath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+        sentryStaticCachesPath = cachesDirectory;
     });
     return sentryStaticCachesPath;
 }
+
+NSString *_Nullable sentryStaticBasePath(void)
+{
+    static NSString *_Nullable sentryStaticBasePath = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *cachesDirectory = sentryStaticCachesPath();
+        if (cachesDirectory == nil) {
+            SENTRY_LOG_WARN(@"No caches directory location reported.");
+            return;
+        }
+        sentryStaticBasePath = [cachesDirectory stringByAppendingPathComponent:@"io.sentry"];
+    });
+    return sentryStaticBasePath;
+}
+
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+void
+removeBasePath(void)
+{
+    _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
+}
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 #pragma mark - Profiling
 
@@ -661,7 +684,7 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *cachesPath = sentryStaticCachesPath();
+        NSString *cachesPath = sentryStaticBasePath();
         if (cachesPath == nil) {
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
             return;
