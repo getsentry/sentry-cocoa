@@ -273,13 +273,8 @@
 
 - (NSString *)getDefaultCacheDirectoryPath
 {
-    // #if TARGET_OS_OSX
-    //     return [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-    //         .firstObject stringByAppendingPathComponent:NSBundle.mainBundle.bundleIdentifier];
-    // #else
     return NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
         .firstObject;
-    // #endif // TARGET_OS_OSX
 }
 
 - (void)testBeforeSend

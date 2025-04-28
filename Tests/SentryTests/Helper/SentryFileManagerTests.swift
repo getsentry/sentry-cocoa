@@ -1084,15 +1084,6 @@ extension SentryFileManagerTests {
         XCTAssertEqual(appLaunchProfileConfigFileExists(), true)
     }
 
-    func testProfilingConfigLaunchFilePathContainsBundleID() throws {
-        try ensureAppLaunchProfileConfig()
-        guard let bundleID = Bundle.main.bundleIdentifier else {
-            XCTFail("Need a bundle ID to test launch profile config path")
-            return
-        }
-        XCTAssert((launchProfileConfigFileURL().path as NSString).contains(bundleID))
-    }
-
     // if app launch profiling was not configured to take place
     func testAppLaunchProfileConfigFileExists_fileDoesNotExist() throws {
         try ensureAppLaunchProfileConfig(exists: false)
@@ -1131,7 +1122,7 @@ extension SentryFileManagerTests {
         try ensureAppLaunchProfileConfig(exists: false)
         XCTAssertNil(sentry_appLaunchProfileConfiguration())
     }
-
+    
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {
         // -- Arrange --
         try ensureAppLaunchProfileConfig(exists: false)
