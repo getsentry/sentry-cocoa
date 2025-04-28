@@ -16,7 +16,7 @@
 
 - Correctly rate limit envelopes from the new UI profiling system (#5131)
 - Race condition in ANRTrackerV1 (#5137)
--  Issue in non-sandboxed macOS apps that could inadvertently run the launch profiler (#5144)
+- Issue in non-sandboxed macOS apps that could inadvertently run the launch profiler (#5144)
 
 ### Improvements
 
