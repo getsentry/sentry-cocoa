@@ -1726,16 +1726,12 @@ class SentryClientTest: XCTestCase {
     }
 
     func testFileManagerCantBeInit() {
-        // -- Arrange --
         SentryFileManager.prepareInitError()
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-
-        // -- Act --
         let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
 
-        // -- Assert --
         XCTAssertNil(client)
 
         SentryFileManager.tearDownInitError()

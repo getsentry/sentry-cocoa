@@ -1083,7 +1083,7 @@ extension SentryFileManagerTests {
         try ensureAppLaunchProfileConfig()
         XCTAssertEqual(appLaunchProfileConfigFileExists(), true)
     }
-
+    
     // if app launch profiling was not configured to take place
     func testAppLaunchProfileConfigFileExists_fileDoesNotExist() throws {
         try ensureAppLaunchProfileConfig(exists: false)
@@ -1180,7 +1180,7 @@ extension SentryFileManagerTests {
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
         XCTAssertEqual(actualProfilesSampleRand, expectedProfilesSampleRand)
     }
-
+    
     func testRemoveAppLaunchProfilingConfigFile() throws {
         try ensureAppLaunchProfileConfig(exists: true)
         XCTAssertNotNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))

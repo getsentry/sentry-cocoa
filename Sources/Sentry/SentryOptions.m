@@ -5,7 +5,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryDsn.h"
 #import "SentryFileIOTrackingIntegration.h"
-#import "SentryFileManager.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
