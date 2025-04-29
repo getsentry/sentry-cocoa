@@ -11,6 +11,7 @@
 ### Features
 
 - Added ability to bring your own button for user feedback form display (#5107)
+- Make enableAppHangTrackingV2 general available (#5149)
 
 ### Fixes
 
