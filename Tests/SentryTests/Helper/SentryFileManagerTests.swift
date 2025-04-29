@@ -1211,10 +1211,9 @@ extension SentryFileManagerTests {
     }
 
     func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
-        guard #unavailable(macOS 10.15) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-
+#if os(macOS)
+        throw XCTSkip("Test is disabled for macOS")
+#else
         // -- Arrange --
         let cachesDirectoryPath = "some/path/to/caches"
 
@@ -1223,13 +1222,13 @@ extension SentryFileManagerTests {
 
         // -- Assert
         XCTAssertEqual(result, cachesDirectoryPath)
+#endif // os(macOS)
     }
 
     func testSentryGetScopedCachesDirectory_targetIsMacOS_shouldReturnPath() throws {
-        guard #available(macOS 10.15, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-
+#if !os(macOS)
+        throw XCTSkip("Test is disabled for iOS")
+#else
         // -- Arrange --
         let cachesDirectoryPath = "some/path/to/caches"
 
@@ -1240,6 +1239,8 @@ extension SentryFileManagerTests {
         // Xcode unit tests are not sandboxed, therefore we expect it to use the bundle identifier to unique the path
         // The bundle identifier will then be the xctest bundle identifier
         XCTAssertEqual(result, "some/path/to/caches/com.apple.dt.xctest.tool")
+#endif // os(macOS)
+
     }
 
     func testSentryBuildScopedCachesDirectoryPath_isSandboxed_shouldReturnInputPath() {
