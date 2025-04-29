@@ -57,8 +57,8 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
-            xcode: 15.4
-            runs-on: macos-14
+            xcode: 16.3
+            runs-on: macos-15
           - scheme: iOS13-Swift
             xcode: 15.4
             runs-on: macos-14
