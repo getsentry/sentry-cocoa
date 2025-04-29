@@ -1227,7 +1227,7 @@ extension SentryFileManagerTests {
 
     func testSentryGetScopedCachesDirectory_targetIsMacOS_shouldReturnPath() throws {
 #if !os(macOS)
-        throw XCTSkip("Test is disabled for iOS")
+        throw XCTSkip("Test is disabled for non macOS")
 #else
         // -- Arrange --
         let cachesDirectoryPath = "some/path/to/caches"
