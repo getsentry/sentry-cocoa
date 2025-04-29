@@ -23,14 +23,14 @@ concurrency:
 jobs:
   ui-tests-macos:
     name: UI Tests for macOS-Swift
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh "15.2"
+      - run: ./scripts/ci-select-xcode.sh "16.2"
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_macos_swift
