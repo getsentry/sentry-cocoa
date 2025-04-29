@@ -19,6 +19,7 @@
 
 ### Improvements
 
+- Build XCFramework with Xcode 16.3 (#5152). This change only impacts users using the precompiled XCFramework, which is the default when integrating the SDK via Swift Package Manager.
 - More logging for Session Replay video info (#5132)
 - Improve session replay frame presentation timing calculations (#5133)
 - Use wider compatible video encoding options for Session Replay (#5134)

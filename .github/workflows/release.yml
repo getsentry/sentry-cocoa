@@ -16,14 +16,14 @@ on:
 
 jobs:
   prepare_framework:
-    runs-on: macos-13-xlarge
+    runs-on: macos-15
     name: "Create XCFramework"
     steps:
       - uses: actions/checkout@v4
 
       - name: "Generate XCFramework"
         run: |
-          ./scripts/ci-select-xcode.sh 15.2
+          ./scripts/ci-select-xcode.sh 16.3
           make bump-version TO=${{ github.event.inputs.version }}
           # We need to build the framework during release to get it's SHA value
           # the framework will be saved as an artefact and we will use the same
