@@ -157,45 +157,6 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
-  ui-tests-macos:
-    name: UI Tests for macOS-Swift
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - run: ./scripts/ci-select-xcode.sh "16.3"
-
-      - name: Run Fastlane
-        run: bundle exec fastlane ui_tests_ios_swift6
-
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
-        if: always()
-        with:
-          report_paths: "build/reports/junit.xml"
-          fail_on_failure: true
-          fail_on_parse_error: true
-          detailed_summary: true
-
-      - name: Upload Result Bundle
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
-        with:
-          name: ui-tests-ios-swift6.xcresult
-          path: fastlane/test_results/ui-tests-ios-swift6.xcresult
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: ui-tests-ios-swift6-raw-output
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15

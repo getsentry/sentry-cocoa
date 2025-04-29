@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+> ![Important]
+> Version 8.21.0 introduced an issue for macOS apps that run without a sandbox (i.e. distributed outside the Mac App Store). We recommend upgrading to at least this version.
+
+### Fixes
+
+- Non-sandboxed macOS app launch profile configuration are now respected (#5144)
+
 ## 8.49.1
 
 ### Fixes
@@ -17,7 +26,7 @@
 - New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
-> With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
+> With the addition of the new profiling configuration API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
 >
 > - `SentryOptions.enableProfiling`
 > - `SentryOptions.isProfilingEnabled`
@@ -896,6 +905,9 @@ The following two features, disabled by default, were mistakenly added to the re
 - Add context to event with CrashIntegration disabled (#3699)
 
 ## 8.21.0
+
+> ![Important]
+> This version introduced an issue for macOS apps that run without a sandbox (i.e. distributed outside the Mac App Store). We recommend upgrading to at least version 8.49.2.
 
 ### Features
 
