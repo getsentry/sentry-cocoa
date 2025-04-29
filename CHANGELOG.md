@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.49.2
 
 > ![Important]
 > Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
