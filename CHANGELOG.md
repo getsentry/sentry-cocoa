@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> ![Important]
+> [!Important]
 > This version enables the better view renderer V2 used by Session Replay by default.
 > You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
 >
