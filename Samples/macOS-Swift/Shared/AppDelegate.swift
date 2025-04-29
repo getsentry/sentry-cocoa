@@ -20,8 +20,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 $0.sessionSampleRate = 1
             }
 
-            options.enableUncaughtNSExceptionReporting = false
-
             if args.contains("--disable-auto-performance-tracing") {
                 options.enableAutoPerformanceTracing = false
             }

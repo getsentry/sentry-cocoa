@@ -761,7 +761,7 @@ NSString *_Nullable sentryStaticBasePath(void)
 
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 void
-removeBasePath(void)
+removeSentryStaticBasePath(void)
 {
     _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
 }

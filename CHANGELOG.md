@@ -3,7 +3,9 @@
 ## Unreleased
 
 > ![Important]
-> Version 8.21.0 introduced an issue for macOS apps that run without a sandbox (i.e. distributed outside the Mac App Store). We recommend upgrading to at least this version.
+> Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least this version.
 
 ### Fixes
 
@@ -907,7 +909,9 @@ The following two features, disabled by default, were mistakenly added to the re
 ## 8.21.0
 
 > ![Important]
-> This version introduced an issue for macOS apps that run without a sandbox (i.e. distributed outside the Mac App Store). We recommend upgrading to at least version 8.49.2.
+> This version introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least version 8.49.2.
 
 ### Features
 
