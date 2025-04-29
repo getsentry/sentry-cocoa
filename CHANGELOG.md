@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+> ![Important]
+> Version 8.21.0 introduced an issue for macOS apps that run without a sandbox (i.e. distributed outside the Mac App Store). We recommend upgrading to at least this version.
+
 ### Fixes
 
 - Non-sandboxed macOS app launch profile configuration are now respected (#5144)
