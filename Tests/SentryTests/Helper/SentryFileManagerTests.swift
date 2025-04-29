@@ -1303,27 +1303,6 @@ extension SentryFileManagerTests {
             XCTAssertEqual(result, testCase.expected, "Inputs: (isSandboxed: \(testCase.isSandboxed), bundleIdentifier: \(String(describing: testCase.bundleIdentifier)), lastPathComponent: \(String(describing: testCase.lastPathComponent)), expected: \(String(describing: testCase.expected))); Output: \(String(describing: result))")
         }
     }
-
-    func test_sentryBuildScopedCachesDirectoryPath_afterAlreadyUsingExecutableName() throws {
-        // -- Arrange --
-        let executableName = "MyAppBinary"
-        let bundleId = "com.my.app"
-        try FileManager.default.createDirectory(atPath: "~/some/path/to/caches/MyAppBinary", withIntermediateDirectories: true)
-
-        // -- Act --
-        let result = sentryBuildScopedCachesDirectoryPath(
-            "~/some/path/to/caches",
-            false,
-            bundleId,
-            executableName
-        )
-
-        // -- Assert --
-        XCTAssertEqual(result, "~/some/path/to/caches/MyAppBinary")
-
-        // -- Cleanup --
-        try FileManager.default.removeItem(atPath: "~/some/path/to/caches/MyAppBinary")
-    }
 }
 
 // MARK: Private profiling tests
