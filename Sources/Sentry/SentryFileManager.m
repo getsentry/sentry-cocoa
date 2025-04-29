@@ -656,15 +656,14 @@ NSString *_Nullable sentryStaticCachesPath(void)
             return;
         }
 
-        // We need to ensure our own sandbox so that this path is not shared between other apps on
-        // the same system.
-        NSString *_Nullable sandboxedCachesDirectory
-            = sentryGetScopedCachesDirectory(cachesDirectory);
-        if (!sandboxedCachesDirectory) {
+        // We need to ensure our own scoped directory so that this path is not shared between other
+        // apps on the same system.
+        NSString *_Nullable scopedCachesDirectory = sentryGetScopedCachesDirectory(cachesDirectory);
+        if (!scopedCachesDirectory) {
             SENTRY_LOG_WARN(@"Failed to get scoped static caches directory.");
             return;
         }
-        sentryStaticCachesPath = sandboxedCachesDirectory;
+        sentryStaticCachesPath = scopedCachesDirectory;
         SENTRY_LOG_DEBUG(@"Using static cache directory: %@", sentryStaticCachesPath);
     });
     return sentryStaticCachesPath;
