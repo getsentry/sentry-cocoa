@@ -91,10 +91,10 @@ jobs:
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
 
-    runs-on: macos-15
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v4
