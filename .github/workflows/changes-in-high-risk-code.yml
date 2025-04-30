@@ -42,6 +42,9 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
+            if (!comments) {
+              return
+            }
             for (const comment of comments) {
               if (comment.user.login === 'github-actions[bot]' && comment.body.includes('### 🚨 Detected changes in high risk code 🚨')) {
                 await github.rest.issues.deleteComment({
