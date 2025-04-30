@@ -13,13 +13,20 @@ class ErrorsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addDSNDisplay(self, vcview: dsnView)
+
+        if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
+            let button = SentrySDKWrapper.shared.feedbackButton
+            view.addSubview(button)
+            button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8).isActive = true
+            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8).isActive = true
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
         
-        if ProcessInfo.processInfo.arguments.contains("--io.sentry.feedback.inject-screenshot") {
+        if SentrySDKOverrides.Feedback.injectScreenshot.boolValue {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }

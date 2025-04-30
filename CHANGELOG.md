@@ -1,8 +1,33 @@
 # Changelog
 
+## Unreleased
+
+> [!Important]
+> This version enables the better view renderer V2 used by Session Replay by default.
+> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
+>
+> In case you are noticing issues with view rendering, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
+
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+- Make enableAppHangTrackingV2 general available (#5149)
+
+### Fixes
+
+- Correctly rate limit envelopes from the new UI profiling system (#5131)
+- Race condition in ANRTrackerV1 (#5137)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+- GA of better session replay view renderer V2 (#5054)
+
 ## 8.49.2
 
-> ![Important]
+> [!Important]
 > Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
 > This issue could lead to starting the app launch profiler even when it's not configured via the options.
 > We recommend upgrading to at least this version.
@@ -908,7 +933,7 @@ The following two features, disabled by default, were mistakenly added to the re
 
 ## 8.21.0
 
-> ![Important]
+> [!Important]
 > This version introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
 > This issue could lead to starting the app launch profiler even when it's not configured via the options.
 > We recommend upgrading to at least version 8.49.2.
