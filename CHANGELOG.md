@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> ![Important]
+> [!Important]
 > This version enables the better view renderer V2 used by Session Replay by default.
 > You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
 >
@@ -11,6 +11,7 @@
 ### Features
 
 - Added ability to bring your own button for user feedback form display (#5107)
+- Make enableAppHangTrackingV2 general available (#5149)
 
 ### Fixes
 
@@ -23,6 +24,17 @@
 - Improve session replay frame presentation timing calculations (#5133)
 - Use wider compatible video encoding options for Session Replay (#5134)
 - GA of better session replay view renderer V2 (#5054)
+
+## 8.49.2
+
+> [!Important]
+> Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least this version.
+
+### Fixes
+
+- Non-sandboxed macOS app launch profile configuration are now respected (#5144)
 
 ## 8.49.1
 
@@ -41,7 +53,7 @@
 - New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
-> With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
+> With the addition of the new profiling configuration API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
 >
 > - `SentryOptions.enableProfiling`
 > - `SentryOptions.isProfilingEnabled`
@@ -920,6 +932,11 @@ The following two features, disabled by default, were mistakenly added to the re
 - Add context to event with CrashIntegration disabled (#3699)
 
 ## 8.21.0
+
+> [!Important]
+> This version introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least version 8.49.2.
 
 ### Features
 
