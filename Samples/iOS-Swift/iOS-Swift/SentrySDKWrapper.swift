@@ -29,7 +29,7 @@ struct SentrySDKWrapper {
         
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 1,
+                sessionSampleRate: 0,
                 onErrorSampleRate: 1,
                 maskAllText: true,
                 maskAllImages: true
