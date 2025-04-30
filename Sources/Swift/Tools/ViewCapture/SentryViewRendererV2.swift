@@ -4,7 +4,7 @@
 import UIKit
 
 @objcMembers
-class SentryExperimentalViewRenderer: NSObject, SentryViewRenderer {
+class SentryViewRendererV2: NSObject, SentryViewRenderer {
     let enableFastViewRendering: Bool
 
     init(enableFastViewRendering: Bool) {

@@ -119,6 +119,12 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
 }
 
+SentrySamplerDecision *
+sentry_sampleProfileSession(float sessionSampleRate)
+{
+    return _sentry_calcSampleFromNumericalRate(@(sessionSampleRate));
+}
+
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 NS_ASSUME_NONNULL_END

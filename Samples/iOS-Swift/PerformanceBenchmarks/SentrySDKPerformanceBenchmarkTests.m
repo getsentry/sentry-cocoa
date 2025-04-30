@@ -15,21 +15,37 @@
     [[XCUIDevice sharedDevice] setOrientation:UIDeviceOrientationPortrait];
 }
 
-- (void)testCPUBenchmark
+- (void)testProfilerCPUUsage
 {
     XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < 20; j++) {
         XCUIApplication *app = [[XCUIApplication alloc] init];
-        app.launchArguments =
-            [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
+
+        app.launchArguments = [app.launchArguments arrayByAddingObjectsFromArray:@[
+            @"--io.sentry.test.benchmarking", @"--io.sentry.disable-app-start-profiling"
+        ]];
+
+        NSMutableDictionary<NSString *, NSString *> *mutableEnvironment
+            = app.launchEnvironment.mutableCopy;
+        mutableEnvironment[@"--io.sentry.profilesSampleRate"] = @"1";
+        app.launchEnvironment = mutableEnvironment;
+
         [app launch];
         [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
 
         [app.buttons[@"startTransactionMainThread"] tap];
 
-        [app.tabBars[@"Tab Bar"].buttons[@"Profiling"] tap];
+        // On iPhone the tab "Benchmarking" is in the collapsed "More" tab bar item.
+        // On iPad it is directly in the tab bar.
+        // The test needs to be universal, therefore we just check where it exists.
+        if ([app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] waitForExistenceWithTimeout:1.0]) {
+            [app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] tap];
+        } else {
+            [app.tabBars[@"Tab Bar"].buttons[@"More"] tap];
+            [app.staticTexts[@"Benchmarking"] tap];
+        }
 
         [app.buttons[@"Benchmark start"] tap];
 

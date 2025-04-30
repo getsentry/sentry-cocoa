@@ -7,7 +7,7 @@ repos:
         name: Check development environment tooling versions
         entry: make
         language: system
-        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
+        types_or: ["swift", "objective-c", "objective-c++", "c", "c++"]
         fail_fast: true
         args:
           - "check-versions"
@@ -27,14 +27,14 @@ repos:
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.27.3
     hooks:
-    - id: check-github-actions
-    - id: check-github-workflows
-      args: [--verbose]
+      - id: check-github-actions
+      - id: check-github-workflows
+        args: [--verbose]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
-    - id: shellcheck
+      - id: shellcheck
 
   - repo: local
     hooks:
@@ -50,13 +50,13 @@ repos:
         name: Format Swift
         entry: make
         language: system
-        types_or: ["swift" ]
+        types_or: ["swift"]
         args:
           - "format-swift"
 
       - id: format-markdown
         name: Format Markdown
-        description: 'Format Markdown'
+        description: "Format Markdown"
         language: node
         files: ^.*\.md$
         types_or: [markdown]
@@ -65,10 +65,19 @@ repos:
 
       - id: format-json
         name: Format JSON
-        description: 'Format JSON'
+        description: "Format JSON"
         language: node
         files: ^.*\.json$
         types_or: [json]
+        entry: prettier --write --ignore-unknown --config .prettierrc
+        additional_dependencies: ["prettier@3.5.0"]
+
+      - id: format-yaml
+        name: Format YAML
+        description: "Format YAML"
+        language: node
+        files: ^.*\.{yaml,yml}$
+        types_or: [yaml]
         entry: prettier --write --ignore-unknown --config .prettierrc
         additional_dependencies: ["prettier@3.5.0"]
 
@@ -76,6 +85,6 @@ repos:
         name: Run Linters
         entry: make
         language: system
-        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
+        types_or: ["swift", "objective-c", "objective-c++", "c", "c++"]
         args:
           - "lint"

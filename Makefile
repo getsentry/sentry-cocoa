@@ -6,12 +6,7 @@ init:
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
-	clang-format --version | awk '{print $$3}' > scripts/.clang-format-version
-	swiftlint version > scripts/.swiftlint-version
-	
-	# The node version manager is optional, so we don't fail if it's not installed.
-	if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ]; then nvm use; fi
-	
+	./scripts/update-tooling-versions.sh
 	yarn install
 	
 # installs the tools needed to run CI test tasks locally
@@ -24,6 +19,16 @@ init-ci-test:
 init-ci-deploy:
 	brew bundle --file Brewfile-ci-deploy
 
+# installs the tools needed to run CI format tasks locally
+.PHONY: init-ci-format
+init-ci-format:
+	brew bundle --file Brewfile-ci-format
+	rbenv install --skip-existing
+
+.PHONY: update-versions
+update-versions:
+	./scripts/update-tooling-versions.sh
+
 .PHONY: check-versions
 check-versions:
 	./scripts/check-tooling-versions.sh
@@ -32,10 +37,10 @@ lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint --strict
-	yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json}"
+	yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json,yaml,yml}"
 .PHONY: lint
 
-format: format-clang format-swift format-markdown format-json
+format: format-clang format-swift format-markdown format-json format-yaml
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
@@ -54,6 +59,10 @@ format-markdown:
 # Format JSON
 format-json:
 	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.json"
+
+# Format YAML
+format-yaml:
+	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.{yaml,yml}"
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -85,7 +94,7 @@ test-ui-critical:
 
 analyze:
 	rm -rf analyzer
-	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
+	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.

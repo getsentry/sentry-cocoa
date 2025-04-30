@@ -60,7 +60,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -234,7 +234,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -242,7 +242,7 @@ jobs:
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -255,7 +255,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # pin@v5.4.0
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # pin@v5.4.2
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -267,7 +267,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # pin@v5.4.0
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # pin@v5.4.2
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -307,7 +307,7 @@ jobs:
 
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: thread-sanitizer
           path: thread-sanitizer.log

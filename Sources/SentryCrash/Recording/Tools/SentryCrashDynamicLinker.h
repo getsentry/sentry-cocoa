@@ -116,6 +116,8 @@ const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMa
  */
 bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
 
+void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
+
 #ifdef __cplusplus
 }
 #endif

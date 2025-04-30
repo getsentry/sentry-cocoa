@@ -27,6 +27,7 @@ class ExtraViewController: UIViewController {
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
 
+        addDSNDisplay(self, vcview: dsnView)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -48,8 +49,6 @@ class ExtraViewController: UIViewController {
         }
         
         SentrySDK.reportFullyDisplayed()
-        
-        addDSNDisplay(self, vcview: dsnView)
     }
     
     @IBAction func anrDeadlock(_ sender: UIButton) {
@@ -298,7 +297,7 @@ class ExtraViewController: UIViewController {
         }
         var waitingForFeedbackAttachment = false
         let parsedEnvelopeContents = envelopeFileContents.split(separator: "\n").map { line in
-            if let imageData = Data(base64Encoded: String(line), options: []) {
+            if let _ = Data(base64Encoded: String(line), options: []) {
                 guard !waitingForFeedbackAttachment else {
                     waitingForFeedbackAttachment = false
                     return EnvelopeContent.feedbackAttachment(String(line))
