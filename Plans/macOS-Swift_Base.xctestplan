@@ -11,10 +11,7 @@
   "defaultOptions" : {
     "codeCoverage" : false,
     "commandLineArgumentEntries" : [
-      {
-        "argument" : "--io.sentry.profiling.enable",
-        "enabled" : false
-      }
+
     ],
     "targetForVariableExpansion" : {
       "containerPath" : "container:macOS-Swift.xcodeproj",
@@ -24,7 +21,13 @@
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:macOS-Swift.xcodeproj",
+        "identifier" : "84B5A90E2DBD1AA4003327C9",
+        "name" : "macOS-Swift-UITests"
+      }
+    }
   ],
   "version" : 1
 }

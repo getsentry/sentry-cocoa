@@ -27,7 +27,7 @@ void
 sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
 {
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *testProfileDirPath = [sentryStaticCachesPath()
+    NSString *testProfileDirPath = [sentryStaticBasePath()
         stringByAppendingPathComponent:continuous ? @"continuous-profiles" : @"trace-profiles"];
 
     if (![fm fileExistsAtPath:testProfileDirPath]) {
