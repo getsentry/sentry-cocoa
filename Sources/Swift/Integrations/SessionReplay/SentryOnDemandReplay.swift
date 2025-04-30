@@ -155,9 +155,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
 
     func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
-        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")        
-
-        let videoFrames = filterFrames(beginning: beginning, end: end)
+        SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
+        // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
+        // As this method is already called from the processing queue, we must remove the sync call.
+        let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
         var frameCount = 0
 
         var videos = [SentryVideoInfo]()
@@ -195,10 +196,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             // It is imporant that the renderVideo completion block signals the group.
             // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
             // Otherwise, it could lead to queue starvation and a deadlock/timeout.
-            guard group.wait(timeout: .now() + 2) == .success else {
+            guard group.wait(timeout: .now() + 120) == .success else {
                 SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
-                currentError = SentryOnDemandReplayError.errorRenderingVideo
-                break
+                throw SentryOnDemandReplayError.errorRenderingVideo
             }
 
             // If there was an error, throw it to exit the loop.
@@ -378,15 +378,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 completion(.failure(SentryOnDemandReplayError.errorRenderingVideo))
             }
         }
-    }
-
-    private func filterFrames(beginning: Date, end: Date) -> [SentryReplayFrame] {
-        var frames = [SentryReplayFrame]()
-        // Using dispatch queue as sync mechanism since we need a queue already to generate the video.
-        processingQueue.dispatchSync {
-            frames = self._frames.filter { $0.time >= beginning && $0.time <= end }
-        }
-        return frames
     }
 
     fileprivate func getVideoInfo(from outputFileURL: URL, usedFrames: [SentryReplayFrame], videoWidth: Int, videoHeight: Int) throws -> SentryVideoInfo {

@@ -179,6 +179,9 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         let start = dateProvider.date()
         sut.addFrameAsync(image: UIImage.add)
+        processingQueue.dispatchSync {
+            // Wait for the frame to be added by adding a sync operation to the serial queue
+        }
         dateProvider.advance(by: 1)
         let end = dateProvider.date()
         
