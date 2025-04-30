@@ -149,3 +149,4 @@ xcode:
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS13-Swift/iOS13-Swift.yml
+	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
