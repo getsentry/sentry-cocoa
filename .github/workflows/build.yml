@@ -94,6 +94,11 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
+      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
+      # and cannot be used here because C++ types from imported module 'Foundation' do not support
+      # library evolution; this is an error in the Swift 6 language mode
+      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
