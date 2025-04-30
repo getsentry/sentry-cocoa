@@ -2,33 +2,33 @@
 import XCTest
 
 class SentryReplayTypeTests: XCTestCase {
-    func testRawValue_bufferMode_shouldBeCorrect() {
-        let buffer = SentryReplayType.buffer.rawValue
-        XCTAssertEqual(buffer, 0)
-    }
-
     func testRawValue_sessionMode_shouldBeCorrect() {
-        let replay = SentryReplayType.session.rawValue
-        XCTAssertEqual(replay, 1)
+        let replayType = SentryReplayType.session.rawValue
+        XCTAssertEqual(replayType, 0)
     }
 
-    func testDescription_bufferMode_shouldBeCorrect() {
-        let replay = SentryReplayType.session.description
-        XCTAssertEqual(replay, "buffer")
+    func testRawValue_bufferMode_shouldBeCorrect() {
+        let replayType = SentryReplayType.buffer.rawValue
+        XCTAssertEqual(replayType, 1)
     }
 
     func testDescription_sessionMode_shouldBeCorrect() {
-        let replay = SentryReplayType.session.description
-        XCTAssertEqual(replay, "session")
+        let replayType = SentryReplayType.session.description
+        XCTAssertEqual(replayType, "session")
     }
 
-    func testToString_bufferMode_shouldBeCorrect() {
-        let replay = SentryReplayType.buffer
-        XCTAssertEqual(replay.toString(), "buffer")
+    func testDescription_bufferMode_shouldBeCorrect() {
+        let replayType = SentryReplayType.buffer.description
+        XCTAssertEqual(replayType, "buffer")
     }
 
     func testToString_sessionMode_shouldBeCorrect() {
-        let replay = SentryReplayType.session
-        XCTAssertEqual(replay.toString(), "session")
+        let replayType = SentryReplayType.session
+        XCTAssertEqual(replayType.toString(), "session")
+    }
+
+    func testToString_bufferMode_shouldBeCorrect() {
+        let replayType = SentryReplayType.buffer
+        XCTAssertEqual(replayType.toString(), "buffer")
     }
 }
