@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -706,14 +706,14 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="macOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="574"/>
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="656"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <stackView distribution="fill" orientation="vertical" alignment="centerX" spacing="12" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fsa-9g-bf3">
-                                <rect key="frame" x="128" y="53" width="224" height="468"/>
+                                <rect key="frame" x="104" y="30" width="273" height="597"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nAm-U5-PON">
-                                        <rect key="frame" x="44" y="441" width="136" height="32"/>
+                                        <rect key="frame" x="68" y="570" width="136" height="32"/>
                                         <buttonCell key="cell" type="push" title="Add Breadcrumb" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zk9-d6-mm1">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -723,7 +723,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dzU-Gi-2VZ">
-                                        <rect key="frame" x="42" y="409" width="141" height="32"/>
+                                        <rect key="frame" x="66" y="538" width="141" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Message" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EQH-kc-eDD">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -733,7 +733,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LiD-mH-Y7l">
-                                        <rect key="frame" x="54" y="377" width="116" height="32"/>
+                                        <rect key="frame" x="78" y="506" width="116" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Error" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Tlg-FD-XnA">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -743,7 +743,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zMq-8z-Bqi">
-                                        <rect key="frame" x="39" y="345" width="146" height="32"/>
+                                        <rect key="frame" x="63" y="474" width="146" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture Exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="PwR-RA-ikK">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -753,7 +753,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ocz-Nk-ZQ2">
-                                        <rect key="frame" x="23" y="313" width="178" height="32"/>
+                                        <rect key="frame" x="47" y="442" width="178" height="32"/>
                                         <buttonCell key="cell" type="push" title="Capture User Feedback" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nui-gg-F5o">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -763,7 +763,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GQW-jy-1TZ">
-                                        <rect key="frame" x="42" y="281" width="141" height="32"/>
+                                        <rect key="frame" x="66" y="410" width="141" height="32"/>
                                         <buttonCell key="cell" type="push" title="raiseNSException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7rF-ep-EYR">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -773,7 +773,7 @@
                                         </buttonCell>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TkR-L2-cU3" userLabel="reportNSException">
-                                        <rect key="frame" x="38" y="249" width="149" height="32"/>
+                                        <rect key="frame" x="62" y="378" width="149" height="32"/>
                                         <buttonCell key="cell" type="push" title="reportNSException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="89W-TG-dLd">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -783,7 +783,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HXP-Is-MDM">
-                                        <rect key="frame" x="37" y="217" width="150" height="32"/>
+                                        <rect key="frame" x="61" y="346" width="150" height="32"/>
                                         <buttonCell key="cell" type="push" title="NSRangeException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="f0L-i6-NLd">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -793,7 +793,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="c5W-zA-19P">
-                                        <rect key="frame" x="37" y="185" width="150" height="32"/>
+                                        <rect key="frame" x="61" y="314" width="150" height="32"/>
                                         <buttonCell key="cell" type="push" title="captureTransaction" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OVU-vi-LRM">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -803,7 +803,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0rS-ee-VAF">
-                                        <rect key="frame" x="52" y="153" width="120" height="32"/>
+                                        <rect key="frame" x="76" y="282" width="120" height="32"/>
                                         <buttonCell key="cell" type="push" title="Sentry.crash()" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="k1V-IH-Ru7">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -813,7 +813,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sxu-g3-vT7" userLabel="CppException">
-                                        <rect key="frame" x="51" y="121" width="123" height="32"/>
+                                        <rect key="frame" x="75" y="250" width="123" height="32"/>
                                         <buttonCell key="cell" type="push" title="CPP Exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="B4S-qm-cMV">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -823,7 +823,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Cfu-21-l6L" userLabel="CppException">
-                                        <rect key="frame" x="-7" y="89" width="238" height="32"/>
+                                        <rect key="frame" x="17" y="218" width="238" height="32"/>
                                         <buttonCell key="cell" type="push" title="Rethrow No Active CPP Exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="YRN-qy-qrz">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -833,7 +833,7 @@
                                         </buttonCell>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="onh-qf-HCq" userLabel="asyncCrash">
-                                        <rect key="frame" x="59" y="57" width="107" height="32"/>
+                                        <rect key="frame" x="83" y="186" width="107" height="32"/>
                                         <buttonCell key="cell" type="push" title="async crash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3ec-oQ-wXv">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -843,7 +843,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iBr-C1-Pmh" userLabel="asyncCrash">
-                                        <rect key="frame" x="35" y="25" width="155" height="32"/>
+                                        <rect key="frame" x="59" y="154" width="155" height="32"/>
                                         <buttonCell key="cell" type="push" title="disk write exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WdY-aC-yMQ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -853,7 +853,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UAi-Ph-r0g" userLabel="asyncCrash">
-                                        <rect key="frame" x="40" y="-7" width="144" height="32"/>
+                                        <rect key="frame" x="64" y="122" width="144" height="32"/>
                                         <buttonCell key="cell" type="push" title="Show SwiftUIView" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wnw-aA-g7x">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -862,8 +862,54 @@
                                             <action selector="showSwiftUIView:" target="XfG-lQ-9wD" id="haI-9h-E5r"/>
                                         </connections>
                                     </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="g56-6u-NUj">
+                                        <rect key="frame" x="84" y="90" width="105" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Stop profile" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="evk-pj-UmW">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <accessibility identifier="io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"/>
+                                        <connections>
+                                            <action selector="stopProfile:" target="XfG-lQ-9wD" id="5HW-xf-UT9"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EdV-Vd-yEu">
+                                        <rect key="frame" x="39" y="58" width="194" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Retrieve first profile chunk" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HoB-7N-rWx">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <accessibility identifier="io.sentry.ui-tests.view-first-continuous-profile-chunk"/>
+                                        <connections>
+                                            <action selector="retrieveProfileChunk:" target="XfG-lQ-9wD" id="EnS-7z-0xG"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZGZ-qX-cMW">
+                                        <rect key="frame" x="-7" y="26" width="287" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Check launch profile marker file existence" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="md6-9l-rUp">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <accessibility identifier="io.sentry.ui-tests.app-launch-profile-marker-file-button"/>
+                                        <connections>
+                                            <action selector="checkProfileMarkerFileExistence:" target="XfG-lQ-9wD" id="Fve-Lw-Dza"/>
+                                        </connections>
+                                    </button>
+                                    <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="owK-2t-dc9">
+                                        <rect key="frame" x="88" y="0.0" width="96" height="21"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="sTe-36-0Dx">
+                                            <font key="font" usesAppearanceFont="YES"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <accessibility identifier="io.sentry.ui-tests.profile-marshaling-text-field"/>
+                                    </textField>
                                 </subviews>
                                 <visibilityPriorities>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
@@ -896,6 +942,10 @@
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
                         </subviews>
@@ -906,6 +956,9 @@
                             <constraint firstItem="fsa-9g-bf3" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="ywK-HF-Xfm"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="uiTestDataMarshalingField" destination="owK-2t-dc9" id="DQn-Bt-wjX"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
