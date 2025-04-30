@@ -94,7 +94,7 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - run: ./scripts/ci-select-xcode.sh 15.2
       - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v4
