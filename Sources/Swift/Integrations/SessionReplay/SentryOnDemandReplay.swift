@@ -64,8 +64,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     ///
     /// - Parameter path: The path to the directory containing the frames.
     private func loadFrames(fromPath path: String) {
-        SentryLog.debug("[Session Replay] Loading frames from path: \(path)")
         do {
+            SentryLog.debug("[Session Replay] Loading frames from path: \(path)")
             let content = try FileManager.default.contentsOfDirectory(atPath: path)
             _frames = content.compactMap { frameFilePath -> SentryReplayFrame? in
                 guard frameFilePath.hasSuffix(".png") else { return nil }
@@ -75,11 +75,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             }.sorted { $0.time < $1.time }
             SentryLog.debug("[Session Replay] Loaded \(content.count) files into \(_frames.count) frames from path: \(path)")
         } catch {
-            SentryLog.error("[Session Replay] Could not list frames from replay: \(error.localizedDescription)")
+            SentryLog.error("[Session Replay] Could not list frames from replay, reason: \(error.localizedDescription)")
         }
     }
 
     func addFrameAsync(image: UIImage, forScreen: String?) {
+        SentryLog.debug("[Session Replay] Adding frame async for screen: \(forScreen ?? "nil")")
         // Dispatch the frame addition to a background queue to avoid blocking the main queue.
         // This must be on the processing queue to avoid deadlocks.
         processingQueue.dispatchAsync {
@@ -88,14 +89,20 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     private func addFrame(image: UIImage, forScreen: String?) {
-        guard let data = rescaleImage(image)?.pngData() else { return }
-        
+        SentryLog.debug("[Session Replay] Adding frame for screen: \(forScreen ?? "nil")")
+        guard let data = rescaleImage(image)?.pngData() else {
+            SentryLog.warning("[Session Replay] Could not rescale image to PNG data, ignoring frame")
+            return
+        }
+
         let date = dateProvider.date()
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(date.timeIntervalSinceReferenceDate).png")
         do {
-            try data.write(to: URL(fileURLWithPath: imagePath))
+            let url = URL(fileURLWithPath: imagePath)
+            SentryLog.debug("[Session Replay] Saving replay frame to: \(url.path)")
+            try data.write(to: url)
         } catch {
-            SentryLog.error("[Session Replay] Could not save replay frame. Error: \(error)")
+            SentryLog.error("[Session Replay] Could not save replay frame, reason: \(error)")
             return
         }
         _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
@@ -103,9 +110,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         // Remove the oldest frames if the cache size exceeds the maximum size.
         while _frames.count > cacheMaxSize {
             let first = _frames.removeFirst()
-            try? FileManager.default.removeItem(at: URL(fileURLWithPath: first.imagePath))
+            let url = URL(fileURLWithPath: first.imagePath)
+            SentryLog.debug("[Session Replay] Removing frame at url: \(url.path)")
+            try? FileManager.default.removeItem(at: url)
         }
         _totalFrames += 1
+        SentryLog.debug("[Session Replay] Added frame, total frames counter: \(_totalFrames), current frames count: \(_frames.count)")
     }
     
     private func rescaleImage(_ originalImage: UIImage) -> UIImage? {
@@ -179,6 +189,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     // Set the frame count/offset to the new index that is returned by the completion block.
                     // This is important to avoid processing the same frame multiple times.
                     frameCount = videoResult.finalFrameIndex
+                    SentryLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
 
                     // Append the video info to the videos array.
                     // In case no video info is returned, skip the segment.
@@ -203,11 +214,14 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             // If there was an error, throw it to exit the loop.
             if let error = currentError {
+                SentryLog.error("[Session Replay] Error while rendering video: \(error), cancelling video segment creation")
                 throw error
             }
 
             SentryLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
         }
+
+        SentryLog.debug("[Session Replay] Finished creating video with \(videos.count) segments")
         return videos
     }
 

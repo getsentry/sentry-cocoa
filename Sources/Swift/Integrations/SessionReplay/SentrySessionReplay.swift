@@ -3,20 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-enum SessionReplayError: Error {
-    case cantCreateReplayDirectory
-    case noFramesAvailable
-}
-
-@objc
-protocol SentrySessionReplayDelegate: NSObjectProtocol {
-    func sessionReplayShouldCaptureReplayForError() -> Bool
-    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
-    func sessionReplayStarted(replayId: SentryId)
-    func breadcrumbsForSessionReplay() -> [Breadcrumb]
-    func currentScreenNameForSessionReplay() -> String?
-}
-
+// swiftlint:disable type_body_length
 @objcMembers
 class SentrySessionReplay: NSObject {
     private(set) var isFullSession = false
@@ -243,7 +230,10 @@ class SentrySessionReplay: NSObject {
 
     private func newSegmentAvailable(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] New segment available for replayType: \(replayType), videoInfo: \(videoInfo)")
-        guard let sessionReplayId = sessionReplayId else { return }
+        guard let sessionReplayId = sessionReplayId else {
+            SentryLog.warning("[Session Replay] No session replay ID available, ignoring segment.")
+            return
+        }
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: replayType)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = videoInfo.end
@@ -329,5 +319,6 @@ class SentrySessionReplay: NSObject {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 #endif
