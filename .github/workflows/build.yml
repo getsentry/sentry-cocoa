@@ -90,7 +90,7 @@ jobs:
     name: Build XCFramework
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-
+    # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
