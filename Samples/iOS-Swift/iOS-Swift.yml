@@ -97,7 +97,6 @@ schemes:
     build:
       targets:
         iOS-Swift: all
-        iOS-SwiftClip: all
     run:
       commandLineArguments:
         "--io.sentry.disable-everything": false
@@ -184,7 +183,6 @@ schemes:
     build:
       targets:
         iOS-Swift: test
-        iOS-SwiftClip: test
         iOS-Benchmarking: test
     test:
       config: Release
