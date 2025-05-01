@@ -152,4 +152,5 @@ xcode:
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
