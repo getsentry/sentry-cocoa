@@ -22,7 +22,10 @@
 
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
-INFOPLIST_FILE = Sources/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift
+INFOPLIST_FILE = Shared/Info.plist
+SWIFT_OBJC_BRIDGING_HEADER = Shared/macOS-Swift-Bridging-Header.h
 
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SUPPORTED_PLATFORMS = macosx
+
+MACOSX_DEPLOYMENT_TARGET = 10.15

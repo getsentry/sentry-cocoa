@@ -22,7 +22,10 @@
 
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
-INFOPLIST_FILE = Sources/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
 
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SUPPORTED_PLATFORMS = macosx
+
+TEST_TARGET_NAME = macOS-Swift
+
+GENERATE_INFOPLIST_FILE = YES
