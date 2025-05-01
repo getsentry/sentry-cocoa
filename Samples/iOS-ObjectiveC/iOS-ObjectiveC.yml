@@ -1,0 +1,67 @@
+name: iOS-ObjectiveC
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - iOS-ObjectiveC.yml
+  - ../../Plans/iOS-ObjectiveC_Base.xctestplan
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-ObjectiveC:
+    type: application
+    platform: auto
+    sources:
+      - path: iOS-ObjectiveC
+        excludes:
+          - NoARCCrash.m
+      - path: iOS-ObjectiveC/NoARCCrash.m
+        compilerFlags:
+          - '-fno-objc-arc'
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: iOS-ObjectiveC.xcconfig
+      Release: iOS-ObjectiveC.xcconfig
+      Test: iOS-ObjectiveC.xcconfig
+      TestCI: iOS-ObjectiveC.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS-ObjectiveC-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS-ObjectiveC-UITests
+    configFiles:
+      Debug: iOS-ObjectiveC-UITests.xcconfig
+      Release: iOS-ObjectiveC-UITests.xcconfig
+      Test: iOS-ObjectiveC-UITests.xcconfig
+      TestCI: iOS-ObjectiveC-UITests.xcconfig
+schemes:
+  iOS-ObjectiveC:
+    build:
+      targets:
+        iOS-ObjectiveC: all
+        iOS-ObjectiveC-UITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/iOS-ObjectiveC_Base.xctestplan
