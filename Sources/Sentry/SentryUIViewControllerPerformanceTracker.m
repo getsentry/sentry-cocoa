@@ -31,7 +31,7 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-         self.tracker = SentryPerformanceTracker.shared;
+        self.tracker = SentryPerformanceTracker.shared;
 
         SentryOptions *options = [SentrySDK options];
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
