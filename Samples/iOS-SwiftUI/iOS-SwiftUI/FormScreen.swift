@@ -8,7 +8,8 @@ struct FormScreen: View {
     @State var email: String = ""
 
     func getCurrentTracer() -> String? {
-        return SentryPerformanceTracker.shared.activeSpanId()?.sentrySpanIdString
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        return performanceTracker.activeSpanId()?.sentrySpanIdString
     }
     
     var body: some View {

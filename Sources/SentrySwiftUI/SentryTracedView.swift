@@ -33,17 +33,19 @@ class SentryTraceViewModel {
     }
     
     private func startRootTransaction() -> SentryTracer? {
-        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
-        
-        let transactionId = SentryPerformanceTracker.shared.startSpan(
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        guard performanceTracker.activeSpanId() == nil else { return nil }
+
+        let transactionId = performanceTracker.startSpan(
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
             origin: traceOrigin
         )
-        SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
+        performanceTracker.pushActiveSpan(transactionId)
         self.transactionId = transactionId
-        let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
+
+        let tracer = performanceTracker.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
             tracker = SentryUIViewControllerPerformanceTracker.shared.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
@@ -53,19 +55,21 @@ class SentryTraceViewModel {
     }
     
     private func createBodySpan(name: String) -> SpanId {
-        let spanId = SentryPerformanceTracker.shared.startSpan(
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        let spanId = performanceTracker.startSpan(
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
             origin: traceOrigin
         )
-        SentryPerformanceTracker.shared.pushActiveSpan(spanId)
+        performanceTracker.pushActiveSpan(spanId)
         return spanId
     }
     
     func finishSpan(_ spanId: SpanId) {
-        SentryPerformanceTracker.shared.popActiveSpan()
-        SentryPerformanceTracker.shared.finishSpan(spanId)
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        performanceTracker.popActiveSpan()
+        performanceTracker.finishSpan(spanId)
     }
     
     func viewDidAppear() {

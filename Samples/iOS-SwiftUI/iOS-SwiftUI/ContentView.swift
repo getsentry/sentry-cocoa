@@ -121,8 +121,7 @@ struct ContentView: View {
     }
 
     func getCurrentSpan() -> Span? {
-
-        let tracker = SentryPerformanceTracker.shared
+        let tracker = SentryDependencyContainer.sharedInstance().performanceTracker
         guard let currentSpanId = tracker.activeSpanId() else {
             return DataBag.shared.info["lastSpan"] as? Span
         }

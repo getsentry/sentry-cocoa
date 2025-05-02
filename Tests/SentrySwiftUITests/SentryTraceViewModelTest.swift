@@ -8,7 +8,8 @@ class SentryTraceViewModelTestCase: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryPerformanceTracker.shared.clear()
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        performanceTracker.clear()
     }
     
     func testCreateTransaction() throws {
@@ -42,9 +43,10 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let testSpan = SentryPerformanceTracker.shared.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
-        SentryPerformanceTracker.shared.pushActiveSpan(testSpan)
-        
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        let testSpan = performanceTracker.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
+        performanceTracker.pushActiveSpan(testSpan)
+
         let viewModel = SentryTraceViewModel(name: "ViewContent",
                                              nameSource: .component,
                                              waitForFullDisplay: true)
@@ -88,8 +90,9 @@ class SentryTraceViewModelTestCase: XCTestCase {
         wait(for: [expectation], timeout: 0.5)
 
         // Verify that the span was popped and finished
-        XCTAssertNil(SentryPerformanceTracker.shared.activeSpanId(), "Active span should be nil after finishing the span.")
-        
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        XCTAssertNil(performanceTracker.activeSpanId(), "Active span should be nil after finishing the span.")
+
         XCTAssertTrue(tracer.isFinished, "The transaction should be finished.")
         XCTAssertTrue(tracer.children.first?.isFinished == true, "The body span should be finished")
     }
