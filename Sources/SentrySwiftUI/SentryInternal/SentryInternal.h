@@ -35,8 +35,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @interface SentryPerformanceTracker : NSObject
 
-@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
-
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
