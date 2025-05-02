@@ -704,7 +704,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let firstChild = try XCTUnwrap(children?.first)
         XCTAssertEqual("ui.load.initial_display", firstChild.operation)
         XCTAssertEqual("TestViewController initial display", firstChild.spanDescription)
-        let secondChild = try XCTUnwrap(children?[1])
+        let secondChild = try XCTUnwrap(children?.dropFirst().first)
         XCTAssertEqual("ui.load", secondChild.operation)
         XCTAssertEqual("viewDidLoad", secondChild.spanDescription)
     }
@@ -728,11 +728,11 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual("ui.load.initial_display", child1.operation)
         XCTAssertEqual("TestViewController initial display", child1.spanDescription)
         
-        let child2 = try XCTUnwrap(children?[1])
+        let child2 = try XCTUnwrap(children?.dropFirst(1).first)
         XCTAssertEqual("ui.load.full_display", child2.operation)
         XCTAssertEqual("TestViewController full display", child2.spanDescription)
         
-        let child3 = try XCTUnwrap(children?[2])
+        let child3 = try XCTUnwrap(children?.dropFirst(2).first)
         XCTAssertEqual("ui.load", child3.operation)
         XCTAssertEqual("viewDidLoad", child3.spanDescription)
     }
@@ -758,11 +758,11 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let child1 = try XCTUnwrap(children?.first)
         XCTAssertEqual("ui.load.initial_display", child1.operation)
         
-        let child2 = try XCTUnwrap(children?[1])
+        let child2 = try XCTUnwrap(children?.dropFirst(1).first)
         XCTAssertEqual("ui.load", child2.operation)
         XCTAssertEqual("loadView", child2.spanDescription)
         
-        let child3 = try XCTUnwrap(children?[2])
+        let child3 = try XCTUnwrap(children?.dropFirst(2).first)
         XCTAssertEqual("ui.load", child3.operation)
         XCTAssertEqual("viewDidLoad", child3.spanDescription)
     }

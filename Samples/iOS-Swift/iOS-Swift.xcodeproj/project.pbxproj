@@ -61,9 +61,9 @@
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
 		924857562C89A86300774AC3 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924857552C89A85F00774AC3 /* MainViewController.swift */; };
 		B70038852BB33E7700065A38 /* ReplaceContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */; };
-		D4D72E222DC4B5F000FBFAA7 /* ViewLifecycleTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D72E212DC4B5E900FBFAA7 /* ViewLifecycleTestViewController.swift */; };
-		D4D72E232DC4B5F000FBFAA7 /* ViewLifecycleTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D72E212DC4B5E900FBFAA7 /* ViewLifecycleTestViewController.swift */; };
-		D4D72E252DC4C11900FBFAA7 /* ViewLifecycleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D72E242DC4C11400FBFAA7 /* ViewLifecycleUITests.swift */; };
+		D43ED8DB2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43ED8DA2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift */; };
+		D43ED8DC2DC4E4F900F44F54 /* ViewLifecycleTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43ED8DA2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift */; };
+		D43ED8DE2DC4E50A00F44F54 /* ViewLifecycleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43ED8DD2DC4E50A00F44F54 /* ViewLifecycleUITests.swift */; };
 		D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
 		D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
 		D80D021B29EE9E3D0084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
@@ -318,8 +318,8 @@
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
 		924857552C89A85F00774AC3 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B70038842BB33E7700065A38 /* ReplaceContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceContentViewController.swift; sourceTree = "<group>"; };
-		D4D72E212DC4B5E900FBFAA7 /* ViewLifecycleTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewLifecycleTestViewController.swift; sourceTree = "<group>"; };
-		D4D72E242DC4C11400FBFAA7 /* ViewLifecycleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewLifecycleUITests.swift; sourceTree = "<group>"; };
+		D43ED8DA2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewLifecycleTestViewController.swift; sourceTree = "<group>"; };
+		D43ED8DD2DC4E50A00F44F54 /* ViewLifecycleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewLifecycleUITests.swift; sourceTree = "<group>"; };
 		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -513,7 +513,6 @@
 				84AB90782A50031B0054C99A /* Profiling */,
 				D80D021229EE93630084393D /* ErrorsViewController.swift */,
 				D80D021929EE936F0084393D /* ExtraViewController.swift */,
-				D4D72E212DC4B5E900FBFAA7 /* ViewLifecycleTestViewController.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
 				7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */,
@@ -538,12 +537,12 @@
 				84A5D72C29D2708D00388BFA /* UITestHelpers.swift */,
 				84A5D72529D2705000388BFA /* ProfilingUITests.swift */,
 				84DBC61F2CE6D31C000C4904 /* UserFeedbackUITests.swift */,
-				D4D72E242DC4C11400FBFAA7 /* ViewLifecycleUITests.swift */,
 				84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */,
 				84B527BB28DD25E400475E8D /* SentryDevice.h */,
 				84B527BC28DD25E400475E8D /* SentryDevice.mm */,
 				7B64386C26A6C544000D0F65 /* Info.plist */,
 				D8832B1B2AF5101300C522B0 /* TopViewControllerTests.swift */,
+				D43ED8DD2DC4E50A00F44F54 /* ViewLifecycleUITests.swift */,
 			);
 			path = "iOS-Swift-UITests";
 			sourceTree = "<group>";
@@ -624,6 +623,7 @@
 		D8DBDA73274D4DF900007380 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				D43ED8DA2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift */,
 				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
 				D890CD3B26CEE2FA001246CF /* NibViewController.xib */,
 				D890CD3E26CEE31B001246CF /* NibViewController.swift */,
@@ -1175,7 +1175,7 @@
 				841C8A272DA7273E00DCA74F /* EnvironmentVariableTableViewCell.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
 				84ACC43C2A73CB5900932A18 /* ProfilingNetworkScanner.swift in Sources */,
-				D4D72E222DC4B5F000FBFAA7 /* ViewLifecycleTestViewController.swift in Sources */,
+				D43ED8DB2DC4E4F200F44F54 /* ViewLifecycleTestViewController.swift in Sources */,
 				D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */,
 				B70038852BB33E7700065A38 /* ReplaceContentViewController.swift in Sources */,
 			);
@@ -1188,7 +1188,7 @@
 				62C07D5C2AF3E3F500894688 /* BaseUITest.swift in Sources */,
 				84A5D72629D2705000388BFA /* ProfilingUITests.swift in Sources */,
 				84A5D72D29D2708D00388BFA /* UITestHelpers.swift in Sources */,
-				D4D72E252DC4C11900FBFAA7 /* ViewLifecycleUITests.swift in Sources */,
+				D43ED8DE2DC4E50A00F44F54 /* ViewLifecycleUITests.swift in Sources */,
 				84DBC6252CE6D321000C4904 /* UserFeedbackUITests.swift in Sources */,
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
@@ -1221,7 +1221,7 @@
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
 				D8269A4F274C09A400BD5BD5 /* SwiftUIView.swift in Sources */,
-				D4D72E232DC4B5F000FBFAA7 /* ViewLifecycleTestViewController.swift in Sources */,
+				D43ED8DC2DC4E4F900F44F54 /* ViewLifecycleTestViewController.swift in Sources */,
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
 				84BA72A82C93698E0045B828 /* GitInjections.swift in Sources */,
 				840DDB2D2D9F02CB000C17F7 /* SentrySDKOverrides.swift in Sources */,
@@ -1565,7 +1565,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift-UITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1590,7 +1590,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift-UITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1757,7 +1757,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift-UITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1997,7 +1997,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift-UITests/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
