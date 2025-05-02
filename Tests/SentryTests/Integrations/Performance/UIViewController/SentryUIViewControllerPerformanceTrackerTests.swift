@@ -61,9 +61,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
-            let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-            performanceTracker.inAppLogic = self.inAppLogic
-            return performanceTracker
+            SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic
+            return SentryUIViewControllerPerformanceTracker.shared
         }
     }
     
