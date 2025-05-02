@@ -27,6 +27,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHttpDateParser.h>
 #import <SentryNSNotificationCenterWrapper.h>
+#import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
@@ -510,5 +511,18 @@ static NSObject *sentryDependencyContainerLock;
     return _reachability;
 }
 #endif // !TARGET_OS_WATCH
+
+- (SentryPerformanceTracker *)performanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    if (_performanceTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_performanceTracker == nil) {
+                _performanceTracker = [[SentryPerformanceTracker alloc] init];
+            }
+        }
+    }
+    return _performanceTracker;
+}
 
 @end

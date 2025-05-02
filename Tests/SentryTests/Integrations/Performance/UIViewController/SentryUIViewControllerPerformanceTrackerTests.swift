@@ -29,12 +29,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var options: Options
         
         let viewController = TestViewController()
-        let tracker = SentryPerformanceTracker.shared
+        var tracker: SentryPerformanceTracker
         let dateProvider = TestCurrentDateProvider()
         
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
-        
+
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
@@ -48,19 +48,22 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
-            
+
+            tracker = SentryDependencyContainer.sharedInstance().performanceTracker
+
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
-                
+
         func getSut() -> SentryUIViewControllerPerformanceTracker {
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
-            SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic
-            return SentryUIViewControllerPerformanceTracker.shared
+            let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+            performanceTracker.inAppLogic = self.inAppLogic
+            return performanceTracker
         }
     }
     
