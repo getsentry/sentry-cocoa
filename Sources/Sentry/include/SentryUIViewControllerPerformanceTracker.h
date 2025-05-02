@@ -28,8 +28,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
  */
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 
-@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
-
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @property (nonatomic) BOOL alwaysWaitForFullDisplay;
