@@ -29,12 +29,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var options: Options
         
         let viewController = TestViewController()
-        let tracker = SentryPerformanceTracker.shared
+        var tracker: SentryPerformanceTracker
         let dateProvider = TestCurrentDateProvider()
         
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
-        
+
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
@@ -48,19 +48,22 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
-            
+
+            tracker = SentryDependencyContainer.sharedInstance().performanceTracker
+
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
-                
+
         func getSut() -> SentryUIViewControllerPerformanceTracker {
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
-            SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic
-            return SentryUIViewControllerPerformanceTracker.shared
+            let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+            performanceTracker.inAppLogic = self.inAppLogic
+            return performanceTracker
         }
     }
     
@@ -75,6 +78,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        fixture = nil
     }
     
     func testUILifeCycle_ViewDidAppear() throws {
@@ -768,6 +772,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
     
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD() throws {
+        // -- Arrange --
         let sut = fixture.getSut()
         let tracker = fixture.tracker
         let firstController = TestViewController()
@@ -780,6 +785,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         
         let expectedFirstTTFDStartTimestamp = fixture.dateProvider.date()
 
+        // -- Act --
         sut.viewControllerLoadView(firstController) {
             firstTracer = self.getStack(tracker).first as? SentryTracer
         }
@@ -787,9 +793,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewDidLoad(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewWillAppear(firstController) { /* Empty on purpose */ }
         sut.viewControllerViewDidAppear(firstController) { /* Empty on purpose */ }
-        
+
+        // -- Assert --
+        // First we assert that the span for the TTFD has been created.
         let firstFullDisplaySpan = try XCTUnwrap(firstTracer?.children.first { $0.operation == "ui.load.full_display" })
 
+        // We expect the span to exist but not finished yet, because we haven't called reportFullyDisplayed yet.
         XCTAssertFalse(firstFullDisplaySpan.isFinished)
         XCTAssertEqual(expectedFirstTTFDStartTimestamp, firstFullDisplaySpan.startTimestamp)
         XCTAssertEqual(firstTracer?.traceId, SentrySDK.span?.traceId)
@@ -797,6 +806,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         advanceTime(bySeconds: 1)
         let expectedFirstTTFDTimestamp = fixture.dateProvider.date()
 
+        // Now we load the second view controller, which should mark the first span as finished.
         sut.viewControllerLoadView(secondController) {
             secondTracer = self.getStack(tracker).first as? SentryTracer
         }

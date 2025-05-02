@@ -24,14 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryPerformanceTracker
 
-+ (SentryPerformanceTracker *)shared
-{
-    static SentryPerformanceTracker *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {

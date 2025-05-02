@@ -27,6 +27,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHttpDateParser.h>
 #import <SentryNSNotificationCenterWrapper.h>
+#import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
@@ -35,6 +36,7 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryTracer.h>
+#import <SentryUIViewControllerPerformanceTracker.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
@@ -334,6 +336,28 @@ static NSObject *sentryDependencyContainerLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
+- (SentryUIViewControllerPerformanceTracker *)
+    uiViewControllerPerformanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
+        "double-checked lock produce false alarms")
+{
+#    if SENTRY_HAS_UIKIT
+    if (_uiViewControllerPerformanceTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_uiViewControllerPerformanceTracker == nil) {
+                _uiViewControllerPerformanceTracker =
+                    [[SentryUIViewControllerPerformanceTracker alloc] init];
+            }
+        }
+    }
+    return _uiViewControllerPerformanceTracker;
+#    else
+    SENTRY_LOG_DEBUG(@"SentryDependencyContainer.uiViewControllerPerformanceTracker only works "
+                     @"with UIKit enabled. Ensure you're "
+                     @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
+}
+
 - (SentryFramesTracker *)framesTracker SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
@@ -510,5 +534,18 @@ static NSObject *sentryDependencyContainerLock;
     return _reachability;
 }
 #endif // !TARGET_OS_WATCH
+
+- (SentryPerformanceTracker *)performanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    if (_performanceTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_performanceTracker == nil) {
+                _performanceTracker = [[SentryPerformanceTracker alloc] init];
+            }
+        }
+    }
+    return _performanceTracker;
+}
 
 @end

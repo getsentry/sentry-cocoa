@@ -46,7 +46,8 @@ class SentryTraceViewModel {
         let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
-            tracker = SentryUIViewControllerPerformanceTracker.shared.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
+            let uiViewControllerPerformanceTracker = [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
+            tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
         }
 #endif
         return tracer
