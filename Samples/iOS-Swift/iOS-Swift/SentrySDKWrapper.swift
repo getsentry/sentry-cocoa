@@ -27,90 +27,90 @@ struct SentrySDKWrapper {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
         
-        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
-            options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 0,
-                onErrorSampleRate: 1,
-                maskAllText: true,
-                maskAllImages: true
-            )
-            options.sessionReplay.quality = .high
-            options.sessionReplay.enableViewRendererV2 = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
-        }
-        
-        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
-            options.enableMetricKit = true
-            options.enableMetricKitRawPayload = true
-        }
-
+//        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+//            options.sessionReplay = SentryReplayOptions(
+//                sessionSampleRate: 0,
+//                onErrorSampleRate: 1,
+//                maskAllText: true,
+//                maskAllImages: true
+//            )
+//            options.sessionReplay.quality = .high
+//            options.sessionReplay.enableViewRendererV2 = true
+//            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+//            options.sessionReplay.enableFastViewRendering = false
+//        }
+//        
+//        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
+//            options.enableMetricKit = true
+//            options.enableMetricKitRawPayload = true
+//        }
+//
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
             options.tracesSampleRate = NSNumber(value: sampleRate)
         }
-        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue.floatValue {
-            options.tracesSampler = { _ in
-                return NSNumber(value: samplerValue)
-            }
-        }
+//        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue.floatValue {
+//            options.tracesSampler = { _ in
+//                return NSNumber(value: samplerValue)
+//            }
+//        }
 
-        configureProfiling(options)
+//        configureProfiling(options)
 
-        options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
-        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
-            options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
-        }
-
-        options.add(inAppInclude: "iOS_External")
-
-        // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
+//        options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
+//        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+//            options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
+//        }
+//
+//        options.add(inAppInclude: "iOS_External")
+//
+//        // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableUITracing.boolValue
 
-        // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
-        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
-
-        // UI tests generate false OOMs
-        options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
-
+//        // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
+//        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
+//
+//        // UI tests generate false OOMs
+//        options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
+//
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
-        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
+//        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
-
-        options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
-        options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
+//
+//        options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
+//        options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
-        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
-        options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
-        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
-        options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
-        options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
-        options.enablePersistingTracesWhenCrashing = true
-        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
-        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
-        options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
-        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
-        options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
-
-    #if targetEnvironment(simulator)
-        options.enableSpotlight = !SentrySDKOverrides.Other.disableSpotlight.boolValue
-    #else
-        options.enableSpotlight = false
-    #endif // targetEnvironment(simulator)
-
-        options.beforeBreadcrumb = { breadcrumb in
-            //Raising notifications when a new breadcrumb is created in order to use this information
-            //to validate whether proper breadcrumb are being created in the right places.
-            NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
-            return breadcrumb
-        }
-        
-        options.initialScope = configureInitialScope(scope:)
-        options.configureUserFeedback = configureFeedback(config:)
-
-        // Experimental features
-        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
+//        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
+//        options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
+//        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
+//        options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
+//        options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
+//        options.enablePersistingTracesWhenCrashing = true
+//        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+//        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+//        options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
+//        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
+//        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+//        options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
+//
+//    #if targetEnvironment(simulator)
+//        options.enableSpotlight = !SentrySDKOverrides.Other.disableSpotlight.boolValue
+//    #else
+//        options.enableSpotlight = false
+//    #endif // targetEnvironment(simulator)
+//
+//        options.beforeBreadcrumb = { breadcrumb in
+//            //Raising notifications when a new breadcrumb is created in order to use this information
+//            //to validate whether proper breadcrumb are being created in the right places.
+//            NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
+//            return breadcrumb
+//        }
+//        
+//        options.initialScope = configureInitialScope(scope:)
+//        options.configureUserFeedback = configureFeedback(config:)
+//
+//        // Experimental features
+//        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
