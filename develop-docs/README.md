@@ -201,7 +201,7 @@ The sample apps are configured by default to use UI Profiling with trace lifecyc
 
 ### Sample apps
 
-> The sample apps are moving towards being managed by [XcodeGen](). Run `make xcode` to ensure that the projects in Sentry.xcworkspace are present and up-to-date. You can add this to your `post-checkout` git hook to automate the process: `echo "make xcode" >> .git/hooks/post-checkout`.
+> The sample apps are moving towards being managed by [XcodeGen](https://github.com/yonaskolb/XcodeGen). Run `make xcode` to ensure that the projects in Sentry.xcworkspace are present and up-to-date. You can add this to your `post-checkout` git hook to automate the process: `echo "make xcode" >> .git/hooks/post-checkout`.
 
 The iOS-Swift and iOS-ObjectiveC sample apps have schema launch args and environment variables available to customize how the SDK is configured.
 
