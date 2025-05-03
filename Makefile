@@ -153,3 +153,4 @@ xcode:
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	open Sentry.xcworkspace
