@@ -5,9 +5,9 @@ CODE_SIGN_IDENTITY_Debug = iPhone Developer
 CODE_SIGN_IDENTITY_Test = iPhone Developer
 CODE_SIGN_IDENTITY_TestCI = iPhone Developer
 CODE_SIGN_IDENTITY_Release = iPhone Distribution
-CODE_SIGN_IDENTITY_Debug[sdk=macosx*] = Apple Developer
-CODE_SIGN_IDENTITY_Test[sdk=macosx*] = Apple Developer
-CODE_SIGN_IDENTITY_TestCI[sdk=macosx*] = Apple Developer
+CODE_SIGN_IDENTITY_Debug[sdk=macosx*] = Apple Development
+CODE_SIGN_IDENTITY_Test[sdk=macosx*] = Apple Development
+CODE_SIGN_IDENTITY_TestCI[sdk=macosx*] = Apple Development
 CODE_SIGN_IDENTITY_Release[sdk=macosx*] = Apple Distribution
 
 CODE_SIGN_IDENTITY = $(CODE_SIGN_IDENTITY_$(CONFIGURATION))
