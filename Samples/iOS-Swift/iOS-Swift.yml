@@ -185,6 +185,6 @@ schemes:
         iOS-Swift: test
         iOS-Benchmarking: test
     test:
-      config: Release
+      config: Debug
       testPlans:
         - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
