@@ -6,9 +6,11 @@ import XCTest
 
 class SentryTraceViewModelTestCase: XCTestCase {
 
+    private var performanceTracker: SentryPerformanceTracker!
+
     override func tearDown() {
         super.tearDown()
-        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
         performanceTracker.clear()
     }
     
@@ -16,7 +18,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "TestView",
+            nameSource: .component,
+            waitForFullDisplay: false,
+            performanceTracker: performanceTracker
+        )
         let spanId = viewModel.startSpan()
 
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -30,7 +37,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "RootTransactionTest", nameSource: .component, waitForFullDisplay: true)
+        let viewModel = SentryTraceViewModel(
+            name: "RootTransactionTest",
+            nameSource: .component,
+            waitForFullDisplay: true,
+            performanceTracker: performanceTracker
+        )
         _ = viewModel.startSpan()
         
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -47,9 +59,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let testSpan = performanceTracker.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
         performanceTracker.pushActiveSpan(testSpan)
 
-        let viewModel = SentryTraceViewModel(name: "ViewContent",
-                                             nameSource: .component,
-                                             waitForFullDisplay: true)
+        let viewModel = SentryTraceViewModel(
+            name: "ViewContent",
+            nameSource: .component,
+            waitForFullDisplay: true,
+            performanceTracker: performanceTracker
+        )
         _ = viewModel.startSpan()
         
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -62,7 +77,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "TestView",
+            nameSource: .component,
+            waitForFullDisplay: false,
+            performanceTracker: performanceTracker
+        )
         viewModel.viewDidAppear()
         
         let spanId = viewModel.startSpan()
@@ -73,7 +93,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: false,
+            performanceTracker: performanceTracker
+        )
         let spanId = try XCTUnwrap(viewModel.startSpan())
         XCTAssertNotNil(spanId, "Span should be created.")
         
@@ -102,7 +127,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         option.enableTimeToFullDisplayTracing = true
         SentrySDK.setStart(option)
                
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: nil)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: nil,
+            performanceTracker: performanceTracker
+        )
         XCTAssertTrue(viewModel.waitForFullDisplay)
     }
     
@@ -111,7 +141,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         option.enableTimeToFullDisplayTracing = true
         SentrySDK.setStart(option)
                
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: false,
+            performanceTracker: performanceTracker
+        )
         XCTAssertFalse(viewModel.waitForFullDisplay)
     }
 }
