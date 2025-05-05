@@ -3,20 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-enum SessionReplayError: Error {
-    case cantCreateReplayDirectory
-    case noFramesAvailable
-}
-
-@objc
-protocol SentrySessionReplayDelegate: NSObjectProtocol {
-    func sessionReplayShouldCaptureReplayForError() -> Bool
-    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
-    func sessionReplayStarted(replayId: SentryId)
-    func breadcrumbsForSessionReplay() -> [Breadcrumb]
-    func currentScreenNameForSessionReplay() -> String?
-}
-
+// swiftlint:disable type_body_length
 @objcMembers
 class SentrySessionReplay: NSObject {
     private(set) var isFullSession = false
@@ -39,7 +26,6 @@ class SentrySessionReplay: NSObject {
     private let displayLink: SentryDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
-    private let dispatchQueue: SentryDispatchQueueWrapper
     private let lock = NSLock()
     var replayTags: [String: Any]?
     
@@ -50,18 +36,17 @@ class SentrySessionReplay: NSObject {
     var screenshotProvider: SentryViewScreenshotProvider
     var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
-    init(replayOptions: SentryReplayOptions,
-         replayFolderPath: URL,
-         screenshotProvider: SentryViewScreenshotProvider,
-         replayMaker: SentryReplayVideoMaker,
-         breadcrumbConverter: SentryReplayBreadcrumbConverter,
-         touchTracker: SentryTouchTracker?,
-         dateProvider: SentryCurrentDateProvider,
-         delegate: SentrySessionReplayDelegate,
-         dispatchQueue: SentryDispatchQueueWrapper,
-         displayLinkWrapper: SentryDisplayLinkWrapper) {
-
-        self.dispatchQueue = dispatchQueue
+    init(
+        replayOptions: SentryReplayOptions,
+        replayFolderPath: URL,
+        screenshotProvider: SentryViewScreenshotProvider,
+        replayMaker: SentryReplayVideoMaker,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter,
+        touchTracker: SentryTouchTracker?,
+        dateProvider: SentryCurrentDateProvider,
+        delegate: SentrySessionReplayDelegate,
+        displayLinkWrapper: SentryDisplayLinkWrapper
+    ) {
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
@@ -159,7 +144,7 @@ class SentrySessionReplay: NSObject {
         startFullReplay()
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCapture(startedAt: replayStart, replayType: .buffer)
+        createAndCaptureInBackground(startedAt: replayStart, replayType: .buffer)
         return true
     }
 
@@ -220,30 +205,35 @@ class SentrySessionReplay: NSObject {
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
         let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCapture(startedAt: segmentStart, replayType: .session)
+        createAndCaptureInBackground(startedAt: segmentStart, replayType: .session)
     }
 
-    private func createAndCapture(startedAt: Date, replayType: SentryReplayType) {
+    private func createAndCaptureInBackground(startedAt: Date, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] Creating replay video started at date: \(startedAt), replayType: \(replayType)")
-        //Creating a video is heavy and blocks the thread
-        //Since this function is always called in the main thread
-        //we dispatch it to a background thread.
-        dispatchQueue.dispatchAsync {
-            do {
-                let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())
-                for video in videos {
-                    self.newSegmentAvailable(videoInfo: video, replayType: replayType)
-                }
-                SentryLog.debug("[Session Replay] Finished replay video creation with \(videos.count) segments")
-            } catch {
-                SentryLog.debug("Could not create replay video - \(error.localizedDescription)")
+        // Creating a video is computationally expensive, therefore perform it on a background queue.
+        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
+            if let error = error {
+                SentryLog.error("[Session Replay] Could not create replay video - \(error.localizedDescription)")
+                return
             }
+            guard let videos = videos else {
+                SentryLog.warning("[Session Replay] Finished replay video creation without any segments")
+                return
+            }
+            SentryLog.debug("[Session Replay] Created replay video with \(videos.count) segments")
+            for video in videos {
+                self.newSegmentAvailable(videoInfo: video, replayType: replayType)
+            }
+            SentryLog.debug("[Session Replay] Finished processing replay video with \(videos.count) segments")
         }
     }
 
     private func newSegmentAvailable(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] New segment available for replayType: \(replayType), videoInfo: \(videoInfo)")
-        guard let sessionReplayId = sessionReplayId else { return }
+        guard let sessionReplayId = sessionReplayId else {
+            SentryLog.warning("[Session Replay] No session replay ID available, ignoring segment.")
+            return
+        }
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: replayType)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = videoInfo.end
@@ -329,5 +319,6 @@ class SentrySessionReplay: NSObject {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 #endif

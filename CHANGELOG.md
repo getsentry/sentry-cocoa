@@ -18,6 +18,10 @@
 - Correctly rate limit envelopes from the new UI profiling system (#5131)
 - Race condition in ANRTrackerV1 (#5137)
 
+### Fixes
+
+- Fix thread inversion warning in session replay (#5018)
+
 ### Improvements
 
 - More logging for Session Replay video info (#5132)
