@@ -25,7 +25,7 @@
 
 - (void)pause
 {
-    SENTRY_LOG_DEBUG(@"[Session Replay] Pausing session");
+    SENTRY_LOG_INFO(@"[Session Replay] Pausing session");
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
@@ -34,7 +34,7 @@
 
 - (void)resume
 {
-    SENTRY_LOG_DEBUG(@"[Session Replay] Resuming session");
+    SENTRY_LOG_INFO(@"[Session Replay] Resuming session");
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
@@ -43,7 +43,7 @@
 
 - (void)start SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
 {
-    SENTRY_LOG_DEBUG(@"[Session Replay] Starting session");
+    SENTRY_LOG_INFO(@"[Session Replay] Starting session");
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];
@@ -72,7 +72,7 @@
 
 - (void)stop
 {
-    SENTRY_LOG_DEBUG(@"[Session Replay] Stopping session");
+    SENTRY_LOG_INFO(@"[Session Replay] Stopping session");
     SentrySessionReplayIntegration *replayIntegration
         = (SentrySessionReplayIntegration *)[SentrySDK.currentHub
             getInstalledIntegration:SentrySessionReplayIntegration.class];

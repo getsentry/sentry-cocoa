@@ -238,7 +238,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
         
     private func finishVideo(outputFileURL: URL, usedFrames: [SentryReplayFrame], videoHeight: Int, videoWidth: Int, videoWriter: AVAssetWriter) -> Result<SentryVideoInfo?, Error> {
-        SentryLog.debug("[Session Replay] Finishing video with output file URL: \(outputFileURL), used frames count: \(usedFrames.count), video height: \(videoHeight), video width: \(videoWidth)")
+        SentryLog.info("[Session Replay] Finishing video with output file URL: \(outputFileURL), used frames count: \(usedFrames.count), video height: \(videoHeight), video width: \(videoWidth)")
         let group = DispatchGroup()
         var finishError: Error?
         var result: SentryVideoInfo?

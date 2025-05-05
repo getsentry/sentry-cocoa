@@ -198,7 +198,7 @@ static SentryTouchTracker *_touchTracker;
             @"[Session Replay] Previous session replay is a buffer, using error sample rate");
         float errorSampleRate = [jsonObject[@"errorSampleRate"] floatValue];
         if ([SentryDependencyContainer.sharedInstance.random nextNumber] >= errorSampleRate) {
-            SENTRY_LOG_DEBUG(
+            SENTRY_LOG_INFO(
                 @"[Session Replay] Buffer session replay event not sampled, dropping replay");
             return;
         }

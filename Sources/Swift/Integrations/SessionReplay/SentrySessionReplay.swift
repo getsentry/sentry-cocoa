@@ -135,7 +135,7 @@ class SentrySessionReplay: NSObject {
         }
         
         guard !reachedMaximumDuration else { 
-            SentryLog.debug("[Session Replay] Reached maximum duration, not resuming")
+            SentryLog.warning("[Session Replay] Reached maximum duration, not resuming")
             return 
         }
         guard !isRunning else { 
@@ -155,7 +155,7 @@ class SentrySessionReplay: NSObject {
         }
 
         if isFullSession {
-            SentryLog.debug("[Session Replay] Session replay is full, setting event context")
+            SentryLog.info("[Session Replay] Session replay is in full session mode, setting event context")
             setEventContext(event: event)
             return
         }
@@ -354,12 +354,12 @@ class SentrySessionReplay: NSObject {
     }
     
     private func takeScreenshot() {
-        SentryLog.debug("[Session Replay] Taking screenshot")
         guard let rootView = rootView, !processingScreenshot else { 
             SentryLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil or processing screenshot")
             return 
         }
-
+        SentryLog.debug("[Session Replay] Taking screenshot of root view: \(rootView)")
+        
         lock.lock()
         guard !processingScreenshot else {
             SentryLog.debug("[Session Replay] Not taking screenshot, reason: processing screenshot")
