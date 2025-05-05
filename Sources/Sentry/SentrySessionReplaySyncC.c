@@ -14,6 +14,7 @@ static SentryCrashReplay crashReplay = { 0 };
 void
 sentrySessionReplaySync_start(const char *const path)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(@"[Session Replay] Starting session replay with path: %s", path);
     crashReplay.lastSegmentEnd = 0;
     crashReplay.segmentId = 0;
 
@@ -36,6 +37,9 @@ sentrySessionReplaySync_start(const char *const path)
 void
 sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        @"[Session Replay] Updating session info with segmentId: %u, lastSegmentEnd: %f", segmentId,
+        lastSegmentEnd);
     crashReplay.segmentId = segmentId;
     crashReplay.lastSegmentEnd = lastSegmentEnd;
 }
@@ -43,6 +47,7 @@ sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd
 void
 sentrySessionReplaySync_writeInfo(void)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(@"[Session Replay] Writing session info");
     if (crashReplay.path == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("There is no path to write replay information");
         return;
@@ -76,6 +81,7 @@ sentrySessionReplaySync_writeInfo(void)
 bool
 sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const path)
 {
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(@"[Session Replay] Reading session info from path: %s", path);
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(

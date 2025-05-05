@@ -26,6 +26,7 @@
 - GA of better session replay view renderer V2 (#5054)
 - Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
 - Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Add more detailed debug logs for session replay (#5173)
 
 ## 8.49.2
 
