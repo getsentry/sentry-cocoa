@@ -12,16 +12,18 @@ class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
     private var tracker: SentryTimeToDisplayTracker?
-    
+    private let performanceTracker: SentryPerformanceTracker
+
     let name: String
     let nameSource: SentryTransactionNameSource
     let waitForFullDisplay: Bool
     let traceOrigin = SentryTraceOrigin.autoUISwiftUI
-    
-    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
+
+    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?, performanceTracker: SentryPerformanceTracker) {
         self.name = name
         self.nameSource = nameSource
         self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
+        self.performanceTracker = performanceTracker
     }
     
     func startSpan() -> SpanId? {
@@ -33,7 +35,6 @@ class SentryTraceViewModel {
     }
     
     private func startRootTransaction() -> SentryTracer? {
-        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
         guard performanceTracker.activeSpanId() == nil else { return nil }
 
         let transactionId = performanceTracker.startSpan(
@@ -55,7 +56,6 @@ class SentryTraceViewModel {
     }
     
     private func createBodySpan(name: String) -> SpanId {
-        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
         let spanId = performanceTracker.startSpan(
             withName: name,
             nameSource: nameSource,
@@ -67,7 +67,6 @@ class SentryTraceViewModel {
     }
     
     func finishSpan(_ spanId: SpanId) {
-        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
         performanceTracker.popActiveSpan()
         performanceTracker.finishSpan(spanId)
     }
@@ -133,7 +132,8 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay)
+        let performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay, performanceTracker: performanceTracker)
         _viewModel = State(initialValue: initialViewModel)
     }
 #else
@@ -145,7 +145,8 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false)
+        let performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false, performanceTracker: performanceTracker)
         _viewModel = State(initialValue: initialViewModel)
     }
 #endif

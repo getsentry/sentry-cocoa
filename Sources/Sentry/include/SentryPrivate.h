@@ -16,6 +16,7 @@
 #import "SentryLevelHelper.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
+#import "SentryPerformanceTracker.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
 #import "SentryScreenshot.h"

@@ -113,4 +113,15 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 
+/**
+ * This interface declaration must match exactly the one in ``SentryDependencyContainerInternal.h``.
+ *
+ * See ``SentryDependencyContainerInternal.h`` for more details.
+ */
+@interface SentryDependencyContainerInternalBridge : NSObject
+
++ (SentryPerformanceTracker *)getPerformanceTracker;
+
+@end
+
 NS_ASSUME_NONNULL_END
