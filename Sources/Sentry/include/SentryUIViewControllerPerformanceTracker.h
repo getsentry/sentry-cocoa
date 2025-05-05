@@ -7,6 +7,8 @@
 @class SentryTimeToDisplayTracker;
 @class UIViewController;
 @class SentryTracer;
+@class SentryPerformanceTracker;
+@class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +33,11 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @property (nonatomic) BOOL alwaysWaitForFullDisplay;
+
+SENTRY_NO_INIT
+
+- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 /**
  * Measures @c controller's @c loadView method.

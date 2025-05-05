@@ -27,6 +27,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHttpDateParser.h>
 #import <SentryNSNotificationCenterWrapper.h>
+#import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
@@ -344,7 +345,9 @@ static NSObject *sentryDependencyContainerLock;
         @synchronized(sentryDependencyContainerLock) {
             if (_uiViewControllerPerformanceTracker == nil) {
                 _uiViewControllerPerformanceTracker =
-                    [[SentryUIViewControllerPerformanceTracker alloc] init];
+                    [[SentryUIViewControllerPerformanceTracker alloc]
+                             initWithTracker:SentryPerformanceTracker.shared
+                        dispatchQueueWrapper:[self dispatchQueueWrapper]];
             }
         }
     }
