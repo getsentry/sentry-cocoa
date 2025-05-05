@@ -11,7 +11,6 @@ on:
 
       # test changes to benchmarking implementation
       - "Samples/iOS-Swift/**"
-      - "Samples/iOS-Benchmarking/**"
       - ".github/workflows/benchmarking.yml"
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
