@@ -109,8 +109,9 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
             && v2Lifecycle == SentryProfileLifecycleTrace;
         const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
-        if (profileIsCorrelatedToTrace
-            && SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay) {
+        SentryUIViewControllerPerformanceTracker *performanceTracker =
+            [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
+        if (profileIsCorrelatedToTrace && performanceTracker.alwaysWaitForFullDisplay) {
             SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
                              @"display reported.");
             shouldStopAndTransmitLaunchProfile = NO;
@@ -212,9 +213,16 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     }
 
 #    if SENTRY_HAS_UIKIT
-    // if SentryOptions.enableAutoPerformanceTracing is NO, then we need to stop the frames tracker
-    // from running outside of profiles because it isn't needed for anything else
-    if (![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing]) {
+    // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
+    // frames tracker, is YES, then we need to stop the frames tracker from running outside of profiles
+    // because it isn't needed for anything else
+
+    BOOL autoPerformanceTracingDisabled
+        = ![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing];
+    BOOL appHangsV2Disabled =
+        [[[[SentrySDK currentHub] getClient] options] isAppHangTrackingV2Disabled];
+
+    if (autoPerformanceTracingDisabled && appHangsV2Disabled) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];
     }
 #    endif // SENTRY_HAS_UIKIT

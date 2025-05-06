@@ -792,7 +792,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reportFullyDisplayed
 {
 #if SENTRY_HAS_UIKIT
-    [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
+    [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
+        reportFullyDisplayed];
 #endif // SENTRY_HAS_UIKIT
 }
 

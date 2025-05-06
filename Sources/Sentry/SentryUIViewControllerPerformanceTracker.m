@@ -28,25 +28,18 @@
 
 @implementation SentryUIViewControllerPerformanceTracker
 
-+ (instancetype)shared
-{
-    static SentryUIViewControllerPerformanceTracker *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
-- (instancetype)init
+- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        self.tracker = SentryPerformanceTracker.shared;
+        self.tracker = tracker;
 
         SentryOptions *options = [SentrySDK options];
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
         _alwaysWaitForFullDisplay = NO;
-        _dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+        _dispatchQueueWrapper = dispatchQueueWrapper;
     }
     return self;
 }
