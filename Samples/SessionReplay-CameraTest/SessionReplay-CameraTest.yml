@@ -1,0 +1,30 @@
+name: SessionReplay-CameraTest
+createIntermediateGroups: true
+generateEmptyDirectories: true
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ./Config
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  SessionReplay-CameraTest:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - ../Shared
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: Config/SessionReplay-CameraTest.xcconfig
+      Release: Config/SessionReplay-CameraTest.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false

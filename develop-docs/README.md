@@ -201,6 +201,8 @@ The sample apps are configured by default to use UI Profiling with trace lifecyc
 
 ### Sample apps
 
+> The sample apps are moving towards being managed by [XcodeGen](https://github.com/yonaskolb/XcodeGen). Run `make xcode` to ensure that the projects in Sentry.xcworkspace are present and up-to-date. You can add this to your `post-checkout` git hook to automate the process: `echo "make xcode" >> .git/hooks/post-checkout`.
+
 The iOS-Swift and iOS-ObjectiveC sample apps have schema launch args and environment variables available to customize how the SDK is configured.
 
 In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults`. They interact with schema launch arguments and environment variables as follows: - Boolean flags are ORed together: if either a `true` is set in User Defaults, or a launch argument is set, then the override takes effect. - Values written to user defaults take precedence over schema environment variables by default. If you want to give precedence to schema environment vars over user defaults values, enable the launch arg `--io.sentry.schema-environment-variable-precedence`.
