@@ -48,17 +48,13 @@ make test
 
 ### Flaky tests
 
-If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme by unchecking it in the Test action:
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme by unchecking it in the associated test plan:
 
-![Disabling test cases via the Xcode scheme](./develop-docs/disabling_tests_xcode_scheme.png)
-
-or by right-clicking it in the Tests Navigator (⌘6):
-
-![Disabling test cases via the Xcode Tests navigator](./develop-docs/disabling_tests_xcode_tests_navigator.png)
+![Disabling test cases via the Xcode Tests navigator](./develop-docs/disabling_tests_xcode_test_plan.png)
 
 Then create a GH issue with the [flaky test issue template](https://github.com/getsentry/sentry-cocoa/issues/new?assignees=&labels=Platform%3A+Cocoa%2CType%3A+Flaky+Test&template=flaky-test.yml).
 
-Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped", as well as maintaining a centralized list of skipped tests (look in Sentry.xcscheme) and they will be grayed out when viewing in the Xcode Tests Navigator (⌘6):
+Disabling the test in the test plan has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped", as well as maintaining a centralized list of skipped tests (look in the associated .xctestplan file source in //Plans/) and they will be grayed out when viewing in the Xcode Tests Navigator (⌘6):
 
 ![How Xcode displays skipped tests in the Tests Navigator](./develop-docs/xcode_tests_navigator_with_skipped_test.png)
 

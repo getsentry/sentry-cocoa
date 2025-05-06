@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+## 8.50.0
+
 > [!Important]
 > This version enables the better view renderer V2 used by Session Replay by default.
 > You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
@@ -24,6 +30,9 @@
 - Improve session replay frame presentation timing calculations (#5133)
 - Use wider compatible video encoding options for Session Replay (#5134)
 - GA of better session replay view renderer V2 (#5054)
+- Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
+- Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Add more detailed debug logs for session replay (#5173)
 
 ## 8.49.2
 
