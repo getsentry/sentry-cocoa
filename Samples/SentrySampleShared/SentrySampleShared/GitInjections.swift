@@ -21,3 +21,9 @@ public func injectGitInformation(scope: Scope) {
         scope.setTag(value: branchName, key: "git-branch-name")
     }
 }
+
+public class GitInjector: NSObject {
+    @objc public static func objc_injectGitInformation(into scope: Scope) {
+        injectGitInformation(scope: scope)
+    }
+}
