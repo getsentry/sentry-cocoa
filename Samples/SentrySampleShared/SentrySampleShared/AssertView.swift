@@ -1,5 +1,8 @@
 import Foundation
 import Sentry
+
+#if !os(macOS)
+
 import UIKit
 
 class AssertView: UIView {
@@ -90,3 +93,5 @@ class AssertView: UIView {
     }
     
 }
+
+#endif // !os(macOS)

@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - visionOS-Swift.yml
@@ -20,13 +22,10 @@ targets:
     platform: auto
     sources:
       - visionOS-Swift
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
-      - ../Shared/LoremIpsum.txt
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: visionOS-Swift.xcconfig
       Release: visionOS-Swift.xcconfig

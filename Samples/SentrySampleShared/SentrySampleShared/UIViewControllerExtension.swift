@@ -1,5 +1,8 @@
 import Foundation
 import Sentry
+
+#if !os(macOS)
+
 import UIKit
 
 extension UIViewController {
@@ -23,3 +26,5 @@ extension UIViewController {
         }
     }
 }
+
+#endif // !os(macOS)

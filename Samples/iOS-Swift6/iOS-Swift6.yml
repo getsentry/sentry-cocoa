@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-Swift6.yml
@@ -21,11 +23,9 @@ targets:
     platform: auto
     sources:
       - iOS-Swift6
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift6.xcconfig
       Release: iOS-Swift6.xcconfig

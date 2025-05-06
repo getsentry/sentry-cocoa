@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-SwiftUI.yml
@@ -21,15 +23,13 @@ targets:
     platform: auto
     sources:
       - iOS-SwiftUI
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
       - ../../Sources/Sentry/include/SentryTracer.h
       - ../../Sources/Sentry/include/SentryPerformanceTracker.h
       - ../../Sources/Sentry/Public/SentryProfilingConditionals.h
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftUI.xcconfig
       Release: iOS-SwiftUI.xcconfig

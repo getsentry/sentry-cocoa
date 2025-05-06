@@ -1,5 +1,8 @@
 import Foundation
 import Sentry
+
+#if !os(macOS)
+
 import UIKit
 
 class UIAssert {
@@ -100,3 +103,5 @@ class UIAssert {
         UIAssert.isEqual(missing.count, 0, "Following spans not found: \(missing.joined(separator: ", "))")
     }
 }
+
+#endif // !os(macOS)
