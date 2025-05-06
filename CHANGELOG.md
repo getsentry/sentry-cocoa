@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
 ## 8.50.0
 
 > [!Important]
