@@ -37,13 +37,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const comments = await github.rest.issues.listComments({
+            core.debug('Listing comments')
+            const response = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo
             })
-            for (const comment of comments.data) {
+            if (!response.data) {
+              core.info('No comments found')
+              return
+            }
+            core.debug(`Found ${response.data.length} comments`)
+            for (const comment of response.data) {
               if (comment.user.login === 'github-actions[bot]' && comment.body.includes('### 🚨 Detected changes in high risk code 🚨')) {
+                core.info(`Deleting comment ${comment.id}`)
                 await github.rest.issues.deleteComment({
                   comment_id: comment.id
                 })
@@ -57,6 +64,7 @@ jobs:
           script: |
             const highRiskFiles = process.env.high_risk_code;
             const fileList = highRiskFiles.split(',').map(file => `- [ ] ${file}`).join('\n');
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
