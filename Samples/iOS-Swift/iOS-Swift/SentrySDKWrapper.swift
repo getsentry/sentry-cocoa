@@ -108,7 +108,9 @@ struct SentrySDKWrapper {
         }
         
         options.initialScope = configureInitialScope(scope:)
-        options.configureUserFeedback = configureFeedback(config:)
+        if #available(iOS 13.0, *) {
+            options.configureUserFeedback = configureFeedback(config:)
+        }
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
@@ -164,6 +166,7 @@ struct SentrySDKWrapper {
 }
 
 // MARK: User feedback configuration
+@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     

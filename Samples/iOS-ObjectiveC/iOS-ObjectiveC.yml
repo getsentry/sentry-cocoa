@@ -22,6 +22,7 @@ targets:
     type: application
     platform: auto
     sources:
+      - ../Shared/SampleAssets.xcassets
       - path: iOS-ObjectiveC
         excludes:
           - NoARCCrash.m

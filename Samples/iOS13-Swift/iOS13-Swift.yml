@@ -23,6 +23,7 @@ targets:
     platform: auto
     sources:
       - iOS13-Swift
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI

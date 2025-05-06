@@ -23,6 +23,7 @@ targets:
     platform: auto
     sources:
       - "watchOS-Swift WatchKit App"
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: "watchOS-Swift WatchKit Extension"
       - target: SentrySampleShared/SentrySampleShared
@@ -36,6 +37,7 @@ targets:
     platform: auto
     sources:
       - "watchOS-Swift WatchKit Extension"
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared

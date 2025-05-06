@@ -22,6 +22,7 @@ targets:
     platform: auto
     sources:
       - iOS15-SwiftUI
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared

@@ -23,6 +23,7 @@ targets:
     platform: auto
     sources:
       - iOS-SwiftUI
+      - ../Shared/SampleAssets.xcassets
       - ../../Sources/Sentry/include/SentryTracer.h
       - ../../Sources/Sentry/include/SentryPerformanceTracker.h
       - ../../Sources/Sentry/Public/SentryProfilingConditionals.h

@@ -28,3 +28,6 @@ SUPPORTED_PLATFORMS = watchos watchsimulator
 SDKROOT = watchos
 TARGETED_DEVICE_FAMILY = 4
 DEVELOPMENT_ASSET_PATHS = "watchOS-Swift WatchKit Extension/Preview Content"
+
+// The watch extension's source code uses lots of 6.0+ API, it's easier to set this here than adding availability checks/annotations throughout the code
+WATCHOS_DEPLOYMENT_TARGET = 6.0

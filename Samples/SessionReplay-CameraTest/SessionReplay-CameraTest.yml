@@ -17,6 +17,7 @@ targets:
     platform: iOS
     sources:
       - Sources
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared

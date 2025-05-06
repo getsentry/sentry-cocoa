@@ -23,6 +23,7 @@ targets:
     platform: auto
     sources:
       - tvOS-Swift
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -45,6 +46,7 @@ targets:
     platform: auto
     sources:
       - tvOS-SBSwift
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI

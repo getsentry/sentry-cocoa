@@ -22,6 +22,7 @@ targets:
     platform: auto
     sources:
       - Shared
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -62,6 +63,7 @@ targets:
     platform: auto
     sources:
       - Shared
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -84,6 +86,7 @@ targets:
     platform: auto
     sources:
       - Shared
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -106,6 +109,7 @@ targets:
     platform: auto
     sources:
       - Shared
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI

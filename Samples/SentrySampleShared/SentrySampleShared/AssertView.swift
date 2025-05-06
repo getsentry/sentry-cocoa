@@ -1,4 +1,4 @@
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
 
 import Foundation
 import Sentry
@@ -91,4 +91,4 @@ public class AssertView: UIView {
     }
 }
 
-#endif // !os(macOS)
+#endif // !os(macOS) && !os(watchOS)

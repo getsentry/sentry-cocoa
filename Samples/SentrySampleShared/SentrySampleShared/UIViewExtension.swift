@@ -1,4 +1,4 @@
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
 
 import Foundation
 import UIKit
@@ -23,4 +23,4 @@ public extension UIView {
     }
 }
 
-#endif // !os(macOS)
+#endif // !os(macOS) && !os(watchOS)

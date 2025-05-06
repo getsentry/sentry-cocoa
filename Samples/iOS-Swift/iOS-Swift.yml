@@ -24,6 +24,7 @@ targets:
     platform: auto
     sources:
       - iOS-Swift
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: iOS-SwiftClip
@@ -46,6 +47,7 @@ targets:
     platform: auto
     sources:
       - iOS-SwiftClip
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
@@ -77,6 +79,7 @@ targets:
     platform: auto
     sources:
       - iOS-Benchmarking
+      - ../Shared/SampleAssets.xcassets
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig

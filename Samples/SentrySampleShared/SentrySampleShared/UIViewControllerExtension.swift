@@ -1,4 +1,4 @@
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
 
 import Foundation
 import Sentry
@@ -26,4 +26,4 @@ public extension UIViewController {
     }
 }
 
-#endif // !os(macOS)
+#endif // !os(macOS) && !os(watchOS)
