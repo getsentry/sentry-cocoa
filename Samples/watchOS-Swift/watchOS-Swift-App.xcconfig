@@ -22,14 +22,8 @@
 
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI
-INFOPLIST_FILE = iOS-SwiftUI/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI/iOS-SwiftUI.entitlements
-
-SWIFT_OBJC_BRIDGING_HEADER = iOS-SwiftUI/bridging-headers.h
-
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-
-IPHONEOS_DEPLOYMENT_TARGET = 14.0
-
-DEVELOPMENT_ASSET_PATHS = "iOS-SwiftUI/Preview Content"
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift
+INFOPLIST_FILE = "watchOS=Swift WatchKit App/Info.plist"
+SUPPORTED_PLATFORMS = watchos watchsimulator
+SDKROOT = watchos
+TARGETED_DEVICE_FAMILY = 4
