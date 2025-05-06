@@ -146,4 +146,5 @@ release-pod:
 
 xcode:
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+	xcodegen --spec Samples/iOS-Swift.yml
 	open Sentry.xcworkspace

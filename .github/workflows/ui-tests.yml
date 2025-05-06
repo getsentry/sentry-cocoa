@@ -114,11 +114,9 @@ jobs:
           - runs-on: macos-13
             xcode: "14.3.1"
             device: "iPhone 14 (16.4)"
-
           - runs-on: macos-14
             xcode: "15.4"
             device: "iPhone 15 (17.5)"
-
           - runs-on: macos-15
             xcode: "16.3"
             device: "iPhone 15 (18.4)"
@@ -130,6 +128,10 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - run: make init-ci-build
+      - run: make xcode
+        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift device:"${{matrix.device}}"

@@ -5,7 +5,8 @@ projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
 fileGroups:
-  - ./Config
+  - ../Shared/Config
+  - SessionReplay-CameraTest.yml
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -14,12 +15,14 @@ targets:
     platform: iOS
     sources:
       - Sources
-      - ../Shared
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
     configFiles:
-      Debug: Config/SessionReplay-CameraTest.xcconfig
-      Release: Config/SessionReplay-CameraTest.xcconfig
+      Debug: SessionReplay-CameraTest.xcconfig
+      Release: SessionReplay-CameraTest.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

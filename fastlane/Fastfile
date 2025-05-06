@@ -10,13 +10,17 @@ platform :ios do
       build_number: ENV["FASTLANE_BUILD_NUMBER"],
       xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
     )
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift_xcodegen.xcodeproj"
+    )
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
     version = get_version_number(
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      xcodeproj: "Samples/iOS-Swift_xcodegen.xcodeproj",
       target: "iOS-Swift"
       )
     new_version = version.split("-", -1)[0]
@@ -176,7 +180,7 @@ platform :ios do
 
     build_app(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift-Benchmarking",
+      scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
