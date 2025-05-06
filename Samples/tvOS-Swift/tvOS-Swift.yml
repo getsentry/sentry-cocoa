@@ -44,7 +44,7 @@ targets:
     type: application
     platform: auto
     sources:
-      - tvOS-Swift
+      - tvOS-SBSwift
       - ../Shared/GitInjections.swift
       - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets

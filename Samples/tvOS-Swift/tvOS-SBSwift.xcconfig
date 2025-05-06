@@ -23,5 +23,6 @@
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-SBSwift
-INFOPLIST_FILE = tvOS-Swift/Info.plist
+INFOPLIST_FILE = tvOS-SBSwift/Info.plist
 SUPPORTED_PLATFORMS = appletvos appletvsimulator
+TARGETED_DEVICE_FAMILY = 3

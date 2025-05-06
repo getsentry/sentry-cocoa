@@ -23,7 +23,7 @@
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-Swift-UITests
-
+INFOPLIST_FILE = tvOS-Swift-UITests/Info.plist
 SUPPORTED_PLATFORMS = appletvos appletvsimulator
-
 TEST_TARGET_NAME = tvOS-Swift
+TARGETED_DEVICE_FAMILY = 3
