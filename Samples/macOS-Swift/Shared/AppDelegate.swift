@@ -1,5 +1,6 @@
 import Cocoa
 import Sentry
+import SentrySampleShared
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
