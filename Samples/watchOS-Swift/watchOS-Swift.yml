@@ -30,7 +30,8 @@ targets:
     type: "application.watchapp2"
     platform: auto
     sources:
-      - path: "watchOS-Swift WatchKit App"
+      - "watchOS-Swift WatchKit App"
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: "watchOS-Swift WatchKit Extension"
     configFiles:
@@ -42,7 +43,7 @@ targets:
     type: "watchkit2-extension"
     platform: auto
     sources:
-      - path: "watchOS-Swift WatchKit Extension"
+      - "watchOS-Swift WatchKit Extension"
       - ../Shared/GitInjections.swift
       - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
@@ -61,3 +62,10 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
+schemes:
+  "watchOS-Swift WatchKit App":
+    build:
+      targets:
+        "watchOS-Swift WatchKit App": all
+    run:
+      executable: "watchOS-Swift WatchKit App"
