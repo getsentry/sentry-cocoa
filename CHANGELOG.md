@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.50.0
 
 > [!Important]
 > This version enables the better view renderer V2 used by Session Replay by default.
