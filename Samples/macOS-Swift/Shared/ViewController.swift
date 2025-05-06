@@ -99,6 +99,14 @@ class ViewController: NSViewController {
         SentrySDK.span?.finish()
     }
 
+    @IBAction func showSwiftUIView(_ sender: Any) {
+        let controller = NSHostingController(rootView: SwiftUIView())
+        let window = NSWindow(contentViewController: controller)
+        window.setContentSize(NSSize(width: 300, height: 200))
+        let windowController = NSWindowController(window: window)
+        windowController.showWindow(self)
+    }
+
     @IBAction func stopProfile(_ sender: Any) {
         SentrySDK.stopProfiler()
     }
