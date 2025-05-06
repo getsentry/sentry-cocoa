@@ -1,6 +1,7 @@
 // swiftlint:disable file_length function_body_length
 
 import Sentry
+import SentrySampleShared
 import UIKit
 
 struct SentrySDKWrapper {
@@ -128,7 +129,7 @@ struct SentrySDKWrapper {
         
         scope.setTag(value: "swift", key: "language")
         
-        scope.injectGitInformation()
+        injectGitInformation(scope: scope)
         
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"

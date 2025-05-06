@@ -37,7 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let data = Data("hello".utf8)
                 scope.addAttachment(Attachment(data: data, filename: "log.txt"))
                 
-                scope.injectGitInformation()
+                injectGitInformation(scope: scope)
                 
                 return scope
             }

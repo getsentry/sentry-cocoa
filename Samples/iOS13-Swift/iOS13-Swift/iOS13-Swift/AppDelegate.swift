@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.environment = "test-app"
             options.enableTimeToFullDisplayTracing = true
             options.initialScope = { scope in
-                scope.injectGitInformation()
+                injectGitInformation(scope: scope)
                 return scope
             }
 

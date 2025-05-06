@@ -12,7 +12,7 @@ struct SwiftUIApp: App {
             options.profilesSampleRate = 1.0
             options.sessionReplay.sessionSampleRate = 1.0
             options.initialScope = { scope in
-                scope.injectGitInformation()
+                injectGitInformation(scope: scope)
                 return scope
             }
 

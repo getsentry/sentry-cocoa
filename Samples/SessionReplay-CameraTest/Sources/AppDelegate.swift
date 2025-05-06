@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionReplay.enableFastViewRendering = false
 
             options.initialScope = { scope in
-                scope.injectGitInformation()
+                injectGitInformation(scope: scope)
                 scope.setTag(value: "session-replay-camera-test", key: "sample-project")
                 return scope
             }
