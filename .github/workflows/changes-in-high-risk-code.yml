@@ -42,6 +42,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
+            console.log(comments)
             if (!comments) {
               return
             }
