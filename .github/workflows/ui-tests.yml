@@ -74,6 +74,8 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh 14.3.1
+      - run: make xcode
+        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swiftui
