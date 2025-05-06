@@ -22,7 +22,7 @@
 
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp
 INFOPLIST_FILE = "watchOS=Swift WatchKit App/Info.plist"
 SUPPORTED_PLATFORMS = watchos watchsimulator
 SDKROOT = watchos
