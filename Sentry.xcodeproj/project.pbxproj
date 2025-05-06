@@ -2015,7 +2015,6 @@
 		D4A236082D5F847800D55C58 /* iOS15-SwiftUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS15-SwiftUI.xctestplan"; sourceTree = "<group>"; };
 		D4A236092D5F84CF00D55C58 /* macOS-SwiftUI_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS-SwiftUI_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestSample_Base.xctestplan; sourceTree = "<group>"; };
-		D4A2360B2D5F853300D55C58 /* visionOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "visionOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A2360C2D5F854C00D55C58 /* watchOS-Swift-WatchKit-App_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "watchOS-Swift-WatchKit-App_Base.xctestplan"; sourceTree = "<group>"; };
 		D4AF00202D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzling.m; sourceTree = "<group>"; };
 		D4AF00222D2E931000F5F3D7 /* SentryNSFileManagerSwizzling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSFileManagerSwizzling.h; path = include/SentryNSFileManagerSwizzling.h; sourceTree = "<group>"; };
@@ -3901,7 +3900,6 @@
 				D46D45EA2D5F412100A1CB35 /* SentryTests_Base.xctestplan */,
 				D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */,
 				D46D45E72D5F40ED00A1CB35 /* tvOS-Swift_Base.xctestplan */,
-				D4A2360B2D5F853300D55C58 /* visionOS-Swift_Base.xctestplan */,
 				D4A2360C2D5F854C00D55C58 /* watchOS-Swift-WatchKit-App_Base.xctestplan */,
 			);
 			path = Plans;
