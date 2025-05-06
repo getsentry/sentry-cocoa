@@ -28,3 +28,5 @@ INFOPLIST_FILE = visionOS-Swift/Info.plist
 SUPPORTED_PLATFORMS = xros xrsimulator
 
 XROS_DEPLOYMENT_TARGET = 1.0
+
+DEVELOPMENT_ASSET_PATHS = "visionOS-Swift/Preview Content"
