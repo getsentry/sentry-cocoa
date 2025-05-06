@@ -16,16 +16,6 @@ fileGroups:
 options:
   bundleIdPrefix: io.sentry
 targets:
-  watchOS-Swift:
-    type: "application.watchapp2-container"
-    platform: auto
-    dependencies:
-      - target: "watchOS-Swift WatchKit App"
-    configFiles:
-      Debug: watchOS-Swift.xcconfig
-      Release: watchOS-Swift.xcconfig
-      Test: watchOS-Swift.xcconfig
-      TestCI: watchOS-Swift.xcconfig
   "watchOS-Swift WatchKit App":
     type: "application.watchapp2"
     platform: auto
@@ -45,7 +35,6 @@ targets:
     sources:
       - "watchOS-Swift WatchKit Extension"
       - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
