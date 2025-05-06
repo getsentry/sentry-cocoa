@@ -131,6 +131,7 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
 #if DEBUG
 import SwiftUI
 
+@available(iOS 13.0, *)
 struct ViewControllerWrapper: UIViewControllerRepresentable {
     let viewController: UIViewController
 
