@@ -77,6 +77,8 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest()
     }
 
+#if !os(macOS)
+
     func testStopsFramesTracker_WhenAutoPerformanceAndAppHangsV2Disabled() throws {
         fixture.options.enableAutoPerformanceTracing = false
         try performContinuousProfilingTest()
@@ -91,7 +93,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
     }
 
-    #if !os(macOS)
     // test that receiving a background notification stops the continuous
     // profiler after it has been started manually
     func testStoppingContinuousProfilerStopsOnBackground() throws {
