@@ -172,6 +172,12 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
 
+      - run: make init-ci-build
+      - run: make xcode
+        name: XcodeGen iOS-Swift project
+
+      - run: make xcode
+
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
 

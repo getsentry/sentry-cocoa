@@ -2010,7 +2010,6 @@
 		D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySpanOperation.swift; sourceTree = "<group>"; };
 		D4A236012D5F838200D55C58 /* macOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A236062D5F846200D55C58 /* iOS-ObjectiveC_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-ObjectiveC_Base.xctestplan"; sourceTree = "<group>"; };
-		D4A236072D5F846F00D55C58 /* iOS-Swift6_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Swift6_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A236082D5F847800D55C58 /* iOS15-SwiftUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS15-SwiftUI.xctestplan"; sourceTree = "<group>"; };
 		D4A236092D5F84CF00D55C58 /* macOS-SwiftUI_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS-SwiftUI_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestSample_Base.xctestplan; sourceTree = "<group>"; };
@@ -3887,7 +3886,6 @@
 			isa = PBXGroup;
 			children = (
 				D4A236062D5F846200D55C58 /* iOS-ObjectiveC_Base.xctestplan */,
-				D4A236072D5F846F00D55C58 /* iOS-Swift6_Base.xctestplan */,
 				D46D45E52D5F407200A1CB35 /* iOS-SwiftUI_Base.xctestplan */,
 				D46D45E62D5F407F00A1CB35 /* iOS13-Swift_Base.xctestplan */,
 				D4A236082D5F847800D55C58 /* iOS15-SwiftUI.xctestplan */,
