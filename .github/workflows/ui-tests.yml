@@ -177,8 +177,7 @@ jobs:
       - run: make xcode
         name: XcodeGen iOS-Swift project
 
-      - run: make ios-swift6-xcode
-        name: XcodeGen iOS-Swift project
+      - run: make xcode
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
