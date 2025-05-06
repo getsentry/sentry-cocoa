@@ -22,17 +22,8 @@
 
 #include "../../Sources/Configuration/Versioning.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-SBSwift-UITests
 
-PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.iOS-Swift-UITests.xctrunner
-PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.iOS-Swift-UITests.xctrunner
-PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.iOS-Swift-UITests.xctrunner
-PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.iOS-Swift-UITests.xctrunner
-PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
-PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+SUPPORTED_PLATFORMS = appletvos appletvsimulator
 
-CODE_SIGN_STYLE = Manual
-
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-
-TEST_TARGET_NAME = iOS-Swift
+TEST_TARGET_NAME = tvOS-SBSwift

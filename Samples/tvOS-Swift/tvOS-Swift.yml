@@ -52,10 +52,10 @@ targets:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
     configFiles:
-      Debug: tvOS-Swift.xcconfig
-      Release: tvOS-Swift.xcconfig
-      Test: tvOS-Swift.xcconfig
-      TestCI: tvOS-Swift.xcconfig
+      Debug: tvOS-SBSwift.xcconfig
+      Release: tvOS-SBSwift.xcconfig
+      Test: tvOS-SBSwift.xcconfig
+      TestCI: tvOS-SBSwift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -80,10 +80,10 @@ targets:
     sources:
       - tvOS-SBSwift-UITests
     configFiles:
-      Debug: tvOS-Swift-UITests.xcconfig
-      Release: tvOS-Swift-UITests.xcconfig
-      Test: tvOS-Swift-UITests.xcconfig
-      TestCI: tvOS-Swift-UITests.xcconfig
+      Debug: tvOS-SBSwift-UITests.xcconfig
+      Release: tvOS-SBSwift-UITests.xcconfig
+      Test: tvOS-SBSwift-UITests.xcconfig
+      TestCI: tvOS-SBSwift-UITests.xcconfig
 schemes:
   tvOS-Swift:
     build:
