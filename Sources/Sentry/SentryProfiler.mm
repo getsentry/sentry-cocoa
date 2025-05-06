@@ -213,7 +213,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
 #    if SENTRY_HAS_UIKIT
     // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
-    // frames tracker, then we need to stop the frames tracker from running outside of profiles
+    // frames tracker, is YES, then we need to stop the frames tracker from running outside of profiles
     // because it isn't needed for anything else
 
     BOOL autoPerformanceTracingDisabled
