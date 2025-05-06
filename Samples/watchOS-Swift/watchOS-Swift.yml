@@ -1,0 +1,63 @@
+name: watchOS-Swift
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - watchOS-Swift.yml
+  - ../../Plans/iOS-SwiftUI_Base.xctestplan
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  watchOS-Swift:
+    type: "application.watchapp2-container"
+    platform: auto
+    dependencies:
+      - target: "watchOS-Swift WatchKit App"
+    configFiles:
+      Debug: watchOS-Swift.xcconfig
+      Release: watchOS-Swift.xcconfig
+      Test: watchOS-Swift.xcconfig
+      TestCI: watchOS-Swift.xcconfig
+  "watchOS-Swift WatchKit App":
+    type: "application.watchapp2"
+    platform: auto
+    sources:
+      - path: "watchOS-Swift WatchKit App"
+    dependencies:
+      - target: "watchOS-Swift WatchKit Extension"
+    configFiles:
+      Debug: watchOS-Swift-App.xcconfig
+      Release: watchOS-Swift-App.xcconfig
+      Test: watchOS-Swift-App.xcconfig
+      TestCI: watchOS-Swift-App.xcconfig
+  "watchOS-Swift WatchKit Extension":
+    type: "watchkit2-extension"
+    platform: auto
+    sources:
+      - path: "watchOS-Swift WatchKit Extension"
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: watchOS-Swift-Extension.xcconfig
+      Release: watchOS-Swift-Extension.xcconfig
+      Test: watchOS-Swift-Extension.xcconfig
+      TestCI: watchOS-Swift-Extension.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
