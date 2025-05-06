@@ -27,7 +27,7 @@ targets:
           - NoARCCrash.m
       - path: iOS-ObjectiveC/NoARCCrash.m
         compilerFlags:
-          - '-fno-objc-arc'
+          - "-fno-objc-arc"
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
