@@ -122,7 +122,9 @@
     }
 
     [self swizzleUIViewController];
-    SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic;
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
+        [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
+    performanceTracker.inAppLogic = self.inAppLogic;
 }
 
 - (id<SentryUIApplication>)findApp
@@ -321,7 +323,7 @@
     SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerLoadView:self
                       callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
@@ -380,7 +382,7 @@
 
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerLoadView:self
                       callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
@@ -392,7 +394,7 @@
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewDidLoad:self
                          callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
@@ -404,7 +406,7 @@
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewWillAppear:self
                             callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
@@ -416,7 +418,7 @@
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewDidAppear:self
                            callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
@@ -428,7 +430,7 @@
     SEL selector = NSSelectorFromString(@"viewWillDisappear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewWillDisappear:self
                                callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
@@ -440,7 +442,7 @@
     SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
     SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewWillLayoutSubViews:self
                                     callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
@@ -449,7 +451,7 @@
     SEL didSelector = NSSelectorFromString(@"viewDidLayoutSubviews");
     SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
+            [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
                 viewControllerViewDidLayoutSubViews:self
                                    callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),

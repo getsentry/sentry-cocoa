@@ -99,8 +99,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 
-@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
-
 - (void)reportFullyDisplayed;
 
 - (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
