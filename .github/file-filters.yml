@@ -1,7 +1,6 @@
 # This is used by the action https://github.com/dorny/paths-filter
 
 high_risk_code: &high_risk_code
-  - ".github/workflows/changes-in-high-risk-code.yml"
   - "Sources/Sentry/SentryNSURLSessionTaskSearch.m"
   - "Sources/Sentry/SentryNetworkTracker.m"
   - "Sources/Sentry/SentryUIViewControllerSwizzling.m"
