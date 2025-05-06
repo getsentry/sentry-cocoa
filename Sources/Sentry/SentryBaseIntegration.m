@@ -176,10 +176,10 @@ NS_ASSUME_NONNULL_BEGIN
     // for this.
     if (integrationOptions & kIntegrationOptionStartFramesTracker) {
 
+#if SENTRY_HAS_UIKIT
         BOOL performanceDisabled
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
-        BOOL appHangsV2Disabled
-            = !options.enableAppHangTrackingV2 || options.appHangTimeoutInterval <= 0;
+        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
 
         if (performanceDisabled && appHangsV2Disabled) {
             if (appHangsV2Disabled) {
@@ -196,6 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             return NO;
         }
+#endif // SENTRY_HAS_UIKIT
     }
 
     return YES;
