@@ -50,14 +50,12 @@ jobs:
             core.debug(`Found ${response.data.length} comments`)
             for (const comment of response.data) {
               if (comment.user.login === 'github-actions[bot]' && comment.body.includes('### 🚨 Detected changes in high risk code 🚨')) {
-                try {
-                  core.info(`Deleting comment ${comment.id}`)
-                  await github.rest.issues.deleteComment({
-                    comment_id: comment.id
-                  })
-                } catch (error) {
-                  core.error(`Error deleting comment ${comment.id}: ${error}`)
-                }
+                core.info(`Deleting comment ${comment.id}`)
+                await github.rest.issues.deleteComment({
+                  comment_id: comment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
               }
             }
       - name: Comment on PR to notify of changes in high risk files
