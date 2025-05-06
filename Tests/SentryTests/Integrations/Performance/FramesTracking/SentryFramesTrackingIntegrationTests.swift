@@ -46,7 +46,24 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
-    
+
+    func testAppHangV2Enabled_MeasuresFrames() {
+        let options = fixture.options
+        options.enableAppHangTrackingV2 = true
+        sut.install(with: options)
+
+        XCTAssertNotNil(Dynamic(sut).tracker.asObject)
+    }
+
+    func testAppHangV2Enabled_ButIntervalZero_DoestNotMeasuresFrames() {
+        let options = fixture.options
+        options.enableAppHangTrackingV2 = true
+        options.appHangTimeoutInterval = 0.0
+        sut.install(with: options)
+
+        XCTAssertNil(Dynamic(sut).tracker.asObject)
+    }
+
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
