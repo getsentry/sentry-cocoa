@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - tvOS-Swift.yml
@@ -21,12 +23,10 @@ targets:
     platform: auto
     sources:
       - tvOS-Swift
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: tvOS-Swift.xcconfig
       Release: tvOS-Swift.xcconfig
@@ -45,12 +45,10 @@ targets:
     platform: auto
     sources:
       - tvOS-SBSwift
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: tvOS-SBSwift.xcconfig
       Release: tvOS-SBSwift.xcconfig
