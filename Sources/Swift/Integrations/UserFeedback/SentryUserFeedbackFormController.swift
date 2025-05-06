@@ -166,7 +166,7 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
     .dynamicTypeSize(.accessibility5)
 }
 
-#endif
+#endif // DEBUG
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
