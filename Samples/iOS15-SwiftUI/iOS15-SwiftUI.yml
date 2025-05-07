@@ -1,4 +1,6 @@
 name: iOS15-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -41,6 +43,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   iOS15-SwiftUI:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS15-SwiftUI: all

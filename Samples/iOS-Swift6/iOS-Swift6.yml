@@ -1,4 +1,6 @@
 name: iOS-Swift6
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -52,6 +54,8 @@ targets:
       TestCI: iOS-Swift6-UITests.xcconfig
 schemes:
   iOS-Swift6:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS-Swift6: all

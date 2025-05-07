@@ -1,4 +1,6 @@
 name: iOS-ObjectiveC
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -58,6 +60,8 @@ targets:
       TestCI: iOS-ObjectiveC-UITests.xcconfig
 schemes:
   iOS-ObjectiveC:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS-ObjectiveC: all

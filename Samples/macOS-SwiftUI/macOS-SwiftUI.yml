@@ -1,4 +1,6 @@
 name: macOS-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -42,6 +44,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   macOS-SwiftUI:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         macOS-SwiftUI: all

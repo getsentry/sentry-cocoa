@@ -1,4 +1,4 @@
-import SentrySampleShared
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import UIKit
 
 class LaunchArgumentTableViewCell: UITableViewCell {
@@ -32,3 +32,4 @@ class LaunchArgumentTableViewCell: UITableViewCell {
         self.override = override
     }
 }
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS)

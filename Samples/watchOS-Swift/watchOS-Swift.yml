@@ -1,4 +1,6 @@
 name: watchOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -56,8 +58,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   "watchOS-Swift WatchKit App":
+    templates:
+      - SampleAppScheme
     build:
       targets:
         "watchOS-Swift WatchKit App": all
-    run:
-      executable: "watchOS-Swift WatchKit App"
