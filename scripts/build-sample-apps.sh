@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
-
 # Function to build a sample app
 build_app() {
   local xcodeproj=$1
