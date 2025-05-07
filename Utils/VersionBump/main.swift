@@ -19,7 +19,7 @@ let restrictFiles = [
     "./Sources/Configuration/SDK.xcconfig",
     "./Sources/Configuration/Versioning.xcconfig", 
     "./Sources/Configuration/SentrySwiftUI.xcconfig",
-    "./Samples/Shared/Config/Versioning.xcconfg",
+    "./Samples/Shared/Config/Versioning.xcconfig",
     "./Samples/iOS-Swift/iOS-Swift/Sample.xcconfig"
 ]
 
