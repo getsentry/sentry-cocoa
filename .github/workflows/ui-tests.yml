@@ -14,6 +14,9 @@ on:
       - "scripts/ci-select-xcode.sh"
       - "Samples/iOS-Swift/**"
       - "**/*.xctestplan"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI.yml"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI.xcconfig"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI-UITests.xcconfig"
       - "Samples/iOS-Swift/iOS-Swift.yml"
       - "Samples/iOS-Swift/iOS-Swift.xcconfig"
       - "Samples/iOS-Swift/iOS-Swift-UITests.xcconfig"
@@ -80,6 +83,9 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh 14.3.1
+      - run: make init-ci-build
+      - run: make xcode
+        name: XcodeGen iOS-Swift project
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swiftui
@@ -181,8 +187,6 @@ jobs:
       - run: make init-ci-build
       - run: make xcode
         name: XcodeGen iOS-Swift project
-
-      - run: make xcode
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
