@@ -28,6 +28,9 @@ jobs:
         with:
           bundler-cache: true
 
+      - run: brew bundle --file Brewfile-ci-build
+      - run: make xcode
+
       # We upload a new version to TestFlight on every commit on main
       # So we need to bump the build number each time
       - name: Bump Build Version
