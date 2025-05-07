@@ -1,3 +1,4 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import UIKit
 
 public class FeaturesViewController: UITableViewController {
@@ -116,3 +117,4 @@ public class FeaturesViewController: UITableViewController {
         return cell
     }
 }
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
