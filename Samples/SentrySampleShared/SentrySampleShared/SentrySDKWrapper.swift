@@ -21,7 +21,14 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
     public func startSentry() {
-        SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        if SentrySDK.isEnabled {
+            print("SentrySDK already enabled, closing it")
+            SentrySDK.close()
+        }
+
+        if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        }
     }
 
     func configureSentryOptions(options: Options) {
