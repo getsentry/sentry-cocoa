@@ -1,0 +1,70 @@
+name: iOS13-Swift_xcodegen
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../Sentry.xcodeproj
+fileGroups:
+  - Shared/Config
+  - iOS13-Swift.yml
+  - ../Plans/iOS13-Swift_Base.xctestplan
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS13-Swift:
+    type: application
+    platform: auto
+    sources:
+      - iOS13-Swift
+      - Shared/GitInjections.swift
+      - Shared/DSNStorage.swift
+      - Shared/SpanExtension.swift
+      - Shared/UIViewControllerExtension.swift
+      - Shared/UIViewExtension.swift
+      - Shared/RandomErrors.swift
+      - Shared/SpanObserver.swift
+      - Shared/UIAssert.swift
+      - Shared/AssertView.swift
+      - Shared/screenshot.png
+      - Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: iOS13-Swift.xcconfig
+      Release: iOS13-Swift.xcconfig
+      Test: iOS13-Swift.xcconfig
+      TestCI: iOS13-Swift.xcconfig
+    postCompileScripts:
+      - script: Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS13-Swift-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS13-Swift-UITests
+    configFiles:
+      Debug: iOS13-Swift-UITests.xcconfig
+      Release: iOS13-Swift-UITests.xcconfig
+      Test: iOS13-Swift-UITests.xcconfig
+      TestCI: iOS13-Swift-UITests.xcconfig
+schemes:
+  iOS13-Swift:
+    build:
+      targets:
+        iOS13-Swift: all
+        iOS13-Swift-UITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../Plans/iOS13-Swift_Base.xctestplan
