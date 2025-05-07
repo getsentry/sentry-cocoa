@@ -1,4 +1,4 @@
-name: iOS-Swift_xcodegen
+name: iOS-Swift
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -8,12 +8,12 @@ configs:
   Release: release
 projectReferences:
   Sentry:
-    path: ../Sentry.xcodeproj
+    path: ../../Sentry.xcodeproj
 fileGroups:
-  - Shared/Config
+  - ../Shared/Config
   - iOS-Swift.yml
-  - ../Plans/iOS-Swift_Base.xctestplan
-  - ../Plans/iOS-Benchmarking_Base.xctestplan
+  - ../../Plans/iOS-Swift_Base.xctestplan
+  - ../../Plans/iOS-Benchmarking_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -21,18 +21,18 @@ targets:
     type: application
     platform: auto
     sources:
-      - iOS-Swift/iOS-Swift
-      - Shared/GitInjections.swift
-      - Shared/DSNStorage.swift
-      - Shared/SpanExtension.swift
-      - Shared/UIViewControllerExtension.swift
-      - Shared/UIViewExtension.swift
-      - Shared/RandomErrors.swift
-      - Shared/SpanObserver.swift
-      - Shared/UIAssert.swift
-      - Shared/AssertView.swift
-      - Shared/screenshot.png
-      - Shared/SampleAssets.xcassets
+      - iOS-Swift
+      - ../Shared/GitInjections.swift
+      - ../Shared/DSNStorage.swift
+      - ../Shared/SpanExtension.swift
+      - ../Shared/UIViewControllerExtension.swift
+      - ../Shared/UIViewExtension.swift
+      - ../Shared/RandomErrors.swift
+      - ../Shared/SpanObserver.swift
+      - ../Shared/UIAssert.swift
+      - ../Shared/AssertView.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: iOS-SwiftClip
@@ -42,21 +42,21 @@ targets:
       Test: iOS-Swift.xcconfig
       TestCI: iOS-Swift.xcconfig
     postCompileScripts:
-      - script: Shared/inject-git-info.sh
+      - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: Shared/reset-git-info.sh
+      - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
   iOS-SwiftClip:
     type: application.on-demand-install-capable
     platform: auto
     sources:
-      - iOS-Swift/iOS-SwiftClip
-      - Shared/GitInjections.swift
-      - Shared/DSNStorage.swift
-      - Shared/screenshot.png
+      - iOS-SwiftClip
+      - ../Shared/GitInjections.swift
+      - ../Shared/DSNStorage.swift
+      - ../Shared/screenshot.png
     dependencies:
       - target: Sentry/Sentry
     configFiles:
@@ -65,18 +65,18 @@ targets:
       Test: iOS-SwiftClip.xcconfig
       TestCI: iOS-SwiftClip.xcconfig
     postCompileScripts:
-      - script: Shared/inject-git-info.sh
+      - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: Shared/reset-git-info.sh
+      - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
   iOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift/iOS-Swift-UITests
+      - iOS-Swift-UITests
     configFiles:
       Debug: iOS-Swift-UITests.xcconfig
       Release: iOS-Swift-UITests.xcconfig
@@ -86,7 +86,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift/iOS-Benchmarking
+      - iOS-Benchmarking
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig
@@ -178,7 +178,7 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../Plans/iOS-Swift_Base.xctestplan
+        - path: ../../Plans/iOS-Swift_Base.xctestplan
   iOS-Benchmarking:
     build:
       targets:
@@ -187,4 +187,4 @@ schemes:
     test:
       config: Debug
       testPlans:
-        - path: ../Plans/iOS-Benchmarking_Base.xctestplan
+        - path: ../../Plans/iOS-Benchmarking_Base.xctestplan

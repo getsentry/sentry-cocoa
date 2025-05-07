@@ -1,4 +1,4 @@
-name: iOS-Swift6_xcodegen
+name: iOS-Swift6
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -8,11 +8,11 @@ configs:
   Release: release
 projectReferences:
   Sentry:
-    path: ../Sentry.xcodeproj
+    path: ../../Sentry.xcodeproj
 fileGroups:
-  - Shared/Config
+  - ../Shared/Config
   - iOS-Swift6.yml
-  - ../Plans/iOS-Swift6_Base.xctestplan
+  - ../../Plans/iOS-Swift6_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -21,9 +21,9 @@ targets:
     platform: auto
     sources:
       - iOS-Swift6
-      - Shared/GitInjections.swift
-      - Shared/screenshot.png
-      - Shared/SampleAssets.xcassets
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
     configFiles:
@@ -32,11 +32,11 @@ targets:
       Test: iOS-Swift6.xcconfig
       TestCI: iOS-Swift6.xcconfig
     postCompileScripts:
-      - script: Shared/inject-git-info.sh
+      - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: Shared/reset-git-info.sh
+      - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
   iOS-Swift6-UITests:
@@ -58,4 +58,4 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../Plans/iOS-Swift6_Base.xctestplan
+        - path: ../../Plans/iOS-Swift6_Base.xctestplan
