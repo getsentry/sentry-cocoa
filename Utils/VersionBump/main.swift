@@ -13,6 +13,15 @@ let files = [
     "./Tests/HybridSDKTest/HybridPod.podspec"
 ]
 
+// Files that only accept the format x.x.x in order to release an app using the framework.
+// This will enable publishing apps with SDK beta version.
+let restrictFiles = [
+    "./Sources/Configuration/SDK.xcconfig",
+    "./Sources/Configuration/Versioning.xcconfig", 
+    "./Sources/Configuration/SentrySwiftUI.xcconfig",
+    "./Samples/Shared/Config/Versioning.xcconfig"
+]
+
 let args = CommandLine.arguments
 
 let semver: StaticString = "([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?"
@@ -34,8 +43,10 @@ if let match = Regex(semver, options: [.dotMatchesLineSeparators]).firstMatch(in
     
     fromVersion = extractVersionOnly(fromVersion)
     toVersion = extractVersionOnly(toVersion)
-
-    try updateVersion("./Sources/Configuration/Versioning.xcconfig", fromVersion, toVersion)
+    
+    for file in restrictFiles {
+        try updateVersion(file, fromVersion, toVersion)
+    }
 }
 
 func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) throws {

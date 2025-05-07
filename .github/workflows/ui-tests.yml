@@ -14,6 +14,15 @@ on:
       - "scripts/ci-select-xcode.sh"
       - "Samples/iOS-Swift/**"
       - "**/*.xctestplan"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI.yml"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI.xcconfig"
+      - "Samples/iOS-SwiftUI/iOS-SwiftUI-UITests.xcconfig"
+      - "Samples/iOS-Swift/iOS-Swift.yml"
+      - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+      - "Samples/iOS-Swift/iOS-Swift-UITests.xcconfig"
+      - "Samples/iOS-Swift6/iOS-Swift6.yml"
+      - "Samples/iOS-Swift6/iOS-Swift6.xcconfig"
+      - "Samples/iOS-Swift6/iOS-Swift6-UITests.xcconfig"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -33,6 +42,7 @@ jobs:
         with:
           bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: make init-ci-build
       - run: make xcode
 
       - name: Run Fastlane
@@ -66,15 +76,15 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI - V3 # Up the version with every change to keep track of flaky tests
-    runs-on: macos-13
+    name: UI Tests for SwiftUI - V4 # Up the version with every change to keep track of flaky tests
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh 14.3.1
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - run: make init-ci-build
       - run: make xcode
         name: XcodeGen iOS-Swift project
