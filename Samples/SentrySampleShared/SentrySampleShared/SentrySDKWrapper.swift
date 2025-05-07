@@ -32,7 +32,7 @@ public struct SentrySDKWrapper {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
 
-#if !os(macOS) && !os(watchOS)
+#if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
@@ -52,7 +52,7 @@ public struct SentrySDKWrapper {
             options.enableMetricKitRawPayload = true
         }
 #endif // !os(tvOS)
-#endif // !os(macOS) && !os(watchOS)
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
@@ -64,9 +64,9 @@ public struct SentrySDKWrapper {
             }
         }
 
-#if !os(tvOS) && !os(watchOS)
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
         configureProfiling(options)
-#endif // !os(tvOS) && !os(watchOS)
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
         if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
@@ -122,11 +122,11 @@ public struct SentrySDKWrapper {
 
         options.initialScope = configureInitialScope(scope:)
 
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 13.0, *) {
             options.configureUserFeedback = configureFeedback(config:)
         }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
@@ -181,7 +181,7 @@ public struct SentrySDKWrapper {
     }
 }
 
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 // MARK: User feedback configuration
 @available(iOS 13.0, *)
 extension SentrySDKWrapper {
@@ -370,7 +370,7 @@ extension SentrySDKWrapper {
         }
     }
 }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
@@ -407,7 +407,7 @@ extension SentrySDKWrapper {
 }
 
 // MARK: Profiling configuration
-#if !os(tvOS) && !os(watchOS)
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
@@ -429,6 +429,6 @@ extension SentrySDKWrapper {
         }
     }
 }
-#endif // !os(tvOS) && !os(watchOS)
+#endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 // swiftlint:enable file_length function_body_length
