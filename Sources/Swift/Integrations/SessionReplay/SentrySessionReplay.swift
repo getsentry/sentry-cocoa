@@ -17,6 +17,7 @@ protocol SentrySessionReplayDelegate: NSObjectProtocol {
     func currentScreenNameForSessionReplay() -> String?
 }
 
+// swiftlint:disable type_body_length
 @objcMembers
 class SentrySessionReplay: NSObject {
     private(set) var isFullSession = false
@@ -76,7 +77,11 @@ class SentrySessionReplay: NSObject {
     deinit { displayLink.invalidate() }
 
     func start(rootView: UIView, fullSession: Bool) {
-        guard !isRunning else { return }
+        SentryLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
+        guard !isRunning else { 
+            SentryLog.debug("[Session Replay] Session replay is already running, not starting again")
+            return 
+        }
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
@@ -91,6 +96,7 @@ class SentrySessionReplay: NSObject {
     }
 
     private func startFullReplay() {
+        SentryLog.debug("[Session Replay] Starting full session replay")
         sessionStart = lastScreenShot
         isFullSession = true
         guard let sessionReplayId = sessionReplayId else { return }
@@ -98,6 +104,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func pauseSessionMode() {
+        SentryLog.debug("[Session Replay] Pausing session mode")
         lock.lock()
         defer { lock.unlock() }
         
@@ -106,6 +113,7 @@ class SentrySessionReplay: NSObject {
     }
     
     func pause() {
+        SentryLog.debug("[Session Replay] Pausing session")
         lock.lock()
         defer { lock.unlock() }
         
@@ -117,6 +125,7 @@ class SentrySessionReplay: NSObject {
     }
 
     func resume() {
+        SentryLog.debug("[Session Replay] Resuming session")
         lock.lock()
         defer { lock.unlock() }
         
@@ -125,22 +134,34 @@ class SentrySessionReplay: NSObject {
             return
         }
         
-        guard !reachedMaximumDuration else { return }
-        guard !isRunning else { return }
+        guard !reachedMaximumDuration else { 
+            SentryLog.warning("[Session Replay] Reached maximum duration, not resuming")
+            return 
+        }
+        guard !isRunning else { 
+            SentryLog.debug("[Session Replay] Session is already running, not resuming")
+            return 
+        }
         
         videoSegmentStart = nil
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
 
     func captureReplayFor(event: Event) {
-        guard isRunning else { return }
+        SentryLog.debug("[Session Replay] Capturing replay for event: \(event)")
+        guard isRunning else { 
+            SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
+            return 
+        }
 
         if isFullSession {
+            SentryLog.info("[Session Replay] Session replay is in full session mode, setting event context")
             setEventContext(event: event)
             return
         }
 
         guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay() else { 
+            SentryLog.debug("[Session Replay] Not capturing replay, reason: event is not an error or exceptions are empty")
             return
         }
         
@@ -149,10 +170,17 @@ class SentrySessionReplay: NSObject {
 
     @discardableResult
     func captureReplay() -> Bool {
-        guard isRunning else { return false }
-        guard !isFullSession else { return true }
+        guard isRunning else { 
+            SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
+            return false 
+        }
+        guard !isFullSession else { 
+            SentryLog.debug("[Session Replay] Session replay is full, not capturing replay")
+            return true 
+        }
 
         guard delegate?.sessionReplayShouldCaptureReplayForError() == true else {
+            SentryLog.debug("[Session Replay] Not capturing replay, reason: delegate should not capture replay")
             return false
         }
 
@@ -164,7 +192,11 @@ class SentrySessionReplay: NSObject {
     }
 
     private func setEventContext(event: Event) {
-        guard let sessionReplayId = sessionReplayId, event.type != "replay_video" else { return }
+        SentryLog.debug("[Session Replay] Setting event context")
+        guard let sessionReplayId = sessionReplayId, event.type != "replay_video" else { 
+            SentryLog.debug("[Session Replay] Not setting event context, reason: session replay id is nil or event type is replay_video")
+            return 
+        }
 
         var context = event.context ?? [:]
         context["replay"] = ["replay_id": sessionReplayId.sentryIdString]
@@ -186,6 +218,7 @@ class SentrySessionReplay: NSObject {
         let now = dateProvider.date()
         
         if let sessionStart = sessionStart, isFullSession && now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
+            SentryLog.debug("[Session Replay] Reached maximum duration, pausing session")
             reachedMaximumDuration = true
             pause()
             return
@@ -205,12 +238,17 @@ class SentrySessionReplay: NSObject {
     }
 
     private func prepareSegmentUntil(date: Date) {
-        guard var pathToSegment = urlToCache?.appendingPathComponent("segments") else { return }
-        let fileManager = FileManager.default
+        SentryLog.debug("[Session Replay] Preparing segment until date: \(date)")
+        guard var pathToSegment = urlToCache?.appendingPathComponent("segments") else { 
+            SentryLog.debug("[Session Replay] Not preparing segment, reason: could not create path to segments folder")
+            return 
+        }
 
+        let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: pathToSegment.path) {
             do {
                 try fileManager.createDirectory(atPath: pathToSegment.path, withIntermediateDirectories: true, attributes: nil)
+                SentryLog.debug("[Session Replay] Created segments folder at path: \(pathToSegment.path)")
             } catch {
                 SentryLog.debug("Can't create session replay segment folder. Error: \(error.localizedDescription)")
                 return
@@ -231,6 +269,7 @@ class SentrySessionReplay: NSObject {
         dispatchQueue.dispatchAsync {
             do {
                 let videos = try self.replayMaker.createVideoWith(beginning: startedAt, end: self.dateProvider.date())
+                SentryLog.debug("[Session Replay] Created \(videos.count) segments")
                 for video in videos {
                     self.newSegmentAvailable(videoInfo: video, replayType: replayType)
                 }
@@ -243,7 +282,10 @@ class SentrySessionReplay: NSObject {
 
     private func newSegmentAvailable(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] New segment available for replayType: \(replayType), videoInfo: \(videoInfo)")
-        guard let sessionReplayId = sessionReplayId else { return }
+        guard let sessionReplayId = sessionReplayId else { 
+            SentryLog.debug("[Session Replay] Not capturing segment, reason: session replay id is nil")
+            return 
+        }
         captureSegment(segment: currentSegmentId, video: videoInfo, replayId: sessionReplayId, replayType: replayType)
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = videoInfo.end
@@ -251,6 +293,7 @@ class SentrySessionReplay: NSObject {
     }
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {
+        SentryLog.debug("[Session Replay] Capturing segment: \(segment), replayId: \(replayId), replayType: \(replayType)")
         let replayEvent = SentryReplayEvent(eventId: replayId, replayStartTimestamp: video.start, replayType: replayType, segmentId: segment)
         
         replayEvent.sdk = self.replayOptions.sdkInfo
@@ -261,11 +304,13 @@ class SentrySessionReplay: NSObject {
 
         var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
         if let touchTracker = touchTracker {
+            SentryLog.debug("[Session Replay] Adding touch tracker events")
             events.append(contentsOf: touchTracker.replayEvents(from: videoSegmentStart ?? video.start, until: video.end))
             touchTracker.flushFinishedEvents()
         }
         
         if segment == 0 {
+            SentryLog.debug("[Session Replay] Adding options event to segment 0")
             if let customOptions = replayTags {
                 events.append(SentryRRWebOptionsEvent(timestamp: video.start, customOptions: customOptions))
             } else {
@@ -279,17 +324,21 @@ class SentrySessionReplay: NSObject {
 
         do {
             try FileManager.default.removeItem(at: video.path)
+            SentryLog.debug("[Session Replay] Deleted replay segment from disk")
         } catch {
-            SentryLog.debug("Could not delete replay segment from disk: \(error.localizedDescription)")
+            SentryLog.debug("[Session Replay] Could not delete replay segment from disk: \(error)")
         }
     }
     
     private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {
+        SentryLog.debug("[Session Replay] Converting breadcrumbs from: \(from) until: \(until)")
         var filteredResult: [Breadcrumb] = []
         var lastNavigationTime: Date = from.addingTimeInterval(-1)
         
         for breadcrumb in breadcrumbs {
-            guard let time = breadcrumb.timestamp, time >= from && time < until else { continue }
+            guard let time = breadcrumb.timestamp, time >= from && time < until else { 
+                continue
+            }
             
             // If it's a "navigation" breadcrumb, check the timestamp difference from the previous breadcrumb.
             // Skip any breadcrumbs that have occurred within 50ms of the last one,
@@ -305,10 +354,15 @@ class SentrySessionReplay: NSObject {
     }
     
     private func takeScreenshot() {
-        guard let rootView = rootView, !processingScreenshot else { return }
-
+        guard let rootView = rootView, !processingScreenshot else { 
+            SentryLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil or processing screenshot")
+            return 
+        }
+        SentryLog.debug("[Session Replay] Taking screenshot of root view: \(rootView)")
+        
         lock.lock()
         guard !processingScreenshot else {
+            SentryLog.debug("[Session Replay] Not taking screenshot, reason: processing screenshot")
             lock.unlock()
             return
         }
@@ -316,18 +370,21 @@ class SentrySessionReplay: NSObject {
         lock.unlock()
         
         let screenName = delegate?.currentScreenNameForSessionReplay()
-        
+
+        SentryLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         screenshotProvider.image(view: rootView) { [weak self] screenshot in
             self?.newImage(image: screenshot, forScreen: screenName)
         }
     }
 
     private func newImage(image: UIImage, forScreen screen: String?) {
+        SentryLog.debug("[Session Replay] New frame available, for screen: \(screen ?? "nil")")
         lock.synchronized {
             processingScreenshot = false
             replayMaker.addFrameAsync(image: image, forScreen: screen)
         }
     }
 }
+// swiftlint:enable type_body_length
 
 #endif

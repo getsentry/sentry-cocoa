@@ -36,6 +36,7 @@
 @class SentryScreenshot;
 @class SentryUIApplication;
 @class SentryViewHierarchy;
+@class SentryUIViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -85,6 +86,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
+@property (nonatomic, strong)
+    SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
