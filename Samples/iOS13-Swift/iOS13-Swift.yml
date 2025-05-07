@@ -1,4 +1,6 @@
 name: iOS13-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -53,6 +55,8 @@ targets:
       TestCI: iOS13-Swift-UITests.xcconfig
 schemes:
   iOS13-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS13-Swift: all

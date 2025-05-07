@@ -1,4 +1,6 @@
 name: macOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -129,6 +131,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   macOS-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         macOS-Swift: all
@@ -136,3 +140,21 @@ schemes:
       config: Test
       testPlans:
         - path: ../../Plans/macOS-Swift_Base.xctestplan
+  macOS-Swift-Other:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all
+  macOS-Swift-Sandboxed:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all
+  macOS-Swift-Sandboxed-Other:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all

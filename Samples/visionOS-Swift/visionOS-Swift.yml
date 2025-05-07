@@ -1,4 +1,6 @@
 name: visionOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -42,6 +44,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   visionOS-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         visionOS-Swift: all
