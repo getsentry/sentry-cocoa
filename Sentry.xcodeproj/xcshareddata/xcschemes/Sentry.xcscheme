@@ -60,74 +60,6 @@
                BlueprintName = "SentryTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SentryANRTrackerTests/testANRButAppInBackground_NoANR()">
-               </Test>
-               <Test
-                  Identifier = "SentryANRTrackerTests/testMultipleListeners()">
-               </Test>
-               <Test
-                  Identifier = "SentryCoreDataTrackerTests/testFetchRequestBackgroundThread()">
-               </Test>
-               <Test
-                  Identifier = "SentryCoreDataTrackerTests/testSaveBackgroundThread()">
-               </Test>
-               <Test
-                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
-               </Test>
-               <Test
-                  Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
-               </Test>
-               <Test
-                  Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
-               </Test>
-               <Test
-                  Identifier = "SentryCrashReportStore_Tests/testStoresLoadsMultipleReports">
-               </Test>
-               <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_WhenNoInternet_BlocksAndFinishes()">
-               </Test>
-               <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetCaptureFailedRequestsEnabled()">
-               </Test>
-               <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_CompareSentryTraceHeader()">
-               </Test>
-               <Test
-                  Identifier = "SentryOnDemandReplayTests/testAddFrameIsThreadSafe()">
-               </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
-               </Test>
-               <Test
-                  Identifier = "SentryReachabilityTest/testMultipleReachabilityObservers">
-               </Test>
-               <Test
-                  Identifier = "SentrySDKIntegrationTestsBase">
-               </Test>
-               <Test
-                  Identifier = "SentrySDKTests/testStartOnTheMainThread()">
-               </Test>
-               <Test
-                  Identifier = "SentrySessionGeneratorTests/testSendSessions()">
-               </Test>
-               <Test
-                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
-               </Test>
-               <Test
-                  Identifier = "SentryThreadInspectorTests/testGetCurrentThreadsWithStacktrace_WithSymbolication()">
-               </Test>
-               <Test
-                  Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
-               </Test>
-               <Test
-                  Identifier = "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()">
-               </Test>
-               <Test
-                  Identifier = "SentryTracerTests/testDeadlineTimer_StartedAndCancelledOnMainThread()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
          <TestableReference
             skipped = "NO">
@@ -138,11 +70,6 @@
                BlueprintName = "SentryProfilerTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SentryProfilerTests/testProfilerMutationDuringSlicing">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
