@@ -1515,6 +1515,36 @@
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
 
+#if SENTRY_HAS_UIKIT
+- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsDisabled
+{
+    SentryOptions *options = [self
+        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @0 }];
+    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+}
+
+- (void)testIsAppHangTrackingV2Disabled_WhenOnlyEnableAppHangTrackingV2Disabled
+{
+    SentryOptions *options = [self
+        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @2.0 }];
+    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+}
+
+- (void)testIsAppHangTrackingV2Disabled_WhenOnlyAppHangTimeoutIntervalZero
+{
+    SentryOptions *options = [self
+        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @0 }];
+    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+}
+
+- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsEnabled
+{
+    SentryOptions *options = [self
+        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @2.0 }];
+    XCTAssertFalse(options.isAppHangTrackingV2Disabled);
+}
+#endif // SENTRY_HAS_UIKIT
+
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
