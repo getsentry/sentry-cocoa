@@ -19,11 +19,13 @@ class SentryTraceViewModel {
     let waitForFullDisplay: Bool
     let traceOrigin = SentryTraceOrigin.autoUISwiftUI
 
-    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?, performanceTracker: SentryPerformanceTracker) {
+    init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name
         self.nameSource = nameSource
         self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
-        self.performanceTracker = performanceTracker
+        // The performance tracker can not be injected via the constructor because it would change the type of the constructor.
+        // For Xcode 15.4 with iOS 17.2 this breaks the ABI stability.
+        self.performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
     }
     
     func startSpan() -> SpanId? {
@@ -49,7 +51,7 @@ class SentryTraceViewModel {
         let tracer = performanceTracker.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
-            let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+            let uiViewControllerPerformanceTracker = SentryDependencyContainerInternalBridge.getUiViewControllerPerformanceTracker()
             tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
         }
 #endif
@@ -133,8 +135,7 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        let performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
-        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay, performanceTracker: performanceTracker)
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: waitForFullDisplay)
         _viewModel = State(initialValue: initialViewModel)
     }
 #else
@@ -146,8 +147,7 @@ public struct SentryTracedView<Content: View>: View {
         self.content = content
         let name = viewName ?? SentryTracedView.extractName(content: Content.self)
         let nameSource = viewName == nil ? SentryTransactionNameSource.component : SentryTransactionNameSource.custom
-        let performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
-        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false, performanceTracker: performanceTracker)
+        let initialViewModel = SentryTraceViewModel(name: name, nameSource: nameSource, waitForFullDisplay: false)
         _viewModel = State(initialValue: initialViewModel)
     }
 #endif

@@ -119,6 +119,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @interface SentryDependencyContainerInternalBridge : NSObject
 
 + (SentryPerformanceTracker *)getPerformanceTracker;
+#if SENTRY_HAS_UIKIT
++ (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker;
+#endif
 
 @end
 
