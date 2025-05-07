@@ -25,7 +25,7 @@ targets:
           - NoARCCrash.m
       - path: iOS-ObjectiveC/NoARCCrash.m
         compilerFlags:
-          - '-fno-objc-arc'
+          - "-fno-objc-arc"
       - ../Shared/GitInjections.swift
       - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
