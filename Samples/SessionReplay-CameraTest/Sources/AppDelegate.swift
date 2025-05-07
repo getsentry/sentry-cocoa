@@ -26,23 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
 
-        SentrySDK.start { options in
-            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-            options.debug = true
-
-            options.tracesSampleRate = 1.0
-            options.profilesSampleRate = 1.0
-            options.sessionReplay.sessionSampleRate = Self.isSessionReplayEnabled ? 1.0 : 0.0
-            options.sessionReplay.enableViewRendererV2 = Self.isViewRendererV2Enabled
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
-
-            options.initialScope = { scope in
-                injectGitInformation(scope: scope)
-                scope.setTag(value: "session-replay-camera-test", key: "sample-project")
-                return scope
-            }
-        }
+        SentrySDKWrapper.shared.startSentry()
     }
 
     // MARK: UISceneSession Lifecycle
