@@ -389,13 +389,11 @@ extension SentrySDKWrapper {
 
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
         return args
     }
 
     var env: [String: String] {
         let env = ProcessInfo.processInfo.environment
-        print("[iOS-Swift] [debug] environment: \(env)")
         return env
     }
 
