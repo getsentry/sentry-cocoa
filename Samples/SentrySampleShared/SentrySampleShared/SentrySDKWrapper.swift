@@ -32,18 +32,22 @@ public struct SentrySDKWrapper {
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
 
-#if !os(macOS) && !os(watchOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+#if !os(macOS) && !os(watchOS) && !os(visionOS)
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 0,
-                onErrorSampleRate: 1,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionReplaySampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.SessionReplay.sessionReplayOnErrorSampleRate.floatValue ?? 1,
                 maskAllText: true,
                 maskAllImages: true
             )
-            options.sessionReplay.quality = .high
-            options.sessionReplay.enableViewRendererV2 = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
+
+            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.sessionReplayQuality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
+
+            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
         }
 
 #if !os(tvOS)
@@ -52,7 +56,7 @@ public struct SentrySDKWrapper {
             options.enableMetricKitRawPayload = true
         }
 #endif // !os(tvOS)
-#endif // !os(macOS) && !os(watchOS)
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
