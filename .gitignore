@@ -226,6 +226,7 @@ dist
 .pnp.*
 
 Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
+Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
 Samples/iOS-Swift/iOS-Swift.xcodeproj
 Samples/iOS-Swift6/iOS-Swift6.xcodeproj
 Samples/iOS13-Swift/iOS13-Swift.xcodeproj
@@ -233,4 +234,5 @@ Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
 Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj
 Samples/macOS-Swift/macOS-Swift.xcodeproj
 Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
+Samples/tvOS-Swift/tvOS-Swift.xcodeproj
 Samples/visionOS-Swift/visionOS-Swift.xcodeproj

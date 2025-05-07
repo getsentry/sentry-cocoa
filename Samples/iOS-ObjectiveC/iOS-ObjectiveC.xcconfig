@@ -6,7 +6,6 @@
 #include "../Shared/Config/Packaging.xcconfig"
 #include "../Shared/Config/SearchPaths.xcconfig"
 #include "../Shared/Config/Signing.xcconfig"
-#include "../Shared/Config/Versioning.xcconfig"
 #include "../Shared/Config/CodeGeneration.xcconfig"
 #include "../Shared/Config/ClangLanguage.xcconfig"
 #include "../Shared/Config/ClangCppLanguage.xcconfig"
@@ -21,7 +20,11 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
-INFOPLIST_FILE = Sources/Info.plist
+#include "../../Sources/Configuration/Versioning.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC
+INFOPLIST_FILE = iOS-ObjectiveC/Info.plist
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+IPHONEOS_DEPLOYMENT_TARGET = 11.0

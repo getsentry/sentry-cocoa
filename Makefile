@@ -146,6 +146,7 @@ release-pod:
 
 xcode:
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS13-Swift/iOS13-Swift.yml
@@ -153,5 +154,6 @@ xcode:
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
+	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	open Sentry.xcworkspace

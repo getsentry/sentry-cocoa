@@ -1998,7 +1998,6 @@
 		D456B4372D706BFB007068CB /* SentrySpanDataKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySpanDataKey.h; path = include/SentrySpanDataKey.h; sourceTree = "<group>"; };
 		D468C0612D3669A200964230 /* SentryFileIOTracker+SwiftHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryFileIOTracker+SwiftHelpers.swift"; sourceTree = "<group>"; };
 		D46D45E12D5F3FD600A1CB35 /* Sentry_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sentry_Base.xctestplan; sourceTree = "<group>"; };
-		D46D45E72D5F40ED00A1CB35 /* tvOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "tvOS-Swift_Base.xctestplan"; path = "Plans/tvOS-Swift_Base.xctestplan"; sourceTree = SOURCE_ROOT; };
 		D46D45E82D5F40FA00A1CB35 /* SentryProfilerTests_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentryProfilerTests_Base.xctestplan; path = Plans/SentryProfilerTests_Base.xctestplan; sourceTree = SOURCE_ROOT; };
 		D46D45E92D5F411700A1CB35 /* SentrySwiftUI_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentrySwiftUI_Base.xctestplan; path = Plans/SentrySwiftUI_Base.xctestplan; sourceTree = SOURCE_ROOT; };
 		D46D45EA2D5F412100A1CB35 /* SentryTests_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentryTests_Base.xctestplan; path = Plans/SentryTests_Base.xctestplan; sourceTree = SOURCE_ROOT; };
@@ -2007,7 +2006,6 @@
 		D48724E12D354D16005DE483 /* SentryTraceOriginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceOriginTests.swift; sourceTree = "<group>"; };
 		D48E8B8A2D3E79610032E35E /* SentryTraceOrigin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceOrigin.swift; sourceTree = "<group>"; };
 		D48E8B9C2D3E82AC0032E35E /* SentrySpanOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySpanOperation.swift; sourceTree = "<group>"; };
-		D4A236062D5F846200D55C58 /* iOS-ObjectiveC_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-ObjectiveC_Base.xctestplan"; sourceTree = "<group>"; };
 		D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestSample_Base.xctestplan; sourceTree = "<group>"; };
 		D4A2360C2D5F854C00D55C58 /* watchOS-Swift-WatchKit-App_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "watchOS-Swift-WatchKit-App_Base.xctestplan"; sourceTree = "<group>"; };
 		D4AF00202D2E92FD00F5F3D7 /* SentryNSFileManagerSwizzling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSFileManagerSwizzling.m; sourceTree = "<group>"; };
@@ -3881,13 +3879,11 @@
 		D46D45E22D5F3FD600A1CB35 /* Plans */ = {
 			isa = PBXGroup;
 			children = (
-				D4A236062D5F846200D55C58 /* iOS-ObjectiveC_Base.xctestplan */,
 				D46D45E12D5F3FD600A1CB35 /* Sentry_Base.xctestplan */,
 				D46D45E82D5F40FA00A1CB35 /* SentryProfilerTests_Base.xctestplan */,
 				D46D45E92D5F411700A1CB35 /* SentrySwiftUI_Base.xctestplan */,
 				D46D45EA2D5F412100A1CB35 /* SentryTests_Base.xctestplan */,
 				D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */,
-				D46D45E72D5F40ED00A1CB35 /* tvOS-Swift_Base.xctestplan */,
 				D4A2360C2D5F854C00D55C58 /* watchOS-Swift-WatchKit-App_Base.xctestplan */,
 			);
 			path = Plans;
