@@ -135,7 +135,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight] }
+        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
         public static var stringVars: [Other] { [.userName, .userEmail] }
     }
 

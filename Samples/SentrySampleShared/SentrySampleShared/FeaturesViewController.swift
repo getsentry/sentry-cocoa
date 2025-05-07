@@ -1,4 +1,3 @@
-import SentrySampleShared
 import UIKit
 
 class FeaturesViewController: UITableViewController {
