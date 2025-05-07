@@ -21,9 +21,8 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-#include "../../Sources/Configuration/Versioning.xcconfig"
-
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift6
 INFOPLIST_FILE = iOS-Swift6/Info.plist
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SWIFT_VERSION = 6
+IPHONEOS_DEPLOYMENT_TARGET = 13.0
