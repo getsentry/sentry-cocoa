@@ -87,6 +87,18 @@ class ViewController: NSViewController {
         wrapper.rethrowNoActiveCPPException()
     }
 
+    @IBAction func cppExceptionFromBGThread(_ sender: Any) {
+        DispatchQueue.global().async {
+           let wrapper = CppWrapper()
+           wrapper.throwCPPException()
+        }
+    }
+
+    @IBAction func noExceptCppException(_ sender: Any) {
+        let wrapper = CppWrapper()
+        wrapper.noExceptCppException()
+    }
+    
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()
