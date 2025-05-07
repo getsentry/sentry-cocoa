@@ -6,9 +6,8 @@ enum SampleError: Error {
     case awesomeCentaur
 }
 
-class RandomErrorGenerator {
-    
-    static func generate() throws {
+public class RandomErrorGenerator {
+    public static func generate() throws {
         let random = Int.random(in: 0...2)
         switch random {
         case 0:

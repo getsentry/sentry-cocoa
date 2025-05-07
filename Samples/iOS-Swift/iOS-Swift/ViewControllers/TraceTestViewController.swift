@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class TraceTestViewController: UIViewController {

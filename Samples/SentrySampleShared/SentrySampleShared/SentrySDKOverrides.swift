@@ -1,6 +1,6 @@
 import Foundation
 
-protocol SentrySDKOverride: RawRepresentable, CaseIterable {
+public protocol SentrySDKOverride: RawRepresentable, CaseIterable {
     var boolValue: Bool { get set }
     var floatValue: Float? { get set }
     var stringValue: String? { get set }
@@ -30,9 +30,10 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Special: String, SentrySDKOverride {
+    public enum Special: String, SentrySDKOverride {
         case wipeDataOnLaunch = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
+        case skipSDKInit = "--skip-sentry-init"
 
         public var boolValue: Bool {
             get {
@@ -44,7 +45,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Feedback: String, SentrySDKOverride {
+    public enum Feedback: String, SentrySDKOverride {
         case allDefaults = "--io.sentry.feedback.all-defaults"
         case disableAutoInject = "--io.sentry.feedback.no-auto-inject-widget"
         case noWidgetText = "--io.sentry.feedback.no-widget-text"
@@ -69,7 +70,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Performance: String, SentrySDKOverride {
+    public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
         case disablePerformanceV2 = "--disable-performance-v2"
         case disableAppHangTrackingV2 = "--disable-app-hang-tracking-v2"
@@ -94,10 +95,63 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Other: String, SentrySDKOverride {
+    public enum SessionReplay: String, SentrySDKOverride {
+        case disableSessionReplay = "--disable-session-replay"
+        case disableViewRendererV2 = "--io.sentry.session-replay.disableViewRendereV2"
+        case enableFastViewRendering = "--io.sentry.session-replay.enableFastViewRendering"
+        case sessionReplaySampleRate = "--io.sentry.sessionReplaySampleRate"
+        case sessionReplayOnErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
+        case sessionReplayQuality = "--io.sentry.sessionReplayQuality"
+
+        public var booleanValue: Bool {
+            get {
+                switch self {
+                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate, .sessionReplayQuality: fatalError("This override doesn't correspond to a boolean value.")
+                default: return getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate, .sessionReplayQuality: fatalError("This override doesn't correspond to a boolean value.")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var floatValue: Float? {
+            get {
+                switch self {
+                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate: return getFloatValueOverride(for: rawValue)
+                default: fatalError("This override doesn't correspond to a float value.")
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate: setFloatOverride(for: rawValue, value: newValue)
+                default: fatalError("This override doesn't correspond to a float value.")
+                }
+            }
+        }
+
+        public var stringValue: String? {
+            get {
+                switch self {
+                case .sessionReplayQuality: return getStringValueOverride(for: rawValue)
+                default: fatalError("This override doesn't correspond to a string value.")
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sessionReplayQuality: setStringOverride(for: rawValue, value: newValue)
+                default: fatalError("This override doesn't correspond to a string value.")
+                }
+            }
+        }
+    }
+
+    public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
-        case disableSessionReplay = "--disable-session-replay"
         case disableMetricKit = "--disable-metrickit-integration"
         case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
         case disableNetworkBreadcrumbs = "--disable-network-breadcrumbs"
@@ -120,7 +174,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var stringValue: String? {
+        public var stringValue: String? {
             get {
                 switch self {
                 case .userName, .userEmail: return getStringValueOverride(for: rawValue)
@@ -135,7 +189,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight] }
+        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
         public static var stringVars: [Other] { [.userName, .userEmail] }
     }
 

@@ -5909,7 +5909,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -6307,7 +6306,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-DCARTHAGE";
@@ -6462,7 +6460,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -6510,7 +6507,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-DCARTHAGE";
@@ -6556,7 +6552,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-DCARTHAGE";
@@ -6602,7 +6597,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-DCARTHAGE";

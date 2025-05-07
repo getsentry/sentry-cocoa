@@ -1,0 +1,25 @@
+   name: build-sample-apps
+
+   windows:
+     - build:
+         layout: tiled
+         panes:
+           - bash -c 'cd ./Samples/iOS13-Swift && xcodebuild build -scheme iOS13-Swift | xcbeautify; echo $? > /tmp/iOS13-Swift.exit'
+           - bash -c 'cd ./Samples/iOS-SwiftUI && xcodebuild build -scheme iOS-SwiftUI | xcbeautify; echo $? > /tmp/iOS-SwiftUI.exit'
+           - bash -c 'cd ./Samples/iOS-Swift6 && xcodebuild build -scheme iOS-Swift6 | xcbeautify; echo $? > /tmp/iOS-Swift6.exit'
+           - bash -c 'cd ./Samples/iOS-Swift && xcodebuild build -scheme iOS-Swift | xcbeautify; echo $? > /tmp/iOS-Swift.exit'
+           - bash -c 'cd ./Samples/watchOS-Swift && xcodebuild build -scheme "watchOS-Swift WatchKit App" | xcbeautify; echo $? > /tmp/watchOS-Swift.exit'
+           - bash -c 'cd ./Samples/visionOS-Swift && xcodebuild build -scheme visionOS-Swift | xcbeautify; echo $? > /tmp/visionOS-Swift.exit'
+           - bash -c 'cd ./Samples/tvOS-Swift && xcodebuild build -scheme tvOS-Swift | xcbeautify; echo $? > /tmp/tvOS-Swift.exit'
+           - bash -c 'cd ./Samples/macOS-SwiftUI && xcodebuild build -scheme macOS-SwiftUI | xcbeautify; echo $? > /tmp/macOS-SwiftUI.exit'
+           - bash -c 'cd ./Samples/macOS-Swift && xcodebuild build -scheme macOS-Swift | xcbeautify; echo $? > /tmp/macOS-Swift.exit'
+           - bash -c 'cd ./Samples/iOS15-SwiftUI && xcodebuild build -scheme iOS15-SwiftUI | xcbeautify; echo $? > /tmp/iOS15-SwiftUI.exit'
+           - bash -c 'cd ./Samples/iOS-ObjectiveC && xcodebuild build -scheme iOS-ObjectiveC | xcbeautify; echo $? > /tmp/iOS-ObjectiveC.exit'
+           - |
+             while [ ! -f /tmp/iOS13-Swift.exit ] || [ ! -f /tmp/iOS-SwiftUI.exit ] || [ ! -f /tmp/iOS-Swift6.exit ] || [ ! -f /tmp/iOS-Swift.exit ] || [ ! -f /tmp/watchOS-Swift.exit ] || [ ! -f /tmp/visionOS-Swift.exit ] || [ ! -f /tmp/tvOS-Swift.exit ] || [ ! -f /tmp/macOS-SwiftUI.exit ] || [ ! -f /tmp/macOS-Swift.exit ] || [ ! -f /tmp/iOS15-SwiftUI.exit ] || [ ! -f /tmp/iOS-ObjectiveC.exit ]; do
+               sleep 1
+             done
+             for file in /tmp/*.exit; do
+               echo "$file: $(cat $file)"
+             done
+             rm /tmp/*.exit

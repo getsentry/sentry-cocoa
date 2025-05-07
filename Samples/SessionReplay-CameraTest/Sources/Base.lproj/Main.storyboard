@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,96 +18,31 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BACKGROUND" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5r7-mb-ufO">
-                                <rect key="frame" x="106.33333333333333" y="434" width="180.33333333333337" height="34"/>
+                                <rect key="frame" x="106.33333333333333" y="421.66666666666669" width="180.33333333333337" height="34"/>
                                 <fontDescription key="fontDescription" name="CourierNewPS-BoldMT" family="Courier New" pointSize="30"/>
                                 <color key="textColor" red="0.5" green="0.32074801106853668" blue="0.11964321975700687" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5YZ-1e-IzZ">
-                                <rect key="frame" x="0.0" y="659" width="393" height="125"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="oa3-e8-uvT">
-                                        <rect key="frame" x="8" y="8" width="377" height="109"/>
-                                        <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="opk-jT-uwJ">
-                                                <rect key="frame" x="0.0" y="0.0" width="377" height="31"/>
-                                                <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" title="On Demand Replay Enabled" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-YN-9zT">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="didChangeToggleValue:" destination="BYZ-38-t0r" eventType="valueChanged" id="daL-zN-qOm"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Is Sentry enabled?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QIZ-C7-cxI">
-                                                        <rect key="frame" x="57" y="0.0" width="320" height="31"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                            </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="2XN-Za-rcz">
-                                                <rect key="frame" x="0.0" y="39" width="377" height="31"/>
-                                                <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" title="On Demand Replay Enabled" translatesAutoresizingMaskIntoConstraints="NO" id="k2J-0x-ddd">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="didChangeToggleValue:" destination="BYZ-38-t0r" eventType="valueChanged" id="UV2-uO-ayX"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Is Session Replay enabled?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oQ5-uS-5I5">
-                                                        <rect key="frame" x="57" y="0.0" width="320" height="31"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                            </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="dGk-rO-wU0">
-                                                <rect key="frame" x="0.0" y="78" width="377" height="31"/>
-                                                <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" title="On Demand Replay Enabled" translatesAutoresizingMaskIntoConstraints="NO" id="WOe-Ha-XHR">
-                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
-                                                        <connections>
-                                                            <action selector="didChangeToggleValue:" destination="BYZ-38-t0r" eventType="valueChanged" id="YDG-LS-tz1"/>
-                                                        </connections>
-                                                    </switch>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use View Renderer V2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMi-nO-dyM">
-                                                        <rect key="frame" x="57" y="0.0" width="320" height="31"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                            </stackView>
-                                        </subviews>
-                                    </stackView>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstItem="oa3-e8-uvT" firstAttribute="top" secondItem="5YZ-1e-IzZ" secondAttribute="top" constant="8" id="1sY-Re-msj"/>
-                                    <constraint firstAttribute="bottom" secondItem="oa3-e8-uvT" secondAttribute="bottom" constant="8" id="57d-lM-iKf"/>
-                                    <constraint firstItem="oa3-e8-uvT" firstAttribute="leading" secondItem="5YZ-1e-IzZ" secondAttribute="leading" constant="8" id="DAV-Fd-eSC"/>
-                                    <constraint firstAttribute="trailing" secondItem="oa3-e8-uvT" secondAttribute="trailing" constant="8" id="Dzh-dZ-nIi"/>
-                                </constraints>
-                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k6T-jz-BOa">
+                                <rect key="frame" x="128.33333333333331" y="752" width="136.33333333333331" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Configure SDK"/>
+                                <connections>
+                                    <action selector="configureSDK:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3Ch-Wz-R0O"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemOrangeColor"/>
                         <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="k6T-jz-BOa" secondAttribute="bottom" constant="31" id="7tM-sU-cJk"/>
                             <constraint firstItem="5r7-mb-ufO" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="B5V-MJ-DzL"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="5YZ-1e-IzZ" secondAttribute="trailing" id="E63-5H-RgT"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="5YZ-1e-IzZ" secondAttribute="bottom" id="LeJ-xz-Ykb"/>
+                            <constraint firstItem="k6T-jz-BOa" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="N0p-uC-4W3"/>
                             <constraint firstItem="5r7-mb-ufO" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="S0d-dH-ZNY"/>
-                            <constraint firstItem="5YZ-1e-IzZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="TBB-8g-cEl"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="backgroundLabel" destination="5r7-mb-ufO" id="aDg-zV-JST"/>
-                        <outlet property="controlsContainerView" destination="5YZ-1e-IzZ" id="EUS-T5-IdQ"/>
-                        <outlet property="enableSentrySwitch" destination="4WQ-YN-9zT" id="dmw-tZ-OYZ"/>
-                        <outlet property="enableSessionReplaySwitch" destination="4WQ-YN-9zT" id="WNt-tk-Hs7"/>
-                        <outlet property="useViewRendererV2Switch" destination="WOe-Ha-XHR" id="efd-0g-nYG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -115,9 +51,6 @@
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

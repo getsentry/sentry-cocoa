@@ -1,4 +1,6 @@
 name: iOS-Swift6
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-Swift6.yml
@@ -21,11 +25,10 @@ targets:
     platform: auto
     sources:
       - iOS-Swift6
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift6.xcconfig
       Release: iOS-Swift6.xcconfig
@@ -51,6 +54,8 @@ targets:
       TestCI: iOS-Swift6-UITests.xcconfig
 schemes:
   iOS-Swift6:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS-Swift6: all

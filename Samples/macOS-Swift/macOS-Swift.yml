@@ -1,4 +1,6 @@
 name: macOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - macOS-Swift.yml
@@ -20,12 +24,11 @@ targets:
     platform: auto
     sources:
       - Shared
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-Swift.xcconfig
       Release: macOS-Swift.xcconfig
@@ -62,12 +65,11 @@ targets:
     platform: auto
     sources:
       - Shared
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-Swift-Other.xcconfig
       Release: macOS-Swift-Other.xcconfig
@@ -86,12 +88,11 @@ targets:
     platform: auto
     sources:
       - Shared
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-Swift-Sandboxed.xcconfig
       Release: macOS-Swift-Sandboxed.xcconfig
@@ -110,12 +111,11 @@ targets:
     platform: auto
     sources:
       - Shared
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-Swift-Sandboxed-Other.xcconfig
       Release: macOS-Swift-Sandboxed-Other.xcconfig
@@ -131,6 +131,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   macOS-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         macOS-Swift: all
@@ -138,3 +140,21 @@ schemes:
       config: Test
       testPlans:
         - path: ../../Plans/macOS-Swift_Base.xctestplan
+  macOS-Swift-Other:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all
+  macOS-Swift-Sandboxed:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all
+  macOS-Swift-Sandboxed-Other:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-Swift: all

@@ -1,4 +1,6 @@
 name: watchOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - watchOS-Swift.yml
@@ -24,6 +28,7 @@ targets:
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: "watchOS-Swift WatchKit Extension"
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: watchOS-Swift-App.xcconfig
       Release: watchOS-Swift-App.xcconfig
@@ -34,10 +39,10 @@ targets:
     platform: auto
     sources:
       - "watchOS-Swift WatchKit Extension"
-      - ../Shared/GitInjections.swift
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: watchOS-Swift-Extension.xcconfig
       Release: watchOS-Swift-Extension.xcconfig
@@ -53,8 +58,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   "watchOS-Swift WatchKit App":
+    templates:
+      - SampleAppScheme
     build:
       targets:
         "watchOS-Swift WatchKit App": all
-    run:
-      executable: "watchOS-Swift WatchKit App"

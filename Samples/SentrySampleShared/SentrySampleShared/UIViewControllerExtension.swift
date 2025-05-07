@@ -1,8 +1,10 @@
+#if !os(macOS) && !os(watchOS)
+
 import Foundation
 import Sentry
 import UIKit
 
-extension UIViewController {
+public extension UIViewController {
     func createTransactionObserver(forCallback: @escaping (Span) -> Void) -> SpanObserver? {
         let result = SpanObserver(callback: forCallback)
         if result == nil {
@@ -23,3 +25,5 @@ extension UIViewController {
         }
     }
 }
+
+#endif // !os(macOS) && !os(watchOS)

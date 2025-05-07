@@ -145,6 +145,7 @@ release-pod:
 	pod trunk push SentrySwiftUI.podspec
 
 xcode:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
@@ -158,3 +159,8 @@ xcode:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	open Sentry.xcworkspace
+
+.PHONY: build-sample-apps
+
+build-sample-apps:
+	tmuxinator start -p .build-sample-apps.tmuxinator.yml

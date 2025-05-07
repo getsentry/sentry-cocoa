@@ -1,4 +1,5 @@
 import Foundation
+import SentrySampleShared
 import SentrySwiftUI
 import SwiftUI
 
@@ -25,7 +26,7 @@ class LoremIpsumViewModel: ObservableObject {
     private func fetchLoremIpsum() {
         let dispatchQueue = DispatchQueue(label: "LoremIpsumViewModel")
         dispatchQueue.async {
-            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+            if let path = BundleResourceProvider.loremIpsumTextFilePath {
                 if let contents = FileManager.default.contents(atPath: path) {
                     DispatchQueue.main.async {
                         self.text = String(data: contents, encoding: .utf8) ?? ""
