@@ -1,0 +1,18 @@
+name: Version Bump Util
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+    run-version-bump:
+        name: Run Version Bump
+        # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # We don't care which version we bump to, as long as it's a valid semver
+            - run: make bump-version TO=100.0.0
