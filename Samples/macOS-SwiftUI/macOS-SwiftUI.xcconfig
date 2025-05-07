@@ -6,7 +6,6 @@
 #include "../Shared/Config/Packaging.xcconfig"
 #include "../Shared/Config/SearchPaths.xcconfig"
 #include "../Shared/Config/Signing.xcconfig"
-#include "../Shared/Config/Versioning.xcconfig"
 #include "../Shared/Config/CodeGeneration.xcconfig"
 #include "../Shared/Config/ClangLanguage.xcconfig"
 #include "../Shared/Config/ClangCppLanguage.xcconfig"
@@ -21,14 +20,14 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI
-INFOPLIST_FILE = iOS-SwiftUI/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI/iOS-SwiftUI.entitlements
+#include "../../Sources/Configuration/Versioning.xcconfig"
 
-SWIFT_OBJC_BRIDGING_HEADER = iOS-SwiftUI/bridging-headers.h
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-SwiftUI
+INFOPLIST_FILE = macOS-SwiftUI/Info.plist
+CODE_SIGN_ENTITLEMENTS = macOS-SwiftUI/macOS_SwiftUI.entitlements
 
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SUPPORTED_PLATFORMS = macosx
 
-IPHONEOS_DEPLOYMENT_TARGET = 14.0
+MACOSX_DEPLOYMENT_TARGET = 12.4
 
-DEVELOPMENT_ASSET_PATHS = "iOS-SwiftUI/Preview Content"
+DEVELOPMENT_ASSET_PATHS = "macOS-SwiftUI/Preview Content"
