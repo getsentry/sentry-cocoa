@@ -24,6 +24,9 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 
 SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 
+#if SENTRY_HAS_UIKIT
+- (BOOL)isAppHangTrackingV2Disabled;
+#endif // SENTRY_HAS_UIKIT
 @end
 
 NS_ASSUME_NONNULL_END
