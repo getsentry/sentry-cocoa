@@ -8,8 +8,11 @@ init:
 	rbenv exec bundle install
 	./scripts/update-tooling-versions.sh
 	yarn install
-	
-# installs the tools needed to run CI test tasks locally
+
+.PHONY: init-ci-build
+init-ci-build:
+	brew bundle --file Brewfile-ci-build
+
 .PHONY: init-ci-test
 init-ci-test:
 	brew bundle --file Brewfile-ci-test
@@ -140,3 +143,17 @@ release-pod:
 	pod trunk push SentryPrivate.podspec
 	pod trunk push Sentry.podspec
 	pod trunk push SentrySwiftUI.podspec
+
+xcode:
+	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
+	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
+	xcodegen --spec Samples/iOS13-Swift/iOS13-Swift.yml
+	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
+	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
+	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
+	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	open Sentry.xcworkspace

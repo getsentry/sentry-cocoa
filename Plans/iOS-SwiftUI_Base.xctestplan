@@ -21,7 +21,7 @@
     {
       "target" : {
         "containerPath" : "container:iOS-SwiftUI.xcodeproj",
-        "identifier" : "7B64385626A6C0A6000D0F65",
+        "identifier" : "4EE8FE57D6CE25066F588D60",
         "name" : "iOS-SwiftUI-UITests"
       }
     }
