@@ -170,7 +170,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         }
 #endif // TARGET_OS_OSX
 
-        // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
+        // Use the name of the bundle's executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
         // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
         // inApp. For private frameworks, such as Sentry, dynamic and static frameworks differ.
@@ -831,6 +831,13 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #endif // defined(RELEASE)
 }
 
+#if SENTRY_HAS_UIKIT
+- (BOOL)isAppHangTrackingV2Disabled
+{
+    return !self.enableAppHangTrackingV2 || self.appHangTimeoutInterval <= 0;
+}
+#endif // SENTRY_HAS_UIKIT
+
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
 {
@@ -862,4 +869,5 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     return [NSString stringWithFormat:@"<%@: {\n%@\n}>", self, propertiesDescription];
 }
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+
 @end

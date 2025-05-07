@@ -1,3 +1,5 @@
+import AVFoundation
+import CoreMedia
 import Foundation
 @testable import Sentry
 import SentryTestUtils
@@ -204,6 +206,161 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(secondVideo.width, 20)
         XCTAssertEqual(secondVideo.height, 10)
     }
-    
+
+    func testGenerateVideoInfo_whenNoFramesAdded_shouldNotThrowError() throws {
+        // -- Arrange --
+        let sut = getSut()
+        dateProvider.driftTimeForEveryRead = true
+        dateProvider.driftTimeInterval = 1
+
+        // -- Act --
+        let videos = try sut.createVideoWith(
+            beginning: Date(timeIntervalSinceReferenceDate: 0),
+            end: Date(timeIntervalSinceReferenceDate: 10)
+        )
+
+        // -- Assert --
+        XCTAssertNil(videos.first)
+    }
+  
+    func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {
+        // -- Arrange --
+        let framesPerSecond = 1
+
+        // -- Act --
+        let zeroIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 0, frameRate: framesPerSecond)
+        let firstIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1, frameRate: framesPerSecond)
+        let secondIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 2, frameRate: framesPerSecond)
+        let largeIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1_337, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(zeroIndexTime.timeValue.value, 0)
+        XCTAssertEqual(zeroIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(zeroIndexTime.timeValue.seconds, 0)
+
+        XCTAssertEqual(firstIndexTime.timeValue.value, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.seconds, 1)
+
+        XCTAssertEqual(secondIndexTime.timeValue.value, 2)
+        XCTAssertEqual(secondIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(secondIndexTime.timeValue.seconds, 2)
+
+        XCTAssertEqual(largeIndexTime.timeValue.value, 1_337)
+        XCTAssertEqual(largeIndexTime.timeValue.timescale, 1)
+        XCTAssertEqual(largeIndexTime.timeValue.seconds, 1_337)
+    }
+
+    func testCalculatePresentationTime_withMoreThanOneFPS_shouldReturnTiming() {
+        // -- Arrange --
+        let framesPerSecond = 4
+
+        // -- Act --
+        let zeroIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 0, frameRate: framesPerSecond)
+        let firstIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1, frameRate: framesPerSecond)
+        let secondIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 2, frameRate: framesPerSecond)
+        let largeIndexTime = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 1_337, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(zeroIndexTime.timeValue.value, 0)
+        XCTAssertEqual(zeroIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(zeroIndexTime.timeValue.seconds, 0)
+
+        XCTAssertEqual(firstIndexTime.timeValue.value, 1)
+        XCTAssertEqual(firstIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(firstIndexTime.timeValue.seconds, 0.25)
+
+        XCTAssertEqual(secondIndexTime.timeValue.value, 2)
+        XCTAssertEqual(secondIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(secondIndexTime.timeValue.seconds, 0.5)
+
+        XCTAssertEqual(largeIndexTime.timeValue.value, 1_337)
+        XCTAssertEqual(largeIndexTime.timeValue.timescale, 4)
+        XCTAssertEqual(largeIndexTime.timeValue.seconds, 334.25)
+    }
+
+    func testCalculatePresentationTime_withNegativeFPS_shouldReturnInvalidTime() {
+        // -- Arrange --
+        let framesPerSecond = -4
+
+        // -- Act --
+        let time = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: 3, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertFalse(time.timeValue.isValid)
+    }
+
+    func testCalculatePresentationTime_withNegativeIndex_shouldReturnNegativeTime() {
+        // -- Arrange --
+        let framesPerSecond = 4
+
+        // -- Act --
+        let time = SentryOnDemandReplay.calculatePresentationTime(forFrameAtIndex: -3, frameRate: framesPerSecond)
+
+        // -- Assert --
+        XCTAssertEqual(time.timeValue.value, -3)
+        XCTAssertEqual(time.timeValue.timescale, 4)
+        XCTAssertEqual(time.timeValue.seconds, -0.75)
+    }
+
+    // This test case with zero size is not particularly handled, but used
+    // to lock down the expected behaviour.
+    func testCreateVideoSettings_zeroSize_shouldReturnFullSettings() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        // -- Act --
+        let settings = sut.createVideoSettings(width: 0, height: 0)
+
+        // -- Assert --
+        XCTAssertEqual(settings.count, 5)
+        XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
+        XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 0)
+        XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 0)
+        
+        let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
+
+        XCTAssertEqual(compressionProperties.count, 4)
+        XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
+        XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
+        XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
+        
+        let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
+
+        XCTAssertEqual(colorProperties.count, 3)
+        XCTAssertEqual(colorProperties[AVVideoColorPrimariesKey] as? String, AVVideoColorPrimaries_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoTransferFunctionKey] as? String, AVVideoTransferFunction_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoYCbCrMatrixKey] as? String, AVVideoYCbCrMatrix_ITU_R_709_2)
+    }
+
+    func testCreateVideoSettings_anySize_shouldReturnFullSettings() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        // -- Act --
+        let settings = sut.createVideoSettings(width: 100, height: 100)
+
+        // -- Assert --
+        XCTAssertEqual(settings.count, 5)
+        XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
+        XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 100)
+        XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 100)
+        
+        let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
+
+        XCTAssertEqual(compressionProperties.count, 4)
+        XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
+        XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
+        XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
+        
+        let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
+
+        XCTAssertEqual(colorProperties.count, 3)
+        XCTAssertEqual(colorProperties[AVVideoColorPrimariesKey] as? String, AVVideoColorPrimaries_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoTransferFunctionKey] as? String, AVVideoTransferFunction_ITU_R_709_2)
+        XCTAssertEqual(colorProperties[AVVideoYCbCrMatrixKey] as? String, AVVideoYCbCrMatrix_ITU_R_709_2)
+    }
 }
 #endif

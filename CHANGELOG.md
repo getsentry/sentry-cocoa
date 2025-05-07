@@ -4,6 +4,51 @@
 
 ### Fixes
 
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+## 8.50.0
+
+> [!Important]
+> This version enables the better view renderer V2 used by Session Replay by default.
+> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
+>
+> In case you are noticing issues with view rendering, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
+
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+- Make enableAppHangTrackingV2 general available (#5149)
+
+### Fixes
+
+- Correctly rate limit envelopes from the new UI profiling system (#5131)
+- Race condition in ANRTrackerV1 (#5137)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+- GA of better session replay view renderer V2 (#5054)
+- Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
+- Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Add more detailed debug logs for session replay (#5173)
+
+## 8.49.2
+
+> [!Important]
+> Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least this version.
+
+### Fixes
+
+- Non-sandboxed macOS app launch profile configuration are now respected (#5144)
+
+## 8.49.1
+
+### Fixes
+
 - Crash in setMeasurement when name is nil (#5064)
 - Make setMeasurement thread safe (#5067, #5078)
 - Truncation of Swift crash messages (#5036)
@@ -17,7 +62,7 @@
 - New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
-> With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
+> With the addition of the new profiling configuration API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
 >
 > - `SentryOptions.enableProfiling`
 > - `SentryOptions.isProfilingEnabled`
@@ -896,6 +941,11 @@ The following two features, disabled by default, were mistakenly added to the re
 - Add context to event with CrashIntegration disabled (#3699)
 
 ## 8.21.0
+
+> [!Important]
+> This version introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least version 8.49.2.
 
 ### Features
 
