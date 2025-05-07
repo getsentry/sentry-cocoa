@@ -50,6 +50,7 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         } else {
             override?.stringValue = textField.text
         }
+        SentrySDKWrapper.shared.startSentry()
     }
 }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS)

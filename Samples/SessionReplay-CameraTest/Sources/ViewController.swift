@@ -1,5 +1,6 @@
 import AVFoundation
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class ViewController: UIViewController {
@@ -88,17 +89,7 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func didChangeToggleValue(_ sender: UISwitch) {
-        if sender === enableSessionReplaySwitch {
-            AppDelegate.isSessionReplayEnabled = sender.isOn
-            print("Enable session replay flag changed to: \(AppDelegate.isSessionReplayEnabled)")
-        } else if sender === useViewRendererV2Switch {
-            AppDelegate.isViewRendererV2Enabled = sender.isOn
-            print("Use view renderer V2 flag changed to: \(AppDelegate.isViewRendererV2Enabled)")
-        } else if sender === enableSentrySwitch {
-            AppDelegate.isSentryEnabled = sender.isOn
-            print("Enable Sentry flag changed to: \(AppDelegate.isSentryEnabled)")
-        }
-        AppDelegate.reloadSentrySDK()
+    @IBAction func configureSDK(_ sender: Any) {
+        present(FeaturesViewController(style: .plain), animated: true)
     }
 }

@@ -159,3 +159,8 @@ xcode:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	open Sentry.xcworkspace
+
+.PHONY: build-sample-apps
+
+build-sample-apps:
+	tmuxinator start -p .build-sample-apps.tmuxinator.yml

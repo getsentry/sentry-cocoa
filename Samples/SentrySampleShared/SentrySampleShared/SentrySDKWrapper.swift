@@ -21,7 +21,14 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
     public func startSentry() {
-        SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        if SentrySDK.isEnabled {
+            print("SentrySDK already enabled, closing it")
+            SentrySDK.close()
+        }
+
+        if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        }
     }
 
     func configureSentryOptions(options: Options) {
@@ -33,17 +40,21 @@ public struct SentrySDKWrapper {
         options.debug = true
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 0,
-                onErrorSampleRate: 1,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionReplaySampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.SessionReplay.sessionReplayOnErrorSampleRate.floatValue ?? 1,
                 maskAllText: true,
                 maskAllImages: true
             )
-            options.sessionReplay.quality = .high
-            options.sessionReplay.enableViewRendererV2 = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
+
+            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.sessionReplayQuality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
+
+            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
         }
 
 #if !os(tvOS)
@@ -378,13 +389,11 @@ extension SentrySDKWrapper {
 
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
         return args
     }
 
     var env: [String: String] {
         let env = ProcessInfo.processInfo.environment
-        print("[iOS-Swift] [debug] environment: \(env)")
         return env
     }
 

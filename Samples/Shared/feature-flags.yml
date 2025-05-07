@@ -2,19 +2,18 @@ schemeTemplates:
   SampleAppScheme:
     run:
       commandLineArguments:
-        "--io.sentry.disable-everything": false
-        "--io.sentry.ui-test.use-custom-feedback-button": true
-        "--io.sentry.disable-ui-profiling": false
-        "--disable-app-hang-tracking-v2": false
         "--io.sentry.schema-environment-variable-precedence": true
-        "--io.sentry.profile-lifecycle-manual": false
-        "--disable-time-to-full-display-tracing": false
-        "--disable-performance-v2": false
-        "--disable-attach-view-hierarchy": false
-        "--disable-attach-screenshot": false
-        "--io.sentry.base64-attachment-data": false
-        "--io.sentry.disable-http-transport": false
-        "--disable-file-io-tracing": false
+        "--io.sentry.disable-everything": false
+        "--skip-sentry-init": false
+        "--io.sentry.wipe-data": false
+
+        # session replay
+        "--disable-session-replay": false
+        "--io.sentry.session-replay.disableViewRendereV2": false
+        "--io.sentry.session-replay.enableFastViewRendering": false
+
+        # user feedback
+        "--io.sentry.ui-test.use-custom-feedback-button": true
         "--io.sentry.feedback.dont-use-sentry-user": false
         "--io.sentry.feedback.require-name": false
         "--io.sentry.feedback.require-email": false
@@ -22,16 +21,25 @@ schemeTemplates:
         "--io.sentry.feedback.no-widget-icon": false
         "--io.sentry.feedback.no-widget-text": false
         "--io.sentry.feedback.all-defaults": false
-        "--skip-sentry-init": false
-        "--disable-spotlight": false
+        "--io.sentry.feedback.no-auto-inject-widget": false
+
+        # profiling
+        "--io.sentry.disable-ui-profiling": false
+        "--io.sentry.profile-lifecycle-manual": false
+        "--io.sentry.slow-load-method": false
+        "--io.sentry.disable-app-start-profiling": false
+
+        # performance
+        "--disable-app-hang-tracking-v2": false
+        "--disable-time-to-full-display-tracing": false
+        "--disable-performance-v2": false
+        "--disable-attach-view-hierarchy": false
+        "--disable-attach-screenshot": false
+        "--disable-file-io-tracing": false
         "--disable-automatic-session-tracking": false
         "--disable-metrickit-integration": false
-        "--disable-session-replay": false
-        "--io.sentry.wipe-data": false
-        "--io.sentry.slow-load-method": false
         "--disable-watchdog-tracking": false
         "--disable-tracing": false
-        "--io.sentry.disable-app-start-profiling": false
         "--disable-crash-handler": false
         "--disable-swizzling": false
         "--disable-network-breadcrumbs": false
@@ -42,9 +50,25 @@ schemeTemplates:
         "--disable-anr-tracking": false
         "--disable-auto-performance-tracing": false
         "--disable-ui-tracing": false
-        "--io.sentry.feedback.no-auto-inject-widget": false
         "--disable-filemanager-swizzling": false
+
+        # other
+        "--io.sentry.base64-attachment-data": false
+        "--io.sentry.disable-http-transport": false
+        "--disable-spotlight": false
+
       environmentVariables:
+        # session replay
+        - variable: "--io.sentry.sessionReplaySampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sessionReplayOnErrorSampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sessionReplayQuality"
+          value:
+          isEnabled: false
+
         - variable: "--io.sentry.tracesSampleRate"
           value:
           isEnabled: false
