@@ -22,7 +22,7 @@
       "target" : {
         "containerPath" : "container:tvOS-Swift.xcodeproj",
         "identifier" : "7B64388526A6C71A000D0F65",
-        "name" : "tvOS-Swift-UITests"
+        "name" : "tvOS-SBSwift-UITests"
       }
     }
   ],
