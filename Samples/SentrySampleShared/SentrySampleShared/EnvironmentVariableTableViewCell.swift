@@ -1,3 +1,4 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import UIKit
 
 class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
@@ -51,3 +52,4 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         }
     }
 }
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
