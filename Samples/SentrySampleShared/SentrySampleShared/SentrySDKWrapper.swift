@@ -1,13 +1,12 @@
 // swiftlint:disable file_length function_body_length
 
 import Sentry
-import SentrySampleShared
 import UIKit
 
-struct SentrySDKWrapper {
-    static let shared = SentrySDKWrapper()
+public struct SentrySDKWrapper {
+    public static let shared = SentrySDKWrapper()
 
-    let feedbackButton = {
+    public let feedbackButton = {
         let button = UIButton(type: .custom)
         button.setTitle("BYOB Feedback", for: .normal)
         button.setTitleColor(.blue, for: .normal)
@@ -16,7 +15,7 @@ struct SentrySDKWrapper {
         return button
     }()
 
-    func startSentry() {
+    public func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
     
@@ -356,7 +355,7 @@ extension SentrySDKWrapper {
 
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
-    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
+    public static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
     
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
