@@ -1,4 +1,4 @@
-name: Version Bump Util
+name: Test Version Bump Util
 
 on:
   push:
