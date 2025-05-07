@@ -148,4 +148,5 @@ xcode:
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6.yml
+	xcodegen --spec Samples/iOS13-Swift.yml
 	open Sentry.xcworkspace
