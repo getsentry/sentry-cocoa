@@ -6,7 +6,6 @@
 #include "../Shared/Config/Packaging.xcconfig"
 #include "../Shared/Config/SearchPaths.xcconfig"
 #include "../Shared/Config/Signing.xcconfig"
-#include "../Shared/Config/Versioning.xcconfig"
 #include "../Shared/Config/CodeGeneration.xcconfig"
 #include "../Shared/Config/ClangLanguage.xcconfig"
 #include "../Shared/Config/ClangCppLanguage.xcconfig"
