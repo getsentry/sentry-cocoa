@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionIsTracingEnabled;
+    return kIntegrationOptionStartFramesTracker;
 }
 
 - (void)uninstall
