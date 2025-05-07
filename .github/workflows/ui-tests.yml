@@ -42,6 +42,7 @@ jobs:
         with:
           bundler-cache: true
       - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: make init-ci-build
       - run: make xcode
 
       - name: Run Fastlane
