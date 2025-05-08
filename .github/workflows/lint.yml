@@ -79,14 +79,6 @@ jobs:
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
 
-  shellcheck:
-    name: Run Shellcheck
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v4
-      - run: brew install shellcheck
-      - run: shellcheck **/*.sh
-
   lint-prettier:
     name: Run Prettier
     runs-on: ubuntu-latest

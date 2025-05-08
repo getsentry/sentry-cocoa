@@ -1,0 +1,22 @@
+name: lint-shellcheck
+on:
+  push:
+    branches:
+      - main
+      - ci/shellcheck
+    paths:
+      - ".github/workflows/lint-shellcheck.yml"
+      - "*.sh"
+
+  pull_request:
+    paths:
+      - ".github/workflows/lint-shellcheck.yml"
+      - "*.sh"
+
+jobs:
+  shellcheck:
+    name: Run Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck **/*.sh
