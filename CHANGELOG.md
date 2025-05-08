@@ -1,14 +1,19 @@
 # Changelog
 
-## 8.50.1-beta.0
+## Unreleased
 
 > [!Important]
 > This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
 
 ### Fixes
 
-- Detect AppHangsV2 when tracing not enabled (#5184)
 - Reporting unhandled C++ exception message (#5190)
+
+## 8.50.1-beta.0
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
 
 ## 8.50.0
 
