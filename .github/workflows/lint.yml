@@ -10,8 +10,6 @@ on:
       - "Samples/**"
       - ".github/workflows/lint.yml"
       - "scripts/ci-select-xcode.sh"
-      - "*.json"
-      - "*.md"
 
   pull_request:
     paths:
@@ -24,8 +22,6 @@ on:
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
-      - "*.json"
-      - "*.md"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

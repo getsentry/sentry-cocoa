@@ -8,6 +8,7 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/lint-prettier.yml"
       - "*.yml"
       - "*.yaml"
       - "*.json"
@@ -15,6 +16,7 @@ on:
 
   pull_request:
     paths:
+      - ".github/workflows/lint-prettier.yml"
       - "*.yml"
       - "*.yaml"
       - "*.json"
