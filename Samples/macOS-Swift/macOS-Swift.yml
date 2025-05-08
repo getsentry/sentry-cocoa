@@ -1,0 +1,148 @@
+name: macOS-Swift
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - macOS-Swift.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  macOS-Swift:
+    type: application
+    platform: auto
+    sources:
+      - Shared
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: macOS-Swift.xcconfig
+      Release: macOS-Swift.xcconfig
+      Test: macOS-Swift.xcconfig
+      TestCI: macOS-Swift.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  macOS-Swift-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - macOS-Swift-UITests
+    dependencies:
+      - target: macOS-Swift
+      - target: macOS-Swift-Other
+      - target: macOS-Swift-Sandboxed
+      - target: macOS-Swift-Sandboxed-Other
+    configFiles:
+      Debug: macOS-Swift-UITests.xcconfig
+      Release: macOS-Swift-UITests.xcconfig
+      Test: macOS-Swift-UITests.xcconfig
+      TestCI: macOS-Swift-UITests.xcconfig
+
+  # the remaining app targets in this spec, macOS-Swift-Other, macOS-Swift-Sandboxed, macOS-Swift-Sandboxed-Other were created primarily to help reproduce https://github.com/getsentry/sentry-cocoa/issues/5142 in macOS-Swift-UITests, where two unsandboxed mac apps would write a launch profile config file to a common caches location
+
+  macOS-Swift-Other:
+    type: application
+    platform: auto
+    sources:
+      - Shared
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: macOS-Swift-Other.xcconfig
+      Release: macOS-Swift-Other.xcconfig
+      Test: macOS-Swift-Other.xcconfig
+      TestCI: macOS-Swift-Other.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  macOS-Swift-Sandboxed:
+    type: application
+    platform: auto
+    sources:
+      - Shared
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: macOS-Swift-Sandboxed.xcconfig
+      Release: macOS-Swift-Sandboxed.xcconfig
+      Test: macOS-Swift-Sandboxed.xcconfig
+      TestCI: macOS-Swift-Sandboxed.xcconfig
+    entitlements:
+      path: ./macOS-Swift-Sandboxed.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  macOS-Swift-Sandboxed-Other:
+    type: application
+    platform: auto
+    sources:
+      - Shared
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: macOS-Swift-Sandboxed-Other.xcconfig
+      Release: macOS-Swift-Sandboxed-Other.xcconfig
+      Test: macOS-Swift-Sandboxed-Other.xcconfig
+      TestCI: macOS-Swift-Sandboxed-Other.xcconfig
+    entitlements:
+      path: ./macOS-Swift-Sandboxed-Other.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+schemes:
+  macOS-Swift:
+    build:
+      targets:
+        macOS-Swift: all
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/macOS-Swift_Base.xctestplan

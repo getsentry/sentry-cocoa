@@ -345,7 +345,9 @@ static NSObject *sentryDependencyContainerLock;
         @synchronized(sentryDependencyContainerLock) {
             if (_uiViewControllerPerformanceTracker == nil) {
                 _uiViewControllerPerformanceTracker =
-                    [[SentryUIViewControllerPerformanceTracker alloc] init];
+                    [[SentryUIViewControllerPerformanceTracker alloc]
+                             initWithTracker:SentryPerformanceTracker.shared
+                        dispatchQueueWrapper:[self dispatchQueueWrapper]];
             }
         }
     }

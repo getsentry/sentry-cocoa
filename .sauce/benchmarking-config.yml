@@ -9,7 +9,7 @@ defaults:
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-  testApp: ./DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
 
 suites:
   - name: "High-end device"
