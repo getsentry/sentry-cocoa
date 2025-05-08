@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - ci/shellcheck
     paths:
       - ".github/workflows/lint-shellcheck.yml"
       - "*.sh"
