@@ -97,10 +97,6 @@ targets:
       Release: macOS-Swift-Sandboxed.xcconfig
       Test: macOS-Swift-Sandboxed.xcconfig
       TestCI: macOS-Swift-Sandboxed.xcconfig
-    entitlements:
-      path: ./macOS-Swift-Sandboxed.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -125,10 +121,6 @@ targets:
       Release: macOS-Swift-Sandboxed-Other.xcconfig
       Test: macOS-Swift-Sandboxed-Other.xcconfig
       TestCI: macOS-Swift-Sandboxed-Other.xcconfig
-    entitlements:
-      path: ./macOS-Swift-Sandboxed-Other.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
