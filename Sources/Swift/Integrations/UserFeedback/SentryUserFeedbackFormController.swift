@@ -128,7 +128,7 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
     }
 }
 
-#if DEBUG
+#if DEBUG && swift(>=5.10)
 import SwiftUI
 
 @available(iOS 13.0, *)
@@ -166,8 +166,7 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
             screenshot: nil))
     .dynamicTypeSize(.accessibility5)
 }
-
-#endif // DEBUG
+#endif // DEBUG && swift(>=5.10)
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
