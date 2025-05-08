@@ -21,7 +21,14 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
     public func startSentry() {
-        SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        if SentrySDK.isEnabled {
+            print("SentrySDK already enabled, closing it")
+            SentrySDK.close()
+        }
+
+        if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        }
     }
 
     func configureSentryOptions(options: Options) {
@@ -378,13 +385,11 @@ extension SentrySDKWrapper {
 
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
         return args
     }
 
     var env: [String: String] {
         let env = ProcessInfo.processInfo.environment
-        print("[iOS-Swift] [debug] environment: \(env)")
         return env
     }
 

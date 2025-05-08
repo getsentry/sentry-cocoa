@@ -1,4 +1,5 @@
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
+import Sentry
 import UIKit
 
 class LaunchArgumentTableViewCell: UITableViewCell {
@@ -12,6 +13,7 @@ class LaunchArgumentTableViewCell: UITableViewCell {
 
     @objc func toggleFlag() {
         override?.boolValue = flagSwitch.isOn
+        SentrySDKWrapper.shared.startSentry()
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
