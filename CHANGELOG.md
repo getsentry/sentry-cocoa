@@ -6,6 +6,10 @@
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
 
+### Improvements
+
+- Replace associated object with current TTD tracker (#5048)
+
 ## 8.50.1-beta.0
 
 ### Fixes
@@ -38,7 +42,6 @@
 - GA of better session replay view renderer V2 (#5054)
 - Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
 - Revert max key-frame interval to once per session replayvideo segment (#5156)
-- Replace associated object with current TTD tracker (#5048)
 - Add more detailed debug logs for session replay (#5173)
 
 ## 8.49.2
