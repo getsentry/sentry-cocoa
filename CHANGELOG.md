@@ -5,6 +5,7 @@
 ### Fixes
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
+- Fix default and dictionary values for session replay options (#5210)
 
 ## 8.50.1-beta.0
 
