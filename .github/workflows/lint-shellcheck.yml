@@ -2,7 +2,6 @@
 # expensive. For example, pod lib lint doesn't need to run for sh changes. Therefore, we run it in an
 # extra workflow.
 
-
 name: lint-shellcheck
 on:
   push:
