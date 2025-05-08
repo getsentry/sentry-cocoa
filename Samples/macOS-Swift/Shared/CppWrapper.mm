@@ -10,6 +10,12 @@
     cppTool.throwCPPException();
 }
 
+- (void)noExceptCppException
+{
+    Sentry::CppSample cppTool;
+    cppTool.noExceptCppException();
+}
+
 - (void)rethrowNoActiveCPPException
 {
     Sentry::CppSample cppTool;
