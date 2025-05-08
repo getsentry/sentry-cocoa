@@ -236,7 +236,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             // We need to set at least one parameter to avoid the initializer to call itself.
             //
             // MAKE SURE THIS DEFAULT VALUE IS ALIGNED WITH THE DEFAULT VALUE IN THE INITIALIZER BELOW.
-            sessionSampleRate: 0,
+            sessionSampleRate: 0
         )
     }
 
