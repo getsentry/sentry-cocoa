@@ -6,8 +6,8 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var backgroundLabel: UILabel!
-    @IBOutlet weak var controlsContainerView: UIView!
-
+    @IBOutlet weak var previewContainerView: UIView!
+    
     @IBOutlet weak var enableSentrySwitch: UISwitch!
     @IBOutlet weak var enableSessionReplaySwitch: UISwitch!
     @IBOutlet weak var useViewRendererV2Switch: UISwitch!
@@ -31,15 +31,8 @@ class ViewController: UIViewController {
     private func setupPreviewView() {
         let previewView = PreviewView()
         self.previewView = previewView
-        view.insertSubview(previewView, belowSubview: controlsContainerView)
-
-        previewView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            previewView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            previewView.topAnchor.constraint(equalTo: view.topAnchor),
-            previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        previewContainerView.addSubview(previewView)
+        previewView.matchEdgeAnchors(from: previewContainerView)
     }
 
     private func setupErrorLabel() {
