@@ -301,13 +301,12 @@ jobs:
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error, 
     # you only get the compiler error when setting the SENTRY_ASYNC_SAFE_LOG_LEVEL to SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG or lower.
-  check-compiling-with-async-safe-logs:
-      name: Check compiling with Async Safe Logs
+  check-compiling-async-safe-logs:
+      name: Check compiling Async Safe Logs
       runs-on: macos-15
       steps:
         - uses: actions/checkout@v4
   
-
         # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
         - name: Async Safe Log Level is Error
           run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
