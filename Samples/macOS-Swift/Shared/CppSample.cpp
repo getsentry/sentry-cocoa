@@ -4,7 +4,7 @@
 void
 internalFunction(void)
 {
-    throw std::invalid_argument("Invalid Argument.");
+    throw std::invalid_argument("Internal function must not be called.");
 }
 
 void
