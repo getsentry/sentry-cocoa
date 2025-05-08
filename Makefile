@@ -156,4 +156,5 @@ xcode:
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	open Sentry.xcworkspace
