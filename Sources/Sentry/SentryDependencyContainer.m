@@ -537,17 +537,4 @@ static NSObject *sentryDependencyContainerLock;
 }
 #endif // !TARGET_OS_WATCH
 
-- (SentryPerformanceTracker *)performanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
-    "double-checked lock produce false alarms")
-{
-    if (_performanceTracker == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_performanceTracker == nil) {
-                _performanceTracker = [[SentryPerformanceTracker alloc] init];
-            }
-        }
-    }
-    return _performanceTracker;
-}
-
 @end

@@ -49,7 +49,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
 
-            tracker = SentryDependencyContainer.sharedInstance().performanceTracker
+            tracker = SentryPerformanceTracker.shared
 
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)

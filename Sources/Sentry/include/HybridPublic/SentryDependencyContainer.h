@@ -23,7 +23,6 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
-@class SentryPerformanceTracker;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -81,7 +80,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
-@property (nonatomic, strong) SentryPerformanceTracker *performanceTracker;
 
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
