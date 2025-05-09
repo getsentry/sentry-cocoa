@@ -2,13 +2,15 @@
 
 ## Unreleased
 
-### Fixes
-
-- Detect AppHangsV2 when tracing not enabled (#5184)
-
 ### Improvements
 
 - Replace associated object with current TTD tracker (#5048)
+
+## 8.50.1
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
 
 ## 8.50.1-beta.0
 
