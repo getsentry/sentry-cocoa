@@ -10,6 +10,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
+#import "SentryUIApplication.h"
 
 #import "SentryProfilingConditionals.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -30,7 +31,9 @@
 
 @end
 
-@implementation SentrySessionTracker
+@implementation SentrySessionTracker {
+    BOOL isStarted;
+}
 
 - (instancetype)initWithOptions:(SentryOptions *)options
              notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
@@ -83,6 +86,16 @@
         addObserver:self
            selector:@selector(willTerminate)
                name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+
+    // Keep track if the SDK was started to ignore didBecomeActive if it was called before.
+    self->isStarted = true;
+
+    // Edge case: When starting the SDK after the app did become active, we need to call
+    //            didBecomeActive manually to start the session. This is the case when
+    //            closing the SDK and starting it again.
+    if ([self isAppActive]) {
+        [self didBecomeActive];
+    }
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -105,6 +118,7 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
+    self->isStarted = false;
 }
 
 - (void)dealloc
@@ -151,7 +165,18 @@
     // We don't know if the hybrid SDKs post the notification from a background thread, so we
     // synchronize to be safe.
     @synchronized(self) {
+        // If the SDK became active before started, we ignore the notification.
+        // This can happen if the SDK is cloesd and started, or if the start of the SDK was delayed,
+        // e.g. asking a user for consent first.
+        if (!self->isStarted) {
+            SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because the "
+                             @"tracker is not started.");
+            return;
+        }
+
         if (self.wasDidBecomeActiveCalled) {
+            SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because it "
+                             @"was already called.");
             return;
         }
         self.wasDidBecomeActiveCalled = YES;
@@ -163,6 +188,8 @@
     if (nil == self.lastInForeground) {
         // Cause we don't want to track sessions if the app is in the background we need to wait
         // until the app is in the foreground to start a session.
+        SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the foreground for the first time. "
+                         @"Starting a new session.");
         [hub startSession];
     } else {
         // When the app was already in the foreground we have to decide whether it was long enough
@@ -173,8 +200,15 @@
                 timeIntervalSinceDate:self.lastInForeground];
 
         if (secondsInBackground * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
+            SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the background for %f seconds. "
+                             @"Starting a new session.",
+                secondsInBackground);
             [hub endSessionWithTimestamp:self.lastInForeground];
             [hub startSession];
+        } else {
+            SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the background for %f seconds. Not "
+                             @"starting a new session.",
+                secondsInBackground);
         }
     }
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
@@ -213,6 +247,18 @@
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     self.wasDidBecomeActiveCalled = NO;
+}
+
+- (BOOL)isAppActive
+{
+    BOOL isAppActive = NO;
+#if SENTRY_HAS_UIKIT
+    SentryUIApplication *application = SentryDependencyContainer.sharedInstance.application;
+    if (application.applicationState == UIApplicationStateActive) {
+        isAppActive = YES;
+    }
+#endif
+    return isAppActive;
 }
 
 @end
