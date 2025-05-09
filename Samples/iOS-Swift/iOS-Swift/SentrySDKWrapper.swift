@@ -18,7 +18,7 @@ struct SentrySDKWrapper {
     func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
-
+    
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
         options.beforeSend = { $0 }
@@ -26,7 +26,7 @@ struct SentrySDKWrapper {
         options.beforeCaptureScreenshot = { _ in true }
         options.beforeCaptureViewHierarchy = { _ in true }
         options.debug = true
-
+        
         if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: 0,
@@ -39,7 +39,7 @@ struct SentrySDKWrapper {
             // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
             options.sessionReplay.enableFastViewRendering = false
         }
-
+        
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = true
@@ -92,12 +92,12 @@ struct SentrySDKWrapper {
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
-        
-#if targetEnvironment(simulator)
+
+    #if targetEnvironment(simulator)
         options.enableSpotlight = !SentrySDKOverrides.Other.disableSpotlight.boolValue
-#else
+    #else
         options.enableSpotlight = false
-#endif // targetEnvironment(simulator)
+    #endif // targetEnvironment(simulator)
 
         options.beforeBreadcrumb = { breadcrumb in
             //Raising notifications when a new breadcrumb is created in order to use this information
@@ -105,14 +105,14 @@ struct SentrySDKWrapper {
             NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
             return breadcrumb
         }
-
+        
         options.initialScope = configureInitialScope(scope:)
         options.configureUserFeedback = configureFeedback(config:)
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
     }
-
+    
     func configureInitialScope(scope: Scope) -> Scope {
         if let environmentOverride = self.env["--io.sentry.sdk-environment"] {
             scope.setEnvironment(environmentOverride)
@@ -125,17 +125,17 @@ struct SentrySDKWrapper {
             scope.setEnvironment("device")
 #endif // targetEnvironment(simulator)
         }
-
+        
         scope.setTag(value: "swift", key: "language")
-
+        
         scope.injectGitInformation()
-
+        
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
         user.username = username
         user.name = userFullName
         scope.setUser(user)
-
+        
         if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
             scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
         }
@@ -143,7 +143,7 @@ struct SentrySDKWrapper {
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
         return scope
     }
-
+    
     var userFullName: String {
         let name = self.env["--io.sentry.user.name"] ?? NSFullUserName()
         guard !name.isEmpty else {
@@ -151,7 +151,7 @@ struct SentrySDKWrapper {
         }
         return name
     }
-
+    
     var username: String {
         let username = self.env["--io.sentry.user.username"] ?? NSUserName()
         guard !username.isEmpty else {
@@ -165,13 +165,13 @@ struct SentrySDKWrapper {
 // MARK: User feedback configuration
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
-
+    
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
         guard !SentrySDKOverrides.Feedback.disableAutoInject.boolValue else {
             config.autoInject = false
             return
         }
-
+        
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
         } else if Locale.current.languageCode == "ur" { // urdu
@@ -184,7 +184,7 @@ extension SentrySDKWrapper {
             config.labelText = "Report Jank"
         }
         config.layoutUIOffset = layoutOffset
-
+        
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
         }
@@ -192,7 +192,7 @@ extension SentrySDKWrapper {
             config.showIcon = false
         }
     }
-
+    
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
         config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.boolValue
         config.formTitle = "Jank Report"
@@ -208,7 +208,7 @@ extension SentrySDKWrapper {
         config.emailLabel = "Thine email"
         config.nameLabel = "Thy name"
     }
-
+    
     func configureFeedbackTheme(config: SentryUserFeedbackThemeConfiguration) {
         let fontFamily: String
         if Locale.current.languageCode == "ar" { // arabic; ar_EG
@@ -231,7 +231,7 @@ extension SentrySDKWrapper {
         config.buttonBackground = .purple
         config.buttonForeground = .white
     }
-
+    
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
         guard !args.contains("--io.sentry.feedback.all-defaults") else {
             config.configureWidget = { widget in
@@ -240,7 +240,7 @@ extension SentrySDKWrapper {
             configureHooks(config: config)
             return
         }
-
+        
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
         config.useShakeGesture = true
         config.showFormForScreenshots = true
@@ -253,7 +253,7 @@ extension SentrySDKWrapper {
             config.customButton = feedbackButton
         }
     }
-
+    
     func configureHooks(config: SentryUserFeedbackConfiguration) {
         config.onFormOpen = {
             updateHookMarkers(forEvent: "onFormOpen")
@@ -266,13 +266,13 @@ extension SentrySDKWrapper {
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
-
+            
             // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
             if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
                 infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
             }
-
+            
             let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()
             updateHookMarkers(forEvent: "onSubmitSuccess", with: jsonData.base64EncodedString())
         }
@@ -285,13 +285,13 @@ extension SentrySDKWrapper {
             updateHookMarkers(forEvent: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(missingFieldsSorted)")
         }
     }
-
+    
     func updateHookMarkers(forEvent name: String, with contents: String? = nil) {
         guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
             print("[iOS-Swift] Couldn't retrieve path to application support directory.")
             return
         }
-
+        
         let fm = FileManager.default
         let dir = "\(appSupportDirectory)/io.sentry/feedback"
         let isDirectory = UnsafeMutablePointer<ObjCBool>.allocate(capacity: 1)
@@ -313,9 +313,9 @@ extension SentrySDKWrapper {
                 return
             }
         }
-
+        
         createHookFile(path: "\(dir)/\(name)", contents: contents)
-
+        
         switch name {
         case "onFormOpen": removeHookFile(path: "\(dir)/onFormClose")
         case "onFormClose": removeHookFile(path: "\(dir)/onFormOpen")
@@ -324,7 +324,7 @@ extension SentrySDKWrapper {
         default: fatalError("Unexpected marker file name")
         }
     }
-
+    
     func createHookFile(path: String, contents: String?) {
         if let contents = contents {
             do {
@@ -338,7 +338,7 @@ extension SentrySDKWrapper {
             print("[iOS-Swift] Created user feedback form hook marker file at \(path).")
         }
     }
-
+    
     func removeHookFile(path: String) {
         let fm = FileManager.default
         guard fm.fileExists(atPath: path) else { return }
@@ -353,19 +353,19 @@ extension SentrySDKWrapper {
 // MARK: Convenience access to SDK configuration via launch arg / environment variable
 extension SentrySDKWrapper {
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-
+    
     var args: [String] {
         let args = ProcessInfo.processInfo.arguments
         print("[iOS-Swift] [debug] launch arguments: \(args)")
         return args
     }
-
+    
     var env: [String: String] {
         let env = ProcessInfo.processInfo.environment
         print("[iOS-Swift] [debug] environment: \(env)")
         return env
     }
-
+    
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
     var dsn: String? {
         do {
@@ -378,7 +378,7 @@ extension SentrySDKWrapper {
         }
         return nil
     }
-
+    
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
     var isUITest: Bool { env["--io.sentry.sdk-environment"] == "ui-tests" }
