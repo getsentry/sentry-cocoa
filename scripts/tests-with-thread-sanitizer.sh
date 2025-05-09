@@ -5,10 +5,10 @@ set -euox pipefail
 # the logs only show failing tests, but don't highlight the threading issues.
 # Therefore we print a hint to find the threading issues. Profiler doesn't
 # run when it detects TSAN is present, so we skip those tests.
-set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO xcodebuild \
+set -o pipefail && NSUnbufferedIO=YES xcodebuild \
     -workspace Sentry.xcworkspace \
     -scheme Sentry \
-    -configuration Test \
+    -configuration TestCI \
     -enableThreadSanitizer YES \
     -destination "platform=iOS Simulator,OS=latest,name=iPhone 16" \
     -skip-testing:"SentryProfilerTests" \
