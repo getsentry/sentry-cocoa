@@ -177,6 +177,11 @@
                                       tracer:(SentryTracer *)vcSpan];
 }
 
+- (void)reportInitialDisplay;
+{
+    [self.currentTTDTracker reportInitialDisplay];
+}
+
 - (void)reportFullyDisplayed
 {
     SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;

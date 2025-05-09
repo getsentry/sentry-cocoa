@@ -29,7 +29,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var options: Options
         
         let viewController = TestViewController()
-        var tracker: SentryPerformanceTracker
+        let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
         
         var displayLinkWrapper = TestDisplayLinkWrapper()
@@ -48,8 +48,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
-
-            tracker = SentryPerformanceTracker.shared
 
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
@@ -78,7 +76,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        fixture = nil
     }
     
     func testUILifeCycle_ViewDidAppear() throws {

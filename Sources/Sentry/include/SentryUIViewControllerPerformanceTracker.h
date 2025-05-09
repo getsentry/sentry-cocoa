@@ -103,6 +103,7 @@ SENTRY_NO_INIT
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callback;
 
+- (void)reportInitialDisplay;
 - (void)reportFullyDisplayed;
 
 - (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
