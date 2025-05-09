@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
       - "Sources/**"
-      - ".github/workflows/build.yml"
+      - ".github/workflows/build-xcframework.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
       - Sentry.xcworkspace/**
