@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Replace associated object with current TTD tracker (#5048)
+
 ## 8.50.1
 
 ### Fixes

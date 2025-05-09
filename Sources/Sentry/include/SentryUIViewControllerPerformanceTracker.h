@@ -21,9 +21,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
     = @"SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET";
 
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER";
-
 /**
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
@@ -106,11 +103,12 @@ SENTRY_NO_INIT
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callback;
 
+- (void)reportInitialDisplay;
 - (void)reportFullyDisplayed;
 
-- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                                     tracer:(SentryTracer *)tracer;
+- (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                        waitForFullDisplay:(BOOL)waitForFullDisplay
+                                    tracer:(SentryTracer *)tracer;
 
 @end
 
