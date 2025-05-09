@@ -1,10 +1,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryPerformanceTracker.h"
-
-#if SENTRY_HAS_UIKIT
-#    import "SentryUIViewControllerPerformanceTracker.h"
-#endif
+#import "SentryUIViewControllerPerformanceTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,9 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryDependencyContainerInternalBridge : NSObject
 
 + (SentryPerformanceTracker *)getPerformanceTracker;
-#if SENTRY_HAS_UIKIT
 + (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker;
-#endif
 
 @end
 

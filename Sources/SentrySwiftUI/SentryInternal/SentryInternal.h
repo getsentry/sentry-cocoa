@@ -16,7 +16,6 @@
 #if SENTRY_TEST
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #else
 @class SentrySpan;
 @interface SentryTracer : NSObject <SentrySpan>
@@ -31,7 +30,6 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
 @class SentryDispatchQueueWrapper;
-@class SentryInAppLogic;
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -103,12 +101,16 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 
+@interface SentryUIViewControllerPerformanceTracker : NSObject
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
+@end
+
 @interface SentryDependencyContainerInternalBridge : NSObject
 
 + (SentryPerformanceTracker *)getPerformanceTracker;
-#if SENTRY_HAS_UIKIT
 + (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker;
-#endif
 
 @end
 

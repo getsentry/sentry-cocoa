@@ -9,11 +9,9 @@
     return [[SentryDependencyContainer sharedInstance] performanceTracker];
 }
 
-#if SENTRY_HAS_UIKIT
 + (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker
 {
     return [[SentryDependencyContainer sharedInstance] uiViewControllerPerformanceTracker];
 }
-#endif
 
 @end

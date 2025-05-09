@@ -13,6 +13,9 @@ class SentryTraceViewModel {
     private var viewAppeared: Bool = false
     private var tracker: SentryTimeToDisplayTracker?
     private let performanceTracker: SentryPerformanceTracker
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+    private let uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker
+#endif
 
     let name: String
     let nameSource: SentryTransactionNameSource
@@ -26,6 +29,9 @@ class SentryTraceViewModel {
         // The performance tracker can not be injected via the constructor because it would change the type of the constructor.
         // For Xcode 15.4 with iOS 17.2 this breaks the ABI stability.
         self.performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
+        #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+        self.uiViewControllerPerformanceTracker = SentryDependencyContainerInternalBridge.getUiViewControllerPerformanceTracker()
+        #endif
     }
     
     func startSpan() -> SpanId? {
@@ -51,7 +57,6 @@ class SentryTraceViewModel {
         let tracer = performanceTracker.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
-            let uiViewControllerPerformanceTracker = SentryDependencyContainerInternalBridge.getUiViewControllerPerformanceTracker()
             tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
         }
 #endif
