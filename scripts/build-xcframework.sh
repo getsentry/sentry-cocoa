@@ -4,7 +4,7 @@
 #
 # This script originally built all slices and packaged them, but the function to build a slice was split into a separate script so it could be parallelized. The pieces of this script that orchestrated which slices to build then package them up are what remain, so it can be tested on a developer's machine locally to replicate what happens in CI.
 
-set -eou pipefail
+set -eoux pipefail
 
 args="${1:-}"
 
@@ -19,23 +19,29 @@ fi
 rm -rf Carthage/
 mkdir Carthage
 
-createxcframework="xcodebuild -create-xcframework"
+generate_xcframework() {
+    local scheme="$1"
+    local suffix="${2:-}"
+    local MACH_O_TYPE="${3-mh_dylib}"
+    local configuration_suffix="${4-}"
+    local createxcframework="xcodebuild -create-xcframework "
 
-for sdk in "${sdks[@]}"; do
-    slice_output=$(./scripts/build-xcframework-slice.sh "$sdk" "$args")
-    createxcframework+=" $slice_output "
-done
+    for sdk in "${sdks[@]}"; do
+        slice_output=$(./scripts/build-xcframework-slice.sh "$sdk" "$scheme" "$suffix" "$MACH_O_TYPE" "$configuration_suffix")
+        createxcframework+=" $slice_output "
+    done
 
-#createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
-#$createxcframework
-#
-#generate_xcframework "Sentry" "-Dynamic"
-#
-#if [ "$args" != "iOSOnly" ]; then
-#    generate_xcframework "Sentry" "" staticlib
-#    
-#    if [ "$args" != "gameOnly" ]; then
-#        generate_xcframework "SentrySwiftUI"
-#        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
-#    fi
-#fi
+    createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
+    $createxcframework
+}
+
+generate_xcframework "Sentry" "-Dynamic"
+
+if [ "$args" != "iOSOnly" ]; then
+    generate_xcframework "Sentry" "" staticlib
+    
+    if [ "$args" != "gameOnly" ]; then
+        generate_xcframework "SentrySwiftUI"
+        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+    fi
+fi
