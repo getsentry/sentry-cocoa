@@ -278,7 +278,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 30
     needs: [build-test-server]
 
@@ -300,7 +300,7 @@ jobs:
       - name: Check test-server runs
         run: curl http://localhost:8080/echo-baggage-header
 
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-select-xcode.sh 16.3
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh
