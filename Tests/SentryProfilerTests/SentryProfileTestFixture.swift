@@ -15,12 +15,13 @@ class SentryProfileTestFixture {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfileTestFixture")
 
     let options: Options
-    let client: TestClient?
-    let hub: SentryHub
+    lazy var client = TestClient(options: options)
+    lazy var hub = SentryHub(client: client, andScope: scope)
     let scope = Scope()
     let message = "some message"
     let transactionName = "Some Transaction"
     let transactionOperation = "Some Operation"
+    let rootSpanDescription = "Some Root Span"
 
     let fixedRandomValue = 0.5
 
@@ -31,7 +32,8 @@ class SentryProfileTestFixture {
     var timeoutTimerFactory: TestSentryNSTimerFactory
     let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     let notificationCenter = TestNSNotificationCenterWrapper()
-    
+    lazy var sessionTracker = SessionTracker(options: options, notificationCenter: notificationCenter)
+
     let currentDateProvider = TestCurrentDateProvider()
     
 #if !os(macOS)
@@ -75,10 +77,6 @@ class SentryProfileTestFixture {
         options = Options()
         options.dsn = SentryProfileTestFixture.dsnAsString
         options.debug = true
-        client = TestClient(options: options)
-        hub = SentryHub(client: client, andScope: scope)
-        hub.bindClient(client)
-        SentrySDK.setCurrentHub(hub)
         
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
@@ -95,12 +93,19 @@ class SentryProfileTestFixture {
     }
     
     /// Advance the mock date provider, start a new transaction and return its handle.
-    func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil) throws -> SentryTracer {
+    func newTransaction(testingAppLaunchSpans: Bool = false, automaticTransaction: Bool = false, idleTimeout: TimeInterval? = nil, rootSpan: Bool = false) throws -> SentryTracer {
         let operation = testingAppLaunchSpans ? SentrySpanOperationUiLoad : transactionOperation
-        
+
+        let context: TransactionContext
+        if rootSpan {
+            context = TransactionContext(trace: SentryId(), spanId: SpanId(), parentId: nil, operation: operation, spanDescription: rootSpanDescription, sampled: .yes)
+        } else {
+            context = TransactionContext(name: transactionName, operation: operation)
+        }
+
         if automaticTransaction {
             return hub.startTransaction(
-                with: TransactionContext(name: transactionName, operation: operation),
+                with: context,
                 bindToScope: false,
                 customSamplingContext: [:],
                 configuration: SentryTracerConfiguration(block: {
@@ -400,6 +405,22 @@ class SentryProfileTestFixture {
                                          sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 #endif // !os(macOS)
+
+    func givenSdkWithHub() {
+        hub.bindClient(client)
+        SentrySDK.setCurrentHub(hub)
+        sentry_sdkInitProfilerTasks(options, hub)
+    }
+
+    func stopContinuousProfiler() throws {
+        SentrySDK.stopProfiler()
+        try allowContinuousProfilerToStop()
+    }
+
+    func allowContinuousProfilerToStop() throws {
+        currentDateProvider.advance(by: 60)
+        try timeoutTimerFactory.check()
+    }
 }
 
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
