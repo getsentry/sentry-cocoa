@@ -14,12 +14,10 @@ set -o pipefail && NSUnbufferedIO=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRE
     -skip-testing:"SentryProfilerTests" \
     test 2>&1 |
     tee thread-sanitizer.log |
+    tee >(grep -q "ThreadSanitizer: data race" && echo "WARNING: ThreadSanitizer found a data race! Search for \"ThreadSanitizer\" in the thread-sanitizer.log artifact for more details") |
     xcbeautify --report junit
 
-testStatus=$?
-
-if [ $testStatus -eq 0 ]; then
-    echo "ThreadSanitizer didn't find problems."
-else
-    echo "ThreadSanitizer found problems or one of the tests failed. Search for \"ThreadSanitizer\" in the thread-sanitizer.log artifact for more details."
+# Check if ThreadSanitizer found any data races
+if grep -q "WARNING: ThreadSanitizer: data race" thread-sanitizer.log; then
+    exit 1
 fi

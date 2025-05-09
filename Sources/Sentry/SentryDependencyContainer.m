@@ -81,16 +81,59 @@ static NSObject *sentryDependencyContainerLock;
 + (void)reset
 {
     if (instance) {
+        @synchronized(sentryDependencyContainerLock) {
 #if SENTRY_HAS_REACHABILITY
-        [instance->_reachability removeAllObservers];
+            [instance->_reachability removeAllObservers];
 #endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
-        [instance->_framesTracker stop];
+            [instance->_framesTracker stop];
 #endif // SENTRY_HAS_UIKIT
-    }
 
-    instance = [[SentryDependencyContainer alloc] init];
+            instance->_dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+            instance->_random = [[SentryRandom alloc] init];
+            instance->_threadWrapper = [[SentryThreadWrapper alloc] init];
+            instance->_binaryImageCache = [[SentryBinaryImageCache alloc] init];
+            instance->_dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
+
+            instance->_fileManager = nil;
+            instance->_appStateManager = nil;
+            instance->_crashWrapper = nil;
+            instance->_crashReporter = nil;
+            instance->_swizzleWrapper = nil;
+            instance->_notificationCenterWrapper = nil;
+            instance->_debugImageProvider = nil;
+            instance->_processInfoWrapper = nil;
+            instance->_systemWrapper = nil;
+            instance->_dispatchFactory = nil;
+            instance->_timerFactory = nil;
+            instance->_extraContextProvider = nil;
+            instance->_sysctlWrapper = nil;
+            instance->_threadInspector = nil;
+            instance->_rateLimits = nil;
+            instance->_fileIOTracker = nil;
+
+#if SENTRY_UIKIT_AVAILABLE
+            instance->_framesTracker = nil;
+            instance->_screenshot = nil;
+            instance->_viewHierarchy = nil;
+            instance->_application = nil;
+            instance->_uiViewControllerPerformanceTracker = nil;
+#endif // SENTRY_UIKIT_AVAILABLE
+
+#if SENTRY_HAS_UIKIT
+            instance->_uiDeviceWrapper = nil;
+#endif // TARGET_OS_IOS
+
+#if !TARGET_OS_WATCH
+            instance->_reachability = nil;
+#endif // !TARGET_OS_WATCH
+
+#if SENTRY_HAS_METRIC_KIT
+            instance->_metricKitManager = nil;
+#endif
+        }
+    }
 }
 
 - (instancetype)init

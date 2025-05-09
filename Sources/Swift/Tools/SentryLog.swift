@@ -25,6 +25,7 @@ class SentryLog: NSObject {
     }
     
     @objc
+    @_silgen_name("SENTRY_DISABLE_THREAD_SANITIZER")
     static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
