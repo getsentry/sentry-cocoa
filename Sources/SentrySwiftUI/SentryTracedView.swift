@@ -71,8 +71,10 @@ class SentryTraceViewModel {
     func viewDidAppear() {
         guard !viewAppeared else { return }
         viewAppeared = true
+        #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
         uiViewControllerPerformanceTracker.reportInitialDisplay()
+        #endif
 
         if let transactionId = transactionId {
             // According to Apple's documentation, the call to `body` needs to be fast
