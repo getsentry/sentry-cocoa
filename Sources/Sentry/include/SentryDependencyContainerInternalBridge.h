@@ -15,7 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryDependencyContainerInternalBridge : NSObject
 
 + (SentryPerformanceTracker *)getPerformanceTracker;
+#if SENTRY_HAS_UIKIT
 + (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker;
+#endif
 
 @end
 

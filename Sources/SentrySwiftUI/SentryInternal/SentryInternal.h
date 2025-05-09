@@ -101,16 +101,23 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 
+#if SENTRY_HAS_UIKIT
 @interface SentryUIViewControllerPerformanceTracker : NSObject
+
+- (void)reportFullyDisplayed;
+
 - (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                          waitForFullDisplay:(BOOL)waitForFullDisplay
                                                                      tracer:(SentryTracer *)tracer;
 @end
+#endif
 
 @interface SentryDependencyContainerInternalBridge : NSObject
 
 + (SentryPerformanceTracker *)getPerformanceTracker;
+#if SENTRY_HAS_UIKIT
 + (SentryUIViewControllerPerformanceTracker *)getUiViewControllerPerformanceTracker;
+#endif
 
 @end
 
