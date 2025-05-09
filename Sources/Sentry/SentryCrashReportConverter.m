@@ -384,9 +384,13 @@
     if ([exceptionType isEqualToString:@"nsexception"]) {
         exception = [self parseNSException];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
-        exception =
-            [[SentryException alloc] initWithValue:self.exceptionContext[@"cpp_exception"][@"name"]
-                                              type:@"C++ Exception"];
+        NSString *cppExceptionName = self.exceptionContext[@"cpp_exception"][@"name"];
+        NSString *cppExceptionReason = self.exceptionContext[@"reason"];
+
+        NSString *exceptionValue =
+            [NSString stringWithFormat:@"%@: %@", cppExceptionName, cppExceptionReason];
+
+        exception = [[SentryException alloc] initWithValue:exceptionValue type:@"C++ Exception"];
     } else if ([exceptionType isEqualToString:@"mach"]) {
         exception = [[SentryException alloc]
             initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",

@@ -235,6 +235,15 @@
 - (void)testCPPException
 {
     [self isValidReport:@"Resources/CPPException"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/CPPException"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+
+    XCTAssertEqualObjects(exception.value, @"MyException: Something bad happened...");
 }
 
 - (void)testNXPage
