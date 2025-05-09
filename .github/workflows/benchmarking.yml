@@ -196,7 +196,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
-        run: ./scripts/build-xcframework.sh iOSOnly
+        run: ./scripts/build-xcframework.sh iOSOnly # will need to invoke with no_maccatalyst; should this depend on another workflow that builds the xcframework, which builds an iOSOnly and a full variant using the slices each would need since it'll build all the slices anyways?
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
