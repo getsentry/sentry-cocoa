@@ -30,6 +30,27 @@ jobs:
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
     # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
     runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+
+          - scheme: Sentry
+            sdk: iphoneos
+            suffix: "-Dynamic"
+            macho_type: mh_dylib
+            configuration_suffix: ""
+
+          # iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator
+
+          - scheme: Sentry
+            sdk: iphoneos
+            suffix: ""
+            macho_type: staticlib
+            configuration_suffix: ""
+
+          # iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator
     steps:
       - uses: actions/checkout@v4
       # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
