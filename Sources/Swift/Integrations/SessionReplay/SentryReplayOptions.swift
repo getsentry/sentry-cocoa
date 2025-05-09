@@ -50,6 +50,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         }
     }
 
+    public struct Defaults {
+        public static let sessionSampleRate: Float = 0
+        public static let enableViewRendererV2: Bool = true
+    }
+
     /**
      * Indicates the percentage in which the replay for the session will be created.
      * - Specifying @c 0 means never, @c 1.0 means always.
@@ -57,7 +62,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * to the default.
      * - note:  The default is 0.
      */
-    public var sessionSampleRate: Float
+    public var sessionSampleRate: Float = Defaults.sessionSampleRate
 
     /**
      * Indicates the percentage in which a 30 seconds replay will be send with error events.
@@ -132,7 +137,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Experiment: In case you are noticing issues with the new view renderer, please report the issue on [GitHub](https://github.com/getsentry/sentry-cocoa). 
      *               Eventually, we will remove this feature flag and use the new view renderer by default.
      */
-    public var enableViewRendererV2 = true
+    public var enableViewRendererV2 = Defaults.enableViewRendererV2
 
     /**
      * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
@@ -205,7 +210,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Inittialize session replay options disabled
      */
     public override init() {
-        self.sessionSampleRate = 0
+        self.sessionSampleRate = Defaults.sessionSampleRate
         self.onErrorSampleRate = 0
     }
 
@@ -216,7 +221,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *  - errorSampleRate Indicates the percentage in which a 30 seconds replay will be send with
      * error events.
      */
-    public init(sessionSampleRate: Float = 0, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true, enableViewRendererV2: Bool = false, enableFastViewRendering: Bool = false) {
+    public init(sessionSampleRate: Float = Defaults.sessionSampleRate, onErrorSampleRate: Float = 0, maskAllText: Bool = true, maskAllImages: Bool = true, enableViewRendererV2: Bool = Defaults.enableViewRendererV2, enableFastViewRendering: Bool = false) {
         self.sessionSampleRate = sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate
         self.maskAllText = maskAllText
@@ -226,11 +231,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     }
 
     convenience init(dictionary: [String: Any]) {
-        let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? 0
+        let sessionSampleRate = (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue ?? Defaults.sessionSampleRate
         let onErrorSampleRate = (dictionary["errorSampleRate"] as? NSNumber)?.floatValue ?? 0
         let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? true
         let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? true
-        let enableViewRendererV2 = (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue ?? false
+        let enableViewRendererV2 = (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue ?? Defaults.enableViewRendererV2
         let enableFastViewRendering = (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue ?? false
         self.init(
             sessionSampleRate: sessionSampleRate,
