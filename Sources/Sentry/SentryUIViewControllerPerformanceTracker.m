@@ -540,7 +540,8 @@
 
 - (void)reportInitialDisplay:(UIViewController *)controller
 {
-    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Reporting initial display for controller: %@",
+    SENTRY_LOG_DEBUG(
+        @"[UIViewController Performance] Reporting initial display for controller: %@", controller);
     SentryTimeToDisplayTracker *ttdTracker
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
     [ttdTracker reportInitialDisplay];
