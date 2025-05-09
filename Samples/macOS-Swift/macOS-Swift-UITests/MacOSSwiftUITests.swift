@@ -8,19 +8,19 @@ final class MacOSSwiftUITests: XCTestCase {
 
     @MainActor
     func testMacAppsDontEnableLaunchProfilingForEachOther_Nonsandboxed() throws {
-        try performSequence(appBundleID: "io.sentry.macOS-Swift", shouldProfileLaunches: true, wipeData: true)
-        try performSequence(appBundleID: "io.sentry.macOS-Swift-Other", shouldProfileLaunches: false, wipeData: false)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift", shouldProfileLaunches: true, wipeData: true, isSandboxed: false)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Other", shouldProfileLaunches: false, wipeData: false, isSandboxed: false)
     }
 
     @MainActor
     func testMacAppsDontEnableLaunchProfilingForEachOther_Sandboxed() throws {
-        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed", shouldProfileLaunches: true, wipeData: true)
-        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed-Other", shouldProfileLaunches: false, wipeData: false)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed", shouldProfileLaunches: true, wipeData: true, isSandboxed: true)
+        try performSequence(appBundleID: "io.sentry.macOS-Swift-Sandboxed-Other", shouldProfileLaunches: false, wipeData: false, isSandboxed: true)
     }
 }
 
 private extension MacOSSwiftUITests {
-    func performSequence(appBundleID: String, shouldProfileLaunches: Bool, wipeData: Bool) throws {
+    func performSequence(appBundleID: String, shouldProfileLaunches: Bool, wipeData: Bool, isSandboxed: Bool) throws {
         // one launch to configure launch profiling for the next launch
         let app = XCUIApplication(bundleIdentifier: appBundleID)
 
@@ -28,7 +28,7 @@ private extension MacOSSwiftUITests {
             app.launchArguments.append("--io.sentry.wipe-data")
         }
 
-        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches)
+        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches, shouldBeSandboxed: isSandboxed)
         app.terminate()
 
         if wipeData {
@@ -36,7 +36,7 @@ private extension MacOSSwiftUITests {
         }
 
         // second launch to profile a launch if configured
-        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunches, shouldProfileNextLaunch: shouldProfileLaunches)
+        try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: shouldProfileLaunches, shouldProfileNextLaunch: shouldProfileLaunches, shouldBeSandboxed: isSandboxed)
         app.terminate()
     }
 
@@ -45,13 +45,15 @@ private extension MacOSSwiftUITests {
      * - terminates an existing app session
      * - creates a new one
      * - sets launch args and env vars to set the appropriate `SentryOption` values for the desired behavior
+     * - verifies that the app sandbox is active or not
      * - launches the new configured app session
      * - asserts the expected outcomes of the config file and launch profiler
      */
     func launchAndConfigureSubsequentLaunches(
         app: XCUIApplication,
         shouldProfileThisLaunch: Bool,
-        shouldProfileNextLaunch: Bool
+        shouldProfileNextLaunch: Bool,
+        shouldBeSandboxed: Bool
     ) throws {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
@@ -74,6 +76,13 @@ private extension MacOSSwiftUITests {
 
         app.launch()
 
+        // Make sure we are in the right tab because window restoration can open the previously used app instead.
+        // We tried to access the button using a static identifier, but it was not available for lookup.
+        returnToMainTab(app: app)
+
+        // Check if the app is sandboxed
+        verifyIsSandboxed(app: app, shouldBeSandboxed: shouldBeSandboxed)
+
         XCTAssertEqual(try checkLaunchProfileMarkerFileExistence(app: app), shouldProfileNextLaunch)
 
         stopContinuousProfiler(app: app)
@@ -85,6 +94,33 @@ private extension MacOSSwiftUITests {
         }
 
         try assertProfileContents(profile: lastProfile)
+    }
+
+    func verifyIsSandboxed(app: XCUIApplication, shouldBeSandboxed: Bool) {
+        // Change to the metadata tab to verify checks
+        let metadataTabBarButton = app.tabs["Metadata"]
+        metadataTabBarButton
+            .afterWaitingForExistence("Metadata tab bar button not found")
+            .click()
+
+        // Check if the app is sandboxed
+
+        let isSandboxCheckButton = app.checkBoxes["io.sentry.macos-swift.ui-test.checks.app-sandbox.is-active"]
+            .afterWaitingForExistence("Couldn't find sandboxed button")
+        if shouldBeSandboxed {
+            XCTAssertEqual(isSandboxCheckButton.value as? Int, 1, "App Sandbox is not active, but it should be")
+        } else {
+            XCTAssertEqual(isSandboxCheckButton.value as? Int, 0, "App Sandbox is active, but it shouldn't be")
+        }
+
+        returnToMainTab(app: app)
+    }
+
+    func returnToMainTab(app: XCUIApplication) {
+        let mainTabBarButton = app.tabs["Main"]
+        mainTabBarButton
+            .afterWaitingForExistence("Main tab bar button not found")
+            .click()
     }
 
     func assertProfileContents(profile: [String: Any]) throws {
