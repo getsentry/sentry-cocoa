@@ -2,6 +2,7 @@
 #import "NoARCCrash.h"
 
 @import Sentry;
+@import SentrySampleShared;
 
 @interface ViewController ()
 
@@ -80,8 +81,7 @@
 
 - (IBAction)captureUserFeedbackV2:(id)sender
 {
-    NSData *data = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"screenshot"
-                                                                         withExtension:@"png"]];
+    NSData *data = [NSData dataWithContentsOfURL:BundleResourceProvider.screenshotURL];
     NSArray<NSData *> *attachments = nil;
     if (data != nil) {
         attachments = @[ data ];

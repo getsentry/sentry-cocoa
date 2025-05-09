@@ -1,6 +1,7 @@
 // swiftlint:disable file_length function_body_length
 
 import Sentry
+import SentrySampleShared
 import UIKit
 
 struct SentrySDKWrapper {
@@ -107,7 +108,9 @@ struct SentrySDKWrapper {
         }
         
         options.initialScope = configureInitialScope(scope:)
-        options.configureUserFeedback = configureFeedback(config:)
+        if #available(iOS 13.0, *) {
+            options.configureUserFeedback = configureFeedback(config:)
+        }
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
@@ -128,7 +131,7 @@ struct SentrySDKWrapper {
         
         scope.setTag(value: "swift", key: "language")
         
-        scope.injectGitInformation()
+        injectGitInformation(scope: scope)
         
         let user = User(userId: "1")
         user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
@@ -163,6 +166,7 @@ struct SentrySDKWrapper {
 }
 
 // MARK: User feedback configuration
+@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
     

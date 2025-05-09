@@ -1,0 +1,29 @@
+name: SentrySampleShared
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - SentrySampleShared.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  SentrySampleShared:
+    type: framework
+    platform: auto
+    sources:
+      - SentrySampleShared
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: SentrySampleShared.xcconfig
+      Release: SentrySampleShared.xcconfig
+      Test: SentrySampleShared.xcconfig
+      TestCI: SentrySampleShared.xcconfig

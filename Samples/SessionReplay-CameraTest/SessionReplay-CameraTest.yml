@@ -4,6 +4,8 @@ generateEmptyDirectories: true
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - SessionReplay-CameraTest.yml
@@ -15,11 +17,10 @@ targets:
     platform: iOS
     sources:
       - Sources
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: SessionReplay-CameraTest.xcconfig
       Release: SessionReplay-CameraTest.xcconfig
