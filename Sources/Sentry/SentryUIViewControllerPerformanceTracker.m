@@ -179,11 +179,13 @@
 
 - (void)reportInitialDisplay;
 {
+    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Reporting initial display");
     [self.currentTTDTracker reportInitialDisplay];
 }
 
 - (void)reportFullyDisplayed
 {
+    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Reporting fully displayed");
     SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;
     if (tracker == nil) {
         SENTRY_LOG_DEBUG(
