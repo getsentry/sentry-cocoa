@@ -12,16 +12,26 @@ class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
     private var tracker: SentryTimeToDisplayTracker?
-    
+    private let performanceTracker: SentryPerformanceTracker
+#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+    private let uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker
+#endif
+
     let name: String
     let nameSource: SentryTransactionNameSource
     let waitForFullDisplay: Bool
     let traceOrigin = SentryTraceOrigin.autoUISwiftUI
-    
+
     init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name
         self.nameSource = nameSource
         self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.options?.enableTimeToFullDisplayTracing ?? false
+        // The performance tracker can not be injected via the constructor because it would change the type of the constructor.
+        // For Xcode 15.4 with iOS 17.2 this breaks the ABI stability.
+        self.performanceTracker = SentryDependencyContainerInternalBridge.getPerformanceTracker()
+        #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+        self.uiViewControllerPerformanceTracker = SentryDependencyContainerInternalBridge.getUiViewControllerPerformanceTracker()
+        #endif
     }
     
     func startSpan() -> SpanId? {
@@ -33,20 +43,20 @@ class SentryTraceViewModel {
     }
     
     private func startRootTransaction() -> SentryTracer? {
-        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
-        
-        let transactionId = SentryPerformanceTracker.shared.startSpan(
+        guard performanceTracker.activeSpanId() == nil else { return nil }
+
+        let transactionId = performanceTracker.startSpan(
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
             origin: traceOrigin
         )
-        SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
+        performanceTracker.pushActiveSpan(transactionId)
         self.transactionId = transactionId
-        let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
+
+        let tracer = performanceTracker.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
-            let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
             tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
         }
 #endif
@@ -54,19 +64,19 @@ class SentryTraceViewModel {
     }
     
     private func createBodySpan(name: String) -> SpanId {
-        let spanId = SentryPerformanceTracker.shared.startSpan(
+        let spanId = performanceTracker.startSpan(
             withName: name,
             nameSource: nameSource,
             operation: "ui.load",
             origin: traceOrigin
         )
-        SentryPerformanceTracker.shared.pushActiveSpan(spanId)
+        performanceTracker.pushActiveSpan(spanId)
         return spanId
     }
     
     func finishSpan(_ spanId: SpanId) {
-        SentryPerformanceTracker.shared.popActiveSpan()
-        SentryPerformanceTracker.shared.finishSpan(spanId)
+        performanceTracker.popActiveSpan()
+        performanceTracker.finishSpan(spanId)
     }
     
     func viewDidAppear() {

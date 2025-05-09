@@ -12,11 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryPerformanceTracker : NSObject
 
 /**
- * A static instance of performance tracker.
- */
-@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
-
-/**
  * Starts a new span if no span is active, then bind it to the scope if no span is bound.
  * @note If there's an active span, starts a child of the active span.
  * @param name Span name.

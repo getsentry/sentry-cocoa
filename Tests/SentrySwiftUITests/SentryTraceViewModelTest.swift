@@ -6,16 +6,23 @@ import XCTest
 
 class SentryTraceViewModelTestCase: XCTestCase {
 
+    private var performanceTracker: SentryPerformanceTracker!
+
     override func tearDown() {
         super.tearDown()
-        SentryPerformanceTracker.shared.clear()
+        performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        performanceTracker.clear()
     }
     
     func testCreateTransaction() throws {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "TestView",
+            nameSource: .component,
+            waitForFullDisplay: false
+        )
         let spanId = viewModel.startSpan()
 
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -29,7 +36,11 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "RootTransactionTest", nameSource: .component, waitForFullDisplay: true)
+        let viewModel = SentryTraceViewModel(
+            name: "RootTransactionTest",
+            nameSource: .component,
+            waitForFullDisplay: true
+        )
         _ = viewModel.startSpan()
         
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -42,12 +53,15 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let testSpan = SentryPerformanceTracker.shared.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
-        SentryPerformanceTracker.shared.pushActiveSpan(testSpan)
-        
-        let viewModel = SentryTraceViewModel(name: "ViewContent",
-                                             nameSource: .component,
-                                             waitForFullDisplay: true)
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        let testSpan = performanceTracker.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
+        performanceTracker.pushActiveSpan(testSpan)
+
+        let viewModel = SentryTraceViewModel(
+            name: "ViewContent",
+            nameSource: .component,
+            waitForFullDisplay: true
+        )
         _ = viewModel.startSpan()
         
         let tracer = try XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -60,7 +74,11 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "TestView",
+            nameSource: .component,
+            waitForFullDisplay: false
+        )
         viewModel.viewDidAppear()
         
         let spanId = viewModel.startSpan()
@@ -71,7 +89,11 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDK.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
         
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: false
+        )
         let spanId = try XCTUnwrap(viewModel.startSpan())
         XCTAssertNotNil(spanId, "Span should be created.")
         
@@ -88,8 +110,9 @@ class SentryTraceViewModelTestCase: XCTestCase {
         wait(for: [expectation], timeout: 0.5)
 
         // Verify that the span was popped and finished
-        XCTAssertNil(SentryPerformanceTracker.shared.activeSpanId(), "Active span should be nil after finishing the span.")
-        
+        let performanceTracker = SentryDependencyContainer.sharedInstance().performanceTracker
+        XCTAssertNil(performanceTracker.activeSpanId(), "Active span should be nil after finishing the span.")
+
         XCTAssertTrue(tracer.isFinished, "The transaction should be finished.")
         XCTAssertTrue(tracer.children.first?.isFinished == true, "The body span should be finished")
     }
@@ -99,7 +122,11 @@ class SentryTraceViewModelTestCase: XCTestCase {
         option.enableTimeToFullDisplayTracing = true
         SentrySDK.setStart(option)
                
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: nil)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: nil
+        )
         XCTAssertTrue(viewModel.waitForFullDisplay)
     }
     
@@ -108,7 +135,11 @@ class SentryTraceViewModelTestCase: XCTestCase {
         option.enableTimeToFullDisplayTracing = true
         SentrySDK.setStart(option)
                
-        let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
+        let viewModel = SentryTraceViewModel(
+            name: "FinishSpanTest",
+            nameSource: .component,
+            waitForFullDisplay: false
+        )
         XCTAssertFalse(viewModel.waitForFullDisplay)
     }
 }
