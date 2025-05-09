@@ -23,6 +23,10 @@
                                 <color key="textColor" red="0.5" green="0.32074801106853668" blue="0.11964321975700687" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="B7Z-dr-ovL">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k6T-jz-BOa">
                                 <rect key="frame" x="128.33333333333331" y="752" width="136.33333333333331" height="35"/>
                                 <state key="normal" title="Button"/>
@@ -37,12 +41,17 @@
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="k6T-jz-BOa" secondAttribute="bottom" constant="31" id="7tM-sU-cJk"/>
                             <constraint firstItem="5r7-mb-ufO" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="B5V-MJ-DzL"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="B7Z-dr-ovL" secondAttribute="trailing" id="Gjp-md-FJj"/>
                             <constraint firstItem="k6T-jz-BOa" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="N0p-uC-4W3"/>
+                            <constraint firstItem="B7Z-dr-ovL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="NFa-O0-L9U"/>
                             <constraint firstItem="5r7-mb-ufO" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="S0d-dH-ZNY"/>
+                            <constraint firstItem="B7Z-dr-ovL" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="XLI-Fj-3P6"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="B7Z-dr-ovL" secondAttribute="bottom" id="m8S-A9-goE"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="backgroundLabel" destination="5r7-mb-ufO" id="aDg-zV-JST"/>
+                        <outlet property="previewContainerView" destination="B7Z-dr-ovL" id="qxk-hb-lbW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
