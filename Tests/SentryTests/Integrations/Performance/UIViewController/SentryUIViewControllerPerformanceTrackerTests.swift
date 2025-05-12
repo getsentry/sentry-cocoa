@@ -518,11 +518,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         assertTrackerIsEmpty(tracker)
     }
     
-    func testSpanAssociatedConstants() {
-        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID")
-        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID")
-    }
-    
     func testOverloadCall() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController

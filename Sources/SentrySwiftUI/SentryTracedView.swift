@@ -11,7 +11,7 @@ import SwiftUI
 class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
-    private var timeToDisplayTracker: SentryTimeToDisplayTracker?
+    private var tracker: SentryTimeToDisplayTracker?
     
     let name: String
     let nameSource: SentryTransactionNameSource
@@ -73,7 +73,7 @@ class SentryTraceViewModel {
         guard !viewAppeared else { return }
         viewAppeared = true
         tracker?.reportInitialDisplay()
-
+        
         if let transactionId = transactionId {
             // According to Apple's documentation, the call to `body` needs to be fast
             // and can be made many times in one frame. Therefore they don't use async code to process the view.
