@@ -1,14 +1,48 @@
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
 import Sentry
 
+/**
+ * Redaction options for the session replay masking preview.
+ *
+ * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
+ */
 public class PreviewRedactOptions: SentryRedactOptions {
+    /**
+     * Flag to redact all text in the app by drawing a black rectangle over it.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.maskAllText`` for the default value.
+     */
     public let maskAllText: Bool
+
+    /**
+     * Flag to redact all non-bundled image in the app by drawing a black rectangle over it.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.maskAllImages`` for the default value.
+     */
     public let maskAllImages: Bool
+
+    /**
+     * The classes of views to mask.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.maskedViewClasses`` for the default value.
+     */
     public let maskedViewClasses: [AnyClass]
+    
+    /**
+     * The classes of views to exclude from masking.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.unmaskedViewClasses`` for the default value.
+     */
     public let unmaskedViewClasses: [AnyClass]
+    
+    /**
+     * Enables the up to 5x faster new view renderer used by the Session Replay integration.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.enableViewRendererV2`` for the default value.
+     */
     public let enableViewRendererV2: Bool
 
-/**
+    /**
      * Initializes a new instance of ``PreviewRedactOptions`` with the specified parameters.
      *
      * - Parameters:
