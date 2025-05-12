@@ -238,6 +238,8 @@ jobs:
           for test_plan in "${TEST_PLANS[@]}"; do
             echo "::notice::Running with Xcode test plan: $test_plan"
 
+            echo "::debug::Enable command logging for easier copying to local testing"
+            set -x
             ./scripts/sentry-xcodebuild.sh \
               --platform ${{matrix.platform}} \
               --os ${{matrix.test-destination-os}} \
@@ -247,6 +249,7 @@ jobs:
               --configuration TestCI \
               --scheme ${{matrix.scheme}} \
               --test-plan $test_plan
+            set +x
           done
 
       - name: Publish Test Report
