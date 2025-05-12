@@ -5,7 +5,11 @@
 ### Fixes
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
-- Fix default and dictionary values for session replay options (#5210)
+- Add shared default values for session replay options initializers (#5210)
+
+### Improvements
+
+- Add `frameRate`, `errorReplayDuration`, `errorReplayDuration`, `sessionSegmentDuration` and `maximumDuration` to session replay options dictionary initializer for Hybrid SDKs (#5210)
 
 ## 8.50.1-beta.0
 
