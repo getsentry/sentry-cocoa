@@ -49,6 +49,9 @@
             reference = "container:Plans/Sentry_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/Sentry_HTTPTransport.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

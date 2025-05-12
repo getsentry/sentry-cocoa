@@ -86,6 +86,8 @@ jobs:
             test-destination-os: "16.4"
             device: "iPhone 14"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # iOS 17
           - runs-on: macos-14
@@ -94,6 +96,8 @@ jobs:
             test-destination-os: "17.2"
             device: "iPhone 15"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # iOS 18
           - runs-on: macos-15
@@ -102,6 +106,8 @@ jobs:
             test-destination-os: "18.2"
             device: "iPhone 16"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -113,6 +119,8 @@ jobs:
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # macOS 15
           - runs-on: macos-15
@@ -120,6 +128,8 @@ jobs:
             xcode: "16.2"
             test-destination-os: "latest"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
@@ -129,12 +139,16 @@ jobs:
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           - runs-on: macos-15
             platform: "Catalyst"
             xcode: "16.2"
             test-destination-os: "latest"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -146,6 +160,8 @@ jobs:
             xcode: "15.4"
             test-destination-os: "17.5"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
           # iOS 17
           - runs-on: macos-14
@@ -161,6 +177,8 @@ jobs:
             xcode: "16.2"
             test-destination-os: "18.1"
             scheme: "Sentry"
+            additional-test-plans:
+              - "Sentry_HTTPTransport"
 
     steps:
       - uses: actions/checkout@v4
@@ -211,11 +229,40 @@ jobs:
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
 
+      - name: Run additional test plans
+        if: ${{ matrix.additional-test-plans }}
+        # Array inputs are not supported in GitHub Actions, so we need to join the array into a string and then split it again.
+        # When joining the array, use any character which will not be present in the array elements.
+        run: |
+          IFS='|' read -ra TEST_PLANS <<< "${{ join(matrix.additional-test-plans, '|') }}"
+          for test_plan in "${TEST_PLANS[@]}"; do
+            echo "::notice::Running with Xcode test plan: $test_plan"
+
+            echo "::debug::Enable command logging for easier copying to local testing"
+            set -x
+            ./scripts/sentry-xcodebuild.sh \
+              --platform ${{matrix.platform}} \
+              --os ${{matrix.test-destination-os}} \
+              --ref ${{ github.ref_name }} \
+              --command test-without-building \
+              --device "${{matrix.device}}" \
+              --configuration TestCI \
+              --scheme ${{matrix.scheme}} \
+              --test-plan $test_plan
+            set +x
+          done
+
+      - name: List generated test reports
+        run: ls -lR build/reports
+
+      - name: List generated test coverage
+        run: ls -lR slather/coverage
+
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: "build/reports/junit.xml"
+          report_paths: "**/build/reports/**/*.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -232,6 +279,14 @@ jobs:
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
+      - name: Archiving Raw JUnit Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: junit-reports-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            build/reports/**/*.xml
+
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
@@ -239,6 +294,7 @@ jobs:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             raw-test-output.log
+            raw-test-output-*.log
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
@@ -263,6 +319,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
           verbose: true
+          # Ignore test coverage of tests
+          files: slather/coverage/**/*.xml
 
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
@@ -273,3 +331,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
+          files: slather/coverage/**/*.xml
