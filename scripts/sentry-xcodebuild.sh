@@ -189,8 +189,13 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -testPlan "$TEST_PLAN" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit --report-path "build/reports-${TEST_PLAN}" &&        
-            slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
+            xcbeautify \
+                --report junit \
+                --report-path "build/reports-${TEST_PLAN}" &&
+            slather coverage \
+                --configuration "$CONFIGURATION" \
+                --scheme "$TEST_SCHEME" \
+                --output-directory "slather/coverage/${TEST_PLAN}"
     else
         set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace "$WORKSPACE" \
@@ -199,7 +204,12 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -destination "$DESTINATION" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit &&
-            slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
+            xcbeautify \
+                --report junit \
+                --report-path "build/reports" &&
+            slather coverage \
+                --configuration "$CONFIGURATION" \
+                --scheme "$TEST_SCHEME" \
+                --output-directory "slather/coverage/default"
     fi
 fi

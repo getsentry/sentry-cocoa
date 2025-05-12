@@ -317,6 +317,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
           verbose: true
+          # Ignore test coverage of tests
+          files: slather/coverage/**/*.xml
+          exclude: "*.xctest.coverage.txt"
 
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
@@ -327,3 +330,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
+          files: slather/coverage/**/*.xml
+          exclude: "*.xctest.coverage.txt"
