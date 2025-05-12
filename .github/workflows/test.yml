@@ -231,8 +231,11 @@ jobs:
 
       - name: Run additional test plans
         if: ${{ matrix.additional-test-plans }}
+        # Array inputs are not supported in GitHub Actions, so we need to join the array into a string and then split it again.
+        # When joining the array, use any character which will not be present in the array elements.
         run: |
-          for test_plan in ${{ matrix.additional-test-plans }}; do
+          IFS='|' read -ra TEST_PLANS <<< "${{ join(matrix.additional-test-plans, '|') }}"
+          for test_plan in "${TEST_PLANS[@]}"; do
             echo "::notice::Running with Xcode test plan: $test_plan"
 
             ./scripts/sentry-xcodebuild.sh \
