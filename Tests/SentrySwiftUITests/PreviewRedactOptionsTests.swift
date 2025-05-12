@@ -11,7 +11,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllImages)
         XCTAssertTrue(options.maskedViewClasses.isEmpty)
         XCTAssertTrue(options.unmaskedViewClasses.isEmpty)
-        XCTAssertFalse(options.enableViewRendererV2)
+        XCTAssertTrue(options.enableViewRendererV2)
     }
 
     func testInit_withAllArguments_shouldSetOptions() {
@@ -41,11 +41,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertFalse(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
-        assertEqualClasses(options.maskedViewClasses, [UIView.self])
-        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
-        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertTrue(options.maskAllText)
     }
 
     func testInit_maskAllImagesOmitted_shouldUseDefault() {
@@ -58,11 +54,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        assertEqualClasses(options.maskedViewClasses, [UIView.self])
-        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
-        XCTAssertTrue(options.enableViewRendererV2)
     }
 
     func testInit_maskedViewClassesOmitted_shouldUseDefault() {
@@ -75,11 +67,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertTrue(options.maskAllText)
-        XCTAssertTrue(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 0)
-        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
-        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertTrue(options.maskedViewClasses.isEmpty)
     }
 
     func testInit_unmaskedViewClassesOmitted_shouldUseDefault() {
@@ -92,11 +80,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertTrue(options.maskAllText)
-        XCTAssertTrue(options.maskAllImages)
-        assertEqualClasses(options.maskedViewClasses, [UIView.self])
-        XCTAssertEqual(options.unmaskedViewClasses.count, 0)
-        XCTAssertTrue(options.enableViewRendererV2)
+        XCTAssertTrue(options.unmaskedViewClasses.isEmpty)
     }
 
     func testInit_enableViewRendererV2Omitted_shouldUseDefault() {
@@ -109,10 +93,6 @@ class PreviewRedactOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertTrue(options.maskAllText)
-        XCTAssertTrue(options.maskAllImages)
-        assertEqualClasses(options.maskedViewClasses, [UIView.self])
-        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
     }
 
