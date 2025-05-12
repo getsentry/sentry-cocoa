@@ -75,12 +75,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             }
         }
 
-        /// Converts a nullable Int to a SentryReplayQuality.
-        ///
-        /// This method extends the ``SentryReplayQuality.init(rawValue:)`` by supporting nil values.
-        ///
-        /// - Parameter rawValue: The raw value to convert.
-        /// - Returns: Corresponding ``SentryReplayQuality`` or `nil` if not a valid raw value or no value is provided.
+        /**
+         * Converts a nullable Int to a SentryReplayQuality.
+         *
+         * This method extends the ``SentryReplayQuality.init(rawValue:)`` by supporting nil values.
+         *
+         * - Parameter rawValue: The raw value to convert.
+         * - Returns: Corresponding ``SentryReplayQuality`` or `nil` if not a valid raw value or no value is provided.
+         */
         fileprivate static func from(rawValue: Int?) -> SentryReplayOptions.SentryReplayQuality? {
             guard let rawValue = rawValue else {
                 return nil
@@ -99,6 +101,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
     /**
      * Indicates the percentage in which the replay for the session will be created.
+     *
      * - Specifying @c 0 means never, @c 1.0 means always.
      * - Note: The value needs to be `>= 0.0` and `<= 1.0`. When setting a value out of range the SDK sets it
      * to the default.
@@ -109,6 +112,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Indicates the percentage in which a 30 seconds replay will be send with error events.
      * - Specifying 0 means never, 1.0 means always.
+     *
      * - Note: The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
      * to the default.
      * - Note: See ``SentryReplayOptions.DefaultValues.errorReplayDuration`` for the default duration of the replay.
@@ -298,11 +302,13 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         )
     }
 
-    /// Initializes a new instance of ``SentryReplayOptions`` using a dictionary.
-    ///
-    /// - Parameter dictionary: A dictionary containing the configuration options for the session replay.
-    ///
-    /// - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
+    /**
+     * Initializes a new instance of ``SentryReplayOptions`` using a dictionary.
+     *
+     * - Parameter dictionary: A dictionary containing the configuration options for the session replay.
+     *
+     * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
+     */
     convenience init(dictionary: [String: Any]) {
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
@@ -333,12 +339,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
      *
      * - Parameters:
-     *   - sessionSampleRate: Indicates the percentages in which replay for the session will be created.
-     *   - onErrorSampleRate: Indicates the percentages in which a buffer of 30 seconds replay will be send with error events.
-     *   - maskAllText: Flag to redact all text in the app by drawing a black rectangle over it.
-     *   - maskAllImages: Flag to redact all non-bundled image in the app by drawing a black rectangle over it.
-     *   - enableViewRendererV2: Enables the up to 5x faster new view renderer used by the Session Replay integration.
-     *   - enableFastViewRendering: Enables faster but incomplete view rendering used by the Session Replay integration.
+     *   - sessionSampleRate: Sample rate used to determine the percentage of replays of sessions that will be uploaded.
+     *   - onErrorSampleRate: Sample rate used to determine the percentage of replays of error events that will be uploaded.
+     *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
+     *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
+     *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
+     *   - enableFastViewRendering: Enables faster but incomplete view rendering. See ``SentryReplayOptions.enableFastViewRendering`` for more information.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
      */

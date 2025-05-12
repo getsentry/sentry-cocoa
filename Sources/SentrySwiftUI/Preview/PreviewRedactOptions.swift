@@ -8,14 +8,14 @@ import Sentry
  */
 public class PreviewRedactOptions: SentryRedactOptions {
     /**
-     * Flag to redact all text in the app by drawing a black rectangle over it.
+     * Flag to redact all text in the app by drawing a rectangle over it.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.maskAllText`` for the default value.
      */
     public let maskAllText: Bool
 
     /**
-     * Flag to redact all non-bundled image in the app by drawing a black rectangle over it.
+     * Flag to redact all images in the app by drawing a rectangle over it.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.maskAllImages`` for the default value.
      */
@@ -36,7 +36,7 @@ public class PreviewRedactOptions: SentryRedactOptions {
     public let unmaskedViewClasses: [AnyClass]
     
     /**
-     * Enables the up to 5x faster new view renderer used by the Session Replay integration.
+     * Enables the up to 5x faster view renderer.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.enableViewRendererV2`` for the default value.
      */
@@ -46,11 +46,11 @@ public class PreviewRedactOptions: SentryRedactOptions {
      * Initializes a new instance of ``PreviewRedactOptions`` with the specified parameters.
      *
      * - Parameters:
-     *   - maskAllText: Flag to redact all text in the app by drawing a black rectangle over it.
-     *   - maskAllImages: Flag to redact all non-bundled image in the app by drawing a black rectangle over it.
+     *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
+     *   - maskAllImages: Flag to redact all bundled images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: The classes of views to mask.
      *   - unmaskedViewClasses: The classes of views to exclude from masking.
-     *   - enableViewRendererV2: Enables the up to 5x faster new view renderer used by the Session Replay integration.
+     *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
      */

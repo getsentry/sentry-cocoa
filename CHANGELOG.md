@@ -5,7 +5,7 @@
 ### Fixes
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
-- Add shared default values for session replay options initializers (#5210)
+- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
 
 ### Improvements
 
