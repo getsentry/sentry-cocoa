@@ -123,8 +123,9 @@ class PreviewRedactOptionsTests: XCTestCase {
             XCTFail("Expected \(expected.count) classes but got \(actual.count) instead")
             return
         }
-        for (index, actualClass) in actual.enumerated() {
-            let expectedClass = expected[index]
+        for index in 0..<actual.count {
+            let expectedClass: AnyClass = expected[index]
+            let actualClass: AnyClass = actual[index]
             XCTAssertTrue(
                 ObjectIdentifier(actualClass) == ObjectIdentifier(expectedClass),
                 "Class at index \(index) doesn't match: expected \(expectedClass), got \(actualClass)"
