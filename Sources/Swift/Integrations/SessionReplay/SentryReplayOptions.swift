@@ -3,13 +3,12 @@ import Foundation
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
-
     /**
      * Enum to define the quality of the session replay.
      */
     @objc
     public enum SentryReplayQuality: Int, CustomStringConvertible {
-        internal static let defaultQuality: SentryReplayQuality = .medium
+        static let defaultQuality: SentryReplayQuality = .medium
 
         /**
          * Video Scale: 80%
@@ -69,7 +68,6 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         fileprivate var sizeScale: Float {
             self == .low ? 0.8 : 1.0
         }
-
     }
 
     /**
@@ -181,14 +179,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Defines the quality of the session replay.
      * Higher bit rates better quality, but also bigger files to transfer.
      */
-    internal var replayBitRate: Int {
+    var replayBitRate: Int {
         quality.bitrate
     }
 
     /**
      * The scale related to the window size at which the replay will be created
      */
-    internal var sizeScale: Float {
+    var sizeScale: Float {
         quality.sizeScale
     }
 
@@ -197,7 +195,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * The more the havier the process is.
      * The minimum is 1, if set to zero this will change to 1.
      */
-    internal var frameRate: UInt {
+    var frameRate: UInt {
         didSet {
             if frameRate < 1 {
                 frameRate = 1
@@ -208,22 +206,22 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * The maximum duration of replays for error events.
      */
-    internal var errorReplayDuration: TimeInterval
+    var errorReplayDuration: TimeInterval
 
     /**
      * The maximum duration of the segment of a session replay.
      */
-    internal var sessionSegmentDuration: TimeInterval
+    var sessionSegmentDuration: TimeInterval
 
     /**
      * The maximum duration of a replay session.
      */
-    internal var maximumDuration: TimeInterval
+    var maximumDuration: TimeInterval
 
     /**
      * Used by hybrid SDKs to be able to configure SDK info for Session Replay
      */
-    internal var sdkInfo: [String: Any]?
+    var sdkInfo: [String: Any]?
 
     /**
      * Initialize session replay options disabled
@@ -284,14 +282,15 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         maskAllText: Bool = true,
         maskAllImages: Bool = true,
         enableViewRendererV2: Bool = true,
-        enableFastViewRendering: Bool = false
+        enableFastViewRendering: Bool = false,
+        quality: SentryReplayQuality = .medium,
     ) {
-        // Note for future maintainers:
-        // - This initializer is publicly available for Swift, but not for Objective-C.
-        // - Each parameter has a default value, so the parameter can be omitted.
-        // - The values are not optional, because SDK users should not be able to set them to nil.
+        // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
+        //   with default values result in a single initializer requiring all parameters.
+        // - Each parameter has a default value, so the parameter can be omitted, which is not possible for Objective-C.
+        // - Parameter values are not optional, because SDK users should not be able to set them to nil.
 
-        // WHEN CHANGING ANY DEFAULT VALUE IN THE INITIALIZER, UPDATE THE PROPERTY DOCUMENTATION
+        // WHEN CHANGING ANY DEFAULT VALUE IN THE INITIALIZER, UPDATE THE PROPERTY CODE DOCUMENTATION ABOVE.
 
         self.sessionSampleRate = sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate
@@ -299,12 +298,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.maskAllImages = maskAllImages
         self.enableViewRendererV2 = enableViewRendererV2
         self.enableFastViewRendering = enableFastViewRendering
+        self.quality = quality
 
         // These are the default values for the properties.
         // Do not add any default values at the property declaration, because they will be overridden by the initializer.
         self.maskedViewClasses = []
         self.unmaskedViewClasses = []
-        self.quality = SentryReplayQuality.defaultQuality
         self.frameRate = 1
         self.errorReplayDuration = 30
         self.sessionSegmentDuration = 5
