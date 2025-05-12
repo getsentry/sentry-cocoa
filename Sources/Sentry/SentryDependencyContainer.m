@@ -284,6 +284,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryFramesTracker *)framesTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
+    _frameTracker = [[FrameTracker alloc] init];
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_framesTracker,
         [[SentryFramesTracker alloc]

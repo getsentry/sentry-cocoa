@@ -7,6 +7,7 @@ import SwiftUI
 struct SwiftUIApp: App {
     init() {
         SentrySDKWrapper.shared.startSentry()
+//            }
     }
     
     var body: some Scene {

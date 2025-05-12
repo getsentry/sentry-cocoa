@@ -87,7 +87,8 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
+#endif
+@property (nonatomic, strong) NSObject *frameTracker;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;

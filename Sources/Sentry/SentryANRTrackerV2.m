@@ -93,6 +93,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
     uint64_t lastAppHangStartedSystemTime = 0;
+    return;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
