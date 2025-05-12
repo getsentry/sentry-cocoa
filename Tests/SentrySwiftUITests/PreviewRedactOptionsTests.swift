@@ -26,14 +26,8 @@ class PreviewRedactOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 1)
-        for maskedViewClass in options.maskedViewClasses {
-            XCTAssertEqual(String(describing: maskedViewClass), String(describing: UIView.self))
-        }
-        XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        for unmaskedViewClass in options.unmaskedViewClasses {
-            XCTAssertEqual(String(describing: unmaskedViewClass), String(describing: UIButton.self))
-        }
+        assertEqualClasses(options.maskedViewClasses, [UIView.self])
+        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
     }
 
@@ -49,14 +43,8 @@ class PreviewRedactOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.maskAllText)
         XCTAssertFalse(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 1)
-        for maskedViewClass in options.maskedViewClasses {
-            XCTAssertEqual(String(describing: maskedViewClass), String(describing: UIView.self))
-        }
-        XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        for unmaskedViewClass in options.unmaskedViewClasses {
-            XCTAssertEqual(String(describing: unmaskedViewClass), String(describing: UIButton.self))
-        }
+        assertEqualClasses(options.maskedViewClasses, [UIView.self])
+        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
     }
 
@@ -72,14 +60,8 @@ class PreviewRedactOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 1)
-        for maskedViewClass in options.maskedViewClasses {
-            XCTAssertEqual(String(describing: maskedViewClass), String(describing: UIView.self))
-        }
-        XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        for unmaskedViewClass in options.unmaskedViewClasses {
-            XCTAssertEqual(String(describing: unmaskedViewClass), String(describing: UIButton.self))
-        }
+        assertEqualClasses(options.maskedViewClasses, [UIView.self])
+        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
     }
 
@@ -96,8 +78,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 0)
-        XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(String(describing: options.unmaskedViewClasses[0]), String(describing: UIButton.self))
+        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
     }
 
@@ -113,8 +94,7 @@ class PreviewRedactOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 1)
-        XCTAssertEqual(String(describing: options.maskedViewClasses[0]), String(describing: UIView.self))
+        assertEqualClasses(options.maskedViewClasses, [UIView.self])
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
         XCTAssertTrue(options.enableViewRendererV2)
     }
@@ -131,10 +111,17 @@ class PreviewRedactOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        XCTAssertEqual(options.maskedViewClasses.count, 1)
-        XCTAssertEqual(String(describing: options.maskedViewClasses[0]), String(describing: UIView.self))
-        XCTAssertEqual(options.unmaskedViewClasses.count, 1)
-        XCTAssertEqual(String(describing: options.unmaskedViewClasses[0]), String(describing: UIButton.self))
+        assertEqualClasses(options.maskedViewClasses, [UIView.self])
+        assertEqualClasses(options.unmaskedViewClasses, [UIButton.self])
         XCTAssertTrue(options.enableViewRendererV2)
-    }   
+    }
+
+    // MARK: - Assertion Helpers
+
+    fileprivate func assertEqualClasses(_ actual: [AnyClass], _ expected: [AnyClass]) {
+        XCTAssertEqual(actual.count, expected.count)
+        for actual in actual {
+            XCTAssertEqual(String(describing: actual), String(describing: expected))
+        }
+    }
 }

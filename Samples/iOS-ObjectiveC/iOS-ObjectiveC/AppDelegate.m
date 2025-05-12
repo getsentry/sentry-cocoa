@@ -73,8 +73,7 @@
                           maskAllText:true
                         maskAllImages:true
                  enableViewRendererV2:![args containsObject:@"--disable-view-renderer-v2"]
-              enableFastViewRendering:![args containsObject:@"--disable-fast-view-rendering"]
-                              quality:SentryReplayQualityMedium];
+              enableFastViewRendering:![args containsObject:@"--disable-fast-view-rendering"]];
 
         options.experimental.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];

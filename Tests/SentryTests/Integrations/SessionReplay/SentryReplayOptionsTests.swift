@@ -19,7 +19,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
-        XCTAssertEqual(options.quality, SentryReplayOptions.SentryReplayQuality.defaultQuality)
+        XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
         XCTAssertEqual(options.sessionSegmentDuration, 5)
@@ -48,7 +48,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
-        XCTAssertEqual(options.quality, SentryReplayOptions.SentryReplayQuality.defaultQuality)
+        XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
         XCTAssertEqual(options.sessionSegmentDuration, 5)
@@ -171,11 +171,6 @@ class SentryReplayOptionsTests: XCTestCase {
 
     // MARK: - Quality Options
 
-    func testQualityDefault() {
-        // This test case is used to lock down the default quality to notice if gets changed by accident.
-        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.defaultQuality, .medium)
-    }
-
     func testQuality_fromName_shouldParseKnownValues() {
         XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("low"), .low)
         XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("medium"), .medium)
@@ -184,8 +179,8 @@ class SentryReplayOptionsTests: XCTestCase {
     }
 
     func testQuality_fromName_shouldReturnMediumForUnknownValues() {
-        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("unknown_value"), .defaultQuality)
-        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName(""), .defaultQuality)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("unknown_value"), .medium)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName(""), .medium)
     }
 
     func testQualityLow() {
@@ -225,7 +220,7 @@ class SentryReplayOptionsTests: XCTestCase {
     }
 
     func testQualityFromName_invalidValue_shouldReturnDefaultQuality() {
-        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("unknown_value"), .defaultQuality)
+        XCTAssertEqual(SentryReplayOptions.SentryReplayQuality.fromName("unknown_value"), .medium)
     }
 
     // MARK: - Dictionary Initialization
@@ -244,7 +239,7 @@ class SentryReplayOptionsTests: XCTestCase {
 
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
-        XCTAssertEqual(options.quality, SentryReplayOptions.SentryReplayQuality.defaultQuality)
+        XCTAssertEqual(options.quality, .medium)
         XCTAssertEqual(options.frameRate, 1)
         XCTAssertEqual(options.errorReplayDuration, 30)
         XCTAssertEqual(options.sessionSegmentDuration, 5)
