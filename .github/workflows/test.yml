@@ -214,20 +214,20 @@ jobs:
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
 
-      # - name: Run tests
-      #   # We call a script with the platform so the destination
-      #   # passed to xcodebuild doesn't end up in the job name,
-      #   # because GitHub Actions don't provide an easy way of
-      #   # manipulating string in expressions.
-      #   run: |
-      #     ./scripts/sentry-xcodebuild.sh \
-      #       --platform ${{matrix.platform}} \
-      #       --os ${{matrix.test-destination-os}} \
-      #       --ref ${{ github.ref_name }} \
-      #       --command test-without-building \
-      #       --device "${{matrix.device}}" \
-      #       --configuration TestCI \
-      #       --scheme ${{matrix.scheme}}
+      - name: Run tests
+        # We call a script with the platform so the destination
+        # passed to xcodebuild doesn't end up in the job name,
+        # because GitHub Actions don't provide an easy way of
+        # manipulating string in expressions.
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command test-without-building \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme ${{matrix.scheme}}
 
       - name: Run additional test plans
         if: ${{ matrix.additional-test-plans }}
@@ -256,7 +256,7 @@ jobs:
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: "build/reports/junit.xml"
+          report_paths: "build/reports/junit*.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true

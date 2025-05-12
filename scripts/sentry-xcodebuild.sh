@@ -22,6 +22,8 @@ CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
+OUTPUT_FILE="raw-output.log"
+
 usage() {
     echo "Usage: $0"
     echo "  -p|--platform <platform>        Platform (macOS/Catalyst/iOS/tvOS)"
@@ -125,16 +127,19 @@ case $COMMAND in
     RUN_BUILD=true
     RUN_BUILD_FOR_TESTING=false
     RUN_TEST_WITHOUT_BUILDING=false
+    OUTPUT_FILE="raw-build-output.log"
     ;;
 "build-for-testing")
     RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=true
     RUN_TEST_WITHOUT_BUILDING=false
+    OUTPUT_FILE="raw-build-for-testing-output.log"
     ;;
 "test-without-building")
     RUN_BUILD=false
     RUN_BUILD_FOR_TESTING=false
     RUN_TEST_WITHOUT_BUILDING=true
+    OUTPUT_FILE="raw-test-output.log"
     ;;
 *)
     RUN_BUILD=false
@@ -152,7 +157,7 @@ if [ $RUN_BUILD == true ]; then
         -derivedDataPath "$DERIVED_DATA_PATH" \
         -quiet \
         build 2>&1 |
-        tee raw-build-output.log |
+        tee "$OUTPUT_FILE" |
         xcbeautify
 fi
 
@@ -164,17 +169,16 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -destination "$DESTINATION" \
         -quiet \
         build-for-testing 2>&1 |
-        tee raw-build-for-testing-output.log |
+        tee "$OUTPUT_FILE" |
         xcbeautify
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    OUTPUT_FILE="raw-test-output.log"
-
     # We can not pass an empty test plan to xcodebuild, because it is not the same as not passing the argument.
     # So we need to check if the test plan is set and if not, we need to run the command without the test plan.
     # Running without a test plan will fall back to the default test plan of the scheme.
     if [ -n "$TEST_PLAN" ]; then
+        OUTPUT_FILE="raw-test-output-${TEST_PLAN}.log"
         set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace "$WORKSPACE" \
             -scheme "$TEST_SCHEME" \
@@ -183,7 +187,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -testPlan "$TEST_PLAN" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit &&
+            xcbeautify --report junit --report-path "build/reports/junit-${TEST_PLAN}.xml" &&
             slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
     else
         set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -193,7 +197,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -destination "$DESTINATION" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit &&
+            xcbeautify --report junit --report-path "build/reports/junit.xml" &&
             slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
     fi
 fi
