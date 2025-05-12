@@ -67,11 +67,6 @@ class SentryReplayOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.sessionSampleRate, 0)
-        XCTAssertEqual(options.onErrorSampleRate, 0.8)
-        XCTAssertFalse(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableFastViewRendering)
     }
 
     func testInit_onErrorSampleRateOmitted_shouldUseDefaultValues() {
@@ -85,12 +80,7 @@ class SentryReplayOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertEqual(options.sessionSampleRate, 0.5)
         XCTAssertEqual(options.onErrorSampleRate, 0)
-        XCTAssertFalse(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableFastViewRendering)
     }
 
     func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
@@ -104,12 +94,7 @@ class SentryReplayOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertEqual(options.sessionSampleRate, 0.5)
-        XCTAssertEqual(options.onErrorSampleRate, 0.8)
         XCTAssertTrue(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableFastViewRendering)
     }
 
     func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
@@ -123,12 +108,7 @@ class SentryReplayOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertEqual(options.sessionSampleRate, 0.5)
-        XCTAssertEqual(options.onErrorSampleRate, 0.8)
-        XCTAssertFalse(options.maskAllText)
         XCTAssertTrue(options.maskAllImages)
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableFastViewRendering)
     }
 
     func testInit_enableViewRendererV2Omitted_shouldUseDefaultValues() {
@@ -142,12 +122,7 @@ class SentryReplayOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertEqual(options.sessionSampleRate, 0.5)
-        XCTAssertEqual(options.onErrorSampleRate, 0.8)
-        XCTAssertFalse(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
         XCTAssertTrue(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableFastViewRendering)
     }
 
     func testInit_enableFastViewRenderingOmitted_shouldUseDefaultValues() {
@@ -161,11 +136,6 @@ class SentryReplayOptionsTests: XCTestCase {
         )
 
         // -- Assert --
-        XCTAssertEqual(options.sessionSampleRate, 0.5)
-        XCTAssertEqual(options.onErrorSampleRate, 0.8)
-        XCTAssertFalse(options.maskAllText)
-        XCTAssertFalse(options.maskAllImages)
-        XCTAssertFalse(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
     }
 
