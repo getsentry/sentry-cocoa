@@ -11,6 +11,7 @@ import SwiftUI
 class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
+    private var timeToDisplayTracker: SentryTimeToDisplayTracker?
     
     let name: String
     let nameSource: SentryTransactionNameSource
@@ -46,7 +47,7 @@ class SentryTraceViewModel {
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
         if let tracer = tracer {
             let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-            uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
+            tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
         }
 #endif
         return tracer
@@ -71,10 +72,7 @@ class SentryTraceViewModel {
     func viewDidAppear() {
         guard !viewAppeared else { return }
         viewAppeared = true
-        #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-        let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-        uiViewControllerPerformanceTracker.reportInitialDisplay()
-        #endif
+        tracker?.reportInitialDisplay()
 
         if let transactionId = transactionId {
             // According to Apple's documentation, the call to `body` needs to be fast

@@ -18,11 +18,25 @@
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
+// Instead of using associated objects, we use a global map to store the time to display tracker,
+// spanId, spans in execution, and layout subview spanId to avoid memory issues with associated
+// objects accessed from different threads.
+//
+// Using a NSMapTable allows weak references to the keys, which means we don't need to remove the
+// entries when the UIViewController is deallocated.
+
 @interface SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+@property (nonatomic, strong)
+    NSMapTable<UIViewController *, SentryTimeToDisplayTracker *> *ttdTrackers;
+@property (nonatomic, strong) NSMapTable<UIViewController *, SentrySpanId *> *spanIds;
+@property (nonatomic, strong)
+    NSMapTable<UIViewController *, NSMutableSet<NSString *> *> *spansInExecution;
+@property (nonatomic, strong) NSMapTable<UIViewController *, SentrySpanId *> *layoutSubviewSpanIds;
 
 @end
 
@@ -40,6 +54,11 @@
 
         _alwaysWaitForFullDisplay = NO;
         _dispatchQueueWrapper = dispatchQueueWrapper;
+
+        _ttdTrackers = [NSMapTable weakToStrongObjectsMapTable];
+        _spanIds = [NSMapTable weakToStrongObjectsMapTable];
+        _spansInExecution = [NSMapTable weakToStrongObjectsMapTable];
+        _layoutSubviewSpanIds = [NSMapTable weakToStrongObjectsMapTable];
     }
     return self;
 }
@@ -109,7 +128,6 @@
         // we already finished it in viewControllerViewDidAppear.
         if (self.tracker.activeSpanId == nil) {
             [self.currentTTDTracker finishSpansIfNotFinished];
-            self.currentTTDTracker = nil;
         }
 
         NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
@@ -142,21 +160,20 @@
         return;
     }
 
-    if (self.currentTTDTracker != nil) {
+    if ([self getTimeToDisplayTrackerForController:controller]) {
         // Already tracking time to display, not creating a new tracker.
         // This may happen if user manually call `loadView` from a view controller more than once.
         return;
     }
 
-    [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
-                          waitForFullDisplay:self.alwaysWaitForFullDisplay
-                                      tracer:(SentryTracer *)vcSpan];
-}
+    SentryTimeToDisplayTracker *ttdTracker =
+        [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
+                              waitForFullDisplay:self.alwaysWaitForFullDisplay
+                                          tracer:(SentryTracer *)vcSpan];
 
-- (void)reportInitialDisplay;
-{
-    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Reporting initial display");
-    [self.currentTTDTracker reportInitialDisplay];
+    if (ttdTracker) {
+        [self setTimeToDisplayTrackerForController:controller ttdTracker:ttdTracker];
+    }
 }
 
 - (void)reportFullyDisplayed
@@ -176,12 +193,11 @@
     // Report the fully displayed time, then discard the tracker, because it should not be used
     // after TTFD is reported.
     [self.currentTTDTracker reportFullyDisplayed];
-    self.currentTTDTracker = nil;
 }
 
-- (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                        waitForFullDisplay:(BOOL)waitForFullDisplay
-                                    tracer:(SentryTracer *)tracer
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer
 {
     [self.currentTTDTracker finishSpansIfNotFinished];
 
@@ -193,10 +209,11 @@
     // If the tracker did not start, it means that the tracer can be discarded.
     if ([ttdTracker startForTracer:tracer] == NO) {
         self.currentTTDTracker = nil;
-        return;
+        return nil;
     }
 
     self.currentTTDTracker = ttdTracker;
+    return ttdTracker;
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
@@ -465,34 +482,56 @@
 
 // - MARK: - Getter and Setter Helpers
 
+- (SentryTimeToDisplayTracker *_Nullable)getTimeToDisplayTrackerForController:
+    (UIViewController *)controller
+{
+    SENTRY_LOG_DEBUG(
+        @"[UIViewController Performance] Getting time to display tracker for controller: %@",
+        controller);
+    // Use a global map to store the time to display tracker to avoid memory issues with associated
+    // objects.
+    return [self.ttdTrackers objectForKey:controller];
+}
+
+- (void)setTimeToDisplayTrackerForController:(UIViewController *)controller
+                                  ttdTracker:(SentryTimeToDisplayTracker *)ttdTracker
+{
+    SENTRY_LOG_DEBUG(
+        @"[UIViewController Performance] Setting time to display tracker for controller: %@, "
+         "ttdTracker: %@",
+        controller, ttdTracker);
+    // Use a global map to store the time to display tracker to avoid memory issues with associated
+    // objects.
+    [self.ttdTrackers setObject:ttdTracker forKey:controller];
+}
+
 - (void)setSpanIdForViewController:(UIViewController *)controller
                             spanId:(SentrySpanId *_Nullable)spanId
 {
     SENTRY_LOG_DEBUG(
         @"[UIViewController Performance] Setting span id for controller: %@, spanId: %@",
         controller, spanId.sentrySpanIdString);
-    // Use the target itself to store the spanId to avoid using a global mapper.
-    objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    // Use a global map to store the spanId to avoid memory issues with associated objects.
+    [self.spanIds setObject:spanId forKey:controller];
 }
 
 - (SentrySpanId *_Nullable)getSpanIdForViewController:(UIViewController *)controller
 {
     SENTRY_LOG_DEBUG(
         @"[UIViewController Performance] Getting span id for controller: %@", controller);
-    SentrySpanId *spanId
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    return spanId;
+    // Use a global map to store the spanId to avoid memory issues with associated objects.
+    return [self.spanIds objectForKey:controller];
 }
 
-- (SentrySpanId *)getLayoutSubviewSpanIdForViewController:(UIViewController *_Nonnull)controller
+- (SentrySpanId *_Nullable)getLayoutSubviewSpanIdForViewController:
+    (UIViewController *_Nonnull)controller
 {
     SENTRY_LOG_DEBUG(
         @"[UIViewController Performance] Getting layout subview span id for controller: %@",
         controller);
-    SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
-        controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
-    return layoutSubViewId;
+    // Use a global map to store the layout subview spanId to avoid memory issues with associated
+    // objects.
+    return [self.layoutSubviewSpanIds objectForKey:controller];
 }
 
 - (void)setLayoutSubviewSpanID:(UIViewController *_Nonnull)controller spanId:(SentrySpanId *)spanId
@@ -500,9 +539,9 @@
     SENTRY_LOG_DEBUG(@"[UIViewController Performance] Setting layout subview span id for "
                      @"controller: %@, spanId: %@",
         controller, spanId.sentrySpanIdString);
-    // Use the target itself to store the spanId to avoid using a global mapper.
-    objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
-        spanId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    // Use a global map to store the layout subview spanId to avoid memory issues with associated
+    // objects.
+    [self.layoutSubviewSpanIds setObject:spanId forKey:controller];
 }
 
 - (NSMutableSet<NSString *> *_Nullable)getSpansInExecutionSetForViewController:
@@ -511,9 +550,9 @@
     SENTRY_LOG_DEBUG(
         @"[UIViewController Performance] Getting spans in execution set for controller: %@",
         viewController);
-    NSMutableSet<NSString *> *_Nullable spansInExecution = objc_getAssociatedObject(
-        viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET);
-    return spansInExecution;
+    // Use a global map to store the spans in execution set to avoid memory issues with associated
+    // objects.
+    return [self.spansInExecution objectForKey:viewController];
 }
 
 - (void)setSpansInExecutionSetForViewController:(UIViewController *)viewController
@@ -522,9 +561,9 @@
     SENTRY_LOG_DEBUG(@"[UIViewController Performance] Setting spans in execution set for "
                      @"controller: %@, spanIds: %@",
         viewController, spanIds);
-    // Use the target itself to store the spanId to avoid using a global mapper.
-    objc_setAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET,
-        spanIds, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    // Use a global map to store the spans in execution set to avoid memory issues with associated
+    // objects.
+    [self.spansInExecution setObject:spanIds forKey:viewController];
 }
 
 @end

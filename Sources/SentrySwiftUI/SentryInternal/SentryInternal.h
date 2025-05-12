@@ -103,9 +103,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (void)reportInitialDisplay;
 - (void)reportFullyDisplayed;
-- (void)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                        waitForFullDisplay:(BOOL)waitForFullDisplay
-                                    tracer:(SentryTracer *)tracer;
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer;
 
 @end
 
