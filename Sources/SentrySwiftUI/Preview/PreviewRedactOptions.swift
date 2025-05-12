@@ -47,7 +47,7 @@ public class PreviewRedactOptions: SentryRedactOptions {
      *
      * - Parameters:
      *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
-     *   - maskAllImages: Flag to redact all bundled images in the app by drawing a rectangle over it.
+     *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: The classes of views to mask.
      *   - unmaskedViewClasses: The classes of views to exclude from masking.
      *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
