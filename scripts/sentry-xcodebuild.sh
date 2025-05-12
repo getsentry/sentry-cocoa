@@ -180,7 +180,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -scheme "$TEST_SCHEME" \
             -configuration "$CONFIGURATION" \
             -destination "$DESTINATION" \
-            -test-plan "$TEST_PLAN" \
+            -testPlan "$TEST_PLAN" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
             xcbeautify --report junit &&
