@@ -253,13 +253,16 @@ jobs:
           done
 
       - name: List generated test reports
-        run: ls -laR build/reports
+        run: ls -lR build/reports
+
+      - name: List generated test coverage
+        run: ls -lR slather/coverage
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
         with:
-          report_paths: "**/build/reports*/junit.xml"
+          report_paths: "**/build/reports/**/*.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -282,8 +285,7 @@ jobs:
         with:
           name: junit-reports-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
-            build/reports/junit.xml
-            build/reports-*/junit.xml
+            build/reports/**/*.xml
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
@@ -319,7 +321,6 @@ jobs:
           verbose: true
           # Ignore test coverage of tests
           files: slather/coverage/**/*.xml
-          exclude: "*.xctest.coverage.txt"
 
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
@@ -331,4 +332,3 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           files: slather/coverage/**/*.xml
-          exclude: "*.xctest.coverage.txt"

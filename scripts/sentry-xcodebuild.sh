@@ -191,7 +191,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             tee "$OUTPUT_FILE" |
             xcbeautify \
                 --report junit \
-                --report-path "build/reports-${TEST_PLAN}" &&
+                --report-path "build/reports/${TEST_PLAN}" &&
             slather coverage \
                 --configuration "$CONFIGURATION" \
                 --scheme "$TEST_SCHEME" \
@@ -206,7 +206,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             tee "$OUTPUT_FILE" |
             xcbeautify \
                 --report junit \
-                --report-path "build/reports" &&
+                --report-path "build/reports/default" &&
             slather coverage \
                 --configuration "$CONFIGURATION" \
                 --scheme "$TEST_SCHEME" \
