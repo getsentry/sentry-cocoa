@@ -28,12 +28,10 @@
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
-
+@property (nonatomic, assign) BOOL isStarted;
 @end
 
-@implementation SentrySessionTracker {
-    BOOL isStarted;
-}
+@implementation SentrySessionTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
              notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
@@ -166,7 +164,7 @@
     // synchronize to be safe.
     @synchronized(self) {
         // If the SDK became active before started, we ignore the notification.
-        // This can happen if the SDK is cloesd and started, or if the start of the SDK was delayed,
+        // This can happen if the SDK is closed and started, or if the start of the SDK was delayed,
         // e.g. asking a user for consent first.
         if (!self->isStarted) {
             SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because the "
@@ -251,14 +249,13 @@
 
 - (BOOL)isAppActive
 {
-    BOOL isAppActive = NO;
 #if SENTRY_HAS_UIKIT
     SentryUIApplication *application = SentryDependencyContainer.sharedInstance.application;
     if (application.applicationState == UIApplicationStateActive) {
-        isAppActive = YES;
+        return YES;
     }
 #endif
-    return isAppActive;
+    return NO;
 }
 
 @end
