@@ -18,11 +18,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         public static let enableFastViewRendering: Bool = false
         public static let quality: SentryReplayQuality = .medium
 
+        // The following properties are public because they are used by SentrySwiftUI.
+
+        public static let maskedViewClasses: [AnyClass] = []
+        public static let unmaskedViewClasses: [AnyClass] = []
+
         // The following properties are defaults which are not configurable by the user.
 
         fileprivate static let sdkInfo: [String: Any]? = nil
-        fileprivate static let maskedViewClasses: [AnyClass] = []
-        fileprivate static let unmaskedViewClasses: [AnyClass] = []
         fileprivate static let frameRate: UInt = 1
         fileprivate static let errorReplayDuration: TimeInterval = 30
         fileprivate static let sessionSegmentDuration: TimeInterval = 5
