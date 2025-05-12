@@ -119,9 +119,6 @@ class PreviewRedactOptionsTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func assertEqualClasses(_ actual: [AnyClass], _ expected: [AnyClass]) {
-        XCTAssertEqual(actual.count, expected.count)
-        for actual in actual {
-            XCTAssertEqual(String(describing: actual), String(describing: expected))
-        }
+        XCTAssertEqual(actual.map { String(describing: $0) }, expected.map { String(describing: $0) })
     }
 }
