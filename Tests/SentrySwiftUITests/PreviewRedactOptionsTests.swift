@@ -119,6 +119,16 @@ class PreviewRedactOptionsTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func assertEqualClasses(_ actual: [AnyClass], _ expected: [AnyClass]) {
-        XCTAssertEqual(actual.map { String(describing: $0) }, expected.map { String(describing: $0) })
+        guard actual.count == expected.count else {
+            XCTFail("Expected \(expected.count) classes but got \(actual.count) instead")
+            return
+        }
+        for (index, actualClass) in actual.enumerated() {
+            let expectedClass = expected[index]
+            XCTAssertTrue(
+                ObjectIdentifier(actualClass) == ObjectIdentifier(expectedClass),
+                "Class at index \(index) doesn't match: expected \(expectedClass), got \(actualClass)"
+            )
+        }
     }
 }
