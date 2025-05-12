@@ -646,8 +646,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
  enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
  enableAppHangTracking.
- *
- * @warning This is an experimental feature and may still have bugs.
  */
 @property (nonatomic, assign) BOOL enableAppHangTrackingV2;
 

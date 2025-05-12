@@ -1,0 +1,47 @@
+name: visionOS-Swift
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - visionOS-Swift.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  visionOS-Swift:
+    type: application
+    platform: auto
+    sources:
+      - visionOS-Swift
+      - ../Shared/GitInjections.swift
+      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
+      - ../Shared/LoremIpsum.txt
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: visionOS-Swift.xcconfig
+      Release: visionOS-Swift.xcconfig
+      Test: visionOS-Swift.xcconfig
+      TestCI: visionOS-Swift.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+schemes:
+  visionOS-Swift:
+    build:
+      targets:
+        visionOS-Swift: all

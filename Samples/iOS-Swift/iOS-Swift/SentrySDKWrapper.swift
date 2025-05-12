@@ -5,7 +5,16 @@ import UIKit
 
 struct SentrySDKWrapper {
     static let shared = SentrySDKWrapper()
-    
+
+    let feedbackButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle("BYOB Feedback", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.accessibilityIdentifier = "io.sentry.feedback.custom-button"
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     func startSentry() {
         SentrySDK.start(configureOptions: configureSentryOptions(options:))
     }
@@ -26,6 +35,9 @@ struct SentrySDKWrapper {
                 maskAllImages: true
             )
             options.sessionReplay.quality = .high
+            options.sessionReplay.enableViewRendererV2 = true
+            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = false
         }
         
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
@@ -99,9 +111,6 @@ struct SentrySDKWrapper {
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
-        options.sessionReplay.enableExperimentalViewRenderer = true
-        // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-        options.sessionReplay.enableFastViewRendering = false
     }
     
     func configureInitialScope(scope: Scope) -> Scope {
@@ -239,6 +248,10 @@ extension SentrySDKWrapper {
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
+
+        if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
+            config.customButton = feedbackButton
+        }
     }
     
     func configureHooks(config: SentryUserFeedbackConfiguration) {
