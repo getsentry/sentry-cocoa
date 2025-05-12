@@ -252,6 +252,9 @@ jobs:
             set +x
           done
 
+      - name: List test reports
+        run: ls -la build/reports
+
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@cf701569b05ccdd861a76b8607a66d76f6fd4857 # v5.5.1
         if: always()
