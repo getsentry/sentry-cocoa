@@ -177,6 +177,8 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # We can not pass an empty test plan to xcodebuild, because it is not the same as not passing the argument.
     # So we need to check if the test plan is set and if not, we need to run the command without the test plan.
     # Running without a test plan will fall back to the default test plan of the scheme.
+
+    # Use a suffix for the report path to avoid overwriting the default report
     if [ -n "$TEST_PLAN" ]; then
         OUTPUT_FILE="raw-test-output-${TEST_PLAN}.log"
         set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -187,7 +189,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -testPlan "$TEST_PLAN" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit --report-path "build/reports/junit-${TEST_PLAN}.xml" &&
+            xcbeautify --report junit --report-path "build/reports-${TEST_PLAN}" &&        
             slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
     else
         set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -197,7 +199,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
             -destination "$DESTINATION" \
             test-without-building 2>&1 |
             tee "$OUTPUT_FILE" |
-            xcbeautify --report junit --report-path "build/reports/junit.xml" &&
+            xcbeautify --report junit &&
             slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
     fi
 fi
