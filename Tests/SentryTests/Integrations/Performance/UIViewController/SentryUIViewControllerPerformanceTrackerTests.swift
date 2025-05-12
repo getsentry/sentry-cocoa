@@ -399,6 +399,31 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("initial_display") }.count, 0, "Tracer must not contain a TTID span")
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("full_display") }.count, 0, "Tracer must not contain a TTFD span")
     }
+
+    func testSecondViewController() throws {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let viewController2 = TestViewController()
+        
+        sut.viewControllerLoadView(viewController) {
+            //Left empty on purpose
+        }
+
+        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        XCTAssertNotNil(ttdTracker)
+
+        sut.viewControllerLoadView(viewController2) {
+            //Left empty on purpose
+        }
+
+        let trackers = try XCTUnwrap(Dynamic(sut).ttdTrackers.asObject as? NSMapTable<TestViewController, AnyObject>)
+        let secondTTDTracker = trackers.object(
+            forKey: viewController2
+        )
+
+        XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
+        XCTAssertNil(secondTTDTracker)
+    }
     
     func testTimeMeasurement_SkipLoadView() throws {
         let sut = fixture.getSut()
