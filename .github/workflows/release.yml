@@ -1,6 +1,8 @@
 name: Release
 run-name: Release ${{ github.event.inputs.version }}
 
+# TODO: change this to dispatch the build-xcframework.yml workflow, and then depend on it here with the workflow dependency setup described at https://stackoverflow.com/a/64733705
+
 on:
   workflow_dispatch:
     inputs:
@@ -26,7 +28,7 @@ jobs:
           ./scripts/ci-select-xcode.sh 15.2
           make bump-version TO=${{ github.event.inputs.version }}
           # We need to build the framework during release to get it's SHA value
-          # the framework will be saved as an artefact and we will use the same
+          # the framework will be saved as an artifact and we will use the same
           # binary for the entire release process to avoid the SHA to change
           make build-xcframework
 

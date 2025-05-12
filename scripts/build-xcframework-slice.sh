@@ -2,7 +2,7 @@
 #
 # Builds a single slice of the SDK to be packaged into an XCFramework
 
-set -eoux pipefail
+set -eou pipefail
 
 sdk="${1:-}"
 
@@ -39,20 +39,25 @@ elif [ "$MACH_O_TYPE" != "staticlib" ]; then
     OTHER_LDFLAGS="-Wl,-make_mergeable"
 fi
 
-set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
-    -project Sentry.xcodeproj/ \
-    -scheme "$scheme" \
-    -configuration "$resolved_configuration" \
-    -sdk "$sdk" \
-    -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" \
-    CODE_SIGNING_REQUIRED=NO \
-    SKIP_INSTALL=NO \
-    CODE_SIGN_IDENTITY= \
-    CARTHAGE=YES \
-    MACH_O_TYPE="$MACH_O_TYPE" \
-    ENABLE_CODE_COVERAGE=NO \
-    GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+xcodebuild_cmd=$(cat <<EOF
+set -o pipefail && NSUnbufferedIO=YES xcodebuild archive 
+    -project Sentry.xcodeproj/ 
+    -scheme "$scheme" 
+    -configuration "$resolved_configuration" 
+    -sdk "$sdk" 
+    -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" 
+    CODE_SIGNING_REQUIRED=NO 
+    SKIP_INSTALL=NO 
+    CODE_SIGN_IDENTITY= 
+    CARTHAGE=YES 
+    MACH_O_TYPE="$MACH_O_TYPE" 
+    ENABLE_CODE_COVERAGE=NO 
+    GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" 
     OTHER_LDFLAGS="$OTHER_LDFLAGS"
+EOF
+)
+echo "$xcodebuild_cmd"
+$xcodebuild_cmd
 
 xcframework_command_args+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
