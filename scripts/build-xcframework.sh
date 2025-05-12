@@ -4,7 +4,7 @@
 #
 # This script originally built all slices and packaged them, but the function to build a slice was split into a separate script so it could be parallelized. The pieces of this script that orchestrated which slices to build then package them up are what remain, so it can be tested on a developer's machine locally to replicate what happens in CI.
 
-set -eoux pipefail
+set -eou pipefail
 
 args="${1:-}"
 

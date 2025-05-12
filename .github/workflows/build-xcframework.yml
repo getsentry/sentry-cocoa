@@ -24,33 +24,16 @@ concurrency:
 
 jobs:
 
-  build-xcframework:
-    name: Build XCFramework
+  build-xcframework-dynamic-slices:
+    name: Build Dynamic XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
     # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
     runs-on: macos-14
     strategy:
-      fail-fast: false
       matrix:
-        include:
+        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
 
-
-          - scheme: Sentry
-            sdk: iphoneos
-            suffix: "-Dynamic"
-            macho_type: mh_dylib
-            configuration_suffix: ""
-
-          # iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator
-
-          - scheme: Sentry
-            sdk: iphoneos
-            suffix: ""
-            macho_type: staticlib
-            configuration_suffix: ""
-
-          # iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator
     steps:
       - uses: actions/checkout@v4
       # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
@@ -59,52 +42,86 @@ jobs:
       # library evolution; this is an error in the Swift 6 language mode
       # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
       - run: ./scripts/ci-select-xcode.sh 15.2
-      - run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
-
-      - uses: actions/download-artifact@v4
-        if: startsWith(github.ref, 'refs/heads/release/')
-        with:
-          name: xcframeworks.zip
-          path: Carthage/
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ env.FRAMEWORK_RUN_ID }}
-
-      - name: Check XCFramework
-        # We dont compile the framework during releases to not change the artefact SHA value
-        # instead we use the one archive as an artefact
-        if: startsWith(github.ref, 'refs/heads/release/')
-        run: |
-          ls -R Carthage
-          if [ ! -f Carthage/Sentry.xcframework.zip ]; then
-            echo "XCFramework is not available"
-            exit 1
-          fi
 
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: make build-xcframework
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} "Sentry" "-Dynamic"
         shell: sh
 
-      - name: Archiving XCFramework.zip
+      - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.sha }}
+          name: xcframework-Sentry-dynamic-slice-${{matrix.sdk}}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/Carthage/*.zip
+            ${{ github.workspace }}/Carthage/archive/Sentry-Dynamic/${{matrix.sdk}}.xcarchive
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-build-output-build-xcframework
+          name: raw-build-output-build-xcframework-Sentry-dynamic-${{matrix.sdk}}
           path: |
             build-xcframework.log
+
+  build-xcframework-Static-slices:
+    name: Build Static XCFramework Slice for ${{matrix.sdk}}
+    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
+    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
+    # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
+    runs-on: macos-14
+    strategy:
+      matrix:
+        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
+
+    steps:
+      - uses: actions/checkout@v4
+      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
+      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
+      # and cannot be used here because C++ types from imported module 'Foundation' do not support
+      # library evolution; this is an error in the Swift 6 language mode
+      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
+      - run: ./scripts/ci-select-xcode.sh 15.2
+
+      - name: Build xcframework
+        if: startsWith(github.ref, 'refs/heads/release/') == false
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} "Sentry" "" staticlib
+        shell: sh
+
+      - name: Archiving xcarchive
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframework-Sentry-static-slice-${{matrix.sdk}}
+          if-no-files-found: error
+          path: |
+            ${{ github.workspace }}/Carthage/archive/Sentry-Dynamic/${{matrix.sdk}}.xcarchive
+
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework-Sentry-static-${{matrix.sdk}}
+          path: |
+            build-xcframework.log
+
+#  assemble-dynamic-xcframework:
+#    name: Assemble Dynamic Sentry XCFramework
+#    runs-on: macos-14
+#    needs: build-xcframework-dynamic-slices
+
+
+
+
+
+
+
+
 
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-13
-    needs: build-xcframework
+    needs:
+        - assemble-dynamic-xcframework
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -140,7 +157,7 @@ jobs:
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13
-    needs: build-xcframework
+    needs: assemble-dynamic-xcframework
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
