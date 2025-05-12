@@ -37,4 +37,35 @@
     XCTAssertEqual(options.maximumDuration, 60 * 60);
 }
 
+- (void)testInit_withAllArguments_shouldSetAllValues
+{
+    // This unit test uses the Swift constructor with default values to ensure the initializer stays
+    // backwards-compatible with Objective-C, because any additional parameter (with and without
+    // default values) will break the Objective-C compatibility.
+
+    // -- Act --
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] initWithSessionSampleRate:0.12f
+                                                                        onErrorSampleRate:0.34f
+                                                                              maskAllText:false
+                                                                            maskAllImages:false
+                                                                     enableViewRendererV2:false
+                                                                  enableFastViewRendering:true];
+
+    // -- Assert --
+    XCTAssertEqual(options.sessionSampleRate, 0.12f);
+    XCTAssertEqual(options.onErrorSampleRate, 0.34f);
+    XCTAssertFalse(options.maskAllText);
+    XCTAssertFalse(options.maskAllImages);
+    XCTAssertFalse(options.enableViewRendererV2);
+    XCTAssertTrue(options.enableFastViewRendering);
+
+    XCTAssertEqual(options.maskedViewClasses.count, 0);
+    XCTAssertEqual(options.unmaskedViewClasses.count, 0);
+    XCTAssertEqual(options.quality, SentryReplayQualityMedium);
+    XCTAssertEqual(options.frameRate, 1);
+    XCTAssertEqual(options.errorReplayDuration, 30);
+    XCTAssertEqual(options.sessionSegmentDuration, 5);
+    XCTAssertEqual(options.maximumDuration, 60 * 60);
+}
+
 @end
