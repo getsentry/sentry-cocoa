@@ -10,7 +10,6 @@
 
 - (void)testInit_withoutArguments_shouldUseDefaults
 {
-    // Note for future maintainers:
     // - `SentryReplayOptions` is a Swift class, therefore the preferred approach is an initializer
     // with default values to allow omission of arguments.
     // - Swift initializers with default values are not available in Objective-C.
