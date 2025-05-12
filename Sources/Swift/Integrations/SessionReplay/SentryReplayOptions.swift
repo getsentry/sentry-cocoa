@@ -345,7 +345,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         maskAllText: Bool = DefaultValues.maskAllText,
         maskAllImages: Bool = DefaultValues.maskAllImages,
         enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
-        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering,
+        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering
     ) {
         // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
         //   with default values result in a single initializer requiring all parameters.
