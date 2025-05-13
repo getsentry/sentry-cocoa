@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- User feedback widget automatically injects into SwiftUI apps correctly (#5223)
+
 ## 8.50.1
 
 ### Fixes
