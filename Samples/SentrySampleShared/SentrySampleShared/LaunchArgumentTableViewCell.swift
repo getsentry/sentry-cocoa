@@ -1,5 +1,4 @@
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
-import Sentry
 import UIKit
 
 class LaunchArgumentTableViewCell: UITableViewCell {
