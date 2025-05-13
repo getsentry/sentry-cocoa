@@ -1,4 +1,6 @@
 name: macOS-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - macOS-SwiftUI.yml
@@ -20,12 +24,11 @@ targets:
     platform: auto
     sources:
       - macOS-SwiftUI
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-SwiftUI.xcconfig
       Release: macOS-SwiftUI.xcconfig
@@ -41,6 +44,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   macOS-SwiftUI:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         macOS-SwiftUI: all
