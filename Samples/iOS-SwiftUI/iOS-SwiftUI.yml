@@ -1,4 +1,6 @@
 name: iOS-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -56,6 +58,8 @@ targets:
       TestCI: iOS-SwiftUI-UITests.xcconfig
 schemes:
   iOS-SwiftUI:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS-SwiftUI: all

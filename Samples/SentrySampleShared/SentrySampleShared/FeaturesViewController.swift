@@ -1,8 +1,8 @@
-import SentrySampleShared
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import UIKit
 
-class FeaturesViewController: UITableViewController {
-    override func viewDidLoad() {
+public class FeaturesViewController: UITableViewController {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(LaunchArgumentTableViewCell.self, forCellReuseIdentifier: "launchArgumentCell")
         tableView.register(EnvironmentVariableTableViewCell.self, forCellReuseIdentifier: "environmentVariableCell")
@@ -35,11 +35,11 @@ class FeaturesViewController: UITableViewController {
         tableView.reloadData()
     }
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    public override func numberOfSections(in tableView: UITableView) -> Int {
         6
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    public override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
             return "Special"
         } else if section == 1 {
@@ -56,7 +56,7 @@ class FeaturesViewController: UITableViewController {
         return nil
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return SentrySDKOverrides.Special.allCases.count
         } else if section == 1 {
@@ -73,7 +73,7 @@ class FeaturesViewController: UITableViewController {
         return 0
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 2 {
             if SentrySDKOverrides.Tracing.boolValues.contains(SentrySDKOverrides.Tracing.allCases[indexPath.row]) {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
@@ -117,3 +117,4 @@ class FeaturesViewController: UITableViewController {
         return cell
     }
 }
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS)

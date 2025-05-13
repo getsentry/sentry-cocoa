@@ -1,4 +1,6 @@
 name: tvOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -86,6 +88,8 @@ targets:
       TestCI: tvOS-SBSwift-UITests.xcconfig
 schemes:
   tvOS-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         tvOS-Swift: all
@@ -95,6 +99,8 @@ schemes:
       testPlans:
         - path: ../../Plans/tvOS-Swift_Base.xctestplan
   tvOS-SBSwift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         tvOS-Swift: all

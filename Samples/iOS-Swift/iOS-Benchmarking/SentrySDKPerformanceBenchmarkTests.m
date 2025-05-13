@@ -37,15 +37,7 @@
 
         [app.buttons[@"startTransactionMainThread"] tap];
 
-        // On iPhone the tab "Benchmarking" is in the collapsed "More" tab bar item.
-        // On iPad it is directly in the tab bar.
-        // The test needs to be universal, therefore we just check where it exists.
-        if ([app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] waitForExistenceWithTimeout:1.0]) {
-            [app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] tap];
-        } else {
-            [app.tabBars[@"Tab Bar"].buttons[@"More"] tap];
-            [app.staticTexts[@"Benchmarking"] tap];
-        }
+        [app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] tap];
 
         [app.buttons[@"Benchmark start"] tap];
 
