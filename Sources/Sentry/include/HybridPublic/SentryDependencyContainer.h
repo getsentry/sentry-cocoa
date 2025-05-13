@@ -35,7 +35,6 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshot;
-@class SentryUIApplication;
 @class SentryViewHierarchy;
 @class SentryUIViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
