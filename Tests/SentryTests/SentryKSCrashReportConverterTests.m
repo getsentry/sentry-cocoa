@@ -244,6 +244,7 @@
     SentryException *exception = event.exceptions.firstObject;
 
     XCTAssertEqualObjects(exception.value, @"MyException: Something bad happened...");
+    XCTAssertEqualObjects(exception.type, @"C++ Exception");
 }
 
 - (void)testNXPage
