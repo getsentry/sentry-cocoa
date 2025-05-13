@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-Swift.yml
@@ -22,20 +24,11 @@ targets:
     platform: auto
     sources:
       - iOS-Swift
-      - ../Shared/GitInjections.swift
-      - ../Shared/DSNStorage.swift
-      - ../Shared/SpanExtension.swift
-      - ../Shared/UIViewControllerExtension.swift
-      - ../Shared/UIViewExtension.swift
-      - ../Shared/RandomErrors.swift
-      - ../Shared/SpanObserver.swift
-      - ../Shared/UIAssert.swift
-      - ../Shared/AssertView.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: iOS-SwiftClip
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift.xcconfig
       Release: iOS-Swift.xcconfig
@@ -54,11 +47,10 @@ targets:
     platform: auto
     sources:
       - iOS-SwiftClip
-      - ../Shared/GitInjections.swift
-      - ../Shared/DSNStorage.swift
-      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftClip.xcconfig
       Release: iOS-SwiftClip.xcconfig
@@ -87,6 +79,7 @@ targets:
     platform: auto
     sources:
       - iOS-Benchmarking
+      - ../Shared/SampleAssets.xcassets
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig

@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class ExtraViewController: UIViewController {
@@ -143,7 +144,7 @@ class ExtraViewController: UIViewController {
     @IBAction func captureUserFeedbackV2(_ sender: UIButton) {
         highlightButton(sender)
         var attachments: [Data]?
-        if let url = Bundle.main.url(forResource: "screenshot", withExtension: "png"), let data = try? Data(contentsOf: url) {
+        if let url = BundleResourceProvider.screenshotURL, let data = try? Data(contentsOf: url) {
             attachments = [data]
         }
         let errorEventID = SentrySDK.capture(error: NSError(domain: "test-error.user-feedback.iOS-Swift", code: 1))

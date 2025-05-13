@@ -9,6 +9,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-ObjectiveC.yml
@@ -20,18 +22,17 @@ targets:
     type: application
     platform: auto
     sources:
+      - ../Shared/SampleAssets.xcassets
       - path: iOS-ObjectiveC
         excludes:
           - NoARCCrash.m
       - path: iOS-ObjectiveC/NoARCCrash.m
         compilerFlags:
           - "-fno-objc-arc"
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
-      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-ObjectiveC.xcconfig
       Release: iOS-ObjectiveC.xcconfig

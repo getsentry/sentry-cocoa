@@ -3,7 +3,7 @@
 @import Sentry;
 #import <Sentry/SentryOptions+Private.h>
 
-#import "iOS_ObjectiveC-Swift.h"
+@import SentrySampleShared;
 
 @interface AppDelegate ()
 @end
@@ -80,7 +80,7 @@
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
-            [scope injectGitInformation];
+            [GitInjector objc_injectGitInformationInto:scope];
             return scope;
         };
 

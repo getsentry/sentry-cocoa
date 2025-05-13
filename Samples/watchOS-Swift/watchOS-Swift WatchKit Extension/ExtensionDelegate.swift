@@ -1,4 +1,5 @@
 import Sentry
+import SentrySampleShared
 import WatchKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
@@ -19,7 +20,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
             }
             
-            scope.injectGitInformation()
+            injectGitInformation(scope: scope)
             
             let data = Data("hello".utf8)
             scope.addAttachment(Attachment(data: data, filename: "log.txt"))
