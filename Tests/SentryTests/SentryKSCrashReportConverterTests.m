@@ -235,6 +235,16 @@
 - (void)testCPPException
 {
     [self isValidReport:@"Resources/CPPException"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/CPPException"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+
+    XCTAssertEqualObjects(exception.value, @"MyException: Something bad happened...");
+    XCTAssertEqualObjects(exception.type, @"C++ Exception");
 }
 
 - (void)testNXPage
@@ -509,6 +519,10 @@
 - (NSDictionary *)getCrashReport:(NSString *)path
 {
     NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:path ofType:@"json"];
+    if (jsonPath == nil) {
+        XCTFail(@"Was unable to find crash report in resources for path: '%@'", path);
+        return @{};
+    }
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
 }
