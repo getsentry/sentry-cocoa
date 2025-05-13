@@ -54,8 +54,9 @@
 #endif // !TARGET_OS_WATCH
 
 /**
- * Macro for implementing lazy initialization with double checked lock. The double checked lock
- * speeds up the dependency retrieval for around 5%, so it's worth having it.
+ * Macro for implementing lazy initialization with a double-checked lock. The double-checked lock
+ * speeds up the dependency retrieval by around 5%, so it's worth having it. Measured with
+ * self.measure in unit tests.
  */
 #define SENTRY_LAZY_INIT(instance, initBlock)                                                      \
     if (instance == nil) {                                                                         \
@@ -85,7 +86,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
         instance = [[SentryDependencyContainer alloc] init];
         // We use two locks, because we don't want the dependencies to block the instance lock.
         // Using two locks speeds up the accessing the dependencies around 5%, which is worth having
-        // the extra lock.
+        // the extra lock. Measured with self.measure in unit tests.
         sentryDependencyContainerInstanceLock = [[NSObject alloc] init];
         sentryDependencyContainerDependenciesLock = [[NSObject alloc] init];
     }
@@ -94,7 +95,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
 + (instancetype)sharedInstance
 {
     // This synchronization adds around 5% slowdown compared to no synchronization.
-    // As we don't call this method in a tight loop, it's acceptable.
+    // As we don't call this method in a tight loop, it's acceptable. Measured with self.measure in
+    // unit tests.
     @synchronized(sentryDependencyContainerInstanceLock) {
         return instance;
     }
