@@ -51,21 +51,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The dependency container is optimized to use as few locks as possible and to only keep the
- * required dependencies in memory. It splits its dependencies into three different groups.
+ * required dependencies in memory. It splits its dependencies into two groups.
  *
  * Init Dependencies: These are mandatory dependencies required to run the SDK, no matter the
- * options. The dependency container initializes them in init and uses no locks for efficiency, and
- * it doesn't clear them when reset is called, because this would require locks.
+ * options. The dependency container initializes them in init and uses no locks for efficiency.
  *
- * Stateful Dependencies: These dependencies have some state from the options, such as the DSN or
- * other flags. The dependency container must clear these on reset, which always requires a lock
- * when accessing them. We can't use a double-checked lock, because when you set the property to
- * nil, the double-checked lock doesn't work, because the property could get set to nil in between
- * checking for nil and returning it.
- *
- * Lazy Dependencies: These dependencies don't have any state and aren't always required. We don't
- * initialize these in init dependencies to minimize the memory footprint. The class uses a
- * double-checked lock to minimize locks when accessing these.
+ * Lazy Dependencies: These dependencies either have some state or aren't always required and,
+ * therefore, get initialized lazily to minimize the memory footprint.
  */
 @interface SentryDependencyContainer : NSObject
 SENTRY_NO_INIT
@@ -73,16 +65,12 @@ SENTRY_NO_INIT
 + (instancetype)sharedInstance;
 
 /**
- * Resets stateful dependencies to nil.
+ * Resets all dependencies.
  */
 + (void)reset;
 
-/**
- * Restes all dependencies.
- */
-+ (void)resetForTests;
-
 #pragma mark - Init Dependencies
+
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
@@ -96,6 +84,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 
+#pragma mark - Lazy Dependencies
+
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
 #endif // TARGET_OS_IOS
@@ -104,7 +94,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryReachability *reachability;
 #endif // !TARGET_OS_WATCH
 
-#pragma mark - Stateful Dependencies
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
@@ -115,8 +104,6 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
 #endif // SENTRY_HAS_UIKIT
-
-#pragma mark - Lazy Dependencies
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;

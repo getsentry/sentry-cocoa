@@ -43,7 +43,7 @@ class TestCleanup: NSObject {
         
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
-        SentryDependencyContainer.resetForTests()
+        SentryDependencyContainer.reset()
 
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()

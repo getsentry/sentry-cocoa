@@ -60,7 +60,11 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentryDependencyContainer.reset()
     }
 
-    func testThreadSafety_ResetAndProperties() {
+    /**
+     * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
+     * only happen if you run this 1000 times in a row or increase the test iterations to 100k.
+     */
+    func testThreadSafety_ResetAndAccessProperties() {
 
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
@@ -77,11 +81,12 @@ final class SentryDependencyContainerTests: XCTestCase {
             queue.async {
 
                 for _ in 0...10 {
+                    // This is a quite unrealistic scenario, but it helps to find threading issues.
                     SentryDependencyContainer.reset()
                 }
 
                 for _ in 0...10 {
-                    // Dependencies in init
+                    // Init Dependencies
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchQueueWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().random)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadWrapper)
@@ -99,7 +104,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiDeviceWrapper)
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-                    // Dependencies that get set to nil in reset
+                    // Lazy Dependencies
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileManager)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().appStateManager)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
@@ -110,7 +115,6 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true))
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-                    // Dependencies lazy initialized
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().systemWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
@@ -139,5 +143,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         queue.activate()
 
         wait(for: [expectation], timeout: 5.0)
+
     }
+
 }

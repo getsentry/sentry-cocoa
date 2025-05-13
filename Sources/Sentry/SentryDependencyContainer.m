@@ -54,11 +54,12 @@
 #endif // !TARGET_OS_WATCH
 
 /**
- * Macro for implementing double-checked locking pattern for lazy initialization.
+ * Macro for implementing lazy initialization with double checked lock. The double checked lock
+ * speeds up the dependency retrieval for around 5%, so it's worth having it.
  */
-#define SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(instance, initBlock)                                  \
+#define SENTRY_LAZY_INIT(instance, initBlock)                                                      \
     if (instance == nil) {                                                                         \
-        @synchronized(sentryDependencyContainerLock) {                                             \
+        @synchronized(sentryDependencyContainerDependenciesLock) {                                 \
             if (instance == nil) {                                                                 \
                 instance = initBlock;                                                              \
             }                                                                                      \
@@ -75,24 +76,33 @@
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
-static NSObject *sentryDependencyContainerLock;
+static NSObject *sentryDependencyContainerDependenciesLock;
+static NSObject *sentryDependencyContainerInstanceLock;
 
 + (void)initialize
 {
     if (self == [SentryDependencyContainer class]) {
         instance = [[SentryDependencyContainer alloc] init];
-        sentryDependencyContainerLock = [[NSObject alloc] init];
+        // We use two locks, because we don't want the dependencies to block the instance lock.
+        // Using two locks speeds up the accessing the dependencies around 5%, which is worth having
+        // the extra lock.
+        sentryDependencyContainerInstanceLock = [[NSObject alloc] init];
+        sentryDependencyContainerDependenciesLock = [[NSObject alloc] init];
     }
 }
 
 + (instancetype)sharedInstance
 {
-    return instance;
+    // This synchronization adds around 5% slowdown compared to no synchronization.
+    // As we don't call this method in a tight loop, it's acceptable.
+    @synchronized(sentryDependencyContainerInstanceLock) {
+        return instance;
+    }
 }
 
 + (void)reset
 {
-    @synchronized(sentryDependencyContainerLock) {
+    @synchronized(sentryDependencyContainerInstanceLock) {
 #if SENTRY_HAS_REACHABILITY
         [instance->_reachability removeAllObservers];
 #endif // !TARGET_OS_WATCH
@@ -101,97 +111,51 @@ static NSObject *sentryDependencyContainerLock;
         [instance->_framesTracker stop];
 #endif // SENTRY_HAS_UIKIT
 
-        instance->_fileManager = nil;
-        instance->_appStateManager = nil;
-        instance->_threadInspector = nil;
-        instance->_fileIOTracker = nil;
-        instance->_crashReporter = nil;
-        instance->_anrTracker = nil;
-    }
-}
-
-+ (void)resetForTests
-{
-    NSAssert([NSThread isMainThread],
-        @"You must call this method on the main thread, because initDependencies isn't thread safe "
-        @"even though we call it inside synchronized block. We access the instance with no locks "
-        @"in sharedInstance, and all properties set in initDependencies use no locks for "
-        @"efficiency. So, when some background thread accesses a dependency set in "
-        @"initDependencies while this method runs, we end up in a race condition and could crash. "
-        @"We expect this method only to be called on the main thread when clearing down tests. "
-        @"This assert is a safety guard.");
-
-    @synchronized(sentryDependencyContainerLock) {
-        [self reset];
-
-        [instance initDependencies];
-
-        instance->_swizzleWrapper = nil;
-        instance->_systemWrapper = nil;
-        instance->_dispatchFactory = nil;
-        instance->_timerFactory = nil;
-
-#if SENTRY_UIKIT_AVAILABLE
-        instance->_framesTracker = nil;
-        instance->_screenshot = nil;
-        instance->_viewHierarchy = nil;
-        instance->_application = nil;
-        instance->_uiViewControllerPerformanceTracker = nil;
-#endif // SENTRY_UIKIT_AVAILABLE
-
-#if SENTRY_HAS_METRIC_KIT
-        instance->_metricKitManager = nil;
-#endif
+        instance = [[SentryDependencyContainer alloc] init];
     }
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
-        [self initDependencies];
+        _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        _random = [[SentryRandom alloc] init];
+        _threadWrapper = [[SentryThreadWrapper alloc] init];
+        _binaryImageCache = [[SentryBinaryImageCache alloc] init];
+        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
+        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        _extraContextProvider = [[SentryExtraContextProvider alloc] init];
+        _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        _crashWrapper = [[SentryCrashWrapper alloc] init];
+        _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _sysctlWrapper = [[SentrySysctl alloc] init];
+
+        SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
+            initWithHttpDateParser:[[SentryHttpDateParser alloc] init]
+               currentDateProvider:_dateProvider];
+        SentryRateLimitParser *rateLimitParser =
+            [[SentryRateLimitParser alloc] initWithCurrentDateProvider:_dateProvider];
+
+        _rateLimits =
+            [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
+                                                         andRateLimitParser:rateLimitParser
+                                                        currentDateProvider:_dateProvider];
+#if SENTRY_HAS_UIKIT
+        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _application = [[SentryUIApplication alloc] init];
+#endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_HAS_REACHABILITY
+        _reachability = [[SentryReachability alloc] init];
+#endif // !SENTRY_HAS_REACHABILITY
     }
     return self;
 }
 
-- (void)initDependencies
+- (SentryFileManager *)fileManager SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
-    _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-    _random = [[SentryRandom alloc] init];
-    _threadWrapper = [[SentryThreadWrapper alloc] init];
-    _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-    _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
-    _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-    _extraContextProvider = [[SentryExtraContextProvider alloc] init];
-    _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
-    _crashWrapper = [[SentryCrashWrapper alloc] init];
-    _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
-    _sysctlWrapper = [[SentrySysctl alloc] init];
-
-    SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
-        initWithHttpDateParser:[[SentryHttpDateParser alloc] init]
-           currentDateProvider:_dateProvider];
-    SentryRateLimitParser *rateLimitParser =
-        [[SentryRateLimitParser alloc] initWithCurrentDateProvider:_dateProvider];
-
-    _rateLimits =
-        [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
-                                                     andRateLimitParser:rateLimitParser
-                                                    currentDateProvider:_dateProvider];
-#if SENTRY_HAS_UIKIT
-    _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
-    _application = [[SentryUIApplication alloc] init];
-#endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_HAS_REACHABILITY
-    _reachability = [[SentryReachability alloc] init];
-#endif // !SENTRY_HAS_REACHABILITY
-}
-
-#pragma mark - Stateful Dependencies
-
-- (SentryFileManager *)fileManager
-{
-    @synchronized(sentryDependencyContainerLock) {
+    @synchronized(sentryDependencyContainerDependenciesLock) {
         if (_fileManager == nil) {
             NSError *error;
             _fileManager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
@@ -205,75 +169,56 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-- (SentryAppStateManager *)appStateManager
+- (SentryAppStateManager *)appStateManager SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_appStateManager == nil) {
-            _appStateManager =
-                [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
-                                                  crashWrapper:self.crashWrapper
-                                                   fileManager:self.fileManager
-                                          dispatchQueueWrapper:self.dispatchQueueWrapper
-                                     notificationCenterWrapper:self.notificationCenterWrapper];
-        }
-        return _appStateManager;
-    }
+    SENTRY_LAZY_INIT(_appStateManager,
+        [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
+                                          crashWrapper:self.crashWrapper
+                                           fileManager:self.fileManager
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                             notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (SentryThreadInspector *)threadInspector
+- (SentryThreadInspector *)threadInspector SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_threadInspector == nil) {
-            _threadInspector = [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options];
-        }
-        return _threadInspector;
-    }
+    SENTRY_LAZY_INIT(
+        _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
 }
 
-- (SentryFileIOTracker *)fileIOTracker
+- (SentryFileIOTracker *)fileIOTracker SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_fileIOTracker == nil) {
-            _fileIOTracker =
-                [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
-                                                  processInfoWrapper:[self processInfoWrapper]];
-        }
-
-        return _fileIOTracker;
-    }
+    SENTRY_LAZY_INIT(_fileIOTracker,
+        [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
+                                          processInfoWrapper:[self processInfoWrapper]]);
 }
 
-- (SentryCrash *)crashReporter
+- (SentryCrash *)crashReporter SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_crashReporter == nil) {
-            _crashReporter =
-                [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath];
-        }
-
-        return _crashReporter;
-    }
+    SENTRY_LAZY_INIT(_crashReporter,
+        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+    SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_anrTracker == nil) {
-            _anrTracker =
-                [[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                                       crashWrapper:self.crashWrapper
-                                               dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                      threadWrapper:self.threadWrapper];
-        }
-        return _anrTracker;
-    }
+    SENTRY_LAZY_INIT(_anrTracker,
+        [[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
+                                               crashWrapper:self.crashWrapper
+                                       dispatchQueueWrapper:self.dispatchQueueWrapper
+                                              threadWrapper:self.threadWrapper]);
 }
 
 #if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+                          isV2Enabled:(BOOL)isV2Enabled
+    SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 {
     if (isV2Enabled) {
-        @synchronized(sentryDependencyContainerLock) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
             if (_anrTracker == nil) {
                 _anrTracker =
                     [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
@@ -290,13 +235,11 @@ static NSObject *sentryDependencyContainerLock;
 }
 #endif // SENTRY_HAS_UIKIT
 
-#pragma mark - Lazy Dependencies
-
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (SentryScreenshot *)screenshot
 {
 #    if SENTRY_HAS_UIKIT
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
+    SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
 
 #    else
     SENTRY_LOG_DEBUG(
@@ -313,7 +256,7 @@ static NSObject *sentryDependencyContainerLock;
 {
 #    if SENTRY_HAS_UIKIT
 
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_viewHierarchy, [[SentryViewHierarchy alloc] init]);
+    SENTRY_LAZY_INIT(_viewHierarchy, [[SentryViewHierarchy alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
@@ -327,7 +270,7 @@ static NSObject *sentryDependencyContainerLock;
         "Double-checked locks produce false alarms.")
 {
 #    if SENTRY_HAS_UIKIT
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_uiViewControllerPerformanceTracker,
+    SENTRY_LAZY_INIT(_uiViewControllerPerformanceTracker,
         [[SentryUIViewControllerPerformanceTracker alloc]
                  initWithTracker:SentryPerformanceTracker.shared
             dispatchQueueWrapper:[self dispatchQueueWrapper]]);
@@ -343,7 +286,7 @@ static NSObject *sentryDependencyContainerLock;
     "Double-checked locks produce false alarms.")
 {
 #    if SENTRY_HAS_UIKIT
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_framesTracker,
+    SENTRY_LAZY_INIT(_framesTracker,
         [[SentryFramesTracker alloc]
             initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]
                           dateProvider:self.dateProvider
@@ -363,7 +306,7 @@ static NSObject *sentryDependencyContainerLock;
     "Double-checked locks produce false alarms.")
 {
 #    if SENTRY_HAS_UIKIT
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_swizzleWrapper, [[SentrySwizzleWrapper alloc] init]);
+    SENTRY_LAZY_INIT(_swizzleWrapper, [[SentrySwizzleWrapper alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.swizzleWrapper only works with UIKit enabled. Ensure you're "
@@ -376,19 +319,19 @@ static NSObject *sentryDependencyContainerLock;
 - (SentrySystemWrapper *)systemWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "Double-checked locks produce false alarms.")
 {
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
+    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
 }
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_DISABLE_THREAD_SANITIZER(
     "Double-checked locks produce false alarms.")
 {
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
+    SENTRY_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
 }
 
 - (SentryNSTimerFactory *)timerFactory SENTRY_DISABLE_THREAD_SANITIZER(
     "Double-checked locks produce false alarms.")
 {
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(_timerFactory, [[SentryNSTimerFactory alloc] init]);
+    SENTRY_LAZY_INIT(_timerFactory, [[SentryNSTimerFactory alloc] init]);
 }
 
 #if SENTRY_HAS_METRIC_KIT
@@ -398,7 +341,7 @@ static NSObject *sentryDependencyContainerLock;
     // Disable crash diagnostics as we only use it for validation of the symbolication
     // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
     // crash reports of MetricKit in production as we have SentryCrash.
-    SENTRY_DOUBLE_CHECKED_LOCK_LAZY_INIT(
+    SENTRY_LAZY_INIT(
         _metricKitManager, [[SentryMXManager alloc] initWithDisableCrashDiagnostics:YES]);
 }
 
