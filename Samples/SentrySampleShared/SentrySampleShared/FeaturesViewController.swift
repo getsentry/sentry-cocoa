@@ -38,7 +38,6 @@ public class FeaturesViewController: UIViewController {
         let dsnVC = DSNDisplayViewController(nibName: nil, bundle: nil)
         addChild(dsnVC)
 
-        //        header.heightAnchor.constraint(equalToConstant: 50).isActive = true
         let vStack = UIStackView(arrangedSubviews: [dsnVC.view, hstack])
         vStack.axis = .vertical
         return vStack
