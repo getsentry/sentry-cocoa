@@ -11,6 +11,9 @@
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef
+         location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
