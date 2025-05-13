@@ -1,14 +1,7 @@
-import SentrySampleShared
+import Sentry
 import UIKit
 
 let fontSize: CGFloat = 12
-
-func addDSNDisplay(_ vc: UIViewController, vcview: UIView) {
-    let dsnVC = DSNDisplayViewController(nibName: nil, bundle: nil)
-    vcview.addSubview(dsnVC.view)
-    dsnVC.view.matchEdgeAnchors(from: vcview)
-    vc.addChild(dsnVC)
-}
 
 class DSNDisplayViewController: UIViewController {
     let dispatchQueue = DispatchQueue(label: "io.sentry.iOS-Swift.queue.dsn-management", attributes: .concurrent)

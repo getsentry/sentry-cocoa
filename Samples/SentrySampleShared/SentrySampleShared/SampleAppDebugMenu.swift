@@ -40,7 +40,7 @@ public class SampleAppDebugMenu: NSObject {
 
     @objc func displayDebugMenu() {
         SampleAppDebugMenu.displayingForm = true
-        rootVC.present(FeaturesViewController(style: .plain), animated: true)
+        rootVC.present(FeaturesViewController(nibName: nil, bundle: nil), animated: true)
     }
 
     class Window: UIWindow {
