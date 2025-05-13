@@ -122,8 +122,9 @@
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
-            NSArray<UIViewController *> *viewControllers
-                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            id<SentryApplication> application
+                = SentryDependencyContainer.sharedInstance.application;
+            NSArray<UIViewController *> *viewControllers = [application relevantViewControllers];
             NSMutableArray *vcsNames =
                 [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
             for (UIViewController *vc in viewControllers) {
@@ -254,6 +255,11 @@
 - (void)didBecomeActive
 {
     appState = UIApplicationStateActive;
+}
+
+- (BOOL)isActive
+{
+    return appState == UIApplicationStateActive;
 }
 
 @end

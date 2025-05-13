@@ -1,4 +1,5 @@
 #import "SentrySessionTracker.h"
+#import "SentryApplication.h"
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryDependencyContainer.h"
@@ -6,6 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
+#import "SentryNSApplication.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
@@ -28,7 +30,7 @@
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
-@property (nonatomic, assign) BOOL isStarted;
+@property (nonatomic, assign) BOOL wasStarted;
 @end
 
 @implementation SentrySessionTracker
@@ -86,7 +88,7 @@
                name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 
     // Keep track if the SDK was started to ignore didBecomeActive if it was called before.
-    self->isStarted = true;
+    [self setWasStarted:true];
 
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
@@ -116,7 +118,7 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    self->isStarted = false;
+    [self setWasStarted:false];
 }
 
 - (void)dealloc
@@ -166,7 +168,7 @@
         // If the SDK became active before started, we ignore the notification.
         // This can happen if the SDK is closed and started, or if the start of the SDK was delayed,
         // e.g. asking a user for consent first.
-        if (!self->isStarted) {
+        if (![self wasStarted]) {
             SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because the "
                              @"tracker is not started.");
             return;
@@ -249,13 +251,8 @@
 
 - (BOOL)isAppActive
 {
-#if SENTRY_HAS_UIKIT
-    SentryUIApplication *application = SentryDependencyContainer.sharedInstance.application;
-    if (application.applicationState == UIApplicationStateActive) {
-        return YES;
-    }
-#endif
-    return NO;
+    id<SentryApplication> application = SentryDependencyContainer.sharedInstance.application;
+    return application.isActive;
 }
 
 @end

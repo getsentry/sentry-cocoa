@@ -1,5 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
+#import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -49,6 +50,10 @@
 #if TARGET_OS_IOS
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
+
+#if TARGET_OS_OSX
+#    import "SentryNSApplication.h"
+#endif
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
@@ -316,26 +321,6 @@ static NSObject *sentryDependencyContainerLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (SentryUIApplication *)application SENTRY_DISABLE_THREAD_SANITIZER(
-    "double-checked lock produce false alarms")
-{
-#    if SENTRY_HAS_UIKIT
-    if (_application == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_application == nil) {
-                _application = [[SentryUIApplication alloc] init];
-            }
-        }
-    }
-    return _application;
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.application only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
-}
-
 - (SentryUIViewControllerPerformanceTracker *)
     uiViewControllerPerformanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
         "double-checked lock produce false alarms")
@@ -405,6 +390,25 @@ static NSObject *sentryDependencyContainerLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 #endif // SENTRY_UIKIT_AVAILABLE
+
+- (id<SentryApplication>)application SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    if (_application == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_application == nil) {
+#if SENTRY_HAS_UIKIT
+                _application = [[SentryUIApplication alloc] init];
+#elif TARGET_OS_OSX
+                _application = [[SentryNSApplication alloc] init];
+#else
+                return nil;
+#endif
+            }
+        }
+    }
+    return _application;
+}
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
     SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
