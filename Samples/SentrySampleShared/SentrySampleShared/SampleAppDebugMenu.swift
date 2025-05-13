@@ -33,7 +33,7 @@ public class SampleAppDebugMenu: NSObject {
         return button
     }()
 
-    public func display() {
+    @objc public func display() {
         window.rootViewController = rootVC
         window.isHidden = false
     }
