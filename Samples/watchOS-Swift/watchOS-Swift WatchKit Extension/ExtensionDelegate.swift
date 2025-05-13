@@ -1,38 +1,11 @@
 import Sentry
+import SentrySampleShared
 import WatchKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     func applicationDidFinishLaunching() {
-        // Perform any final initialization of your application.
-        
-        SentrySDK.start { options in
-            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-            options.debug = true
-
-            // Experimental features
-            options.experimental.enableFileManagerSwizzling = true
-        }
-        
-        SentrySDK.configureScope { scope in
-            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
-            }
-            
-            scope.injectGitInformation()
-            
-            let data = Data("hello".utf8)
-            scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-        }
-    }
-
-    func applicationDidBecomeActive() {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
-
-    func applicationWillResignActive() {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, etc.
+        SentrySDKWrapper.shared.startSentry()
     }
 
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
