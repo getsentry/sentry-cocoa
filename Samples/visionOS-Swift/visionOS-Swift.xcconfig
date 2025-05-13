@@ -6,6 +6,7 @@
 #include "../Shared/Config/Packaging.xcconfig"
 #include "../Shared/Config/SearchPaths.xcconfig"
 #include "../Shared/Config/Signing.xcconfig"
+#include "../Shared/Config/Versioning.xcconfig"
 #include "../Shared/Config/CodeGeneration.xcconfig"
 #include "../Shared/Config/ClangLanguage.xcconfig"
 #include "../Shared/Config/ClangCppLanguage.xcconfig"
@@ -20,13 +21,8 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-#include "../../Sources/Configuration/Versioning.xcconfig"
-
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.VisionOS-Swift
 INFOPLIST_FILE = visionOS-Swift/Info.plist
-
 SUPPORTED_PLATFORMS = xros xrsimulator
-
 XROS_DEPLOYMENT_TARGET = 1.0
-
 DEVELOPMENT_ASSET_PATHS = "visionOS-Swift/Preview Content"

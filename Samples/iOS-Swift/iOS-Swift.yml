@@ -1,4 +1,6 @@
 name: iOS-Swift
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS-Swift.yml
@@ -22,20 +26,11 @@ targets:
     platform: auto
     sources:
       - iOS-Swift
-      - ../Shared/GitInjections.swift
-      - ../Shared/DSNStorage.swift
-      - ../Shared/SpanExtension.swift
-      - ../Shared/UIViewControllerExtension.swift
-      - ../Shared/UIViewExtension.swift
-      - ../Shared/RandomErrors.swift
-      - ../Shared/SpanObserver.swift
-      - ../Shared/UIAssert.swift
-      - ../Shared/AssertView.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: iOS-SwiftClip
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift.xcconfig
       Release: iOS-Swift.xcconfig
@@ -54,11 +49,10 @@ targets:
     platform: auto
     sources:
       - iOS-SwiftClip
-      - ../Shared/GitInjections.swift
-      - ../Shared/DSNStorage.swift
-      - ../Shared/screenshot.png
+      - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftClip.xcconfig
       Release: iOS-SwiftClip.xcconfig
@@ -87,6 +81,7 @@ targets:
     platform: auto
     sources:
       - iOS-Benchmarking
+      - ../Shared/SampleAssets.xcassets
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig
@@ -94,87 +89,11 @@ targets:
       TestCI: iOS-Benchmarking.xcconfig
 schemes:
   iOS-Swift:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS-Swift: all
-    run:
-      commandLineArguments:
-        "--io.sentry.disable-everything": false
-        "--io.sentry.ui-test.use-custom-feedback-button": true
-        "--io.sentry.disable-ui-profiling": false
-        "--disable-app-hang-tracking-v2": false
-        "--io.sentry.schema-environment-variable-precedence": true
-        "--io.sentry.profile-lifecycle-manual": false
-        "--disable-time-to-full-display-tracing": false
-        "--disable-performance-v2": false
-        "--disable-attach-view-hierarchy": false
-        "--disable-attach-screenshot": false
-        "--io.sentry.base64-attachment-data": false
-        "--io.sentry.disable-http-transport": false
-        "--disable-file-io-tracing": false
-        "--io.sentry.feedback.dont-use-sentry-user": false
-        "--io.sentry.feedback.require-name": false
-        "--io.sentry.feedback.require-email": false
-        "--io.sentry.feedback.no-animations": false
-        "--io.sentry.feedback.no-widget-icon": false
-        "--io.sentry.feedback.no-widget-text": false
-        "--io.sentry.feedback.all-defaults": false
-        "--skip-sentry-init": false
-        "--disable-spotlight": false
-        "--disable-automatic-session-tracking": false
-        "--disable-metrickit-integration": false
-        "--disable-session-replay": false
-        "--io.sentry.wipe-data": false
-        "--io.sentry.slow-load-method": false
-        "--disable-watchdog-tracking": false
-        "--disable-tracing": false
-        "--io.sentry.disable-app-start-profiling": false
-        "--disable-crash-handler": false
-        "--disable-swizzling": false
-        "--disable-network-breadcrumbs": false
-        "--disable-core-data-tracing": false
-        "--disable-network-tracking": false
-        "--disable-uiviewcontroller-tracing": false
-        "--disable-automatic-breadcrumbs": false
-        "--disable-anr-tracking": false
-        "--disable-auto-performance-tracing": false
-        "--disable-ui-tracing": false
-        "--io.sentry.feedback.no-auto-inject-widget": false
-        "--disable-filemanager-swizzling": false
-      environmentVariables:
-        - variable: "--io.sentry.tracesSampleRate"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.profilesSampleRate"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.tracesSamplerValue"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.profilesSamplerValue"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.sdk-environment"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.dsn"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.user.username"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.user.email"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.sessionTrackingIntervalMillis"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.user.name"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.profile-session-sample-rate"
-          value:
-          isEnabled: false
     test:
       config: Test
       testPlans:
