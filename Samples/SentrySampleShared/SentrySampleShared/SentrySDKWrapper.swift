@@ -9,6 +9,10 @@ import UIKit
 public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
 
+#if !os(macOS) && !os(watchOS) && !os(visionOS)
+    let debugMenu = SampleAppDebugMenu()
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
+
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
     public let feedbackButton = {
         let button = UIButton(type: .custom)
@@ -28,6 +32,10 @@ public struct SentrySDKWrapper {
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
+
+#if !os(macOS) && !os(watchOS) && !os(visionOS)
+            debugMenu.display()
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
         }
     }
 
