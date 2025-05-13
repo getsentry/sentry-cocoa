@@ -22,9 +22,5 @@
 #include "../Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
-
-CODE_SIGN_STYLE = Manual
-
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-
 TEST_TARGET_NAME = iOS-SwiftUI
