@@ -24,6 +24,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryGeo.h>
 #    import <Sentry/SentryHttpStatusCodeRange.h>
 #    import <Sentry/SentryHub.h>
+#    import <Sentry/SentryIntegrationProtocol.h>
 #    import <Sentry/SentryMeasurementUnit.h>
 #    import <Sentry/SentryMechanism.h>
 #    import <Sentry/SentryMechanismMeta.h>
