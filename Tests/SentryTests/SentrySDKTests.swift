@@ -131,14 +131,14 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
 
-    func testStartStopBinaryImageCache() {
+    func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true
             options.removeAllIntegrations()
         }
 
-        XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
-        XCTAssertGreaterThan(SentryDependencyContainer.sharedInstance().binaryImageCache.cache.count, 0)
+        let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
+        XCTAssertGreaterThan(cache.count, 0)
 
         SentrySDK.close()
 
@@ -673,11 +673,11 @@ class SentrySDKTests: XCTestCase {
             options.removeAllIntegrations()
         }
 
-        let first = SentryDependencyContainer.sharedInstance()
+        let first = SentryDependencyContainer.sharedInstance().fileManager
 
         SentrySDK.close()
 
-        let second = SentryDependencyContainer.sharedInstance()
+        let second = SentryDependencyContainer.sharedInstance().fileManager
 
         XCTAssertNotEqual(first, second)
     }
