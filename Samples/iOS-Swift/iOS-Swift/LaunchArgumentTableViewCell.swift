@@ -1,3 +1,4 @@
+import SentrySampleShared
 import UIKit
 
 class LaunchArgumentTableViewCell: UITableViewCell {

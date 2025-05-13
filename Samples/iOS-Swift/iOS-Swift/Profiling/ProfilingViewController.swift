@@ -1,4 +1,5 @@
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class ProfilingViewController: UIViewController, UITextFieldDelegate {
