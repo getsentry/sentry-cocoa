@@ -4,7 +4,7 @@
 
 ### Improvements
 
-- Replace associated object with current TTD tracker (#5048)
+- Improved time-to-display tracker to not crash when using view life cycle methods incorrectly (#5048)
 
 ## 8.50.1
 

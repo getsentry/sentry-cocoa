@@ -16,6 +16,7 @@ class ViewLifecycleTestViewController: UIViewController {
     @IBAction func dismissButtonTouchUpAction(_ sender: UIButton) {
         // This is the place where we call view lifecycle methods after the view is dismissed.
         // This is invalid behaviour, but the SDK should not crash.
+        // See also https://developer.apple.com/documentation/uikit/uiviewcontroller/beginappearancetransition(_:animated:)#Discussion for related information.
         DispatchQueue.global(qos: .default).async {
             DispatchQueue.main.async {
                 self.dismiss(animated: false) {

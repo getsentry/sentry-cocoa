@@ -18,9 +18,20 @@
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
-// Instead of using associated objects, we use a global map to store the time to display tracker,
-// spanId, spans in execution, and layout subview spanId to avoid memory issues with associated
-// objects accessed from different threads.
+// In a previous implementation, we used associated objects to store the time to display tracker,
+// spanId, spans in execution, and layout subview spanId. However, this approach was prone to
+// memory leaks and crashes due to accessing associated objects from different threads.
+//
+// See https://github.com/getsentry/sentry-cocoa/issues/5087 for reference.
+//
+// To address these issues, we switched to using a NSMapTable to store these values.
+// This approach provides the following benefits:
+//
+// 1. Weak references to the keys: The NSMapTable allows us to store weak references to the keys,
+//    which means we don't need to remove the entries when the UIViewController is deallocated.
+//
+// 2. Thread safety: The NSMapTable is thread-safe, which means we can access it from different
+//    threads without the need for additional synchronization.
 //
 // Using a NSMapTable allows weak references to the keys, which means we don't need to remove the
 // entries when the UIViewController is deallocated.
