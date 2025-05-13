@@ -6,6 +6,7 @@
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
 - Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
+- Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
 
 ### Improvements
 
@@ -65,7 +66,6 @@
 - Truncation of Swift crash messages (#5036)
 - Add error logging for move current replay to last path (#5083)
 - Async safe log for backtrace in CPPException (#5098)
-- Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
 
 ## 8.49.0
 
