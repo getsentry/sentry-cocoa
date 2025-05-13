@@ -33,6 +33,14 @@ final class SentryUserFeedbackWidget {
     }
 
     final class Window: UIWindow {
+        init(config: SentryUserFeedbackConfiguration, windowScene: UIWindowScene) {
+            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                super.init(windowScene: scene)
+            } else {
+                super.init(frame: UIScreen.main.bounds)
+            }
+        }
+
         init(config: SentryUserFeedbackConfiguration) {
             super.init(frame: UIScreen.main.bounds)
             windowLevel = config.widgetConfig.windowLevel
