@@ -200,10 +200,6 @@ class ExtraViewController: UIViewController {
         }
     }
 
-    @IBAction func featureFlags(_ sender: Any) {
-        navigationController?.pushViewController(FeaturesViewController(style: .plain), animated: true)
-    }
-
     private func calcPi() -> Double {
         var denominator = 1.0
         var pi = 0.0
