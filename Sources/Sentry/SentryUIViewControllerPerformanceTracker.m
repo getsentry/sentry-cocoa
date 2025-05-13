@@ -511,16 +511,14 @@
 
 - (void)reportInitialDisplayForController:(NSObject *)controller
 {
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Reporting initial display for controller: %@", controller);
+    SENTRY_LOG_DEBUG(@"Reporting initial display for controller: %@", controller);
     if (self.currentTTDTracker == nil) {
-        SENTRY_LOG_DEBUG(@"[UIViewController Performance] Can't report initial display, no screen "
-                         @"transaction being tracked right now.");
+        SENTRY_LOG_DEBUG(
+            @"Can't report initial display, no screen transaction being tracked right now.");
         return;
     }
     [self.currentTTDTracker reportInitialDisplay];
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Reported initial display for controller: %@", controller);
+    SENTRY_LOG_DEBUG(@"Reported initial display for controller: %@", controller);
 }
 
 // - MARK: - Getter and Setter Helpers
@@ -528,84 +526,58 @@
 - (SentryTimeToDisplayTracker *_Nullable)getTimeToDisplayTrackerForController:
     (UIViewController *)controller
 {
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Getting time to display tracker for controller: %@",
-        controller);
-    // Use a global map to store the time to display tracker to avoid memory issues with associated
-    // objects.
+    SENTRY_LOG_DEBUG(@"Getting time to display tracker for controller: %@", controller);
     return [self.ttdTrackers objectForKey:controller];
 }
 
 - (void)setTimeToDisplayTrackerForController:(UIViewController *)controller
                                   ttdTracker:(SentryTimeToDisplayTracker *)ttdTracker
 {
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Setting time to display tracker for controller: %@, "
-         "ttdTracker: %@",
+    SENTRY_LOG_DEBUG(@"Setting time to display tracker for controller: %@, ttdTracker: %@",
         controller, ttdTracker);
-    // Use a global map to store the time to display tracker to avoid memory issues with associated
-    // objects.
     [self.ttdTrackers setObject:ttdTracker forKey:controller];
+}
+
+- (SentrySpanId *_Nullable)getSpanIdForViewController:(UIViewController *)controller
+{
+    SENTRY_LOG_DEBUG(@"Getting span id for controller: %@", controller);
+    return [self.spanIds objectForKey:controller];
 }
 
 - (void)setSpanIdForViewController:(UIViewController *)controller
                             spanId:(SentrySpanId *_Nullable)spanId
 {
     SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Setting span id for controller: %@, spanId: %@",
-        controller, spanId.sentrySpanIdString);
-    // Use a global map to store the spanId to avoid memory issues with associated objects.
+        @"Setting span id for controller: %@, spanId: %@", controller, spanId.sentrySpanIdString);
     [self.spanIds setObject:spanId forKey:controller];
-}
-
-- (SentrySpanId *_Nullable)getSpanIdForViewController:(UIViewController *)controller
-{
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Getting span id for controller: %@", controller);
-    // Use a global map to store the spanId to avoid memory issues with associated objects.
-    return [self.spanIds objectForKey:controller];
 }
 
 - (SentrySpanId *_Nullable)getLayoutSubviewSpanIdForViewController:
     (UIViewController *_Nonnull)controller
 {
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Getting layout subview span id for controller: %@",
-        controller);
-    // Use a global map to store the layout subview spanId to avoid memory issues with associated
-    // objects.
+    SENTRY_LOG_DEBUG(@"Getting layout subview span id for controller: %@", controller);
     return [self.layoutSubviewSpanIds objectForKey:controller];
 }
 
 - (void)setLayoutSubviewSpanID:(UIViewController *_Nonnull)controller spanId:(SentrySpanId *)spanId
 {
-    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Setting layout subview span id for "
-                     @"controller: %@, spanId: %@",
-        controller, spanId.sentrySpanIdString);
-    // Use a global map to store the layout subview spanId to avoid memory issues with associated
-    // objects.
+    SENTRY_LOG_DEBUG(@"Setting layout subview span id for controller: %@, spanId: %@", controller,
+        spanId.sentrySpanIdString);
     [self.layoutSubviewSpanIds setObject:spanId forKey:controller];
 }
 
 - (NSMutableSet<NSString *> *_Nullable)getSpansInExecutionSetForViewController:
     (UIViewController *)viewController
 {
-    SENTRY_LOG_DEBUG(
-        @"[UIViewController Performance] Getting spans in execution set for controller: %@",
-        viewController);
-    // Use a global map to store the spans in execution set to avoid memory issues with associated
-    // objects.
+    SENTRY_LOG_DEBUG(@"Getting spans in execution set for controller: %@", viewController);
     return [self.spansInExecution objectForKey:viewController];
 }
 
 - (void)setSpansInExecutionSetForViewController:(UIViewController *)viewController
                                        spansIds:(NSMutableSet<NSString *> *)spanIds
 {
-    SENTRY_LOG_DEBUG(@"[UIViewController Performance] Setting spans in execution set for "
-                     @"controller: %@, spanIds: %@",
-        viewController, spanIds);
-    // Use a global map to store the spans in execution set to avoid memory issues with associated
-    // objects.
+    SENTRY_LOG_DEBUG(
+        @"Setting spans in execution set for controller: %@, spanIds: %@", viewController, spanIds);
     [self.spansInExecution setObject:spanIds forKey:viewController];
 }
 
