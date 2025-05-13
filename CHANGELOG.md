@@ -1,11 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
+
 ## 8.50.1
 
 ### Fixes
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
-- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
 
 ### Improvements
 
