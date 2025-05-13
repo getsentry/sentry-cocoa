@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 @protocol SentryApplication;
