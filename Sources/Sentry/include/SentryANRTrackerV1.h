@@ -29,7 +29,7 @@ SENTRY_NO_INIT
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
--(id<SentryANRTracker>)asProtocol;
+- (id<SentryANRTracker>)asProtocol;
 
 @end
 

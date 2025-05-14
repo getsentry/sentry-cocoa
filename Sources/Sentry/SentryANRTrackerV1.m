@@ -48,7 +48,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     return self;
 }
 
-- (id<SentryANRTracker>)asProtocol {
+- (id<SentryANRTracker>)asProtocol
+{
     return self;
 }
 

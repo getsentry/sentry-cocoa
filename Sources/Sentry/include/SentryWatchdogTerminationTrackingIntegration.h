@@ -5,8 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryWatchdogTerminationTrackingIntegration
-    : SentryBaseIntegration
+@interface SentryWatchdogTerminationTrackingIntegration : SentryBaseIntegration
 
 @end
 

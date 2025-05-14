@@ -412,11 +412,11 @@ static NSObject *sentryDependencyContainerLock;
     if (_anrTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_anrTracker == nil) {
-                _anrTracker =
-                [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                                                           crashWrapper:self.crashWrapper
-                                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                                          threadWrapper:self.threadWrapper] asProtocol];
+                _anrTracker = [[[SentryANRTrackerV1 alloc]
+                    initWithTimeoutInterval:timeout
+                               crashWrapper:self.crashWrapper
+                       dispatchQueueWrapper:self.dispatchQueueWrapper
+                              threadWrapper:self.threadWrapper] asProtocol];
             }
         }
     }
@@ -434,11 +434,11 @@ static NSObject *sentryDependencyContainerLock;
             @synchronized(sentryDependencyContainerLock) {
                 if (_anrTracker == nil) {
                     _anrTracker = [[[SentryANRTrackerV2 alloc]
-                                    initWithTimeoutInterval:timeout
-                                               crashWrapper:self.crashWrapper
-                                       dispatchQueueWrapper:self.dispatchQueueWrapper
-                                              threadWrapper:self.threadWrapper
-                                              framesTracker:self.framesTracker] asProtocol];
+                        initWithTimeoutInterval:timeout
+                                   crashWrapper:self.crashWrapper
+                           dispatchQueueWrapper:self.dispatchQueueWrapper
+                                  threadWrapper:self.threadWrapper
+                                  framesTracker:self.framesTracker] asProtocol];
                 }
             }
         }
