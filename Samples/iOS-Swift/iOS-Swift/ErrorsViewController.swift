@@ -27,13 +27,73 @@ class ErrorsViewController: UIViewController {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
         
+        
+        
+        
+        
+        
         if SentrySDKOverrides.Feedback.injectScreenshot.boolValue {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
-        imageView.image = UIImage(named: "")
+//        imageView.image = UIImage(named: "")
+        
+        let sdkInfo = SentrySdkInfo.global()
+        sdkInfo.serialize()
+        
+        let sdkInfoJson = try! JSONSerialization.data(withJSONObject: sdkInfo.serialize())
+        let sdkInfoJsonString = String(data: sdkInfoJson, encoding: .utf8)!
+        let traceId = SentrySDK.currentHub().scope.span?.traceContext?.traceId.sentryIdString ?? "00000000000000000000000000000000"
+        
+        let header = [
+            "sdk": sdkInfo.serialize()
+        ]
+        let headerData = try! JSONSerialization.data(withJSONObject: header)
+        
+        let logs = [
+            "items": [
+                [
+                    "timestamp": "1969-07-20T20:18:04.000Z",
+                    "trace_id": traceId,
+                    "level": "info",
+                    "body": "foobar",
+                    "attributes": [
+                        "test": [
+                            "value": "foobar",
+                            "type": "string"
+                        ]
+                    ],
+                    "severity_number": 1
+                ]
+            ]
+        ]
+        let logsData = try! JSONSerialization.data(withJSONObject: logs)
+        
+        let itemHeader: [String: Any] = [
+            "length": logsData.count,
+            "type":"log",
+            "item_count": 1,
+            "content_type": "application/vnd.sentry.items.log+json"
+        ]
+        let itemHeaderData = try! JSONSerialization.data(withJSONObject: itemHeader)
+        
+        
+        var itemData = Data()
+        itemData.append(headerData)
+        itemData.append(Data("\n".utf8))
+        
+        itemData.append(itemHeaderData)
+        itemData.append(Data("\n".utf8))
+        
+        itemData.append(logsData)
+        
+        guard let envelope = PrivateSentrySDKOnly.envelope(with: itemData) else {
+            print("Cannot parse the envelope data")
+            return
+        }
+        SentrySDK.capture(envelope)
     }
 
     @IBAction func diskWriteException(_ sender: UIButton) {

@@ -182,6 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSString *filename = [headerDictionary valueForKey:@"filename"];
             NSString *contentType = [headerDictionary valueForKey:@"content_type"];
             NSString *attachmentType = [headerDictionary valueForKey:@"attachment_type"];
+            NSNumber *itemCount = [headerDictionary valueForKey:@"item_count"];
 
             SentryEnvelopeItemHeader *itemHeader;
             if (nil != filename) {
@@ -191,6 +192,8 @@ NS_ASSUME_NONNULL_BEGIN
                           filename:filename
                        contentType:contentType
                     attachmentType:typeForSentryAttachmentName(attachmentType)];
+            } else if (nil != itemCount) {
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength contentType:contentType itemCount:itemCount];
             } else {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
