@@ -23,10 +23,9 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI
 INFOPLIST_FILE = iOS-SwiftUI/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI/iOS-SwiftUI.entitlements
 
 SWIFT_OBJC_BRIDGING_HEADER = iOS-SwiftUI/bridging-headers.h
-
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI/iOS-SwiftUI.entitlements
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
