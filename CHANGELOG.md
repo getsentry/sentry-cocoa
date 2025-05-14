@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Fixes
+### Improvements
 
 - Threading issues in internal dependency container (#5225)
 

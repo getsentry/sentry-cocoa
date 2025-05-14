@@ -84,15 +84,16 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 
-#pragma mark - Lazy Dependencies
+#if SENTRY_HAS_REACHABILITY
+@property (nonatomic, strong) SentryReachability *reachability;
+#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+@property (nonatomic, strong) SentryUIApplication *application;
 #endif // TARGET_OS_IOS
 
-#if !TARGET_OS_WATCH
-@property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
+#pragma mark - Lazy Dependencies
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
@@ -105,16 +106,15 @@ SENTRY_NO_INIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
 #endif // SENTRY_HAS_UIKIT
 
-@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
+@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
-@property (nonatomic, strong) SentryUIApplication *application;
 @property (nonatomic, strong)
     SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE

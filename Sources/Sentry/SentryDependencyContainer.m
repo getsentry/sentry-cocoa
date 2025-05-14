@@ -142,14 +142,15 @@ static NSObject *sentryDependencyContainerInstanceLock;
             [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
                                                          andRateLimitParser:rateLimitParser
                                                         currentDateProvider:_dateProvider];
-#if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
-        _application = [[SentryUIApplication alloc] init];
-#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
+
+#if SENTRY_HAS_UIKIT
+        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _application = [[SentryUIApplication alloc] init];
+#endif // SENTRY_HAS_UIKIT
     }
     return self;
 }
@@ -238,11 +239,11 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (SentryScreenshot *)screenshot
+- (SentryScreenshot *)screenshot SENTRY_DISABLE_THREAD_SANITIZER(
+    "Double-checked locks produce false alarms.")
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
-
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
