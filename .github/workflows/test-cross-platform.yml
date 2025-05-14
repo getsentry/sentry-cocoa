@@ -1,0 +1,58 @@
+name: Test Cross-Platform Sentry SDK Installation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [react-native, flutter, dotnet]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      if: matrix.platform == 'react-native'
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Set up Flutter
+      if: matrix.platform == 'flutter'
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '2.5.0'
+
+    - name: Set up .NET
+      if: matrix.platform == 'dotnet'
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '5.0.x'
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.platform }}" == "react-native" ]; then
+          npm install
+        elif [ "${{ matrix.platform }}" == "flutter" ]; then
+          flutter pub get
+        elif [ "${{ matrix.platform }}" == "dotnet" ]; then
+          dotnet restore
+        fi
+
+    - name: Build and test
+      run: |
+        if [ "${{ matrix.platform }}" == "react-native" ]; then
+          npm run build && npm test
+        elif [ "${{ matrix.platform }}" == "flutter" ]; then
+          flutter build apk && flutter test
+        elif [ "${{ matrix.platform }}" == "dotnet" ]; then
+          dotnet build && dotnet test
+        fi 
