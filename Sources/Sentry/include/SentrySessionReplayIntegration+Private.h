@@ -7,8 +7,7 @@
 @class SentrySessionReplay;
 @class SentryViewPhotographer;
 
-@interface SentrySessionReplayIntegration () <SentrySessionListener,
-    SentrySessionReplayDelegate>
+@interface SentrySessionReplayIntegration () <SentrySessionListener, SentrySessionReplayDelegate>
 
 @property (nonatomic, strong) SentrySessionReplay *sessionReplay;
 

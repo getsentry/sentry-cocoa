@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryViewHierarchyIntegration
-    : SentryBaseIntegration <SentryClientAttachmentProcessor>
+@interface SentryViewHierarchyIntegration : SentryBaseIntegration <SentryClientAttachmentProcessor>
 
 @end
 

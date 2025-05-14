@@ -9,6 +9,7 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
@@ -27,7 +28,6 @@
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryIntegrationProtocol.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIViewControllerPerformanceTracker.h"

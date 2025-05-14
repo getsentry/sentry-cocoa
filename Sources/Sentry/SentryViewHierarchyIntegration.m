@@ -7,9 +7,9 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
+#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryViewHierarchy.h"
-#    import "SentryOptions.h"
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
 #    endif // SENTRY_HAS_METRIC_KIT

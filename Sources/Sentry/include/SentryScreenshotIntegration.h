@@ -8,8 +8,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryScreenshotIntegration
-    : SentryBaseIntegration <SentryClientAttachmentProcessor>
+@interface SentryScreenshotIntegration : SentryBaseIntegration <SentryClientAttachmentProcessor>
 
 @end
 
