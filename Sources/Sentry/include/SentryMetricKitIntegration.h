@@ -4,7 +4,8 @@
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryEvent.h"
-#    import "SentrySwift.h"
+
+@protocol SentryMXManagerDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +20,7 @@ static NSString *const SentryMetricKitHangDiagnosticMechanism = @"mx_hang_diagno
 
 API_AVAILABLE(ios(15.0), macos(12.0), macCatalyst(15.0))
 API_UNAVAILABLE(tvos, watchos)
-@interface SentryMetricKitIntegration : SentryBaseIntegration <SentryMXManagerDelegate>
+@interface SentryMetricKitIntegration : SentryBaseIntegration
 
 @end
 

@@ -39,7 +39,7 @@ static NSString *SENTRY_LAST_REPLAY = @"replay.last";
  */
 static SentryTouchTracker *_touchTracker;
 
-@interface SentrySessionReplayIntegration () <SentryReachabilityObserver>
+@interface SentrySessionReplayIntegration () <SentryReachabilityObserver, SentrySessionListener, SentrySessionReplayDelegate>
 - (void)newSceneActivate;
 @end
 

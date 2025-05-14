@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface SentryANRTrackerV1 ()
+@interface SentryANRTrackerV1 () <SentryANRTracker>
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
@@ -45,6 +45,10 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
     }
+    return self;
+}
+
+- (id<SentryANRTracker>)asProtocol {
     return self;
 }
 
