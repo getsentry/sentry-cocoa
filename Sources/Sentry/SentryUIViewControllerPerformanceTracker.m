@@ -14,6 +14,7 @@
 #    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
+#    import "SentryWeakMap.h"
 #    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
@@ -35,6 +36,14 @@
 //
 // Using a NSMapTable allows weak references to the keys, which means we don't need to remove the
 // entries when the UIViewController is deallocated.
+//
+// DISCUSSION FROM NSMAPTABLE:
+// Use of weak-to-strong map tables is not recommended. The strong values for weak keys which get
+// zeroed out continue to be maintained until the map table resizes itself.
+//
+// To avoid this issue, we will prune the maps when we access them. This means that we will
+// remove any entries with weak keys that have been deallocated. This will ensure that we don't
+// keep any references to deallocated objects in the map tables and have a memory leak.
 
 @interface SentryUIViewControllerPerformanceTracker ()
 
@@ -43,11 +52,12 @@
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @property (nonatomic, strong)
-    NSMapTable<UIViewController *, SentryTimeToDisplayTracker *> *ttdTrackers;
-@property (nonatomic, strong) NSMapTable<UIViewController *, SentrySpanId *> *spanIds;
+    SentryWeakMap<UIViewController *, SentryTimeToDisplayTracker *> *ttdTrackers;
+@property (nonatomic, strong) SentryWeakMap<UIViewController *, SentrySpanId *> *spanIds;
 @property (nonatomic, strong)
-    NSMapTable<UIViewController *, NSMutableSet<NSString *> *> *spansInExecution;
-@property (nonatomic, strong) NSMapTable<UIViewController *, SentrySpanId *> *layoutSubviewSpanIds;
+    SentryWeakMap<UIViewController *, NSMutableSet<NSString *> *> *spansInExecution;
+@property (nonatomic, strong)
+    SentryWeakMap<UIViewController *, SentrySpanId *> *layoutSubviewSpanIds;
 
 @end
 
@@ -66,10 +76,10 @@
         _alwaysWaitForFullDisplay = NO;
         _dispatchQueueWrapper = dispatchQueueWrapper;
 
-        _ttdTrackers = [NSMapTable weakToStrongObjectsMapTable];
-        _spanIds = [NSMapTable weakToStrongObjectsMapTable];
-        _spansInExecution = [NSMapTable weakToStrongObjectsMapTable];
-        _layoutSubviewSpanIds = [NSMapTable weakToStrongObjectsMapTable];
+        _ttdTrackers = [[SentryWeakMap alloc] init];
+        _spanIds = [[SentryWeakMap alloc] init];
+        _spansInExecution = [[SentryWeakMap alloc] init];
+        _layoutSubviewSpanIds = [[SentryWeakMap alloc] init];
     }
     return self;
 }
