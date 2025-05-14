@@ -416,16 +416,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             //Left empty on purpose
         }
 
-        let trackers = try XCTUnwrap(Dynamic(sut).ttdTrackers.asObject as? NSMapTable<TestViewController, AnyObject>)
-        let secondTTDTracker = trackers.object(
-            forKey: viewController2
-        )
+        let trackers = try XCTUnwrap(Dynamic(sut).ttdTrackers.asObject as? SentryWeakMap<TestViewController, AnyObject>)
+        let secondTTDTracker = trackers.object(forKey: viewController2)
 
         XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
         XCTAssertNil(secondTTDTracker)
     }
     
-    func testTimeMeasurement_SkipLoadView() throws {
+    func testTimeMeasurement_SkipLoadView() throws {s
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
