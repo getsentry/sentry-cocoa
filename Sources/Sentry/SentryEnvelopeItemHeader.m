@@ -62,7 +62,7 @@
     if (self.platform) {
         [target setValue:self.contentType forKey:@"platform"];
     }
-    
+
     if (self.itemCount) {
         [target setValue:self.itemCount forKey:@"item_count"];
     }

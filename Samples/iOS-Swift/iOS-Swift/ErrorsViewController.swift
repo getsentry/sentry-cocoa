@@ -27,11 +27,6 @@ class ErrorsViewController: UIViewController {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()
         
-        
-        
-        
-        
-        
         if SentrySDKOverrides.Feedback.injectScreenshot.boolValue {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
@@ -73,12 +68,11 @@ class ErrorsViewController: UIViewController {
         
         let itemHeader: [String: Any] = [
             "length": logsData.count,
-            "type":"log",
+            "type": "log",
             "item_count": 1,
             "content_type": "application/vnd.sentry.items.log+json"
         ]
         let itemHeaderData = try! JSONSerialization.data(withJSONObject: itemHeader)
-        
         
         var itemData = Data()
         itemData.append(headerData)

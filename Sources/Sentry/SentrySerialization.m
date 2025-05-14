@@ -193,7 +193,10 @@ NS_ASSUME_NONNULL_BEGIN
                        contentType:contentType
                     attachmentType:typeForSentryAttachmentName(attachmentType)];
             } else if (nil != itemCount) {
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength contentType:contentType itemCount:itemCount];
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
+                                                                     length:bodyLength
+                                                                contentType:contentType
+                                                                  itemCount:itemCount];
             } else {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
