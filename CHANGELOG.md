@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Improvements
+
+- Improved time-to-display tracker to not crash when using view life cycle methods incorrectly (#5048)
 - Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
 
 ## 8.50.1
