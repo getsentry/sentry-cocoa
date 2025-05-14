@@ -68,6 +68,9 @@
     }                                                                                              \
     return instance;
 
+#define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
+    SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
+
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
@@ -155,8 +158,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
     return self;
 }
 
-- (SentryFileManager *)fileManager SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
         if (_fileManager == nil) {
@@ -172,8 +174,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
     }
 }
 
-- (SentryAppStateManager *)appStateManager SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
         [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
@@ -183,30 +184,27 @@ static NSObject *sentryDependencyContainerInstanceLock;
                              notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (SentryThreadInspector *)threadInspector SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(
         _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
 }
 
-- (SentryFileIOTracker *)fileIOTracker SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileIOTracker,
         [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
                                           processInfoWrapper:[self processInfoWrapper]]);
 }
 
-- (SentryCrash *)crashReporter SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
         [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-    SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
+    SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_anrTracker,
         [[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
@@ -217,8 +215,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 #if SENTRY_HAS_UIKIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-                          isV2Enabled:(BOOL)isV2Enabled
-    SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
+                          isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     if (isV2Enabled) {
         @synchronized(sentryDependencyContainerDependenciesLock) {
@@ -239,8 +236,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (SentryScreenshot *)screenshot SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryScreenshot *)screenshot SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
@@ -254,8 +250,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #endif
 
 #if SENTRY_UIKIT_AVAILABLE
-- (SentryViewHierarchy *)viewHierarchy SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryViewHierarchy *)viewHierarchy SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
 
@@ -269,8 +264,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 
 - (SentryUIViewControllerPerformanceTracker *)
-    uiViewControllerPerformanceTracker SENTRY_DISABLE_THREAD_SANITIZER(
-        "Double-checked locks produce false alarms.")
+    uiViewControllerPerformanceTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_uiViewControllerPerformanceTracker,
@@ -285,8 +279,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (SentryFramesTracker *)framesTracker SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryFramesTracker *)framesTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_framesTracker,
@@ -305,8 +298,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (SentrySwizzleWrapper *)swizzleWrapper SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentrySwizzleWrapper *)swizzleWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_swizzleWrapper, [[SentrySwizzleWrapper alloc] init]);
@@ -319,27 +311,23 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
-- (SentrySystemWrapper *)systemWrapper SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
 }
 
-- (SentryDispatchFactory *)dispatchFactory SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
 }
 
-- (SentryNSTimerFactory *)timerFactory SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryNSTimerFactory *)timerFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_timerFactory, [[SentryNSTimerFactory alloc] init]);
 }
 
 #if SENTRY_HAS_METRIC_KIT
-- (SentryMXManager *)metricKitManager SENTRY_DISABLE_THREAD_SANITIZER(
-    "Double-checked locks produce false alarms.")
+- (SentryMXManager *)metricKitManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     // Disable crash diagnostics as we only use it for validation of the symbolication
     // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
