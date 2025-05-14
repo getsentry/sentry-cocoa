@@ -21,12 +21,12 @@
 #include "../Shared/Config/Swift.xcconfig"
 #include "../Shared/Config/Metal.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift
-INFOPLIST_FILE = Shared/Info.plist
-SWIFT_OBJC_BRIDGING_HEADER = Shared/macOS-Swift-Bridging-Header.h
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySampleShared
+INFOPLIST_FILE = SentrySampleShared/Info.plist
+SUPPORTED_PLATFORMS = xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos
 
-SUPPORTED_PLATFORMS = macosx
-
-MACOSX_DEPLOYMENT_TARGET = 10.15
-
-ALLOW_TARGET_PLATFORM_SPECIALIZATION = NO
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY =
+CODE_SIGN_IDENTITY[sdk=macosx*] =
+PROVISIONING_PROFILE_SPECIFIER =
+DEVELOPMENT_TEAM =

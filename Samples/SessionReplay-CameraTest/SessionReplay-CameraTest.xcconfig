@@ -23,5 +23,5 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
 INFOPLIST_FILE = Sources/Info.plist
-
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+IPHONEOS_DEPLOYMENT_TARGET = 13.0

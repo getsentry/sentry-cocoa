@@ -1,4 +1,6 @@
 name: iOS15-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
@@ -9,6 +11,8 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
   - iOS15-SwiftUI.yml
@@ -20,11 +24,10 @@ targets:
     platform: auto
     sources:
       - iOS15-SwiftUI
-      - ../Shared/GitInjections.swift
-      - ../Shared/screenshot.png
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS15-SwiftUI.xcconfig
       Release: iOS15-SwiftUI.xcconfig
@@ -40,6 +43,8 @@ targets:
         basedOnDependencyAnalysis: false
 schemes:
   iOS15-SwiftUI:
+    templates:
+      - SampleAppScheme
     build:
       targets:
         iOS15-SwiftUI: all

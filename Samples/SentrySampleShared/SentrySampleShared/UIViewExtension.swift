@@ -1,14 +1,16 @@
+#if !os(macOS) && !os(watchOS)
+
 import Foundation
 import UIKit
 
-extension UIView {
+public extension UIView {
     /// A shortcut to disable `translatesAutoresizingMaskIntoConstraints`
     /// - Returns: self
     func forAutoLayout() -> Self {
         translatesAutoresizingMaskIntoConstraints = false
         return self
     }
-    
+
     func matchEdgeAnchors(from other: UIView, leadingPad: CGFloat = 0, trailingPad: CGFloat = 0, topPad: CGFloat = 0, bottomPad: CGFloat = 0) {
         self.translatesAutoresizingMaskIntoConstraints = false
         other.translatesAutoresizingMaskIntoConstraints = false
@@ -20,3 +22,5 @@ extension UIView {
         ])
     }
 }
+
+#endif // !os(macOS) && !os(watchOS)
