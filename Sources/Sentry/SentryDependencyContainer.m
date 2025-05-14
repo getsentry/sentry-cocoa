@@ -116,6 +116,17 @@ static NSObject *sentryDependencyContainerInstanceLock;
         [instance->_framesTracker stop];
 #endif // SENTRY_HAS_UIKIT
 
+        // We create a new instance to reset all dependencies to a fresh state.
+        // Why don't we reset all dependencies manually so we can avoid using a lock in
+        // sharedInstance? Good question. This approach comes with the following problems:
+        //
+        // 1. We need a lock for all properties, including the init dependencies.
+        //
+        // 2. When adding a new dependency it is very easy to forget adding it to the reset list
+        //
+        // 3. The lock in sharedInstance only caused around a 5% overhead compared to not using a
+        // lock. Measured with self.measure in unit tests. So not having locks for all the init
+        // dependencies is as efficient as having a lock for the instance in sharedInstance.
         instance = [[SentryDependencyContainer alloc] init];
     }
 }
@@ -160,18 +171,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    @synchronized(sentryDependencyContainerDependenciesLock) {
-        if (_fileManager == nil) {
-            NSError *error;
-            _fileManager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                error:&error];
-            if (_fileManager == nil) {
-                SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
-            }
-        }
-
-        return _fileManager;
-    }
+    SENTRY_LAZY_INIT(
+        _fileManager, [[SentryFileManager alloc] initWithOptions:SentrySDK.options error:nil]);
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -218,17 +219,12 @@ static NSObject *sentryDependencyContainerInstanceLock;
                           isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     if (isV2Enabled) {
-        @synchronized(sentryDependencyContainerDependenciesLock) {
-            if (_anrTracker == nil) {
-                _anrTracker =
-                    [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                           crashWrapper:self.crashWrapper
-                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                          threadWrapper:self.threadWrapper
-                                                          framesTracker:self.framesTracker];
-            }
-            return _anrTracker;
-        }
+        SENTRY_LAZY_INIT(_anrTracker,
+            [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
+                                                   crashWrapper:self.crashWrapper
+                                           dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                  threadWrapper:self.threadWrapper
+                                                  framesTracker:self.framesTracker]);
     } else {
         return [self getANRTracker:timeout];
     }
