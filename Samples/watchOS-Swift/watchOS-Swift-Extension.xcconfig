@@ -22,7 +22,8 @@
 #include "../Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp.watchkitextension
-INFOPLIST_FILE = "watchOS=Swift WatchKit Extension/Info.plist"
+INFOPLIST_FILE = watchOS-Swift WatchKit Extension/Info.plist
+CODE_SIGN_ENTITLEMENTS = watchOS-Swift WatchKit Extension/watchOS-Swift-Extension.entitlements
 SUPPORTED_PLATFORMS = watchos watchsimulator
 SDKROOT = watchos
 TARGETED_DEVICE_FAMILY = 4
