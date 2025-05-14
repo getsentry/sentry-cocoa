@@ -5,54 +5,57 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    paths:
+      - '.github/workflows/test-cross-platform.yml'
+      - 'Sources/**'
+      - 'Sentry.podspec'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [react-native, flutter, dotnet]
-
+  # inspired by https://github.com/getsentry/sentry-react-native/blob/main/.github/workflows/native-tests.yml
+  test-react-native:
+    name: React Native
+    runs-on: macos-15
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      if: matrix.platform == 'react-native'
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Clone Sentry React Native Repository
+        uses: actions/checkout@v4
+        with:
+          repository: getsentry/sentry-react-native
+          path: sentry-react-native
 
-    - name: Set up Flutter
-      if: matrix.platform == 'flutter'
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '2.5.0'
+      - name: Enable Corepack
+        run: npm i -g corepack
 
-    - name: Set up .NET
-      if: matrix.platform == 'dotnet'
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '5.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
 
-    - name: Install dependencies
-      run: |
-        if [ "${{ matrix.platform }}" == "react-native" ]; then
-          npm install
-        elif [ "${{ matrix.platform }}" == "flutter" ]; then
-          flutter pub get
-        elif [ "${{ matrix.platform }}" == "dotnet" ]; then
-          dotnet restore
-        fi
+      - name: Install SDK JS Dependencies
+        run: yarn install
 
-    - name: Build and test
-      run: |
-        if [ "${{ matrix.platform }}" == "react-native" ]; then
-          npm run build && npm test
-        elif [ "${{ matrix.platform }}" == "flutter" ]; then
-          flutter build apk && flutter test
-        elif [ "${{ matrix.platform }}" == "dotnet" ]; then
-          dotnet build && dotnet test
-        fi 
+      # the next two steps inspired by https://github.com/getsentry/sentry-react-native/blob/main/.github/workflows/native-tests.yml
+      - name: Remove Sentry/HybridSDK Dependency from RNSentry.podspec
+        run: sed -i '' '/s.dependency 'Sentry\/HybridSDK',/d' sentry-react-native/packages/core/RNSentry.podspec
+
+      - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
+        run: sed -i '' "s/RNSentry.podspec'/RNSentry.podspec'\n  pod 'Sentry\/HybridSDK', :path => '../sentry-cocoa'\nend/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
+
+      - name: Install App Pods
+        working-directory: packages/core/RNSentryCocoaTester
+        run: pod install
+
+      - name: Run iOS Tests
+        working-directory: packages/core/RNSentryCocoaTester
+        env:
+          SCHEME: RNSentryCocoaTester
+          CONFIGURATION: Release
+          DESTINATION: 'platform=iOS Simulator,OS=latest,name=iPhone 16'
+        run: |
+          env NSUnbufferedIO=YES \
+            xcodebuild -workspace *.xcworkspace \
+            -scheme $SCHEME -configuration $CONFIGURATION \
+            -destination "$DESTINATION" \
+            test
