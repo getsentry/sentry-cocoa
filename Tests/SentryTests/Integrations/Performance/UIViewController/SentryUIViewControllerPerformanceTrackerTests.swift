@@ -423,7 +423,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertNil(secondTTDTracker)
     }
     
-    func testTimeMeasurement_SkipLoadView() throws {s
+    func testTimeMeasurement_SkipLoadView() throws {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
