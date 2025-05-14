@@ -12,7 +12,7 @@ extension SentrySDKOverride {
     public var stringValue: String? { get { nil } set { } }
 }
 
-public enum SentrySDKOverrides {
+public enum SentrySDKOverrides: String, CaseIterable {
     private static let defaults = UserDefaults.standard
 
     public static var schemaPrecedenceForEnvironmentVariables: Bool {
@@ -44,6 +44,7 @@ public enum SentrySDKOverrides {
             }
         }
     }
+    case special = "Special"
 
     public enum Feedback: String, SentrySDKOverride {
         case allDefaults = "--io.sentry.feedback.all-defaults"
@@ -69,6 +70,7 @@ public enum SentrySDKOverrides {
             }
         }
     }
+    case feedback = "Feedback"
 
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
@@ -84,16 +86,39 @@ public enum SentrySDKOverrides {
         case disableUITracing = "--disable-ui-tracing"
         case disablePrewarmedAppStartTracing = "--disable-prewarmed-app-start-tracing"
         case disablePerformanceTracing = "--disable-auto-performance-tracing"
+        case sessionTrackingIntervalMillis = "--io.sentry.sessionTrackingIntervalMillis"
 
         public var boolValue: Bool {
             get {
-                return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                switch self {
+                case .sessionTrackingIntervalMillis: fatalError("This override doesn't correspond to a boolean value.")
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
             }
             set(newValue) {
-                setBoolOverride(for: rawValue, value: newValue)
+                switch self {
+                case .sessionTrackingIntervalMillis: fatalError("This override doesn't correspond to a boolean value.")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var stringValue: String? {
+            get {
+                switch self {
+                case .sessionTrackingIntervalMillis: return getStringValueOverride(for: rawValue)
+                default: fatalError("This override doesn't correspond to a string value.")
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .sessionTrackingIntervalMillis: setStringOverride(for: rawValue, value: newValue)
+                default: fatalError("This override doesn't correspond to a string value.")
+                }
             }
         }
     }
+    case performance = "Performance"
 
     public enum SessionReplay: String, SentrySDKOverride {
         case disableSessionReplay = "--disable-session-replay"
@@ -102,6 +127,8 @@ public enum SentrySDKOverrides {
         case sessionReplaySampleRate = "--io.sentry.sessionReplaySampleRate"
         case sessionReplayOnErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
         case sessionReplayQuality = "--io.sentry.sessionReplayQuality"
+        case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
+        case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
 
         public var booleanValue: Bool {
             get {
@@ -148,50 +175,55 @@ public enum SentrySDKOverrides {
             }
         }
     }
+    case sessionReplay = "Session Replay"
 
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
         case disableMetricKit = "--disable-metrickit-integration"
+        case disableMetricKitRawPayloads = "--disable-metrickit-raw-payloads"
         case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
         case disableNetworkBreadcrumbs = "--disable-network-breadcrumbs"
         case disableSwizzling = "--disable-swizzling"
         case disableCrashHandling = "--disable-crash-handler"
         case disableSpotlight = "--disable-spotlight"
         case disableFileManagerSwizzling = "--disable-filemanager-swizzling"
-        case userName = "--io.sentry.user.name"
+        case username = "--io.sentry.user.username"
+        case userFullName = "--io.sentry.user.name"
         case userEmail = "--io.sentry.user.email"
+        case environment = "--io.sentry.sdk-environment"
 
         public var boolValue: Bool {
             get {
                 switch self {
-                case .userName, .userEmail: fatalError("Use stringValue to get the value of this override")
+                case .username, .userFullName, .userEmail, .environment: fatalError("Use stringValue to get the value of this override")
                 default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
                 }
             }
             set(newValue) {
-                setBoolOverride(for: rawValue, value: newValue)
+                switch self {
+                case .username, .userFullName, .userEmail, .environment: fatalError("Use stringValue to get the value of this override")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
             }
         }
 
         public var stringValue: String? {
             get {
                 switch self {
-                case .userName, .userEmail: return getStringValueOverride(for: rawValue)
+                case .username, .userFullName, .userEmail, .environment: return getStringValueOverride(for: rawValue)
                 default: fatalError("Use boolValue to get the value of this override")
                 }
             }
             set(newValue) {
                 switch self {
-                case .userName, .userEmail: return setStringOverride(for: rawValue, value: newValue)
+                case .username, .userFullName, .userEmail, .environment: return setStringOverride(for: rawValue, value: newValue)
                 default: fatalError("Use boolValue to get the value of this override")
                 }
             }
         }
-
-        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
-        public static var stringVars: [Other] { [.userName, .userEmail] }
     }
+    case other = "Other"
 
     public enum Tracing: String, SentrySDKOverride {
         case sampleRate = "--io.sentry.tracesSampleRate"
@@ -227,10 +259,8 @@ public enum SentrySDKOverrides {
                 }
             }
         }
-
-        public static var boolValues: [Tracing] { [.disableTracing] }
-        public static var floatValues: [Tracing] { [.sampleRate, .samplerValue] }
     }
+    case tracing = "Tracing"
 
     public enum Profiling: String, SentrySDKOverride {
         case sampleRate = "--io.sentry.profilesSampleRate"
@@ -270,10 +300,8 @@ public enum SentrySDKOverrides {
                 }
             }
         }
-
-        public static var boolValues: [Profiling] { [.disableUIProfiling, .disableAppStartProfiling, .manualLifecycle] }
-        public static var floatValues: [Profiling] { [.sampleRate, .samplerValue, .sessionSampleRate] }
     }
+    case profiling = "Profiling"
 }
 
 private extension SentrySDKOverrides {
@@ -316,4 +344,59 @@ private extension SentrySDKOverrides {
             return defaultsValue ?? schemaEnvironmentVariable
         }
     }
+}
+
+// MARK: UITableViewDataSource adaptation
+
+extension SentrySDKOverrides {
+    var rowsForSection: Int {
+        switch self {
+        case .profiling: return Profiling.allCases.count
+        case .tracing: return Tracing.allCases.count
+        case .sessionReplay: return SessionReplay.allCases.count
+        case .other: return Other.allCases.count
+        case .feedback: return Feedback.allCases.count
+        case .performance: return Performance.allCases.count
+        case .special: return Special.allCases.count
+        }
+    }
+}
+
+protocol SentrySDKOverrideType {
+    static var boolValues: [Self] { get }
+    static var floatValues: [Self] { get }
+    static var stringValues: [Self] { get }
+}
+
+extension SentrySDKOverrideType {
+    public static var boolValues: [Self] { [] }
+    public static var floatValues: [Self] { [] }
+    public static var stringValues: [Self] { [] }
+}
+
+extension SentrySDKOverrides.Profiling: SentrySDKOverrideType {
+    public static var boolValues: [SentrySDKOverrides.Profiling] { [.disableUIProfiling, .disableAppStartProfiling, .manualLifecycle] }
+    public static var floatValues: [SentrySDKOverrides.Profiling] { [.sampleRate, .samplerValue, .sessionSampleRate] }
+}
+
+extension SentrySDKOverrides.Tracing: SentrySDKOverrideType {
+    public static var boolValues: [SentrySDKOverrides.Tracing] { [.disableTracing] }
+    public static var floatValues: [SentrySDKOverrides.Tracing] { [.sampleRate, .samplerValue] }
+}
+
+extension SentrySDKOverrides.Other: SentrySDKOverrideType {
+    public static var boolValues: [SentrySDKOverrides.Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableMetricKitRawPayloads] }
+    public static var stringVars: [SentrySDKOverrides.Other] { [.username, .userFullName, .userEmail, .environment] }
+}
+
+extension SentrySDKOverrides.Performance: SentrySDKOverrideType {
+}
+
+extension SentrySDKOverrides.SessionReplay: SentrySDKOverrideType {
+}
+
+extension SentrySDKOverrides.Feedback: SentrySDKOverrideType {
+}
+
+extension SentrySDKOverrides.Special: SentrySDKOverrideType {
 }

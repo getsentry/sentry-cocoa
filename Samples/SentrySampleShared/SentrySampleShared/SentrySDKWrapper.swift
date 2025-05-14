@@ -52,8 +52,8 @@ public struct SentrySDKWrapper {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionReplaySampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.sessionReplayOnErrorSampleRate.floatValue ?? 1,
-                maskAllText: true,
-                maskAllImages: true
+                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.booleanValue,
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.booleanValue
             )
 
             let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
@@ -68,7 +68,7 @@ public struct SentrySDKWrapper {
 #if !os(tvOS)
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
-            options.enableMetricKitRawPayload = true
+            options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
         }
 #endif // !os(tvOS)
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
@@ -88,7 +88,7 @@ public struct SentrySDKWrapper {
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
-        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+        if let sessionTrackingIntervalMillis = SentrySDKOverrides.Performance.sessionTrackingIntervalMillis.stringValue {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
 
@@ -152,7 +152,7 @@ public struct SentrySDKWrapper {
     }
 
     func configureInitialScope(scope: Scope) -> Scope {
-        if let environmentOverride = self.env["--io.sentry.sdk-environment"] {
+        if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
             scope.setEnvironment("benchmarking")
@@ -169,7 +169,7 @@ public struct SentrySDKWrapper {
         injectGitInformation(scope: scope)
 
         let user = User(userId: "1")
-        user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
+        user.email = SentrySDKOverrides.Other.userEmail.stringValue ?? "tony@example.com"
         user.username = username
         user.name = userFullName
         scope.setUser(user)
@@ -183,7 +183,7 @@ public struct SentrySDKWrapper {
     }
 
     var userFullName: String {
-        let name = self.env["--io.sentry.user.name"] ?? NSFullUserName()
+        let name = SentrySDKOverrides.Other.userFullName.stringValue ?? NSFullUserName()
         guard !name.isEmpty else {
             return "cocoa developer"
         }
@@ -191,7 +191,7 @@ public struct SentrySDKWrapper {
     }
 
     var username: String {
-        let username = self.env["--io.sentry.user.username"] ?? NSUserName()
+        let username = SentrySDKOverrides.Other.username.stringValue ?? NSUserName()
         guard !username.isEmpty else {
             return (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
                 .lastPathComponent ?? "cocoadev"

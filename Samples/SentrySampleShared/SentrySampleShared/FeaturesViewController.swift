@@ -51,41 +51,15 @@ public class FeaturesViewController: UIViewController {
 
 extension FeaturesViewController: UITableViewDataSource {
     public func numberOfSections(in tableView: UITableView) -> Int {
-        6
+        SentrySDKOverrides.allCases.count
     }
 
     public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
-            return "Special"
-        } else if section == 1 {
-            return "Performance"
-        } else if section == 2 {
-            return "Tracing"
-        } else if section == 3 {
-            return "Profiling"
-        } else if section == 4 {
-            return "Feedback"
-        } else if section == 5 {
-            return "Other"
-        }
-        return nil
+        SentrySDKOverrides.allCases[section].rawValue
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return SentrySDKOverrides.Special.allCases.count
-        } else if section == 1 {
-            return SentrySDKOverrides.Performance.allCases.count
-        } else if section == 2 {
-            return SentrySDKOverrides.Tracing.allCases.count
-        } else if section == 3 {
-            return SentrySDKOverrides.Profiling.allCases.count
-        } else if section == 4 {
-            return SentrySDKOverrides.Feedback.allCases.count
-        } else if section == 5 {
-            return SentrySDKOverrides.Other.allCases.count
-        }
-        return 0
+        SentrySDKOverrides.allCases[section].rowsForSection
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
