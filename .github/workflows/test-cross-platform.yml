@@ -17,6 +17,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: getsentry/sentry-cocoa
+          path: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
         uses: actions/checkout@v4
@@ -25,30 +28,32 @@ jobs:
           path: sentry-react-native
 
       - name: Enable Corepack
+        working-directory: sentry-react-native
         run: npm i -g corepack
 
       - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'yarn'
-          cache-dependency-path: yarn.lock
+          cache-dependency-path: sentry-react-native/yarn.lock
 
       - name: Install SDK JS Dependencies
+        working-directory: sentry-react-native
         run: yarn install
 
       # the next two steps inspired by https://github.com/getsentry/sentry-react-native/blob/main/.github/workflows/native-tests.yml
       - name: Remove Sentry/HybridSDK Dependency from RNSentry.podspec
-        run: sed -i '' '/s.dependency 'Sentry\/HybridSDK',/d' sentry-react-native/packages/core/RNSentry.podspec
+        run: sed -i '' "/s.dependency 'Sentry\/HybridSDK',/d" sentry-react-native/packages/core/RNSentry.podspec
 
       - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
         run: sed -i '' "s/RNSentry.podspec'/RNSentry.podspec'\n  pod 'Sentry\/HybridSDK', :path => '../sentry-cocoa'\nend/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
 
       - name: Install App Pods
-        working-directory: packages/core/RNSentryCocoaTester
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: pod install
 
       - name: Run iOS Tests
-        working-directory: packages/core/RNSentryCocoaTester
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
