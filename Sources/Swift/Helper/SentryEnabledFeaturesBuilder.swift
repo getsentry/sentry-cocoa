@@ -65,6 +65,10 @@ import Foundation
         if options.experimental.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
+        if options.experimental.enableUnhandledCPPExceptionsV2 {
+            features.append("unhandledCPPExceptionsV2")
+        }
+
         return features
     }
     // swiftlint:enable cyclomatic_complexity function_body_length
