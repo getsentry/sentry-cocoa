@@ -46,7 +46,7 @@ jobs:
         run: sed -i '' "/s.dependency 'Sentry\/HybridSDK',/d" sentry-react-native/packages/core/RNSentry.podspec
 
       - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
-        run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry\/HybridSDK', :path => '..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
+        run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
 
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
