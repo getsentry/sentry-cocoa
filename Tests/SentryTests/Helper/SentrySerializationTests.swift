@@ -367,13 +367,17 @@ class SentrySerializationTests: XCTestCase {
     
     func testEnvelopeWithData_log() throws {
         let logs = Data("""
-            [
-                \"timestamp\":\"1969-07-20T20:18:04.000Z\",
-                \"trace_id\":\"00000000000000000000000000000000\",
-                \"level\":\"info\",
-                \"body\":\"foobar\",
-                \"attrributes\":{}
+        {
+            \"items\": [
+                {
+                    \"timestamp\":\"1969-07-20T20:18:04.000Z\",
+                    \"trace_id\":\"00000000000000000000000000000000\",
+                    \"level\":\"info\",
+                    \"body\":\"foobar\",
+                    \"attributes\":{}
+                }
             ]
+        }
         """.utf8)
         
         var itemData = Data()
@@ -395,8 +399,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(1, header.itemCount?.intValue)
         XCTAssertEqual("application/vnd.sentry.items.log+json", header.contentType)
         XCTAssertEqual(logs, item.data)
-        
-        let data = SentrySerialization.data
     }
     
     func testEnvelopeWithData_EmptyEnvelope_ReturnsNil() throws {
