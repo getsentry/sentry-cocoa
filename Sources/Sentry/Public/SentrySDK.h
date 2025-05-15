@@ -263,6 +263,7 @@ SENTRY_NO_INIT
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
+ * @warning This is an experimental feature and may still have bugs.
  * @param feedback The feedback to send to Sentry.
  * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
  * see @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
@@ -270,9 +271,21 @@ SENTRY_NO_INIT
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
 
-+ (void)showFeedbackWidget;
+/**
+ * Show the feedback widget button.
+ * @warning This is an experimental feature and may still have bugs.
+ * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
+ * @note User feedback widget is only available for iOS 13 or later.
+ */
++ (void)showFeedbackWidget API_AVAILABLE(ios(13.0));
 
-+ (void)hideFeedbackWidget;
+/**
+ * Hide the feedback widget button.
+ * @warning This is an experimental feature and may still have bugs.
+ * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
+ * @note User feedback widget is only available for iOS 13 or later.
+ */
++ (void)hideFeedbackWidget API_AVAILABLE(ios(13.0));
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
