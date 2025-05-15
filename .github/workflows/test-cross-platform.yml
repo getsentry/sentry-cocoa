@@ -11,11 +11,13 @@ on:
       - 'Sentry.podspec'
 
 jobs:
-  # inspired by https://github.com/getsentry/sentry-react-native/blob/main/.github/workflows/native-tests.yml
   test-react-native:
     name: React Native
     runs-on: macos-15
     steps:
+      - name: Initialize tools
+        run: make init-ci-build
+
       - uses: actions/checkout@v4
         with:
           repository: getsentry/sentry-cocoa
@@ -41,9 +43,8 @@ jobs:
         working-directory: sentry-react-native
         run: yarn install
 
-      # the next two steps inspired by https://github.com/getsentry/sentry-react-native/blob/main/CONTRIBUTING.md#develop-with-sentry-cocoa
       - name: Remove Sentry/HybridSDK Dependency from RNSentry.podspec
-        run: sed -i '' "/s.dependency 'Sentry\/HybridSDK',/d" sentry-react-native/packages/core/RNSentry.podspec
+        run: sed -i '' "s/s.dependency 'Sentry\/HybridSDK', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry\/HybridSDK'/" sentry-react-native/packages/core/RNSentry.podspec
 
       - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
         run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
@@ -63,4 +64,4 @@ jobs:
             xcodebuild -workspace *.xcworkspace \
             -scheme $SCHEME -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
-            test
+            test | xcbeautify
