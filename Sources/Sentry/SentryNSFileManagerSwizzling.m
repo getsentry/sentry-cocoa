@@ -3,6 +3,7 @@
 #import "SentrySwizzle.h"
 #import "SentryTraceOrigin.h"
 #import <objc/runtime.h>
+#import "SentrySwift.h"
 
 @interface SentryNSFileManagerSwizzling ()
 

@@ -14,6 +14,7 @@
 #import <SentrySDK+Private.h>
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>
+#import "SentrySwift.h"
 
 @interface SentryWatchdogTerminationTracker ()
 

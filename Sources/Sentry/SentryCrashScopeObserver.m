@@ -7,6 +7,7 @@
 #import <SentryNSDataUtils.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
+#import "SentrySwift.h"
 
 @implementation SentryCrashScopeObserver
 

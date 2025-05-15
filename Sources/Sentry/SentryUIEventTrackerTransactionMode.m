@@ -13,6 +13,7 @@
 #    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

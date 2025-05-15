@@ -10,6 +10,7 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
+#import "SentrySwift.h"
 
 #    pragma mark - Private
 

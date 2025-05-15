@@ -18,6 +18,7 @@
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
+#import "SentrySwift.h"
 
 /**
  * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
