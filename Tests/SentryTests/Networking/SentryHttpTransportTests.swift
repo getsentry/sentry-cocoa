@@ -833,9 +833,9 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
         SentryLog.withoutLogs {
-            let beforeFlush = getAbsoluteTime()
+            let beforeFlush = SentryDefaultCurrentDateProvider().systemTime()
             let result = sut.flush(fixture.flushTimeout)
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider().systemTime()).toTimeInterval()
             
             XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
             XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.1)
@@ -849,9 +849,9 @@ class SentryHttpTransportTests: XCTestCase {
         
         SentryLog.withoutLogs {
             
-            let beforeFlush = getAbsoluteTime()
+            let beforeFlush = SentryDefaultCurrentDateProvider().systemTime()
             XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider().systemTime()).toTimeInterval()
             XCTAssertLessThan(blockingDuration, fixture.flushTimeout)
             
         }
@@ -862,10 +862,10 @@ class SentryHttpTransportTests: XCTestCase {
         
         SentryLog.withoutLogs {
             
-            let beforeFlush = getAbsoluteTime()
+            let beforeFlush = SentryDefaultCurrentDateProvider().systemTime()
             XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
             XCTAssertEqual(.success, sut.flush(fixture.flushTimeout), "Flush should not time out.")
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider().systemTime()).toTimeInterval()
             
             XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2.2,
                               "The blocking duration must not exceed the sum of the maximum flush duration.")
@@ -881,9 +881,9 @@ class SentryHttpTransportTests: XCTestCase {
         SentryLog.withoutLogs {
             
             for _ in  0..<flushInvocations {
-                let beforeFlush = getAbsoluteTime()
+                let beforeFlush = SentryDefaultCurrentDateProvider().systemTime()
                 XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
-                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider().systemTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }
@@ -908,9 +908,9 @@ class SentryHttpTransportTests: XCTestCase {
         SentryLog.withoutLogs {
             
             for _ in  0..<flushInvocations {
-                let beforeFlush = getAbsoluteTime()
+                let beforeFlush = SentryDefaultCurrentDateProvider().systemTime()
                 XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
-                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider().systemTime()).toTimeInterval()
                 
                 blockingDurationSum += blockingDuration
             }

@@ -3,6 +3,7 @@
 #import "SentryTime.h"
 #include <stdio.h>
 #include <time.h>
+#import "SentrySwift.h"
 
 static NSDate *moduleInitializationTimestamp;
 static uint64_t runtimeInitSystemTimestamp;
@@ -35,7 +36,7 @@ sentryModuleInitializationHook(void)
     // there's no guarantee on whether that or this load method will be called first, the difference
     // in time has been observed to only be on the order of single milliseconds, not significant
     // enough to make a difference in outcomes
-    runtimeInitSystemTimestamp = getAbsoluteTime();
+    runtimeInitSystemTimestamp = [[[SentryDefaultCurrentDateProvider alloc] init] systemTime];
 }
 
 - (NSDate *)runtimeInitTimestamp

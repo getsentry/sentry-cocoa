@@ -22,6 +22,10 @@ class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
         return TimeZone.current.secondsFromGMT()
     }
     
+    /**
+     * Returns the absolute timestamp, which has no defined reference point or unit
+     * as it is platform dependent.
+     */
     func systemTime() -> UInt64 {
         clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }

@@ -22,12 +22,6 @@ nanosecondsToTimeInterval(uint64_t nanoseconds)
     return (double)nanoseconds / NSEC_PER_SEC;
 }
 
-uint64_t
-getAbsoluteTime(void)
-{
-    return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-}
-
 bool
 orderedChronologically(uint64_t a, uint64_t b)
 {
