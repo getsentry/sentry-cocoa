@@ -7,7 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration
-    : SentryBaseIntegration <SentryIntegrationProtocol, SentryANRTrackerDelegate>
+    : SentryBaseIntegration <SentryANRTrackerDelegate>
 
 @end
 

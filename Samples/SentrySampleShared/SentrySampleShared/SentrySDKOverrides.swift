@@ -59,10 +59,7 @@ public enum SentrySDKOverrides {
 
         public var boolValue: Bool {
             get {
-                switch self {
-                case .disableAutoInject: return getBoolOverride(for: rawValue)
-                default: return getBoolOverride(for: rawValue)
-                }
+                return getBoolOverride(for: rawValue)
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
