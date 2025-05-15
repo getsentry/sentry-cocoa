@@ -27,11 +27,13 @@
     return YES;
 }
 
-- (void)showWidget {
+- (void)showWidget
+{
     [_driver showWidget];
 }
 
-- (void)hideWidget {
+- (void)hideWidget
+{
     [_driver hideWidget];
 }
 

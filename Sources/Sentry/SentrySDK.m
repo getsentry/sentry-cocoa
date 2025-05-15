@@ -432,19 +432,22 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureFeedback:feedback];
 }
 
-
-+ (void)showFeedbackWidget {
++ (void)showFeedbackWidget
+{
     if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback = [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        SentryUserFeedbackIntegration *feedback =
+            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
         [feedback showWidget];
     } else {
         SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
     }
 }
 
-+ (void)hideFeedbackWidget {
++ (void)hideFeedbackWidget
+{
     if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback = [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        SentryUserFeedbackIntegration *feedback =
+            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
         [feedback hideWidget];
     } else {
         SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
