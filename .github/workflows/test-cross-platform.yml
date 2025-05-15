@@ -22,6 +22,7 @@ jobs:
 
       - name: Initialize tools
         run: make init-ci-build
+        working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
         uses: actions/checkout@v4
