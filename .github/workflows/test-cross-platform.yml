@@ -17,8 +17,7 @@ jobs:
     steps:
       - name: Initialize tools
         run: make init-ci-build
-        with:
-          path: sentry-cocoa
+        working-directory: sentry-cocoa
 
       - uses: actions/checkout@v4
         with:
