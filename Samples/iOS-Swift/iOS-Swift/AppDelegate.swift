@@ -13,6 +13,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        print("State - Inactive: \(application.applicationState == .inactive)")
+        print("State - Active: \(application.applicationState == .active)")
+        print("State - Background: \(application.applicationState == .background)")
+
         if args.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
@@ -23,10 +27,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
-        
+
         return true
     }
-    
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        print("State - Inactive: \(application.applicationState == .inactive)")
+        print("State - Active: \(application.applicationState == .active)")
+        print("State - Background: \(application.applicationState == .background)")
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {
+        print("State - Inactive: \(application.applicationState == .inactive)")
+        print("State - Active: \(application.applicationState == .active)")
+        print("State - Background: \(application.applicationState == .background)")
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        print("State - Inactive: \(application.applicationState == .inactive)")
+        print("State - Active: \(application.applicationState == .active)")
+        print("State - Background: \(application.applicationState == .background)")
+    }
+
     func applicationWillTerminate(_ application: UIApplication) {
         if #available(iOS 15.0, *) {
             metricKit.pauseReports()
@@ -35,7 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         randomDistributionTimer?.invalidate()
         randomDistributionTimer = nil
     }
-    
+
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
     private var _metricKit: Any?
     @available(iOS 15.0, *)
