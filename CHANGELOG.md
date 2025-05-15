@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Apps can now manually show and hide the included feedback widget button (#5236)
+
 ## 8.50.2
 
 ### Fixes
