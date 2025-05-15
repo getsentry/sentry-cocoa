@@ -348,4 +348,12 @@ class ExtraViewController: UIViewController {
             result["item_header_type"] = json["type"]
         }
     }
+
+    @IBAction func showFeedbackWidget(_ sender: Any) {
+        SentrySDK.showFeedbackWidget()
+    }
+
+    @IBAction func hideFeedbackWidget(_ sender: Any) {
+        SentrySDK.hideFeedbackWidget()
+    }
 }

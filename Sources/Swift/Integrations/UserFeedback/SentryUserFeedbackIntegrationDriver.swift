@@ -57,8 +57,9 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
     @objc public func showWidget() {
         if widget == nil {
             widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
+        } else {
+            widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
         }
-        
     }
 
     @objc public func hideWidget() {
@@ -83,6 +84,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
             self.configuration.onFormClose?()
         }
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+        displayingForm = false
     }
 }
 
@@ -99,6 +101,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+        displayingForm = false
         configuration.onFormClose?()
     }
 }
@@ -110,6 +113,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        displayingForm = true
         presenter?.present(form, animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
