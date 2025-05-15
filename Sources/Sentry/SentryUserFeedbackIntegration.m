@@ -27,6 +27,14 @@
     return YES;
 }
 
+- (void)showWidget {
+    [_driver showWidget];
+}
+
+- (void)hideWidget {
+    [_driver hideWidget];
+}
+
 // MARK: SentryUserFeedbackIntegrationDriverDelegate
 
 - (void)captureWithFeedback:(SentryFeedback *)feedback

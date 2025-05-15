@@ -270,6 +270,10 @@ SENTRY_NO_INIT
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
 
++ (void)showFeedbackWidget;
+
++ (void)hideFeedbackWidget;
+
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
  * exceeds the @c SentryOptions.maxBreadcrumbs  the SDK removes the oldest breadcrumb.

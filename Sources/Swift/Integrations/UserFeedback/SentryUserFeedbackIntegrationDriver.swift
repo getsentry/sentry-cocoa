@@ -54,6 +54,17 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
     }
 
+    @objc public func showWidget() {
+        if widget == nil {
+            widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
+        }
+        
+    }
+
+    @objc public func hideWidget() {
+        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+    }
+
     @objc func showForm(sender: UIButton) {
         presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
             self.configuration.onFormOpen?()
