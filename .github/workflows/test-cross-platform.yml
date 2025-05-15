@@ -6,9 +6,9 @@ on:
       - main
   pull_request:
     paths:
-      - '.github/workflows/test-cross-platform.yml'
-      - 'Sources/**'
-      - 'Sentry.podspec'
+      - ".github/workflows/test-cross-platform.yml"
+      - "Sources/**"
+      - "Sentry.podspec"
 
 jobs:
   test-react-native:
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
 
       - name: Install SDK JS Dependencies
@@ -59,7 +59,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: 'platform=iOS Simulator,OS=latest,name=iPhone 16'
+          DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
         run: |
           env NSUnbufferedIO=YES \
             xcodebuild -workspace *.xcworkspace \
