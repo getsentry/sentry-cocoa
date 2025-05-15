@@ -41,7 +41,7 @@ jobs:
         working-directory: sentry-react-native
         run: yarn install
 
-      # the next two steps inspired by https://github.com/getsentry/sentry-react-native/blob/main/.github/workflows/native-tests.yml
+      # the next two steps inspired by https://github.com/getsentry/sentry-react-native/blob/main/CONTRIBUTING.md#develop-with-sentry-cocoa
       - name: Remove Sentry/HybridSDK Dependency from RNSentry.podspec
         run: sed -i '' "/s.dependency 'Sentry\/HybridSDK',/d" sentry-react-native/packages/core/RNSentry.podspec
 
