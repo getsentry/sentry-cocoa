@@ -1,6 +1,29 @@
 # Changelog
 
-## Unreleased
+## 8.50.2
+
+### Fixes
+
+- Improved time-to-display tracker to not crash when using view life cycle methods incorrectly (#5048)
+- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
+
+## 8.50.1
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+### Improvements
+
+- Add `frameRate`, `errorReplayDuration`, `errorReplayDuration`, `sessionSegmentDuration` and `maximumDuration` to session replay options dictionary initializer for Hybrid SDKs (#5210)
+
+## 8.50.1-beta.0
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+## 8.50.0
 
 > [!Important]
 > This version enables the better view renderer V2 used by Session Replay by default.
@@ -28,6 +51,9 @@
 - Improve session replay frame presentation timing calculations (#5133)
 - Use wider compatible video encoding options for Session Replay (#5134)
 - GA of better session replay view renderer V2 (#5054)
+- Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
+- Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Add more detailed debug logs for session replay (#5173)
 
 ## 8.49.2
 

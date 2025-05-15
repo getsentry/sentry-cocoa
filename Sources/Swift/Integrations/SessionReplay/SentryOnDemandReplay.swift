@@ -119,7 +119,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     private func rescaleImage(_ originalImage: UIImage) -> UIImage? {
-        guard originalImage.scale > 1 else { return originalImage }
+        SentryLog.debug("[Session Replay] Rescaling image with scale: \(originalImage.scale)")
+        guard originalImage.scale > 1 else { 
+            SentryLog.debug("[Session Replay] Image is already at the correct scale, returning original image")
+            return originalImage
+        }
         
         UIGraphicsBeginImageContextWithOptions(originalImage.size, false, 1)
         defer { UIGraphicsEndImageContext() }
@@ -138,7 +142,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     try FileManager.default.removeItem(at: fileUrl)
                     SentryLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
                 } catch {
-                    SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error.localizedDescription), ignoring error")
+                    SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error), ignoring error")
                 }
             }
         }
@@ -451,11 +455,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 // where each frame is independent and must be decodable on its own.
                 AVVideoAllowFrameReorderingKey: false,
 
-                // Ensures that every frame is a keyframe (also called an I-frame).
-                // This is crucial in a 1 FPS timelapse context because:
-                // 1. It guarantees that every frame can be displayed without relying on previous frames.
-                // 2. It enables precise seeking and smooth scrubbing across all video players.
-                AVVideoMaxKeyFrameIntervalKey: frameRate // e.g., 1 for 1 FPS
+                // Sets keyframe interval to one I-frame per video segment.
+                // This significantly reduces file size (e.g. from 19KB to 9KB) while maintaining
+                // acceptable seeking granularity. With our 1 FPS recording, this means a keyframe
+                // will be inserted once every 6 seconds of recorded content, but our video segments
+                // will never be longer than 5 seconds, resulting in a maximum of 1 I-frame per video.
+                AVVideoMaxKeyFrameIntervalKey: 6 // 5 + 1 interval for optimal compression
             ] as [String: Any],
 
             // Explicitly sets the video color space to ITU-R BT.709 (the standard for HD video).

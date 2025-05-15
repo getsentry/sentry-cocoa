@@ -344,7 +344,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
         XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
         XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
-        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, sut.frameRate)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
         
         let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
 
@@ -373,7 +373,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(compressionProperties[AVVideoAverageBitRateKey] as? Int, sut.bitRate)
         XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
         XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
-        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, sut.frameRate)
+        XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
         
         let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
 

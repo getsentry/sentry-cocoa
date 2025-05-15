@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "0525AFEE-8161-4A1A-A7D4-D90A29F0A8FD",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:tvOS-Swift.xcodeproj",
+      "identifier" : "7BA61D61247FA32600C130A8",
+      "name" : "tvOS-Swift"
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tvOS-Swift.xcodeproj",
+        "identifier" : "7B64388526A6C71A000D0F65",
+        "name" : "tvOS-SBSwift-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

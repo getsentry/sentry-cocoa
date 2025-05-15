@@ -1,9 +1,11 @@
 import Sentry
+import SentrySampleShared
 import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    static var isSentryEnabled = true
     static var isSessionReplayEnabled = true
     static var isViewRendererV2Enabled = true
 
@@ -19,23 +21,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             SentrySDK.close()
         }
 
-        SentrySDK.start { options in
-            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-            options.debug = true
-
-            options.tracesSampleRate = 1.0
-            options.profilesSampleRate = 1.0
-            options.sessionReplay.sessionSampleRate = Self.isSessionReplayEnabled ? 1.0 : 0.0
-            options.sessionReplay.enableViewRendererV2 = Self.isViewRendererV2Enabled
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
-
-            options.initialScope = { scope in
-                scope.injectGitInformation()
-                scope.setTag(value: "session-replay-camera-test", key: "sample-project")
-                return scope
-            }
+        if !isSentryEnabled {
+            print("SentrySDK disabled")
+            return
         }
+
+        SentrySDKWrapper.shared.startSentry()
     }
 
     // MARK: UISceneSession Lifecycle

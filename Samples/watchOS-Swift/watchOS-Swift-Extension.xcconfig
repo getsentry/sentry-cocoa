@@ -1,0 +1,32 @@
+#include "../Shared/Config/Architectures.xcconfig"
+#include "../Shared/Config/BuildOptions.xcconfig"
+#include "../Shared/Config/Deployment.xcconfig"
+#include "../Shared/Config/Linking.xcconfig"
+#include "../Shared/Config/Localization.xcconfig"
+#include "../Shared/Config/Packaging.xcconfig"
+#include "../Shared/Config/SearchPaths.xcconfig"
+#include "../Shared/Config/Signing.xcconfig"
+#include "../Shared/Config/Versioning.xcconfig"
+#include "../Shared/Config/CodeGeneration.xcconfig"
+#include "../Shared/Config/ClangLanguage.xcconfig"
+#include "../Shared/Config/ClangCppLanguage.xcconfig"
+#include "../Shared/Config/ClangModules.xcconfig"
+#include "../Shared/Config/ClangObjCLanguage.xcconfig"
+#include "../Shared/Config/ClangPreprocessing.xcconfig"
+#include "../Shared/Config/ClangWarnings.xcconfig"
+#include "../Shared/Config/ClangWarningsCpp.xcconfig"
+#include "../Shared/Config/ClangWarningsObjC.xcconfig"
+#include "../Shared/Config/AssetCatalog.xcconfig"
+#include "../Shared/Config/ClangAnalyzer.xcconfig"
+#include "../Shared/Config/Swift.xcconfig"
+#include "../Shared/Config/Metal.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp.watchkitextension
+INFOPLIST_FILE = "watchOS=Swift WatchKit Extension/Info.plist"
+SUPPORTED_PLATFORMS = watchos watchsimulator
+SDKROOT = watchos
+TARGETED_DEVICE_FAMILY = 4
+DEVELOPMENT_ASSET_PATHS = "watchOS-Swift WatchKit Extension/Preview Content"
+
+// The watch extension's source code uses lots of 6.0+ API, it's easier to set this here than adding availability checks/annotations throughout the code
+WATCHOS_DEPLOYMENT_TARGET = 6.0

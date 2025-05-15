@@ -172,6 +172,33 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
+    // The frames tracker runs when tracing is enabled or AppHangsV2. We have to use an extra option
+    // for this.
+    if (integrationOptions & kIntegrationOptionStartFramesTracker) {
+
+#if SENTRY_HAS_UIKIT
+        BOOL performanceDisabled
+            = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
+        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
+
+        if (performanceDisabled && appHangsV2Disabled) {
+            if (appHangsV2Disabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
+                                 @"disabled or the appHangTimeoutInterval is 0.",
+                    self.integrationName);
+            }
+
+            if (performanceDisabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAutoPerformanceTracing and "
+                                 @"isTracingEnabled are disabled.",
+                    self.integrationName);
+            }
+
+            return NO;
+        }
+#endif // SENTRY_HAS_UIKIT
+    }
+
     return YES;
 }
 
