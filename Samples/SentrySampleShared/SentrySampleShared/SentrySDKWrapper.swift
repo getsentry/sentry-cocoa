@@ -392,13 +392,11 @@ extension SentrySDKWrapper {
     public static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     var args: [String] {
-        let args = ProcessInfo.processInfo.arguments
-        return args
+        return ProcessInfo.processInfo.arguments
     }
 
     var env: [String: String] {
-        let env = ProcessInfo.processInfo.environment
-        return env
+        return ProcessInfo.processInfo.environment
     }
 
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
