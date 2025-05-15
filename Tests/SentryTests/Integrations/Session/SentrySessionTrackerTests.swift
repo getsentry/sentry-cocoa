@@ -440,7 +440,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
 
         // -- Act --
-        startSutInAppDelegate()
+        sut.start()
 
         // -- Assert --
         assertInitSessionSent()
