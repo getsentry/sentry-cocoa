@@ -15,14 +15,13 @@ jobs:
     name: React Native
     runs-on: macos-15
     steps:
-      - name: Initialize tools
-        run: make init-ci-build
-        working-directory: sentry-cocoa
-
       - uses: actions/checkout@v4
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
+
+      - name: Initialize tools
+        run: make init-ci-build
 
       - name: Clone Sentry React Native Repository
         uses: actions/checkout@v4
