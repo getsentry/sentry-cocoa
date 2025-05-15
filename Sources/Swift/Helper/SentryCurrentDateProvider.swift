@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 /**
@@ -24,7 +23,7 @@ class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     }
     
     func systemTime() -> UInt64 {
-        getAbsoluteTime()
+        clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }
     
     func systemUptime() -> TimeInterval {

@@ -25,10 +25,7 @@ nanosecondsToTimeInterval(uint64_t nanoseconds)
 uint64_t
 getAbsoluteTime(void)
 {
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-        return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-    }
-    return mach_absolute_time();
+    return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
 }
 
 bool
