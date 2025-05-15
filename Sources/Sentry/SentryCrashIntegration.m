@@ -20,7 +20,6 @@
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
-#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIApplication.h"
