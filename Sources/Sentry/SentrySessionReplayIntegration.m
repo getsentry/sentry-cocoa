@@ -5,6 +5,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
@@ -130,17 +131,22 @@ static SentryTouchTracker *_touchTracker;
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
 
+    // We use the dispatch queue provider as a factory to create the queues, but store the queues
+    // directly in this instance, so they get deallocated when the integration is deallocated.
+    id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider
+        = SentryDependencyContainer.sharedInstance.dispatchQueueProvider;
+
     // The asset worker queue is used to work on video and frames data.
     // Use a relative priority of -1 to make it lower than the default background priority.
-    _replayAssetWorkerQueue = [SentryDispatchQueueWrapper
-        createBackgroundDispatchQueueWithName:"io.sentry.session-replay.asset-worker"
-                             relativePriority:-1];
+    _replayAssetWorkerQueue =
+        [dispatchQueueProvider createBackgroundQueueWithName:"io.sentry.session-replay.asset-worker"
+                                            relativePriority:-1];
     // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
     // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
     // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
-    _replayProcessingQueue = [SentryDispatchQueueWrapper
-        createBackgroundDispatchQueueWithName:"io.sentry.session-replay.processing"
-                             relativePriority:-2];
+    _replayProcessingQueue =
+        [dispatchQueueProvider createBackgroundQueueWithName:"io.sentry.session-replay.processing"
+                                            relativePriority:-2];
 
     // The asset worker queue is used to work on video and frames data.
 
@@ -243,13 +249,15 @@ static SentryTouchTracker *_touchTracker;
 
     // Either error or videos should be set.
     if (error != nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video, reason: %@", error);
+        SENTRY_LOG_ERROR(@"[Session Replay] Could not create replay video, reason: %@", error);
         return;
     }
     if (videos == nil) {
-        SENTRY_LOG_ERROR(@"Could not create replay video, reason: no videos available");
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Could not create replay video, reason: no videos available");
         return;
     }
+    SENTRY_LOG_DEBUG(@"[Session Replay] Created replay with %lu video segments", videos.count);
 
     // For each segment we need to create a new event with the video.
     int _segmentId = segmentId;

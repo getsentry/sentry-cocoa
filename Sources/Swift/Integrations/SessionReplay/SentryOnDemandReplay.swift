@@ -64,8 +64,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     ///
     /// - Parameter path: The path to the directory containing the frames.
     private func loadFrames(fromPath path: String) {
+        SentryLog.debug("[Session Replay] Loading frames from path: \(path)")
         do {
-            SentryLog.debug("[Session Replay] Loading frames from path: \(path)")
             let content = try FileManager.default.contentsOfDirectory(atPath: path)
             _frames = content.compactMap { frameFilePath -> SentryReplayFrame? in
                 guard frameFilePath.hasSuffix(".png") else { return nil }
@@ -91,7 +91,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     private func addFrame(image: UIImage, forScreen: String?) {
         SentryLog.debug("[Session Replay] Adding frame for screen: \(forScreen ?? "nil")")
         guard let data = rescaleImage(image)?.pngData() else {
-            SentryLog.warning("[Session Replay] Could not rescale image to PNG data, ignoring frame")
+            SentryLog.error("[Session Replay] Could not rescale image, dropping frame")
             return
         }
 
@@ -99,7 +99,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(date.timeIntervalSinceReferenceDate).png")
         do {
             let url = URL(fileURLWithPath: imagePath)
-            SentryLog.debug("[Session Replay] Saving replay frame to: \(url.path)")
+            SentryLog.debug("[Session Replay] Saving frame to file URL: \(url)")
             try data.write(to: url)
         } catch {
             SentryLog.error("[Session Replay] Could not save replay frame, reason: \(error)")
@@ -111,7 +111,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         while _frames.count > cacheMaxSize {
             let first = _frames.removeFirst()
             let url = URL(fileURLWithPath: first.imagePath)
-            SentryLog.debug("[Session Replay] Removing frame at url: \(url.path)")
+            SentryLog.debug("[Session Replay] Removing oldest frame at file URL: \(url.path)")
             try? FileManager.default.removeItem(at: url)
         }
         _totalFrames += 1
@@ -133,8 +133,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     func releaseFramesUntil(_ date: Date) {
-        SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
         processingQueue.dispatchAsync {
+            SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
                 let fileUrl = URL(fileURLWithPath: first.imagePath)
@@ -145,6 +145,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     SentryLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error), ignoring error")
                 }
             }
+            SentryLog.debug("[Session Replay] Frames released, remaining frames count: \(self._frames.count)")
         }
     }
         
@@ -211,15 +212,15 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             // It is imporant that the renderVideo completion block signals the group.
             // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
             // Otherwise, it could lead to queue starvation and a deadlock/timeout.
-            guard group.wait(timeout: .now() + 120) == .success else {
-                SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish.")
-                throw SentryOnDemandReplayError.errorRenderingVideo
+            guard group.wait(timeout: .now() + 10) == .success else {
+                SentryLog.error("[Session Replay] Timeout while waiting for video rendering to finish, returning \(videos.count) videos")
+                return videos
             }
 
             // If there was an error, throw it to exit the loop.
             if let error = currentError {
-                SentryLog.error("[Session Replay] Error while rendering video: \(error), cancelling video segment creation")
-                throw error
+                SentryLog.error("[Session Replay] Error while rendering video: \(error), returning \(videos.count) videos")
+                return videos
             }
 
             SentryLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
@@ -244,6 +245,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         let videoHeight = image.size.height * CGFloat(videoScale)
         let pixelSize = CGSize(width: videoWidth, height: videoHeight)
 
+        SentryLog.debug("[Session Replay] Creating video writer with output file URL: \(outputFileURL)")
         let videoWriter: AVAssetWriter
         do {
             videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
@@ -314,6 +316,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             let frame = videoFrames[frameIndex]
             if let image = UIImage(contentsOfFile: frame.imagePath) {
+                SentryLog.debug("[Session Replay] Image is ready, size: \(image.size)")
                 guard lastImageSize == image.size else {
                     SentryLog.debug("[Session Replay] Image size changed, finishing the video")
                     return strongSelf.finishVideo(
@@ -355,7 +358,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         onCompletion completion: @escaping (Result<SentryVideoInfo?, Error>) -> Void
     ) {
         // Note: This method is expected to be called from the asset worker queue and *not* the processing queue.
-        SentryLog.debug("[Session Replay] Finishing video with output file URL: \(outputFileURL.path)")
+        SentryLog.info("[Session Replay] Finishing video with output file URL: \(outputFileURL), used frames count: \(usedFrames.count), video height: \(videoHeight), video width: \(videoWidth)")
         videoWriter.inputs.forEach { $0.markAsFinished() }
         videoWriter.finishWriting { [weak self] in
             SentryLog.debug("[Session Replay] Finished video writing, status: \(videoWriter.status)")

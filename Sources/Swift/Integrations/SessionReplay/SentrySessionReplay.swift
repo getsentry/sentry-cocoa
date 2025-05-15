@@ -250,7 +250,7 @@ class SentrySessionReplay: NSObject {
         // Creating a video is computationally expensive, therefore perform it on a background queue.
         self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
             if let error = error {
-                SentryLog.error("[Session Replay] Could not create replay video - \(error.localizedDescription)")
+                SentryLog.error("[Session Replay] Could not create replay video, reason: \(error)")
                 return
             }
             guard let videos = videos else {

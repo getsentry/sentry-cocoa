@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable dispatch_block_t)createDispatchBlock:(void (^)(void))block;
 
-+ (SentryDispatchQueueWrapper *)createBackgroundDispatchQueueWithName:(const char *)name
-                                                     relativePriority:(int)relativePriority;
 @end
 
 NS_ASSUME_NONNULL_END
