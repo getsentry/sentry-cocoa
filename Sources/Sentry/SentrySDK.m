@@ -432,6 +432,8 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub captureFeedback:feedback];
 }
 
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 + (void)showFeedbackWidget
 {
     if (@available(iOS 13.0, *)) {
@@ -453,6 +455,8 @@ static NSDate *_Nullable startTimestamp = nil;
         SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
     }
 }
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
