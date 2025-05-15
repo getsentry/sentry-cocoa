@@ -7,6 +7,10 @@ import SwiftUI
 struct SwiftUIApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
 
+    init() {
+        SentrySDKWrapper.shared.startSentry()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -30,7 +34,7 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
     var initializedSentry = false
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard !initializedSentry else { return }
-        SentrySDKWrapper.shared.startSentry()
+        SentrySDK.showFeedbackWidget()
         initializedSentry = true
     }
 }

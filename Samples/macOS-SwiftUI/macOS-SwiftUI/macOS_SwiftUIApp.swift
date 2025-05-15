@@ -4,17 +4,13 @@ import SwiftUI
 
 @main
 struct MacOSSwiftUIApp: App {
-    @NSApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
-    
+    init() {
+        SentrySDKWrapper.shared.startSentry()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-    }
-}
-
-class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        SentrySDKWrapper.shared.startSentry()
     }
 }
