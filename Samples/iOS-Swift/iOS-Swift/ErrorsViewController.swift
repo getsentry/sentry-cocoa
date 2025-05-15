@@ -31,15 +31,20 @@ class ErrorsViewController: UIViewController {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }
+    
+    static let isoFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        return formatter
+    }()
 
     @IBAction func useAfterFree(_ sender: UIButton) {
 //        imageView.image = UIImage(named: "")
         
         let sdkInfo = SentrySdkInfo.global()
-        sdkInfo.serialize()
-        
-        let sdkInfoJson = try! JSONSerialization.data(withJSONObject: sdkInfo.serialize())
-        let sdkInfoJsonString = String(data: sdkInfoJson, encoding: .utf8)!
+        let releaseName = SentrySDK.options?.releaseName ?? "iOS-Swift"
         let traceId = SentrySDK.currentHub().scope.span?.traceContext?.traceId.sentryIdString ?? "00000000000000000000000000000000"
         
         let header = [
@@ -47,20 +52,42 @@ class ErrorsViewController: UIViewController {
         ]
         let headerData = try! JSONSerialization.data(withJSONObject: header)
         
+        let timestamp = Self.isoFormatter.string(from: Date())
+        
         let logs = [
             "items": [
                 [
-                    "timestamp": "1969-07-20T20:18:04.000Z",
+                    "timestamp": timestamp,
                     "trace_id": traceId,
                     "level": "info",
-                    "body": "foobar",
+                    "body": "foobar3",
                     "attributes": [
-                        "test": [
-                            "value": "foobar",
+                        "foo": [
+                            "value": "bar3",
                             "type": "string"
-                        ]
+                        ],
+                        "sentry.sdk.name":
+                            [
+                            "value": "sentry.cocoa",
+                            "type": "string"
+                            ],
+                        "sentry.sdk.version":
+                                [
+                            "value": "8.50.1",
+                            "type": "string"
+                                ],
+                        "sentry.environment":
+                                [
+                            "value": "debug",
+                            "type": "string"
+                                ],
+                        "sentry.release":
+                                [
+                            "value": releaseName,
+                            "type": "string"
+                                ]
                     ],
-                    "severity_number": 1
+                    "severity_number": 9
                 ]
             ]
         ]
