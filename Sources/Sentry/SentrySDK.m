@@ -26,6 +26,7 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -430,6 +431,32 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     [SentrySDK.currentHub captureFeedback:feedback];
 }
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
++ (void)showFeedbackWidget
+{
+    if (@available(iOS 13.0, *)) {
+        SentryUserFeedbackIntegration *feedback =
+            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        [feedback showWidget];
+    } else {
+        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
+    }
+}
+
++ (void)hideFeedbackWidget
+{
+    if (@available(iOS 13.0, *)) {
+        SentryUserFeedbackIntegration *feedback =
+            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+        [feedback hideWidget];
+    } else {
+        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
+    }
+}
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {

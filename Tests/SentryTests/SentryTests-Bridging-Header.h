@@ -186,6 +186,7 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryUncaughtNSExceptions.h"
+#import "SentryWeakMap.h"
 
 #import "Sentry/Sentry-Swift.h"
 #import "SentryBinaryImageCache+Private.h"
