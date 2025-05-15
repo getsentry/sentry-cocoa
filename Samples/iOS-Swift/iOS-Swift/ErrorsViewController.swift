@@ -31,90 +31,9 @@ class ErrorsViewController: UIViewController {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }
-    
-    static let isoFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(abbreviation: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        return formatter
-    }()
 
     @IBAction func useAfterFree(_ sender: UIButton) {
-//        imageView.image = UIImage(named: "")
-        
-        let sdkInfo = SentrySdkInfo.global()
-        let releaseName = SentrySDK.options?.releaseName ?? "iOS-Swift"
-        let traceId = SentrySDK.currentHub().scope.span?.traceContext?.traceId.sentryIdString ?? "00000000000000000000000000000000"
-        
-        let header = [
-            "sdk": sdkInfo.serialize()
-        ]
-        let headerData = try! JSONSerialization.data(withJSONObject: header)
-        
-        let timestamp = Self.isoFormatter.string(from: Date())
-        
-        let logs = [
-            "items": [
-                [
-                    "timestamp": timestamp,
-                    "trace_id": traceId,
-                    "level": "info",
-                    "body": "foobar3",
-                    "attributes": [
-                        "foo": [
-                            "value": "bar3",
-                            "type": "string"
-                        ],
-                        "sentry.sdk.name":
-                            [
-                            "value": "sentry.cocoa",
-                            "type": "string"
-                            ],
-                        "sentry.sdk.version":
-                                [
-                            "value": "8.50.1",
-                            "type": "string"
-                                ],
-                        "sentry.environment":
-                                [
-                            "value": "debug",
-                            "type": "string"
-                                ],
-                        "sentry.release":
-                                [
-                            "value": releaseName,
-                            "type": "string"
-                                ]
-                    ],
-                    "severity_number": 9
-                ]
-            ]
-        ]
-        let logsData = try! JSONSerialization.data(withJSONObject: logs)
-        
-        let itemHeader: [String: Any] = [
-            "length": logsData.count,
-            "type": "log",
-            "item_count": 1,
-            "content_type": "application/vnd.sentry.items.log+json"
-        ]
-        let itemHeaderData = try! JSONSerialization.data(withJSONObject: itemHeader)
-        
-        var itemData = Data()
-        itemData.append(headerData)
-        itemData.append(Data("\n".utf8))
-        
-        itemData.append(itemHeaderData)
-        itemData.append(Data("\n".utf8))
-        
-        itemData.append(logsData)
-        
-        guard let envelope = PrivateSentrySDKOnly.envelope(with: itemData) else {
-            print("Cannot parse the envelope data")
-            return
-        }
-        SentrySDK.capture(envelope)
+        imageView.image = UIImage(named: "")
     }
 
     @IBAction func diskWriteException(_ sender: UIButton) {
