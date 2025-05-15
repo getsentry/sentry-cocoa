@@ -14,7 +14,7 @@ public class FeaturesViewController: UIViewController {
         let stack = UIStackView(arrangedSubviews: [headerView, tableView])
         stack.axis = .vertical
         view.addSubview(stack)
-        stack.matchEdgeAnchors(from: view)
+        stack.matchEdgeAnchors(from: view, safeArea: true)
 
         view.backgroundColor = .white
     }

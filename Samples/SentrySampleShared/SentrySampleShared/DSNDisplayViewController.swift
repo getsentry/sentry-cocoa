@@ -41,7 +41,7 @@ class DSNDisplayViewController: UIViewController {
         ])
         
         view.addSubview(stack)
-        stack.matchEdgeAnchors(from: view, leadingPad: 20)
+        stack.matchEdgeAnchors(from: view)
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
         buttonStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3).isActive = true
     }
