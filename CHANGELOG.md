@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+
 ## 8.50.2
 
 ### Fixes
