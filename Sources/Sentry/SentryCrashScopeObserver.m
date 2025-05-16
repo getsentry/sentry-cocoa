@@ -1,4 +1,5 @@
 #import "SentryLevelMapper.h"
+#import "SentrySwift.h"
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
@@ -7,7 +8,6 @@
 #import <SentryNSDataUtils.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
-#import "SentrySwift.h"
 
 @implementation SentryCrashScopeObserver
 

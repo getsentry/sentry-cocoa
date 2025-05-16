@@ -14,9 +14,9 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
-#import "SentrySwift.h"
 
 @interface SentryCrashReportConverter ()
 

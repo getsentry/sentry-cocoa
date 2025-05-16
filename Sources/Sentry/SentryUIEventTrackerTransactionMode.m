@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentrySwift.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
 #    import <SentryLog.h>
@@ -13,7 +14,6 @@
 #    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
-#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

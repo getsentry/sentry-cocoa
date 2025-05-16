@@ -12,9 +12,9 @@
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentrySwift.h"
 #import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
-#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

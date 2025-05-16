@@ -17,11 +17,21 @@ void logFatal(const char file[], int line, NSString *format, ...);
 }
 #endif
 
-#define SENTRY_LOG_DEBUG(...) if (debugEnabled()) logDebug(__FILE__, __LINE__, __VA_ARGS__);
-#define SENTRY_LOG_INFO(...) if (infoEnabled()) logInfo(__FILE__, __LINE__, __VA_ARGS__);
-#define SENTRY_LOG_WARN(...) if (warnEnabled()) logWarn(__FILE__, __LINE__, __VA_ARGS__);
-#define SENTRY_LOG_ERROR(...) if (errorEnabled()) logError(__FILE__, __LINE__, __VA_ARGS__);
-#define SENTRY_LOG_FATAL(...) if (fatalEnabled()) logFatal(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_DEBUG(...)                                                                      \
+    if (debugEnabled())                                                                            \
+        logDebug(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_INFO(...)                                                                       \
+    if (infoEnabled())                                                                             \
+        logInfo(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_WARN(...)                                                                       \
+    if (warnEnabled())                                                                             \
+        logWarn(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_ERROR(...)                                                                      \
+    if (errorEnabled())                                                                            \
+        logError(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_FATAL(...)                                                                      \
+    if (fatalEnabled())                                                                            \
+        logFatal(__FILE__, __LINE__, __VA_ARGS__);
 
 /**
  * If @c errno is set to a non-zero value after @c statement finishes executing,

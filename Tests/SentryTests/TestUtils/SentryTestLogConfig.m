@@ -1,6 +1,6 @@
 #import "SentryLog.h"
-#import <Foundation/Foundation.h>
 #import "SentrySwift.h"
+#import <Foundation/Foundation.h>
 
 /**
  * Confgures a the sentry log output for testing when this class is loaded.

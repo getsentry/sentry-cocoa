@@ -1,6 +1,7 @@
 #import "SentryDateUtils.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
+#import "SentrySwift.h"
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -14,7 +15,6 @@
 #import <SentrySDK+Private.h>
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>
-#import "SentrySwift.h"
 
 @interface SentryWatchdogTerminationTracker ()
 

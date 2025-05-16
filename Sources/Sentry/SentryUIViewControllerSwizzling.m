@@ -9,6 +9,7 @@
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
+#    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryDispatchQueueWrapper.h>
@@ -18,7 +19,6 @@
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
-#import "SentrySwift.h"
 
 /**
  * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
