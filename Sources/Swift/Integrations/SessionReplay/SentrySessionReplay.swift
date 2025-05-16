@@ -248,25 +248,17 @@ class SentrySessionReplay: NSObject {
     private func createAndCaptureInBackground(startedAt: Date, replayType: SentryReplayType) {
         SentryLog.debug("[Session Replay] Creating replay video started at date: \(startedAt), replayType: \(replayType)")
         // Creating a video is computationally expensive, therefore perform it on a background queue.
-        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos, error in
-            if let error = error {
-                SentryLog.error("[Session Replay] Could not create replay video, reason: \(error)")
-                return
-            }
-            guard let videos = videos else {
-                SentryLog.warning("[Session Replay] Finished replay video creation without any segments")
-                return
-            }
+        self.replayMaker.createVideoInBackgroundWith(beginning: startedAt, end: self.dateProvider.date()) { videos in
             SentryLog.debug("[Session Replay] Created replay video with \(videos.count) segments")
             for video in videos {
-                self.newSegmentAvailable(videoInfo: video, replayType: replayType)
+                self.processNewlyAvailableSegment(videoInfo: video, replayType: replayType)
             }
             SentryLog.debug("[Session Replay] Finished processing replay video with \(videos.count) segments")
         }
     }
 
-    private func newSegmentAvailable(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
-        SentryLog.debug("[Session Replay] New segment available for replayType: \(replayType), videoInfo: \(videoInfo)")
+    private func processNewlyAvailableSegment(videoInfo: SentryVideoInfo, replayType: SentryReplayType) {
+        SentryLog.debug("[Session Replay] Processing new segment available for replayType: \(replayType), videoInfo: \(videoInfo)")
         guard let sessionReplayId = sessionReplayId else {
             SentryLog.warning("[Session Replay] No session replay ID available, ignoring segment.")
             return
@@ -275,6 +267,7 @@ class SentrySessionReplay: NSObject {
         replayMaker.releaseFramesUntil(videoInfo.end)
         videoSegmentStart = videoInfo.end
         currentSegmentId++
+        SentryLog.debug("[Session Replay] Processed segment, incrementing currentSegmentId to: \(currentSegmentId)")
     }
     
     private func captureSegment(segment: Int, video: SentryVideoInfo, replayId: SentryId, replayType: SentryReplayType) {

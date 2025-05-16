@@ -153,23 +153,18 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         return _frames.first?.time
     }
 
-    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]?, Error?) -> Void) {
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
         // Note: In Swift it is best practice to use `Result<Value, Error>` instead of `(Value?, Error?)`
         //       Due to interoperability with Objective-C and @objc, we can not use Result for the completion callback.
         SentryLog.debug("[Session Replay] Creating video in background with beginning: \(beginning), end: \(end)")
         processingQueue.dispatchAsync {
-            do {
-                let videos = try self.createVideoWith(beginning: beginning, end: end)
-                SentryLog.debug("[Session Replay] Finished creating video in background with \(videos.count) segments")
-                completion(videos, nil)
-            } catch {
-                SentryLog.error("[Session Replay] Failed to create video in background, reason: \(error)")
-                completion(nil, error)
-            }
+            let videos = self.createVideoWith(beginning: beginning, end: end)
+            SentryLog.debug("[Session Replay] Finished creating video in background with \(videos.count) segments")
+            completion(videos)
         }
     }
 
-    func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo] {
+    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
         SentryLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
         // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
         // As this method is already called from the processing queue, we must remove the sync call.
@@ -217,8 +212,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                 return videos
             }
 
-            // If there was an error, throw it to exit the loop.
+            // If there was an error, log it and exit the loop.
             if let error = currentError {
+                // In previous implementations the error was propagated to the completion block, discarding any generated video.
+                // Instead this will "silently" fail by only logging the error and returning the successfully generated videos.
                 SentryLog.error("[Session Replay] Error while rendering video: \(error), returning \(videos.count) videos")
                 return videos
             }

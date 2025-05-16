@@ -246,16 +246,8 @@ static SentryTouchTracker *_touchTracker;
     }
     NSDate *end = [beginning dateByAddingTimeInterval:duration];
 
-    NSError *error;
     NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker createVideoWithBeginning:beginning
-                                                                                 end:end
-                                                                               error:&error];
-
-    // Either error or videos should be set.
-    if (error != nil) {
-        SENTRY_LOG_ERROR(@"[Session Replay] Could not create replay video, reason: %@", error);
-        return;
-    }
+                                                                                 end:end];
     if (videos == nil) {
         SENTRY_LOG_ERROR(
             @"[Session Replay] Could not create replay video, reason: no videos available");

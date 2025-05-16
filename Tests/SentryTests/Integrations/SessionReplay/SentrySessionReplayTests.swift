@@ -38,19 +38,15 @@ class SentrySessionReplayTests: XCTestCase {
         func createVideoInBackgroundWith(
             beginning: Date,
             end: Date,
-            completion: @escaping ([Sentry.SentryVideoInfo]?, (any Error)?) -> Void
+            completion: @escaping ([Sentry.SentryVideoInfo]) -> Void
         ) {
             // Note: This implementation is just to satisfy the protocol.
             // If possible, keep the tests logic the synchronous version `createVideoWith`
-            do {
-                let videos = try createVideoWith(beginning: beginning, end: end)
-                completion(videos, nil)
-            } catch {
-                completion(nil, error)
-            }
+            let videos = createVideoWith(beginning: beginning, end: end)
+            completion(videos)
         }
 
-        func createVideoWith(beginning: Date, end: Date) throws -> [Sentry.SentryVideoInfo] {
+        func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] {
             lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
