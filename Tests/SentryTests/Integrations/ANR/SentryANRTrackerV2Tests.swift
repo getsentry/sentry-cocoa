@@ -35,7 +35,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
             crashWrapper: crashWrapper,
             dispatchQueueWrapper: dispatchQueue,
             threadWrapper: threadWrapper,
-            framesTracker: framesTracker), currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
+            framesTracker: framesTracker) as! SentryANRTracker, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
     }
     
     /// When no frame gets rendered its a fully blocking app hang.

@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

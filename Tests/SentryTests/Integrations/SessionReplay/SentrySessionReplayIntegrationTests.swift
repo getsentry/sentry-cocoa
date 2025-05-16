@@ -191,7 +191,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        let sut: SentrySessionReplayDelegate = try getSut()
+        let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
         uiApplication.screenName = "Test Screen"
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
     }
@@ -203,7 +203,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             scope.currentScreen = "Scope Screen"
         }
         
-        let sut: SentrySessionReplayDelegate = try getSut()
+        let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
         uiApplication.screenName = "Test Screen"
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
@@ -376,7 +376,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -399,7 +399,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -422,7 +422,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -451,7 +451,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         XCTAssertNil(sut.sessionReplay)
@@ -459,7 +459,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.start()
         XCTAssertNil(sut.sessionReplay)
         
-        (sut as SentrySessionListener).sentrySessionStarted(SentrySession(releaseName: "", distinctId: ""))
+        (sut as! SentrySessionListener).sentrySessionStarted(SentrySession(releaseName: "", distinctId: ""))
         
         sut.start()
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)

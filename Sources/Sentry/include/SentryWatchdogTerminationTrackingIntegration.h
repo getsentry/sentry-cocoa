@@ -2,12 +2,10 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryBaseIntegration.h"
-#    import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryWatchdogTerminationTrackingIntegration
-    : SentryBaseIntegration <SentryANRTrackerDelegate>
+@interface SentryWatchdogTerminationTrackingIntegration : SentryBaseIntegration
 
 @end
 

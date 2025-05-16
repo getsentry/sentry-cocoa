@@ -23,6 +23,8 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift6
 INFOPLIST_FILE = iOS-Swift6/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-Swift6/iOS-Swift6.entitlements
+
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SWIFT_VERSION = 6
 IPHONEOS_DEPLOYMENT_TARGET = 13.0
