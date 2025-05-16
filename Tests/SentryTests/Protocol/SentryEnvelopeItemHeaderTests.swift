@@ -8,8 +8,6 @@ class SentryEnvelopeItemHeaderTests: XCTestCase {
         let header = SentryEnvelopeItemHeader(type: "SomeType", length: 10)
 
         let data = header.serialize()
-        XCTAssertEqual(data.count, 2)
-        XCTAssertEqual(data.count, 2)
         XCTAssertEqual(data["type"] as? String, "SomeType")
         XCTAssertEqual(data["length"] as? Int, 10)
         XCTAssertNil(data["filename"])
