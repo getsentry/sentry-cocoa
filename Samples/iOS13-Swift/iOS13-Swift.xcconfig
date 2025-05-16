@@ -23,5 +23,7 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS13-Swift
 INFOPLIST_FILE = iOS-Swift/iOS13-Swift/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS13-Swift/iOS13-Swift.entitlements
+
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 IPHONEOS_DEPLOYMENT_TARGET = 13.0
