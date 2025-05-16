@@ -35,6 +35,9 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
+#    if TARGET_OS_IOS
+#        import "SentryFeedbackAPI.h"
+#    endif // TARGET_OS_IOS
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -434,26 +437,12 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-+ (void)showFeedbackWidget
++ (SentryFeedbackAPI *)feedback
 {
-    if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback =
-            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
-        [feedback showWidget];
-    } else {
-        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
-    }
-}
-
-+ (void)hideFeedbackWidget
-{
-    if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback =
-            [currentHub getInstalledIntegration:[SentryUserFeedbackIntegration class]];
-        [feedback hideWidget];
-    } else {
-        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
-    }
+    static SentryFeedbackAPI *feedbackAPI;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ feedbackAPI = [[SentryFeedbackAPI alloc] init]; });
+    return feedbackAPI;
 }
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
