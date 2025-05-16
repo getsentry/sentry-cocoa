@@ -9,10 +9,14 @@
 @interface SentryWatchdogTerminationScopeObserver ()
 
 @property (strong, nonatomic) SentryFileManager *fileManager;
-@property (strong, nonatomic) NSFileHandle *fileHandle;
+
+@property (strong, nonatomic) NSFileHandle *fileHandleBreadcrumbs;
+@property (strong, nonatomic) NSString *activeFilePathBreadcrumbs;
 @property (nonatomic) NSInteger maxBreadcrumbs;
 @property (nonatomic) NSInteger breadcrumbCounter;
-@property (strong, nonatomic) NSString *activeFilePath;
+
+@property (nonatomic, strong) NSFileHandle *fileHandleContext;
+@property (strong, nonatomic) NSString *activeFilePathContext;
 
 @end
 
@@ -22,9 +26,10 @@
                            fileManager:(SentryFileManager *)fileManager
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
         self.fileManager = fileManager;
+
         self.breadcrumbCounter = 0;
+        self.maxBreadcrumbs = maxBreadcrumbs;
 
         [self switchFileHandle];
     }
@@ -34,55 +39,106 @@
 
 - (void)dealloc
 {
-    [self.fileHandle closeFile];
+    [self.fileHandleBreadcrumbs closeFile];
+    [self.fileHandleContext closeFile];
 }
 
 // PRAGMA MARK: - Helper methods
 
 - (void)deleteFiles
 {
-    [self.fileHandle closeFile];
-    self.fileHandle = nil;
-    self.activeFilePath = nil;
+    [self deleteFilesBreadcrumbs];
+    [self deleteFilesContexts];
+}
+
+- (void)deleteFilesBreadcrumbs
+{
+    [self.fileHandleBreadcrumbs closeFile];
+    self.fileHandleBreadcrumbs = nil;
+    self.activeFilePathBreadcrumbs = nil;
     self.breadcrumbCounter = 0;
 
     [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathOne];
     [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
 }
 
+- (void)deleteFilesContexts
+{
+    [self.fileHandleContext closeFile];
+    self.fileHandleContext = nil;
+    self.activeFilePathContext = nil;
+
+    [self.fileManager removeFileAtPath:self.fileManager.contextFilePathOne];
+    [self.fileManager removeFileAtPath:self.fileManager.contextFilePathTwo];
+}
+
 - (void)switchFileHandle
 {
-    if ([self.activeFilePath isEqualToString:self.fileManager.breadcrumbsFilePathOne]) {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathTwo;
+    [self switchFileHandleBreadcrumbs];
+    [self switchFileHandleContexts];
+}
+
+- (void)switchFileHandleBreadcrumbs
+{
+    if ([self.activeFilePathBreadcrumbs isEqualToString:self.fileManager.breadcrumbsFilePathOne]) {
+        self.activeFilePathBreadcrumbs = self.fileManager.breadcrumbsFilePathTwo;
     } else {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathOne;
+        self.activeFilePathBreadcrumbs = self.fileManager.breadcrumbsFilePathOne;
     }
 
     // Close the current filehandle (if any)
-    [self.fileHandle closeFile];
+    [self.fileHandleBreadcrumbs closeFile];
 
     // Create a fresh file for the new active path
-    [self.fileManager removeFileAtPath:self.activeFilePath];
-    [[NSFileManager defaultManager] createFileAtPath:self.activeFilePath
+    [self.fileManager removeFileAtPath:self.activeFilePathBreadcrumbs];
+    [[NSFileManager defaultManager] createFileAtPath:self.activeFilePathBreadcrumbs
                                             contents:nil
                                           attributes:nil];
 
     // Open the file for writing
-    self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.activeFilePath];
+    self.fileHandleBreadcrumbs =
+        [NSFileHandle fileHandleForWritingAtPath:self.activeFilePathBreadcrumbs];
 
-    if (!self.fileHandle) {
-        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePath);
+    if (!self.fileHandleBreadcrumbs) {
+        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePathBreadcrumbs);
     }
 }
 
-- (void)store:(NSData *)data
+- (void)switchFileHandleContexts
+{
+    SENTRY_LOG_DEBUG(@"Switching file handle for context");
+    if ([self.activeFilePathContext isEqualToString:self.fileManager.contextFilePathOne]) {
+        self.activeFilePathContext = self.fileManager.contextFilePathTwo;
+    } else {
+        self.activeFilePathContext = self.fileManager.contextFilePathOne;
+    }
+    SENTRY_LOG_DEBUG(@"New active file path for context: %@", self.activeFilePathContext);
+
+    // Close the current filehandle (if any)
+    [self.fileHandleContext closeFile];
+
+    // Create a fresh file for the new active path
+    [self.fileManager removeFileAtPath:self.activeFilePathContext];
+    [[NSFileManager defaultManager] createFileAtPath:self.activeFilePathContext
+                                            contents:nil
+                                          attributes:nil];
+
+    // Open the file for writing
+    self.fileHandleContext = [NSFileHandle fileHandleForWritingAtPath:self.activeFilePathContext];
+
+    if (!self.fileHandleContext) {
+        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePathContext);
+    }
+}
+
+- (void)storeBreadcrumb:(NSData *)data
 {
     unsigned long long fileSize;
     @try {
-        fileSize = [self.fileHandle seekToEndOfFile];
+        fileSize = [self.fileHandleBreadcrumbs seekToEndOfFile];
 
-        [self.fileHandle writeData:data];
-        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+        [self.fileHandleBreadcrumbs writeData:data];
+        [self.fileHandleBreadcrumbs writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
         self.breadcrumbCounter += 1;
     } @catch (NSException *exception) {
@@ -93,6 +149,22 @@
             [self switchFileHandle];
             self.breadcrumbCounter = 0;
         }
+    }
+}
+
+- (void)storeContext:(NSData *)data
+{
+    @try {
+        SENTRY_LOG_DEBUG(@"Storing context data: %@", data);
+        // Override the entire file content by starting from the beginning
+        [self.fileHandleContext seekToFileOffset:0];
+        [self.fileHandleContext writeData:data];
+
+        // Truncate the file to the current size
+        [self.fileHandleContext truncateFileAtOffset:data.length];
+        SENTRY_LOG_DEBUG(@"Written context data to file: %@", self.activeFilePathContext);
+    } @catch (NSException *exception) {
+        SENTRY_LOG_ERROR(@"Error while writing data to context file: %@", exception.description);
     }
 }
 
@@ -110,9 +182,9 @@
 
     if (error) {
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb: %@", error);
-    } else {
-        [self store:jsonData];
+        return;
     }
+    [self storeBreadcrumb:jsonData];
 }
 
 - (void)clear
@@ -128,47 +200,61 @@
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting context: %@", context);
+    if (![NSJSONSerialization isValidJSONObject:context]) {
+        SENTRY_LOG_ERROR(@"Context is not a valid JSON object: %@", context);
+        return;
+    }
+
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:context options:0 error:&error];
+
+    if (error) {
+        SENTRY_LOG_ERROR(@"Error serializing context: %@", error);
+        return;
+    }
+
+    [self storeContext:jsonData];
 }
 
 - (void)setDist:(nullable NSString *)dist
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting dist: %@", dist);
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting environment: %@", environment);
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting extras: %@", extras);
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting fingerprint: %@", fingerprint);
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting level: %@", @(level));
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting tags: %@", tags);
 }
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting user: %@", user);
 }
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    // Left blank on purpose
+    SENTRY_LOG_DEBUG(@"Setting trace context: %@", traceContext);
 }
 
 @end
