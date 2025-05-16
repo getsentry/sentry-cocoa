@@ -65,8 +65,7 @@
                 instance = initBlock;                                                              \
             }                                                                                      \
         }                                                                                          \
-    }                                                                                              \
-    return instance;
+    }
 
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
@@ -171,8 +170,13 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
+    NSError *error;
     SENTRY_LAZY_INIT(
-        _fileManager, [[SentryFileManager alloc] initWithOptions:SentrySDK.options error:nil]);
+        _fileManager, [[SentryFileManager alloc] initWithOptions:SentrySDK.options error:&error]);
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Could not initialize SentryFileManager: %@", error);
+    }
+    return _fileManager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -183,12 +187,14 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                            fileManager:self.fileManager
                                   dispatchQueueWrapper:self.dispatchQueueWrapper
                              notificationCenterWrapper:self.notificationCenterWrapper]);
+    return _appStateManager;
 }
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(
         _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
+    return _threadInspector;
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -196,12 +202,14 @@ static NSObject *sentryDependencyContainerInstanceLock;
     SENTRY_LAZY_INIT(_fileIOTracker,
         [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
                                           processInfoWrapper:[self processInfoWrapper]]);
+    return _fileIOTracker;
 }
 
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
         [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+    return _crashReporter;
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
@@ -212,6 +220,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                                crashWrapper:self.crashWrapper
                                        dispatchQueueWrapper:self.dispatchQueueWrapper
                                               threadWrapper:self.threadWrapper]);
+    return _anrTracker;
 }
 
 #if SENTRY_HAS_UIKIT
@@ -225,6 +234,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                            dispatchQueueWrapper:self.dispatchQueueWrapper
                                                   threadWrapper:self.threadWrapper
                                                   framesTracker:self.framesTracker]);
+        return _anrTracker;
     } else {
         return [self getANRTracker:timeout];
     }
@@ -242,6 +252,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
         @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
+    return _screenshot;
 }
 #endif
 
@@ -257,6 +268,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
         @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
+    return _viewHierarchy;
 }
 
 - (SentryUIViewControllerPerformanceTracker *)
@@ -273,6 +285,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
                      @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
+    return _uiViewControllerPerformanceTracker;
 }
 
 - (SentryFramesTracker *)framesTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -292,6 +305,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
         @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
+    return _framesTracker;
 }
 
 - (SentrySwizzleWrapper *)swizzleWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -304,22 +318,26 @@ static NSObject *sentryDependencyContainerInstanceLock;
         @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
+    return _swizzleWrapper;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
 - (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
+    return _systemWrapper;
 }
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
+    return _dispatchFactory;
 }
 
 - (SentryNSTimerFactory *)timerFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_timerFactory, [[SentryNSTimerFactory alloc] init]);
+    return _timerFactory;
 }
 
 #if SENTRY_HAS_METRIC_KIT
@@ -330,6 +348,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
     // crash reports of MetricKit in production as we have SentryCrash.
     SENTRY_LAZY_INIT(
         _metricKitManager, [[SentryMXManager alloc] initWithDisableCrashDiagnostics:YES]);
+    return _metricKitManager;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
