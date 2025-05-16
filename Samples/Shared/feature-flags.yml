@@ -6,6 +6,7 @@ schemeTemplates:
         "--io.sentry.disable-everything": false
         "--skip-sentry-init": false
         "--io.sentry.wipe-data": false
+        "--io.sentry.disable-debug-mode": false
 
         # session replay
         "--disable-session-replay": false
@@ -24,6 +25,8 @@ schemeTemplates:
         "--io.sentry.feedback.no-widget-text": false
         "--io.sentry.feedback.all-defaults": false
         "--io.sentry.feedback.no-auto-inject-widget": false
+        "--io.sentry.feedback.no-screenshots": false
+        "--io.sentry.feedback.no-shake-gesture": false
 
         # profiling
         "--io.sentry.disable-ui-profiling": false
@@ -59,6 +62,10 @@ schemeTemplates:
         "--io.sentry.base64-attachment-data": false
         "--io.sentry.disable-http-transport": false
         "--disable-spotlight": false
+        "--reject-screenshots-in-before-capture-screenshot": false
+        "--reject-view-hierarchy-in-before-capture-view-hierarchy": false
+        "--reject-all-events": false
+        "--reject-all-spans": false
 
       environmentVariables:
         # session replay
@@ -109,6 +116,9 @@ schemeTemplates:
           value:
           isEnabled: false
         - variable: "--io.sentry.user.name"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.user.id"
           value:
           isEnabled: false
         - variable: "--io.sentry.profile-session-sample-rate"
