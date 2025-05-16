@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix thread inversion warning in session replay (#5018)
+
 ## 8.50.2
 
 ### Fixes
