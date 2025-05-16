@@ -190,12 +190,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 
-    self.contextFilePathOne = [self.sentryPath stringByAppendingPathComponent:@"contexts.1.state"];
-    self.contextFilePathTwo = [self.sentryPath stringByAppendingPathComponent:@"contexts.2.state"];
+    self.contextFilePathOne = [self.sentryPath stringByAppendingPathComponent:@"context.1.state"];
+    self.contextFilePathTwo = [self.sentryPath stringByAppendingPathComponent:@"context.2.state"];
     self.previousContextFilePathOne =
-        [self.sentryPath stringByAppendingPathComponent:@"previous.contexts.1.state"];
+        [self.sentryPath stringByAppendingPathComponent:@"previous.context.1.state"];
     self.previousContextFilePathTwo =
-        [self.sentryPath stringByAppendingPathComponent:@"previous.contexts.2.state"];
+        [self.sentryPath stringByAppendingPathComponent:@"previous.context.2.state"];
 }
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
@@ -517,6 +517,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)moveContextFileToPreviousContextFile
 {
+    SENTRY_LOG_DEBUG(@"Moving context files to previous context files");
     @synchronized(self.contextFilePathOne) {
         [self moveState:self.contextFilePathOne toPreviousState:self.previousContextFilePathOne];
         [self moveState:self.contextFilePathTwo toPreviousState:self.previousContextFilePathTwo];

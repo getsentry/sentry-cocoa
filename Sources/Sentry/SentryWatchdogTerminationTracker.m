@@ -69,13 +69,6 @@
                 event.timestamp = sentry_fromIso8601String(timestampIso8601String);
             }
 
-            // Load the previous context from disk
-            NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context =
-                [self.fileManager readPreviousContext];
-            if (context != nil) {
-                event.context = context;
-            }
-
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
                                                   type:SentryWatchdogTerminationExceptionType];
@@ -85,10 +78,21 @@
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
 
+            // Load the previous context from disk
+            NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable previousContext =
+                [self.fileManager readPreviousContext];
+            NSMutableDictionary *context =
+                [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @ {}];
+
             // We only report watchdog terminations if the app was in the foreground. So, we can
             // already set it. We can't set it in the client because the client uses the current
             // application state, and the app could be in the background when executing this code.
-            event.context = @{@"app" : @ { @"in_foreground" : @(YES) }};
+            NSMutableDictionary *appContext =
+                [[NSMutableDictionary alloc] initWithDictionary:event.context[@"app"] ?: @ {}];
+            appContext[@"in_foreground"] = @(YES);
+            context[@"app"] = appContext;
+
+            event.context = context;
 
             // We don't need to update the releaseName of the event to the previous app state as we
             // assume it's not a watchdog termination when the releaseName changed between app
