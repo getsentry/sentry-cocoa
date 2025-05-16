@@ -23,5 +23,7 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
 INFOPLIST_FILE = Sources/Info.plist
+CODE_SIGN_ENTITLEMENTS = Sources/SessionReplay-CameraTest.entitlements
+
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 IPHONEOS_DEPLOYMENT_TARGET = 13.0

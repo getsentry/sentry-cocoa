@@ -23,6 +23,8 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift
 INFOPLIST_FILE = Shared/Info.plist
+CODE_SIGN_ENTITLEMENTS = Shared/macOS-Swift.entitlements
+
 SWIFT_OBJC_BRIDGING_HEADER = Shared/macOS-Swift-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = macosx
