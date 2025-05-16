@@ -365,7 +365,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(Data(payloadAsString.utf8), item.data)
     }
     
-    func testEnvelopeWithData_log() throws {
+    func testEnvelopeWithData_withLogItems_shouldDeserializeLogItemFields() throws {
         let logs = Data("""
         {
             \"items\": [
