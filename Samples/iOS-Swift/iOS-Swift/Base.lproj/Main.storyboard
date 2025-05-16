@@ -1175,7 +1175,7 @@
                                                                         <rect key="frame" x="0.0" y="0.0" width="76" height="38"/>
                                                                         <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.button.show-widget"/>
                                                                         <state key="normal" title="Button"/>
-                                                                        <buttonConfiguration key="configuration" style="plain" title="Show Wdget">
+                                                                        <buttonConfiguration key="configuration" style="plain" title="Show Widget">
                                                                             <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
                                                                         </buttonConfiguration>
                                                                         <connections>
