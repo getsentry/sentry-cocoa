@@ -83,6 +83,6 @@ class ViewController: UIViewController {
     }
 
     @IBAction func configureSDK(_ sender: Any) {
-        present(FeaturesViewController(style: .plain), animated: true)
+        present(FeaturesViewController(nibName: nil, bundle: nil), animated: true)
     }
 }

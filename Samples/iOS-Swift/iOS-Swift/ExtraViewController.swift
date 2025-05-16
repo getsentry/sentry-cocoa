@@ -14,7 +14,6 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var dataMarshalingStatusLabel: UILabel!
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
     
-    @IBOutlet weak var dsnView: UIView!
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
     
     override func viewDidLoad() {
@@ -27,8 +26,6 @@ class ExtraViewController: UIViewController {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
-
-        addDSNDisplay(self, vcview: dsnView)
     }
 
     override func viewDidAppear(_ animated: Bool) {

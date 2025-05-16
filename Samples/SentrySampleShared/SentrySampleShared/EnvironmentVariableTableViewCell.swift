@@ -18,7 +18,7 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         let stack = UIStackView(arrangedSubviews: [valueField, titleLabel])
         stack.spacing = 8
         contentView.addSubview(stack)
-        stack.matchEdgeAnchors(from: contentView, topPad: 8, bottomPad: 8)
+        stack.matchEdgeAnchors(from: contentView)
 
         valueField.borderStyle = .roundedRect
     }

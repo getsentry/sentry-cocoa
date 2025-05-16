@@ -5,7 +5,7 @@ import SwiftUI
 @main
 struct SwiftUIApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
-
+    
     init() {
         SentrySDKWrapper.shared.startSentry()
     }
