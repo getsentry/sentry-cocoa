@@ -1,9 +1,9 @@
 #import "SentrySysctl.h"
 #import "SentryCrashSysCtl.h"
+#import "SentrySwift.h"
 #import "SentryTime.h"
 #include <stdio.h>
 #include <time.h>
-#import "SentrySwift.h"
 
 static NSDate *moduleInitializationTimestamp;
 static uint64_t runtimeInitSystemTimestamp;
