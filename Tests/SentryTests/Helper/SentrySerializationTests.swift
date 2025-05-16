@@ -385,9 +385,6 @@ class SentrySerializationTests: XCTestCase {
         itemData.appendString("{\"length\":\(logs.count),\"type\":\"log\",\"item_count\":1,\"content_type\":\"application/vnd.sentry.items.log+json\"}\n")
         itemData.append(logs)
         
-        let sting = String(data: itemData, encoding: .utf8) ?? ""
-        print(sting)
-        
         let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
         
         XCTAssertEqual(1, envelope.items.count)
