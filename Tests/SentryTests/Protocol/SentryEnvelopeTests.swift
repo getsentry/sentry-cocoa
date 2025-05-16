@@ -309,8 +309,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data2["attachment_type"] as? String, "event.attachment")
         XCTAssertEqual(data2.count, 3)
     }
-
-    
     
     func testInitWithDataAttachment_MaxAttachmentSize() {
         let attachmentTooBig = Attachment(data: fixture.dataTooBig, filename: "")
