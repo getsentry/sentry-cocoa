@@ -38,7 +38,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
             timeoutInterval: fixture.timeoutInterval,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
-            threadWrapper: fixture.threadWrapper)
+            threadWrapper: fixture.threadWrapper) as? SentryANRTracker
     }
     
     override func tearDown() {

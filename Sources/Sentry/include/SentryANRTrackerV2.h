@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -7,6 +6,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @class SentryFramesTracker;
+@protocol SentryANRTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * seconds, it can still respond to user input to navigate to a different screen, for example. In
  * that scenario, the frame delay is around 97%.
  */
-@interface SentryANRTrackerV2 : NSObject <SentryANRTracker>
+@interface SentryANRTrackerV2 : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
@@ -28,6 +28,8 @@ SENTRY_NO_INIT
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;
+
+- (id<SentryANRTracker>)asProtocol;
 
 @end
 
