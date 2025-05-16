@@ -5,6 +5,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryOptions.h"
 #    import "SentryScope.h"
+#    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
 #    import <SentryAttachment.h>
 #    import <SentryDebugMeta.h>
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryMetricKitIntegration ()
+@interface SentryMetricKitIntegration () <SentryMXManagerDelegate>
 
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 @property (nonatomic, strong) NSMeasurementFormatter *measurementFormatter;

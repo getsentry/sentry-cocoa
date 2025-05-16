@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class ExtraViewController: UIViewController {
@@ -143,7 +144,7 @@ class ExtraViewController: UIViewController {
     @IBAction func captureUserFeedbackV2(_ sender: UIButton) {
         highlightButton(sender)
         var attachments: [Data]?
-        if let url = Bundle.main.url(forResource: "screenshot", withExtension: "png"), let data = try? Data(contentsOf: url) {
+        if let url = BundleResourceProvider.screenshotURL, let data = try? Data(contentsOf: url) {
             attachments = [data]
         }
         let errorEventID = SentrySDK.capture(error: NSError(domain: "test-error.user-feedback.iOS-Swift", code: 1))
@@ -197,6 +198,10 @@ class ExtraViewController: UIViewController {
         for i in 0..<100_000_000 {
             a.append(String(i))
         }
+    }
+
+    @IBAction func featureFlags(_ sender: Any) {
+        navigationController?.pushViewController(FeaturesViewController(style: .plain), animated: true)
     }
 
     private func calcPi() -> Double {
@@ -341,6 +346,22 @@ class ExtraViewController: UIViewController {
             result["event_id"] = itemHeaderEventId
         } else if let _ = json["length"], let type = json["type"] as? String, type == "feedback" {
             result["item_header_type"] = json["type"]
+        }
+    }
+
+    @IBAction func showFeedbackWidget(_ sender: Any) {
+        if #available(iOS 13.0, *) {
+            SentrySDK.feedback.showWidget()
+        } else {
+            showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
+        }
+    }
+
+    @IBAction func hideFeedbackWidget(_ sender: Any) {
+        if #available(iOS 13.0, *) {
+            SentrySDK.feedback.hideWidget()
+        } else {
+            showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
         }
     }
 }

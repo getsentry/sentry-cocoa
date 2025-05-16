@@ -22,7 +22,8 @@
 #include "../Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS15-SwiftUI
-INFOPLIST_FILE = iOS-SwiftUI/Info.plist
+INFOPLIST_FILE = iOS15-SwiftUI/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS15-SwiftUI/iOS15-SwiftUI.entitlements;
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 

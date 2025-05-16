@@ -14,15 +14,50 @@
 #    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
+#    import "SentryWeakMap.h"
 #    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
+
+// In a previous implementation, we used associated objects to store the time to display tracker,
+// spanId, spans in execution, and layout subview spanId. However, this approach was prone to
+// memory leaks and crashes due to accessing associated objects from different threads.
+//
+// See https://github.com/getsentry/sentry-cocoa/issues/5087 for reference.
+//
+// To address these issues, we switched to using a NSMapTable to store these values.
+// This approach provides the following benefits:
+//
+// 1. Weak references to the keys: The NSMapTable allows us to store weak references to the keys,
+//    which means we don't need to remove the entries when the UIViewController is deallocated.
+//
+// 2. Thread safety: The NSMapTable is thread-safe, which means we can access it from different
+//    threads without the need for additional synchronization.
+//
+// Using a NSMapTable allows weak references to the keys, which means we don't need to remove the
+// entries when the UIViewController is deallocated.
+//
+// DISCUSSION FROM NSMAPTABLE:
+// Use of weak-to-strong map tables is not recommended. The strong values for weak keys which get
+// zeroed out continue to be maintained until the map table resizes itself.
+//
+// To avoid this issue, we will prune the maps when we access them. This means that we will
+// remove any entries with weak keys that have been deallocated. This will ensure that we don't
+// keep any references to deallocated objects in the map tables and have a memory leak.
 
 @interface SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+@property (nonatomic, strong)
+    SentryWeakMap<UIViewController *, SentryTimeToDisplayTracker *> *ttdTrackers;
+@property (nonatomic, strong) SentryWeakMap<UIViewController *, SentrySpanId *> *spanIds;
+@property (nonatomic, strong)
+    SentryWeakMap<UIViewController *, NSMutableSet<NSString *> *> *spansInExecution;
+@property (nonatomic, strong)
+    SentryWeakMap<UIViewController *, SentrySpanId *> *layoutSubviewSpanIds;
 
 @end
 
@@ -40,15 +75,13 @@
 
         _alwaysWaitForFullDisplay = NO;
         _dispatchQueueWrapper = dispatchQueueWrapper;
+
+        _ttdTrackers = [[SentryWeakMap alloc] init];
+        _spanIds = [[SentryWeakMap alloc] init];
+        _spansInExecution = [[SentryWeakMap alloc] init];
+        _layoutSubviewSpanIds = [[SentryWeakMap alloc] init];
     }
     return self;
-}
-
-- (SentrySpan *)viewControllerPerformanceSpan:(UIViewController *)controller
-{
-    SentrySpanId *spanId
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    return [self.tracker getSpan:spanId];
 }
 
 - (void)viewControllerLoadView:(UIViewController *)controller
@@ -73,11 +106,12 @@
         return;
     }
 
+    SENTRY_LOG_DEBUG(@"Tracking UIViewController.loadView for view controller: %@", controller);
     [self limitOverride:@"loadView"
                   target:controller
         callbackToOrigin:callbackToOrigin
                    block:^{
-                       SENTRY_LOG_DEBUG(@"Tracking loadView");
+                       SENTRY_LOG_DEBUG(@"Tracking loadView for view controller: %@", controller);
                        [self startRootSpanFor:controller];
                        [self measurePerformance:@"loadView"
                                          target:controller
@@ -88,11 +122,13 @@
 - (void)viewControllerViewDidLoad:(UIViewController *)controller
                  callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewDidLoad for view controller: %@", controller);
     [self limitOverride:@"viewDidLoad"
                   target:controller
         callbackToOrigin:callbackToOrigin
                    block:^{
-                       SENTRY_LOG_DEBUG(@"Tracking viewDidLoad");
+                       SENTRY_LOG_DEBUG(
+                           @"Tracking viewDidLoad for view controller: %@", controller);
                        [self startRootSpanFor:controller];
                        [self measurePerformance:@"viewDidLoad"
                                          target:controller
@@ -102,12 +138,13 @@
 
 - (void)startRootSpanFor:(UIViewController *)controller
 {
-    SentrySpanId *spanId
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+    SENTRY_LOG_DEBUG(@"Starting root span for view controller: %@", controller);
+    SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
     // If the user manually calls loadView outside the lifecycle we don't start a new transaction
     // and override the previous id stored.
     if (spanId == nil) {
+        SENTRY_LOG_DEBUG(@"No active span found for view controller: %@", controller);
 
         // The tracker must create a new transaction and bind it to the scope when there is no
         // active span. If the user didn't call reportFullyDisplayed, the previous UIViewController
@@ -116,6 +153,7 @@
         // finish and remove itself from the scope. We don't need to finish the transaction because
         // we already finished it in viewControllerViewDidAppear.
         if (self.tracker.activeSpanId == nil) {
+            SENTRY_LOG_DEBUG(@"Tracker has no active span, finishing TTFD tracker");
             [self.currentTTDTracker finishSpansIfNotFinished];
         }
 
@@ -125,9 +163,7 @@
                                        operation:SentrySpanOperationUiLoad
                                           origin:SentryTraceOriginAutoUIViewController];
 
-        // Use the target itself to store the spanId to avoid using a global mapper.
-        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setSpanIdForViewController:controller spanId:spanId];
 
         // If there is no active span in the queue push this transaction
         // to serve as an umbrella transaction that will capture every span
@@ -142,7 +178,8 @@
         }
     }
 
-    SentrySpan *vcSpan = [self viewControllerPerformanceSpan:controller];
+    spanId = [self getSpanIdForViewController:controller];
+    SentrySpan *_Nullable vcSpan = [self.tracker getSpan:spanId];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
         // Since TTID and TTFD are meant to the whole screen
@@ -150,9 +187,12 @@
         return;
     }
 
-    if (objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER)) {
+    if ([self getTimeToDisplayTrackerForController:controller]) {
         // Already tracking time to display, not creating a new tracker.
         // This may happen if user manually call `loadView` from a view controller more than once.
+        SENTRY_LOG_DEBUG(
+            @"Already tracking time to display for view controller %@ using tracker %@", controller,
+            self.currentTTDTracker);
         return;
     }
 
@@ -162,13 +202,13 @@
                                           tracer:(SentryTracer *)vcSpan];
 
     if (ttdTracker) {
-        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
-            OBJC_ASSOCIATION_ASSIGN);
+        [self setTimeToDisplayTrackerForController:controller ttdTracker:ttdTracker];
     }
 }
 
 - (void)reportFullyDisplayed
 {
+    SENTRY_LOG_DEBUG(@"Reporting fully displayed");
     SentryTimeToDisplayTracker *tracker = self.currentTTDTracker;
     if (tracker == nil) {
         SENTRY_LOG_DEBUG(@"No screen transaction being tracked right now.")
@@ -180,13 +220,19 @@
                         @"property in our `SentryTracedView` view for SwiftUI.");
         return;
     }
+
+    // Report the fully displayed time, then discard the tracker, because it should not be used
+    // after TTFD is reported.
+    SENTRY_LOG_DEBUG(@"Reported fully displayed time, discarding TTFD tracker");
     [self.currentTTDTracker reportFullyDisplayed];
 }
 
-- (SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                            tracer:(SentryTracer *)tracer
+- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
+                                                                     tracer:(SentryTracer *)tracer
 {
+    SENTRY_LOG_DEBUG(@"Starting TTFD tracker for screen: %@, waitForFullDisplay: %@, tracer: %@",
+        screenName, waitForFullDisplay ? @"YES" : @"NO", tracer);
     [self.currentTTDTracker finishSpansIfNotFinished];
 
     SentryTimeToDisplayTracker *ttdTracker =
@@ -194,7 +240,9 @@
                                       waitForFullDisplay:waitForFullDisplay
                                     dispatchQueueWrapper:_dispatchQueueWrapper];
 
+    // If the tracker did not start, it means that the tracer can be discarded.
     if ([ttdTracker startForTracer:tracer] == NO) {
+        SENTRY_LOG_DEBUG(@"TTFD tracker did not start, discarding current tracker");
         self.currentTTDTracker = nil;
         return nil;
     }
@@ -206,9 +254,12 @@
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(
+        @"Tracking UIViewController.viewWillAppear for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *spanId
-            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+        SENTRY_LOG_DEBUG(
+            @"Tracking UIViewController.viewWillAppear for controller: %@", controller);
+        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
@@ -229,7 +280,7 @@
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
-        [self reportInitialDisplay:controller];
+        [self reportInitialDisplayForController:controller];
     };
 
     [self limitOverride:@"viewWillAppear"
@@ -241,7 +292,8 @@
 - (void)viewControllerViewDidAppear:(UIViewController *)controller
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-    SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewDidAppear");
+    SENTRY_LOG_DEBUG(
+        @"Tracking UIViewController.viewDidAppear for view controller: %@", controller);
     [self finishTransaction:controller
                      status:kSentrySpanStatusOk
             lifecycleMethod:@"viewDidAppear"
@@ -263,7 +315,8 @@
 - (void)viewControllerViewWillDisappear:(UIViewController *)controller
                        callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-
+    SENTRY_LOG_DEBUG(
+        @"Tracking UIViewController.viewWillDisappear for view controller: %@", controller);
     [self finishTransaction:controller
                      status:kSentrySpanStatusCancelled
             lifecycleMethod:@"viewWillDisappear"
@@ -275,9 +328,9 @@
           lifecycleMethod:(NSString *)lifecycleMethod
          callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(@"Finishing transaction for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *spanId
-            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
@@ -301,15 +354,15 @@
         // If the current controller span has no parent,
         // it means it is the root transaction and need to be pop from the queue.
         if (vcSpan.parentSpanId == nil) {
+            SENTRY_LOG_DEBUG(@"Popping active span for controller: %@", controller);
             [self.tracker popActiveSpan];
         }
 
         // If we are still tracking this UIViewController finish the transaction
         // and remove associated span id.
+        SENTRY_LOG_DEBUG(@"Finishing span for view controller: %@", controller);
         [self.tracker finishSpan:spanId withStatus:status];
-
-        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setSpanIdForViewController:controller spanId:nil];
     };
 
     [self limitOverride:lifecycleMethod
@@ -321,9 +374,10 @@
 - (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
                             callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(
+        @"Tracking UIViewController.viewWillLayoutSubviews for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *spanId
-            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
@@ -347,9 +401,7 @@
                                       operation:SentrySpanOperationUiLoad
                                          origin:SentryTraceOriginAutoUIViewController];
 
-            objc_setAssociatedObject(controller,
-                &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, layoutSubViewId,
-                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            [self setLayoutSubviewSpanID:controller spanId:layoutSubViewId];
         };
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
 
@@ -360,8 +412,7 @@
         // customers' transactions also proofing this. Therefore, we must also report the
         // initial display here, as the customers' transactions had spans for
         // `viewWillLayoutSubviews`.
-
-        [self reportInitialDisplay:controller];
+        [self reportInitialDisplayForController:controller];
     };
 
     [self limitOverride:@"viewWillLayoutSubviews"
@@ -373,9 +424,10 @@
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(
+        @"Tracking UIViewController.viewDidLayoutSubviews for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *spanId
-            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
         if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
             // We are no longer tracking this UIViewController, just call the base
@@ -387,10 +439,12 @@
         }
 
         void (^duringBlock)(void) = ^{
-            SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
-                controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
+            SentrySpanId *layoutSubViewId =
+                [self getLayoutSubviewSpanIdForViewController:controller];
 
             if (layoutSubViewId != nil) {
+                SENTRY_LOG_DEBUG(@"Finishing layoutSubviews span id: %@, for view controller: %@",
+                    layoutSubViewId.sentrySpanIdString, controller);
                 [self.tracker finishSpan:layoutSubViewId];
             }
 
@@ -400,9 +454,8 @@
                                               origin:SentryTraceOriginAutoUIViewController
                                              inBlock:callbackToOrigin];
 
-            objc_setAssociatedObject(controller,
-                &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, nil,
-                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            // We need to remove the spanId for layoutSubviews, as it is not needed anymore.
+            [self setLayoutSubviewSpanID:controller spanId:nil];
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
@@ -426,15 +479,11 @@
                 block:(void (^)(void))block
 
 {
-    NSMutableSet<NSString *> *spansInExecution;
-
-    spansInExecution = objc_getAssociatedObject(
-        viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET);
+    NSMutableSet<NSString *> *spansInExecution =
+        [self getSpansInExecutionSetForViewController:viewController];
     if (spansInExecution == nil) {
         spansInExecution = [[NSMutableSet alloc] init];
-        objc_setAssociatedObject(viewController,
-            &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET, spansInExecution,
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setSpansInExecutionSetForViewController:viewController spansIds:spansInExecution];
     }
 
     if (![spansInExecution containsObject:description]) {
@@ -453,8 +502,9 @@
                     target:(UIViewController *)viewController
           callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-    SentrySpanId *spanId
-        = objc_getAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+    SENTRY_LOG_DEBUG(@"Measuring performance for method: %@, for view controller: %@", description,
+        viewController);
+    SentrySpanId *spanId = [self getSpanIdForViewController:viewController];
 
     if (spanId == nil) {
         SENTRY_LOG_DEBUG(@"No longer tracking UIViewController %@", viewController);
@@ -469,11 +519,76 @@
     }
 }
 
-- (void)reportInitialDisplay:(UIViewController *)controller
+- (void)reportInitialDisplayForController:(NSObject *)controller
 {
-    SentryTimeToDisplayTracker *ttdTracker
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
-    [ttdTracker reportInitialDisplay];
+    SENTRY_LOG_DEBUG(@"Reporting initial display for controller: %@", controller);
+    if (self.currentTTDTracker == nil) {
+        SENTRY_LOG_DEBUG(
+            @"Can't report initial display, no screen transaction being tracked right now.");
+        return;
+    }
+    [self.currentTTDTracker reportInitialDisplay];
+    SENTRY_LOG_DEBUG(@"Reported initial display for controller: %@", controller);
+}
+
+// - MARK: - Getter and Setter Helpers
+
+- (SentryTimeToDisplayTracker *_Nullable)getTimeToDisplayTrackerForController:
+    (UIViewController *)controller
+{
+    SENTRY_LOG_DEBUG(@"Getting time to display tracker for controller: %@", controller);
+    return [self.ttdTrackers objectForKey:controller];
+}
+
+- (void)setTimeToDisplayTrackerForController:(UIViewController *)controller
+                                  ttdTracker:(SentryTimeToDisplayTracker *)ttdTracker
+{
+    SENTRY_LOG_DEBUG(@"Setting time to display tracker for controller: %@, ttdTracker: %@",
+        controller, ttdTracker);
+    [self.ttdTrackers setObject:ttdTracker forKey:controller];
+}
+
+- (SentrySpanId *_Nullable)getSpanIdForViewController:(UIViewController *)controller
+{
+    SENTRY_LOG_DEBUG(@"Getting span id for controller: %@", controller);
+    return [self.spanIds objectForKey:controller];
+}
+
+- (void)setSpanIdForViewController:(UIViewController *)controller
+                            spanId:(SentrySpanId *_Nullable)spanId
+{
+    SENTRY_LOG_DEBUG(
+        @"Setting span id for controller: %@, spanId: %@", controller, spanId.sentrySpanIdString);
+    [self.spanIds setObject:spanId forKey:controller];
+}
+
+- (SentrySpanId *_Nullable)getLayoutSubviewSpanIdForViewController:
+    (UIViewController *_Nonnull)controller
+{
+    SENTRY_LOG_DEBUG(@"Getting layout subview span id for controller: %@", controller);
+    return [self.layoutSubviewSpanIds objectForKey:controller];
+}
+
+- (void)setLayoutSubviewSpanID:(UIViewController *_Nonnull)controller spanId:(SentrySpanId *)spanId
+{
+    SENTRY_LOG_DEBUG(@"Setting layout subview span id for controller: %@, spanId: %@", controller,
+        spanId.sentrySpanIdString);
+    [self.layoutSubviewSpanIds setObject:spanId forKey:controller];
+}
+
+- (NSMutableSet<NSString *> *_Nullable)getSpansInExecutionSetForViewController:
+    (UIViewController *)viewController
+{
+    SENTRY_LOG_DEBUG(@"Getting spans in execution set for controller: %@", viewController);
+    return [self.spansInExecution objectForKey:viewController];
+}
+
+- (void)setSpansInExecutionSetForViewController:(UIViewController *)viewController
+                                       spansIds:(NSMutableSet<NSString *> *)spanIds
+{
+    SENTRY_LOG_DEBUG(
+        @"Setting spans in execution set for controller: %@, spanIds: %@", viewController, spanIds);
+    [self.spansInExecution setObject:spanIds forKey:viewController];
 }
 
 @end

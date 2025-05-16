@@ -4,12 +4,10 @@
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryClient+Private.h"
-#    import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryViewHierarchyIntegration
-    : SentryBaseIntegration <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
+@interface SentryViewHierarchyIntegration : SentryBaseIntegration <SentryClientAttachmentProcessor>
 
 @end
 

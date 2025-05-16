@@ -22,7 +22,12 @@
 #include "../Shared/Config/Metal.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp
-INFOPLIST_FILE = "watchOS=Swift WatchKit App/Info.plist"
+INFOPLIST_FILE = watchOS-Swift WatchKit App/Info.plist
+CODE_SIGN_ENTITLEMENTS = watchOS-Swift WatchKit App/watchOS-Swift-App.entitlements
+
 SUPPORTED_PLATFORMS = watchos watchsimulator
 SDKROOT = watchos
 TARGETED_DEVICE_FAMILY = 4
+
+// WKWatchOnly in the WatchKit app extension's Info.plist is only valid for apps with a MinimumOSVersion of watchOS 6.0 and later.
+WATCHOS_DEPLOYMENT_TARGET = 6.0

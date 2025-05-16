@@ -1,6 +1,6 @@
 import Foundation
 
-protocol SentrySDKOverride: RawRepresentable, CaseIterable {
+public protocol SentrySDKOverride: RawRepresentable, CaseIterable {
     var boolValue: Bool { get set }
     var floatValue: Float? { get set }
     var stringValue: String? { get set }
@@ -30,7 +30,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Special: String, SentrySDKOverride {
+    public enum Special: String, SentrySDKOverride {
         case wipeDataOnLaunch = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
 
@@ -44,7 +44,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Feedback: String, SentrySDKOverride {
+    public enum Feedback: String, SentrySDKOverride {
         case allDefaults = "--io.sentry.feedback.all-defaults"
         case disableAutoInject = "--io.sentry.feedback.no-auto-inject-widget"
         case noWidgetText = "--io.sentry.feedback.no-widget-text"
@@ -58,10 +58,7 @@ public enum SentrySDKOverrides {
 
         public var boolValue: Bool {
             get {
-                switch self {
-                case .disableAutoInject: return getBoolOverride(for: rawValue)
-                default: return getBoolOverride(for: rawValue)
-                }
+                return getBoolOverride(for: rawValue)
             }
             set(newValue) {
                 setBoolOverride(for: rawValue, value: newValue)
@@ -69,7 +66,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Performance: String, SentrySDKOverride {
+    public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
         case disablePerformanceV2 = "--disable-performance-v2"
         case disableAppHangTrackingV2 = "--disable-app-hang-tracking-v2"
@@ -94,7 +91,7 @@ public enum SentrySDKOverrides {
         }
     }
 
-    enum Other: String, SentrySDKOverride {
+    public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
         case disableSessionReplay = "--disable-session-replay"
@@ -120,7 +117,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        var stringValue: String? {
+        public var stringValue: String? {
             get {
                 switch self {
                 case .userName, .userEmail: return getStringValueOverride(for: rawValue)
@@ -135,7 +132,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight] }
+        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
         public static var stringVars: [Other] { [.userName, .userEmail] }
     }
 
