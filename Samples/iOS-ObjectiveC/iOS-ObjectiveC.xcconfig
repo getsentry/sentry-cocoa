@@ -23,5 +23,6 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC
 INFOPLIST_FILE = iOS-ObjectiveC/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-ObjectiveC/iOS-ObjectiveC.entitlements
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator

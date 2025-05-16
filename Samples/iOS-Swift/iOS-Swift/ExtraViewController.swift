@@ -344,7 +344,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func showFeedbackWidget(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            SentrySDK.showFeedbackWidget()
+            SentrySDK.feedback.showWidget()
         } else {
             showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
         }
@@ -352,7 +352,7 @@ class ExtraViewController: UIViewController {
 
     @IBAction func hideFeedbackWidget(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            SentrySDK.hideFeedbackWidget()
+            SentrySDK.feedback.hideWidget()
         } else {
             showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
         }
