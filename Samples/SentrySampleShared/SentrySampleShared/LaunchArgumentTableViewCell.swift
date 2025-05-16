@@ -1,4 +1,4 @@
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 import UIKit
 
 class LaunchArgumentTableViewCell: UITableViewCell {
@@ -35,4 +35,4 @@ extension LaunchArgumentTableViewCell: FeatureFlagCell {
         self.override = override
     }
 }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
