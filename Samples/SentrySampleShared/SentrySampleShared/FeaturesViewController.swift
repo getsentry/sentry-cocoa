@@ -1,4 +1,4 @@
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 import UIKit
 
 public class FeaturesViewController: UIViewController {
@@ -132,4 +132,4 @@ extension FeaturesViewController: UITableViewDataSource {
         return cell
     }
 }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
