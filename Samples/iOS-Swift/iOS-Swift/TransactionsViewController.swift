@@ -8,11 +8,9 @@ class TransactionsViewController: UIViewController {
     
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private var timer: Timer?
-    @IBOutlet weak var dsnView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addDSNDisplay(self, vcview: dsnView)
         SentrySDK.reportFullyDisplayed()
     }
     

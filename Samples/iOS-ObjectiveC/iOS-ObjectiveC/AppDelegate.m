@@ -6,6 +6,7 @@
 @import SentrySampleShared;
 
 @interface AppDelegate ()
+@property (strong, nonatomic) SampleAppDebugMenu *debugMenu;
 @end
 
 @implementation AppDelegate
@@ -13,6 +14,9 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    self.debugMenu = [[SampleAppDebugMenu alloc] init];
+    [self.debugMenu display];
+
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
     NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
