@@ -67,7 +67,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
-@property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
+@property (nonatomic, strong, readonly) id<SentryDispatchQueueProviderProtocol>
+    dispatchQueueProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;

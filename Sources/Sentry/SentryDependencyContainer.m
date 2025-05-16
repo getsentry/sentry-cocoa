@@ -2,7 +2,6 @@
 
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueProvider.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
@@ -97,7 +96,6 @@ static NSObject *sentryDependencyContainerLock;
 - (instancetype)init
 {
     if (self = [super init]) {
-        _dispatchQueueProvider = [[SentryDispatchQueueProvider alloc] init];
         _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
@@ -489,6 +487,13 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _dispatchFactory;
+}
+
+- (id<SentryDispatchQueueProviderProtocol>)dispatchQueueProvider SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    // Reusing the existing dispatch factory as the dispatch queue provider.
+    return [self dispatchFactory];
 }
 
 - (SentryNSTimerFactory *)timerFactory SENTRY_DISABLE_THREAD_SANITIZER(

@@ -638,6 +638,23 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenLastData, currentData)
     }
 
+    func testQueuePriorities_processingQueueShouldHaveLowerPriorityThanWorkerQueue() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let dynamicSut = Dynamic(sut)
+
+        // -- Act --
+        let processingQueue = try XCTUnwrap(dynamicSut.replayProcessingQueue.asObject as? SentryDispatchQueueWrapper)
+        let assetWorkerQueue = try XCTUnwrap(dynamicSut.replayAssetWorkerQueue.asObject as? SentryDispatchQueueWrapper)
+
+        // -- Assert --
+        XCTAssertEqual(assetWorkerQueue.queue.qos.qosClass, .background)
+        XCTAssertEqual(processingQueue.queue.qos.qosClass, .background)
+
+        XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
+    }
+
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"

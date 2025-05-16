@@ -41,6 +41,10 @@ static NSString *SENTRY_LAST_REPLAY = @"replay.last";
 static SentryTouchTracker *_touchTracker;
 
 @interface SentrySessionReplayIntegration () <SentryReachabilityObserver>
+
+@property (nonatomic, strong) SentryDispatchQueueWrapper *replayProcessingQueue;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *replayAssetWorkerQueue;
+
 - (void)newSceneActivate;
 @end
 
@@ -59,8 +63,6 @@ static SentryTouchTracker *_touchTracker;
     // replay absolutely needs segment 0 to make replay work.
     BOOL _rateLimited;
     id<SentryCurrentDateProvider> _dateProvider;
-    SentryDispatchQueueWrapper *_replayProcessingQueue;
-    SentryDispatchQueueWrapper *_replayAssetWorkerQueue;
 }
 
 - (instancetype)init
