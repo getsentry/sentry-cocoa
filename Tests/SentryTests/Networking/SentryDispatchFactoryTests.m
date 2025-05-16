@@ -38,7 +38,7 @@
     int actualRelativePriority;
     dispatch_qos_class_t actualQoSClass
         = dispatch_queue_get_qos_class(wrappedQueue.queue, &actualRelativePriority);
-    XCTAssertEqual(actualQoSClass, QOS_CLASS_BACKGROUND);
+    XCTAssertEqual(actualQoSClass, QOS_CLASS_UTILITY);
     XCTAssertEqual(actualRelativePriority, relativePriority);
 }
 

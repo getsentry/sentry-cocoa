@@ -89,7 +89,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     }
     
     private func addFrame(image: UIImage, forScreen: String?) {
-        SentryLog.debug("[Session Replay] Adding frame for screen: \(forScreen ?? "nil")")
+        SentryLog.debug("[Session Replay] Adding frame to replay, screen: \(forScreen ?? "nil")")
         guard let data = rescaleImage(image)?.pngData() else {
             SentryLog.error("[Session Replay] Could not rescale image, dropping frame")
             return
@@ -160,10 +160,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         processingQueue.dispatchAsync {
             do {
                 let videos = try self.createVideoWith(beginning: beginning, end: end)
-                SentryLog.debug("[Session Replay] Finished creating video in backgroundwith \(videos.count) segments")
+                SentryLog.debug("[Session Replay] Finished creating video in background with \(videos.count) segments")
                 completion(videos, nil)
             } catch {
-                SentryLog.error("[Session Replay] Failed to create video in background with error: \(error)")
+                SentryLog.error("[Session Replay] Failed to create video in background, reason: \(error)")
                 completion(nil, error)
             }
         }
@@ -233,8 +233,15 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     // swiftlint:disable function_body_length cyclomatic_complexity
     private func renderVideo(with videoFrames: [SentryReplayFrame], from: Int, at outputFileURL: URL, completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
         SentryLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(from), to output url: \(outputFileURL)")
-        guard from < videoFrames.count, let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else {
-            SentryLog.error("[Session Replay] Failed to render video, reason: index out of bounds or can't read image at path: \(videoFrames[from].imagePath)")
+        guard from < videoFrames.count else {
+            SentryLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
+            return completion(.success(SentryRenderVideoResult(
+                info: nil,
+                finalFrameIndex: from
+            )))
+        }
+        guard let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else {
+            SentryLog.error("[Session Replay] Failed to render video, reason: can't read image at path: \(videoFrames[from].imagePath)")
             return completion(.success(SentryRenderVideoResult(
                 info: nil,
                 finalFrameIndex: from
@@ -257,7 +264,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         SentryLog.debug("[Session Replay] Creating pixel buffer based video writer input")
         let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings(width: videoWidth, height: videoHeight))
         guard let currentPixelBuffer = SentryPixelBuffer(size: pixelSize, videoWriterInput: videoWriterInput) else {
-            SentryLog.error("[Session Replay] Failed to create pixel buffer, reason: \(SentryOnDemandReplayError.cantCreatePixelBuffer)")
+            SentryLog.error("[Session Replay] Failed to render video, reason: pixel buffer creation failed")
             return completion(.failure(SentryOnDemandReplayError.cantCreatePixelBuffer))
         }
         videoWriter.add(videoWriterInput)
@@ -293,12 +300,13 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         // By setting the queue to the asset worker queue, we ensure that the callback is invoked on the asset worker queue.
         // This is important to avoid a deadlock, as this method is called on the processing queue.
         videoWriterInput.requestMediaDataWhenReady(on: assetWorkerQueue.queue) { [weak self] in
+            SentryLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
             guard let strongSelf = self else {
                 SentryLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
                 return deferredCompletionCallback(.success(nil))
             }
             guard videoWriter.status == .writing else {
-                SentryLog.warning("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                SentryLog.error("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
                 videoWriter.cancelWriting()
                 return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             }
@@ -316,9 +324,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             let frame = videoFrames[frameIndex]
             if let image = UIImage(contentsOfFile: frame.imagePath) {
-                SentryLog.debug("[Session Replay] Image is ready, size: \(image.size)")
+                SentryLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
                 guard lastImageSize == image.size else {
-                    SentryLog.debug("[Session Replay] Image size changed, finishing the video")
+                    SentryLog.debug("[Session Replay] Image size has changed, finishing video")
                     return strongSelf.finishVideo(
                         outputFileURL: outputFileURL,
                         usedFrames: usedFrames,
@@ -334,8 +342,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     forFrameAtIndex: frameIndex,
                     frameRate: strongSelf.frameRate
                 ).timeValue
-                guard currentPixelBuffer.append(image: image, presentationTime: presentTime) == true else {
-                    SentryLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                guard currentPixelBuffer.append(image: image, presentationTime: presentTime) else {
+                    SentryLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
                     videoWriter.cancelWriting()
                     return deferredCompletionCallback(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
                 }
@@ -369,13 +377,13 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             switch videoWriter.status {
             case .writing:
-                // noop
-                break
+                SentryLog.error("[Session Replay] Finish writing video was called with status writing, this is unexpected! Completing with no video info")
+                completion(.success(nil))
             case .cancelled:
-                SentryLog.debug("[Session Replay] Finish writing video was cancelled, completing with no video info")
+                SentryLog.warning("[Session Replay] Finish writing video was cancelled, completing with no video info.")
                 completion(.success(nil))
             case .completed:
-                SentryLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes")
+                SentryLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
                 do {
                     let result = try strongSelf.getVideoInfo(
                         from: outputFileURL,
@@ -385,17 +393,17 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
                     )
                     completion(.success(result))
                 } catch {
-                    SentryLog.warning("[Session Replay] Failed to create video info from file attributes, reason: \(error.localizedDescription)")
+                    SentryLog.warning("[Session Replay] Failed to create video info from file attributes, reason: \(error)")
                     completion(.failure(error))
                 }
             case .failed:
-                SentryLog.warning("[Session Replay] Finish writing video failed, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                SentryLog.warning("[Session Replay] Finish writing video failed, reason: \(String(describing: videoWriter.error))")
                 completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             case .unknown:
-                SentryLog.warning("[Session Replay] Finish writing video with unknown status, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                SentryLog.warning("[Session Replay] Finish writing video with unknown status, reason: \(String(describing: videoWriter.error))")
                 completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             @unknown default:
-                SentryLog.warning("[Session Replay] Finish writing video failed, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                SentryLog.warning("[Session Replay] Finish writing video in unknown state, reason: \(String(describing: videoWriter.error))")
                 completion(.failure(SentryOnDemandReplayError.errorRenderingVideo))
             }
         }
