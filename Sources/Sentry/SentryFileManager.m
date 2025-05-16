@@ -113,6 +113,11 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 @property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
 
+@property (nonatomic, copy) NSString *contextFilePathOne;
+@property (nonatomic, copy) NSString *contextFilePathTwo;
+@property (nonatomic, copy) NSString *previousContextFilePathOne;
+@property (nonatomic, copy) NSString *previousContextFilePathTwo;
+
 @end
 
 @implementation SentryFileManager
@@ -184,6 +189,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.appHangEventFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
+
+    self.contextFilePathOne = [self.sentryPath stringByAppendingPathComponent:@"contexts.1.state"];
+    self.contextFilePathTwo = [self.sentryPath stringByAppendingPathComponent:@"contexts.2.state"];
+    self.previousContextFilePathOne =
+        [self.sentryPath stringByAppendingPathComponent:@"previous.contexts.1.state"];
+    self.previousContextFilePathTwo =
+        [self.sentryPath stringByAppendingPathComponent:@"previous.contexts.2.state"];
 }
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
@@ -499,6 +511,51 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 
     return breadcrumbs;
+}
+
+#pragma mark - Contexts
+
+- (void)moveContextFileToPreviousContextFile
+{
+    @synchronized(self.contextFilePathOne) {
+        [self moveState:self.contextFilePathOne toPreviousState:self.previousContextFilePathOne];
+        [self moveState:self.contextFilePathTwo toPreviousState:self.previousContextFilePathTwo];
+    }
+}
+
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable)readPreviousContext;
+{
+    SENTRY_LOG_DEBUG(@"Reading previous context");
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:self.previousContextFilePathOne]) {
+        SENTRY_LOG_DEBUG(@"Reading data of previous context file one");
+        NSData *data = [NSData dataWithContentsOfFile:self.previousContextFilePathOne];
+        NSError *error;
+        NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context =
+            [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        if (error) {
+            SENTRY_LOG_ERROR(@"Error deserializing context: %@", error);
+            return nil;
+        }
+        SENTRY_LOG_DEBUG(@"Previous context: %@", context);
+        return context;
+    }
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:self.previousContextFilePathTwo]) {
+        SENTRY_LOG_DEBUG(@"Reading data of previous context file two");
+        NSData *data = [NSData dataWithContentsOfFile:self.previousContextFilePathTwo];
+        NSError *error;
+        NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context =
+            [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        if (error) {
+            SENTRY_LOG_ERROR(@"Error deserializing context: %@", error);
+            return nil;
+        }
+        SENTRY_LOG_DEBUG(@"Previous context: %@", context);
+        return context;
+    }
+
+    return nil;
 }
 
 #pragma mark - TimezoneOffset

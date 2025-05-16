@@ -69,6 +69,13 @@
                 event.timestamp = sentry_fromIso8601String(timestampIso8601String);
             }
 
+            // Load the previous context from disk
+            NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context =
+                [self.fileManager readPreviousContext];
+            if (context != nil) {
+                event.context = context;
+            }
+
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
                                                   type:SentryWatchdogTerminationExceptionType];

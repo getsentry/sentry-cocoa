@@ -85,8 +85,14 @@ NS_ASSUME_NONNULL_BEGIN
             initWithMaxBreadcrumbs:options.maxBreadcrumbs
                        fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
 
-    [SentrySDK.currentHub configureScope:^(
-        SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+        // Add the observer to the scope so that it can be notified when the scope changes.
+        [outerScope addObserver:scopeObserver];
+
+        // Sync the current context to the observer to capture context modifications that happened
+        // before installation.
+        [scopeObserver setContext:outerScope.contextDictionary];
+    }];
 
     return YES;
 }

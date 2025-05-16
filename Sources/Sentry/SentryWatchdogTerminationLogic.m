@@ -72,9 +72,9 @@
 
     // Restarting the app in development is a termination we can't catch and would falsely
     // report watchdog termiations.
-    if (previousAppState.isDebugging) {
-        return NO;
-    }
+    //    if (previousAppState.isDebugging) {
+    //        return NO;
+    //    }
 
     // The app was terminated normally
     if (previousAppState.wasTerminated) {
@@ -98,9 +98,9 @@
         return NO;
     }
 
-    if (previousAppState.isANROngoing) {
-        return NO;
-    }
+    //    if (previousAppState.isANROngoing) {
+    //        return NO;
+    //    }
 
     // When calling SentrySDK.start twice we would wrongly report a Watchdog Termination. We can
     // only report a Watchdog Termination when the SDK is started the first time.

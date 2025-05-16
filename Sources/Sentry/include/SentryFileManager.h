@@ -28,10 +28,16 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *basePath;
 @property (nonatomic, readonly) NSString *sentryPath;
+
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathTwo;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
+
+@property (nonatomic, readonly) NSString *contextFilePathOne;
+@property (nonatomic, readonly) NSString *contextFilePathTwo;
+@property (nonatomic, readonly) NSString *previousContextFilePathOne;
+@property (nonatomic, readonly) NSString *previousContextFilePathTwo;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
@@ -96,6 +102,10 @@ SENTRY_NO_INIT
 #pragma mark - Breadcrumbs
 - (void)moveBreadcrumbsToPreviousBreadcrumbs;
 - (NSArray *)readPreviousBreadcrumbs;
+
+#pragma mark - Contexts
+- (void)moveContextFileToPreviousContextFile;
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable)readPreviousContext;
 
 #pragma mark - TimezoneOffset
 - (NSNumber *_Nullable)readTimezoneOffset;
