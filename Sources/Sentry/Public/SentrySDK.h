@@ -9,6 +9,7 @@
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentryFeedback;
+@class SentryFeedbackAPI;
 @class SentryId;
 @class SentryMetricsAPI;
 @class SentryOptions;
@@ -273,21 +274,7 @@ SENTRY_NO_INIT
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-/**
- * Show the feedback widget button.
- * @warning This is an experimental feature and may still have bugs.
- * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- * @note User feedback widget is only available for iOS 13 or later.
- */
-+ (void)showFeedbackWidget API_AVAILABLE(ios(13.0));
-
-/**
- * Hide the feedback widget button.
- * @warning This is an experimental feature and may still have bugs.
- * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- * @note User feedback widget is only available for iOS 13 or later.
- */
-+ (void)hideFeedbackWidget API_AVAILABLE(ios(13.0));
+@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback API_AVAILABLE(ios(13.0));
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
