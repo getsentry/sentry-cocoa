@@ -36,7 +36,7 @@ sentryModuleInitializationHook(void)
     // there's no guarantee on whether that or this load method will be called first, the difference
     // in time has been observed to only be on the order of single milliseconds, not significant
     // enough to make a difference in outcomes
-    runtimeInitSystemTimestamp = [[[SentryDefaultCurrentDateProvider alloc] init] systemTime];
+    runtimeInitSystemTimestamp = [SentryDefaultCurrentDateProvider getAbsoluteTime];
 }
 
 - (NSDate *)runtimeInitTimestamp

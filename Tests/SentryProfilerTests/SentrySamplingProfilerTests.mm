@@ -42,7 +42,7 @@ using namespace sentry::profiling;
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;
-    profiler->startSampling([&start] { start = [[[SentryDefaultCurrentDateProvider alloc] init] systemTime]; });
+    profiler->startSampling([&start] { start = [SentryDefaultCurrentDateProvider getAbsoluteTime]; });
     XCTAssertTrue(profiler->isSampling());
 
     // sleep long enough for 2 samples to be collected
@@ -54,7 +54,7 @@ using namespace sentry::profiling;
     XCTAssertFalse(profiler->isSampling());
 
     XCTAssertGreaterThan(start, static_cast<std::uint64_t>(0));
-    XCTAssertGreaterThan(getDurationNs(start, [[[SentryDefaultCurrentDateProvider alloc] init] systemTime]), 0ULL);
+    XCTAssertGreaterThan(getDurationNs(start, [SentryDefaultCurrentDateProvider getAbsoluteTime]), 0ULL);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(numIdleSamples, 0);
 }

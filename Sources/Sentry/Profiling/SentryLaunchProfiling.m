@@ -291,7 +291,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
-    SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", [[[SentryDefaultCurrentDateProvider alloc] init] systemTime]);
+    SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", [SentryDefaultCurrentDateProvider getAbsoluteTime]);
     sentry_isTracingAppLaunch = YES;
 
     SentryTransactionContext *context

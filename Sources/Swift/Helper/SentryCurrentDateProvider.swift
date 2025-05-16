@@ -27,10 +27,14 @@ class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
      * as it is platform dependent.
      */
     func systemTime() -> UInt64 {
-        clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+        Self.getAbsoluteTime()
     }
     
     func systemUptime() -> TimeInterval {
         ProcessInfo.processInfo.systemUptime
+    }
+
+    static func getAbsoluteTime() -> UInt64 {
+        clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }
 }
