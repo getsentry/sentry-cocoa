@@ -1,32 +1,46 @@
 import Foundation
 
-public protocol SentrySDKOverride: RawRepresentable, CaseIterable {
+public enum OverrideType {
+    case boolean
+    case float
+    case string
+}
+
+/// This protocol defines the typed value access for a specific feature flag.
+public protocol SentrySDKOverride: RawRepresentable, CaseIterable where Self.RawValue == String {
+    var overrideType: OverrideType { get }
+
     var boolValue: Bool { get set }
     var floatValue: Float? { get set }
     var stringValue: String? { get set }
 }
 
-extension SentrySDKOverride {
-    public var boolValue: Bool { get { false } set { } }
-    public var floatValue: Float? { get { nil } set { } }
-    public var stringValue: String? { get { nil } set { } }
-}
-
+/// This enum contains nested enums, to group feature flags by any kind of category you choose, whether it's feature area, or just a kitchen sink of otherwise unclassifiable flags (like Special/Other).
+///
+/// The parent enum has a case for each child enum type, to help dynamically access them when driving a table view (see
 public enum SentrySDKOverrides: String, CaseIterable {
-    private static let defaults = UserDefaults.standard
+    public static func resetDefaults() {
+        for override in SentrySDKOverrides.allCases {
+            for flag in override.featureFlags {
+                UserDefaults.standard.removeObject(forKey: flag.rawValue)
+            }
+        }
+    }
 
     public static var schemaPrecedenceForEnvironmentVariables: Bool {
         ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-environment-variable-precedence")
     }
 
-    public static func resetDefaults() {
-        let allKeys = Tracing.allCases.map(\.rawValue)
-            + Profiling.allCases.map(\.rawValue)
-            + Performance.allCases.map(\.rawValue)
-            + Other.allCases.map(\.rawValue)
-            + Feedback.allCases.map(\.rawValue)
-        for key in allKeys {
-            defaults.removeObject(forKey: key)
+    /// Helps quickly traverse using an NSIndexPath for driving a table view.
+    var featureFlags: [any SentrySDKOverride] {
+        switch self {
+        case .special: return SentrySDKOverrides.Special.allCases
+        case .feedback: return SentrySDKOverrides.Feedback.allCases
+        case .performance: return SentrySDKOverrides.Performance.allCases
+        case .sessionReplay: return SentrySDKOverrides.SessionReplay.allCases
+        case .other: return SentrySDKOverrides.Other.allCases
+        case .tracing: return SentrySDKOverrides.Tracing.allCases
+        case .profiling: return SentrySDKOverrides.Profiling.allCases
         }
     }
 
@@ -34,15 +48,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case wipeDataOnLaunch = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
         case skipSDKInit = "--skip-sentry-init"
-
-        public var boolValue: Bool {
-            get {
-                return getBoolOverride(for: rawValue)
-            }
-            set(newValue) {
-                setBoolOverride(for: rawValue, value: newValue)
-            }
-        }
+        case disableDebugMode = "--io.sentry.disable-debug-mode"
     }
     case special = "Special"
 
@@ -57,15 +63,8 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case noAnimations = "--io.sentry.feedback.no-animations"
         case injectScreenshot = "--io.sentry.feedback.inject-screenshot"
         case useCustomFeedbackButton = "--io.sentry.feedback.use-custom-feedback-button"
-
-        public var boolValue: Bool {
-            get {
-                return getBoolOverride(for: rawValue)
-            }
-            set(newValue) {
-                setBoolOverride(for: rawValue, value: newValue)
-            }
-        }
+        case noScreenshots = "--io.sentry.feedback.no-screenshots"
+        case noShakeGesture = "--io.sentry.feedback.no-shake-gesture"
     }
     case feedback = "Feedback"
 
@@ -84,36 +83,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disablePrewarmedAppStartTracing = "--disable-prewarmed-app-start-tracing"
         case disablePerformanceTracing = "--disable-auto-performance-tracing"
         case sessionTrackingIntervalMillis = "--io.sentry.sessionTrackingIntervalMillis"
-
-        public var boolValue: Bool {
-            get {
-                switch self {
-                case .sessionTrackingIntervalMillis: fatalError("This override doesn't correspond to a boolean value.")
-                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sessionTrackingIntervalMillis: fatalError("This override doesn't correspond to a boolean value.")
-                default: setBoolOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
-
-        public var stringValue: String? {
-            get {
-                switch self {
-                case .sessionTrackingIntervalMillis: return getStringValueOverride(for: rawValue)
-                default: fatalError("This override doesn't correspond to a string value.")
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sessionTrackingIntervalMillis: setStringOverride(for: rawValue, value: newValue)
-                default: fatalError("This override doesn't correspond to a string value.")
-                }
-            }
-        }
     }
     case performance = "Performance"
 
@@ -126,57 +95,16 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case sessionReplayQuality = "--io.sentry.sessionReplayQuality"
         case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
-
-        public var booleanValue: Bool {
-            get {
-                switch self {
-                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate, .sessionReplayQuality: fatalError("This override doesn't correspond to a boolean value.")
-                default: return getBoolOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate, .sessionReplayQuality: fatalError("This override doesn't correspond to a boolean value.")
-                default: setBoolOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
-
-        public var floatValue: Float? {
-            get {
-                switch self {
-                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate: return getFloatValueOverride(for: rawValue)
-                default: fatalError("This override doesn't correspond to a float value.")
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sessionReplaySampleRate, .sessionReplayOnErrorSampleRate: setFloatOverride(for: rawValue, value: newValue)
-                default: fatalError("This override doesn't correspond to a float value.")
-                }
-            }
-        }
-
-        public var stringValue: String? {
-            get {
-                switch self {
-                case .sessionReplayQuality: return getStringValueOverride(for: rawValue)
-                default: fatalError("This override doesn't correspond to a string value.")
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sessionReplayQuality: setStringOverride(for: rawValue, value: newValue)
-                default: fatalError("This override doesn't correspond to a string value.")
-                }
-            }
-        }
     }
     case sessionReplay = "Session Replay"
 
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
+        case rejectAllEvents = "--reject-all-events"
+        case rejectAllSpans = "--reject-all-spans"
+        case rejectScreenshots = "--reject-screenshots-in-before-capture-screenshot"
+        case rejectViewHierarchy = "--reject-view-hierarchy-in-before-capture-view-hierarchy"
         case disableMetricKit = "--disable-metrickit-integration"
         case disableMetricKitRawPayloads = "--disable-metrickit-raw-payloads"
         case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
@@ -188,37 +116,8 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case username = "--io.sentry.user.username"
         case userFullName = "--io.sentry.user.name"
         case userEmail = "--io.sentry.user.email"
+        case userID = "--io.sentry.user.id"
         case environment = "--io.sentry.sdk-environment"
-
-        public var boolValue: Bool {
-            get {
-                switch self {
-                case .username, .userFullName, .userEmail, .environment: fatalError("Use stringValue to get the value of this override")
-                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .username, .userFullName, .userEmail, .environment: fatalError("Use stringValue to get the value of this override")
-                default: setBoolOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
-
-        public var stringValue: String? {
-            get {
-                switch self {
-                case .username, .userFullName, .userEmail, .environment: return getStringValueOverride(for: rawValue)
-                default: fatalError("Use boolValue to get the value of this override")
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .username, .userFullName, .userEmail, .environment: return setStringOverride(for: rawValue, value: newValue)
-                default: fatalError("Use boolValue to get the value of this override")
-                }
-            }
-        }
     }
     case other = "Other"
 
@@ -226,36 +125,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case sampleRate = "--io.sentry.tracesSampleRate"
         case samplerValue = "--io.sentry.tracesSamplerValue"
         case disableTracing = "--io.sentry.disable-tracing"
-
-        public var boolValue: Bool {
-            get {
-                switch self {
-                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
-                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sampleRate, .samplerValue: fatalError("Use floatValue to get the value of this override")
-                default: setBoolOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
-
-        public var floatValue: Float? {
-            get {
-                switch self {
-                case .disableTracing: fatalError("Use boolValue to get the value of this override")
-                default: return getFloatValueOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .disableTracing: fatalError("Use boolValue to get the value of this override")
-                default: setFloatOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
     }
     case tracing = "Tracing"
 
@@ -266,61 +135,69 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
         case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
         case disableUIProfiling = "--io.sentry.disable-ui-profiling"
-
-        public var boolValue: Bool {
-            get {
-                switch self {
-                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
-                case .disableUIProfiling, .disableAppStartProfiling: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
-                default: return getBoolOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .sampleRate, .samplerValue, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
-                default: setBoolOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
-
-        public var floatValue: Float? {
-            get {
-                switch self {
-                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
-                default: return getFloatValueOverride(for: rawValue)
-                }
-            }
-            set(newValue) {
-                switch self {
-                case .disableUIProfiling, .disableAppStartProfiling, .manualLifecycle: fatalError("Use boolValue to get the value of this override")
-                default: setFloatOverride(for: rawValue, value: newValue)
-                }
-            }
-        }
     }
     case profiling = "Profiling"
 }
 
-private extension SentrySDKOverrides {
+// MARK: Public flag/variable value access
+
+public extension SentrySDKOverride {
+    var boolValue: Bool {
+        get {
+            guard overrideType == .boolean else { fatalError("Unsupported bool override: \(self.rawValue)") }
+            return Self.getBoolOverride(for: rawValue)
+        }
+        set(newValue) {
+            guard overrideType == .boolean else { fatalError("Unsupported bool override: \(self.rawValue)") }
+            Self.setBoolOverride(for: rawValue, value: newValue)
+        }
+    }
+
+    var floatValue: Float? {
+        get {
+            guard overrideType == .float else { fatalError("Unsupported float override: \(self.rawValue)") }
+            return Self.getFloatValueOverride(for: rawValue)
+        }
+        set(newValue) {
+            guard overrideType == .float else { fatalError("Unsupported float override: \(self.rawValue)") }
+            Self.setFloatOverride(for: rawValue, value: newValue)
+        }
+    }
+
+    var stringValue: String? {
+        get {
+            guard overrideType == .string else { fatalError("Unsupported string override: \(self.rawValue)") }
+            return Self.getStringValueOverride(for: rawValue)
+        }
+        set(newValue) {
+            guard overrideType == .string else { fatalError("Unsupported string override: \(self.rawValue)") }
+            Self.setStringOverride(for: rawValue, value: newValue)
+        }
+    }
+}
+
+// MARK: Private flag/variable value access helpers
+
+private extension SentrySDKOverride {
     static func getBoolOverride(for key: String) -> Bool {
-        ProcessInfo.processInfo.arguments.contains(key) || defaults.bool(forKey: key)
+        ProcessInfo.processInfo.arguments.contains(key) || UserDefaults.standard.bool(forKey: key)
     }
 
     static func setBoolOverride(for key: String, value: Bool) {
-        defaults.set(value, forKey: key)
+        UserDefaults.standard.set(value, forKey: key)
     }
 
     static func setFloatOverride(for key: String, value: Float?) {
         guard let value = value else {
-            defaults.removeObject(forKey: key)
+            UserDefaults.standard.removeObject(forKey: key)
             return
         }
-        
+
         setStringOverride(for: key, value: String(format: "%f", value))
     }
 
     static func setStringOverride(for key: String, value: String?) {
-        defaults.set(value, forKey: key)
+        UserDefaults.standard.set(value, forKey: key)
     }
 
     static func getFloatValueOverride(for key: String) -> Float? {
@@ -333,9 +210,9 @@ private extension SentrySDKOverrides {
             schemaEnvironmentVariable = value
         }
 
-        let defaultsValue = defaults.string(forKey: key)
+        let defaultsValue = UserDefaults.standard.string(forKey: key)
 
-        if schemaPrecedenceForEnvironmentVariables {
+        if SentrySDKOverrides.schemaPrecedenceForEnvironmentVariables {
             return schemaEnvironmentVariable ?? defaultsValue
         } else {
             return defaultsValue ?? schemaEnvironmentVariable
@@ -343,57 +220,68 @@ private extension SentrySDKOverrides {
     }
 }
 
-// MARK: UITableViewDataSource adaptation
+// MARK: Feature flag types
 
-extension SentrySDKOverrides {
-    var rowsForSection: Int {
+// These are listed exhaustively, without using default cases, so that when new cases are added to the enums above, the compiler helps remind you to annotate what type it is down here.
+
+extension SentrySDKOverrides.Profiling {
+    public var overrideType: OverrideType {
         switch self {
-        case .profiling: return Profiling.allCases.count
-        case .tracing: return Tracing.allCases.count
-        case .sessionReplay: return SessionReplay.allCases.count
-        case .other: return Other.allCases.count
-        case .feedback: return Feedback.allCases.count
-        case .performance: return Performance.allCases.count
-        case .special: return Special.allCases.count
+        case .sampleRate, .samplerValue, .sessionSampleRate: return .float
+        case .disableAppStartProfiling, .manualLifecycle, .disableUIProfiling: return .boolean
         }
     }
 }
 
-protocol SentrySDKOverrideType {
-    static var boolValues: [Self] { get }
-    static var floatValues: [Self] { get }
-    static var stringValues: [Self] { get }
+extension SentrySDKOverrides.Tracing {
+    public var overrideType: OverrideType {
+        switch self {
+        case .sampleRate, .samplerValue: return .float
+        case .disableTracing: return .boolean
+        }
+    }
 }
 
-extension SentrySDKOverrideType {
-    public static var boolValues: [Self] { [] }
-    public static var floatValues: [Self] { [] }
-    public static var stringValues: [Self] { [] }
+extension SentrySDKOverrides.Other {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .rejectAllEvents: return .boolean
+        case .username, .userFullName, .userEmail, .userID, .environment: return .string
+        }
+    }
 }
 
-extension SentrySDKOverrides.Profiling: SentrySDKOverrideType {
-    public static var boolValues: [SentrySDKOverrides.Profiling] { [.disableUIProfiling, .disableAppStartProfiling, .manualLifecycle] }
-    public static var floatValues: [SentrySDKOverrides.Profiling] { [.sampleRate, .samplerValue, .sessionSampleRate] }
+extension SentrySDKOverrides.Performance {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableNetworkTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .sessionTrackingIntervalMillis: return .string
+        }
+    }
 }
 
-extension SentrySDKOverrides.Tracing: SentrySDKOverrideType {
-    public static var boolValues: [SentrySDKOverrides.Tracing] { [.disableTracing] }
-    public static var floatValues: [SentrySDKOverrides.Tracing] { [.sampleRate, .samplerValue] }
+extension SentrySDKOverrides.SessionReplay {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableSessionReplay, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
+        case .sessionReplayOnErrorSampleRate, .sessionReplaySampleRate: return .float
+        case .sessionReplayQuality: return .string
+        }
+    }
 }
 
-extension SentrySDKOverrides.Other: SentrySDKOverrideType {
-    public static var boolValues: [SentrySDKOverrides.Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableMetricKitRawPayloads] }
-    public static var stringVars: [SentrySDKOverrides.Other] { [.username, .userFullName, .userEmail, .environment] }
+extension SentrySDKOverrides.Feedback {
+    public var overrideType: OverrideType {
+        switch self {
+        case .allDefaults, .disableAutoInject, .noWidgetText, .noWidgetIcon, .noUserInjection, .requireEmail, .requireName, .noAnimations, .injectScreenshot, .useCustomFeedbackButton, .noScreenshots, .noShakeGesture: return .boolean
+        }
+    }
 }
 
-extension SentrySDKOverrides.Performance: SentrySDKOverrideType {
-}
-
-extension SentrySDKOverrides.SessionReplay: SentrySDKOverrideType {
-}
-
-extension SentrySDKOverrides.Feedback: SentrySDKOverrideType {
-}
-
-extension SentrySDKOverrides.Special: SentrySDKOverrideType {
+extension SentrySDKOverrides.Special {
+    public var overrideType: OverrideType {
+        switch self {
+        case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode: return .boolean
+        }
+    }
 }

@@ -41,19 +41,25 @@ public struct SentrySDKWrapper {
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
-        options.beforeSend = { $0 }
-        options.beforeSendSpan = { $0 }
-        options.beforeCaptureScreenshot = { _ in true }
-        options.beforeCaptureViewHierarchy = { _ in true }
-        options.debug = true
+        options.beforeSend = {
+            guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
+            return $0
+        }
+        options.beforeSendSpan = {
+            guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
+            return $0
+        }
+        options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
+        options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
+        options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
                 sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionReplaySampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.sessionReplayOnErrorSampleRate.floatValue ?? 1,
-                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.booleanValue,
-                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.booleanValue
+                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
             )
 
             let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
@@ -168,7 +174,7 @@ public struct SentrySDKWrapper {
 
         injectGitInformation(scope: scope)
 
-        let user = User(userId: "1")
+        let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
         user.email = SentrySDKOverrides.Other.userEmail.stringValue ?? "tony@example.com"
         user.username = username
         user.name = userFullName
@@ -207,10 +213,7 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        guard !SentrySDKOverrides.Feedback.disableAutoInject.boolValue else {
-            config.autoInject = false
-            return
-        }
+        config.autoInject = !SentrySDKOverrides.Feedback.disableAutoInject.boolValue
 
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
@@ -228,9 +231,7 @@ extension SentrySDKWrapper {
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
         }
-        if SentrySDKOverrides.Feedback.noWidgetIcon.boolValue {
-            config.showIcon = false
-        }
+        config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
@@ -282,8 +283,8 @@ extension SentrySDKWrapper {
         }
 
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
-        config.useShakeGesture = true
-        config.showFormForScreenshots = true
+        config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
+        config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
         config.configureWidget = configureFeedbackWidget(config:)
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)

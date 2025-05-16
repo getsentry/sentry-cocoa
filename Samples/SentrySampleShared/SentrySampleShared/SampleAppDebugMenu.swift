@@ -2,7 +2,7 @@
 import UIKit
 
 public class SampleAppDebugMenu: NSObject {
-    static var displayingForm = false
+    static var displayingMenu = false
     let window = {
         if #available(iOS 13.0, *) {
             if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -39,8 +39,11 @@ public class SampleAppDebugMenu: NSObject {
     }
 
     @objc func displayDebugMenu() {
-        SampleAppDebugMenu.displayingForm = true
-        rootVC.present(FeaturesViewController(nibName: nil, bundle: nil), animated: true)
+        SampleAppDebugMenu.displayingMenu = true
+
+        let listVC = FeaturesViewController(nibName: nil, bundle: nil)
+        listVC.presentationController?.delegate = self
+        rootVC.present(listVC, animated: true)
     }
 
     class Window: UIWindow {
@@ -65,7 +68,7 @@ public class SampleAppDebugMenu: NSObject {
         }
 
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-            guard !SampleAppDebugMenu.displayingForm else {
+            guard !SampleAppDebugMenu.displayingMenu else {
                 return super.hitTest(point, with: event)
             }
 
@@ -83,7 +86,7 @@ public class SampleAppDebugMenu: NSObject {
 extension SampleAppDebugMenu: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         rootVC.dismiss(animated: true)
-        SampleAppDebugMenu.displayingForm = false
+        SampleAppDebugMenu.displayingMenu = false
     }
 }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)

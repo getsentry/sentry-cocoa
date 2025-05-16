@@ -26,9 +26,11 @@ class LaunchArgumentTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
 
+extension LaunchArgumentTableViewCell: FeatureFlagCell {
     func configure(with override: any SentrySDKOverride) {
-        titleLabel.text = override.rawValue as? String
+        titleLabel.text = override.rawValue
         flagSwitch.isOn = override.boolValue
         self.override = override
     }

@@ -1,3 +1,5 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+
 import Sentry
 import UIKit
 
@@ -165,3 +167,5 @@ class DSNDisplayViewController: UIViewController {
         return attributedString
     }
 }
+
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)

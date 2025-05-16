@@ -1,4 +1,5 @@
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+
 import UIKit
 
 public class FeaturesViewController: UIViewController {
@@ -45,6 +46,7 @@ public class FeaturesViewController: UIViewController {
 
     @objc func resetDefaults() {
         SentrySDKOverrides.resetDefaults()
+        SentrySDKWrapper.shared.startSentry()
         tableView.reloadData()
     }
 }
@@ -59,51 +61,24 @@ extension FeaturesViewController: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        SentrySDKOverrides.allCases[section].rowsForSection
+        SentrySDKOverrides.allCases[section].featureFlags.count
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 2 {
-            if SentrySDKOverrides.Tracing.boolValues.contains(SentrySDKOverrides.Tracing.allCases[indexPath.row]) {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
-                cell.configure(with: SentrySDKOverrides.Tracing.allCases[indexPath.row])
-                return cell
-            } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
-                cell.configure(with: SentrySDKOverrides.Tracing.allCases[indexPath.row], float: true)
-                return cell
-            }
-        } else if indexPath.section == 3 {
-            if SentrySDKOverrides.Profiling.boolValues.contains(SentrySDKOverrides.Profiling.allCases[indexPath.row]) {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
-                cell.configure(with: SentrySDKOverrides.Profiling.allCases[indexPath.row])
-                return cell
-            } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
-                cell.configure(with: SentrySDKOverrides.Profiling.allCases[indexPath.row], float: true)
-                return cell
-            }
-        } else if indexPath.section == 5 {
-            if SentrySDKOverrides.Other.boolValues.contains(SentrySDKOverrides.Other.allCases[indexPath.row]) {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
-                cell.configure(with: SentrySDKOverrides.Other.allCases[indexPath.row])
-                return cell
-            } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "environmentVariableCell", for: indexPath) as! EnvironmentVariableTableViewCell
-                cell.configure(with: SentrySDKOverrides.Other.allCases[indexPath.row], float: false)
-                return cell
-            }
+        let featureType = SentrySDKOverrides.allCases[indexPath.section]
+        let featureFlag = featureType.featureFlags[indexPath.row]
+
+        let reuseIdentifier: String
+        switch featureFlag.overrideType {
+        case .boolean:
+            reuseIdentifier = "launchArgumentCell"
+        case .float, .string:
+            reuseIdentifier = "environmentVariableCell"
         }
 
-        let cell = tableView.dequeueReusableCell(withIdentifier: "launchArgumentCell", for: indexPath) as! LaunchArgumentTableViewCell
-        if indexPath.section == 0 {
-            cell.configure(with: SentrySDKOverrides.Special.allCases[indexPath.row])
-        } else if indexPath.section == 1 {
-            cell.configure(with: SentrySDKOverrides.Performance.allCases[indexPath.row])
-        } else if indexPath.section == 4 {
-            cell.configure(with: SentrySDKOverrides.Feedback.allCases[indexPath.row])
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! FeatureFlagCell
+        cell.configure(with: featureFlag)
         return cell
     }
 }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
