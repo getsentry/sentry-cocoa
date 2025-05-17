@@ -38,11 +38,9 @@ jobs:
             suffix: "-Dynamic"
             id: sentry-dynamic
           - name: Sentry
-            suffix: ""
             macho-type: staticlib
             id: sentry-static
           - name: SentrySwiftUI
-            suffix: ""
             id: sentryswiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
@@ -63,7 +61,7 @@ jobs:
 
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" "${{matrix.variant.macho-type}}" ${{matrix.variant.configuration-suffix}}
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
         shell: sh
 
       - name: Archiving xcarchive
