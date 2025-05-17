@@ -78,7 +78,7 @@ jobs:
         with:
           name: raw-build-output-build-xcframework-${{matrix.variant.id}}-${{matrix.sdk}}
           path: |
-            build-xcframework.log
+            *.log
 
   assemble-xcframeworks:
     name: Assemble ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
