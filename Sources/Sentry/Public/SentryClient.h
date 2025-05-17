@@ -1,8 +1,4 @@
-#if __has_include(<Sentry/Sentry.h>)
-#    import <Sentry/SentryDefines.h>
-#else
-#    import <SentryWithoutUIKit/SentryDefines.h>
-#endif
+#import "SentryDefines.h"
 
 @class SentryEvent;
 @class SentryFeedback;
