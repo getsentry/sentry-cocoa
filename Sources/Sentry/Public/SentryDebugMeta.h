@@ -1,10 +1,5 @@
 #import <Foundation/Foundation.h>
-
-#if __has_include(<Sentry/Sentry.h>)
-#    import <Sentry/SentrySerializable.h>
-#else
-#    import <SentryWithoutUIKit/SentrySerializable.h>
-#endif
+#import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
