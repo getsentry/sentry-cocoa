@@ -64,6 +64,12 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
         shell: sh
 
+      - name: Remove Sentry.framework from SentrySwiftUI build
+        if: ${{ matrix.variant.name }} == 'SentrySwiftUI'
+        run:
+          find "$search_path" -name "Sentry.framework" -print0 | xargs -0 rm -rf
+          find "$search_path" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
+
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
         with:
