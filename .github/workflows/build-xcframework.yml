@@ -51,7 +51,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: make init-ci-build
 
       # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
       # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
@@ -103,13 +102,11 @@ jobs:
             id: sentry-withoutuikit-dynamic
     steps:
       - uses: actions/checkout@v4
-      - run: make init-ci-build
       - name: Download ${{matrix.variant.id}} Slices
         uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{matrix.variant.id}}-slice-*
           path: xcframework-slices
-      - run: ls
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{matrix.variant.name}}${{matrix.variant.suffix}}"
       - name: Archive XCFramework
