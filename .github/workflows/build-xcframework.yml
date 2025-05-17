@@ -24,8 +24,8 @@ concurrency:
 
 jobs:
 
-  build-xcframework-dynamic-slices:
-    name: Build Dynamic XCFramework Slice for ${{matrix.sdk}}
+  build-sentry-xcframework-dynamic-slices:
+    name: Build ${{matrix.name}}${{matrix.suffix}} XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
     # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
@@ -33,6 +33,20 @@ jobs:
     strategy:
       matrix:
         sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
+        with:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentryswiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            macho-type: dylib
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
 
     steps:
       - uses: actions/checkout@v4
@@ -45,66 +59,26 @@ jobs:
 
       - name: Build xcframework
         if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} "Sentry" "-Dynamic"
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.name}} "${{matrix.suffix}}" "${{matrix.macho-type}}" ${{matrix.configuration-suffix}}
         shell: sh
 
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
         with:
-          name: xcframework-Sentry-dynamic-slice-${{matrix.sdk}}
+          name: xcframework-${{matrix.id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/Carthage/archive/Sentry-Dynamic/${{matrix.sdk}}.xcarchive
+            ${{ github.workspace }}/Carthage/archive/${{matrix.name}}${{matrix.suffix}}/${{matrix.sdk}}.xcarchive
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-build-output-build-xcframework-Sentry-dynamic-${{matrix.sdk}}
+          name: raw-build-output-build-xcframework-${{matrix.id}}-${{matrix.sdk}}
           path: |
             build-xcframework.log
 
-  build-xcframework-Static-slices:
-    name: Build Static XCFramework Slice for ${{matrix.sdk}}
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
-    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    # Don't bump this to an xlarge runner when this is too slow. Instead consider parallelizing the build as proposed in https://github.com/getsentry/sentry-cocoa/issues/4925.
-    runs-on: macos-14
-    strategy:
-      matrix:
-        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
-
-    steps:
-      - uses: actions/checkout@v4
-      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
-      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
-      # and cannot be used here because C++ types from imported module 'Foundation' do not support
-      # library evolution; this is an error in the Swift 6 language mode
-      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
-      - run: ./scripts/ci-select-xcode.sh 15.2
-
-      - name: Build xcframework
-        if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} "Sentry" "" staticlib
-        shell: sh
-
-      - name: Archiving xcarchive
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcframework-Sentry-static-slice-${{matrix.sdk}}
-          if-no-files-found: error
-          path: |
-            ${{ github.workspace }}/Carthage/archive/Sentry-Dynamic/${{matrix.sdk}}.xcarchive
-
-      - name: Archive build log if failed
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-build-xcframework-Sentry-static-${{matrix.sdk}}
-          path: |
-            build-xcframework.log
-
-#  assemble-dynamic-xcframework:
+#  build-sentry-xcframework-dynamic-slices:
 #    name: Assemble Dynamic Sentry XCFramework
 #    runs-on: macos-14
 #    needs: build-xcframework-dynamic-slices

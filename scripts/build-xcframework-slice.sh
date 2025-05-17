@@ -39,25 +39,22 @@ elif [ "$MACH_O_TYPE" != "staticlib" ]; then
     OTHER_LDFLAGS="-Wl,-make_mergeable"
 fi
 
-xcodebuild_cmd=$(cat <<EOF
-set -o pipefail && NSUnbufferedIO=YES xcodebuild archive 
-    -project Sentry.xcodeproj/ 
-    -scheme "$scheme" 
-    -configuration "$resolved_configuration" 
-    -sdk "$sdk" 
-    -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" 
-    CODE_SIGNING_REQUIRED=NO 
-    SKIP_INSTALL=NO 
-    CODE_SIGN_IDENTITY= 
-    CARTHAGE=YES 
-    MACH_O_TYPE="$MACH_O_TYPE" 
-    ENABLE_CODE_COVERAGE=NO 
-    GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" 
-    OTHER_LDFLAGS="$OTHER_LDFLAGS"
-EOF
-)
-echo "$xcodebuild_cmd"
-$xcodebuild_cmd
+slice_id="${scheme}${suffix}-${sdk}"
+
+set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
+    -project Sentry.xcodeproj/ \
+    -scheme "$scheme" \
+    -configuration "$resolved_configuration" \
+    -sdk "$sdk" \
+    -archivePath "./Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive" \
+    CODE_SIGNING_REQUIRED=NO \
+    SKIP_INSTALL=NO \
+    CODE_SIGN_IDENTITY= \
+    CARTHAGE=YES \
+    MACH_O_TYPE="$MACH_O_TYPE" \
+    ENABLE_CODE_COVERAGE=NO \
+    GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
+    OTHER_LDFLAGS="$OTHER_LDFLAGS" > "${slice_id}.log" 2>&1
 
 xcframework_command_args+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -94,7 +91,7 @@ if [ "$no_maccatalyst" = "false" ]; then
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" > "${slice_id}.maccatalyst.log" 2>&1
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
@@ -109,6 +106,4 @@ fi
 
 if [ "${CI:-}" = "true" ]; then
     echo "xcframework_command_args_${sdk}_${suffix}_${MACH_O_TYPE}_${configuration_suffix}=$xcframework_command_args" >> "$GITHUB_ENV"
-else
-    echo "$xcframework_command_args"
 fi
