@@ -1,15 +1,7 @@
-
-#if __has_include(<Sentry/Sentry.h>)
-#    import <Sentry/SentryDefines.h>
-#    import <Sentry/SentrySampleDecision.h>
-#    import <Sentry/SentrySerializable.h>
-#    import <Sentry/SentrySpanStatus.h>
-#else
-#    import <SentryWithoutUIKit/SentryDefines.h>
-#    import <SentryWithoutUIKit/SentrySampleDecision.h>
-#    import <SentryWithoutUIKit/SentrySerializable.h>
-#    import <SentryWithoutUIKit/SentrySpanStatus.h>
-#endif
+#import "SentryDefines.h"
+#import "SentrySampleDecision.h"
+#import "SentrySerializable.h"
+#import "SentrySpanStatus.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
