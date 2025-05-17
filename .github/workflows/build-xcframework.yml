@@ -1,22 +1,31 @@
-name: Release
-run-name: Release ${{ github.event.inputs.version }}
-
-# TODO: change this to dispatch the build-xcframework.yml workflow, and then depend on it here with the workflow dependency setup described at https://stackoverflow.com/a/64733705
-
+name: Build
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Version to release
-        required: true
-      force:
-        description: Force a release even when there are release-blockers (optional)
-        required: false
-      merge_target:
-        description: Target branch to merge into. Uses the default branch as a fallback (optional)
-        required: false
+  push:
+    branches:
+      - main
+      - release/**
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - ".github/workflows/build-xcframework.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+      - Sentry.xcworkspace/**
+      - Sentry.xcodeproj/**
+      - Gemfile.lock
+      - "Package.swift"
+      - "scripts/build-xcframework-slice.sh"
+      - Samples/macOS-SPM-CommandLine/**
+      - Samples/SPM-Dynamic/**
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
+
   build-xcframework-slices:
     name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
@@ -113,36 +122,80 @@ jobs:
           if-no-files-found: error
           path: ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework.zip
 
-  job_release:
-    runs-on: ubuntu-latest
-    name: "Release a new version"
-    needs: prepare_framework
+  validate-xcframework:
+    name: Validate XCFramework
+    runs-on: macos-13
+    needs:
+        - assemble-xcframeworks
     steps:
-      - name: Get auth token
-        id: token
-        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
-        with:
-          app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
-      - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@v4
-        with:
-          token: ${{ steps.token.outputs.token }}
-          fetch-depth: 0
-
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-*
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+          path: Carthage/
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: make build-xcframework-sample
+        shell: sh
 
-      # update-package-sha.sh uses this env variable to update Package.swift.
-      # During release Craft calls bump.sh that uses update-package-sha.sh.
-      - run: export GITHUB_RUN_ID=${{ github.run_id }}
-
-      - name: Prepare release
-        uses: getsentry/action-prepare-release@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+  # Use github.event.pull_request.head.sha instead of github.sha when available as
+  # the github.sha is be the pre merge commit id for PRs.
+  # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+  validate-spm:
+    name: Validate Swift Package Manager
+    runs-on: macos-13
+    needs: assemble-xcframeworks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
-          version: ${{ github.event.inputs.version }}
-          force: ${{ github.event.inputs.force }}
-          merge_target: ${{ github.event.inputs.merge_target }}
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/macOS-SPM-CommandLine
+        shell: sh
+
+  validate-spm-dynamic:
+    name: Validate Swift Package Manager Dynamic
+    runs-on: macos-13
+    needs: assemble-xcframeworks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/SPM-Dynamic
+        shell: sh
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-13
+    needs: assemble-xcframeworks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        shell: sh
