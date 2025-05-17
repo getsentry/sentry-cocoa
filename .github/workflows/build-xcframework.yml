@@ -107,7 +107,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{matrix.variant.id}}-slice-*
+          path: xcframework-slices
       - run: ls
+      - name: Assemble XCFramework
+        run: xcodebuild -create-framework $(find xcframework-slices -name "*.framework" | awk '{print "-framework", $0}' | xargs) $(find xcframework-slices -name "*.framework.dSYM" | awk '{print "-debug-symbols", $0}' | xargs) -output ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
+      - name: Create Zip Archive
+        run: ditto -c -k -X --rsrc --keepParent ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework.zip
+      - name: Archive XCFramework
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.sha }}
+          if-no-files-found: error
+          path: ${{matrix.variant.name}}.xcframework.zip
 
   validate-xcframework:
     name: Validate XCFramework
