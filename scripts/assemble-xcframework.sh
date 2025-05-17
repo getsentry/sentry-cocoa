@@ -5,8 +5,8 @@ set -x
 search_path=${1}
 xcframework_name=${2}
 
-framework_args=$(find "$search_path" -name "*.framework" | awk -v '{print "-framework " $0}' | xargs)
-dsym_args=$(find "$search_path" -name "*.framework.dSYM" | awk -v '{print "-debug-symbols " $0}' | xargs)
+framework_args=$(find "$search_path" -name "*.framework" | awk '{print "-framework " $0}' | xargs)
+dsym_args=$(find "$search_path" -name "*.framework.dSYM" | awk '{print "-debug-symbols " $0}' | xargs)
 
 xcodebuild -create-xcframework "$framework_args" "$dsym_args" -output "$xcframework_name.xcframework"
 
