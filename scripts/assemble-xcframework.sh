@@ -8,6 +8,6 @@ xcframework_name=${2}
 framework_args=$(find "$search_path" -name "*.framework" | awk '{print "-framework " $0}' | xargs)
 dsym_args=$(find "$search_path" -name "*.framework.dSYM" | awk '{print "-debug-symbols " $0}' | xargs)
 
-xcodebuild -create-xcframework "$framework_args" "$dsym_args" -output "$xcframework_name.xcframework"
+eval "xcodebuild -create-xcframework $framework_args $dsym_args -output $xcframework_name.xcframework"
 
 ditto -c -k -X --rsrc --keepParent "$xcframework_name.xcframework" "$xcframework_name.xcframework.zip"
