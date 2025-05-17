@@ -17,9 +17,12 @@ for slice_dir in "$search_path"/xcframework-*; do
     framework_path=$(find "$slice_dir/Products" -name '*.framework' -print -quit)
     dsym_path=$(find "$slice_dir/dSYMs" -name '*.framework.dSYM' -print -quit)
 
-    if [[ -n "$framework_path" && -n "$dsym_path" ]]; then
+    if [[ -n "$framework_path" ]]; then
         xcodebuild_cmd+=" -framework \"$framework_path\""
-        xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
+
+        if [[ -n "$dsym_path" ]]; then
+            xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
+        fi
     fi
 done
 
