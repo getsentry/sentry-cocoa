@@ -17,31 +17,6 @@ on:
         required: false
 
 jobs:
-#  prepare_framework:
-#    runs-on: macos-13-xlarge
-#    name: "Create XCFramework"
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: "Generate XCFramework"
-#        run: |
-#          ./scripts/ci-select-xcode.sh 15.2
-#          make bump-version TO=${{ github.event.inputs.version }}
-#          # We need to build the framework during release to get it's SHA value
-#          # the framework will be saved as an artifact and we will use the same
-#          # binary for the entire release process to avoid the SHA to change
-#          make build-xcframework
-#
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: xcframeworks.zip
-#          path: |
-#            Carthage/Sentry.xcframework.zip
-#            Carthage/Sentry-Dynamic.xcframework.zip
-#            Carthage/SentrySwiftUI.xcframework.zip
-#            Carthage/Sentry-WithoutUIKitOrAppKit.zip
-#          overwrite: true
-
   build-xcframework-slices:
     name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
@@ -79,6 +54,12 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/release/') == false
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
         shell: sh
+
+      - name: Remove Sentry.framework from SentrySwiftUI build
+        if: ${{ matrix.variant.name }} == 'SentrySwiftUI'
+        run:
+          find "$search_path" -name "Sentry.framework" -print0 | xargs -0 rm -rf
+          find "$search_path" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
 
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
@@ -123,7 +104,6 @@ jobs:
         with:
           pattern: xcframework-${{matrix.variant.id}}-slice-*
           path: xcframework-slices
-      - run: ls
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{matrix.variant.name}}${{matrix.variant.suffix}}"
       - name: Archive XCFramework
@@ -131,7 +111,7 @@ jobs:
         with:
           name: xcframework-${{github.sha}}-${{matrix.variant.id}}
           if-no-files-found: error
-          path: ${{matrix.variant.name}}.xcframework.zip
+          path: ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework.zip
 
   job_release:
     runs-on: ubuntu-latest
