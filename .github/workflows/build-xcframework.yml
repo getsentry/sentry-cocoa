@@ -44,6 +44,7 @@ jobs:
             id: sentryswiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
+            macho-type: mh_dylib
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
 
