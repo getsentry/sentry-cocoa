@@ -38,9 +38,11 @@ jobs:
             suffix: "-Dynamic"
             id: sentry-dynamic
           - name: Sentry
+            suffix: ""
             macho-type: staticlib
             id: sentry-static
           - name: SentrySwiftUI
+            suffix: ""
             id: sentryswiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
