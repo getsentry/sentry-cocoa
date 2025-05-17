@@ -132,6 +132,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
           path: Carthage/
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
@@ -149,6 +150,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
       - name: Change path of the framework
         run: |
           sed -i '' 's/url.*//g' Package.swift
@@ -168,6 +170,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
       - name: Change path of the framework
         run: |
           sed -i '' 's/url.*//g' Package.swift
@@ -187,6 +190,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
       - name: Change path of the framework
         run: |
           sed -i '' 's/url.*//g' Package.swift
