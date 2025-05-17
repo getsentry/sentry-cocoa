@@ -1047,6 +1047,13 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
 		};
+		D8199DC429376FC10074249E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
 		D833D7382D1321F700961E7A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -4769,6 +4776,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D8199DC529376FC10074249E /* PBXTargetDependency */,
 			);
 			name = SentrySwiftUI;
 			productName = SentrySwiftUI;
@@ -5678,6 +5686,11 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 84B7FA3729B2860500AD93B1 /* PBXContainerItemProxy */;
+		};
+		D8199DC529376FC10074249E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
+			targetProxy = D8199DC429376FC10074249E /* PBXContainerItemProxy */;
 		};
 		D833D7392D1321F700961E7A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
