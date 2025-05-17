@@ -56,8 +56,6 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
     OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
 
-xcframework_command_args+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
-
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
     infoPlist="Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework/Info.plist"
 
@@ -68,11 +66,6 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     # More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
     # The version 100 seems to work with all Xcode up to 15.4
     plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
-fi
-
-if [ -d "Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${resolved_product_name}.framework.dSYM" ]; then
-    # Has debug symbols
-    xcframework_command_args+="-debug-symbols $(pwd -P)/Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/dSYMs/${resolved_product_name}.framework.dSYM "
 fi
 
 if [ "$no_maccatalyst" = "false" ]; then
@@ -97,13 +90,4 @@ if [ "$no_maccatalyst" = "false" ]; then
         infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
         plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
     fi
-
-    createxcframework+="-framework Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework "
-    if [ -d "Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM" ]; then
-        createxcframework+="-debug-symbols $(pwd -P)/Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${resolved_product_name}.framework.dSYM "
-    fi
-fi
-
-if [ "${CI:-}" = "true" ]; then
-    echo "xcframework_command_args_${sdk}_${suffix}_${MACH_O_TYPE}_${configuration_suffix}=$xcframework_command_args" >> "$GITHUB_ENV"
 fi
