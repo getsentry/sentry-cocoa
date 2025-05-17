@@ -26,22 +26,49 @@ generate_xcframework() {
     local configuration_suffix="${4-}"
     local createxcframework="xcodebuild -create-xcframework "
 
+    declare pid_map
+
     for sdk in "${sdks[@]}"; do
-        slice_output=$(./scripts/build-xcframework-slice.sh "$sdk" "$scheme" "$suffix" "$MACH_O_TYPE" "$configuration_suffix")
-        createxcframework+=" $slice_output "
+        ./scripts/build-xcframework-slice.sh "$sdk" "$scheme" "$suffix" "$MACH_O_TYPE" "$configuration_suffix" &
+        pid=$!
+        pid_map[pid]="$sdk $scheme $suffix $MACH_O_TYPE $configuration_suffix"
+    done
+
+    for pid in "${!pid_map[@]}"; do
+        if [ "$pid" -eq 0 ]; then
+            unset "pid_map[$pid]"
+        fi
+    done
+
+    echo "Waiting for ${!pid_map[*]}"
+
+    for pid in "${!pid_map[@]}"; do
+        wait "$pid"
+        exit_status=$?
+        if [ $exit_status -ne 0 ]; then
+            echo "Process for ${pid_map[$pid]} failed with exit status $exit_status"
+        else
+            echo "Process for ${pid_map[$pid]} finished with PID $pid"
+        fi
     done
 
     createxcframework+="-output Carthage/${scheme}${suffix}.xcframework"
     $createxcframework
 }
 
-generate_xcframework "Sentry" "-Dynamic"
+echo "Generating Dynamic"
+generate_xcframework "Sentry" "-Dynamic" &
 
 if [ "$args" != "iOSOnly" ]; then
-    generate_xcframework "Sentry" "" staticlib
+    echo "Generating staticlib"
+    generate_xcframework "Sentry" "" staticlib &
     
     if [ "$args" != "gameOnly" ]; then
-        generate_xcframework "SentrySwiftUI"
-        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit
+        echo "Generating SwiftUI"
+        generate_xcframework "SentrySwiftUI" &
+        echo "Generating WithoutUIKit"
+        generate_xcframework "Sentry" "-WithoutUIKitOrAppKit" mh_dylib WithoutUIKit &
     fi
 fi
+
+wait
