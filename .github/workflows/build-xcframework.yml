@@ -51,6 +51,7 @@ jobs:
             id: sentry-withoutuikit-dynamic
 
     steps:
+      - run: make init-ci-build
       - uses: actions/checkout@v4
       # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
       # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
@@ -101,6 +102,7 @@ jobs:
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
     steps:
+      - run: make init-ci-build
       - name: Download ${{matrix.variant.id}} Slices
         uses: actions/download-artifact@v4
         with:

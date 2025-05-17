@@ -54,7 +54,7 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     MACH_O_TYPE="$MACH_O_TYPE" \
     ENABLE_CODE_COVERAGE=NO \
     GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-    OTHER_LDFLAGS="$OTHER_LDFLAGS" > "${slice_id}.log" 2>&1
+    OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
 
 xcframework_command_args+="-framework Carthage/archive/${scheme}${suffix}/${sdk}.xcarchive/Products/Library/Frameworks/${resolved_product_name}.framework "
 
@@ -91,7 +91,7 @@ if [ "$no_maccatalyst" = "false" ]; then
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" > "${slice_id}.maccatalyst.log" 2>&1
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
         infoPlist="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst/${scheme}.framework/Resources/Info.plist"
