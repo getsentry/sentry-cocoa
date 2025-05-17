@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
 
-  build-sentry-xcframework-dynamic-slices:
+  build-xcframework-slices:
     name: Build ${{matrix.name}}${{matrix.suffix}} XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
@@ -68,7 +68,7 @@ jobs:
           name: xcframework-${{matrix.id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/Carthage/archive/${{matrix.name}}${{matrix.suffix}}/${{matrix.sdk}}.xcarchive
+            ${{github.workspace}}/Carthage/archive/${{matrix.name}}${{matrix.suffix}}/${{matrix.sdk}}.xcarchive
 
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
@@ -78,18 +78,32 @@ jobs:
           path: |
             build-xcframework.log
 
-#  build-sentry-xcframework-dynamic-slices:
-#    name: Assemble Dynamic Sentry XCFramework
-#    runs-on: macos-14
-#    needs: build-xcframework-dynamic-slices
-
-
-
-
-
-
-
-
+  assemble-xcframeworks:
+    name: Assemble ${{matrix.name}}${{matrix.suffix}}.xcframework
+    runs-on: macos-14
+    needs: build-xcframework-slices
+    strategy:
+      matrix:
+        with:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentryswiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            macho-type: dylib
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+    steps:
+      - name: Download ${{matrix.id}}-iphoneos Slice
+        uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{matrix.id}}-slice-*
+      - run: ls
 
   validate-xcframework:
     name: Validate XCFramework
