@@ -5,6 +5,7 @@
 ### Fixes
 
 - Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
+
 ### Improvements
 
 - Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
