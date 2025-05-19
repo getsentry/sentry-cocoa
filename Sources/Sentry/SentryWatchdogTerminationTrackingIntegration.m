@@ -14,6 +14,8 @@
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
+#    import <SentryWatchdogTerminationContextProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
@@ -80,10 +82,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
+    // Setup the scope observer with its data processors
+    SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor =
+        [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+            initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                       fileManager:fileManager];
+    SentryWatchdogTerminationContextProcessor *contextProcessor =
+        [[SentryWatchdogTerminationContextProcessor alloc] init];
     SentryWatchdogTerminationScopeObserver *scopeObserver =
         [[SentryWatchdogTerminationScopeObserver alloc]
-            initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                       fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+            initWithBreadcrumbProcessor:breadcrumbProcessor
+                       contextProcessor:contextProcessor];
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.
