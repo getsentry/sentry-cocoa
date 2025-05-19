@@ -214,7 +214,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
             // If there was an error, log it and exit the loop.
             if let error = currentError {
-                // In previous implementations the error was propagated to the completion block, discarding any generated video.
+                // Until v8.50.2 the error was propagated to the completion block, discarding any generated video.
                 // Instead this will "silently" fail by only logging the error and returning the successfully generated videos.
                 SentryLog.error("[Session Replay] Error while rendering video: \(error), returning \(videos.count) videos")
                 return videos

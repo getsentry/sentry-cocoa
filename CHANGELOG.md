@@ -4,17 +4,15 @@
 
 ### Fixes
 
-- Fix thread inversion warning in session replay (#5018)
 > [!Important]
 > This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
+
+- Reporting unhandled C++ exception message (#5190)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
 
 ### Features
 
 - Apps can now manually show and hide the included feedback widget button (#5236)
-
-### Fixes
-
-- Reporting unhandled C++ exception message (#5190)
 
 ### Improvements
 
