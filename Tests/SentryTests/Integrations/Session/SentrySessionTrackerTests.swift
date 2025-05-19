@@ -228,7 +228,8 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
         goToBackground(forSeconds: 2)
         advanceTime(bySeconds: 2)
-        crashSut()
+        // This is not a crash but an abnormal end.
+        stopSut()
 
         advanceTime(bySeconds: 1)
 
@@ -249,7 +250,8 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
         advanceTime(bySeconds: 5)
         goToBackground()
-        crashSut()
+        // This is not a crash but an abnormal end.
+        stopSut()
 
         advanceTime(bySeconds: 1)
 
@@ -355,7 +357,8 @@ class SentrySessionTrackerTests: XCTestCase {
         advanceTime(bySeconds: 10)
         terminateApp()
         assertEndSessionSent(started: sessionStartTime, duration: 1)
-        
+        stopSut()
+
         advanceTime(bySeconds: 1)
         
         // Launch the app again
@@ -467,7 +470,6 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func crashSut() {
-        // Terminate and background not called intentionally, because the app crashed
         sut.stop()
         fixture.application.applicationState = .inactive
         fixture.sentryCrash.internalCrashedLastLaunch = true
@@ -529,7 +531,6 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func terminateApp() {
-        goToBackground()
         willTerminate()
         stopSut()
     }
