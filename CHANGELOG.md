@@ -12,6 +12,7 @@
 ### Fixes
 
 - Reporting unhandled C++ exception message (#5190)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
 
 ### Improvements
 
