@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryWatchdogTerminationTrackingIntegration ()
+@interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;

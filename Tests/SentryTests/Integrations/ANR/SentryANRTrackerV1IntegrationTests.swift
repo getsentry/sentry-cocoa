@@ -16,7 +16,7 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
             timeoutInterval: 0.01,
             crashWrapper: TestSentryCrashWrapper.sharedInstance(),
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            threadWrapper: SentryThreadWrapper())
+            threadWrapper: SentryThreadWrapper()) as! SentryANRTracker
 
         anrTracker.add(listener: listener)
 

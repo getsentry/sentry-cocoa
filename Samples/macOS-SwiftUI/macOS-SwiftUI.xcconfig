@@ -23,7 +23,7 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-SwiftUI
 INFOPLIST_FILE = macOS-SwiftUI/Info.plist
-CODE_SIGN_ENTITLEMENTS = macOS-SwiftUI/macOS_SwiftUI.entitlements
+CODE_SIGN_ENTITLEMENTS = macOS-SwiftUI/macOS-SwiftUI.entitlements
 
 SUPPORTED_PLATFORMS = macosx
 
