@@ -5,14 +5,21 @@
 ### Fixes
 
 - Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
+> [!Important]
+> This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
 
 ### Improvements
 
 - Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+- Improve warn log in SentryTracer (#5248)
 
 ### Features
 
 - Apps can now manually show and hide the included feedback widget button (#5236)
+
+### Fixes
+
+- Reporting unhandled C++ exception message (#5190)
 
 ## 8.50.2
 
