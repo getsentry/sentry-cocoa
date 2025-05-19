@@ -489,6 +489,8 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
     }
 
+    // MARK: Alternative widget control
+
     func testFormShowsAndDismissesProperlyWithCustomButton() {
         launchApp(args: ["--io.sentry.feedback.use-custom-feedback-button"])
 
@@ -510,6 +512,16 @@ extension UserFeedbackUITests {
 
         customButton.waitForExistence("Form should have been dismissed and custom button should be visible again.")
         XCTAssert(customButton.isHittable)
+        XCTAssertFalse(widgetButton.isHittable)
+    }
+
+    func testManuallyDisplayingWidget() {
+        launchApp(args: ["--io.sentry.feedback.no-auto-inject-widget"])
+        XCTAssertFalse(widgetButton.isHittable)
+        extrasAreaTabBarButton.tap()
+        app.buttons["io.sentry.ui-test.button.show-widget"].tap()
+        XCTAssert(widgetButton.isHittable)
+        app.buttons["io.sentry.ui-test.button.hide-widget"].tap()
         XCTAssertFalse(widgetButton.isHittable)
     }
 }

@@ -1,10 +1,10 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
 @class SentryOptions;
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
+@protocol SentryANRTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,13 +21,15 @@ NS_ASSUME_NONNULL_BEGIN
  * seconds, and it executes all events in time. Instead, what matters is how long the main thread
  * needs to execute a newly added event to the run loop.
  */
-@interface SentryANRTrackerV1 : NSObject <SentryANRTracker>
+@interface SentryANRTrackerV1 : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper;
+
+- (id<SentryANRTracker>)asProtocol;
 
 @end
 

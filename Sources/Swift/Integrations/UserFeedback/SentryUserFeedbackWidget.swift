@@ -100,8 +100,6 @@ class SentryUserFeedbackWidget {
             } else {
                 button?.isHidden = !visible
             }
-
-            displayingForm = !visible
         }
     }
 }

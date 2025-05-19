@@ -23,10 +23,10 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift-Sandboxed-Other
 INFOPLIST_FILE = Shared/Info.plist
+CODE_SIGN_ENTITLEMENTS = Shared/macOS-Swift-Sandboxed-Other.entitlements
+
 SWIFT_OBJC_BRIDGING_HEADER = Shared/macOS-Swift-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = macosx
 
 MACOSX_DEPLOYMENT_TARGET = 10.15
-
-ENABLE_APP_SANDBOX = YES

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_duration";
 
-@interface SentryANRTrackingIntegration ()
+@interface SentryANRTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) id<SentryANRTracker> tracker;
 @property (nonatomic, strong) SentryOptions *options;
