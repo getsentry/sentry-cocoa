@@ -11,6 +11,7 @@
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
+#import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"

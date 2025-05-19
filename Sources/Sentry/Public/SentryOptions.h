@@ -798,6 +798,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * either this block to configure a widget and UI form to gather feedback, or directly submits
  * feedback you've gathered using your own UI by calling the method @c SentrySDK.captureFeedback
  * (se https://docs.sentry.io/platforms/apple/user-feedback/configuration/).
+ * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));

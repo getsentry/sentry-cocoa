@@ -1,4 +1,5 @@
 #import "SentryLog.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 /**
