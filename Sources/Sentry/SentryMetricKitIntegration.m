@@ -5,6 +5,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryOptions.h"
 #    import "SentryScope.h"
+#    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
 #    import <SentryAttachment.h>
 #    import <SentryDebugMeta.h>

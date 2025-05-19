@@ -9,6 +9,7 @@
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    pragma mark - Private

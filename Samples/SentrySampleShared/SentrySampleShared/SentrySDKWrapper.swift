@@ -147,6 +147,10 @@ public struct SentrySDKWrapper {
 
         scope.setTag(value: "swift", key: "language")
 
+        if let uiTestName = env["--io.sentry.ui-test.test-name"] {
+            scope.setTag(value: uiTestName, key: "ui-test-name")
+        }
+
         injectGitInformation(scope: scope)
 
         let user = User(userId: "1")
