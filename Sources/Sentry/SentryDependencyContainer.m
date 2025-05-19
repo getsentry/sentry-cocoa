@@ -493,6 +493,19 @@ static NSObject *sentryDependencyContainerLock;
     return _dispatchFactory;
 }
 
+- (id<SentryDispatchQueueProviderProtocol>)dispatchQueueProvider SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    if (_dispatchQueueProvider == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_dispatchQueueProvider == nil) {
+                _dispatchQueueProvider = [[SentryDispatchFactory alloc] init];
+            }
+        }
+    }
+    return _dispatchQueueProvider;
+}
+
 - (SentryNSTimerFactory *)timerFactory SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {

@@ -13,6 +13,7 @@
 
 - Reporting unhandled C++ exception message (#5190)
 - Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
 
 ### Improvements
 

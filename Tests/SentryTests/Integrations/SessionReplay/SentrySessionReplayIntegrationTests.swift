@@ -638,6 +638,29 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenLastData, currentData)
     }
 
+    func testQueuePriorities_processingQueueShouldHaveLowerPriorityThanWorkerQueue() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let dynamicSut = Dynamic(sut)
+
+        // -- Act --
+        let processingQueue = try XCTUnwrap(dynamicSut.replayProcessingQueue.asObject as? SentryDispatchQueueWrapper)
+        let assetWorkerQueue = try XCTUnwrap(dynamicSut.replayAssetWorkerQueue.asObject as? SentryDispatchQueueWrapper)
+
+        // -- Assert --
+        XCTAssertEqual(assetWorkerQueue.queue.label, "io.sentry.session-replay.asset-worker")
+        XCTAssertEqual(assetWorkerQueue.queue.qos.qosClass, .background)
+
+        XCTAssertEqual(processingQueue.queue.label, "io.sentry.session-replay.processing")
+        XCTAssertEqual(processingQueue.queue.qos.qosClass, .background)
+
+        // The actual priorities are not relevant, we just need to check that the processing queue has a lower priority
+        // than the asset worker queue and that both are lower than the default priority.
+        XCTAssertLessThan(processingQueue.queue.qos.relativePriority, 0)
+        XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
+    }
+
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
