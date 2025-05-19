@@ -454,12 +454,20 @@ class SentrySessionTrackerTests: XCTestCase {
 
     private func stopSut() {
         sut.stop()
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When the app stops, the app state is `inactive`.
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #endif
     }
 
     private func crashSut() {
         sut.stop()
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When the app stops, the app state is `inactive`.
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
 
