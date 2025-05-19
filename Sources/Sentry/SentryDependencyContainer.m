@@ -44,6 +44,7 @@
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
 #    import <SentryViewHierarchy.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_IOS
@@ -537,4 +538,38 @@ static NSObject *sentryDependencyContainerLock;
 }
 #endif // !TARGET_OS_WATCH
 
+#if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    // This method is only a factory, therefore do not keep a reference.
+    // The processor will be created each time it is needed.
+    @synchronized(sentryDependencyContainerLock) {
+        return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+            initWithMaxBreadcrumbs:maxBreadcrumbs
+                       fileManager:[self fileManager]];
+    }
+}
+
+- (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
+{
+    if (_watchdogTerminationContextProcessor != nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_watchdogTerminationContextProcessor == nil) {
+                dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+                    DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+                SentryDispatchQueueWrapper *dispatchQueueWrapper =
+                    [[SentryDispatchQueueWrapper alloc]
+                        initWithName:"io.sentry.watchdog-termination-tracking.context-processor"
+                          attributes:attributes];
+                _watchdogTerminationContextProcessor =
+                    [[SentryWatchdogTerminationContextProcessor alloc]
+                        initWithDispatchQueueWrapper:dispatchQueueWrapper
+                                         fileManager:[self fileManager]];
+            }
+        }
+    }
+    return _watchdogTerminationContextProcessor;
+}
+#endif
 @end

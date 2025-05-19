@@ -98,9 +98,9 @@
         return NO;
     }
 
-    //    if (previousAppState.isANROngoing) {
-    //        return NO;
-    //    }
+    if (previousAppState.isANROngoing) {
+        return NO;
+    }
 
     // When calling SentrySDK.start twice we would wrongly report a Watchdog Termination. We can
     // only report a Watchdog Termination when the SDK is started the first time.

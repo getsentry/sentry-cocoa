@@ -15,7 +15,6 @@
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
-#    import <SentryWatchdogTerminationContextProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
@@ -84,11 +83,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     // Setup the scope observer with its data processors
     SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor =
-        [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-            initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                       fileManager:fileManager];
+        [SentryDependencyContainer.sharedInstance
+            getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs];
     SentryWatchdogTerminationContextProcessor *contextProcessor =
-        [[SentryWatchdogTerminationContextProcessor alloc] init];
+        [SentryDependencyContainer.sharedInstance watchdogTerminationContextProcessor];
+
     SentryWatchdogTerminationScopeObserver *scopeObserver =
         [[SentryWatchdogTerminationScopeObserver alloc]
             initWithBreadcrumbProcessor:breadcrumbProcessor

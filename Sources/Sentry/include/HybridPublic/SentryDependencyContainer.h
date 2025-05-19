@@ -37,6 +37,8 @@
 @class SentryUIApplication;
 @class SentryViewHierarchy;
 @class SentryUIViewControllerPerformanceTracker;
+@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -106,6 +108,13 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+#endif
+
+#if SENTRY_UIKIT_AVAILABLE
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
 
 @end
