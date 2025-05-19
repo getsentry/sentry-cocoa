@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.51.0
 
 > [!Important]
 > This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
