@@ -16,6 +16,7 @@
 ### Improvements
 
 - Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+- Improve warn log in SentryTracer (#5248)
 
 ## 8.50.2
 
