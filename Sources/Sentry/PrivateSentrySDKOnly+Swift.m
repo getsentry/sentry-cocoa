@@ -1,11 +1,11 @@
 #import "PrivateSentrySDKOnly+Swift.h"
-#import "SentrySwift.h"
-#import "SentrySDK+Private.h"
-#import "SentryHub+Private.h"
-#import "SentrySessionReplayIntegration.h"
-#import "SentrySessionReplayIntegration+Private.h"
-#import "SentryTraceProfiler.h"
 #import "SentryDependencyContainer.h"
+#import "SentryHub+Private.h"
+#import "SentrySDK+Private.h"
+#import "SentrySessionReplayIntegration+Private.h"
+#import "SentrySessionReplayIntegration.h"
+#import "SentrySwift.h"
+#import "SentryTraceProfiler.h"
 
 @implementation PrivateSentrySDKOnly (Swift)
 
