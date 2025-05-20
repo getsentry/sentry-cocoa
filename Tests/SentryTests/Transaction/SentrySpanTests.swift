@@ -410,7 +410,9 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(childSpan.parentSpanId)
         XCTAssertEqual(childSpan.operation, "")
         XCTAssertNil(childSpan.spanDescription)
-        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
+
+        let expectedLogMessage = "Starting a child with operation \(fixture.someOperation) and description \(fixture.someDescription) on a finished span is not supported; it won\'t be sent to Sentry."
+        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(expectedLogMessage) }).isEmpty, "Couldn't find expected log message: \(expectedLogMessage)")
     }
     
     func testStartGrandChildOnFinishedSpan() {
@@ -423,7 +425,9 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(grandChild.parentSpanId)
         XCTAssertEqual(grandChild.operation, "")
         XCTAssertNil(grandChild.spanDescription)
-        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
+
+        let expectedLogMessage = "Starting a child with operation \(fixture.someOperation) and description \(fixture.someDescription) on a finished span is not supported; it won\'t be sent to Sentry."
+        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(expectedLogMessage) }).isEmpty, "Couldn't find expected log message: \(expectedLogMessage)")
     }
     
     func testAddAndRemoveData() {

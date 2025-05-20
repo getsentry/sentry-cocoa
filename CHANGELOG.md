@@ -6,12 +6,37 @@
 
 - Threading issues in internal dependency container (#5225)
 
+## 8.51.0
+
+> [!Important]
+> This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
+
+### Features
+
+- Apps can now manually show and hide the included feedback widget button (#5236)
+
+### Fixes
+
+- Reporting unhandled C++ exception message (#5190)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
+
+### Improvements
+
+- Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+- Improve warn log in SentryTracer (#5248)
+
+## 8.50.2
+
+### Fixes
+
+- Improved time-to-display tracker to not crash when using view life cycle methods incorrectly (#5048)
+- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
+
 ## 8.50.1
 
 ### Fixes
 
 - Detect AppHangsV2 when tracing not enabled (#5184)
-- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
 
 ### Improvements
 

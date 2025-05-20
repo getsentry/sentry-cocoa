@@ -1,5 +1,11 @@
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/SentryIntegrationProtocol.h>)
+#    import <Sentry/SentryIntegrationProtocol.h>
+#else
+#    import "SentryIntegrationProtocol.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
@@ -28,7 +34,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 
 @class SentryOptions;
 
-@interface SentryBaseIntegration : NSObject
+@interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;

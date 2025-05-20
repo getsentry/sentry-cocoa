@@ -26,6 +26,7 @@
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
+@protocol SentryDispatchQueueProviderProtocol;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -108,6 +109,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
+@property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;

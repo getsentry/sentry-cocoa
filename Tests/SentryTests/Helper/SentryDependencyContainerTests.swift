@@ -122,6 +122,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().systemWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchQueueProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

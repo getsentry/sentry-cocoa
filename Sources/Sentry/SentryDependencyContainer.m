@@ -171,8 +171,15 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(
-        _fileManager, [[SentryFileManager alloc] initWithOptions:SentrySDK.options error:nil]);
+    SENTRY_LAZY_INIT(_fileManager, ({
+        NSError *error;
+        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                                                          error:&error];
+        if (manager == nil) {
+            SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+        }
+        manager;
+    }));
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -208,10 +215,10 @@ static NSObject *sentryDependencyContainerInstanceLock;
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_anrTracker,
-        [[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                               crashWrapper:self.crashWrapper
-                                       dispatchQueueWrapper:self.dispatchQueueWrapper
-                                              threadWrapper:self.threadWrapper]);
+        [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
+                                                crashWrapper:self.crashWrapper
+                                        dispatchQueueWrapper:self.dispatchQueueWrapper
+                                               threadWrapper:self.threadWrapper] asProtocol]);
 }
 
 #if SENTRY_HAS_UIKIT
@@ -220,11 +227,11 @@ static NSObject *sentryDependencyContainerInstanceLock;
 {
     if (isV2Enabled) {
         SENTRY_LAZY_INIT(_anrTracker,
-            [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                   crashWrapper:self.crashWrapper
-                                           dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                  threadWrapper:self.threadWrapper
-                                                  framesTracker:self.framesTracker]);
+            [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
+                                                    crashWrapper:self.crashWrapper
+                                            dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                   threadWrapper:self.threadWrapper
+                                                   framesTracker:self.framesTracker] asProtocol]);
     } else {
         return [self getANRTracker:timeout];
     }
@@ -315,6 +322,12 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
+}
+
+- (id<SentryDispatchQueueProviderProtocol>)dispatchQueueProvider SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
+{
+    SENTRY_LAZY_INIT(_dispatchQueueProvider, [[SentryDispatchFactory alloc] init]);
 }
 
 - (SentryNSTimerFactory *)timerFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

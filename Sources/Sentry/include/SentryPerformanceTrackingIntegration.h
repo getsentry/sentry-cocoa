@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryBaseIntegration.h"
-#    import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Automatic UI performance setup can be avoided by setting @c enableAutoPerformanceTracing to @c NO
  * in @c SentryOptions during SentrySDK initialization.
  */
-@interface SentryPerformanceTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
+@interface SentryPerformanceTrackingIntegration : SentryBaseIntegration
 
 @end
 

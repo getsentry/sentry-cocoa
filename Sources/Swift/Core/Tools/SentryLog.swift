@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
@@ -15,13 +14,11 @@ class SentryLog: NSObject {
     private static var logConfigureLock = NSLock()
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
-    @objc
-    static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
+    static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         logConfigureLock.synchronized {
             self.isDebug = isDebug
             self.diagnosticLevel = diagnosticLevel
         }
-        SentryAsyncLogWrapper.initializeAsyncLogFile()
     }
     
     @objc
