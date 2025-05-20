@@ -68,9 +68,9 @@ jobs:
 
       - name: Remove Sentry.framework from SentrySwiftUI build
         if: matrix.variant.name == 'SentrySwiftUI'
-        run:
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -0 rm -rf
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
+        run: |
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
 
       - run: ls "${{github.workspace}}/Carthage/archive"
         if: matrix.variant.name == 'SentrySwiftUI'
