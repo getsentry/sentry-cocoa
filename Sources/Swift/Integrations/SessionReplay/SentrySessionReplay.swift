@@ -369,7 +369,7 @@ class SentrySessionReplay: NSObject {
     // - MARK: - Display Link
 
     func connectDisplayLink() {
-        if #available(iOS 15.0, *) {
+        if #available(iOS 15.0, tvOS 15.0, *) {
             let preferredFrameRateRange = CAFrameRateRange(minimum: Float(replayOptions.frameRate), maximum: Float(replayOptions.frameRate))
             displayLink.link(withTarget: self, selector: #selector(displayLinkDidUpdateAction(_:)), preferredFrameRateRange: preferredFrameRateRange)
         } else {
