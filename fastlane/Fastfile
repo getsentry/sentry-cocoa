@@ -1,6 +1,10 @@
 default_platform(:ios)
 
 platform :ios do
+  before_all do |lane|
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
+  end
+
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
