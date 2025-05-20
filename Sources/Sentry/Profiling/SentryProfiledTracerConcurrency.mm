@@ -208,14 +208,13 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
     }
 }
 
-SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId)
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(NSString *tracerKey)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
     SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
-    const auto tracerKey = internalTraceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
     if (!SENTRY_CASSERT_RETURN(profiler != nil,
@@ -296,7 +295,8 @@ sentry_stopProfilerDueToFinishedTransaction(
     [SentryTraceProfiler recordMetrics];
     transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 
-    const auto profiler = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
+    const auto profiler
+        = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID.sentryIdString);
     if (!profiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;

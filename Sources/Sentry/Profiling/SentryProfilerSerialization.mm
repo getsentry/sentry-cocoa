@@ -398,7 +398,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
+    uint64_t startSystemTime, uint64_t endSystemTime, NSString *traceId, SentryHub *hub)
 {
     const auto profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {

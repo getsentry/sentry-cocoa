@@ -28,7 +28,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub);
+    uint64_t startSystemTime, uint64_t endSystemTime, NSString *traceId, SentryHub *hub);
 
 NS_ASSUME_NONNULL_END
 

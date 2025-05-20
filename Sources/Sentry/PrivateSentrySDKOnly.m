@@ -1,4 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
+#import "PrivateSentrySDKOnlyHelpers.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
@@ -14,7 +15,6 @@
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
-#import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
@@ -219,18 +219,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId;
 {
-    NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileDataHybridSDK(
-        startSystemTime, endSystemTime, traceId, [SentrySDK currentHub]);
-
-    if (payload != nil) {
-        payload[@"platform"] = SentryPlatformName;
-        payload[@"transaction"] = @{
-            @"active_thread_id" :
-                [NSNumber numberWithLongLong:sentry::profiling::ThreadHandle::current()->tid()]
-        };
-    }
-
-    return payload;
+    return [PrivateSentrySDKOnlyHelpers collectProfileBetween:startSystemTime
+                                                          and:endSystemTime
+                                                     forTrace:traceId.sentryIdString];
 }
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;

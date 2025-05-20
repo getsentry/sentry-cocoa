@@ -66,7 +66,7 @@ void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHu
  * profiler instance, and if this is the last profiler being tracked, reset the
  * @c SentryFramesTracker data.
  */
-SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId);
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(NSString *internalTraceId);
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void sentry_resetConcurrencyTracking(void);
