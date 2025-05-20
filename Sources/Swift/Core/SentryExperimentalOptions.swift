@@ -21,6 +21,12 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableFileManagerSwizzling = false
 
+    /// A more reliable way to report unhandled C++ exceptions.
+    ///
+    /// This approach hooks into all intances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces..
+    ///
+    public var enableUnhandledCPPExceptionsV2 = false
+
     func validateOptions(_ options: [String: Any]?) {
     }
 }

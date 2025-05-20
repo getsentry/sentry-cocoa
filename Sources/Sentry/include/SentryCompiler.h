@@ -237,6 +237,11 @@
 #define NEVER_INLINE
 #endif
 
+/* KEEP_FUNCTION_IN_STACKTRACE */
+#define KEEP_FUNCTION_IN_STACKTRACE __attribute__((disable_tail_calls))
+
+#define THWART_TAIL_CALL_OPTIMISATION __asm__ __volatile__("");
+
 /* NO_RETURN */
 
 #if !defined(NO_RETURN) && COMPILER(GCC_COMPATIBLE)
