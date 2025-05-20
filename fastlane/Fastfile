@@ -127,7 +127,8 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -179,7 +180,8 @@ platform :ios do
       scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -198,7 +200,8 @@ platform :ios do
       derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
       destination: "generic/platform=iOS Simulator",
       xcargs: "-sdk 'iphonesimulator'",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
   end
 
@@ -333,7 +336,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-plain.ipa"
+      output_name: "test-app-plain.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -363,7 +367,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-sentry.ipa"
+      output_name: "test-app-sentry.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
