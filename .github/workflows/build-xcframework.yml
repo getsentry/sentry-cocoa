@@ -143,7 +143,8 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentryswiftui
           path: Carthage/
-      - run: ls Carthage
+      - run: find Carthage -name "*.xcframework"
+      - run: find Carthage -name "*.framework"
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
