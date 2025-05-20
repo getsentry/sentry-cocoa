@@ -1,6 +1,10 @@
 default_platform(:ios)
 
 platform :ios do
+  before_all do |lane|
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
+  end
+
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
@@ -127,7 +131,8 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -179,7 +184,8 @@ platform :ios do
       scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -198,7 +204,8 @@ platform :ios do
       derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
       destination: "generic/platform=iOS Simulator",
       xcargs: "-sdk 'iphonesimulator'",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
   end
 
@@ -333,7 +340,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-plain.ipa"
+      output_name: "test-app-plain.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -363,7 +371,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-sentry.ipa"
+      output_name: "test-app-sentry.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
