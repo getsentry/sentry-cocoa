@@ -95,6 +95,8 @@ func verifyVersionInFiles() throws {
         let version = match?.captures[0] ?? "Version Not Found"
         if version != expectedVersion {
             exit(errormessage: "Unexpected version \(version) found for file '\(file)'")
+        } else {
+            print("\(file) validated to have the correct version: \(version)")
         }
     }
     
@@ -109,6 +111,8 @@ func verifyVersionInFiles() throws {
         let version = match?.captures[0] ?? "Version Not Found"
         if version != exactVersion {
             exit(errormessage: "Unexpected version \(version) found for file '\(file)'")
+        } else {
+            print("\(file) validated to have the correct version: \(version)")
         }
     }
     
