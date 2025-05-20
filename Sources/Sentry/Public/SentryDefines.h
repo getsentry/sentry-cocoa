@@ -21,6 +21,17 @@
  For more information, visit https://docs.sentry.io/platforms/apple/troubleshooting/#unknown-receiver-somereceiver-use-of-undeclared-identifier-someidentifier
 #endif
 
+// Clang warns if a double quoted include is used instead of angle brackets in a public header
+// These 3 import variations are how public headers can be imported with angle brackets
+// for Sentry, SentryWithoutUIKit, and SPM
+#if __has_include(<Sentry/Sentry.h>)
+#    define SENTRY_HEADER(file) <Sentry/file.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    define SENTRY_HEADER(file) <SentryWithoutUIKit/file.h>
+#else
+#    define SENTRY_HEADER(file) <file.h>
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_EXTERN extern "C" __attribute__((visibility("default")))
 #else
