@@ -3,23 +3,26 @@ import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
-    private static let dsn = TestConstants.dsnAsString(username: "SentryWatchdogTerminationContextProcessorTests")
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationContextProcessorTests.self)
 
     private class Fixture {
         let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
         let fileManager: TestFileManager!
 
-        let context: [String: Any] = [
-            "name": "Test",
-            "operation": "TestOperation",
-            "origin": "TestOrigin",
-            "description": "TestDescription",
-            "data": [
-                "key": "value"
+        let context: [String: [String: Any]] = [
+            "app": [
+                "id": 123,
+                "name": "TestApp"
+            ],
+            "device": [
+                "device.class": "iPhone",
+                "os": "iOS"
             ]
         ]
-        let invalidContext: [String: Any] = [
-            "key": Double.infinity
+        let invalidContext: [String: [String: Any]] = [
+            "other": [
+                "key": Double.infinity
+            ]
         ]
 
         init() throws {
@@ -33,7 +36,7 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         func getSut() -> SentryWatchdogTerminationContextProcessor {
             SentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                fileManager: fileManager
+                scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
             )
         }
     }
@@ -48,30 +51,25 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
 
     func testInit_fileExistsAtActiveFilePath_shouldDeleteFile() throws {
         // -- Arrange --
-        let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePathOne, contents: Data())
-        XCTAssertTrue(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        createPersistedFile()
+        assertPersistedFileExists()
 
         // -- Act --
         let _ = fixture.getSut()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
+        assertPersistedFileNotExists()
     }
 
-    func testInit_fileExistsNotAtActiveFilePath_shouldDeleteFile() throws {
+    func testInit_fileExistsAtContextPath_shouldDeleteFile() throws {
         // -- Arrange --
-        let fm = FileManager.default
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        assertPersistedFileNotExists()
 
         // -- Act --
         let _ = fixture.getSut()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        assertPersistedFileNotExists()
     }
 
     func testSetContext_whenContextIsValid_shouldDispatchToQueue() {
@@ -109,29 +107,25 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
 
     func testSetContext_whenContextIsNilAndActiveFileExists_shouldDeleteActiveFile() {
         // -- Arrange --
-        let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePathOne, contents: Data())
-        XCTAssertTrue(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        createPersistedFile()
+        assertPersistedFileExists()
 
         // -- Act --
         sut.setContext(nil)
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
+        assertPersistedFileNotExists()
     }
 
     func testSetContext_whenContextIsNilAndActiveFileNotExists_shouldNotThrow() {
         // -- Arrange --
-        let fm = FileManager.default
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        assertPersistedFileNotExists()
 
         // -- Act --
         sut.setContext(nil)
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
+        assertPersistedFileNotExists()
     }
 
     func testSetContext_whenContextIsInvalidJSON_shouldLogErrorAndNotThrow() {
@@ -154,62 +148,55 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         // -- Arrange --
         let data = Data("Old content".utf8)
 
-        let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePathOne, contents: data)
-        XCTAssertTrue(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        createPersistedFile(data: data)
+        assertPersistedFileExists()
 
         // -- Act --
         sut.setContext(fixture.invalidContext)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: URL(fileURLWithPath: fixture.fileManager.contextFilePathOne))
+        let writtenData = try Data(contentsOf: URL(fileURLWithPath: fixture.fileManager.contextFilePath))
         XCTAssertEqual(writtenData, data)
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
     }
 
-    func testClear_whenNoFilesExist_shouldNotThrow() {
+    func testClear_whenContextFileExistsNot_shouldNotThrow() {
         // -- Arrange --
         // Assert the preconditions
-        let fm = FileManager.default
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        assertPersistedFileNotExists()
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        assertPersistedFileNotExists()
+    }
+    
+    func testClear_whenContextFileExists_shouldDeleteFileWithoutError() {
+        // -- Arrange --
+        let data = Data("Old content".utf8)
+        createPersistedFile(data: data)
+        // Assert the preconditions
+        assertPersistedFileExists()
+
+        // -- Act --
+        sut.clear()
+
+        // -- Assert --
+        assertPersistedFileNotExists()
     }
 
-    func testClear_onlyContextFileOneExists_shouldDeleteContextFileOneWithoutError() {
-        // -- Arrange --
+    // MARK: - Assertion Helpers
+
+    fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
         let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePathOne, contents: Data())
-        XCTAssertTrue(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
-
-        // -- Act --
-        sut.clear()
-
-        // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+        fm.createFile(atPath: fixture.fileManager.contextFilePath, contents: data)
     }
 
-    func testClear_onlyContextFileTwoExists_shouldDeleteContextFileTwoWithoutError() {
-        // -- Arrange --
-        let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePathTwo, contents: Data())
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertTrue(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+    fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.fileManager.contextFilePath), file: file, line: line)
+    }
 
-        // -- Act --
-        sut.clear()
-
-        // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathOne))
-        XCTAssertFalse(fm.fileExists(atPath: fixture.fileManager.contextFilePathTwo))
+    fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.contextFilePath), file: file, line: line)
     }
 }

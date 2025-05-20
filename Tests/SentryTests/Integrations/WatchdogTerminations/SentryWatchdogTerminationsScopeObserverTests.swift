@@ -32,7 +32,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             )
             contextProcessor = TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                fileManager: fileManager
+                scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
             )
         }
 
@@ -62,14 +62,18 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         // -- Arrange --
         // Assert the preconditions
         XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 0)
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, 0)
+
+        // The context process is calling clear in the initializer on purpose.
+        // Therefore we compare the later count with the current count.
+        let contextProcessorClearInvocations = fixture.contextProcessor.clearInvocations.count
+        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, 1)
+        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations + 1)
     }
 
     func testClear_shouldInvokeClearForContextProcessor() {

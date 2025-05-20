@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
-    SentryScopeContextPersistentStore *serialization =
+    SentryScopeContextPersistentStore *scopeContextStore =
         [[SentryScopeContextPersistentStore alloc] initWithFileManager:fileManager];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
                                                                  fileManager:fileManager
-                                                           scopeContextStore:serialization];
+                                                           scopeContextStore:scopeContextStore];
 
     [self.tracker start];
 

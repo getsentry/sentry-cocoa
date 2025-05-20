@@ -3,8 +3,7 @@ import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
-
-    private static let dsn = TestConstants.dsnAsString(username: "SentryWatchdogTerminationBreadcrumbProcessorTests")
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationBreadcrumbProcessorTests.self)
 
     private class Fixture {
         let breadcrumb: Breadcrumb

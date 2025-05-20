@@ -69,17 +69,6 @@
     }                                                                                              \
     return instance;
 
-#define SENTRY_LAZY_INIT_WITH_SETUP(instance, setupBlock, initBlock)                               \
-    if (instance == nil) {                                                                         \
-        @synchronized(sentryDependencyContainerDependenciesLock) {                                 \
-            if (instance == nil) {                                                                 \
-                setupBlock;                                                                        \
-                instance = initBlock;                                                              \
-            }                                                                                      \
-        }                                                                                          \
-    }                                                                                              \
-    return instance;
-
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
@@ -388,14 +377,13 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
 {
-    SENTRY_LAZY_INIT_WITH_SETUP(_watchdogTerminationContextProcessor,
-        SentryDispatchQueueWrapper *dispatchQueueWrapper =
-            [self.dispatchFactory createBackgroundQueueWithName:
-                    "io.sentry.watchdog-termination-tracking.context-processor"
-                                               relativePriority:0],
+    SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
-            initWithDispatchQueueWrapper:dispatchQueueWrapper
-                      scopeSerialization:self.scopeContextStore])
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory createBackgroundQueueWithName:
+                        "io.sentry.watchdog-termination-tracking.context-processor"
+                                                   relativePriority:0]
+                       scopeContextStore:self.scopeContextStore])
 }
 #endif
 @end

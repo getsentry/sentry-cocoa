@@ -5,14 +5,14 @@ import Foundation
 class SentryWatchdogTerminationContextProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let scopeSerialization: SentryScopeContextPersistentStore
+    private let scopeContextStore: SentryScopeContextPersistentStore
 
     init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
-        scopeSerialization: SentryScopeContextPersistentStore
+        scopeContextStore: SentryScopeContextPersistentStore
     ) {
         self.dispatchQueueWrapper = dispatchQueueWrapper
-        self.scopeSerialization = scopeSerialization
+        self.scopeContextStore = scopeContextStore
 
         super.init()
 
@@ -31,12 +31,12 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
                 strongSelf.clear()
                 return
             }
-            strongSelf.scopeSerialization.writeContextToDisk(context: context)
+            strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
 
     func clear() {
-        let path = scopeSerialization.contextFileURL.path
+        let path = scopeContextStore.contextFileURL.path
         SentryLog.debug("Deleting context file at path: \(path)")
 
         let fm = FileManager.default

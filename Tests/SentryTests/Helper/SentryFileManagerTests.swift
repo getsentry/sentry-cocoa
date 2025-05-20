@@ -850,8 +850,10 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
             contextProcessor: contextProcessor
@@ -878,8 +880,10 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
             contextProcessor: contextProcessor

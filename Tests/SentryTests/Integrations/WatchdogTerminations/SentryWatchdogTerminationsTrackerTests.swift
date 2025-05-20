@@ -31,7 +31,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
-            contextProcessor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: backgroundQueueWrapper, fileManager: fileManager)
+            let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            contextProcessor = SentryWatchdogTerminationContextProcessor(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeContextStore: scopeContextStore
+            )
 
             client = TestClient(options: options)
             
@@ -58,12 +62,16 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
+            let scopePersistentStore = SentryScopeContextPersistentStore(
+                fileManager: fileManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
-                fileManager: fileManager
+                fileManager: fileManager,
+                scopeContextStore: scopePersistentStore
             )
         }
     }
