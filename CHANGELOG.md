@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Threading issues in internal dependency container (#5225)
+
 ## 8.51.0
 
 > [!Important]
