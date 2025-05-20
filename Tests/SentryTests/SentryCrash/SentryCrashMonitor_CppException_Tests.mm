@@ -154,8 +154,8 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
     api->setEnabled(true);
 
-    // Build a 1000 character message
-    NSString *errorMessage = [@"" stringByPaddingToLength:1000 withString:@"A" startingAtIndex:0];
+    // Build a 999 character message to leave room for null terminator
+    NSString *errorMessage = [@"" stringByPaddingToLength:999 withString:@"A" startingAtIndex:0];
 
     // -- Act --
     try {
@@ -183,7 +183,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 
     // Build a 1000 character message, with a single character overflow.
     // The overflow character is different, so that we can verify truncation at the end
-    NSString *errorMessage = [[@"" stringByPaddingToLength:1000 withString:@"A"
+    NSString *errorMessage = [[@"" stringByPaddingToLength:999 withString:@"A"
                                            startingAtIndex:0] stringByAppendingString:@"B"];
 
     // -- Act --
