@@ -114,6 +114,12 @@ __cxa_throw(
 }
 
 void
+__sentry_cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
+{
+    __cxa_throw(thrown_exception, tinfo, dest);
+}
+
+void
 __sentry_cxa_rethrow()
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Entering __sentry_cxa_rethrow");
@@ -144,6 +150,30 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original terminate handler.");
         g_originalTerminateHandler();
     }
+}
+
+/**
+ * @brief Copies a string safely ensuring null-termination.
+ *
+ * This function copies up to `n-1` characters from the `src` string to
+ * the `dst` buffer and ensures that the `dst` string is null-terminated.
+ * It behaves similarly to `strlcpy`, but guarantees null-termination.
+ *
+ * @param dst The destination buffer where the string will be copied.
+ * @param src The source string to copy from.
+ * @param n The size of the destination buffer, including space for the null terminator.
+ *
+ * @return Returns the destination.
+ *
+ * @note Ensure that `n` is greater than 0.
+ * This can silently truncate src if it is larger than `n` - 1.
+ */
+static inline char *
+strlcpy_safe(char *dst, const char *src, size_t n)
+{
+    strlcpy(dst, src, n - 1);
+    dst[n - 1] = '\0';
+    return dst;
 }
 
 static void
@@ -195,7 +225,7 @@ CPPExceptionTerminate(void)
             try {
                 throw;
             } catch (std::exception &exc) {
-                strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+                strlcpy_safe(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value)                                                                             \
