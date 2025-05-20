@@ -64,11 +64,16 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
         shell: sh
 
+      - run: ls "${{github.workspace}}/Carthage/archive"
+
       - name: Remove Sentry.framework from SentrySwiftUI build
         if: matrix.variant.name == 'SentrySwiftUI'
         run:
           find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -0 rm -rf
           find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
+
+      - run: ls "${{github.workspace}}/Carthage/archive"
+        if: matrix.variant.name == 'SentrySwiftUI'
 
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
@@ -113,6 +118,7 @@ jobs:
         with:
           pattern: xcframework-${{matrix.variant.id}}-slice-*
           path: xcframework-slices
+      - run: ls xcframework-slices
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{matrix.variant.name}}${{matrix.variant.suffix}}"
       - name: Archive XCFramework
