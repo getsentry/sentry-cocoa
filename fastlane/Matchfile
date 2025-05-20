@@ -2,9 +2,8 @@ git_url("git@github.com:getsentry/codesigning.git")
 storage_mode("git")
 username("bot@getsentry.com") # Your Apple Developer Portal username
 
-# Directly cloning the branch instead of using a shallow clone fixes the rare error:
-#   fatal: a branch named 'master' already exists in GitHub Action workflows.
 git_branch("master")
+shallow_clone(true)
 clone_branch_directly(true)
 readonly(true)
 
