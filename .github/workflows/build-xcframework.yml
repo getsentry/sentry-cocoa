@@ -67,8 +67,8 @@ jobs:
       - name: Remove Sentry.framework from SentrySwiftUI build
         if: ${{ matrix.variant.name }} == 'SentrySwiftUI'
         run:
-          find "$search_path" -name "Sentry.framework" -print0 | xargs -0 rm -rf
-          find "$search_path" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
 
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
@@ -137,6 +137,7 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentryswiftui
           path: Carthage/
+      - run: ls Carthage
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
         shell: sh
