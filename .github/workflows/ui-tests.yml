@@ -133,7 +133,7 @@ jobs:
             device: "iPhone 15 (17.5)"
           - runs-on: macos-15
             xcode: "16.3"
-            device: "iPhone 15 (18.4)"
+            device: "iPhone 16 (18.4)"
 
     steps:
       - uses: actions/checkout@v4
