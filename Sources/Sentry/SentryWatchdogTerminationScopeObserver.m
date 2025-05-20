@@ -5,6 +5,7 @@
 #    import <SentryBreadcrumb.h>
 #    import <SentryFileManager.h>
 #    import <SentryLog.h>
+#    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 
 @interface SentryWatchdogTerminationScopeObserver ()
@@ -48,7 +49,7 @@
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self.contextProcessor processContext:context];
+    [self.contextProcessor setContext:context];
 }
 
 - (void)setDist:(nullable NSString *)dist

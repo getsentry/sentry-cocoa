@@ -69,6 +69,17 @@
     }                                                                                              \
     return instance;
 
+#define SENTRY_LAZY_INIT_WITH_SETUP(instance, setupBlock, initBlock)                               \
+    if (instance == nil) {                                                                         \
+        @synchronized(sentryDependencyContainerDependenciesLock) {                                 \
+            if (instance == nil) {                                                                 \
+                setupBlock;                                                                        \
+                instance = initBlock;                                                              \
+            }                                                                                      \
+        }                                                                                          \
+    }                                                                                              \
+    return instance;
+
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
@@ -352,14 +363,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (SentryReachability *)reachability SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
-    if (_reachability == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_reachability == nil) {
-                _reachability = [[SentryReachability alloc] init];
-            }
-        }
-    }
-    return _reachability;
+    SENTRY_LAZY_INIT(_reachability, [[SentryReachability alloc] init]);
 }
 #endif // !TARGET_OS_WATCH
 
@@ -369,7 +373,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
 {
     // This method is only a factory, therefore do not keep a reference.
     // The processor will be created each time it is needed.
-    @synchronized(sentryDependencyContainerLock) {
+    @synchronized(sentryDependencyContainerInstanceLock) {
         return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
             initWithMaxBreadcrumbs:maxBreadcrumbs
                        fileManager:[self fileManager]];
@@ -378,23 +382,14 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
 {
-    if (_watchdogTerminationContextProcessor != nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_watchdogTerminationContextProcessor == nil) {
-                dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-                    DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-                SentryDispatchQueueWrapper *dispatchQueueWrapper =
-                    [[SentryDispatchQueueWrapper alloc]
-                        initWithName:"io.sentry.watchdog-termination-tracking.context-processor"
-                          attributes:attributes];
-                _watchdogTerminationContextProcessor =
-                    [[SentryWatchdogTerminationContextProcessor alloc]
-                        initWithDispatchQueueWrapper:dispatchQueueWrapper
-                                         fileManager:[self fileManager]];
-            }
-        }
-    }
-    return _watchdogTerminationContextProcessor;
+    SENTRY_LAZY_INIT_WITH_SETUP(_watchdogTerminationContextProcessor,
+        SentryDispatchQueueWrapper *dispatchQueueWrapper =
+            [self.dispatchFactory createBackgroundQueueWithName:
+                    "io.sentry.watchdog-termination-tracking.context-processor"
+                                               relativePriority:0],
+        [[SentryWatchdogTerminationContextProcessor alloc]
+            initWithDispatchQueueWrapper:dispatchQueueWrapper
+                             fileManager:[self fileManager]])
 }
 #endif
 @end

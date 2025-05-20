@@ -1,174 +1,136 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
-    
-    private static let dsn = TestConstants.dsnAsString(username: "SentryWatchdogTerminationScopeObserverTests")
-    
     private class Fixture {
-        let breadcrumb: Breadcrumb
-        let invalidJSONbreadcrumb: [String: Double]
-        let options: Options
-        let fileManager: SentryFileManager
-        let currentDate = TestCurrentDateProvider()
-        let maxBreadcrumbs = 10
+        let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
+        let contextProcessor: TestSentryWatchdogTerminationContextProcessor
 
-        init() {
-            breadcrumb = TestData.crumb
-            breadcrumb.data = nil
-          
-            invalidJSONbreadcrumb = [ "invalid": Double.infinity ]
+        let breadcrumb: [String: Any] = [
+            "type": "default",
+            "category": "default"
+        ]
+        let context: [String: Any] = [
+            "device": [
+                "device.class": "iPhone",
+                "os": "iOS"
+            ],
+            "app": [
+                "app.id": 123,
+                "app.name": "ExampleApp"
+            ]
+        ]
 
-            options = Options()
-            options.dsn = SentryWatchdogTerminationScopeObserverTests.dsn
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        init() throws {
+            let fileManager = try TestFileManager(options: Options())
+            breadcrumbProcessor = TestSentryWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: 10,
+                fileManager: fileManager,
+            )
+            contextProcessor = TestSentryWatchdogTerminationContextProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                fileManager: fileManager
+            )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
-            return getSut(fileManager: self.fileManager)
-        }
-
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
-            return SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: maxBreadcrumbs, fileManager: fileManager)
+            return SentryWatchdogTerminationScopeObserver(
+                breadcrumbProcessor: breadcrumbProcessor,
+                contextProcessor: contextProcessor
+            )
         }
     }
 
     private var fixture: Fixture!
     private var sut: SentryWatchdogTerminationScopeObserver!
 
-    override func setUp() {
+    override func setUpWithError() throws {
         super.setUp()
 
-        fixture = Fixture()
+        fixture = try Fixture()
         sut = fixture.getSut()
     }
 
     override func tearDown() {
         super.tearDown()
-        fixture.fileManager.deleteAllFolders()
     }
 
-    // Test that we're storing the serialized breadcrumb in a proper JSON string
-    func testStoreInvalidJSONBreadcrumb() throws {
-        let breadcrumb = fixture.invalidJSONbreadcrumb
+    func testClear_shouldInvokeClearForAllProcessors() {
+        // -- Arrange --
+        // Assert the preconditions
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 0)
+        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, 0)
 
-        sut.addSerializedBreadcrumb(breadcrumb)
+        // -- Act --
+        sut.clear()
 
-        let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        let firstLine = fileOneContents.split(separator: "\n").first
-        XCTAssertNil(firstLine)
-    }
-  
-    // Test that we're storing the serialized breadcrumb in a proper JSON string
-    func testStoreBreadcrumb() throws {
-        let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
-
-        sut.addSerializedBreadcrumb(breadcrumb)
-
-        let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        let firstLine = String(fileOneContents.split(separator: "\n").first!)
-        let dict = try XCTUnwrap(try JSONSerialization.jsonObject(with: firstLine.data(using: .utf8)!) as? [String: String])
-
-        XCTAssertEqual(dict, breadcrumb)
+        // -- Assert --
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
+        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, 1)
     }
 
-    func testStoreInMultipleFiles() throws {
-        let breadcrumb = fixture.breadcrumb.serialize()
+    func testClear_shouldInvokeClearForContextProcessor() {
+        // -- Act --
+        sut.clear()
 
-        for _ in 0..<9 {
-            sut.addSerializedBreadcrumb(breadcrumb)
-        }
-
-        var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        var fileOneLines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOneLines.count, 9)
-
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
-
-        // Now store one more, which means it'll change over to the second file (which should be empty)
-        sut.addSerializedBreadcrumb(breadcrumb)
-
-        fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        fileOneLines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOneLines.count, 10)
-
-        var fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        XCTAssertEqual(fileTwoContents, "")
-
-        // Next one will be stored in the second file
-        sut.addSerializedBreadcrumb(breadcrumb)
-
-        fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        var fileTwoLines = fileTwoContents.split(separator: "\n")
-
-        XCTAssertEqual(fileOneLines.count, 10)
-        XCTAssertEqual(fileTwoLines.count, 1)
-
-        // Store 10 more
-        for _ in 0..<fixture.maxBreadcrumbs {
-            sut.addSerializedBreadcrumb(breadcrumb)
-        }
-
-        fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        fileOneLines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOneLines.count, 1)
-
-        fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        fileTwoLines = fileTwoContents.split(separator: "\n")
-        XCTAssertEqual(fileTwoLines.count, 10)
+        // -- Assert --
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
     }
 
-    func testClearBreadcrumbs() throws {
-        let breadcrumb = fixture.breadcrumb.serialize()
+    func testAddSerializedBreadcrumb_shouldAddToBreadcrumbProcessor() throws {
+        // -- Arrange --
+        let breadcrumb = fixture.breadcrumb
 
-        for _ in 0..<15 {
-            sut.addSerializedBreadcrumb(breadcrumb)
-        }
+        // -- Act --
+        sut.addSerializedBreadcrumb(breadcrumb)
 
-        var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        XCTAssertEqual(fileOneContents.count, 1_210)
+        // -- Assert --
+        XCTAssertEqual(fixture.breadcrumbProcessor.addSerializedBreadcrumbInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.breadcrumbProcessor.addSerializedBreadcrumbInvocations.first)
+        // Use NSDictionary to erase the type information and compare the dictionaries
+        XCTAssertEqual(NSDictionary(dictionary: invocation), NSDictionary(dictionary: breadcrumb))
+    }
 
-        let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        XCTAssertEqual(fileTwoContents.count, 605)
+    func testClearBreadcrumbs_shouldCallBreadcrumbProcessorClear() {
+        // -- Arrange --
+        // Assert the preconditions
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearBroadcrumbsInvocations.count, 0)
 
+        // -- Act --
         sut.clearBreadcrumbs()
 
-        fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        XCTAssertEqual(fileOneContents.count, 0)
-
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
+        // -- Assert --
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearBroadcrumbsInvocations.count, 1)
     }
-    
-    func testWritingToClosedFile() throws {
-            let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+    func testSetContext_whenContextIsNil_shouldCallContextProcessorSetContext() throws {
+        // -- Act --
+        sut.setContext(nil)
 
-            let fileHandle = try XCTUnwrap(Dynamic(sut).fileHandle.asObject as? FileHandle)
-            fileHandle.closeFile()
+        // -- Assert --
+        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        // Use NSDictionary to erase the type information and compare the dictionaries
+        XCTAssertNil(invocation)
+    }
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+    func testSetContext_whenContextIsDefined_shouldCallContextProcessorSetContext() throws {
+        // -- Arrange --
+        let context = fixture.context
 
-            fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
-        }
+        // -- Act --
+        sut.setContext(context)
 
-        func testWritingToFullFileSystem() throws {
-            let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
-
-            sut.addSerializedBreadcrumb(breadcrumb)
-
-            // "/dev/urandom" simulates a bad file descriptor
-            let fileHandle = FileHandle(forReadingAtPath: "/dev/urandom")
-            Dynamic(sut).fileHandle = fileHandle
-
-            sut.addSerializedBreadcrumb(breadcrumb)
-
-            fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
-        }
+        // -- Assert --
+        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        // Use NSDictionary to erase the type information and compare the dictionaries
+        XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: context))
+    }
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

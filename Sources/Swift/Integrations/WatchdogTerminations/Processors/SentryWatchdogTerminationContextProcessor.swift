@@ -16,10 +16,10 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
 
         super.init()
 
-        self.switchActiveFile()
+        deleteActiveFile()
     }
 
-    func processContext(_ context: [String: Any]?) {
+    func setContext(_ context: [String: Any]?) {
         SentryLog.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
@@ -32,6 +32,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
                 return
             }
             guard let encodedData = strongSelf.encode(context: context) else {
+                // Do not log here, because the log is already in encode
                 return
             }
             strongSelf.write(data: encodedData)
@@ -44,24 +45,11 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
 
     // MARK: - Helpers
 
-    func switchActiveFile() {
-        SentryLog.debug("Switching active file path to write context.")
-        if activeFilePath == fileManager.contextFilePathOne {
-            activeFilePath = fileManager.contextFilePathTwo
-        } else {
-            activeFilePath = fileManager.contextFilePathOne
-        }
-        SentryLog.debug("Active file path is now: \(activeFilePath)")
-
-        // Create a fresh file for the new active path
-        deleteActiveFile()
-    }
-
-    func deleteActiveFile() {
+    private func deleteActiveFile() {
         deleteFile(atPath: activeFilePath)
     }
 
-    func deleteFiles() {
+    private func deleteFiles() {
         // The deletion attempts are in individual do-catch blocks because
         // we want to delete both files if they exist, even if one of them fails.
         SentryLog.debug("Deleting all context files")
@@ -81,7 +69,10 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
         }
     }
 
-    func encode(context: [String: Any]) -> Data? {
+    private func encode(context: [String: Any]) -> Data? {
+        // We need to check if the context is a valid JSON object before encoding it.
+        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
+        // The error handler is required due but seems not to be executed.
         guard JSONSerialization.isValidJSONObject(context) else {
             SentryLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
             return nil
@@ -94,7 +85,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
         }
     }
 
-    func write(data: Data) {
+    private func write(data: Data) {
         do {
             let activeFileURL = URL(fileURLWithPath: activeFilePath)
             try data.write(to: activeFileURL, options: .atomic)

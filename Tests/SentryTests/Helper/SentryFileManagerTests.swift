@@ -849,8 +849,14 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testReadPreviousBreadcrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<3 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
@@ -871,8 +877,14 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<5 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
