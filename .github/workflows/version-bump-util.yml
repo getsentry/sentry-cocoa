@@ -6,6 +6,19 @@ on:
       - main
 
   pull_request:
+    paths:
+      - "Utils/VersionBump/**"
+      - ".github/workflows/version-bump-util.yml"
+      - "./Sentry.podspec"
+      - "./Package.swift"
+      - "./SentryPrivate.podspec"
+      - "./SentrySwiftUI.podspec"
+      - "./Sources/Sentry/SentryMeta.m"
+      - "./Tests/HybridSDKTest/HybridPod.podspec"
+      - "./Sources/Configuration/SDK.xcconfig"
+      - "./Sources/Configuration/Versioning.xcconfig" 
+      - "./Sources/Configuration/SentrySwiftUI.xcconfig"
+      - "./Samples/Shared/Config/Versioning.xcconfig"
 
 jobs:
   run-version-bump:
