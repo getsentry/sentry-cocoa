@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
@@ -85,11 +84,5 @@ class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConver
     
     private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
         return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
-    }
-}
-
-extension SentryLevelHelper {
-    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
-        SentryLevel(rawValue: SentryLevelBridge.breadcrumbLevel(breadcrumb))
     }
 }
