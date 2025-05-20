@@ -367,6 +367,12 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 #endif // !TARGET_OS_WATCH
 
+- (SentryScopeContextPersistentStore *)scopeContextStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeContextStore,
+        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
 #if SENTRY_HAS_UIKIT
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
@@ -389,7 +395,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                                relativePriority:0],
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:dispatchQueueWrapper
-                             fileManager:[self fileManager]])
+                      scopeSerialization:self.scopeContextStore])
 }
 #endif
 @end

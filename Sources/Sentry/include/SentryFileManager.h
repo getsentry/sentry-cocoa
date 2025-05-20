@@ -34,10 +34,21 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-@property (nonatomic, readonly) NSString *contextFilePathOne;
-@property (nonatomic, readonly) NSString *contextFilePathTwo;
-@property (nonatomic, readonly) NSString *previousContextFilePathOne;
-@property (nonatomic, readonly) NSString *previousContextFilePathTwo;
+/**
+ * Path to a state file holding the latest context observed from the scope.
+ *
+ * This path is used to keep a persistent copy of the scope context on disk, to be available after
+ * restart of the app.
+ */
+@property (nonatomic, readonly) NSString *contextFilePath;
+
+/**
+ * Path to the previous state file holding the latest context observed from the scope.
+ *
+ * This file is overwritten at SDK start and kept as a copy of the last context file until the next
+ * SDK start.
+ */
+@property (nonatomic, readonly) NSString *previousContextFilePath;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
@@ -105,7 +116,6 @@ SENTRY_NO_INIT
 
 #pragma mark - Contexts
 - (void)moveContextFileToPreviousContextFile;
-- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable)readPreviousContext;
 
 #pragma mark - TimezoneOffset
 - (NSNumber *_Nullable)readTimezoneOffset;

@@ -23,6 +23,7 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
+@class SentryScopeContextPersistentStore;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -103,6 +104,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
+@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
 #if SENTRY_HAS_UIKIT

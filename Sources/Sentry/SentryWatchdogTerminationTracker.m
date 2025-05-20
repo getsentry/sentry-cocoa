@@ -23,6 +23,7 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 
 @end
 
@@ -33,6 +34,7 @@
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
+              scopeContextStore:(SentryScopeContextPersistentStore *)serialization
 {
     if (self = [super init]) {
         self.options = options;
@@ -40,6 +42,7 @@
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
+        self.scopeContextStore = serialization;
     }
     return self;
 }
@@ -101,9 +104,9 @@
 
 - (void)addContextToEvent:(SentryEvent *)event
 {
-    // Load the previous context from disk
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable previousContext =
-        [self.fileManager readPreviousContext];
+    // Load the previous context from disk, or create an empty one if it doesn't exist
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *previousContext =
+        [self.scopeContextStore readPreviousContextFromDisk];
     NSMutableDictionary *context =
         [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @{}];
 
