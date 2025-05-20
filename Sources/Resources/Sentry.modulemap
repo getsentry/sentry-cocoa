@@ -7,7 +7,6 @@ framework module Sentry {
     explicit module _Hybrid {
         // Headers that are not part of the public API and should only be used by hybrid SDKs
         header "PrivateSentrySDKOnly.h"
-        header "PrivateSentrySDKOnly+Swift.h"
         header "PrivatesHeader.h"
         header "SentryAppStartMeasurement.h"
         header "SentryBinaryImageCache.h"
