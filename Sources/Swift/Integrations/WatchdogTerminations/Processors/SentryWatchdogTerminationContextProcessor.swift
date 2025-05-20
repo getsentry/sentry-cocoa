@@ -28,7 +28,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
             }
             guard let context = context else {
                 SentryLog.debug("Context is nil, deleting active file.")
-                strongSelf.clear()
+                strongSelf.scopeContextStore.deleteContextOnDisk()
                 return
             }
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
@@ -36,16 +36,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
     }
 
     func clear() {
-        let path = scopeContextStore.contextFileURL.path
-        SentryLog.debug("Deleting context file at path: \(path)")
-
-        let fm = FileManager.default
-        do {
-            if fm.fileExists(atPath: path) {
-                try fm.removeItem(atPath: path)
-            }
-        } catch {
-            SentryLog.error("Failed to delete context file at path: \(path), reason: \(error)")
-        }
+        SentryLog.debug("Deleting context file in persistent store")
+        scopeContextStore.deleteContextOnDisk()
     }
 }

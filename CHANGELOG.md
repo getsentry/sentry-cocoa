@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Add persistence for scope context to fix watchdog termination events (#5242)
+
 ### Improvements
 
 - Threading issues in internal dependency container (#5225)

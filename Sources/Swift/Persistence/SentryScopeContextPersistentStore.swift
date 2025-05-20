@@ -35,6 +35,19 @@ class SentryScopeContextPersistentStore: NSObject {
         }
     }
 
+    func deleteContextOnDisk() {
+        SentryLog.debug("Deleting context file at path: \(contextFileURL.path)")
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: contextFileURL.path) else {
+            return
+        }
+        do {
+            try fm.removeItem(atPath: contextFileURL.path)
+        } catch {
+            SentryLog.error("Failed to delete context file at path: \(contextFileURL.path), reason: \(error)")
+        }
+    }
+
     // MARK: - Encoding
 
     private func encode(context: [String: [String: Any]]) -> Data? {
