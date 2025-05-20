@@ -14,5 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Generate Version Number
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_ENV
       # We don't care which version we bump to, as long as it's a valid semver
-      - run: make bump-version TO=100.0.0
+      - run: make bump-version TO=${{ env.VERSION }}
+      - run: make verify-version TO=${{ env.VERSION }}
