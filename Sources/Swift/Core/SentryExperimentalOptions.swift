@@ -1,3 +1,5 @@
+import Foundation
+
 @objcMembers
 public class SentryExperimentalOptions: NSObject {
     /**

@@ -53,7 +53,7 @@ class SentrySpanTests: XCTestCase {
         super.setUp()
         
         logOutput = TestLogOutput()
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.debug)
         SentryLog.setLogOutput(logOutput)
         
         fixture = Fixture()

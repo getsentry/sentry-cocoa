@@ -5,7 +5,7 @@ typealias SentryLog = Sentry.SentryLog
 //Exposing internal/test functions from SentryLog
 extension Sentry.SentryLog {
     static func configureLog(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
-        SentryLog.configure(isDebug, diagnosticLevel: diagnosticLevel)
+        SentryLogSwiftSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
     }
     
     static func setLogOutput(_ output: SentryLogOutput) {
