@@ -23,7 +23,7 @@ class SentryLogTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         SentryLog.setLogOutput(oldOutput)
         SentryLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
@@ -31,7 +31,7 @@ class SentryLogTests: XCTestCase {
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .error)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .error)
         
         SentryLog.log(message: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "1", andLevel: SentryLevel.error)
@@ -51,7 +51,7 @@ class SentryLogTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
 
         // -- Act --
-        SentryLog.configure(false, diagnosticLevel: SentryLevel.none)
+        SentryLogSwiftSupport.configure(false, diagnosticLevel: SentryLevel.none)
         SentryLog.log(message: "fatal", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "error", andLevel: SentryLevel.error)
         SentryLog.log(message: "warning", andLevel: SentryLevel.warning)
@@ -68,7 +68,7 @@ class SentryLogTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
         
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.none)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.none)
         SentryLog.log(message: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "1", andLevel: SentryLevel.error)
         SentryLog.log(message: "2", andLevel: SentryLevel.warning)
@@ -86,7 +86,7 @@ class SentryLogTests: XCTestCase {
     func testMacroLogsErrorMessage() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.error)
         
         sentryLogErrorWithMacro("error")
         
@@ -96,7 +96,7 @@ class SentryLogTests: XCTestCase {
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.info)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.info)
         
         sentryLogDebugWithMacroArgsNotEvaluated()
         
@@ -106,7 +106,7 @@ class SentryLogTests: XCTestCase {
     func testConvenientLogFunction() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.debug)
         let line = #line + 1
         SentryLog.debug("Debug Log")
         XCTAssertEqual(["[Sentry] [debug] [timeIntervalSince1970:\(timeIntervalSince1970)] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
