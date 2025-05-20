@@ -119,7 +119,11 @@ build-xcframework-sample:
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump
 	@echo "--> Bumping version from ${TO}"
-	./Utils/VersionBump/.build/debug/VersionBump ${TO}
+	./Utils/VersionBump/.build/debug/VersionBump --update ${TO}
+
+verify-version: clean-version-bump
+	@echo "--> Verifying version from ${TO}"
+	./Utils/VersionBump/.build/debug/VersionBump --verify ${TO}
 
 clean-version-bump:
 	@echo "--> Clean VersionBump"
