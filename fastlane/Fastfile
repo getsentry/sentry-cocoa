@@ -1,7 +1,7 @@
 default_platform(:ios)
 
 platform :ios do
-  before_all do
+  before_all do |lane|
     ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
   end
 
