@@ -22,7 +22,7 @@
 
 + (void)setDefaultTestLogging
 {
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+    [SentryLogSwiftSupport configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 
 @end

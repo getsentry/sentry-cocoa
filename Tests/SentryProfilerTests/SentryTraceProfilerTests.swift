@@ -10,7 +10,7 @@ class SentryTraceProfilerTests: XCTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
     }
 
     override func setUp() {

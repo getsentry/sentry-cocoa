@@ -368,8 +368,9 @@ static BOOL appStartMeasurementRead;
     [self cancelIdleTimeout];
 
     if (self.isFinished) {
-        SENTRY_LOG_WARN(
-            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        SENTRY_LOG_WARN(@"Starting a child with operation %@ and description %@ on a finished span "
+                        @"is not supported; it won't be sent to Sentry.",
+            operation, description);
         return [SentryNoOpSpan shared];
     }
 

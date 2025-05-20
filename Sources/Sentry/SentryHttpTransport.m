@@ -226,7 +226,7 @@
         SENTRY_LOG_DEBUG(@"Finished flushing.");
         return kSentryFlushResultSuccess;
     } else {
-        SENTRY_LOG_DEBUG(@"Flushing timed out.");
+        SENTRY_LOG_WARN(@"Flushing timed out.");
         return kSentryFlushResultTimedOut;
     }
 }

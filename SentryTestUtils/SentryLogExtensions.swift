@@ -3,11 +3,11 @@ import Foundation
 
 extension SentryLog {
     public static func setTestDefaultLogLevel() {
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
     }
     
     public static func disable() {
-        SentryLog.configure(false, diagnosticLevel: .none)
+        SentryLogSwiftSupport.configure(false, diagnosticLevel: .none)
     }
     
     /// SentryLog uses NSLog internally, which can significantly slow down code because it requires
