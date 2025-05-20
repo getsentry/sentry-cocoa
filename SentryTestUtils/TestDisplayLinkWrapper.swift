@@ -17,9 +17,32 @@ public enum FrameRate: UInt64 {
     }
 }
 
+public struct FrameRateRange {
+    public let minimum: Float
+    public let maximum: Float
+    public let preferred: Float?
+
+    public init(minimum: Float, maximum: Float, preferred: Float?) {
+        self.minimum = minimum
+        self.maximum = maximum
+        self.preferred = preferred
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    fileprivate static func from(_ range: CAFrameRateRange) -> FrameRateRange {
+        return FrameRateRange(
+            minimum: range.minimum,
+            maximum: range.maximum,
+            preferred: range.preferred
+        )
+    }
+}
+
 public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
+    public var preferredFrameRateRange: FrameRateRange?
+    public var preferredFramesPerSecond: Int?
     public var currentFrameRate: FrameRate = .low
     
     private let frozenFrameThreshold = 0.7
@@ -43,12 +66,25 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
 
     public var ignoreLinkInvocations = false
     public var linkInvocations = Invocations<Void>()
-    public override func link(withTarget target: Any, selector sel: Selector) {
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    public override func link( withTarget target: Any, selector sel: Selector, preferredFrameRateRange: CAFrameRateRange) {
         if ignoreLinkInvocations == false {
             linkInvocations.record(Void())
             self.target = target as AnyObject
             self.selector = sel
+            self.preferredFrameRateRange = FrameRateRange.from(preferredFrameRateRange)
         	_isRunning = true
+        }
+    }
+
+    public override func link(withTarget target: Any, selector sel: Selector, preferredFramesPerSecond fps: Int) {
+        if ignoreLinkInvocations == false {
+            linkInvocations.record(Void())
+            self.target = target as AnyObject
+            self.selector = sel
+            self.preferredFramesPerSecond = fps
+            _isRunning = true
         }
     }
 
