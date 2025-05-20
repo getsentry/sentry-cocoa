@@ -1,5 +1,3 @@
-import Foundation
-
 @objc
 enum SentryANRType: Int {
     case fatalFullyBlocking

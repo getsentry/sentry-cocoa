@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
@@ -43,5 +44,9 @@ class SentryLevelHelper: NSObject {
     
     static func levelForName(_ name: String) -> SentryLevel {
         .fromName(name)
+    }
+
+    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
+        SentryLevel(rawValue: SentryLevelBridge.breadcrumbLevel(breadcrumb))
     }
 }
