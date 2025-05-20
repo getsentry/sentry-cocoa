@@ -17,7 +17,7 @@ class SentryBaseIntegrationTests: XCTestCase {
         super.setUp()
         oldDebug = SentryLog.isDebug
         oldLevel = SentryLog.diagnosticLevel
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.debug)
         oldOutput = SentryLog.getOutput()
         logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
@@ -25,7 +25,7 @@ class SentryBaseIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         SentryLog.setLogOutput(oldOutput)
     }
 

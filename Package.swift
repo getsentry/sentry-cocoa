@@ -34,7 +34,8 @@ let package = Package(
                     "SentryInternal/"
                  ],
                  publicHeadersPath: "SentryInternal/"
-               )
+               ),
+        .target(name: "SentryCoreSwift", path: "Sources/Swift/Core")
     ],
     cxxLanguageStandard: .cxx14
 )
