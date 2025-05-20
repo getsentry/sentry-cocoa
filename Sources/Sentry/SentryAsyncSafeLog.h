@@ -58,7 +58,7 @@ void sentry_asyncLogC(const char *level, const char *file, int line, const char 
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG 40
 #define SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE 50
 
-#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE
+#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR
 
 #define a_SENTRY_ASYNC_SAFE_LOG(LEVEL, FMT, ...)                                                   \
     i_SENTRY_ASYNC_SAFE_LOG(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__)

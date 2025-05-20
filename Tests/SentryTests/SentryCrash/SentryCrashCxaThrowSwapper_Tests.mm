@@ -243,4 +243,11 @@ testExceptionHandler(
     XCTAssertEqual(sentrycrashct_unswap_cxa_throw(), -1);
 }
 
+- (void)testSwappingWithNULL
+{
+    // Test swapping with a NULL handler
+    int result = sentrycrashct_swap_cxa_throw(NULL);
+    XCTAssertEqual(result, 0, @"Swapping with NULL handler should still succeed");
+}
+
 @end
