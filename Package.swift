@@ -35,7 +35,9 @@ let package = Package(
                  ],
                  publicHeadersPath: "SentryInternal/"
                ),
-        .target(name: "SentryCoreSwift", path: "Sources/Swift/Core")
+        .target(name: "SentryCoreSwift", path: "Sources/Swift/Core"),
+        // The name of this package is _SentryPrivate so that it matches the imports already used in Swift code to access ObjC.
+        .target(name: "_SentryPrivate", dependencies: ["SentryCoreSwift"], path: "Sources/Sentry/_SentryPrivate", cSettings: [.headerSearchPath("Public")])
     ],
     cxxLanguageStandard: .cxx14
 )

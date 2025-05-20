@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-class SentryLog: NSObject {
+@_spi(Private) public class SentryLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -22,7 +22,7 @@ class SentryLog: NSObject {
     }
     
     @objc
-    static func log(message: String, andLevel level: SentryLevel) {
+    @_spi(Private) public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
         // We use the timeIntervalSinceReferenceDate because date format is
@@ -38,7 +38,7 @@ class SentryLog: NSObject {
      * @c NO if not.
      */
     @objc
-    static func willLog(atLevel level: SentryLevel) -> Bool {
+    @_spi(Private) public static func willLog(atLevel level: SentryLevel) -> Bool {
         if level == .none {
             return false
         }

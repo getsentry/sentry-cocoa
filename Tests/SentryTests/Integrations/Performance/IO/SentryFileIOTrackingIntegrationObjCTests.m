@@ -4,9 +4,9 @@
 #import "SentrySDK.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
+#import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
-#import <SentrySwift.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase

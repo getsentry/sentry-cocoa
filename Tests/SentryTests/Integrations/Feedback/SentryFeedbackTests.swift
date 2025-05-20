@@ -1,6 +1,7 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
@@ -178,7 +179,7 @@ class SentryFeedbackTests: XCTestCase {
             func testCaseDescription() -> String {
                 "(config: (requiresName: \(input.config.requiresName), requiresEmail: \(input.config.requiresEmail), nameInput: \(input.config.nameInput == nil ? "nil" : "\"\(input.config.nameInput!)\""), emailInput: \(input.config.emailInput == nil ? "nil" : "\"\(input.config.emailInput!)\""), messageInput: \(input.config.messageInput == nil ? "nil" : "\"\(input.config.messageInput!)\""), includeScreenshot: \(input.config.includeScreenshot)), expectedSubmitButtonAccessibilityHint: \(input.expectedSubmitButtonAccessibilityHint)"
             }
-            SentryLog.withoutLogs {
+            SentryTestUtils.SentryLog.withoutLogs {
                 switch viewModel.validate() {
                 case .success(let hint):
                     XCTAssert(input.shouldValidate)

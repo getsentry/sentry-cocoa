@@ -128,7 +128,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
         
-        SentryLog.setTestDefaultLogLevel()
+        SentryTestUtils.SentryLog.setTestDefaultLogLevel()
     }
     
     func testRemoveListener_StopsReportingANRs() {

@@ -28,7 +28,7 @@ targets:
       - ../Shared/SampleAssets.xcassets
       - ../../Sources/Sentry/include/SentryTracer.h
       - ../../Sources/Sentry/include/SentryPerformanceTracker.h
-      - ../../Sources/Sentry/Public/SentryProfilingConditionals.h
+      - ../../Sources/Sentry/_SentryPrivate/Public/SentryProfilingConditionals.h
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
