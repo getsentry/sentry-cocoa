@@ -131,7 +131,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          pattern: xcframework-${{github.sha}}-sentry-dynamic
+          pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
       - uses: actions/download-artifact@v4
         with:
