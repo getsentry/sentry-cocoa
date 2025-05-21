@@ -138,6 +138,10 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 
     SENTRY_ASYNC_SAFE_LOG_TRACE("Decorating __cxa_throw");
 
+    if (g_cxa_throw_handler == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_WARN("g_cxa_throw_handler is NULL. Not doing anything");
+        return;
+    }
     g_cxa_throw_handler(thrown_exception, tinfo, dest);
 
     void *backtraceArr[k_requiredFrames];
