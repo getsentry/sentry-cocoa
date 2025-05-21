@@ -153,7 +153,6 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     // -- Arrange --
     sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
     api->setEnabled(true);
-    sentrycrashcm_cppexception_enable_swap_cxa_throw();
 
     // Build a 1000 character message
     NSString *errorMessage = [@"" stringByPaddingToLength:1000 withString:@"A" startingAtIndex:0];
