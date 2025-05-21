@@ -15,7 +15,7 @@ jobs:
           bundler-cache: true
 
       - name: "Download Fastlane Certificate"
-        run: bundle exec fastlane match appstore
+        run: bundle exec fastlane prepare_sign_xcframework
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -24,6 +24,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+        shell: sh
 
       - name: "Generate XCFramework"
         run: |
