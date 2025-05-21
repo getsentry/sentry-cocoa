@@ -8,19 +8,17 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/lint-prettier.yml"
-      - "*.yml"
-      - "*.yaml"
-      - "*.json"
-      - "*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.json"
+      - "**/*.md"
 
   pull_request:
     paths:
-      - ".github/workflows/lint-prettier.yml"
-      - "*.yml"
-      - "*.yaml"
-      - "*.json"
-      - "*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.json"
+      - "**/*.md"
 
 jobs:
   lint-prettier:
