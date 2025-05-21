@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -308,7 +309,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             sut.finishSpan(span.key)
         }
         
-        SentryLog.setTestDefaultLogLevel()
+        SentryTestUtils.SentryLog.setTestDefaultLogLevel()
     }
     
     func testStackAsync() {

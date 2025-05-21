@@ -1,7 +1,7 @@
 import Foundation
-@testable import Sentry
+@testable @_spi(Private) import Sentry
 
-extension SentryLog {
+public enum SentryLog {
     public static func setTestDefaultLogLevel() {
         SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
     }

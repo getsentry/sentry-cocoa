@@ -1,4 +1,4 @@
-@testable import Sentry
+@testable @_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -1019,7 +1019,7 @@ private extension SentrySDKTests {
 class SentrySDKWithSetupTests: XCTestCase {
 
     func testAccessingHubAndOptions_NoDeadlock() {
-        SentryLog.withoutLogs {
+        SentryTestUtils.SentryLog.withoutLogs {
 
             let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
 

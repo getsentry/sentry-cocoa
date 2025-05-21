@@ -1,4 +1,4 @@
-@testable import Sentry
+@testable @_spi(Private) import Sentry
 import XCTest
 
 final class SentryCrashStackCursorSelfThreadTests: XCTestCase {

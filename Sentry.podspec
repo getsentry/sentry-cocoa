@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
-        "Sources/Sentry/Public/*.h"
+        "Sources/Sentry/Public/*.h", "Sources/Sentry/_SentryPrivate/Public/*.h"
         
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
@@ -50,7 +50,7 @@ Pod::Spec.new do |s|
     
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
-        "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
+        "Sources/Sentry/Public/*.h", "Sources/Sentry/_SentryPrivate/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
 
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }

@@ -310,7 +310,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         // This would print thousands of logs so we execute it without
         // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
+        SentryTestUtils.SentryLog.withoutLogs {
             wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
         }
 
@@ -366,7 +366,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         // This would print thousands of logs so we execute it without
         // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
+        SentryTestUtils.SentryLog.withoutLogs {
             wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
         }
     }
@@ -391,7 +391,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         // This would print thousands of logs so we execute it without
         // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
+        SentryTestUtils.SentryLog.withoutLogs {
             wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
         }
     }
@@ -515,7 +515,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         // This would print thousands of logs so we execute it without
         // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
+        SentryTestUtils.SentryLog.withoutLogs {
             wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
         }
     }
