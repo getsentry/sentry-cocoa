@@ -150,7 +150,7 @@ class SentryHubTests: XCTestCase {
     
     func testBreadcrumbCapLimit() {
         // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .error)
         
         let hub = fixture.getSut()
         

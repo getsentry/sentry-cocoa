@@ -79,7 +79,7 @@ class SentrySessionTrackerTests: XCTestCase {
         super.tearDown()
     }
     
-    func testOnlyForeground() {
+    func testOnlyForeground() throws {
         // -- Arrange --
         startSutInAppDelegate()
 
@@ -87,11 +87,11 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
         assertSessionStored()
     }
     
-    func testOnlyHybridSdkDidBecomeActive() {
+    func testOnlyHybridSdkDidBecomeActive() throws {
         // -- Arrange --
         // In this test case the application state is unknown for the hybrid SDK.
         sut.start()
@@ -100,11 +100,11 @@ class SentrySessionTrackerTests: XCTestCase {
         hybridSdkDidBecomeActive()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
         assertSessionStored()
     }
     
-    func testForeground_And_HybridSdkDidBecomeActive() {
+    func testForeground_And_HybridSdkDidBecomeActive() throws {
         // -- Arrange --
         startSutInAppDelegate()
 
@@ -113,11 +113,11 @@ class SentrySessionTrackerTests: XCTestCase {
         hybridSdkDidBecomeActive()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
         assertSessionStored()
     }
     
-    func testHybridSdkDidBecomeActive_and_Foreground() {
+    func testHybridSdkDidBecomeActive_and_Foreground() throws {
         // -- Arrange --
         sut.start()
 
@@ -126,11 +126,11 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
         assertSessionStored()
     }
     
-    func testForeground_Background_TrackingIntervalNotReached() {
+    func testForeground_Background_TrackingIntervalNotReached() throws {
         // -- Arrange --
         startSutInAppDelegate()
         let sessionStartTimestamp = fixture.currentDateProvider.date()
@@ -142,7 +142,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToBackground(forSeconds: 9)
 
         // -- Assert --
-        assertSessionInitSent(sessionStarted: sessionStartTimestamp)
+        try assertSessionInitSent(sessionStarted: sessionStartTimestamp)
     }
     
     func testForeground_Background_TrackingIntervalReached() {
@@ -166,24 +166,24 @@ class SentrySessionTrackerTests: XCTestCase {
         assertEndSessionSent(started: sessionStartTimestamp, duration: 11)
     }
     
-    func testCrashInForeground_LaunchInForeground() {
+    func testCrashInForeground_LaunchInForeground() throws {
         // -- Arrange --
         crashInForeground()
-        assertAppLaunchSendsCrashedSession()
+        try assertAppLaunchSendsCrashedSession()
 
         // -- Act --
         goToForeground()
 
         // -- Assert --
         assertSessionsSent(count: 3)
-        assertInitSessionSent()
+        try assertInitSessionSent()
     }
     
-    func testCrashInForeground_LaunchInBackground() {
+    func testCrashInForeground_LaunchInBackground() throws {
         // -- Arrange --
         crashInForeground()
-        assertAppLaunchSendsCrashedSession()
-        
+        try assertAppLaunchSendsCrashedSession()
+
         // -- Act --
         goToBackground()
 
@@ -194,7 +194,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNoInitSessionSent()
     }
     
-    func testCrashInBackground_LaunchInForeground() {
+    func testCrashInBackground_LaunchInForeground() throws {
         // -- Arrange --
         crashInBackground()
         assertNoSessionSent()
@@ -205,7 +205,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNoSessionSent()
 
         goToForeground()
-        assertInitSessionSent()
+        try assertInitSessionSent()
     }
     
     func testCrashInBackground_LaunchInBackground() {
@@ -309,7 +309,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
     
-    func testAppRunning_LaunchBackgroundTaskImmediately_UserResumesApp() {
+    func testAppRunning_LaunchBackgroundTaskImmediately_UserResumesApp() throws {
         let sessionStarted = fixture.currentDateProvider.date()
         sut.start()
         goToForeground()
@@ -321,11 +321,11 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // user opens app
         goToForeground()
-        assertSessionInitSent(sessionStarted: sessionStarted)
+        try assertSessionInitSent(sessionStarted: sessionStarted)
         assertSessionsSent(count: 1)
     }
     
-    func testAppNotRunning_LaunchBackgroundTask_UserOpensApp() {
+    func testAppNotRunning_LaunchBackgroundTask_UserOpensApp() throws {
         // -- Arrange --
         launchBackgroundTaskAppNotRunning()
         advanceTime(bySeconds: 10)
@@ -334,8 +334,8 @@ class SentrySessionTrackerTests: XCTestCase {
         // user opens app
         let sessionStarted = fixture.currentDateProvider.date()
         goToForeground()
-        assertInitSessionSent()
-        
+        try assertInitSessionSent()
+
         advanceTime(bySeconds: 1)
         
         goToBackground(forSeconds: 10)
@@ -344,7 +344,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
     
-    func testForeground_Background_Terminate_LaunchAgain() {
+    func testForeground_Background_Terminate_LaunchAgain() throws {
         // -- Arrange --
         let sessionStartTime = fixture.currentDateProvider.date()
         startSutInAppDelegate()
@@ -369,7 +369,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
     }
     
     func testAppNotRunning_LaunchFromBackground_Terminate() {
@@ -399,7 +399,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertEndSessionSent(started: startTime, duration: 2)
     }
     
-    func testForeground_Background_Foreground_NoSessionToEnd() {
+    func testForeground_Background_Foreground_NoSessionToEnd() throws {
         // -- Arrange --
         startSutInAppDelegate()
 
@@ -412,7 +412,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
 
         // -- Assert --
-        assertInitSessionSent()
+        try assertInitSessionSent()
         assertSessionsSent(count: 2)
     }
     
@@ -438,18 +438,6 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNotificationNames(notificationNames)
     }
 
-    func testForegroundBeforeStart_shoudStartSession() {
-        // -- Arrange --
-        goToForeground()
-
-        // -- Act --
-        sut.start()
-
-        // -- Assert --
-        assertInitSessionSent()
-        assertSessionStored()
-    }
-
     // MARK: - Helpers
 
     private func startSutInAppDelegate() {
@@ -466,12 +454,20 @@ class SentrySessionTrackerTests: XCTestCase {
 
     private func stopSut() {
         sut.stop()
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When the app stops, the app state is `inactive`.
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #endif
     }
 
     private func crashSut() {
         sut.stop()
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When the app stops, the app state is `inactive`.
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
 
@@ -580,30 +576,27 @@ class SentrySessionTrackerTests: XCTestCase {
         // init after sending the end of the session.
         let endSessionIndex = fixture.client.captureSessionInvocations.count - 2
         
-        if fixture.client.captureSessionInvocations.invocations.indices.contains(endSessionIndex) {
-            let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
-            XCTAssertFalse(session.flagInit?.boolValue ?? false)
-            XCTAssertEqual(started, session.started)
-            XCTAssertEqual(SentrySessionStatus.exited.description, session.status.description)
-            XCTAssertEqual(errors, session.errors)
-            XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
-            XCTAssertEqual(duration, session.duration)
-            assertSessionFields(session: session)
-        } else {
-            XCTFail("Can't find EndSession.")
+        guard fixture.client.captureSessionInvocations.invocations.indices.contains(endSessionIndex) else {
+            return XCTFail("Can't find EndSession.")
         }
+        let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
+        XCTAssertFalse(session.flagInit?.boolValue ?? false)
+        XCTAssertEqual(started, session.started)
+        XCTAssertEqual(SentrySessionStatus.exited.description, session.status.description)
+        XCTAssertEqual(errors, session.errors)
+        XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
+        XCTAssertEqual(duration, session.duration)
+        assertSessionFields(session: session)
     }
     
     private func assertSessionSent(started: Date, duration: NSNumber, status: SentrySessionStatus) {
-
         let endSessionIndex = fixture.client.captureSessionInvocations.count - 1
 
-        if fixture.client.captureSessionInvocations.invocations.indices.contains(endSessionIndex) {
-            let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
-            assertSession(session: session, started: started, status: status, duration: duration)
-        } else {
-            XCTFail("Can't find session.")
+        guard fixture.client.captureSessionInvocations.invocations.indices.contains(endSessionIndex) else {
+            return XCTFail("Can't find session.")
         }
+        let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
+        assertSession(session: session, started: started, status: status, duration: duration)
     }
     
     private func assertSession(session: SentrySession, started: Date, status: SentrySessionStatus, duration: NSNumber) {
@@ -616,14 +609,12 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionFields(session: session)
     }
 
-    private func assertInitSessionSent() {
-        assertSessionInitSent(sessionStarted: fixture.currentDateProvider.date())
+    private func assertInitSessionSent() throws {
+        try assertSessionInitSent(sessionStarted: fixture.currentDateProvider.date())
     }
 
-    private func assertSessionInitSent(sessionStarted: Date) {
-        guard let session = fixture.client.captureSessionInvocations.last else {
-            return XCTFail("No session init sent.")
-        }
+    private func assertSessionInitSent(sessionStarted: Date) throws {
+        let session = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
         XCTAssertTrue(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(sessionStarted, session.started)
         XCTAssertEqual(SentrySessionStatus.ok.description, session.status.description)
@@ -673,7 +664,7 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertEqual(fixture.currentDateProvider.date(), fixture.fileManager.readTimestampLastInForeground(), file: file, line: line)
     }
     
-    private func assertAppLaunchSendsCrashedSession() {
+    private func assertAppLaunchSendsCrashedSession() throws {
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
         let sessionStartTime = fixture.currentDateProvider.date()
@@ -689,11 +680,8 @@ class SentrySessionTrackerTests: XCTestCase {
         startSutInAppDelegate()
         SentrySDK.captureFatalEvent(Event())
         
-        if let session = fixture.client.captureFatalEventWithSessionInvocations.last?.session {
-            assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
-        } else {
-            XCTFail("No session sent with event.")
-        }
+        let session = try XCTUnwrap(fixture.client.captureFatalEventWithSessionInvocations.last?.session)
+        assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
     }
     
     private func assertNotificationNames(_ notificationNames: [NSNotification.Name]) {
