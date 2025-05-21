@@ -17,6 +17,7 @@ on:
         required: false
 
 jobs:
+
   build-xcframework-slices:
     name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Slice for ${{matrix.sdk}}
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
@@ -39,7 +40,6 @@ jobs:
             macho-type: mh_dylib
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
-
     steps:
       - uses: actions/checkout@v4
 
@@ -54,13 +54,11 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/release/') == false
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
         shell: sh
-
       - name: Remove Sentry.framework from SentrySwiftUI build
-        if: ${{ matrix.variant.name }} == 'SentrySwiftUI'
-        run:
-          find "$search_path" -name "Sentry.framework" -print0 | xargs -0 rm -rf
-          find "$search_path" -name "Sentry.framework.dSYM" -print0 | xargs -0 rm -rf
-
+        if: matrix.variant.name == 'SentrySwiftUI'
+        run: |
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
       - name: Archiving xcarchive
         uses: actions/upload-artifact@v4
         with:
@@ -68,7 +66,6 @@ jobs:
           if-no-files-found: error
           path: |
             ${{github.workspace}}/Carthage/archive/${{matrix.variant.name}}${{matrix.variant.suffix}}/${{matrix.sdk}}.xcarchive
-
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
