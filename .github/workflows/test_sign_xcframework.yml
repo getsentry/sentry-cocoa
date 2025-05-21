@@ -10,6 +10,9 @@ jobs:
     name: "Create XCFramework"
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
 
       - name: "Download Fastlane Certificate"
         run: bundle exec fastlane match appstore
