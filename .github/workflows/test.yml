@@ -232,17 +232,7 @@ jobs:
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            raw-build-output.log
-            raw-build-for-testing-output.log
-            raw-test-output.log
-
-      - name: Archiving Raw Test Logs
+      - name: Archiving Raw Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:

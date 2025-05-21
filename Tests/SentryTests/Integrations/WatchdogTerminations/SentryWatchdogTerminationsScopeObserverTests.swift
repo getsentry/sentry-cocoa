@@ -28,7 +28,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             let fileManager = try TestFileManager(options: Options())
             breadcrumbProcessor = TestSentryWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: 10,
-                fileManager: fileManager,
+                fileManager: fileManager
             )
             contextProcessor = TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
