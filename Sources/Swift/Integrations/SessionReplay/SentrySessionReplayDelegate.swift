@@ -1,6 +1,5 @@
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-@_implementationOnly import _SentryPrivate
 
 @objc
 protocol SentrySessionReplayDelegate: NSObjectProtocol {
