@@ -6,6 +6,19 @@ on:
       - main
 
   pull_request:
+    paths:
+      - "Utils/VersionBump/**"
+      - ".github/workflows/version-bump-util.yml"
+      - "./Sentry.podspec"
+      - "./Package.swift"
+      - "./SentryPrivate.podspec"
+      - "./SentrySwiftUI.podspec"
+      - "./Sources/Sentry/SentryMeta.m"
+      - "./Tests/HybridSDKTest/HybridPod.podspec"
+      - "./Sources/Configuration/SDK.xcconfig"
+      - "./Sources/Configuration/Versioning.xcconfig"
+      - "./Sources/Configuration/SentrySwiftUI.xcconfig"
+      - "./Samples/Shared/Config/Versioning.xcconfig"
 
 jobs:
   run-version-bump:
@@ -14,5 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Generate Version Number
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_ENV
       # We don't care which version we bump to, as long as it's a valid semver
-      - run: make bump-version TO=100.0.0
+      - run: make bump-version TO=${{ env.VERSION }}
+      - run: make verify-version TO=${{ env.VERSION }}
