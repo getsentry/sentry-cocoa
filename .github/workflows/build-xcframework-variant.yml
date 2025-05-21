@@ -1,0 +1,95 @@
+name: 'Build Sentry Cocoa XCFramework variant'
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: |-
+          The Sentry project target to build an XCFramework slice for.
+          Possible values: Sentry, SentrySwiftUI.
+        required: true
+        type: string
+      suffix:
+        description: |-
+          The suffix to add to the build product name.
+          E.g. "-Dynamic" or "-WithoutUIKitOrAppKit".
+        required: false
+        type: string
+      macho-type:
+        description: |-
+          The Mach-O type of the build product.
+          Possible values: mh_dylib, staticlib.
+        required: false
+        type: string
+      configuration-suffix:
+        description: |-
+          The suffix to add to the build product name to build an alternate configuration of the target.
+          E.g. "WithoutUIKit".
+        required: false
+        type: string
+      variant-id:
+        description: |-
+          The ID of the variant to build an XCFramework slice for. Used to collect appropriate slices for final deliverable assembly.
+        required: true
+        type: string
+jobs:
+  build-xcframework-variant-slices:
+    name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework Variant Slice for ${{matrix.sdk}}
+    runs-on: macos-14
+    strategy:
+      matrix:
+        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
+      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
+      # and cannot be used here because C++ types from imported module 'Foundation' do not support
+      # library evolution; this is an error in the Swift 6 language mode
+      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
+      - run: ./scripts/ci-select-xcode.sh 15.2
+
+      - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
+        if: startsWith(github.ref, 'refs/heads/release/') == false
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.configuration-suffix}}
+        shell: sh
+      - name: Remove Sentry.framework from SentrySwiftUI build
+        if: inputs.name == 'SentrySwiftUI'
+        run: |
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
+      - name: Archiving xcarchive
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
+          if-no-files-found: error
+          path: |
+            ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}
+          path: |
+            *.log
+
+  assemble-xcframework-variant:
+    name: Assemble ${{inputs.name}}${{inputs.suffix}}.xcframework
+    runs-on: macos-14
+    needs: build-xcframework-variant-slices
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download ${{inputs.variant-id}} Slices
+        uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{inputs.variant-id}}-slice-*
+          path: xcframework-slices
+      - name: Assemble XCFramework
+        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}${{inputs.suffix}}"
+      - name: Archive XCFramework
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframework-${{github.sha}}-${{inputs.variant-id}}
+          if-no-files-found: error
+          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
