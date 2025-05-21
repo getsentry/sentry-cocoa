@@ -168,7 +168,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 
     // -- Assert --
     // Due to the nature of C strings, the last character of the buffer will be a null terminator
-    NSString *truncatedErrorMessage = [@"" stringByPaddingToLength:998
+    NSString *truncatedErrorMessage = [@"" stringByPaddingToLength:999
                                                         withString:@"A"
                                                    startingAtIndex:0];
     XCTAssertEqual(capturedExceptionContextCrashReason.length, truncatedErrorMessage.length);
@@ -197,7 +197,7 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 
     // -- Assert --
     // Due to the nature of C strings, the last character of the buffer will be a null terminator
-    NSString *truncatedErrorMessage = [@"" stringByPaddingToLength:998
+    NSString *truncatedErrorMessage = [@"" stringByPaddingToLength:999
                                                         withString:@"A"
                                                    startingAtIndex:0];
     XCTAssertEqual(capturedExceptionContextCrashReason.length, truncatedErrorMessage.length);

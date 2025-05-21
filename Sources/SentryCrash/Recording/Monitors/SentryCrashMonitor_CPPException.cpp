@@ -101,7 +101,7 @@ __cxa_throw(
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering __cxa_throw");
 
     static cxa_throw_type orig_cxa_throw = NULL;
-    if (g_captureNextStackTrace && sentrycrashct_is_cxa_throw_swapped() == false) {
+    if (sentrycrashct_is_cxa_throw_swapped() == false) {
         captureStackTrace(thrown_exception, tinfo, dest);
     }
     unlikely_if(orig_cxa_throw == NULL)
@@ -150,30 +150,6 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original terminate handler.");
         g_originalTerminateHandler();
     }
-}
-
-/**
- * @brief Copies a string safely ensuring null-termination.
- *
- * This function copies up to `n-1` characters from the `src` string to
- * the `dst` buffer and ensures that the `dst` string is null-terminated.
- * It behaves similarly to `strlcpy`, but guarantees null-termination.
- *
- * @param dst The destination buffer where the string will be copied.
- * @param src The source string to copy from.
- * @param n The size of the destination buffer, including space for the null terminator.
- *
- * @return Returns the destination.
- *
- * @note Ensure that `n` is greater than 0.
- * This can silently truncate src if it is larger than `n` - 1.
- */
-static inline char *
-strlcpy_safe(char *dst, const char *src, size_t n)
-{
-    strlcpy(dst, src, n - 1);
-    dst[n - 1] = '\0';
-    return dst;
 }
 
 static void
@@ -225,12 +201,12 @@ CPPExceptionTerminate(void)
             try {
                 throw;
             } catch (std::exception &exc) {
-                strlcpy_safe(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+                strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value)                                                                             \
     {                                                                                              \
-        snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
+        snprintf(descriptionBuff, DESCRIPTION_BUFFER_LENGTH, "%" #PRINTFTYPE, value);              \
     }
             CATCH_VALUE(char, d)
             CATCH_VALUE(short, d)
@@ -260,9 +236,15 @@ CPPExceptionTerminate(void)
         crashContext->eventID = g_eventID;
         crashContext->registersAreValid = false;
         crashContext->stackCursor = &g_stackCursor;
-        crashContext->CPPException.name = name;
-        crashContext->exceptionName = name;
-        crashContext->crashReason = description;
+
+        if (name != NULL) {
+            crashContext->CPPException.name = name;
+            crashContext->exceptionName = name;
+        }
+
+        if (description != NULL) {
+            crashContext->crashReason = description;
+        }
         crashContext->offendingMachineContext = machineContext;
 
         sentrycrashcm_handleException(crashContext);
