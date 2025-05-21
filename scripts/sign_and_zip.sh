@@ -9,6 +9,7 @@ if [ -z "$args" ]; then
     exit 1
 fi
 
+# This is Sentry's certificate name, and should not change
 codesign --sign "Apple Distribution: GetSentry LLC (97JCY7859U)" \
          --timestamp \
          --options runtime \
@@ -16,4 +17,5 @@ codesign --sign "Apple Distribution: GetSentry LLC (97JCY7859U)" \
          --force \
          "$args"
 
+# use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 ditto -c -k -X --rsrc --keepParent "$args" "$args.zip"
