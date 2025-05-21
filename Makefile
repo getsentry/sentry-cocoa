@@ -111,6 +111,14 @@ build-xcframework:
 	ditto -c -k -X --rsrc --keepParent Carthage/SentrySwiftUI.xcframework Carthage/SentrySwiftUI.xcframework.zip
 	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-WithoutUIKitOrAppKit.xcframework Carthage/Sentry-WithoutUIKitOrAppKit.zip
 
+build-xcframework-sign:
+	@echo "--> Carthage: creating Signed Sentry xcframework"
+	./scripts/build-xcframework.sh | tee build-xcframework.log
+	./scripts/sign_and_zip.sh Carthage/Sentry.xcframework
+	./scripts/sign_and_zip.sh Carthage/Sentry-Dynamic.xcframework
+	./scripts/sign_and_zip.sh Carthage/SentrySwiftUI.xcframework
+	./scripts/sign_and_zip.sh Carthage/Sentry-WithoutUIKitOrAppKit.xcframework
+
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
