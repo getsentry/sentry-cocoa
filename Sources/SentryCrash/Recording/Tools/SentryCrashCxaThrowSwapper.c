@@ -326,6 +326,7 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
     SENTRY_ASYNC_SAFE_LOG_TRACE("Swapping __cxa_throw handler");
 
     if (g_cxa_originals == NULL) {
+        g_cxa_originals_count = 0;
         g_cxa_originals_capacity = 25;
         g_cxa_originals = (SentryCrashAddressPair *)malloc(
             sizeof(SentryCrashAddressPair) * g_cxa_originals_capacity);
@@ -335,7 +336,6 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
             return -1;
         }
     }
-    g_cxa_originals_count = 0;
 
     if (g_cxa_throw_handler == NULL) {
         g_cxa_throw_handler = handler;
