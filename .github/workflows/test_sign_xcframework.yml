@@ -1,12 +1,13 @@
 name: Test Build Signed XCFramework
 run-name: Test Build Signed XCFramework
 
+# THIS IS NOT A PRODUCTION WORKFLOW, AND SHOULD NOT BE MERGED TO MAIN!
 on:
   pull_request:
 
 jobs:
   prepare_framework:
-    runs-on: macos-13-xlarge
+    runs-on: macos-14
     name: "Create XCFramework"
     steps:
       - uses: actions/checkout@v4
