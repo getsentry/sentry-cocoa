@@ -34,7 +34,7 @@ jobs:
           # We need to build the framework during release to get it's SHA value
           # the framework will be saved as an artefact and we will use the same
           # binary for the entire release process to avoid the SHA to change
-          make build-xcframework-sign
+          make build-signed-xcframework
 
       - uses: actions/upload-artifact@v4
         with:
