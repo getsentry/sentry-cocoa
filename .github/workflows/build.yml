@@ -17,7 +17,6 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - "Package.swift"
-      - "scripts/build-xcframework.sh"
       - "Samples/iOS-Swift/iOS-Swift.yml"
       - "Samples/iOS-Swift/iOS-Swift.xcconfig"
       - "Samples/iOS-Swift/iOS-SwiftClilp.xcconfig"
