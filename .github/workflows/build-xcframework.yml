@@ -1,4 +1,4 @@
-name: Build
+name: "Build Sentry XCFramework"
 on:
   push:
     branches:
@@ -25,14 +25,13 @@ concurrency:
 
 jobs:
 
-  build-xcframework-slices:
-    name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Slice for ${{matrix.sdk}}
+  build-xcframework-variants:
+    name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Variant
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
     runs-on: macos-14
     strategy:
       matrix:
-        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
         variant:
           - name: Sentry
             suffix: "-Dynamic"
@@ -57,71 +56,19 @@ jobs:
       # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
       - run: ./scripts/ci-select-xcode.sh 15.2
 
-      - name: Build xcframework
-        if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
-        shell: sh
-      - name: Remove Sentry.framework from SentrySwiftUI build
-        if: matrix.variant.name == 'SentrySwiftUI'
-        run: |
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
-      - name: Archiving xcarchive
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/build-xcframework-variant.yml
         with:
-          name: xcframework-${{matrix.variant.id}}-slice-${{matrix.sdk}}
-          if-no-files-found: error
-          path: |
-            ${{github.workspace}}/Carthage/archive/${{matrix.variant.name}}${{matrix.variant.suffix}}/${{matrix.sdk}}.xcarchive
-      - name: Archive build log if failed
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-build-xcframework-${{matrix.variant.id}}-${{matrix.sdk}}
-          path: |
-            *.log
-
-  assemble-xcframeworks:
-    name: Assemble ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
-    runs-on: macos-14
-    needs: build-xcframework-slices
-    strategy:
-      matrix:
-        variant:
-          - name: Sentry
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-          - name: Sentry
-            macho-type: staticlib
-            id: sentry-static
-          - name: SentrySwiftUI
-            id: sentryswiftui
-          - name: Sentry
-            suffix: "-WithoutUIKitOrAppKit"
-            macho-type: dylib
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download ${{matrix.variant.id}} Slices
-        uses: actions/download-artifact@v4
-        with:
-          pattern: xcframework-${{matrix.variant.id}}-slice-*
-          path: xcframework-slices
-      - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{matrix.variant.name}}${{matrix.variant.suffix}}"
-      - name: Archive XCFramework
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcframework-${{github.sha}}-${{matrix.variant.id}}
-          if-no-files-found: error
-          path: ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework.zip
+          name: ${{matrix.variant.name}}
+          variant-id: ${{matrix.variant.id}}
+          suffix: ${{matrix.variant.suffix}}
+          macho-type: ${{matrix.variant.macho-type}}
+          configuration-suffix: ${{matrix.variant.configuration-suffix}}
 
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-13
     needs:
-        - assemble-xcframeworks
+      - build-xcframework-variants
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
