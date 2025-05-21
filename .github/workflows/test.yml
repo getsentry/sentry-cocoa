@@ -238,6 +238,8 @@ jobs:
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
+            raw-build-output.log
+            raw-build-for-testing-output.log
             raw-test-output.log
 
       - name: Archiving Crash Logs

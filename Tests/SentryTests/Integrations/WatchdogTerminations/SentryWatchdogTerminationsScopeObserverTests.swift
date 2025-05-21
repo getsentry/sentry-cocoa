@@ -13,7 +13,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             "type": "default",
             "category": "default"
         ]
-        let context: [String: Any] = [
+        let context: [String: [String: Any]] = [
             "device": [
                 "device.class": "iPhone",
                 "os": "iOS"
