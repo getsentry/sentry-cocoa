@@ -99,18 +99,6 @@ analyze:
 	rm -rf analyzer
 	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
 
-# Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
-# After creating the zips we create a JSON to be able to test Carthage locally.
-# For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
-build-xcframework:
-	@echo "--> Carthage: creating Sentry xcframework"
-	./scripts/build-xcframework.sh 2>&1 | tee build-xcframework-raw.log | xcbeautify | tee build-xcframework-beautified.log
-# use ditto here to avoid clobbering symlinks which exist in macOS frameworks
-	ditto -c -k -X --rsrc --keepParent Carthage/Sentry.xcframework Carthage/Sentry.xcframework.zip
-	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-Dynamic.xcframework Carthage/Sentry-Dynamic.xcframework.zip
-	ditto -c -k -X --rsrc --keepParent Carthage/SentrySwiftUI.xcframework Carthage/SentrySwiftUI.xcframework.zip
-	ditto -c -k -X --rsrc --keepParent Carthage/Sentry-WithoutUIKitOrAppKit.xcframework Carthage/Sentry-WithoutUIKitOrAppKit.zip
-
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks

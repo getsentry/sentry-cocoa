@@ -9,13 +9,12 @@ on:
     paths:
       - "Sources/**"
       - ".github/workflows/build-xcframework.yml"
-      - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
-      - Gemfile.lock
       - "Package.swift"
       - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
       - Samples/macOS-SPM-CommandLine/**
       - Samples/SPM-Dynamic/**
 
