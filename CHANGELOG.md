@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Improvements
+
+- Threading issues in internal dependency container (#5225)
+
 
 ## 8.51.0
 

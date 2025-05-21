@@ -1,11 +1,11 @@
-
 #if __has_include(<Sentry/Sentry.h>)
 #    import <Sentry/SentryDefines.h>
-#    import <Sentry/SentrySpanProtocol.h>
-#else
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
-#    import <SentryWithoutUIKit/SentrySpanProtocol.h>
+#else
+#    import <SentryDefines.h>
 #endif
+#import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryBreadcrumb;
 @class SentryClient;
