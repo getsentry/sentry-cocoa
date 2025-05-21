@@ -6,20 +6,20 @@ args="${1:-}"
 
 frameworks=( Sentry Sentry-Dynamic SentrySwiftUI Sentry-WithoutUIKitOrAppKit )
 
-if [[ "$args" == "--sign" ]]; then
-    for framework in "${frameworks[@]}"; do
-        echo "Signing $framework"
-        # This is Sentry's certificate name, and should not change
-        codesign --sign "Apple Distribution: GetSentry LLC (97JCY7859U)" \
-            --timestamp \
-            --options runtime \
-            --deep \
-            --force \
-            "Carthage/$framework.xcframework"
-    done
-fi
+should_sign=false
+[[ "$args" == "--sign" ]] && should_sign=true
+
+sentry_certificate="Apple Distribution: GetSentry LLC (97JCY7859U)"
 
 for framework in "${frameworks[@]}"; do
+    framework_path="Carthage/$framework.xcframework"
+
+    if [[ "$should_sign" == true ]]; then
+        echo "Signing $framework"
+        # This is Sentry's certificate name, and should not change
+        codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
+    fi
+
     echo "Zipping $framework"
-    ditto -c -k -X --rsrc --keepParent "Carthage/$framework.xcframework" "Carthage/$framework.xcframework.zip"
+    ditto -c -k -X --rsrc --keepParent "$framework_path" "$framework_path.zip"
 done
