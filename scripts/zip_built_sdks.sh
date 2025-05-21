@@ -21,5 +21,6 @@ for framework in "${frameworks[@]}"; do
     fi
 
     echo "Zipping $framework"
+    # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
     ditto -c -k -X --rsrc --keepParent "$framework_path" "$framework_path.zip"
 done
