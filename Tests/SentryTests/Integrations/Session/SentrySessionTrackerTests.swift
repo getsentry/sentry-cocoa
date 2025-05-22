@@ -60,25 +60,25 @@ class SentrySessionTrackerTests: XCTestCase {
         super.setUp()
         
         fixture = Fixture()
-        
+
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
 
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
-        
+
         fixture.setNewHubToSDK()
-        
+
         sut = fixture.getSut()
     }
     
     override func tearDown() {
         stopSut()
         clearTestState()
-        
+
         super.tearDown()
     }
-    
+
     func testOnlyForeground() throws {
         // -- Arrange --
         startSutInAppDelegate()
@@ -442,12 +442,36 @@ class SentrySessionTrackerTests: XCTestCase {
         // -- Arrange --
         goToForeground()
 
+        // Pre-condition: No session should be sent yet
+        assertNoSessionSent()
+
         // -- Act --
         sut.start()
+        Dynamic(sut).startSession()
 
         // -- Assert --
         try assertInitSessionSent()
         assertSessionStored()
+    }
+
+    func testRestartInForeground_shouldStartNewSession() throws {
+        // -- Arrange --
+        var startTime = fixture.currentDateProvider.date()
+        startSutInAppDelegate()
+        goToForeground()
+
+        sut.stop()
+        assertSessionsSent(count: 1)
+        try assertSessionInitSent(sessionStarted: startTime)
+
+        // -- Act --
+        startTime = fixture.currentDateProvider.date()
+        sut.start()
+        Dynamic(sut).startSession()
+
+        // -- Assert --
+        assertSessionsSent(count: 2)
+        try assertSessionInitSent(sessionStarted: startTime)
     }
 
     // MARK: - Helpers

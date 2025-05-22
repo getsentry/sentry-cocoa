@@ -76,7 +76,6 @@
     [self.notificationCenter addObserver:self
                                 selector:@selector(didBecomeActive)
                                     name:SentryHybridSdkDidBecomeActiveNotificationName];
-
     [self.notificationCenter
         addObserver:self
            selector:@selector(willResignActive)
@@ -87,15 +86,15 @@
            selector:@selector(willTerminate)
                name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 
-    // Keep track if the SDK was started to ignore didBecomeActive if it was called before.
-    [self setWasStarted:true];
-
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
     //            closing the SDK and starting it again.
-    if ([self isAppActive]) {
-        [self didBecomeActive];
-    }
+    //
+    // We need to use the global app state tracker to check if the app is active, because
+    // we need to know if the app has become active before the SDK was started.
+//    if ([self isAppActive]) {
+//        [self startSession];
+//    }
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -118,7 +117,7 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    [self setWasStarted:false];
+    self.wasStarted = NO;
 }
 
 - (void)dealloc
@@ -165,15 +164,6 @@
     // We don't know if the hybrid SDKs post the notification from a background thread, so we
     // synchronize to be safe.
     @synchronized(self) {
-        // If the SDK became active before started, we ignore the notification.
-        // This can happen if the SDK is closed and started, or if the start of the SDK was delayed,
-        // e.g. asking a user for consent first.
-        if (![self wasStarted]) {
-            SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because the "
-                             @"tracker is not started.");
-            return;
-        }
-
         if (self.wasDidBecomeActiveCalled) {
             SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because it "
                              @"was already called.");
@@ -181,6 +171,16 @@
         }
         self.wasDidBecomeActiveCalled = YES;
     }
+
+    [self startSession];
+}
+
+- (void)startSession
+{
+    if (self.wasStarted) {
+        return;
+    }
+    self.wasStarted = YES;
 
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
