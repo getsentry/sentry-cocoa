@@ -438,6 +438,18 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNotificationNames(notificationNames)
     }
 
+    func testForegroundBeforeStart_shoudStartSession() throws {
+        // -- Arrange --
+        goToForeground()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        try assertInitSessionSent()
+        assertSessionStored()
+    }
+
     // MARK: - Helpers
 
     private func startSutInAppDelegate() {
