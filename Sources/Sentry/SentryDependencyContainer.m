@@ -322,26 +322,13 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (id<SentryApplication>)application SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
-    if (_application == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_application == nil) {
 #if SENTRY_HAS_UIKIT
-                _application = [[SentryUIApplication alloc] init];
+    SENTRY_LAZY_INIT(_application, [[SentryUIApplication alloc] init]);
 #elif TARGET_OS_OSX
-                _application = [[SentryNSApplication alloc] init];
+    SENTRY_LAZY_INIT(_application, [[SentryNSApplication alloc] init]);
 #else
-                return nil;
+    return nil;
 #endif
-            }
-        }
-    }
-    return _application;
-}
-
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
-{
-    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
 }
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
