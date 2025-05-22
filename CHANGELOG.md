@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
+
 ### Improvements
 
 - Threading issues in internal dependency container (#5225)
