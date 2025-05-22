@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+import Foundation
 
 /// Represents arbitrary data that can be decoded from JSON with Decodable.
 ///
