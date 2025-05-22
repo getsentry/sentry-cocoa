@@ -138,11 +138,9 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 
     SENTRY_ASYNC_SAFE_LOG_TRACE("Decorating __cxa_throw");
 
-    if (g_cxa_throw_handler == NULL) {
-        SENTRY_ASYNC_SAFE_LOG_WARN("g_cxa_throw_handler is NULL. Not doing anything");
-        return;
+    if (g_cxa_throw_handler != NULL) {
+        g_cxa_throw_handler(thrown_exception, tinfo, dest);
     }
-    g_cxa_throw_handler(thrown_exception, tinfo, dest);
 
     void *backtraceArr[k_requiredFrames];
     int count = backtrace(backtraceArr, k_requiredFrames);
@@ -323,7 +321,12 @@ rebind_symbols_for_image_wrapper(const struct mach_header *mh, intptr_t vmaddr_s
 int
 sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Swapping __cxa_throw handler");
+    if (handler == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_WARN("Handler is NULL, not swapping __cxa_throw");
+        return -1;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Swapping __cxa_throw.");
 
     if (g_cxa_originals == NULL) {
         g_cxa_originals_count = 0;

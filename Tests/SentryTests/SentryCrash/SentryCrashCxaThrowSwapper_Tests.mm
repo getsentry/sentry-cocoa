@@ -36,6 +36,17 @@ testExceptionHandler(
     THWART_TAIL_CALL_OPTIMISATION
 }
 
+static NEVER_INLINE void
+testExceptionHandlerNoOp(
+    void *thrown_exception, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
+{
+    // We print the pointers to silence the compiler about unused variables.
+    XCTFail(@"The tests must not call this exception handler with thrown_exception %p and tinfo %p",
+        thrown_exception, tinfo);
+
+    THWART_TAIL_CALL_OPTIMISATION
+}
+
 @implementation SentryCrashCxaThrowSwapper_Tests
 
 - (void)tearDown
@@ -243,11 +254,58 @@ testExceptionHandler(
     XCTAssertEqual(sentrycrashct_unswap_cxa_throw(), -1);
 }
 
-- (void)testSwappingWithNULL
+- (void)testSwapCxaThrowHandlerTwice_UsesSecondHandler
+{
+    // Arrange
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Exception handler called"];
+    expectation.expectedFulfillmentCount = 2;
+
+    g_exceptionHandlerBlock = ^(NSString *exceptionWhat, NSString *typeInfoName) {
+        // The type name should be "St13runtime_error" or similar (mangled C++ name)
+        XCTAssertTrue([typeInfoName containsString:@"runtime_error"]);
+        XCTAssertEqualObjects(exceptionWhat, @"Runtime errrrrrorrrr!");
+
+        [expectation fulfill];
+    };
+
+    sentrycrashct_swap_cxa_throw(testExceptionHandlerNoOp);
+    sentrycrashct_swap_cxa_throw(testExceptionHandler);
+
+    // Act
+    try {
+        throw std::runtime_error("Runtime errrrrrorrrr!");
+    } catch (...) {
+        [expectation fulfill];
+    }
+
+    // Assert
+    [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+- (void)testCallSwapCxaThrowHandlerWithNULL_ReturnsMinusOne
 {
     // Test swapping with a NULL handler
     int result = sentrycrashct_swap_cxa_throw(NULL);
-    XCTAssertEqual(result, 0, @"Swapping with NULL handler should still succeed");
+    XCTAssertEqual(result, -1, @"Swapping with NULL must not succeed");
+}
+
+- (void)testCallSwapCxaThrowHandlerWithNULL_ThrowingRuntimeErrorDoesNotCrash
+{
+    // Arrange
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Exception handler called"];
+    expectation.expectedFulfillmentCount = 1;
+
+    sentrycrashct_swap_cxa_throw(NULL);
+
+    // Act
+    try {
+        throw std::runtime_error("Runtime errrrrrorrrr!");
+    } catch (...) {
+        [expectation fulfill];
+    }
+
+    // Assert
+    [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
 @end
