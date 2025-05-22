@@ -18,6 +18,7 @@
         @"Relative priority must be between 0 and %d", QOS_MIN_RELATIVE_PRIORITY);
     // The QOS_CLASS_UTILITY is defined in `qos.h` and used by the `DISPATCH_QUEUE_PRIORITY_LOW`,
     // therefore it can be considered it a low priority queue
+    // Reference: https://developer.apple.com/documentation/dispatch/dispatch_queue_priority_low
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, relativePriority);
     return [[SentryDispatchQueueWrapper alloc] initWithName:name attributes:attributes];
