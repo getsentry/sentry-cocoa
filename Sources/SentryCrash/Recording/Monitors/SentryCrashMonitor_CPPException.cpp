@@ -206,7 +206,7 @@ CPPExceptionTerminate(void)
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
     catch (TYPE value)                                                                             \
     {                                                                                              \
-        snprintf(descriptionBuff, DESCRIPTION_BUFFER_LENGTH, "%" #PRINTFTYPE, value);              \
+        snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
     }
             CATCH_VALUE(char, d)
             CATCH_VALUE(short, d)
@@ -236,15 +236,9 @@ CPPExceptionTerminate(void)
         crashContext->eventID = g_eventID;
         crashContext->registersAreValid = false;
         crashContext->stackCursor = &g_stackCursor;
-
-        if (name != NULL) {
-            crashContext->CPPException.name = name;
-            crashContext->exceptionName = name;
-        }
-
-        if (description != NULL) {
-            crashContext->crashReason = description;
-        }
+        crashContext->CPPException.name = name;
+        crashContext->exceptionName = name;
+        crashContext->crashReason = description;
         crashContext->offendingMachineContext = machineContext;
 
         sentrycrashcm_handleException(crashContext);
