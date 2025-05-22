@@ -447,7 +447,6 @@ class SentrySessionTrackerTests: XCTestCase {
 
         // -- Act --
         sut.start()
-        Dynamic(sut).startSession()
 
         // -- Assert --
         try assertInitSessionSent()
@@ -467,7 +466,6 @@ class SentrySessionTrackerTests: XCTestCase {
         // -- Act --
         startTime = fixture.currentDateProvider.date()
         sut.start()
-        Dynamic(sut).startSession()
 
         // -- Assert --
         assertSessionsSent(count: 2)

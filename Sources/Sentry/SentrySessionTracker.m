@@ -117,7 +117,7 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    self.wasStarted = NO;
+    // self.wasStarted = NO;
 }
 
 - (void)dealloc
@@ -177,10 +177,10 @@
 
 - (void)startSession
 {
-    if (self.wasStarted) {
-        return;
-    }
-    self.wasStarted = YES;
+    // if (self.wasStarted) {
+    //     return;
+    // }
+    // self.wasStarted = YES;
 
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
