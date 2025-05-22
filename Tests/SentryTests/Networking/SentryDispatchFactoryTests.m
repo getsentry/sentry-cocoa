@@ -53,8 +53,8 @@
     int relativePriority = -5;
 
     // -- Act --
-    SentryDispatchQueueWrapper *wrappedQueue =
-        [self.sut createLowPriorityQueue:queueName relativePriority:relativePriority];
+    SentryDispatchQueueWrapper *wrappedQueue = [self.sut createLowPriorityQueue:queueName
+                                                               relativePriority:relativePriority];
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);
