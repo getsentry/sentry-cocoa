@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
 ## 8.51.1
 
 ### Fixes
