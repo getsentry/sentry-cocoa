@@ -224,6 +224,7 @@ jobs:
       name: Sentry
       macho-type: staticlib
       variant-id: sentry-static
+      sdk-list: '["iphoneos", "iphonesimulator". "macosx"]'
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
