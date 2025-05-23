@@ -348,14 +348,6 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-#if SENTRY_HAS_REACHABILITY
-- (SentryReachability *)reachability SENTRY_DISABLE_THREAD_SANITIZER(
-    "double-checked lock produce false alarms")
-{
-    SENTRY_LAZY_INIT(_reachability, [[SentryReachability alloc] init]);
-}
-#endif // !TARGET_OS_WATCH
-
 - (SentryScopeContextPersistentStore *)scopeContextStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_scopeContextStore,

@@ -114,6 +114,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
