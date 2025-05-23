@@ -70,33 +70,11 @@ jobs:
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
 
-      - name: Verify outputs of bump util
+      - name: Verify outputs of bump.sh
         run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
 
-      - name: Verify checksum of static xcframework in Package.swift
-        run: |
-          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep "checksum.*Sentry-Static" | cut -d '"' -f 2)
-          EXPECTED_CHECKSUM="7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd"
-
-          if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
-            echo "Expected checksum to be $EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
-            exit 1
-          fi
-
-      - name: Verify checksum of dynamic xcframework in Package.swift
-        run: |
-          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep "checksum.*Sentry-Dynamic" | cut -d '"' -f 2)
-          EXPECTED_CHECKSUM="f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c"
-
-          if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
-            echo "Expected checksum to be $EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
-            exit 1
-          fi
-
-      - name: Verify last-release-runid
-        run: |
-          LAST_RELEASE_RUNID=$(cat .github/last-release-runid)
-          if [ "$LAST_RELEASE_RUNID" != "$GITHUB_RUN_ID" ]; then
-            echo "Expected last-release-runid to be $GITHUB_RUN_ID but got $LAST_RELEASE_RUNID"
-            exit 1
-          fi
+      - name: Verify outputs of update-package-sha.sh
+        run: ./scripts/verify-package-sha.sh \
+          --static-checksum "7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd" \
+          --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
+          --last-release-runid "${{ github.run_id }}"
