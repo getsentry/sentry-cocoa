@@ -101,13 +101,13 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     func testClearBreadcrumbs_shouldCallBreadcrumbProcessorClear() {
         // -- Arrange --
         // Assert the preconditions
-        XCTAssertEqual(fixture.breadcrumbProcessor.clearBroadcrumbsInvocations.count, 0)
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearBreadcrumbsInvocations.count, 0)
 
         // -- Act --
         sut.clearBreadcrumbs()
 
         // -- Assert --
-        XCTAssertEqual(fixture.breadcrumbProcessor.clearBroadcrumbsInvocations.count, 1)
+        XCTAssertEqual(fixture.breadcrumbProcessor.clearBreadcrumbsInvocations.count, 1)
     }
 
     func testSetContext_whenContextIsNil_shouldCallContextProcessorSetContext() throws {

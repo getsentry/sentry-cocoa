@@ -360,11 +360,9 @@ static NSObject *sentryDependencyContainerInstanceLock;
 {
     // This method is only a factory, therefore do not keep a reference.
     // The processor will be created each time it is needed.
-    @synchronized(sentryDependencyContainerInstanceLock) {
-        return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-            initWithMaxBreadcrumbs:maxBreadcrumbs
-                       fileManager:[self fileManager]];
-    }
+    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+        initWithMaxBreadcrumbs:maxBreadcrumbs
+                   fileManager:[self fileManager]];
 }
 
 - (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor

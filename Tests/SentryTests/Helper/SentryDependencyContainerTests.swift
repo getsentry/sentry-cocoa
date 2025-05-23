@@ -141,6 +141,10 @@ final class SentryDependencyContainerTests: XCTestCase {
                     }
 #endif // os(iOS) || os(macOS)
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationContextProcessor)
+#endif
                 }
 
                 expectation.fulfill()
@@ -151,4 +155,64 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         wait(for: [expectation], timeout: 10)
     }
+
+   func testScopeContextStore_shouldReturnSameInstance() {
+       // -- Act --
+       let container = SentryDependencyContainer()
+       let scopeContextStore1 = container.scopeContextStore
+       let scopeContextStore2 = container.scopeContextStore
+
+       // -- Assert --
+       XCTAssertIdentical(scopeContextStore1, scopeContextStore2)
+   }
+
+   func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() {
+       // -- Act --
+       let container = SentryDependencyContainer()
+       let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
+       let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
+
+       // -- Assert --
+       XCTAssertNotIdentical(processor1, processor2)
+   }
+
+   func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldUseParameters() {
+       // -- Act --
+       let container = SentryDependencyContainer()
+       let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
+       let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
+
+       // -- Assert --
+       // This assertion relys on internal implementation details of the processor.
+       // It is best practice not to rely on internal implementation details.
+       // There is no other way to test this, because the max breadcrumbs property is private.
+       XCTAssertEqual(Dynamic(processor1).maxBreadcrumbs, 10)
+       XCTAssertEqual(Dynamic(processor2).maxBreadcrumbs, 5)
+   }
+
+   func testSentryWatchdogTerminationContextProcessor_shouldReturnSameInstance() {
+       // -- Act --
+       let container = SentryDependencyContainer()
+       let processor1 = container.watchdogTerminationContextProcessor
+       let processor2 = container.watchdogTerminationContextProcessor
+
+       // -- Assert --
+       XCTAssertIdentical(processor1, processor2)
+   }
+
+   func testSentryWatchdogTerminationContextProcessor_shouldUseLowPriorityQueue() throws {
+       // -- Arrange --
+       let container = SentryDependencyContainer()
+       let dispatchFactory = TestDispatchFactory()
+       container.dispatchFactory = dispatchFactory
+
+       // -- Act --
+       // Accessing the processor will trigger the creation of a new instance
+       let _ = container.watchdogTerminationContextProcessor
+
+       // -- Assert --
+       let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createLowPriorityQueueInvocations.first)
+       XCTAssertEqual(String(cString: dispatchFactoryInvocation.name), "io.sentry.watchdog-termination-tracking.context-processor")
+       XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
+   }
 }
