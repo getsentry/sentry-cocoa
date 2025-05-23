@@ -6,6 +6,10 @@
 
 - Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
 
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
 ### Improvements
 
 - Threading issues in internal dependency container (#5225)

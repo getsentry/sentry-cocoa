@@ -1,3 +1,4 @@
+#include "SentryCrashCxaThrowSwapper.h"
 #include "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_CPPException.h"
 #import <XCTest/XCTest.h>
@@ -63,6 +64,57 @@ mockTerminationHandler(void)
 
     // -- Assert
     XCTAssertTrue(terminateCalled);
+}
+
+- (void)testSetDisabled_UnswapsCxaThrow
+{
+    // Arrange
+    api->setEnabled(true);
+    sentrycrashcm_cppexception_enable_swap_cxa_throw();
+
+    // Act
+    api->setEnabled(false);
+
+    // Assert
+    XCTAssertFalse(
+        sentrycrashct_is_cxa_throw_swapped(), "Disabling the monitor must unswap cxa_throw.");
+}
+
+- (void)testThrowCppException_CapturesStacktrace
+{
+    // Arrange
+    api->setEnabled(true);
+    sentrycrashcm_cppexception_enable_swap_cxa_throw();
+
+    try {
+        // Act
+        throw std::invalid_argument("Invalid Argument.");
+    } catch (...) {
+    }
+
+    // Assert
+    SentryCrashStackCursor stackCursor = sentrycrashcm_cppexception_getStackCursor();
+    stackCursor.advanceCursor(&stackCursor);
+    XCTAssertTrue(stackCursor.stackEntry.address > 0, "Stack trace should be captured.");
+}
+
+- (void)testThrowNSException_DoesNotCapturesStacktrace
+{
+    // Arrange
+    api->setEnabled(true);
+    sentrycrashcm_cppexception_enable_swap_cxa_throw();
+
+    @try {
+        // Act
+        [NSException raise:NSInvalidArgumentException format:@"Invalid Argument."];
+    } @catch (...) {
+    }
+
+    // Assert
+    SentryCrashStackCursor stackCursor = sentrycrashcm_cppexception_getStackCursor();
+    stackCursor.advanceCursor(&stackCursor);
+    XCTAssertEqual(
+        stackCursor.stackEntry.address, (uintptr_t)0, "Stack trace should NOT be captured.");
 }
 
 void

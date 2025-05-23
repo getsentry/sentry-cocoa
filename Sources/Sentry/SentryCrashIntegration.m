@@ -3,6 +3,7 @@
 
 #import "SentryCrashC.h"
 #import "SentryCrashIntegrationSessionHandler.h"
+#import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -13,6 +14,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan+Private.h"
+#import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
@@ -119,7 +121,8 @@ sentry_finishAndSaveTransaction(void)
 
     [self startCrashHandler:options.cacheDirectoryPath
                    enableSigtermReporting:enableSigtermReporting
-        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting];
+        enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting
+                    enableCppExceptionsV2:options.experimental.enableUnhandledCPPExceptionsV2];
 
     [self configureScope];
 
@@ -138,6 +141,7 @@ sentry_finishAndSaveTransaction(void)
 - (void)startCrashHandler:(NSString *)cacheDirectory
                enableSigtermReporting:(BOOL)enableSigtermReporting
     enableReportingUncaughtExceptions:(BOOL)enableReportingUncaughtExceptions
+                enableCppExceptionsV2:(BOOL)enableCppExceptionsV2
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -164,6 +168,10 @@ sentry_finishAndSaveTransaction(void)
             [SentryUncaughtNSExceptions swizzleNSApplicationReportException];
         }
 #endif // TARGET_OS_OSX
+
+        if (enableCppExceptionsV2) {
+            sentrycrashcm_cppexception_enable_swap_cxa_throw();
+        }
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously
