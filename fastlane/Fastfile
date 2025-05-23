@@ -86,13 +86,7 @@ platform :ios do
 
     sync_code_signing(
       type: "appstore",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
@@ -118,13 +112,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(
@@ -146,13 +134,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
@@ -169,14 +151,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
-      
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(
@@ -324,13 +299,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
     )
 
     build_app(
@@ -355,13 +324,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(

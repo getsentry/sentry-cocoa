@@ -5,6 +5,7 @@
 ### Fixes
 
 - Add missing context for watchdog termination events (#5242)
+- Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
 
 ### Improvements
 

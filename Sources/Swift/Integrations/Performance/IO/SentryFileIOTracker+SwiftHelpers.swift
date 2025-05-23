@@ -1,4 +1,5 @@
 @_implementationOnly import _SentryPrivate
+import Foundation
 
 extension SentryFileIOTracker {
     func measureReadingData(
