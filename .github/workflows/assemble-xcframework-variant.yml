@@ -3,7 +3,7 @@ name: "Assemble Sentry Cocoa XCFramework variant"
 on:
   workflow_call:
     inputs:
-     
+
       name:
         description: |-
           The Sentry project target to build an XCFramework slice for.
@@ -37,11 +37,11 @@ jobs:
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
-      
+
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}${{inputs.suffix}}"
         shell: bash
-      
+
       - name: Archive XCFramework
         uses: actions/upload-artifact@v4
         with:

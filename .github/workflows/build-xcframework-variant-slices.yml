@@ -3,7 +3,7 @@ name: "Build Sentry Cocoa XCFramework variant slices"
 on:
   workflow_call:
     inputs:
-      
+
       sdk-list:
         description: |-
           The list of Apple platform SDKs for which to build slices and assemble into an XCFramework. This must be a JSON array of strings, itself in a string since GitHub Actions doesn't support arrays as inputs.
@@ -11,7 +11,7 @@ on:
         required: false
         default: '["iphoneos", "iphonesimulator", "macosx", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
         type: string
-      
+
       name:
         description: |-
           The Sentry project target to build an XCFramework slice for.
@@ -25,7 +25,7 @@ on:
           E.g. "-Dynamic" or "-WithoutUIKitOrAppKit".
         required: false
         type: string
-      
+
       macho-type:
         description: |-
           The Mach-O type of the build product.
@@ -61,11 +61,11 @@ jobs:
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
     runs-on: macos-14
-    
+
     strategy:
       matrix:
         sdk: ${{ fromJson(inputs.sdk-list) }}
-        
+
     steps:
       - uses: actions/checkout@v4
 
@@ -96,7 +96,7 @@ jobs:
           if-no-files-found: error
           path: |
             ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive
-      
+
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}

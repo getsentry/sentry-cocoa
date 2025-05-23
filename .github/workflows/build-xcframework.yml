@@ -26,7 +26,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
