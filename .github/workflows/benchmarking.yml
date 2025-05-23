@@ -149,7 +149,7 @@ jobs:
                 env: process.env,
                 stdio: 'inherit'
               });
-              
+
               console.log("Test exists but failed, not retrying.");
               core.setFailed('Test exists but failed');
             } catch (error) {
