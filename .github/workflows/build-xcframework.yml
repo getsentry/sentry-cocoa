@@ -25,11 +25,14 @@ concurrency:
 
 jobs:
 
-  build-xcframework-variants:
-    name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Variant
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
-    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: macos-14
+  build-xcframework-variants:    
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: ${{matrix.variant.name}}
+      variant-id: ${{matrix.variant.id}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
     
     strategy:
       matrix:
@@ -47,15 +50,29 @@ jobs:
             macho-type: mh_dylib
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/build-xcframework-variant.yml
-        with:
-          name: ${{matrix.variant.name}}
-          variant-id: ${{matrix.variant.id}}
-          suffix: ${{matrix.variant.suffix}}
-          macho-type: ${{matrix.variant.macho-type}}
-          configuration-suffix: ${{matrix.variant.configuration-suffix}}
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variants
+
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentryswiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            id: sentry-withoutuikit-dynamic
+
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      variant-id: ${{matrix.variant.id}}
 
   validate-xcframework:
     name: Validate XCFramework
