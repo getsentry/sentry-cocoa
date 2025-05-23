@@ -29,10 +29,10 @@ jobs:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
-      variant-id: ${{matrix.variant.id}}
       suffix: ${{matrix.variant.suffix}}
       macho-type: ${{matrix.variant.macho-type}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
     
     strategy:
       matrix:

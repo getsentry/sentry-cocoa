@@ -218,10 +218,24 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      macho-type: staticlib
+      variant-id: sentry-static
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: Sentry
+      variant-id: sentry-static
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
-
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -230,7 +244,11 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh "16.2"
 
-      - run: ./scripts/build-xcframework.sh gameOnly
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-static
+          path: Carthage/
+      - run: find Carthage -name "Sentry.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
 
       - name: Run Fastlane
         run: bundle exec fastlane duplication_test
