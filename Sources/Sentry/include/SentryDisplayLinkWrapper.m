@@ -18,9 +18,23 @@
     return displayLink.targetTimestamp;
 }
 
-- (void)linkWithTarget:(id)target selector:(SEL)sel
+- (void)linkWithTarget:(id)target
+                    selector:(SEL)sel
+    preferredFramesPerSecond:(NSInteger)preferredFramesPerSecond
 {
     displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];
+    if (preferredFramesPerSecond >= 0) {
+        displayLink.preferredFramesPerSecond = preferredFramesPerSecond;
+    }
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+}
+
+- (void)linkWithTarget:(id)target
+                   selector:(SEL)sel
+    preferredFrameRateRange:(CAFrameRateRange)preferredFrameRateRange API_AVAILABLE(ios(15.0))
+{
+    displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];
+    displayLink.preferredFrameRateRange = preferredFrameRateRange;
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }
 
