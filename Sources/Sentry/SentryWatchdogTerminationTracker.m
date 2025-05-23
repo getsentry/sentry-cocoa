@@ -34,7 +34,7 @@
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
-              scopeContextStore:(SentryScopeContextPersistentStore *)serialization
+              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -42,7 +42,7 @@
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
-        self.scopeContextStore = serialization;
+        self.scopeContextStore = scopeContextStore;
     }
     return self;
 }
