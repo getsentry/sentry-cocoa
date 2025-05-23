@@ -33,7 +33,6 @@ jobs:
       macho-type: ${{matrix.variant.macho-type}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
-    
     strategy:
       matrix:
         variant:
@@ -53,7 +52,11 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
-
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      variant-id: ${{matrix.variant.id}}
     strategy:
       matrix:
         variant:
@@ -67,12 +70,6 @@ jobs:
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
             id: sentry-withoutuikit-dynamic
-
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    with:
-      name: ${{matrix.variant.name}}
-      suffix: ${{matrix.variant.suffix}}
-      variant-id: ${{matrix.variant.id}}
 
   validate-xcframework:
     name: Validate XCFramework
