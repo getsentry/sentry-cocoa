@@ -23,6 +23,7 @@
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
+@class SentryScopeContextPersistentStore;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -38,6 +39,8 @@
 @class SentryUIApplication;
 @class SentryViewHierarchy;
 @class SentryUIViewControllerPerformanceTracker;
+@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -61,7 +64,11 @@ NS_ASSUME_NONNULL_BEGIN
  * therefore, get initialized lazily to minimize the memory footprint.
  */
 @interface SentryDependencyContainer : NSObject
+#if !SENTRY_TEST && !SENTRY_TEST_CI
+// We want to avoid the init method to be called outside of tests as it should always use the shared
+// container.
 SENTRY_NO_INIT
+#endif
 
 + (instancetype)sharedInstance;
 
@@ -101,6 +108,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
+@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
 #if SENTRY_HAS_UIKIT
@@ -125,6 +133,13 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
+
+#if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
+#endif
 
 @end
 

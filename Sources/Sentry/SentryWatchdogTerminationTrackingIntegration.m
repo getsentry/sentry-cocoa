@@ -14,6 +14,7 @@
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
@@ -64,12 +65,15 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
+    SentryScopeContextPersistentStore *scopeContextStore =
+        [[SentryScopeContextPersistentStore alloc] initWithFileManager:fileManager];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
-                                                                 fileManager:fileManager];
+                                                                 fileManager:fileManager
+                                                           scopeContextStore:scopeContextStore];
 
     [self.tracker start];
 
@@ -80,13 +84,26 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
+    // Setup the scope observer with its data processors
+    SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor =
+        [SentryDependencyContainer.sharedInstance
+            getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs];
+    SentryWatchdogTerminationContextProcessor *contextProcessor =
+        [SentryDependencyContainer.sharedInstance watchdogTerminationContextProcessor];
+
     SentryWatchdogTerminationScopeObserver *scopeObserver =
         [[SentryWatchdogTerminationScopeObserver alloc]
-            initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                       fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+            initWithBreadcrumbProcessor:breadcrumbProcessor
+                       contextProcessor:contextProcessor];
 
-    [SentrySDK.currentHub configureScope:^(
-        SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+        // Add the observer to the scope so that it can be notified when the scope changes.
+        [outerScope addObserver:scopeObserver];
+
+        // Sync the current context to the observer to capture context modifications that happened
+        // before installation.
+        [scopeObserver setContext:outerScope.contextDictionary];
+    }];
 
     return YES;
 }

@@ -849,8 +849,16 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testReadPreviousBreadcrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<3 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
@@ -871,8 +879,16 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<5 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
@@ -893,7 +909,32 @@ class SentryFileManagerTests: XCTestCase {
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+
+    func testMoveContextFilesToPreviousContextFiles_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("<TEST DATA>".utf8)
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: sut.contextFilePath))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousContextFilePath))
+
+        fm.createFile(atPath: sut.contextFilePath, contents: data)
+
+        XCTAssertTrue(fm.fileExists(atPath: sut.contextFilePath))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousContextFilePath))
+
+        // -- Act --
+        sut.moveContextFileToPreviousContextFile()
+
+        // -- Assert --
+        XCTAssertFalse(fm.fileExists(atPath: sut.contextFilePath))
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousContextFilePath))
+
+        let previousContextData = try Data(contentsOf: URL(fileURLWithPath: sut.previousContextFilePath))
+        XCTAssertEqual(previousContextData, data)
+    }
+
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())

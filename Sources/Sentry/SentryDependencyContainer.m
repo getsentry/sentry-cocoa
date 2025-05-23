@@ -43,6 +43,7 @@
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
 #    import <SentryViewHierarchy.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_IOS
@@ -347,4 +348,32 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
+- (SentryScopeContextPersistentStore *)scopeContextStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeContextStore,
+        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+#if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    // This method is only a factory, therefore do not keep a reference.
+    // The processor will be created each time it is needed.
+    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+        initWithMaxBreadcrumbs:maxBreadcrumbs
+                   fileManager:[self fileManager]];
+}
+
+- (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
+        [[SentryWatchdogTerminationContextProcessor alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory createLowPriorityQueue:
+                        "io.sentry.watchdog-termination-tracking.context-processor"
+                                            relativePriority:0]
+                       scopeContextStore:self.scopeContextStore])
+}
+#endif
 @end

@@ -5,9 +5,20 @@ public class TestDispatchFactory: SentryDispatchFactory {
     public var vendedSourceHandler: ((TestDispatchSourceWrapper) -> Void)?
     public var vendedQueueHandler: ((TestSentryDispatchQueueWrapper) -> Void)?
 
+    public var createLowPriorityQueueInvocations = Invocations<(name: UnsafePointer<CChar>, relativePriority: Int32)>()
+    public var vendedLowPriorityQueueHandler: ((TestSentryDispatchQueueWrapper) -> Void)?
+
     public override func queue(withName name: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr) -> SentryDispatchQueueWrapper {
         let queue = TestSentryDispatchQueueWrapper(name: name, attributes: attributes)
         vendedQueueHandler?(queue)
+        return queue
+    }
+
+    public override func createLowPriorityQueue(_ name: UnsafePointer<CChar>, relativePriority: Int32) -> SentryDispatchQueueWrapper {
+        createLowPriorityQueueInvocations.record((name, relativePriority))
+
+        let queue = TestSentryDispatchQueueWrapper(name: name, attributes: nil)
+        vendedLowPriorityQueueHandler?(queue)
         return queue
     }
 
