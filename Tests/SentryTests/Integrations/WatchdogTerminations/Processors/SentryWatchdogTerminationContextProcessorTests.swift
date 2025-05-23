@@ -80,7 +80,11 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
-    func testSetContext_whenProcessorIsDeallocatedWhileDispatching_shouldNotCrash() {
+    func testSetContext_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+        // The processor is dispatching the file operation on a background queue.
+        // This tests checks that the dispatch block is not keeping a strong reference to the
+        // processor and causes a retain cycle.
+
         // -- Arrange --
         // Configure the mock to not execute the block and only keep a reference to the block
         fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
@@ -94,7 +98,8 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         sut.setContext(fixture.context)
         sut = nil
 
-        // Execute the block after the processor is deallocated
+        // Execute the block after the processor is deallocated to have a weak reference
+        // in the dispatch block
         fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
 
         // -- Assert --

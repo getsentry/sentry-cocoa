@@ -12,14 +12,14 @@ class SentryScopeContextPersistentStore: NSObject {
 
     func readPreviousContextFromDisk() -> [String: [String: Any]]? {
         let fm = FileManager.default
-        guard fm.fileExists(atPath: contextFileURL.path) else {
+        guard fm.fileExists(atPath: previousContextFileURL.path) else {
             return nil
         }
         do {
-            let data = try Data(contentsOf: contextFileURL)
+            let data = try Data(contentsOf: previousContextFileURL)
             return decodeContext(from: data)
         } catch {
-            SentryLog.error("Failed to read context data from file at path: \(contextFileURL), reason: \(error)")
+            SentryLog.error("Failed to read context data from file at url: \(previousContextFileURL), reason: \(error)")
             return nil
         }
     }
@@ -79,5 +79,9 @@ class SentryScopeContextPersistentStore: NSObject {
 
     var contextFileURL: URL {
         return URL(fileURLWithPath: fileManager.contextFilePath)
+    }
+
+    var previousContextFileURL: URL {
+        return URL(fileURLWithPath: fileManager.previousContextFilePath)
     }
 }
