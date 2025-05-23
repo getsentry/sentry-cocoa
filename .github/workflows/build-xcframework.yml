@@ -77,8 +77,7 @@ jobs:
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-13
-    needs:
-      - build-xcframework-variants
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
