@@ -58,7 +58,7 @@ jobs:
       - name: Verify OLD_VERSION is defined
         if: ${{ steps.generate-version-number.outputs.OLD_VERSION == '' }}
         run: |
-          echo "OLD_VERSION is not defined"
+          echo "OLD_VERSION is not defined. Make sure this script is reading the version from the correct file."
           exit 1
 
       - name: Create fake xcframework for update-package-sha.sh
