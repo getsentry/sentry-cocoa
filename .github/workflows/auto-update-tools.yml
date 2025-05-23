@@ -44,9 +44,9 @@ jobs:
       - name: Update Homebrew
         run: brew update
 
-      - name: Install CI tools
+      - name: Install Tools
         run: |
-          make init-ci-format
+          make init
 
       - name: Update tooling versions
         run: make update-versions
