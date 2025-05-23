@@ -47,11 +47,24 @@ jobs:
       - name: Generate Version Number
         id: generate-version-number
         run: |
-          FROM_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
-          echo "FROM_VERSION=${FROM_VERSION}" >> $GITHUB_OUTPUT
+          cat ./Sources/Configuration/Versioning.xcconfig
+          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION
+          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2
+          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' '
 
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
+          OLD_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
+          echo "Read old version: ${OLD_VERSION}"
+          echo "OLD_VERSION=${OLD_VERSION}" >> $GITHUB_OUTPUT
 
-      - run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.FROM }} ${{ steps.generate-version-number.outputs.VERSION }}
-      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+          NEW_VERSION="100.0.$(date +%Y%m%d%H%M%S)"
+          echo "Generated new version: ${NEW_VERSION}"
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Verify OLD_VERSION is defined
+        if: ${{ steps.generate-version-number.outputs.OLD_VERSION == '' }}
+        run: |
+          echo "OLD_VERSION is not defined"
+          exit 1
+
+      - run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+      - run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
