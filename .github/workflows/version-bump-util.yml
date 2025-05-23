@@ -64,8 +64,8 @@ jobs:
       - name: Create fake xcframework for update-package-sha.sh
         run: |
           mkdir -p Carthage
-          echo "<FAKE ZIP>" > Carthage/Sentry.xcframework.zip
-          echo "<FAKE ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
+          echo "<FAKE STATIC ZIP>" > Carthage/Sentry.xcframework.zip
+          echo "<FAKE DYNAMIC ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
 
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
@@ -75,18 +75,18 @@ jobs:
 
       - name: Verify checksum of static xcframework in Package.swift
         run: |
-          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep checksum | cut -d '"' -f 2)
-          EXPECTED_CHECKSUM="704140318d3b69098d1386b82b9c74faba3408585c1d51bf210cdbdeafeb6894"
+          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep "checksum.*Sentry-Static" | cut -d '"' -f 2)
+          EXPECTED_CHECKSUM="7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd"
 
           if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
-            echo "Expected checksum to be$EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
+            echo "Expected checksum to be $EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
             exit 1
           fi
 
       - name: Verify checksum of dynamic xcframework in Package.swift
         run: |
-          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep checksum | cut -d '"' -f 2)
-          EXPECTED_CHECKSUM="704140318d3b69098d1386b82b9c74faba3408585c1d51bf210cdbdeafeb6894"
+          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep "checksum.*Sentry-Dynamic" | cut -d '"' -f 2)
+          EXPECTED_CHECKSUM="f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c"
 
           if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
             echo "Expected checksum to be $EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
