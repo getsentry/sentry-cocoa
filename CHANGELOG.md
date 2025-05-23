@@ -9,6 +9,7 @@
 ### Improvements
 
 - Threading issues in internal dependency container (#5225)
+- Add auto-start for session tracker when SDK is started after didBecomeActive (#5121)
 
 ## 8.51.0
 

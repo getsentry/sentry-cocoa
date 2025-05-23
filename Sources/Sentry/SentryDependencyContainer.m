@@ -1,5 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
+#import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -48,6 +49,10 @@
 #if TARGET_OS_IOS
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
+
+#if TARGET_OS_OSX
+#    import "SentryNSApplication.h"
+#endif
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
@@ -314,9 +319,16 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
-- (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (id<SentryApplication>)application SENTRY_DISABLE_THREAD_SANITIZER(
+    "double-checked lock produce false alarms")
 {
-    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
+#if SENTRY_HAS_UIKIT
+    SENTRY_LAZY_INIT(_application, [[SentryUIApplication alloc] init]);
+#elif TARGET_OS_OSX
+    SENTRY_LAZY_INIT(_application, [[SentryNSApplication alloc] init]);
+#else
+    return nil;
+#endif
 }
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

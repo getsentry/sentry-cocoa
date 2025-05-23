@@ -1,17 +1,17 @@
 #import "SentryApplication.h"
 #import "SentryDefines.h"
 
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_OSX
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A helper tool to retrieve informations from the application instance.
  */
-@interface SentryUIApplication : NSObject <SentryApplication>
+@interface SentryNSApplication : NSObject <SentryApplication>
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#endif // TARGET_OS_OSX
