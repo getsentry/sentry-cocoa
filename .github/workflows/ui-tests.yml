@@ -23,6 +23,10 @@ on:
       - "Samples/iOS-Swift6/iOS-Swift6.yml"
       - "Samples/iOS-Swift6/iOS-Swift6.xcconfig"
       - "Samples/iOS-Swift6/iOS-Swift6-UITests.xcconfig"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
