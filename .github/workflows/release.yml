@@ -23,13 +23,14 @@ jobs:
       suffix: ${{matrix.variant.suffix}}
       macho-type: ${{matrix.variant.macho-type}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
-      variant-id: ${{matrix.variant.id}}
+      include-maccatalyst: ${{matrix.include-maccatalyst}}
     strategy:
       matrix:
         variant:
           - name: Sentry
             suffix: "-Dynamic"
             id: sentry-dynamic
+            include-maccatalyst: "true"
           - name: Sentry
             macho-type: staticlib
             id: sentry-static
