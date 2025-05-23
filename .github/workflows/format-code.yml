@@ -22,7 +22,7 @@ jobs:
 
       - run: swiftlint --version
       - run: |
-          curl -fsSL https://dprint.dev/install.sh | sh -s 0.5.0 > /dev/null 2>&1
+          curl -fsSL https://dprint.dev/install.sh | sh -s 0.50.0 > /dev/null 2>&1
           ~/.dprint/bin/dprint fmt "**/*.{md,json,yaml,yml}"
 
       - name: Format Code
