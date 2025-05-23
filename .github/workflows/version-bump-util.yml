@@ -22,15 +22,35 @@ on:
 
 jobs:
   run-version-bump:
-    name: Run Version Bump
+    # The release workflow uses the Makefile to bump the version.
+    name: Run Version Bump (Makefile)
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Generate Version Number
+        id: generate-version-number
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_ENV
+          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
       # We don't care which version we bump to, as long as it's a valid semver
-      - run: make bump-version TO=${{ env.VERSION }}
-      - run: make verify-version TO=${{ env.VERSION }}
+      - run: make bump-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+
+  run-version-bump-script:
+    # Craft uses the shell script to bump the version.
+    name: Run Version Bump (Shell Script)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Version Number
+        id: generate-version-number
+        run: |
+          FROM_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
+          echo "FROM_VERSION=${FROM_VERSION}" >> $GITHUB_OUTPUT
+
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.FROM }} ${{ steps.generate-version-number.outputs.VERSION }}
+      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
