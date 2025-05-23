@@ -26,7 +26,7 @@ jobs:
           bundler-cache: true
 
       - name: "Download Fastlane Certificate"
-        run: bundle exec fastlane prepare_sign_xcframework
+        run: bundle exec fastlane prepare_signed_xcframework
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
