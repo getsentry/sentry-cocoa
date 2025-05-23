@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
     // -- Arrange --
     const char *queueName = "sentry-dispatch-factory.test";
     int relativePriority = -5;
-    qos_class_t qosClass = QOS_CLASS_BACKGROUND;
+    qos_class_t qosClass = QOS_CLASS_UTILITY;
     dispatch_queue_attr_t _Nullable attr = DISPATCH_QUEUE_SERIAL;
 
     dispatch_queue_attr_t _Nullable attributes
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
     int actualRelativePriority;
     dispatch_qos_class_t actualQoSClass
         = dispatch_queue_get_qos_class(wrappedQueue.queue, &actualRelativePriority);
-    XCTAssertEqual(actualQoSClass, QOS_CLASS_BACKGROUND);
+    XCTAssertEqual(actualQoSClass, QOS_CLASS_UTILITY);
     XCTAssertEqual(actualRelativePriority, -5);
 }
 
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
     // -- Arrange --
     const char *queueName = "sentry-dispatch-factory.test";
     int relativePriority = 5;
-    qos_class_t qosClass = QOS_CLASS_BACKGROUND;
+    qos_class_t qosClass = QOS_CLASS_UTILITY;
     dispatch_queue_attr_t _Nullable attr = DISPATCH_QUEUE_SERIAL;
 
     dispatch_queue_attr_t _Nullable attributes

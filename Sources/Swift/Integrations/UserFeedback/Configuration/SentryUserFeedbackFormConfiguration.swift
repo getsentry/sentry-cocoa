@@ -1,6 +1,5 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
-@_implementationOnly import _SentryPrivate
 import UIKit
 
 /**
