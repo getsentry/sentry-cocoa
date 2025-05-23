@@ -78,7 +78,7 @@ jobs:
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.configuration-suffix}} ${{inputs.include-maccatalyst}}
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.include-maccatalyst}} ${{inputs.configuration-suffix}}
         shell: bash
 
       - name: Remove Sentry.framework from SentrySwiftUI build

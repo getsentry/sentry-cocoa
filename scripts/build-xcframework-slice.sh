@@ -16,8 +16,8 @@ fi
 scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
-configuration_suffix="${5-}"
-include_maccatalyst="${6:-false}"
+include_maccatalyst="${5:-false}"
+configuration_suffix="${6-}"
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 
