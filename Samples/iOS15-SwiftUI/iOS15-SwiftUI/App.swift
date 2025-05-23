@@ -33,7 +33,7 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
     var initializedSentry = false
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard !initializedSentry else { return }
-        SentrySDK.showFeedbackWidget()
+        SentrySDK.feedback.showWidget()
         initializedSentry = true
     }
 }
