@@ -179,7 +179,6 @@ jobs:
       suffix: "-Dynamic"
       variant-id: sentry-dynamic
       sdk-list: '["iphoneos", "iphonesimulator"]'
-      include-maccatalyst: "false"
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices

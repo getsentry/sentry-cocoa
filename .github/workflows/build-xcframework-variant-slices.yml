@@ -46,13 +46,6 @@ on:
         required: true
         type: string
 
-      include-maccatalyst:
-        description: |-
-          Directs whether or not to build a Mac Catalyst compatible slice.
-        required: false
-        type: string
-        default: "false"
-
 jobs:
   build-xcframework-variant-slices:
     name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework Variant Slice for ${{matrix.sdk}}
@@ -78,7 +71,7 @@ jobs:
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.include-maccatalyst}} ${{inputs.configuration-suffix}}
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.configuration-suffix}}
         shell: bash
 
       - name: Remove Sentry.framework from SentrySwiftUI build

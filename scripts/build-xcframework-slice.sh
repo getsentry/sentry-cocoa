@@ -16,8 +16,7 @@ fi
 scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
-include_maccatalyst="${5:-false}"
-configuration_suffix="${6-}"
+configuration_suffix="${5-}"
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 
@@ -68,7 +67,7 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
 fi
 
-if [ "$include_maccatalyst" = "true" ]; then
+if [ "$sdk" = "macosx" ]; then
     #Create framework for mac catalyst
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -project Sentry.xcodeproj/ \
