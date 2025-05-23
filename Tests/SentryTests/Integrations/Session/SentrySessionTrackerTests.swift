@@ -515,7 +515,15 @@ class SentrySessionTrackerTests: XCTestCase {
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidBecomeActive`.
         fixture.application.applicationState = .active
         #endif
-        Dynamic(sut).didBecomeActive()
+        // Dynamic(sut).didBecomeActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func goToBackground() {
@@ -525,7 +533,15 @@ class SentrySessionTrackerTests: XCTestCase {
         // It is expected that the app state is background when the didEnterBackground is called
         fixture.application.applicationState = .background
         #endif
-        Dynamic(sut).didEnterBackground()
+        // Dynamic(sut).didEnterBackground()
+        fixture.notificationCenter
+           .post(
+               Notification(
+                   name: SentryNSNotificationCenterWrapper.didEnterBackgroundNotificationName,
+                   object: nil,
+                   userInfo: nil
+               )
+           )
     }
     
     private func willResignActive() {
@@ -534,7 +550,15 @@ class SentrySessionTrackerTests: XCTestCase {
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillResignActive`.
         fixture.application.applicationState = .active
         #endif
-        Dynamic(sut).willResignActive()
+        // Dynamic(sut).willResignActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func hybridSdkDidBecomeActive() {
@@ -542,7 +566,15 @@ class SentrySessionTrackerTests: XCTestCase {
         // When an app did become active, it is in the active state.
         fixture.application.applicationState = .active
         #endif
-        Dynamic(sut).didBecomeActive()
+        // Dynamic(sut).didBecomeActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -557,7 +589,15 @@ class SentrySessionTrackerTests: XCTestCase {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         fixture.application.applicationState = .background
         #endif
-        Dynamic(sut).willTerminate()
+        // Dynamic(sut).willTerminate()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.willTerminateNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func terminateApp() {

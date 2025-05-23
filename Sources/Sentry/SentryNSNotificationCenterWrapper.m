@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
     return UIApplicationWillTerminateNotification;
 }
 
++ (NSNotificationName)didEnterBackgroundNotificationName
+{
+    return UIApplicationDidEnterBackgroundNotification;
+}
+
 #elif SENTRY_TARGET_MACOS_HAS_UI
 + (NSNotificationName)didBecomeActiveNotificationName
 {
@@ -44,6 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSNotificationName)willTerminateNotificationName
 {
     return NSApplicationWillTerminateNotification;
+}
+
++ (NSNotificationName)didEnterBackgroundNotificationName
+{
+    return NSApplicationDidEnterBackgroundNotification;
 }
 #endif
 
