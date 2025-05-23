@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Add persistence for scope context missing in watchdog termination events (#5242)
+- Add missing context for watchdog termination events (#5242)
 
 ### Improvements
 
