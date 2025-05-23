@@ -1,4 +1,4 @@
-name: Build
+name: "Build Sentry XCFramework"
 on:
   push:
     branches:
@@ -15,6 +15,8 @@ on:
       - "Package.swift"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
       - Samples/macOS-SPM-CommandLine/**
       - Samples/SPM-Dynamic/**
 
@@ -25,18 +27,22 @@ concurrency:
 
 jobs:
 
-  build-xcframework-slices:
-    name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}} XCFramework Slice for ${{matrix.sdk}}
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
-    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: macos-14
+  build-xcframework-variant-slices:    
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
+      include-maccatalyst: ${{matrix.include-maccatalyst}}
     strategy:
       matrix:
-        sdk: [iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator]
         variant:
           - name: Sentry
             suffix: "-Dynamic"
             id: sentry-dynamic
+            include-maccatalyst: "true"
           - name: Sentry
             macho-type: staticlib
             id: sentry-static
@@ -47,44 +53,14 @@ jobs:
             macho-type: mh_dylib
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
-    steps:
-      - uses: actions/checkout@v4
 
-      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
-      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
-      # and cannot be used here because C++ types from imported module 'Foundation' do not support
-      # library evolution; this is an error in the Swift 6 language mode
-      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
-      - run: ./scripts/ci-select-xcode.sh 15.2
-
-      - name: Build xcframework
-        if: startsWith(github.ref, 'refs/heads/release/') == false
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{matrix.variant.name}} "${{matrix.variant.suffix}}" ${{matrix.variant.macho-type}} ${{matrix.variant.configuration-suffix}}
-        shell: sh
-      - name: Remove Sentry.framework from SentrySwiftUI build
-        if: matrix.variant.name == 'SentrySwiftUI'
-        run: |
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
-      - name: Archiving xcarchive
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcframework-${{matrix.variant.id}}-slice-${{matrix.sdk}}
-          if-no-files-found: error
-          path: |
-            ${{github.workspace}}/Carthage/archive/${{matrix.variant.name}}${{matrix.variant.suffix}}/${{matrix.sdk}}.xcarchive
-      - name: Archive build log if failed
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-build-xcframework-${{matrix.variant.id}}-${{matrix.sdk}}
-          path: |
-            *.log
-
-  assemble-xcframeworks:
-    name: Assemble ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
-    runs-on: macos-14
-    needs: build-xcframework-slices
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      variant-id: ${{matrix.variant.id}}
     strategy:
       matrix:
         variant:
@@ -92,36 +68,17 @@ jobs:
             suffix: "-Dynamic"
             id: sentry-dynamic
           - name: Sentry
-            macho-type: staticlib
             id: sentry-static
           - name: SentrySwiftUI
             id: sentryswiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
-            macho-type: dylib
-            configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download ${{matrix.variant.id}} Slices
-        uses: actions/download-artifact@v4
-        with:
-          pattern: xcframework-${{matrix.variant.id}}-slice-*
-          path: xcframework-slices
-      - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{matrix.variant.name}}${{matrix.variant.suffix}}"
-      - name: Archive XCFramework
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcframework-${{github.sha}}-${{matrix.variant.id}}
-          if-no-files-found: error
-          path: ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework.zip
 
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-13
-    needs:
-        - assemble-xcframeworks
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -143,7 +100,7 @@ jobs:
   validate-spm:
     name: Validate Swift Package Manager
     runs-on: macos-13
-    needs: assemble-xcframeworks
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -163,7 +120,7 @@ jobs:
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13
-    needs: assemble-xcframeworks
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -183,7 +140,7 @@ jobs:
   swift-build:
     name: Build with Swift
     runs-on: macos-13
-    needs: assemble-xcframeworks
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
