@@ -1,4 +1,4 @@
-name: 'Build Sentry Cocoa XCFramework variant slices'
+name: "Build Sentry Cocoa XCFramework variant slices"
 
 on:
   workflow_call:

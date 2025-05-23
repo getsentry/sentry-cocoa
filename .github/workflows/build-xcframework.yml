@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
 
-  build-xcframework-variant-slices:    
+  build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
