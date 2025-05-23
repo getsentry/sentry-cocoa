@@ -23,7 +23,7 @@ on:
 
 jobs:
   run-version-bump:
-    # The release workflow uses the Makefile to bump the version.
+    # The release workflow uses the Makefile to bump the version so it needs to be tested.
     name: Run Version Bump (Makefile)
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
       - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
 
   run-version-bump-script:
-    # Craft uses the shell script to bump the version.
+    # Craft uses the shell script to bump the version so it needs to be tested.
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
     steps:
@@ -47,11 +47,6 @@ jobs:
       - name: Generate Version Number
         id: generate-version-number
         run: |
-          cat ./Sources/Configuration/Versioning.xcconfig
-          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION
-          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2
-          cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' '
-
           OLD_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
           echo "Read old version: ${OLD_VERSION}"
           echo "OLD_VERSION=${OLD_VERSION}" >> $GITHUB_OUTPUT
@@ -66,5 +61,42 @@ jobs:
           echo "OLD_VERSION is not defined"
           exit 1
 
-      - run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
-      - run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
+      - name: Create fake xcframework for update-package-sha.sh
+        run: |
+          mkdir -p Carthage
+          echo "<FAKE ZIP>" > Carthage/Sentry.xcframework.zip
+          echo "<FAKE ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
+
+      - name: Bump version
+        run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+
+      - name: Verify outputs of bump util
+        run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
+
+      - name: Verify checksum of static xcframework in Package.swift
+        run: |
+          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep checksum | cut -d '"' -f 2)
+          EXPECTED_CHECKSUM="704140318d3b69098d1386b82b9c74faba3408585c1d51bf210cdbdeafeb6894"
+
+          if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
+            echo "Expected checksum to be$EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
+            exit 1
+          fi
+
+      - name: Verify checksum of dynamic xcframework in Package.swift
+        run: |
+          UPDATED_PACKAGE_SHA=$(cat Package.swift | grep checksum | cut -d '"' -f 2)
+          EXPECTED_CHECKSUM="704140318d3b69098d1386b82b9c74faba3408585c1d51bf210cdbdeafeb6894"
+
+          if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_CHECKSUM" ]; then
+            echo "Expected checksum to be $EXPECTED_CHECKSUM but got $UPDATED_PACKAGE_SHA"
+            exit 1
+          fi
+
+      - name: Verify last-release-runid
+        run: |
+          LAST_RELEASE_RUNID=$(cat .github/last-release-runid)
+          if [ "$LAST_RELEASE_RUNID" != "$GITHUB_RUN_ID" ]; then
+            echo "Expected last-release-runid to be $GITHUB_RUN_ID but got $LAST_RELEASE_RUNID"
+            exit 1
+          fi
