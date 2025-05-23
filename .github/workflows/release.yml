@@ -15,30 +15,50 @@ on:
         required: false
 
 jobs:
-  prepare_framework:
-    runs-on: macos-13-xlarge
-    name: "Create XCFramework"
-    steps:
-      - uses: actions/checkout@v4
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentryswiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            macho-type: mh_dylib
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
 
-      - name: "Generate XCFramework"
-        run: |
-          ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ github.event.inputs.version }}
-          # We need to build the framework during release to get it's SHA value
-          # the framework will be saved as an artefact and we will use the same
-          # binary for the entire release process to avoid the SHA to change
-          make build-xcframework
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: xcframeworks.zip
-          path: |
-            Carthage/Sentry.xcframework.zip
-            Carthage/Sentry-Dynamic.xcframework.zip
-            Carthage/SentrySwiftUI.xcframework.zip
-            Carthage/Sentry-WithoutUIKitOrAppKit.zip
-          overwrite: true
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      variant-id: ${{matrix.variant.id}}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentryswiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            id: sentry-withoutuikit-dynamic
 
   job_release:
     runs-on: ubuntu-latest
@@ -59,8 +79,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: xcframeworks.zip
-          path: Carthage/
+          name: xcframework-${{github.sha}}-*
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
