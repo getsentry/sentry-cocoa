@@ -1,6 +1,7 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
+#import "SentrySerialization.h"
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor ()
 
@@ -37,16 +38,10 @@
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
-    if (![NSJSONSerialization isValidJSONObject:crumb]) {
-        SENTRY_LOG_ERROR(@"Breadcrumb is not a valid JSON object: %@", crumb);
-        return;
-    }
-
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb options:0 error:&error];
-
-    if (error) {
-        SENTRY_LOG_ERROR(@"Error serializing breadcrumb: %@", error);
+    SENTRY_LOG_DEBUG(@"Adding breadcrumb: %@", crumb);
+    NSData *_Nullable jsonData = [SentrySerialization dataWithJSONObject:crumb];
+    if (jsonData == nil) {
+        SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
     }
     [self storeBreadcrumb:jsonData];
@@ -101,7 +96,7 @@
     [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
 }
 
-- (void)storeBreadcrumb:(NSData *)data
+- (void)storeBreadcrumb:(NSData *_Nonnull)data
 {
     unsigned long long fileSize;
     @try {

@@ -372,9 +372,9 @@ static NSObject *sentryDependencyContainerInstanceLock;
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:
-                [self.dispatchFactory createBackgroundQueueWithName:
+                [self.dispatchFactory createLowPriorityQueue:
                         "io.sentry.watchdog-termination-tracking.context-processor"
-                                                   relativePriority:0]
+                                            relativePriority:0]
                        scopeContextStore:self.scopeContextStore])
 }
 #endif
