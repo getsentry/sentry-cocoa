@@ -273,7 +273,7 @@ The SDK manually creates a JSON-like dict:
 And then the [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) calls serialize on the event and then converts it to JSON data.
 
 ```objectivec
- NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
 ```
 
 To implement a deserialized method, we would need to manually implement the counterparts, which is plenty of code. As ObjC is slowly dying out and the future is Swift, we would like to avoid writing plenty of ObjC code that we will convert to Swift in the future.
@@ -307,7 +307,7 @@ To do this conversion safely, we should do it in a major release. We need to con
 The [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) first creates a JSON dict and then converts it to JSON data. Instead, we could directly use the Swift JSONEncoder to save one step in between. This would convert the classes to JSON data directly.
 
 ```objectivec
- NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
 ```
 
 All that said, I suggest converting all public protocol classes to Swift and switching to Swift Codable for serialization, cause it will be less code and more future-proof. Of course, we will run into problems and challenges on the way, but it’s worth doing it.
