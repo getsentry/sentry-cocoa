@@ -1,4 +1,6 @@
 name: SessionReplay-CameraTest
+include:
+  - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
 projectReferences:
@@ -32,3 +34,10 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
+schemes:
+  SessionReplay-CameraTest:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        SessionReplay-CameraTest: all

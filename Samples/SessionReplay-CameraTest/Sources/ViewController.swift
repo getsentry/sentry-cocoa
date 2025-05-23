@@ -1,12 +1,13 @@
 import AVFoundation
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var backgroundLabel: UILabel!
-    @IBOutlet weak var controlsContainerView: UIView!
-
+    @IBOutlet weak var previewContainerView: UIView!
+    
     @IBOutlet weak var enableSentrySwitch: UISwitch!
     @IBOutlet weak var enableSessionReplaySwitch: UISwitch!
     @IBOutlet weak var useViewRendererV2Switch: UISwitch!
@@ -30,15 +31,8 @@ class ViewController: UIViewController {
     private func setupPreviewView() {
         let previewView = PreviewView()
         self.previewView = previewView
-        view.insertSubview(previewView, belowSubview: controlsContainerView)
-
-        previewView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            previewView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            previewView.topAnchor.constraint(equalTo: view.topAnchor),
-            previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        previewContainerView.addSubview(previewView)
+        previewView.matchEdgeAnchors(from: previewContainerView)
     }
 
     private func setupErrorLabel() {
@@ -88,17 +82,7 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func didChangeToggleValue(_ sender: UISwitch) {
-        if sender === enableSessionReplaySwitch {
-            AppDelegate.isSessionReplayEnabled = sender.isOn
-            print("Enable session replay flag changed to: \(AppDelegate.isSessionReplayEnabled)")
-        } else if sender === useViewRendererV2Switch {
-            AppDelegate.isViewRendererV2Enabled = sender.isOn
-            print("Use view renderer V2 flag changed to: \(AppDelegate.isViewRendererV2Enabled)")
-        } else if sender === enableSentrySwitch {
-            AppDelegate.isSentryEnabled = sender.isOn
-            print("Enable Sentry flag changed to: \(AppDelegate.isSentryEnabled)")
-        }
-        AppDelegate.reloadSentrySDK()
+    @IBAction func configureSDK(_ sender: Any) {
+        present(FeaturesViewController(nibName: nil, bundle: nil), animated: true)
     }
 }
