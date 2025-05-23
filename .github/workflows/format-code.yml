@@ -21,11 +21,9 @@ jobs:
         run: make init-ci-format
 
       - run: swiftlint --version
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-      - run: corepack enable
-      - run: yarn install
+      - run: |
+          curl -fsSL https://dprint.dev/install.sh | sh -s 0.5.0 > /dev/null 2>&1
+          ~/.dprint/bin/dprint fmt "**/*.{md,json,yaml,yml}"
 
       - name: Format Code
         run: make format
