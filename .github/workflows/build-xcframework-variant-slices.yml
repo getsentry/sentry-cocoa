@@ -3,7 +3,6 @@ name: "Build Sentry Cocoa XCFramework variant slices"
 on:
   workflow_call:
     inputs:
-
       sdk-list:
         description: |-
           The list of Apple platform SDKs for which to build slices and assemble into an XCFramework. This must be a JSON array of strings, itself in a string since GitHub Actions doesn't support arrays as inputs.

@@ -3,7 +3,6 @@ name: "Assemble Sentry Cocoa XCFramework variant"
 on:
   workflow_call:
     inputs:
-
       name:
         description: |-
           The Sentry project target to build an XCFramework slice for.
