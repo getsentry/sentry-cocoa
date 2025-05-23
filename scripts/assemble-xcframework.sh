@@ -8,8 +8,8 @@ xcframework_name="$2"
 xcodebuild_cmd="xcodebuild -create-xcframework"
 
 for slice_dir in "$search_path"/xcframework-*; do
-    framework_path=$(find "$slice_dir/Products" -name '*.framework' -print -quit)
-    dsym_path=$(find "$slice_dir/dSYMs" -name '*.framework.dSYM' -print -quit)
+    framework_path=$(find "$slice_dir" -name '*.framework' -print -quit)
+    dsym_path=$(find "$slice_dir" -name '*.framework.dSYM' -print -quit)
 
     if [[ -n "$framework_path" ]]; then
         xcodebuild_cmd+=" -framework \"$framework_path\""
