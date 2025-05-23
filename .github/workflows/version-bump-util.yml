@@ -19,6 +19,7 @@ on:
       - "./Sources/Configuration/Versioning.xcconfig"
       - "./Sources/Configuration/SentrySwiftUI.xcconfig"
       - "./Samples/Shared/Config/Versioning.xcconfig"
+      - "./scripts/bump.sh"
 
 jobs:
   run-version-bump:
