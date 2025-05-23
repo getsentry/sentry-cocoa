@@ -7,7 +7,6 @@ init:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	./scripts/update-tooling-versions.sh
-	yarn install
 
 .PHONY: init-ci-build
 init-ci-build:
@@ -40,7 +39,7 @@ lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint --strict
-	yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json,yaml,yml}"
+	dprint check "**/*.{md,json,yaml,yml}"
 .PHONY: lint
 
 format: format-clang format-swift format-markdown format-json format-yaml
@@ -57,15 +56,15 @@ format-swift:
 
 # Format Markdown
 format-markdown:
-	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.md"
+	dprint fmt "**/*.md"
 
 # Format JSON
 format-json:
-	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.json"
+	dprint fmt "**/*.json"
 
 # Format YAML
 format-yaml:
-	yarn prettier --write --ignore-unknown --config .prettierrc "**/*.{yaml,yml}"
+	dprint fmt "**/*.{yaml,yml}"
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)

@@ -57,29 +57,32 @@ repos:
       - id: format-markdown
         name: Format Markdown
         description: "Format Markdown"
-        language: node
         files: ^.*\.md$
         types_or: [markdown]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        args:
+          - "fmt"
 
       - id: format-json
         name: Format JSON
         description: "Format JSON"
-        language: node
         files: ^.*\.json$
         types_or: [json]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        args:
+          - "fmt"
 
       - id: format-yaml
         name: Format YAML
         description: "Format YAML"
-        language: node
         files: ^.*\.{yaml,yml}$
         types_or: [yaml]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        args:
+          - "fmt"
 
       - id: lint
         name: Run Linters
