@@ -74,7 +74,8 @@ jobs:
         run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
 
       - name: Verify outputs of update-package-sha.sh
-        run: ./scripts/verify-package-sha.sh \
-          --static-checksum "7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd" \
-          --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
-          --last-release-runid "${{ github.run_id }}"
+        run: |
+          ./scripts/verify-package-sha.sh \
+            --static-checksum "7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd" \
+            --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
+            --last-release-runid "${{ github.run_id }}"
