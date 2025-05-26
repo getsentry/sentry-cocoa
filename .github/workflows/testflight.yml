@@ -15,7 +15,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/testflight.yml"
-  workflow_dispatch:
+
 
 jobs:
   upload_to_testflight:
