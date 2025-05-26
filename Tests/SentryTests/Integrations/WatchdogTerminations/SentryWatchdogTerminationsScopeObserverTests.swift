@@ -117,7 +117,6 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
         let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
-        // Use NSDictionary to erase the type information and compare the dictionaries
         XCTAssertNil(invocation)
     }
 

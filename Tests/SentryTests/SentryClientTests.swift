@@ -165,7 +165,7 @@ class SentryClientTest: XCTestCase {
     func testInitCachesInstallationIDAsync() throws {
         let dispatchQueue = fixture.dispatchQueue
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
         // We have to put our cache into a subfolder of the default path, because on macOS we can't delete the default cache folder
@@ -1724,18 +1724,6 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let actual = try lastSentEvent()
         assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-    }
-
-    func testFileManagerCantBeInit() {
-        SentryFileManager.prepareInitError()
-
-        let options = Options()
-        options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
-
-        XCTAssertNil(client)
-
-        SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() throws {

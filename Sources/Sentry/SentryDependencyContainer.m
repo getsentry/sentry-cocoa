@@ -172,26 +172,28 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SentryOptions *options = SentrySDK.options;
-    if (options == nil) {
-        SENTRY_LOG_FATAL(
-            @"SentryDependencyContainer.fileManager called before SentrySDK.options was set.");
-    }
-    return [self getFileManagerForOptions:options];
+    SENTRY_LAZY_INIT(_fileManager, ({
+        SentryOptions *options = SentrySDK.options;
+        if (options == nil) {
+            SENTRY_LOG_FATAL(
+                @"SentryDependencyContainer.fileManager called before SentrySDK.options was set.");
+        }
+        [self getFileManagerForOptions:options];
+    }));
 }
 
 - (SentryFileManager *)getFileManagerForOptions:(SentryOptions *)options
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_fileManager, ({
-        NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:options
-                                                                          error:&error];
-        if (manager == nil) {
-            SENTRY_LOG_FATAL(@"Could not create file manager - %@", error);
-        }
-        manager;
-    }));
+    NSError *error;
+    SentryFileManager *manager =
+        [[SentryFileManager alloc] initWithOptions:options
+                              dispatchQueueWrapper:self.dispatchQueueWrapper
+                                             error:&error];
+    if (manager == nil) {
+        SENTRY_LOG_FATAL(@"Could not create file manager - %@", error);
+    }
+    return manager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
