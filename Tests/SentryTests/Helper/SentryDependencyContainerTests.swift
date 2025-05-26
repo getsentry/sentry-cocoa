@@ -114,7 +114,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -159,8 +159,8 @@ final class SentryDependencyContainerTests: XCTestCase {
    func testScopeContextStore_shouldReturnSameInstance() {
        // -- Act --
        let container = SentryDependencyContainer()
-       let scopeContextStore1 = container.scopeContextStore
-       let scopeContextStore2 = container.scopeContextStore
+       let scopeContextStore1 = container.scopeContextPersistentStore
+       let scopeContextStore2 = container.scopeContextPersistentStore
 
        // -- Assert --
        XCTAssertIdentical(scopeContextStore1, scopeContextStore2)

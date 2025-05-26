@@ -29,7 +29,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         sut = fixture.getSut()
     }
 
-    func testMoveContextFilesToPreviousContextFiles_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
+    func testMoveFileToPreviousFile_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
@@ -46,7 +46,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.previousContextFileURL.path))
 
         // -- Act --
-        sut.moveContextFileToPreviousContextFile()
+        sut.moveCurrentFileToPreviousFile()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))

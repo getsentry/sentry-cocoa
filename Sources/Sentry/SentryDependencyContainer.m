@@ -173,27 +173,14 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
-        SentryOptions *options = SentrySDK.options;
-        if (options == nil) {
-            SENTRY_LOG_FATAL(
-                @"SentryDependencyContainer.fileManager called before SentrySDK.options was set.");
+        NSError *error;
+        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                                                          error:&error];
+        if (manager == nil) {
+            SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
         }
-        [self getFileManagerForOptions:options];
+        manager;
     }));
-}
-
-- (SentryFileManager *)getFileManagerForOptions:(SentryOptions *)options
-    SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
-{
-    NSError *error;
-    SentryFileManager *manager =
-        [[SentryFileManager alloc] initWithOptions:options
-                              dispatchQueueWrapper:self.dispatchQueueWrapper
-                                             error:&error];
-    if (manager == nil) {
-        SENTRY_LOG_FATAL(@"Could not create file manager - %@", error);
-    }
-    return manager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -361,9 +348,10 @@ static NSObject *sentryDependencyContainerInstanceLock;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (SentryScopeContextPersistentStore *)scopeContextStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryScopeContextPersistentStore *)
+    scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_scopeContextStore,
+    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
         [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
@@ -375,7 +363,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
     // The processor will be created each time it is needed.
     return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
         initWithMaxBreadcrumbs:maxBreadcrumbs
-                   fileManager:[self fileManager]];
+                   fileManager:self.fileManager];
 }
 
 - (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
@@ -386,7 +374,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
                 [self.dispatchFactory createLowPriorityQueue:
                         "io.sentry.watchdog-termination-tracking.context-processor"
                                             relativePriority:0]
-                       scopeContextStore:self.scopeContextStore])
+                       scopeContextStore:self.scopeContextPersistentStore])
 }
 #endif
 @end

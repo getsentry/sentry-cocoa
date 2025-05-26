@@ -10,7 +10,7 @@ class SentryScopeContextPersistentStore: NSObject {
 
     // MARK: - Context
 
-    func moveContextFileToPreviousContextFile() {
+    func moveCurrentFileToPreviousFile() {
         SentryLog.debug("Moving context file to previous context file")
         self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
     }
