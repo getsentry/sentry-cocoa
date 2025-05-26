@@ -71,7 +71,7 @@ make format
 
 ### GH actions suddenly formats code differently
 
-It can be that it uses a different clang-format version, than you local computer. Please run `brew install clang-format`, and ensure that your version (run `clang-format --version`) matches the one from GH actions.
+It can be that it uses a different clang-format version, than you local computer. Please run `make init`, and ensure that your version (run `clang-format --version`) matches the one from GH actions. There is now a precommit step that ensures that the versions are synchronized, see `scripts/check-tooling-versions.sh`.
 
 **More information:**
 We always use the latest version of clang-format in homebrew in [our GH actions](https://github.com/getsentry/sentry-cocoa/blob/bdaf35331fa9dc67fc318e4a25b92cdc9b0c0ed7/.github/workflows/format-code.yml#L19-L20) for formatting the code.
