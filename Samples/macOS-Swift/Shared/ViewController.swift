@@ -1,5 +1,6 @@
 import Cocoa
 import Sentry
+import SentrySampleShared
 import SwiftUI
 
 class ViewController: NSViewController {
@@ -66,6 +67,12 @@ class ViewController: NSViewController {
         CppWrapper().throwNSRangeException()
     }
 
+    @IBAction func throwNSExceptionInNSView(_ sender: Any) {
+        let customView = RaiseNSExceptionInLayoutNSView()
+        customView.frame = NSRect(x: 0, y: 0, width: 100, height: 100)
+        view.addSubview(customView)
+    }
+    
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
