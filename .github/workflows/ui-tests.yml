@@ -12,17 +12,10 @@ on:
       - "fastlane/**"
       - ".sauce/config.yml"
       - "scripts/ci-select-xcode.sh"
-      - "Samples/iOS-Swift/**"
       - "**/*.xctestplan"
-      - "Samples/iOS-SwiftUI/iOS-SwiftUI.yml"
-      - "Samples/iOS-SwiftUI/iOS-SwiftUI.xcconfig"
-      - "Samples/iOS-SwiftUI/iOS-SwiftUI-UITests.xcconfig"
-      - "Samples/iOS-Swift/iOS-Swift.yml"
-      - "Samples/iOS-Swift/iOS-Swift.xcconfig"
-      - "Samples/iOS-Swift/iOS-Swift-UITests.xcconfig"
-      - "Samples/iOS-Swift6/iOS-Swift6.yml"
-      - "Samples/iOS-Swift6/iOS-Swift6.xcconfig"
-      - "Samples/iOS-Swift6/iOS-Swift6-UITests.xcconfig"
+      - "Samples/iOS-SwiftUI/**"
+      - "Samples/iOS-Swift/**"
+      - "Samples/iOS-Swift6/**"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

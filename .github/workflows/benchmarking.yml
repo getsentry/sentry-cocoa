@@ -16,10 +16,6 @@ on:
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
       - "scripts/build-xcframework.sh"
-      - "Samples/iOS-Swift/iOS-Swift.yml"
-      - "Samples/iOS-Swift/iOS-Swift.xcconfig"
-      - "Samples/iOS-Swift/iOS-SwiftClilp.xcconfig"
-      - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
