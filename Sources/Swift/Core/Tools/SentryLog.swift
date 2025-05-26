@@ -1,5 +1,15 @@
 import Foundation
 
+/// A note on the thread safety:
+/// The methods configure and log don't use synchronization mechanisms, meaning they aren't strictly speaking thread-safe.
+/// Still, you can use log from multiple threads. The problem is that when you call configure while
+/// calling log from multiple threads, you experience a race condition. It can take a bit until all
+/// threads know the new config. As the SDK should only call configure once when starting, we do accept
+/// this race condition. Adding locks for evaluating the log level for every log invocation isn't
+/// acceptable, as this adds a significant overhead for every log call. Therefore, we exclude SentryLog
+/// from the ThreadSanitizer as it produces false positives. The tests call configure multiple times,
+/// and the thread sanitizer would surface these race conditions. We accept these race conditions for
+/// the log messages in the tests over adding locking for all log messages.
 @objc
 class SentryLog: NSObject {
     
@@ -11,14 +21,11 @@ class SentryLog: NSObject {
      */
     static let alwaysLevel = SentryLevel.fatal
     private static var logOutput = SentryLogOutput()
-    private static var logConfigureLock = NSLock()
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
-        logConfigureLock.synchronized {
-            self.isDebug = isDebug
-            self.diagnosticLevel = diagnosticLevel
-        }
+        self.isDebug = isDebug
+        self.diagnosticLevel = diagnosticLevel
     }
     
     @objc
