@@ -249,6 +249,8 @@ static NSDate *_Nullable startTimestamp = nil;
     // thread could lead to deadlocks.
     SENTRY_LOG_DEBUG(@"Starting SDK...");
 
+    [LoadValidator validateLoadedOnce];
+
 #if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
