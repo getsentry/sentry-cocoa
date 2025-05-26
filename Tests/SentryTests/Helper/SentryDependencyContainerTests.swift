@@ -158,7 +158,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
    func testScopeContextStore_shouldReturnSameInstance() {
        // -- Act --
-       let container = SentryDependencyContainer()
+       let container = SentryDependencyContainer.createForTesting()
        let scopeContextStore1 = container.scopeContextPersistentStore
        let scopeContextStore2 = container.scopeContextPersistentStore
 
@@ -168,7 +168,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() {
        // -- Act --
-       let container = SentryDependencyContainer()
+       let container = SentryDependencyContainer.createForTesting()
        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
 
@@ -178,7 +178,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldUseParameters() {
        // -- Act --
-       let container = SentryDependencyContainer()
+       let container = SentryDependencyContainer.createForTesting()
        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
 
@@ -192,7 +192,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
    func testSentryWatchdogTerminationContextProcessor_shouldReturnSameInstance() {
        // -- Act --
-       let container = SentryDependencyContainer()
+       let container = SentryDependencyContainer.createForTesting()
        let processor1 = container.watchdogTerminationContextProcessor
        let processor2 = container.watchdogTerminationContextProcessor
 
@@ -202,7 +202,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
    func testSentryWatchdogTerminationContextProcessor_shouldUseLowPriorityQueue() throws {
        // -- Arrange --
-       let container = SentryDependencyContainer()
+       let container = SentryDependencyContainer.createForTesting()
        let dispatchFactory = TestDispatchFactory()
        container.dispatchFactory = dispatchFactory
 

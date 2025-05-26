@@ -64,11 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  * therefore, get initialized lazily to minimize the memory footprint.
  */
 @interface SentryDependencyContainer : NSObject
-#if !SENTRY_TEST && !SENTRY_TEST_CI
-// We want to avoid the init method to be called outside of tests as it should always use the shared
-// container.
 SENTRY_NO_INIT
-#endif
 
 + (instancetype)sharedInstance;
 
@@ -139,6 +135,10 @@ SENTRY_NO_INIT
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)
     SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
+#endif
+
+#if SENTRY_TEST || SENTRY_TEST_CI
++ (instancetype)createForTesting;
 #endif
 
 @end

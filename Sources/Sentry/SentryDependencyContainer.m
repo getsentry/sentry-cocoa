@@ -377,4 +377,12 @@ static NSObject *sentryDependencyContainerInstanceLock;
                        scopeContextStore:self.scopeContextPersistentStore])
 }
 #endif
+
+#if SENTRY_TEST || SENTRY_TEST_CI
++ (instancetype)createForTesting;
+{
+    return [[SentryDependencyContainer alloc] init];
+}
+#endif
+
 @end
