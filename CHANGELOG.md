@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Remove unnecessary lock in SentryLog.configure (#5297)
+
 ## 8.51.1
 
 ### Fixes
