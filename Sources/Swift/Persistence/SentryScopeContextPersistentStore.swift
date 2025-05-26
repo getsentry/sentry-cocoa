@@ -10,6 +10,11 @@ class SentryScopeContextPersistentStore: NSObject {
 
     // MARK: - Context
 
+    func moveContextFileToPreviousContextFile() {
+        SentryLog.debug("Moving context file to previous context file")
+        self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
+    }
+
     func readPreviousContextFromDisk() -> [String: [String: Any]]? {
         let fm = FileManager.default
         guard fm.fileExists(atPath: previousContextFileURL.path) else {
@@ -77,11 +82,23 @@ class SentryScopeContextPersistentStore: NSObject {
 
     // MARK: - Helpers
 
+    /**
+     * Path to a state file holding the latest context observed from the scope.
+     *
+     * This path is used to keep a persistent copy of the scope context on disk, to be available after
+     * restart of the app.
+     */
     var contextFileURL: URL {
-        return URL(fileURLWithPath: fileManager.contextFilePath)
+        return fileManager.getSentryPathAsURL().appendingPathComponent("context.state")
     }
 
+    /**
+     * Path to the previous state file holding the latest context observed from the scope.
+     *
+     * This file is overwritten at SDK start and kept as a copy of the last context file until the next
+     * SDK start.
+     */
     var previousContextFileURL: URL {
-        return URL(fileURLWithPath: fileManager.previousContextFilePath)
+        return fileManager.getSentryPathAsURL().appendingPathComponent("previous.context.state")
     }
 }

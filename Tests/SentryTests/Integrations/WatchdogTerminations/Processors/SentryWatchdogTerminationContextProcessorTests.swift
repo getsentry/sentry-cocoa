@@ -7,6 +7,7 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
 
     private class Fixture {
         let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
+        let scopeContextStore: TestSentryScopeContextPersistentStore!
         let fileManager: TestFileManager!
 
         let context: [String: [String: Any]] = [
@@ -31,12 +32,13 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
 
             self.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             self.fileManager = try TestFileManager(options: Options())
+            self.scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
         }
 
         func getSut() -> SentryWatchdogTerminationContextProcessor {
             SentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
+                scopeContextStore: scopeContextStore
             )
         }
     }
@@ -160,7 +162,7 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         sut.setContext(fixture.invalidContext)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: URL(fileURLWithPath: fixture.fileManager.contextFilePath))
+        let writtenData = try Data(contentsOf: fixture.scopeContextStore.contextFileURL)
         XCTAssertEqual(writtenData, data)
     }
 
@@ -193,15 +195,14 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
-        let fm = FileManager.default
-        fm.createFile(atPath: fixture.fileManager.contextFilePath, contents: data)
+        FileManager.default.createFile(atPath: fixture.scopeContextStore.contextFileURL.path, contents: data)
     }
 
     fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.fileManager.contextFilePath), file: file, line: line)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeContextStore.contextFileURL.path), file: file, line: line)
     }
 
     fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.contextFilePath), file: file, line: line)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeContextStore.contextFileURL.path), file: file, line: line)
     }
 }

@@ -212,7 +212,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
        // -- Assert --
        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createLowPriorityQueueInvocations.first)
-       XCTAssertEqual(String(cString: dispatchFactoryInvocation.name), "io.sentry.watchdog-termination-tracking.context-processor")
+       XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.context-processor")
        XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
    }
 }

@@ -34,22 +34,6 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-/**
- * Path to a state file holding the latest context observed from the scope.
- *
- * This path is used to keep a persistent copy of the scope context on disk, to be available after
- * restart of the app.
- */
-@property (nonatomic, readonly) NSString *contextFilePath;
-
-/**
- * Path to the previous state file holding the latest context observed from the scope.
- *
- * This file is overwritten at SDK start and kept as a copy of the last context file until the next
- * SDK start.
- */
-@property (nonatomic, readonly) NSString *previousContextFilePath;
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
@@ -85,6 +69,12 @@ SENTRY_NO_INIT
  */
 - (void)deleteAllEnvelopes;
 
+#pragma mark - Convenience Accessors
+- (NSURL *)getSentryPathAsURL;
+
+#pragma mark - State
+- (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath;
+
 #pragma mark - Session
 - (void)storeCurrentSession:(SentrySession *)session;
 - (SentrySession *_Nullable)readCurrentSession;
@@ -113,9 +103,6 @@ SENTRY_NO_INIT
 #pragma mark - Breadcrumbs
 - (void)moveBreadcrumbsToPreviousBreadcrumbs;
 - (NSArray *)readPreviousBreadcrumbs;
-
-#pragma mark - Contexts
-- (void)moveContextFileToPreviousContextFile;
 
 #pragma mark - TimezoneOffset
 - (NSNumber *_Nullable)readTimezoneOffset;

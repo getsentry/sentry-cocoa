@@ -113,9 +113,6 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 @property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
 
-@property (nonatomic, copy) NSString *contextFilePath;
-@property (nonatomic, copy) NSString *previousContextFilePath;
-
 @end
 
 @implementation SentryFileManager
@@ -187,15 +184,18 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.appHangEventFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
-
-    self.contextFilePath = [self.sentryPath stringByAppendingPathComponent:@"context.state"];
-    self.previousContextFilePath =
-        [self.sentryPath stringByAppendingPathComponent:@"previous.context.state"];
 }
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
 {
     _delegate = delegate;
+}
+
+#pragma mark - Convenience Accessors
+
+- (NSURL *)getSentryPathAsURL
+{
+    return [NSURL fileURLWithPath:self.sentryPath];
 }
 
 #pragma mark - Envelope
@@ -506,16 +506,6 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 
     return breadcrumbs;
-}
-
-#pragma mark - Contexts
-
-- (void)moveContextFileToPreviousContextFile
-{
-    SENTRY_LOG_DEBUG(@"Moving context file to previous context file");
-    @synchronized(self.contextFilePath) {
-        [self moveState:self.contextFilePath toPreviousState:self.previousContextFilePath];
-    }
 }
 
 #pragma mark - TimezoneOffset

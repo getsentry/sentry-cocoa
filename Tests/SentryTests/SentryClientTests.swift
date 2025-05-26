@@ -150,6 +150,7 @@ class SentryClientTest: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        SentryFileManager.tearDownInitError()
         clearTestState()
     }
     
