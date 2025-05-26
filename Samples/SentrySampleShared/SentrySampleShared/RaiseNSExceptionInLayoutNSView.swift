@@ -1,5 +1,7 @@
 import Foundation
 
+#if os(macOS)
+
 import AppKit
 
 /// For reproducing https://github.com/getsentry/sentry-cocoa/issues/5058
@@ -12,3 +14,5 @@ public class RaiseNSExceptionInLayoutNSView: NSView {
         super.layout()
     }
 }
+
+#endif // os(macOS)
