@@ -16,41 +16,27 @@ class SentryScopeContextPersistentStore: NSObject {
     }
 
     func readPreviousContextFromDisk() -> [String: [String: Any]]? {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: previousContextFileURL.path) else {
-            return nil
-        }
+        SentryLog.debug("Reading previous context file at path: \(previousContextFileURL.path)")
         do {
-            let data = try Data(contentsOf: previousContextFileURL)
+            let data = try fileManager.readData(fromPath: previousContextFileURL.path)
             return decodeContext(from: data)
         } catch {
-            SentryLog.error("Failed to read context data from file at url: \(previousContextFileURL), reason: \(error)")
+            SentryLog.error("Failed to read previous context file at path: \(previousContextFileURL.path), reason: \(error)")
             return nil
         }
     }
 
     func writeContextToDisk(context: [String: [String: Any]]) {
+        SentryLog.debug("Writing context to disk at path: \(contextFileURL.path)")
         guard let data = encode(context: context) else {
             return
         }
-        do {
-            try data.write(to: contextFileURL, options: .atomic)
-        } catch {
-            SentryLog.error("Failed to write context data to file at path: \(contextFileURL), reason: \(error)")
-        }
+        fileManager.write(data, toPath: contextFileURL.path)
     }
 
     func deleteContextOnDisk() {
         SentryLog.debug("Deleting context file at path: \(contextFileURL.path)")
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: contextFileURL.path) else {
-            return
-        }
-        do {
-            try fm.removeItem(atPath: contextFileURL.path)
-        } catch {
-            SentryLog.error("Failed to delete context file at path: \(contextFileURL.path), reason: \(error)")
-        }
+        fileManager.removeFile(atPath: contextFileURL.path)
     }
 
     // MARK: - Encoding
@@ -59,25 +45,26 @@ class SentryScopeContextPersistentStore: NSObject {
         // We need to check if the context is a valid JSON object before encoding it.
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
-        guard JSONSerialization.isValidJSONObject(context) else {
+        guard let data = SentrySerialization.data(withJSONObject: context) else {
             SentryLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
             return nil
         }
-        do {
-            return try JSONSerialization.data(withJSONObject: context, options: [])
-        } catch {
-            SentryLog.error("Failed to serialize context, reason: \(error)")
-            return nil
-        }
+        return data
     }
 
     private func decodeContext(from data: Data) -> [String: [String: Any]]? {
-        do {
-            return try JSONSerialization.jsonObject(with: data, options: []) as? [String: [String: Any]]
-        } catch {
-            SentryLog.error("Failed to deserialize context, reason: \(error)")
+        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
+            SentryLog.error("Failed to deserialize context, reason: data is not valid json")
             return nil
         }
+        // Validate that the deserialized values are of the expected type.
+        for (key, value) in deserialized {
+            guard value is [String: Any] else {
+                SentryLog.error("Failed to deserialize context, reason: value for key \(key) is not a valid dictionary")
+                return nil
+            }
+        }
+        return deserialized as? [String: [String: Any]]
     }
 
     // MARK: - Helpers

@@ -121,6 +121,9 @@ SENTRY_NO_INIT
 - (void)removeFileAtPath:(NSString *)path;
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 - (BOOL)isDirectory:(NSString *)path;
+- (nullable NSData *)readDataFromPath:(NSString *)path
+                                error:(NSError *__autoreleasing _Nullable *)error;
+- (BOOL)writeData:(NSData *)data toPath:(NSString *)path;
 
 BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
 

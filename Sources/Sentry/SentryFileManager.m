@@ -606,6 +606,26 @@ _non_thread_safe_removeFileAtPath(NSString *path)
                                         error:error];
 }
 
+- (nullable NSData *)readDataFromPath:(NSString *)path
+                                error:(NSError *__autoreleasing _Nullable *)error
+{
+    return [NSData dataWithContentsOfFile:path options:0 error:error];
+}
+
+- (BOOL)writeData:(NSData *)data toPath:(NSString *)path
+{
+    NSError *error;
+    if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
+        SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
+        return NO;
+    }
+    if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
+        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", path, error);
+        return NO;
+    }
+    return YES;
+}
+
 - (void)deleteAllFolders
 {
     [self removeFileAtPath:self.sentryPath];
@@ -1033,20 +1053,6 @@ removeAppLaunchProfilingConfigFile(void)
     } else {
         return nil;
     }
-}
-
-- (BOOL)writeData:(NSData *)data toPath:(NSString *)path
-{
-    NSError *error;
-    if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
-        SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
-        return NO;
-    }
-    if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
-        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", path, error);
-        return NO;
-    }
-    return YES;
 }
 
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path

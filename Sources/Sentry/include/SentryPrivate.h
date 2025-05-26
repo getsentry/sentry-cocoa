@@ -21,6 +21,7 @@
 #import "SentryRandom.h"
 #import "SentryScreenshot.h"
 #import "SentrySdkInfo.h"
+#import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
