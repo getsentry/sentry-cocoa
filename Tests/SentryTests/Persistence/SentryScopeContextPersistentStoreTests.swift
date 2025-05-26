@@ -208,4 +208,22 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
     }
+
+    func testContextFileURL_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("context.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.contextFileURL, expectedUrl)
+    }
+
+    func testPreviousContextFileURL_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("previous.context.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.previousContextFileURL, expectedUrl)
+    }
 }

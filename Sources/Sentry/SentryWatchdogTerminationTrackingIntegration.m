@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
     SentryScopeContextPersistentStore *scopeContextStore =
-        [[SentryScopeContextPersistentStore alloc] initWithFileManager:fileManager];
+        [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
