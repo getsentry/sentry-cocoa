@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- XCFrameworks are now signed (#5271)
+
 ### Improvements
 
 - Remove unnecessary lock in SentryLog.configure (#5297)
