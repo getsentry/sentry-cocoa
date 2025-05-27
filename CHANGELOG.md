@@ -10,6 +10,10 @@
 
 - XCFrameworks are now signed (#5271)
 
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+
 ## 8.51.1
 
 ### Fixes
