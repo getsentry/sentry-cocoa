@@ -31,6 +31,9 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertNil(sentry_launchTracer)
     }
 
+    // TTFD only works when UIKit is available, so we only test this on iOS.
+#if os(iOS)
+
     func testStopLaunchTraceProfile_WhenTTFDEnabled_DoesNotStop() {
         // Arrange
         fixture.options.enableAppLaunchProfiling = true
@@ -47,6 +50,7 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssertNotNil(sentry_launchTracer, "LaunchTracer must wait until TTFD gets reported before stopping the profiler")
     }
+#endif // os(iOS)
 
     func testLaunchTraceProfileConfiguration() throws {
         // -- Arrange --
