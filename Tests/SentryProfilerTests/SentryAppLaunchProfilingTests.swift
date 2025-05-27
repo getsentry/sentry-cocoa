@@ -31,6 +31,23 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertNil(sentry_launchTracer)
     }
 
+    func testStopLaunchTraceProfile_WhenTTFDEnabled_DoesNotStop() {
+        // Arrange
+        fixture.options.enableAppLaunchProfiling = true
+        fixture.options.profilesSampleRate = 1
+        fixture.options.tracesSampleRate = 1
+        fixture.options.enableTimeToFullDisplayTracing = true
+
+        sentry_configureLaunchProfiling(fixture.options)
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssertNotNil(sentry_launchTracer)
+        // Act
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Assert
+        XCTAssertNotNil(sentry_launchTracer, "LaunchTracer must wait until TTFD gets reported before stopping the profiler")
+    }
+
     func testLaunchTraceProfileConfiguration() throws {
         // -- Arrange --
         let expectedProfilesSampleRate: NSNumber = 0.567
@@ -484,6 +501,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]).floatValue, 0.5)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle]).intValue, SentryProfileLifecycle.trace.rawValue)
     }
+
 }
 
 // MARK: continuous profiling v2 iOS-only

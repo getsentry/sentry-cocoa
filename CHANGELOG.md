@@ -6,6 +6,10 @@
 
 - XCFrameworks are now signed (#5271)
 
+### Fixes
+
+- Fix race condition when TTFD and app launch profiling both enabled (#5300)
+
 ### Improvements
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
