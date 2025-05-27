@@ -230,7 +230,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 #if TARGET_OS_OSX
-    // Reference to SentryCrashExceptionApplication toprevent compiler from stripping it
+    // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
     [SentryCrashExceptionApplication class];
 #endif
 
