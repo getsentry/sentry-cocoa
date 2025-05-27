@@ -56,7 +56,6 @@ class UIRedactBuilderTests: XCTestCase {
     private var rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     
     private func getSut(_ option: RedactOptions = RedactOptions()) -> UIRedactBuilder {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         return UIRedactBuilder(options: option)
     }
     
