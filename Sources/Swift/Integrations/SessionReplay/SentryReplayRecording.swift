@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-class SentryReplayRecording: NSObject {
+@_spi(Private) public class SentryReplayRecording: NSObject {
     
     static let SentryReplayEncoding = "h264"
     static let SentryReplayContainer = "mp4"
