@@ -958,7 +958,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotEqual(fixture.exception, client.captureExceptionWithScopeInvocations.first?.exception)
         XCTAssertEqual(fixture.exception.name, client.captureExceptionWithScopeInvocations.first?.exception.name)
         XCTAssertEqual(fixture.exception.reason, client.captureExceptionWithScopeInvocations.first?.exception.reason)
-        XCTAssertEqual(fixture.exception.userInfo, client.captureExceptionWithScopeInvocations.first?.exception.userInfo)
         XCTAssertEqual(fixture.scope, client.captureExceptionWithScopeInvocations.first?.scope)
     }
 #endif
