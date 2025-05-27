@@ -51,18 +51,16 @@ class LoadValidator: NSObject {
         }
         
         if imagesWhereSentryIsFound.count > 1 {
-#if DEBUG
             var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
             message.append("Ensure the SDK is linked only once")
             imagesWhereSentryIsFound.forEach { path in
                 message.append("  - \(path)")
             }
-            SentryLog.log(message: message.joined(separator: "\n"), andLevel: SentryLevel.debug)
+            print(message.joined(separator: "\n"))
+#if DEBUG
             // Raise a debugger breakpoint
             raise(SIGTRAP)
-#else
-            SentryLog.log(message: "❌ Sentry SDK was loaded multiple times in the binary ❌", andLevel: SentryLevel.warning)
 #endif
         }
     }
