@@ -24,7 +24,7 @@
 
 @implementation SentryExceptionWrapper
 
-- (nullable instancetype)initWithException:(NSException *)exception
+- (instancetype)initWithException:(NSException *)exception
 {
     if (self = [super initWithName:exception.name
                             reason:exception.reason
@@ -37,6 +37,7 @@
 - (NSArray<SentryThread *> *)buildThreads
 {
     SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@0];
+    sentryThread.name = @"NSException Thread";
     sentryThread.crashed = @YES;
     // This data might not be real, but we cannot collect other threads
     sentryThread.current = @YES;

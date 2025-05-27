@@ -229,7 +229,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryId *)captureCrashOnException:(NSException *)exception;
++ (SentryId *)captureCrashOnException:(NSException *)exception
+    NS_SWIFT_NAME(captureCrashOn(exception:));
 
 #endif // TARGET_OS_OSX
 

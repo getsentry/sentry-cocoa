@@ -2094,6 +2094,21 @@ class SentryClientTest: XCTestCase {
         sut.captureFatalEvent(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
         XCTAssertEqual(scope.replayId, "someReplay")
     }
+    
+    func testCaptureSentryWrappedException() throws {
+        let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
+        // If we don't raise the exception, it won't have the callStack data
+        let raisedException = ExceptionCatcher.try {
+            exception.raise()
+        }
+        let sentryException = SentryExceptionWrapper(exception: raisedException!)
+        let eventId = fixture.getSut().capture(exception: sentryException, scope: fixture.scope)
+
+        eventId.assertIsNotEmpty()
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(actual.threads?.count, 1)
+        XCTAssertEqual(actual.threads?[0].name, "NSException Thread")
+    }
 }
 
 private extension SentryClientTest {

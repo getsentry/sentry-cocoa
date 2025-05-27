@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryExceptionWrapper : NSException
 
-- (instancetype)initWithException:(NSException *)exception;
+- (nullable instancetype)initWithException:(NSException *)exception;
 - (NSArray<SentryThread *> *)buildThreads;
 
 @end
