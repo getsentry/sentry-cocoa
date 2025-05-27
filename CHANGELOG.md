@@ -9,6 +9,7 @@
 ### Improvements
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 
 ## 8.51.1
 
