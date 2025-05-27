@@ -8,7 +8,7 @@
 
 ### Improvements
 
-- Remove unnecessary lock in SentryLog.configure (#5297)
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
 
 ## 8.51.1
 
