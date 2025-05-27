@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Fix race condition when TTFD and app launch profiling both enabled (#5300)
+- Fix race condition when TTFD and app launch profiling are both enabled (#5300)
 
 ### Improvements
 
