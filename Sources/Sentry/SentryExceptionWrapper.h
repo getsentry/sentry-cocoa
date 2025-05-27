@@ -10,6 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if TARGET_OS_OSX
+
 @class SentryThread;
 
 /**
@@ -21,5 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<SentryThread *> *)buildThreads;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

@@ -215,10 +215,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event.exceptions = @[ sentryException ];
 
+#if TARGET_OS_OSX
     // When a exception class is SentryExceptionWrapper, we should use the thread from it
     if ([exception isKindOfClass:[SentryExceptionWrapper class]]) {
         event.threads = [(SentryExceptionWrapper *)exception buildThreads];
     }
+#endif
 
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;

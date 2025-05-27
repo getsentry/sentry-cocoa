@@ -6,15 +6,17 @@
 //  Copyright © 2025 Sentry. All rights reserved.
 //
 
-#import "SentryExceptionWrapper.h"
-#import "SentryCrashStackEntryMapper.h"
-#import "SentryCrashSymbolicator.h"
-#import "SentryFrameRemover.h"
-#import "SentryInAppLogic.h"
-#import "SentryOptions+Private.h"
-#import "SentrySDK+Private.h"
-#import "SentryStacktrace.h"
-#import "SentryThread.h"
+#if TARGET_OS_OSX
+
+#    import "SentryExceptionWrapper.h"
+#    import "SentryCrashStackEntryMapper.h"
+#    import "SentryCrashSymbolicator.h"
+#    import "SentryFrameRemover.h"
+#    import "SentryInAppLogic.h"
+#    import "SentryOptions+Private.h"
+#    import "SentrySDK+Private.h"
+#    import "SentryStacktrace.h"
+#    import "SentryThread.h"
 
 @interface SentryExceptionWrapper ()
 
@@ -82,3 +84,5 @@
 }
 
 @end
+
+#endif
