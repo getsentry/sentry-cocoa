@@ -13,6 +13,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
+#import "SentryExceptionWrapper.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
@@ -213,6 +214,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
+
+    // When a exception class is SentryExceptionWrapper, we should use the thread from it
+    if ([exception isKindOfClass:[SentryExceptionWrapper class]]) {
+        event.threads = [(SentryExceptionWrapper *)exception buildThreads];
+    }
+
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }

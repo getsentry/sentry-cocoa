@@ -1,0 +1,83 @@
+//
+//  SentryExceptionWrapper.m
+//  Sentry
+//
+//  Created by Itay Brenner on 27/5/25.
+//  Copyright © 2025 Sentry. All rights reserved.
+//
+
+#import "SentryExceptionWrapper.h"
+#import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashSymbolicator.h"
+#import "SentryFrameRemover.h"
+#import "SentryInAppLogic.h"
+#import "SentryOptions+Private.h"
+#import "SentrySDK+Private.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+
+@interface SentryExceptionWrapper ()
+
+@property (nonatomic, strong) NSException *originalException;
+
+@end
+
+@implementation SentryExceptionWrapper
+
+- (nullable instancetype)initWithException:(NSException *)exception
+{
+    if (self = [super initWithName:exception.name
+                            reason:exception.reason
+                          userInfo:exception.userInfo]) {
+        _originalException = exception;
+    }
+    return self;
+}
+
+- (NSArray<SentryThread *> *)buildThreads
+{
+    SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@0];
+    sentryThread.crashed = @YES;
+    // This data might not be real, but we cannot collect other threads
+    sentryThread.current = @YES;
+    sentryThread.isMain = @YES;
+
+    SentryCrashStackEntryMapper *crashStackToEntryMapper = [self buildCrashStackToEntryMapper];
+    NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
+
+    // Iterate over all the addresses, symbolicate and create a SentryFrame
+    [self.originalException.callStackReturnAddresses
+        enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            SentryCrashStackCursor stackCursor;
+            stackCursor.stackEntry.address = [obj unsignedLongValue];
+            sentrycrashsymbolicator_symbolicate(&stackCursor);
+
+            [frames addObject:[crashStackToEntryMapper
+                                  sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry]];
+        }];
+
+    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+
+    // The frames must be ordered from caller to callee, or oldest to youngest
+    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+
+    sentryThread.stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
+                                                             registers:@{}];
+
+    return @[ sentryThread ];
+}
+
+- (SentryCrashStackEntryMapper *)buildCrashStackToEntryMapper
+{
+    SentryOptions *options = SentrySDK.options;
+
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+
+    return crashStackEntryMapper;
+}
+
+@end

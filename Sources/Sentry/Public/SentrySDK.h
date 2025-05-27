@@ -222,6 +222,17 @@ SENTRY_NO_INIT
                 withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(exception:block:));
 
+#if TARGET_OS_OSX
+/**
+ * Captures an exception event and sends it to Sentry using the stacktrace from the exception.
+ * @param exception The exception to send to Sentry.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ *
+ */
++ (SentryId *)captureCrashOnException:(NSException *)exception;
+
+#endif // TARGET_OS_OSX
+
 /**
  * Captures a message event and sends it to Sentry.
  * @param message The message to send to Sentry.

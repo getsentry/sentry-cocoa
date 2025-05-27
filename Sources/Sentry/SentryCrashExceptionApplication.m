@@ -22,7 +22,7 @@
 
 - (void)_crashOnException:(NSException *)exception
 {
-    [SentrySDK captureException:exception];
+    [SentrySDK captureCrashOnException:exception];
     abort();
 }
 
