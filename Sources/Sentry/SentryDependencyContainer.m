@@ -36,6 +36,7 @@
 #import <SentryThreadWrapper.h>
 #import <SentryTracer.h>
 #import <SentryUIViewControllerPerformanceTracker.h>
+#import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
@@ -356,6 +357,18 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 
 #if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+    (SentryOptions *)options
+{
+    // This method is only a factory, therefore do not keep a reference.
+    // The scope observer will be created each time it is needed.
+    return [[SentryWatchdogTerminationScopeObserver alloc]
+        initWithBreadcrumbProcessor:
+            [self
+                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
+                   contextProcessor:self.watchdogTerminationContextProcessor];
+}
+
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {

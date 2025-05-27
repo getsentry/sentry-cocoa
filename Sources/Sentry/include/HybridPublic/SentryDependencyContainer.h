@@ -4,7 +4,6 @@
 #    import "SentryDefines.h"
 #endif
 
-@protocol SentryANRTracker;
 @class SentryAppStateManager;
 @class SentryBinaryImageCache;
 @class SentryCrash;
@@ -24,6 +23,9 @@
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
 @class SentryScopeContextPersistentStore;
+@class SentryOptions;
+
+@protocol SentryANRTracker;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -39,6 +41,7 @@
 @class SentryUIApplication;
 @class SentryViewHierarchy;
 @class SentryUIViewControllerPerformanceTracker;
+@class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationContextProcessor;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
@@ -131,6 +134,8 @@ SENTRY_NO_INIT
 #endif // SENTRY_HAS_METRIC_KIT
 
 #if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+    (SentryOptions *)options;
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)

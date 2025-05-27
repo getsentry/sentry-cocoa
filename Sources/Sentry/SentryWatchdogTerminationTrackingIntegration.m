@@ -11,6 +11,7 @@
 #    import <SentryDependencyContainer.h>
 #    import <SentryDispatchQueueWrapper.h>
 #    import <SentryHub.h>
+#    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
@@ -18,7 +19,6 @@
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
@@ -35,8 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
+        SentryNSProcessInfoWrapper *processInfoWrapper
+            = SentryDependencyContainer.sharedInstance.processInfoWrapper;
         self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+            = processInfoWrapper.environment[@"XCTestConfigurationFilePath"];
     }
     return self;
 }
@@ -84,17 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
-    // Setup the scope observer with its data processors
-    SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor =
-        [SentryDependencyContainer.sharedInstance
-            getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs];
-    SentryWatchdogTerminationContextProcessor *contextProcessor =
-        [SentryDependencyContainer.sharedInstance watchdogTerminationContextProcessor];
-
     SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [[SentryWatchdogTerminationScopeObserver alloc]
-            initWithBreadcrumbProcessor:breadcrumbProcessor
-                       contextProcessor:contextProcessor];
+        [SentryDependencyContainer.sharedInstance
+            getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.
