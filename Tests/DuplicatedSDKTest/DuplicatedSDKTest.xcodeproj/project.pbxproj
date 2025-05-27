@@ -39,6 +39,13 @@
 			remoteGlobalIDString = D8C030CD2CEF633A007FC5B4;
 			remoteInfo = DuplicatedSDKTest;
 		};
+		F45243162DE56862003E8F50 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D8C030C62CEF633A007FC5B4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8C030CD2CEF633A007FC5B4;
+			remoteInfo = DuplicatedSDKTest;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -84,6 +91,7 @@
 		D89DD6552CEF652B009C3509 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../Carthage/Sentry.xcframework; sourceTree = "<group>"; };
 		D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITest-DuplicatedSDK.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuplicatedSDKTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F45243122DE56862003E8F50 /* Unit Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -130,6 +138,11 @@
 			path = DuplicatedSDKTest;
 			sourceTree = "<group>";
 		};
+		F45243132DE56862003E8F50 /* Unit Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Unit Tests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +178,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F452430F2DE56862003E8F50 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -180,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
+				F45243132DE56862003E8F50 /* Unit Tests */,
 				D89DD6542CEF652B009C3509 /* Frameworks */,
 				D8C030CF2CEF633A007FC5B4 /* Products */,
 			);
@@ -192,6 +213,7 @@
 				D89DD6362CEF650A009C3509 /* ModuleA.framework */,
 				D89DD6482CEF6516009C3509 /* ModuleB.framework */,
 				D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */,
+				F45243122DE56862003E8F50 /* Unit Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -303,6 +325,29 @@
 			productReference = D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */;
 			productType = "com.apple.product-type.application";
 		};
+		F45243112DE56862003E8F50 /* Unit Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F452431A2DE56862003E8F50 /* Build configuration list for PBXNativeTarget "Unit Tests" */;
+			buildPhases = (
+				F452430E2DE56862003E8F50 /* Sources */,
+				F452430F2DE56862003E8F50 /* Frameworks */,
+				F45243102DE56862003E8F50 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F45243172DE56862003E8F50 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F45243132DE56862003E8F50 /* Unit Tests */,
+			);
+			name = "Unit Tests";
+			packageProductDependencies = (
+			);
+			productName = "Unit Tests";
+			productReference = F45243122DE56862003E8F50 /* Unit Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -310,7 +355,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					D89DD6352CEF650A009C3509 = {
@@ -328,6 +373,10 @@
 					D8C030CD2CEF633A007FC5B4 = {
 						CreatedOnToolsVersion = 16.1;
 						LastSwiftMigration = 1610;
+					};
+					F45243112DE56862003E8F50 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = D8C030CD2CEF633A007FC5B4;
 					};
 				};
 			};
@@ -349,6 +398,7 @@
 				D89DD6352CEF650A009C3509 /* ModuleA */,
 				D89DD6472CEF6516009C3509 /* ModuleB */,
 				D89DD6722CEF7ADF009C3509 /* UITest-DuplicatedSDK */,
+				F45243112DE56862003E8F50 /* Unit Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -376,6 +426,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D8C030CC2CEF633A007FC5B4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F45243102DE56862003E8F50 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -413,6 +470,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F452430E2DE56862003E8F50 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -430,6 +494,11 @@
 			isa = PBXTargetDependency;
 			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
 			targetProxy = D89DD6792CEF7ADF009C3509 /* PBXContainerItemProxy */;
+		};
+		F45243172DE56862003E8F50 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
+			targetProxy = F45243162DE56862003E8F50 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -800,6 +869,42 @@
 			};
 			name = Release;
 		};
+		F45243182DE56862003E8F50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DuplicatedSDKTest.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DuplicatedSDKTest";
+			};
+			name = Debug;
+		};
+		F45243192DE56862003E8F50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DuplicatedSDKTest.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DuplicatedSDKTest";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -844,6 +949,15 @@
 			buildConfigurations = (
 				D8C030DD2CEF633B007FC5B4 /* Debug */,
 				D8C030DE2CEF633B007FC5B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F452431A2DE56862003E8F50 /* Build configuration list for PBXNativeTarget "Unit Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F45243182DE56862003E8F50 /* Debug */,
+				F45243192DE56862003E8F50 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
