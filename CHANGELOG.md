@@ -9,6 +9,7 @@
 ### Improvements
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
 
 ## 8.51.1
 
