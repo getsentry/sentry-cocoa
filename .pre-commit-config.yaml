@@ -52,7 +52,7 @@ repos:
         language: system
         types_or: ["swift"]
         args:
-          - "format-swift"
+          - "format-swift-staged"
 
       - id: format-markdown
         name: Format Markdown

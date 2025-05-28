@@ -54,6 +54,11 @@ format-clang:
 format-swift:
 	swiftlint --fix
 
+format-swift-staged:
+	git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | while IFS= read -r filename; do \
+		swiftlint --fix "$$filename"; \
+	done
+
 # Format Markdown
 format-markdown:
 	dprint fmt "**/*.md"
