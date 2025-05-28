@@ -891,14 +891,20 @@ class SentrySDKTests: XCTestCase {
 
     }
 
-#if SENTRY_HAS_UIKIT
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testSetAppStartMeasurementConcurrently() {
+        let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
-                let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval( TimeInterval(i))
-                let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, appStartTimestamp: timestamp)
+                let appStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(i))
+                let appStartMeasurement = TestData.getAppStartMeasurement(
+                    type: .warm,
+                    appStartTimestamp: appStartTimestamp,
+                    runtimeInitSystemTimestamp: UInt64(runtimeInitSystemTimestamp.timeIntervalSince1970)
+                )
                 SentrySDK.setAppStartMeasurement(appStartMeasurement)
                 group.leave()
             }
@@ -945,7 +951,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 3)
     }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)
     func testCaptureCrashOnException() {

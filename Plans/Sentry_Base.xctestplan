@@ -55,6 +55,13 @@
       }
     },
     {
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D4CBA2422DE06D0200581618",
+        "name" : "SentryTestUtilsTests"
+      }
+    },
+    {
       "skippedTests" : [
         "SentryProfilerTests\/testProfilerMutationDuringSlicing"
       ],
