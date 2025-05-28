@@ -15,7 +15,7 @@ class TestConstantTests: XCTestCase {
         let dsn = TestConstants.dsnForTestCase(type: FooTests.self)
 
         // -- Assert --
-        XCTAssertEqual(dsn, "https://FooTests:password@app.getsentry.com/12345")
+        XCTAssertEqual(dsn, "https://FooTests:unknown@app.getsentry.com/12345")
     }
 
     func testDsnForTestCase_externalFrameworkObjectiveCClass_shouldUseTypeNameInDSN() {
@@ -23,7 +23,7 @@ class TestConstantTests: XCTestCase {
         let dsn = TestConstants.dsnForTestCase(type: NSDecimalNumber.self)
 
         // -- Assert --
-        XCTAssertEqual(dsn, "https://NSDecimalNumber:password@app.getsentry.com/12345")
+        XCTAssertEqual(dsn, "https://NSDecimalNumber:unknown@app.getsentry.com/12345")
     }
 
     func testDsnForTestCase_externalFrameworkSwiftClass_shouldUseTypeNameInDSN() {
@@ -31,7 +31,23 @@ class TestConstantTests: XCTestCase {
         let dsn = TestConstants.dsnForTestCase(type: String.self)
 
         // -- Assert --
-        XCTAssertEqual(dsn, "https://String:password@app.getsentry.com/12345")
+        XCTAssertEqual(dsn, "https://String:unknown@app.getsentry.com/12345")
+    }
+
+    func testDsnForTestCase_whenTestNameIsNil_shouldUseTypeAndFallbackNameInDSN() {
+        // -- Act --
+        let dsn = TestConstants.dsnForTestCase(type: String.self, testName: nil)
+
+        // -- Assert --
+        XCTAssertEqual(dsn, "https://String:unknown@app.getsentry.com/12345")
+    }
+
+    func testDsnForTestCase_whenTestNameIsDefined_shouldUseTypeAndTestNameInDSN() {
+        // -- Act --
+        let dsn = TestConstants.dsnForTestCase(type: String.self, testName: "MyTest")
+
+        // -- Assert --
+        XCTAssertEqual(dsn, "https://String:MyTest@app.getsentry.com/12345")
     }
 
     func testDsnAsString_shouldReturnExpectedValue() {

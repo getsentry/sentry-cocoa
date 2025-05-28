@@ -891,7 +891,7 @@ class SentrySDKTests: XCTestCase {
 
     }
 
-#if SENTRY_USE_UIKIT
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testSetAppStartMeasurementConcurrently() {
         let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
@@ -1000,7 +1000,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(value["b"], "c")
     }
 
-#endif // SENTRY_USE_UIKIT
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 private extension SentrySDKTests {
