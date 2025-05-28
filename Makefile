@@ -55,9 +55,8 @@ format-swift:
 	swiftlint --fix
 
 format-swift-staged:
-	git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | while IFS= read -r filename; do \
-		swiftlint --fix "$$filename"; \
-	done
+	echo "Running swiftlint --fix on staged files"
+	swiftlint --fix $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$')
 
 # Format Markdown
 format-markdown:
