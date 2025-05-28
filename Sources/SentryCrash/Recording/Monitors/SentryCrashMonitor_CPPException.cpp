@@ -78,9 +78,11 @@ captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
+    // We handle NSExceptions in SentryCrashMonitor_NSException.
     if (tinfo != nullptr && strcmp(tinfo->name(), "NSException") == 0) {
         return;
     }
+
     if (g_captureNextStackTrace) {
         sentrycrashsc_initSelfThread(&g_stackCursor, 2);
     }
@@ -101,6 +103,8 @@ __cxa_throw(
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering __cxa_throw");
 
     static cxa_throw_type orig_cxa_throw = NULL;
+
+    // Fallback if swap_cxa_throw is disabled.
     if (sentrycrashct_is_cxa_throw_swapped() == false) {
         captureStackTrace(thrown_exception, tinfo, dest);
     }
