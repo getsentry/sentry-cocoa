@@ -1,10 +1,12 @@
 # Changelog
 
-## 8.52.0-beta
+## Unreleased
 
 ### Fixes
 
 - Add missing context for watchdog termination events (#5242)
+
+## 8.52.0-beta
 
 ### Features
 
