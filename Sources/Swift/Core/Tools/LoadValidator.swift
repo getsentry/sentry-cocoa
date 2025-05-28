@@ -1,11 +1,3 @@
-//
-//  LoadValidator.swift
-//  Sentry
-//
-//  Created by Itay Brenner on 26/5/25.
-//  Copyright © 2025 Sentry. All rights reserved.
-//
-
 import Foundation
 import MachO
 
