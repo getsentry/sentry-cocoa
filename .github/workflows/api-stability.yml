@@ -1,0 +1,69 @@
+name: API Stability Check
+
+on:
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "test-server/**"
+      - ".github/workflows/api-stability.yml"
+      - Sentry.xcworkspace/**
+      - Sentry.xcodeproj/**
+      - "Package.swift"
+      - "scripts/build-xcframework.sh"
+
+jobs:
+  api-stability:
+    runs-on: macos-15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: ./scripts/ci-select-xcode.sh 16.3
+
+      - name: Build SDK
+        run: |
+          ./scripts/build-xcframework.sh iOSOnly
+
+      - name: Dump SDK at HEAD
+        run: |
+          xcrun --sdk iphoneos swift-api-digester \
+            -dump-sdk \
+            -o out_head.json \
+            -abort-on-module-fail \
+            -avoid-tool-args \
+            -avoid-location \
+            -module Sentry \
+            -target arm64-apple-ios10.0 \
+            -iframework ./Carthage/Sentry-Dynamic.xcframework/ios-arm64_arm64e
+
+      - name: Checkout PR base
+        run: |
+          git checkout ${{ github.event.pull_request.base.sha }}
+
+      - name: Build SDK
+        run: |
+          ./scripts/build-xcframework.sh iOSOnly
+
+      - name: Dump SDK at BASE
+        run: |
+          xcrun --sdk iphoneos swift-api-digester \
+            -dump-sdk \
+            -o out_base.json \
+            -abort-on-module-fail \
+            -avoid-tool-args \
+            -avoid-location \
+            -module Sentry \
+            -target arm64-apple-ios10.0 \
+            -iframework ./Carthage/Sentry-Dynamic.xcframework/ios-arm64_arm64e
+
+      - name: Diagnose breaking changes
+        run: |
+          xcrun --sdk iphoneos swift-api-digester \
+            -diagnose-sdk \
+            -o result.json \
+            -input-paths out_base.json \
+            -input-paths out_head.json \
+            -json \
+            -v
+          cat result.json

@@ -75,6 +75,9 @@ class UIRedactBuilder {
         
         if options.maskAllText {
             redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
+            // These classes are used by React Native to display text.
+            // We are including them here to avoid leaking text from RN apps with manually initialized sentry-cocoa.
+            redactClasses += ["RCTTextView", "RCTParagraphComponentView"].compactMap(NSClassFromString(_:))
         }
         
         if options.maskAllImages {
@@ -83,6 +86,10 @@ class UIRedactBuilder {
              "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
              "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
             ].compactMap(NSClassFromString(_:))
+
+            // These classes are used by React Native to display images/vectors.
+            // We are including them here to avoid leaking images from RN apps with manually initialized sentry-cocoa.
+            redactClasses += ["RCTImageView"].compactMap(NSClassFromString(_:))
             
             redactClasses.append(UIImageView.self)
         }
