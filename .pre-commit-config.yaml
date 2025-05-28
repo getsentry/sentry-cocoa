@@ -90,4 +90,4 @@ repos:
         language: system
         types_or: ["swift", "objective-c", "objective-c++", "c", "c++"]
         args:
-          - "lint"
+          - "lint-staged"
