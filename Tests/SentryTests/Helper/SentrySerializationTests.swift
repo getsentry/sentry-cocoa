@@ -20,16 +20,6 @@ class SentrySerializationTests: XCTestCase {
         )
     }
 
-    override func setUp() {
-        super.setUp()
-        clearTestState()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-
     func testSerializationFailsWithInvalidJSONObject() {
         let json: [String: Any] = [
             "valid object": "hi, i'm a valid object",
