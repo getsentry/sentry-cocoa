@@ -237,7 +237,8 @@ static NSDate *_Nullable startTimestamp = nil;
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    SentryClient *newClient =
+        [SentryDependencyContainer.sharedInstance getClientWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 

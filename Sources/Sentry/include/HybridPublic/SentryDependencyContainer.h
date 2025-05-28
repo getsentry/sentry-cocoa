@@ -4,9 +4,9 @@
 #    import "SentryDefines.h"
 #endif
 
-@protocol SentryANRTracker;
 @class SentryAppStateManager;
 @class SentryBinaryImageCache;
+@class SentryClient;
 @class SentryCrash;
 @class SentryCrashWrapper;
 @class SentryDebugImageProvider;
@@ -17,12 +17,15 @@
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
+@class SentryOptions;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
 @class SentryFileIOTracker;
+
+@protocol SentryANRTracker;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -102,11 +105,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
 
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
-#if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
-#endif // SENTRY_HAS_UIKIT
-
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
@@ -125,6 +123,16 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
     ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
+
+#pragma mark - Factories
+
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
+#if SENTRY_HAS_UIKIT
+- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
+#endif // SENTRY_HAS_UIKIT
+
+- (SentryClient *_Nullable)getClientWithOptions:(SentryOptions *)options;
+- (SentryFileManager *_Nullable)getFileManagerForOptions:(SentryOptions *)options;
 
 @end
 

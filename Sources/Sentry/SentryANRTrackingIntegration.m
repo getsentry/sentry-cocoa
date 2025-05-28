@@ -58,7 +58,14 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
-    self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    SentryFileManager *_Nullable fileManager =
+        [SentryDependencyContainer.sharedInstance getFileManagerForOptions:options];
+    if (!fileManager) {
+        SENTRY_LOG_ERROR(
+            @"Failed to install ANR tracking integration, because file manager is not available.");
+        return NO;
+    }
+    self.fileManager = fileManager;
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     [self.tracker addListener:self];
