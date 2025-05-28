@@ -146,17 +146,36 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
     int count = backtrace(backtraceArr, k_requiredFrames);
 
     Dl_info info;
-    if (count >= k_requiredFrames) {
-        if (dladdr(backtraceArr[k_requiredFrames - 1], &info) != 0) {
-            uintptr_t function = findAddress(info.dli_fbase);
-            if (function != (uintptr_t)NULL) {
-                SENTRY_ASYNC_SAFE_LOG_TRACE(
-                    "Calling original __cxa_throw function at %p", (void *)function);
-                cxa_throw_type original = (cxa_throw_type)function;
-                original(thrown_exception, tinfo, dest);
-            }
-        }
+    if (count < k_requiredFrames) {
+        // This can happen if the throw happened in a signal handler. This is an edge case we ignore
+        // for now. It can also happen with concurrency frameworks for which backtrace does not work
+        // reliably, such as Swift async. It can be that we have to use backtrace_async which uses
+        // the Swift concurrency continuation stack if invoked from within an async context. Again
+        // we ignore this edge case for now.
+
+        // Returning early here and not calling cxa_throw is fatal, but we cannot do anything else.
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Received only %d frames from backtrace. We can't identify "
+                                    "throwsite and therefore can't call the original cxa_throw.",
+            count);
+        return;
     }
+
+    if (dladdr(backtraceArr[k_requiredFrames - 1], &info) == 0) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "dladdr failed for throwsite. Can't identify image of throwsite.");
+        return;
+    }
+
+    uintptr_t function = findAddress(info.dli_fbase);
+    if (function == (uintptr_t)NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Can't find original cxa_throw for the image of the throwsite.");
+        return;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Calling original __cxa_throw function at %p", (void *)function);
+    cxa_throw_type original = (cxa_throw_type)function;
+    original(thrown_exception, tinfo, dest);
 }
 
 static void
@@ -269,6 +288,16 @@ static void
 rebind_symbols_for_image(
     const struct mach_header *header, intptr_t slide, bool is_swapping_cxa_throw)
 {
+    if (header == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_WARN("Header is NULL, cannot rebind symbols.");
+        return;
+    }
+
+    if (slide == 0) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Slide is zero, cannot rebind symbols.");
+        return;
+    }
+
     SENTRY_ASYNC_SAFE_LOG_TRACE("Rebinding symbols for image with slide %p", (void *)slide);
 
     Dl_info info;
@@ -276,11 +305,8 @@ rebind_symbols_for_image(
         SENTRY_ASYNC_SAFE_LOG_WARN("dladdr failed");
         return;
     }
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Image name: %s", info.dli_fname);
-    if (slide == 0) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Zero slide, can't do anything with it");
-        return;
-    }
 
     const struct symtab_command *symtab_cmd
         = (struct symtab_command *)sentrycrash_macho_getCommandByTypeFromHeader(
@@ -345,8 +371,17 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
         _dyld_register_func_for_add_image(rebind_symbols_for_image_wrapper);
     } else {
         g_cxa_throw_handler = handler;
-        uint32_t c = _dyld_image_count();
-        for (uint32_t i = 0; i < c; i++) {
+
+        // Call _dyld_image_count inside the loop in case images get loaded or unloaded while
+        // iterating.
+        for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+            const struct mach_header *header = _dyld_get_image_header(i);
+            intptr_t slide = _dyld_get_image_vmaddr_slide(i);
+
+            if (header == NULL || slide == 0) {
+                continue;
+            }
+
             rebind_symbols_for_image(
                 _dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i), true);
         }
@@ -364,10 +399,16 @@ sentrycrashct_unswap_cxa_throw(void)
 
     SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
 
-    // Iterate through all loaded images
-    uint32_t image_count = _dyld_image_count();
-    for (uint32_t i = 0; i < image_count; i++) {
-        rebind_symbols_for_image(_dyld_get_image_header(i), _dyld_get_image_vmaddr_slide(i), false);
+    // Call _dyld_image_count inside the loop in case images get loaded or unloaded while iterating.
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        intptr_t slide = _dyld_get_image_vmaddr_slide(i);
+
+        if (header == NULL || slide == 0) {
+            continue;
+        }
+
+        rebind_symbols_for_image(header, slide, false);
     }
 
     sentrycrashct_clear_pairs();
