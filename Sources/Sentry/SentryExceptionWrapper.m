@@ -1,11 +1,3 @@
-//
-//  SentryExceptionWrapper.m
-//  Sentry
-//
-//  Created by Itay Brenner on 27/5/25.
-//  Copyright © 2025 Sentry. All rights reserved.
-//
-
 #import "SentryExceptionWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
