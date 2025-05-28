@@ -21,49 +21,24 @@ jobs:
           fetch-depth: 0
       - run: ./scripts/ci-select-xcode.sh 16.3
 
-      - name: Build SDK
+      - name: Generate HEAD SDK
         run: |
-          ./scripts/build-xcframework.sh iOSOnly
-
-      - name: Dump SDK at HEAD
-        run: |
-          xcrun --sdk iphoneos swift-api-digester \
-            -dump-sdk \
-            -o out_head.json \
-            -abort-on-module-fail \
-            -avoid-tool-args \
-            -avoid-location \
-            -module Sentry \
-            -target arm64-apple-ios10.0 \
-            -iframework ./Carthage/Sentry-Dynamic.xcframework/ios-arm64_arm64e
-
-      - name: Checkout PR base
-        run: |
-          git checkout ${{ github.event.pull_request.base.sha }}
-
-      - name: Build SDK
-        run: |
-          ./scripts/build-xcframework.sh iOSOnly
-
-      - name: Dump SDK at BASE
-        run: |
-          xcrun --sdk iphoneos swift-api-digester \
-            -dump-sdk \
-            -o out_base.json \
-            -abort-on-module-fail \
-            -avoid-tool-args \
-            -avoid-location \
-            -module Sentry \
-            -target arm64-apple-ios10.0 \
-            -iframework ./Carthage/Sentry-Dynamic.xcframework/ios-arm64_arm64e
+          mv sdk_api.json sdk_api_base.json
+          ./scripts/update-api.sh
 
       - name: Diagnose breaking changes
         run: |
-          xcrun --sdk iphoneos swift-api-digester \
-            -diagnose-sdk \
-            -o result.json \
-            -input-paths out_base.json \
-            -input-paths out_head.json \
-            -json \
-            -v
-          cat result.json
+          if cmp -s "sdk_api_base.json" "sdk_api.json"; then
+            echo "No API changes detected."
+          else
+            echo "❌ API changes are detected, run ./scripts/update-api.sh and commit the changes."
+            xcrun --sdk iphoneos swift-api-digester \
+              -diagnose-sdk \
+              -o result.json \
+              -input-paths sdk_api_base.json \
+              -input-paths sdk_api.json \
+              -json \
+              -v
+            cat result.json
+            exit 1
+          fi
