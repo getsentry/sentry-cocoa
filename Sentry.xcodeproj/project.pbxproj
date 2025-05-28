@@ -817,6 +817,7 @@
 		D43A2A122DD47FCE00114724 /* SentryWeakMap.m in Sources */ = {isa = PBXBuildFile; fileRef = D43A2A112DD47FCE00114724 /* SentryWeakMap.m */; };
 		D43A2A142DD4816500114724 /* SentryWeakMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43A2A132DD4815E00114724 /* SentryWeakMapTests.swift */; };
 		D43B0E5E2DE7198000EE3759 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D43B0E5D2DE7198000EE3759 /* Info.plist */; };
+		D43B0E602DE7416900EE3759 /* TestFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43B0E5F2DE7416600EE3759 /* TestFileManagerTests.swift */; };
 		D43B26D62D70964C007747FD /* SentrySpanOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D43B26D52D709648007747FD /* SentrySpanOperation.m */; };
 		D43B26D82D70A550007747FD /* SentryTraceOrigin.m in Sources */ = {isa = PBXBuildFile; fileRef = D43B26D72D70A54A007747FD /* SentryTraceOrigin.m */; };
 		D43B26DA2D70A612007747FD /* SentrySpanDataKey.m in Sources */ = {isa = PBXBuildFile; fileRef = D43B26D92D70A60E007747FD /* SentrySpanDataKey.m */; };
@@ -2010,6 +2011,7 @@
 		D43A2A112DD47FCE00114724 /* SentryWeakMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryWeakMap.m; sourceTree = "<group>"; };
 		D43A2A132DD4815E00114724 /* SentryWeakMapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryWeakMapTests.swift; sourceTree = "<group>"; };
 		D43B0E5D2DE7198000EE3759 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D43B0E5F2DE7416600EE3759 /* TestFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFileManagerTests.swift; sourceTree = "<group>"; };
 		D43B26D52D709648007747FD /* SentrySpanOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySpanOperation.m; sourceTree = "<group>"; };
 		D43B26D72D70A54A007747FD /* SentryTraceOrigin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTraceOrigin.m; sourceTree = "<group>"; };
 		D43B26D92D70A60E007747FD /* SentrySpanDataKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySpanDataKey.m; sourceTree = "<group>"; };
@@ -3938,6 +3940,7 @@
 				D43B0E5D2DE7198000EE3759 /* Info.plist */,
 				D44B16712DE464A9006DBDB3 /* TestDispatchFactoryTests.swift */,
 				D4CBA2512DE06D1600581618 /* TestConstantTests.swift */,
+				D43B0E5F2DE7416600EE3759 /* TestFileManagerTests.swift */,
 			);
 			path = SentryTestUtilsTests;
 			sourceTree = "<group>";
@@ -5790,6 +5793,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D43B0E602DE7416900EE3759 /* TestFileManagerTests.swift in Sources */,
 				D44B16722DE464AD006DBDB3 /* TestDispatchFactoryTests.swift in Sources */,
 				D4CBA2532DE06D1600581618 /* TestConstantTests.swift in Sources */,
 			);
