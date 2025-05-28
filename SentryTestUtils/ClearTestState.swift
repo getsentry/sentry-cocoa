@@ -31,6 +31,8 @@ class TestCleanup: NSObject {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
 
+        SentryLog.withDebugLogs(<#T##closure: () throws -> T##() throws -> T#>)
+
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         setenv("ActivePrewarm", "0", 1)
