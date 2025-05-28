@@ -1,14 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix race condition when TTFD and app launch profiling are both enabled (#5300)
+
 ## 8.52.0-beta
 
 ### Features
 
 - XCFrameworks are now signed (#5271)
-
-### Fixes
-
-- Fix race condition when TTFD and app launch profiling are both enabled (#5300)
 
 ### Improvements
 
