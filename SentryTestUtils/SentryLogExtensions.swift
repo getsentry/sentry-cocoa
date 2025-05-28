@@ -2,19 +2,16 @@ import Foundation
 @testable import Sentry
 
 extension SentryLog {
-    public static func setTestDefaultLogLevel() {
-        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
+
+    public static func setDefaultTestLogConfiguration() {
+        SentryLog._configure(false, diagnosticLevel: .error)
     }
-    
-    public static func disable() {
-        SentryLogSwiftSupport.configure(false, diagnosticLevel: .none)
-    }
-    
+
     /// SentryLog uses NSLog internally, which can significantly slow down code because it requires
-    /// synchronization. Tests that need code to run fast should can turn off logs to avoid flakiness.
-    public static func withoutLogs<T>(_ closure: () throws -> T) rethrows -> T {
-        defer { setTestDefaultLogLevel() }
-        disable()
+    /// synchronization. Use this method sparingly for individual test cases.
+    public static func withDebugLogs<T>(_ closure: () throws -> T) rethrows -> T {
+        defer { setDefaultTestLogConfiguration() }
+        SentryLog._configure(true, diagnosticLevel: .debug)
         return try closure()
     }
     
