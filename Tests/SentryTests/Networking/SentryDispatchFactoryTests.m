@@ -43,7 +43,7 @@
 }
 
 - (void)
-    testCreateBackgroundQueueWithNameAndRelativePriority_shouldReturnQueueWithNameAndRelativePrioritySet
+    testCreateLowPriorityQueueWithNameAndRelativePriority_shouldReturnQueueWithNameAndRelativePrioritySet
 {
     // Note: We are not testing the functionality of the queue itself, just the creation of it,
     // making sure the factory sets the name and attributes correctly.
@@ -53,8 +53,8 @@
     int relativePriority = -5;
 
     // -- Act --
-    SentryDispatchQueueWrapper *wrappedQueue =
-        [self.sut createBackgroundQueueWithName:queueName relativePriority:relativePriority];
+    SentryDispatchQueueWrapper *wrappedQueue = [self.sut createLowPriorityQueue:queueName
+                                                               relativePriority:relativePriority];
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);
@@ -63,7 +63,7 @@
     int actualRelativePriority;
     dispatch_qos_class_t actualQoSClass
         = dispatch_queue_get_qos_class(wrappedQueue.queue, &actualRelativePriority);
-    XCTAssertEqual(actualQoSClass, QOS_CLASS_BACKGROUND);
+    XCTAssertEqual(actualQoSClass, QOS_CLASS_UTILITY);
     XCTAssertEqual(actualRelativePriority, relativePriority);
 }
 
@@ -111,7 +111,7 @@
     uint64_t leeway = 0;
     const char *queueName = "sentry-dispatch-factory.qos-check";
     dispatch_queue_attr_t attributes
-        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_BACKGROUND, -10);
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, -10);
     void (^eventHandler)(void) = ^{ };
 
     // -- Act --
@@ -128,7 +128,7 @@
 
     int relativePriority;
     dispatch_qos_class_t qos = dispatch_queue_get_qos_class(queueWrapper.queue, &relativePriority);
-    XCTAssertEqual(qos, QOS_CLASS_BACKGROUND);
+    XCTAssertEqual(qos, QOS_CLASS_UTILITY);
     XCTAssertEqual(relativePriority, -10);
 }
 
