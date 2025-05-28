@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.52.0-beta
 
 ### Features
 
@@ -9,6 +9,7 @@
 ### Improvements
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 
 ## 8.51.1
