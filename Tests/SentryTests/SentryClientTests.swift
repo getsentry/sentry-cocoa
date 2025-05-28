@@ -2109,6 +2109,10 @@ class SentryClientTest: XCTestCase {
         let actual = try lastSentEventWithAttachment()
         XCTAssertEqual(actual.threads?.count, 1)
         XCTAssertEqual(actual.threads?[0].name, "NSException Thread")
+        XCTAssertEqual(actual.threads?[0].threadId, 0)
+        XCTAssertEqual(actual.threads?[0].crashed, true)
+        XCTAssertEqual(actual.threads?[0].current, true)
+        XCTAssertEqual(actual.threads?[0].isMain, true)
     }
 #endif // os(macOS)
 }
