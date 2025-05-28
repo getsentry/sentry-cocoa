@@ -2095,6 +2095,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(scope.replayId, "someReplay")
     }
     
+#if os(macOS)
     func testCaptureSentryWrappedException() throws {
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
         // If we don't raise the exception, it won't have the callStack data
@@ -2109,6 +2110,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(actual.threads?.count, 1)
         XCTAssertEqual(actual.threads?[0].name, "NSException Thread")
     }
+#endif // os(macOS)
 }
 
 private extension SentryClientTest {

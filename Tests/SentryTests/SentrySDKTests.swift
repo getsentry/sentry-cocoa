@@ -960,7 +960,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.exception.reason, client.captureExceptionWithScopeInvocations.first?.exception.reason)
         XCTAssertEqual(fixture.scope, client.captureExceptionWithScopeInvocations.first?.scope)
     }
-#endif
+#endif // os(macOS)
 }
 
 private extension SentrySDKTests {
