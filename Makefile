@@ -46,7 +46,8 @@ endef
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
 lint:
-	$(call run-lint-tools,'')
+# calling run-lint-tools with no arguments will run swift lint on all files
+	$(call run-lint-tools)
 .PHONY: lint
 
 lint-staged:
