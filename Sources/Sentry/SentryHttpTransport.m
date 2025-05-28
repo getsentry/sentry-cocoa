@@ -442,7 +442,7 @@
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
     if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
-        NSDictionary *transactionJson =
+        NSDictionary *_Nullable transactionJson =
             [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
         if (transactionJson == nil) {
             return;
