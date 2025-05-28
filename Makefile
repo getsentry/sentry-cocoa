@@ -42,12 +42,15 @@ define run-lint-tools
 	dprint check "**/*.{md,json,yaml,yml}"
 endef
 
+# Get staged Swift files
+STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
+
 lint:
 	$(call run-lint-tools,'')
 .PHONY: lint
 
 lint-staged:
-	$(call run-lint-tools,$(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}'))
+	$(call run-lint-tools,$(STAGED_SWIFT_FILES))
 .PHONY: lint-staged
 
 format: format-clang format-swift-all format-markdown format-json format-yaml
@@ -67,7 +70,7 @@ format-swift:
 .PHONY: format-swift-staged
 format-swift-staged:
 	@echo "Running swiftlint --fix on staged files"
-	swiftlint --fix $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
+	swiftlint --fix $(STAGED_SWIFT_FILES)
 
 # Format Markdown
 format-markdown:
