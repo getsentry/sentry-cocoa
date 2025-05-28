@@ -1019,33 +1019,30 @@ private extension SentrySDKTests {
 class SentrySDKWithSetupTests: XCTestCase {
 
     func testAccessingHubAndOptions_NoDeadlock() {
-        SentryLog.withoutLogs {
+        let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
 
-            let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
+        let expectation = expectation(description: "no deadlock")
+        expectation.expectedFulfillmentCount = 20
 
-            let expectation = expectation(description: "no deadlock")
-            expectation.expectedFulfillmentCount = 20
+        SentrySDK.setStart(Options())
 
-            SentrySDK.setStart(Options())
+        for _ in 0..<10 {
+            concurrentQueue.async {
+                SentrySDK.currentHub().capture(message: "mess")
+                SentrySDK.setCurrentHub(nil)
 
-            for _ in 0..<10 {
-                concurrentQueue.async {
-                    SentrySDK.currentHub().capture(message: "mess")
-                    SentrySDK.setCurrentHub(nil)
-
-                    expectation.fulfill()
-                }
-
-                concurrentQueue.async {
-                    let hub = SentryHub(client: nil, andScope: nil)
-                    XCTAssertNotNil(hub)
-
-                    expectation.fulfill()
-                }
+                expectation.fulfill()
             }
 
-            wait(for: [expectation], timeout: 5.0)
+            concurrentQueue.async {
+                let hub = SentryHub(client: nil, andScope: nil)
+                XCTAssertNotNil(hub)
+
+                expectation.fulfill()
+            }
         }
+
+        wait(for: [expectation], timeout: 5.0)
     }
 }
 

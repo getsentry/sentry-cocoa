@@ -204,39 +204,37 @@ class SentryTracerTests: XCTestCase {
     /// to a crash when spans keep finishing while finishInternal is executed because
     /// shouldIgnoreWaitForChildrenCallback could be then nil in hasUnfinishedChildSpansToWaitFor.
     func testFinish_ShouldIgnoreWaitForChildrenCallback_DoesNotCrash() throws {
-        SentryLog.withoutLogs {
-            for _ in 0..<5 {
-                let sut = fixture.getSut()
-                
-                let dispatchQueue = DispatchQueue(label: "test", attributes: [.concurrent, .initiallyInactive])
-                
-                let expectation = expectation(description: "call everything")
-                expectation.expectedFulfillmentCount = 11
-                
-                sut.shouldIgnoreWaitForChildrenCallback = { _ in
-                    return true
-                }
-                
-                for _ in 0..<1_000 {
+        for _ in 0..<5 {
+            let sut = fixture.getSut()
+
+            let dispatchQueue = DispatchQueue(label: "test", attributes: [.concurrent, .initiallyInactive])
+
+            let expectation = expectation(description: "call everything")
+            expectation.expectedFulfillmentCount = 11
+
+            sut.shouldIgnoreWaitForChildrenCallback = { _ in
+                return true
+            }
+
+            for _ in 0..<1_000 {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                child.finish()
+            }
+
+            dispatchQueue.async {
+                for _ in 0..<10 {
                     let child = sut.startChild(operation: self.fixture.transactionOperation)
                     child.finish()
-                }
-                
-                dispatchQueue.async {
-                    for _ in 0..<10 {
-                        let child = sut.startChild(operation: self.fixture.transactionOperation)
-                        child.finish()
-                        expectation.fulfill()
-                    }
-                }
-                dispatchQueue.async {
-                    sut.finish()
                     expectation.fulfill()
                 }
-                
-                dispatchQueue.activate()
-                wait(for: [expectation], timeout: 1.0)
             }
+            dispatchQueue.async {
+                sut.finish()
+                expectation.fulfill()
+            }
+
+            dispatchQueue.activate()
+            wait(for: [expectation], timeout: 1.0)
         }
     }
 
@@ -1141,41 +1139,39 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinishAsync() throws {
-        try SentryLog.withoutLogs {
-            let sut = fixture.getSut()
-            let child = sut.startChild(operation: fixture.transactionOperation)
-            sut.finish()
-            
-            let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-            let group = DispatchGroup()
-            
-            let children = 5
-            let grandchildren = 10
-            for _ in 0 ..< children {
-                group.enter()
-                queue.async {
-                    let grandChild = child.startChild(operation: self.fixture.transactionOperation)
-                    for _ in 0 ..< grandchildren {
-                        let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
-                        grandGrandChild.finish()
-                    }
-                    
-                    grandChild.finish()
-                    self.assertTransactionNotCaptured(sut)
-                    group.leave()
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        sut.finish()
+
+        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+
+        let children = 5
+        let grandchildren = 10
+        for _ in 0 ..< children {
+            group.enter()
+            queue.async {
+                let grandChild = child.startChild(operation: self.fixture.transactionOperation)
+                for _ in 0 ..< grandchildren {
+                    let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
+                    grandGrandChild.finish()
                 }
+
+                grandChild.finish()
+                self.assertTransactionNotCaptured(sut)
+                group.leave()
             }
-            
-            queue.activate()
-            group.wait()
-            
-            child.finish()
-            
-            assertOneTransactionCaptured(sut)
-            
-            let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
-            XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
         }
+
+        queue.activate()
+        group.wait()
+
+        child.finish()
+
+        assertOneTransactionCaptured(sut)
+
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
+        XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1212,47 +1208,44 @@ class SentryTracerTests: XCTestCase {
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
-        try SentryLog.withoutLogs {
-            
-            let sut = fixture.getSut(waitForChildren: false)
-                
-            let children = 1_000
-            for _ in 0..<children {
-                let child = sut.startChild(operation: self.fixture.transactionOperation)
-                child.finish()
-            }
-            
-            let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-            let group = DispatchGroup()
-            
-            func addChildrenAsync() {
-                for _ in 0 ..< 100 {
-                    group.enter()
-                    queue.async {
-                        let child = sut.startChild(operation: self.fixture.transactionOperation)
-                        Dynamic(child).frames = [] as [Frame]
-                        child.finish()
-                        group.leave()
-                    }
+        let sut = fixture.getSut(waitForChildren: false)
+
+        let children = 1_000
+        for _ in 0..<children {
+            let child = sut.startChild(operation: self.fixture.transactionOperation)
+            child.finish()
+        }
+
+        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+
+        func addChildrenAsync() {
+            for _ in 0 ..< 100 {
+                group.enter()
+                queue.async {
+                    let child = sut.startChild(operation: self.fixture.transactionOperation)
+                    Dynamic(child).frames = [] as [Frame]
+                    child.finish()
+                    group.leave()
                 }
             }
-            
-            addChildrenAsync()
-            
-            group.enter()
-            queue.async {
-                sut.finish()
-                group.leave()
-            }
-            
-            addChildrenAsync()
-            
-            queue.activate()
-            group.wait()
-            
-            let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
-            XCTAssertGreaterThanOrEqual(spans.count, children)
         }
+
+        addChildrenAsync()
+
+        group.enter()
+        queue.async {
+            sut.finish()
+            group.leave()
+        }
+
+        addChildrenAsync()
+
+        queue.activate()
+        group.wait()
+
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
+        XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
