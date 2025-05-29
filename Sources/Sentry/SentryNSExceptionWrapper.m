@@ -1,4 +1,4 @@
-#import "SentryExceptionWrapper.h"
+#import "SentryNSExceptionWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrameRemover.h"
@@ -10,13 +10,13 @@
 
 #if TARGET_OS_OSX
 
-@interface SentryExceptionWrapper ()
+@interface SentryNSExceptionWrapper ()
 
 @property (nonatomic, strong) NSException *originalException;
 
 @end
 
-@implementation SentryExceptionWrapper
+@implementation SentryNSExceptionWrapper
 
 - (instancetype)initWithException:(NSException *)exception
 {
@@ -77,4 +77,4 @@
 
 @end
 
-#endif
+#endif // TARGET_OS_OSX
