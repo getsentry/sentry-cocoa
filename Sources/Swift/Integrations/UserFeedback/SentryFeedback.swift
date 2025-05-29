@@ -14,8 +14,6 @@ public class SentryFeedback: NSObject {
         case custom
     }
     
-    public func foo() { }
-
     var name: String?
     var email: String?
     var message: String
