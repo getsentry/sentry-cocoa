@@ -31,7 +31,25 @@
 
 using namespace sentry::profiling;
 
-SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+@interface SentryLaunchProfileConfiguration : NSObject
+
+@property (strong, nonatomic) SentrySamplerDecision *profilerSessionSampleDecision;
+@property (assign, nonatomic) BOOL waitForFullDisplay;
+@property (strong, nonatomic) SentryProfileOptions *profileOptions;
+
+- (void)reevaluateSessionSampleRate;
+
+@end
+
+@implementation SentryLaunchProfileConfiguration
+
+- (void)reevaluateSessionSampleRate {
+    self.profilerSessionSampleDecision = sentry_sampleProfileSession(self.profileOptions.sessionSampleRate);
+}
+
+@end
+
+SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
 
 namespace {
 
@@ -42,9 +60,9 @@ static const int kSentryProfilerFrequencyHz = 101;
 #    pragma mark - Public
 
 void
-sentry_reevaluateSessionSampleRate(float sessionSampleRate)
+sentry_reevaluateSessionSampleRate()
 {
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
+    [sentry_launchProfileConfiguration reevaluateSessionSampleRate];
 }
 
 void

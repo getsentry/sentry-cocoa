@@ -176,6 +176,7 @@
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
+            // !!!: need to read the value of this from the last launch's options, not this one
             if ([SentrySDK.options isProfilingCorrelatedToTraces]) {
                 sentry_stopAndDiscardLaunchProfileTracer();
             }

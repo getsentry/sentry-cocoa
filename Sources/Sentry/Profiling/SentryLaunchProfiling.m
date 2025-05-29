@@ -19,6 +19,7 @@
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTraceOrigin.h"
+#import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext+Private.h"
@@ -299,11 +300,15 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
     SentryTracerConfiguration *config
         = sentry_configForLaunchProfilerForTrace(profilesRate, profilesRand, profileOptions);
+
+    // we won't write a launch profile config if the sample decision returns a "no" decision, and we would never arrive here in the code. however, we need to provide this information for SentryTracer's interface, and use by downstream components like envelope packaging and HTTP transmission
     SentrySamplerDecision *decision =
         [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                           forSampleRate:profilesRate
                                          withSampleRand:profilesRand];
+
     sentry_profilerSessionSampleDecision = decision;
+
     sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                        hub:nil
                                                              configuration:config];
