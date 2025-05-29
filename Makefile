@@ -85,6 +85,9 @@ format-json:
 format-yaml:
 	dprint fmt "**/*.{yaml,yml}"
 
+generate-public-api:
+	./scripts/update-api.sh
+
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
