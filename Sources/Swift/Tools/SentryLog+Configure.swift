@@ -5,7 +5,7 @@ import Foundation
 // The result would be the selector would be missing at runtime and objc code that calls the method would crash.
 // More details here: https://github.com/swiftlang/swift/issues/48561
 @objc
-class SentryLogSwiftSupport: NSObject {
+@_spi(Private) public class SentryLogSwiftSupport: NSObject {
 
   @objc
   public static func configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {

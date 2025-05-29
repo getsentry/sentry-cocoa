@@ -1,5 +1,6 @@
 import Foundation
-import SentryTestUtils
+@_spi(Private) import Sentry
+@_spi(Private) import SentryTestUtils
 
 func testConcurrentModifications(asyncWorkItems: Int = 5, writeLoopCount: Int = 1_000, writeWork: @escaping (Int) -> Void, readWork: @escaping () -> Void = {}) {
     
