@@ -34,7 +34,7 @@
 #    elif __has_include(<Sentry/Sentry-Swift.h>)
 #        import <Sentry/Sentry-Swift.h>
 #    else
-         @import SentrySwift;
+@import SentrySwift;
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
 
