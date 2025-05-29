@@ -1824,7 +1824,7 @@
 		84354E0F29BF944900CDBB8B /* SentryProfileTimeseries.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfileTimeseries.h; path = Sources/Sentry/include/SentryProfileTimeseries.h; sourceTree = SOURCE_ROOT; };
 		84354E1029BF944900CDBB8B /* SentryProfileTimeseries.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryProfileTimeseries.mm; path = Sources/Sentry/SentryProfileTimeseries.mm; sourceTree = SOURCE_ROOT; };
 		843BD6282AD8752300B0098F /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
-		843FB3212D0CD04D00558F18 /* SentryUserAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryUserAccess.h; sourceTree = "<group>"; };
+		843FB3212D0CD04D00558F18 /* SentryUserAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryUserAccess.h; path = include/SentryUserAccess.h; sourceTree = "<group>"; };
 		843FB3222D0CD04D00558F18 /* SentryUserAccess.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryUserAccess.m; sourceTree = "<group>"; };
 		843FB3412D156B9900558F18 /* SentryFeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFeedbackTests.swift; sourceTree = "<group>"; };
 		8446F5182BE172290040D57E /* SentryContinuousProfilerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryContinuousProfilerTests.swift; sourceTree = "<group>"; };
