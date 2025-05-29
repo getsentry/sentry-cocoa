@@ -46,3 +46,20 @@ import Foundation
         return result
     }
 }
+
+@objc
+extension Event {
+
+  @objc
+  open var eventId: SentryId {
+    get {
+      // We know the type so it's fine to force cast.
+      // swiftlint:disable force_cast
+      _swiftEventId as! SentryId
+      // swiftlint:enable force_cast
+    }
+    set {
+      _swiftEventId = newValue
+    }
+  }
+}
