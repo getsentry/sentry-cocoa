@@ -72,27 +72,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options
-                   dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
-          deleteOldEnvelopeItems:YES];
-}
-
-/** Internal constructor for testing purposes. */
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-                  deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-{
-    NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
-                                                           dispatchQueueWrapper:dispatchQueue
-                                                                          error:&error];
-    if (error != nil) {
-        SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
+    SentryFileManager *fileManager =
+        [SentryDependencyContainer.sharedInstance getFileManagerForOptions:options];
+    if (fileManager == nil) {
+        SENTRY_LOG_FATAL(
+            @"Failed to initialize the client, because the file manager could not be created.");
         return nil;
     }
-    return [self initWithOptions:options
-                     fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems];
+    return [self initWithOptions:options fileManager:fileManager deleteOldEnvelopeItems:YES];
 }
 
 /** Internal constructor for testing purposes. */

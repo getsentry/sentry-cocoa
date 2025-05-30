@@ -1,6 +1,7 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryBinaryImageCache.h"
+#import "SentryClient.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
@@ -12,6 +13,7 @@
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
+#import "SentryOptions.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
@@ -172,14 +174,27 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
-        NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                          error:&error];
-        if (manager == nil) {
-            SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+        SentryOptions *options = SentrySDK.options;
+        if (options == nil) {
+            SENTRY_LOG_FATAL(
+                @"SentryDependencyContainer.fileManager called before SentrySDK.options was set.");
         }
-        manager;
+        [self getFileManagerForOptions:options];
     }));
+}
+
+- (SentryFileManager *_Nullable)getFileManagerForOptions:(SentryOptions *)options
+    SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    NSError *error;
+    SentryFileManager *manager =
+        [[SentryFileManager alloc] initWithOptions:options
+                              dispatchQueueWrapper:self.dispatchQueueWrapper
+                                             error:&error];
+    if (manager == nil) {
+        SENTRY_LOG_FATAL(@"Could not create file manager - %@", error);
+    }
+    return manager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -346,5 +361,10 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
+
+- (SentryClient *_Nullable)getClientWithOptions:(SentryOptions *)options
+{
+    return [[SentryClient alloc] initWithOptions:options];
+}
 
 @end
