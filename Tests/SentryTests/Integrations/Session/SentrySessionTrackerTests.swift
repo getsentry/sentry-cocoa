@@ -470,8 +470,9 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.start()
 
         // -- Assert --
-        try assertInitSessionSent()
-        assertSessionStored()
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 1)
+        let startSessionEvent = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 0))
+        XCTAssertEqual(startSessionEvent.status, SentrySessionStatus.ok)
     }
 
     func testRestartInForeground_shouldStartNewSession() throws {
@@ -489,8 +490,17 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.start()
 
         // -- Assert --
-        assertSessionsSent(count: 2)
-        try assertSessionInitSent(sessionStarted: startTime)
+        // We expect 3 session events of two sessions:
+        // 1. The init session that was sent when the app started
+        // 2. The end session that was sent when the app stopped
+        // 3. The init session that was sent when the app restarted
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 3)
+        let startSessionEvent = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 0))
+        XCTAssertEqual(startSessionEvent.status, SentrySessionStatus.ok)
+        let endSessionEvent = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 1))
+        XCTAssertEqual(endSessionEvent.status, SentrySessionStatus.exited)
+        let restartSessionEvent = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 2))
+        XCTAssertEqual(restartSessionEvent.status, SentrySessionStatus.ok)
     }
 
     // MARK: - Helpers

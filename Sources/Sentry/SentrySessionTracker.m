@@ -30,7 +30,6 @@
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
-@property (nonatomic, assign) BOOL wasStarted;
 @end
 
 @implementation SentrySessionTracker
@@ -117,9 +116,6 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    self.wasDidBecomeActiveCalled = NO;
-    self.lastInForeground = nil;
-    self.wasStarted = NO;
 }
 
 - (void)dealloc
@@ -145,10 +141,6 @@
     }
 
     [hub closeCachedSessionWithTimestamp:lastInForeground];
-
-    self.wasDidBecomeActiveCalled = NO;
-    self.lastInForeground = nil;
-    self.wasStarted = NO;
 }
 
 /**
@@ -183,11 +175,6 @@
 
 - (void)startSession
 {
-    if (self.wasStarted) {
-        return;
-    }
-    self.wasStarted = YES;
-
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
