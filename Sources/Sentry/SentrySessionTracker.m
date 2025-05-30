@@ -182,7 +182,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (hub.client.options.profiling != nil) {
-        sentry_reevaluateSessionSampleRate(hub.client.options.profiling.sessionSampleRate);
+        sentry_reevaluateSessionSampleRate();
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }

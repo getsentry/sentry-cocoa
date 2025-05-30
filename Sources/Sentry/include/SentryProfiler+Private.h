@@ -10,6 +10,7 @@
 @class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
+@class SentryProfileOptions;
 @class SentryProfilerState;
 @class SentrySamplerDecision;
 @class SentryTransaction;
@@ -20,6 +21,24 @@
 #    endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef struct {
+    BOOL shouldProfile;
+    /** Only needed for trace launch profiling or continuous profiling v2 with trace lifecycle;
+     * unused with continuous profiling. */
+    SentrySamplerDecision *_Nullable tracesDecision;
+    SentrySamplerDecision *_Nullable profilesDecision;
+} SentryLaunchProfileConfig;
+
+@interface SentryLaunchProfileConfiguration : NSObject
+
+@property (strong, nonatomic) SentrySamplerDecision *profilerSessionSampleDecision;
+@property (assign, nonatomic) BOOL waitForFullDisplay;
+@property (strong, nonatomic) SentryProfileOptions *profileOptions;
+
+- (void)reevaluateSessionSampleRate;
+
+@end
 
 /**
  * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
@@ -32,9 +51,9 @@ SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub
  * Continuous profiling will respect its own sampling rate, which is computed once for each Sentry
  * session.
  */
-SENTRY_EXTERN SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+SENTRY_EXTERN SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
 
-SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(float sessionSampleRate);
+SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
 
 SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 

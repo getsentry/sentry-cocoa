@@ -31,16 +31,6 @@
 
 using namespace sentry::profiling;
 
-@interface SentryLaunchProfileConfiguration : NSObject
-
-@property (strong, nonatomic) SentrySamplerDecision *profilerSessionSampleDecision;
-@property (assign, nonatomic) BOOL waitForFullDisplay;
-@property (strong, nonatomic) SentryProfileOptions *profileOptions;
-
-- (void)reevaluateSessionSampleRate;
-
-@end
-
 @implementation SentryLaunchProfileConfiguration
 
 - (void)reevaluateSessionSampleRate {
@@ -92,7 +82,12 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
+    if (sentry_launchProfileConfiguration == nil) {
+        sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc] init];
+    }
+    sentry_launchProfileConfiguration.profileOptions = options.profiling;
+
+    sentry_reevaluateSessionSampleRate();
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
                      @"%.2f\n  profileAppStarts: %@\n}",

@@ -57,14 +57,6 @@ sentry_configForLaunchProfilerForTrace(
 
 #    pragma mark - Package
 
-typedef struct {
-    BOOL shouldProfile;
-    /** Only needed for trace launch profiling or continuous profiling v2 with trace lifecycle;
-     * unused with continuous profiling. */
-    SentrySamplerDecision *_Nullable tracesDecision;
-    SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileConfig;
-
 SentryLaunchProfileConfig
 sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
 {
@@ -252,7 +244,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
                 [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                                   forSampleRate:sampleRate
                                                  withSampleRand:sampleRand];
-            sentry_profilerSessionSampleDecision = decision;
+            sentry_launchProfileConfiguration.profilerSessionSampleDecision = decision;
 
             [SentryContinuousProfiler start];
             return;
@@ -307,7 +299,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
                                           forSampleRate:profilesRate
                                          withSampleRand:profilesRand];
 
-    sentry_profilerSessionSampleDecision = decision;
+    sentry_launchProfileConfiguration.profilerSessionSampleDecision = decision;
 
     sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                        hub:nil

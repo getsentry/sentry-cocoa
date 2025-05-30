@@ -125,7 +125,7 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
-    if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+    if (sentry_launchProfileConfiguration.profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
         return nil;
     }
 

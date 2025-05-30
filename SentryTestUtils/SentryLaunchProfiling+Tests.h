@@ -10,12 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef struct {
-    BOOL shouldProfile;
-    SentrySamplerDecision *_Nullable tracesDecision;
-    SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileConfig;
-
 SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
 
 SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
