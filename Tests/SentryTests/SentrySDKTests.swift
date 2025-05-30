@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -732,7 +732,8 @@ class SentrySDKTests: XCTestCase {
 
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
 
-        Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
+        let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
+        performanceTracker.currentTTDTracker = testTTDTracker
 
         SentrySDK.reportFullyDisplayed()
 
@@ -890,14 +891,20 @@ class SentrySDKTests: XCTestCase {
 
     }
 
-#if SENTRY_HAS_UIKIT
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testSetAppStartMeasurementConcurrently() {
+        let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
-                let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval( TimeInterval(i))
-                let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, appStartTimestamp: timestamp)
+                let appStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(i))
+                let appStartMeasurement = TestData.getAppStartMeasurement(
+                    type: .warm,
+                    appStartTimestamp: appStartTimestamp,
+                    runtimeInitSystemTimestamp: UInt64(runtimeInitSystemTimestamp.timeIntervalSince1970)
+                )
                 SentrySDK.setAppStartMeasurement(appStartMeasurement)
                 group.leave()
             }
@@ -944,7 +951,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 3)
     }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 private extension SentrySDKTests {
@@ -1018,33 +1025,30 @@ private extension SentrySDKTests {
 class SentrySDKWithSetupTests: XCTestCase {
 
     func testAccessingHubAndOptions_NoDeadlock() {
-        SentryLog.withoutLogs {
+        let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
 
-            let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
+        let expectation = expectation(description: "no deadlock")
+        expectation.expectedFulfillmentCount = 20
 
-            let expectation = expectation(description: "no deadlock")
-            expectation.expectedFulfillmentCount = 20
+        SentrySDK.setStart(Options())
 
-            SentrySDK.setStart(Options())
+        for _ in 0..<10 {
+            concurrentQueue.async {
+                SentrySDK.currentHub().capture(message: "mess")
+                SentrySDK.setCurrentHub(nil)
 
-            for _ in 0..<10 {
-                concurrentQueue.async {
-                    SentrySDK.currentHub().capture(message: "mess")
-                    SentrySDK.setCurrentHub(nil)
-
-                    expectation.fulfill()
-                }
-
-                concurrentQueue.async {
-                    let hub = SentryHub(client: nil, andScope: nil)
-                    XCTAssertNotNil(hub)
-
-                    expectation.fulfill()
-                }
+                expectation.fulfill()
             }
 
-            wait(for: [expectation], timeout: 5.0)
+            concurrentQueue.async {
+                let hub = SentryHub(client: nil, andScope: nil)
+                XCTAssertNotNil(hub)
+
+                expectation.fulfill()
+            }
         }
+
+        wait(for: [expectation], timeout: 5.0)
     }
 }
 

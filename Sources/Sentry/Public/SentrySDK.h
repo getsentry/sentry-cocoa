@@ -1,7 +1,9 @@
 #if __has_include(<Sentry/Sentry.h>)
 #    import <Sentry/SentryDefines.h>
-#else
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
 #endif
 
 @protocol SentrySpan;
@@ -9,6 +11,7 @@
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentryFeedback;
+@class SentryFeedbackAPI;
 @class SentryId;
 @class SentryMetricsAPI;
 @class SentryOptions;
@@ -263,12 +266,19 @@ SENTRY_NO_INIT
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
+ * @warning This is an experimental feature and may still have bugs.
  * @param feedback The feedback to send to Sentry.
  * @note If you'd prefer not to have to build the UI required to gather the feedback from the user,
  * see @c SentryOptions.configureUserFeedback to customize a fully managed integration. See
  * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback API_AVAILABLE(ios(13.0));
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

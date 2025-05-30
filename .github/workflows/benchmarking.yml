@@ -7,16 +7,15 @@ on:
   pull_request:
     paths:
       # test changes to Sentry SDK sources
-      - 'Sources/**'
+      - "Sources/**"
 
       # test changes to benchmarking implementation
-      - 'Samples/iOS-Swift/**'
-      - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
-      - '.github/workflows/benchmarking.yml'
-      - '.sauce/benchmarking-config.yml'
-      - 'fastlane/**'
-      - 'scripts/ci-select-xcode.sh'
-      - 'scripts/build-xcframework.sh'
+      - "Samples/iOS-Swift/**"
+      - ".github/workflows/benchmarking.yml"
+      - ".sauce/benchmarking-config.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/build-xcframework.sh"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -33,6 +32,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - run: make init-ci-build
+      - run: make xcode
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - name: Cache iOS-Swift App and dSYM build products
@@ -42,14 +43,14 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-benchmark-runner-cache
         uses: actions/cache@v4
         with:
           path: |
-            DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/PerformanceBenchmarks/**') }}
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Benchmarking/**') }}
       - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -77,7 +78,7 @@ jobs:
           name: DerivedData-Xcode
           path: |
             **/Debug-iphoneos/iOS-Swift.app
-            **/Debug-iphoneos/PerformanceBenchmarks-Runner.app
+            **/Debug-iphoneos/iOS-Benchmarking-Runner.app
 
   run-ui-tests-with-sauce:
     name: Run benchmarks on Sauce Labs
@@ -86,7 +87,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ['High-end device', 'Mid-range device', 'Low-end device']
+        suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -95,10 +96,10 @@ jobs:
       - run: npm install -g saucectl@0.186.0
       - name: Run Benchmarks in SauceLab
         id: run-benchmarks-in-sauce-lab
-        continue-on-error: true
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        # Note: We are not setting continue-on-error here, because we want the step to be marked as failed.
         run: |
           set -o pipefail && saucectl run \
             --select-suite "${{matrix.suite}}" \
@@ -109,7 +110,8 @@ jobs:
 
       - name: Recovery - Extract Test ID from output
         id: should-retry-test
-        if: ${{ steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        # Note: We need to use always() here, because the previous run step might be marked as failed.
+        if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
         uses: actions/github-script@v7
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
@@ -118,10 +120,10 @@ jobs:
           script: |
             const fs = require('fs');
             const { execSync } = require('child_process');
-            
+
             console.log("Extracting test ID from output log");
             const outputLog = fs.readFileSync('output.log', 'utf8');
-            
+
             // Lookup for the test ID in the output log
             // Note: The CLI output might change over time, so this might need to be updated.
             const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
@@ -130,17 +132,17 @@ jobs:
             if (!testId) {
               core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
               core.setOutput('RETRY_TEST', 'true');
-            
+
               return;
             }
-            
+
             try {
               console.log(`Checking if the test exists in SauceLabs: ${testId}`);
               execSync(`saucectl jobs get ${testId}`, {
                 env: process.env,
                 stdio: 'inherit'
               });
-              
+
               console.log("Test exists but failed, not retrying.");
               core.setFailed('Test exists but failed');
             } catch (error) {
@@ -150,7 +152,8 @@ jobs:
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
-        if: ${{ steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
+        # Note: We need to use always() here, because the previous run step might be marked as failed.
+        if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
@@ -164,11 +167,11 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-13-xlarge
+    runs-on: macos-15
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 16.3
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -190,15 +193,15 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Build Framework
         run: ./scripts/build-xcframework.sh iOSOnly
-        
+
       - name: Archive build log if failed
         uses: actions/upload-artifact@v4
-        if: ${{  failure() || cancelled() }}
+        if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework
           path: |
             build-xcframework.log
-        
+
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:

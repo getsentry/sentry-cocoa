@@ -1,4 +1,5 @@
 import Sentry
+import SentrySampleShared
 import UIKit
 
 class TransactionsViewController: UIViewController {
@@ -55,7 +56,7 @@ class TransactionsViewController: UIViewController {
     
     private func readLoremIpsumFile() {
         dispatchQueue.async {
-            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+            if let path = BundleResourceProvider.loremIpsumTextFilePath {
                 _ = FileManager.default.contents(atPath: path)
             }
         }

@@ -11,6 +11,7 @@
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
+#import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
@@ -150,6 +151,20 @@ NS_ASSUME_NONNULL_BEGIN
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTraceContext:[self buildTraceContext:span]];
+        }
+    }
+}
+
+- (void)setPropagationContext:(SentryPropagationContext *)propagationContext
+{
+    @synchronized(_propagationContext) {
+        _propagationContext = propagationContext;
+
+        if (self.observers.count > 0) {
+            NSDictionary *traceContext = [self.propagationContext traceContextForEvent];
+            for (id<SentryScopeObserver> observer in self.observers) {
+                [observer setTraceContext:traceContext];
+            }
         }
     }
 }

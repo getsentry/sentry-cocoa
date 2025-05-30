@@ -67,25 +67,33 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
 
     func testConfigure_waitForDisplay() {
+        // -- Arrange --
         let sut = SentryPerformanceTrackingIntegration()
 
+        // -- Act --
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableTimeToFullDisplayTracing = true
         sut.install(with: options)
 
-        XCTAssertTrue(SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay)
+        // -- Assert -- 
+        let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+        XCTAssertTrue(performanceTracker.alwaysWaitForFullDisplay)
     }
 
     func testConfigure_dontWaitForDisplay() {
+        // -- Arrange --
         let sut = SentryPerformanceTrackingIntegration()
 
+        // -- Act --
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableTimeToFullDisplayTracing = false
         sut.install(with: options)
 
-        XCTAssertFalse(SentryUIViewControllerPerformanceTracker.shared.alwaysWaitForFullDisplay)
+        // -- Assert --
+        let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+        XCTAssertFalse(performanceTracker.alwaysWaitForFullDisplay)
     }
     
 #endif

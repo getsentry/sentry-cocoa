@@ -13,6 +13,7 @@
 #    import "MockUIScene.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplayIntegration+Private.h"
+#    import "SentrySessionReplayIntegration+Test.h"
 #    import "SentryUIApplication+Private.h"
 #    import "SentryUIApplication.h"
 #    import "SentryUIDeviceWrapper.h"
@@ -90,6 +91,7 @@
 #import "SentryCrashReportSink.h"
 #import "SentryCrashReportStore.h"
 #import "SentryCrashScopeObserver.h"
+#import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryCrashWrapper.h"
@@ -184,6 +186,7 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryUncaughtNSExceptions.h"
+#import "SentryWeakMap.h"
 
 #import "Sentry/Sentry-Swift.h"
 #import "SentryBinaryImageCache+Private.h"

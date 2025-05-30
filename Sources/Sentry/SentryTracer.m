@@ -368,8 +368,9 @@ static BOOL appStartMeasurementRead;
     [self cancelIdleTimeout];
 
     if (self.isFinished) {
-        SENTRY_LOG_WARN(
-            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        SENTRY_LOG_WARN(@"Starting a child with operation %@ and description %@ on a finished span "
+                        @"is not supported; it won't be sent to Sentry.",
+            operation, description);
         return [SentryNoOpSpan shared];
     }
 
@@ -438,14 +439,37 @@ static BOOL appStartMeasurementRead;
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value];
-    _measurements[name] = measurement;
+
+    [self setMeasurement:name measurement:measurement];
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
+
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
                                                                                    unit:unit];
-    _measurements[name] = measurement;
+    [self setMeasurement:name measurement:measurement];
+}
+
+- (void)setMeasurement:(NSString *)name measurement:(SentryMeasurementValue *)measurement
+{
+    // Although name is nonnull we saw edge cases where it was nil and then leading to crashes. If
+    // the name is nil we can discard the measurement
+    if (name == nil) {
+        SENTRY_LOG_ERROR(@"The name of the measurement is nil. Discarding the measurement.");
+        return;
+    }
+
+    @synchronized(_measurements) {
+        _measurements[name] = measurement;
+    }
+}
+
+- (NSDictionary<NSString *, SentryMeasurementValue *> *)measurements
+{
+    @synchronized(_measurements) {
+        return _measurements.copy;
+    }
 }
 
 - (void)finish

@@ -17,19 +17,35 @@ on:
 jobs:
   prepare_framework:
     runs-on: macos-13-xlarge
-    name: 'Create XCFramework'
+    name: "Create XCFramework"
     steps:
       - uses: actions/checkout@v4
-    
-      - name: 'Generate XCFramework'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: "Download Fastlane Certificate"
+        run: bundle exec fastlane prepare_signed_xcframework
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+        shell: sh
+
+      - name: "Generate XCFramework"
         run: |
           ./scripts/ci-select-xcode.sh 15.2
           make bump-version TO=${{ github.event.inputs.version }}
           # We need to build the framework during release to get it's SHA value
           # the framework will be saved as an artefact and we will use the same
           # binary for the entire release process to avoid the SHA to change
-          make build-xcframework 
-            
+          make build-signed-xcframework
+
       - uses: actions/upload-artifact@v4
         with:
           name: xcframeworks.zip
@@ -42,12 +58,12 @@ jobs:
 
   job_release:
     runs-on: ubuntu-latest
-    name: 'Release a new version'
+    name: "Release a new version"
     needs: prepare_framework
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -56,16 +72,16 @@ jobs:
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
-          
+
       - uses: actions/download-artifact@v4
         with:
           name: xcframeworks.zip
           path: Carthage/
-          
+
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
       - run: export GITHUB_RUN_ID=${{ github.run_id }}
-      
+
       - name: Prepare release
         uses: getsentry/action-prepare-release@v1
         env:

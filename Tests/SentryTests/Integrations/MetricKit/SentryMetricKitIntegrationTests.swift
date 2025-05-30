@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -78,7 +78,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
@@ -92,7 +92,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut) { $0.enableMetricKitRawPayload = true }
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             let diagnostic = MXCrashDiagnostic()
             mxDelegate.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
@@ -110,7 +110,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             
             let sut = SentryMetricKitIntegration()
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             let diagnostic = MXCrashDiagnostic()
             mxDelegate.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
@@ -131,7 +131,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 options.add(inAppInclude: "iOS-Swift")
             }
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertEventWithScopeCaptured { event, _, _ in
@@ -151,7 +151,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             assertNothingCaptured()
@@ -165,7 +165,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
@@ -182,7 +182,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
             let callStackTree = try SentryMXCallStackTree.from(data: contents)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
@@ -216,7 +216,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib", exceptionMechanism: "mx_disk_write_exception")
@@ -230,7 +230,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as SentryMXManagerDelegate
+            let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")

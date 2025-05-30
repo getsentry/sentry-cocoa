@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -191,7 +191,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        let sut: SentrySessionReplayDelegate = try getSut()
+        let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
         uiApplication.screenName = "Test Screen"
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
     }
@@ -203,7 +203,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             scope.currentScreen = "Scope Screen"
         }
         
-        let sut: SentrySessionReplayDelegate = try getSut()
+        let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
         uiApplication.screenName = "Test Screen"
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
@@ -376,7 +376,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -399,7 +399,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -422,7 +422,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         
@@ -451,7 +451,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
         
-        (sut as SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
+        (sut as! SentrySessionReplayDelegate).sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
         XCTAssertNil(sut.sessionReplay)
@@ -459,7 +459,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.start()
         XCTAssertNil(sut.sessionReplay)
         
-        (sut as SentrySessionListener).sentrySessionStarted(SentrySession(releaseName: "", distinctId: ""))
+        (sut as! SentrySessionListener).sentrySessionStarted(SentrySession(releaseName: "", distinctId: ""))
         
         sut.start()
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
@@ -576,7 +576,91 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         XCTAssertEqual(window.subviews.count, 0, "Mask preview should not appear in production")
     }
-    
+
+    func testMoveCurrentReplay_whenLastFileExistsWithoutCurrent_shouldBeRemoved() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+
+        let replayFolder = sut.replayDirectory()
+        try FileManager.default.createDirectory(atPath: replayFolder.path, withIntermediateDirectories: true)
+
+        let currentReplayPath = replayFolder.appendingPathComponent("replay.current")
+        // Cleanup stale files from previous tests
+        if FileManager.default.fileExists(atPath: currentReplayPath.path) {
+            try FileManager.default.removeItem(atPath: currentReplayPath.path)
+        }
+
+        let lastReplayPath = replayFolder.appendingPathComponent("replay.last")
+        let lastData = Data("last".utf8)
+        try lastData.write(to: lastReplayPath)
+
+        // Validate pre-condition
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        // -- Act --
+        sut.moveCurrentReplay()
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
+    }
+
+    func testMoveCurrentReplay_whenLastFileExistsWithCurrent_shouldBeReplaced() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+
+        let replayFolder = sut.replayDirectory()
+        try FileManager.default.createDirectory(atPath: replayFolder.path, withIntermediateDirectories: true)
+
+        let currentReplayPath = replayFolder.appendingPathComponent("replay.current")
+        let currentData = Data("current".utf8)
+        try currentData.write(to: currentReplayPath)
+
+        let lastReplayPath = replayFolder.appendingPathComponent("replay.last")
+        let lastData = Data("last".utf8)
+        try lastData.write(to: lastReplayPath)
+
+        // Validate pre-condition
+        XCTAssertTrue(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        // -- Act --
+        sut.moveCurrentReplay()
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
+
+        let writtenLastData = try Data(contentsOf: lastReplayPath)
+        XCTAssertEqual(writtenLastData, currentData)
+    }
+
+    func testQueuePriorities_processingQueueShouldHaveLowerPriorityThanWorkerQueue() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        let dynamicSut = Dynamic(sut)
+
+        // -- Act --
+        let processingQueue = try XCTUnwrap(dynamicSut.replayProcessingQueue.asObject as? SentryDispatchQueueWrapper)
+        let assetWorkerQueue = try XCTUnwrap(dynamicSut.replayAssetWorkerQueue.asObject as? SentryDispatchQueueWrapper)
+
+        // -- Assert --
+        XCTAssertEqual(assetWorkerQueue.queue.label, "io.sentry.session-replay.asset-worker")
+        XCTAssertEqual(assetWorkerQueue.queue.qos.qosClass, .utility)
+
+        XCTAssertEqual(processingQueue.queue.label, "io.sentry.session-replay.processing")
+        XCTAssertEqual(processingQueue.queue.qos.qosClass, .utility)
+
+        // The actual priorities are not relevant, we just need to check that the processing queue has a lower priority
+        // than the asset worker queue and that both are lower than the default priority.
+        XCTAssertLessThan(processingQueue.queue.qos.relativePriority, 0)
+        XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
+    }
+
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"

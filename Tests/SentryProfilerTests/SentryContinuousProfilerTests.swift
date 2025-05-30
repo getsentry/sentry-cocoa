@@ -1,5 +1,5 @@
 import _SentryPrivate
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -10,7 +10,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     
     override class func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
     }
     
     override func setUp() {
@@ -75,9 +75,24 @@ final class SentryContinuousProfilerTests: XCTestCase {
     func testStartingContinuousProfilerWithZeroSampleRate() throws {
         fixture.options.profilesSampleRate = 0
         try performContinuousProfilingTest()
-    }    
+    }
 
-    #if !os(macOS)
+#if !os(macOS)
+
+    func testStopsFramesTracker_WhenAutoPerformanceAndAppHangsV2Disabled() throws {
+        fixture.options.enableAutoPerformanceTracing = false
+        try performContinuousProfilingTest()
+
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
+    }
+
+    func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
+        fixture.options.enableAppHangTrackingV2 = true
+        try performContinuousProfilingTest()
+
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
+    }
+
     // test that receiving a background notification stops the continuous
     // profiler after it has been started manually
     func testStoppingContinuousProfilerStopsOnBackground() throws {

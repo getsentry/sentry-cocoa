@@ -1,13 +1,125 @@
 # Changelog
 
-## Unreleased
+## 8.52.0-beta
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
+## 8.51.1
+
+### Fixes
+
+- Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
+
+### Improvements
+
+- Threading issues in internal dependency container (#5225)
+
+## 8.51.0
+
+> [!Important]
+> This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
+
+### Features
+
+- Apps can now manually show and hide the included feedback widget button (#5236)
+
+### Fixes
+
+- Reporting unhandled C++ exception message (#5190)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
+
+### Improvements
+
+- Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+- Improve warn log in SentryTracer (#5248)
+
+## 8.50.2
+
+### Fixes
+
+- Improved time-to-display tracker to not crash when using view life cycle methods incorrectly (#5048)
+- Enable view renderer V2 by default in session replay and preview redact options when using initializer with default values (#5210)
+
+## 8.50.1
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+### Improvements
+
+- Add `frameRate`, `errorReplayDuration`, `errorReplayDuration`, `sessionSegmentDuration` and `maximumDuration` to session replay options dictionary initializer for Hybrid SDKs (#5210)
+
+## 8.50.1-beta.0
+
+### Fixes
+
+- Detect AppHangsV2 when tracing not enabled (#5184)
+
+## 8.50.0
+
+> [!Important]
+> This version enables the better view renderer V2 used by Session Replay by default.
+> You can disable it by setting the option `options.sessionReplay.enableViewRendererV2` to `false`.
+>
+> In case you are noticing issues with view rendering, please report them on [GitHub](https://github.com/getsentry/sentry-cocoa).
+
+### Features
+
+- Added ability to bring your own button for user feedback form display (#5107)
+- Make enableAppHangTrackingV2 general available (#5149)
+
+### Fixes
+
+- Correctly rate limit envelopes from the new UI profiling system (#5131)
+- Race condition in ANRTrackerV1 (#5137)
+
+### Improvements
+
+- More logging for Session Replay video info (#5132)
+- Improve session replay frame presentation timing calculations (#5133)
+- Use wider compatible video encoding options for Session Replay (#5134)
+- GA of better session replay view renderer V2 (#5054)
+- Explicitly check malloc result for SRSync to fix a Veracode Security Scan warning (#5160)
+- Revert max key-frame interval to once per session replayvideo segment (#5156)
+- Add more detailed debug logs for session replay (#5173)
+
+## 8.49.2
+
+> [!Important]
+> Version 8.21.0 introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least this version.
+
+### Fixes
+
+- Non-sandboxed macOS app launch profile configuration are now respected (#5144)
+
+## 8.49.1
+
+### Fixes
+
+- Crash in setMeasurement when name is nil (#5064)
+- Make setMeasurement thread safe (#5067, #5078)
+- Truncation of Swift crash messages (#5036)
+- Add error logging for move current replay to last path (#5083)
+- Async safe log for backtrace in CPPException (#5098)
+
+## 8.49.0
 
 ### Features
 
 - New continuous profiling configuration API (#4952 and #5063)
 
 > [!Important]
-> With the addition of the new profiling configuation API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
+> With the addition of the new profiling configuration API, the previous profiling API are deprecated and will be removed in the next major version of the SDK:
 >
 > - `SentryOptions.enableProfiling`
 > - `SentryOptions.isProfilingEnabled`
@@ -15,7 +127,6 @@
 > - `SentryOptions.profilesSampler`
 > - `SentryOptions.enableLaunchProfiling`
 >
-> Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above API are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is it's default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
 > Additionally, note that the behavior of `SentrySDK.startProfiler()` will change once the above APIs are removed, as follows: before adding the new configuration API (`SentryProfileOptions`), `SentrySDK.startProfiler()` would unconditionally start a continuous profile if both `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` were `nil`, or no-op if either was non-`nil` (meaning the SDK would operate under original, transaction-based, profiling model). In the next major version, `SentryOptions.profilesSampleRate` and `SentryOptions.profilesSampler` will be removed, and `SentrySDK.startProfile()` will become a no-op unless you configure `SentryProfileOptions.sessionSampleRate` to a value greater than zero (which is its default). If you already have calls to `SentrySDK.startProfiler()` in your code, ensure you properly configure `SentryProfileOptions` via `SentryOptions.configureProfiling` to avoid losing profiling coverage.
 
 ### Fixes
@@ -887,6 +998,11 @@ The following two features, disabled by default, were mistakenly added to the re
 - Add context to event with CrashIntegration disabled (#3699)
 
 ## 8.21.0
+
+> [!Important]
+> This version introduced an issue for app launch profiling **only for macOS apps that run without a sandbox** (i.e. distributed outside the Mac App Store).
+> This issue could lead to starting the app launch profiler even when it's not configured via the options.
+> We recommend upgrading to at least version 8.49.2.
 
 ### Features
 

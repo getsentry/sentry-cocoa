@@ -105,8 +105,9 @@ For more details on test plans and their capabilities, refer to:
 
 ### Test Logs
 
-The [`SentryTestLogConfig`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/Tests/SentryTests/TestUtils/SentryTestLogConfig.m) sets the log level to debug in `load`, so we understand what's going on during out tests.
-The [`clearTestState`](https://github.com/getsentry/sentry-cocoa/blob/3a6ab6ec167d2532c024322a0a0019431275d1c1/SentryTestUtils/ClearTestState.swift#L25) method does the same, in case a test changes the log level.
+We used to set the log level to debug all tests to investigate flaky tests. For individual tests we then disabled the logs because printing the messages via NSLog uses synchronization and caused specific tests to fail due to timeouts in CI. The debug logs can also be extremely verbose for tests using tight loops and completely spamming the test logs.
+
+Therefore, the default log level is error for tests. If debug logs can help with fixing flaky tests, we should enable these for specific test cases only with `SentryLog.withDebugLogs`.
 
 ### UI Tests
 
@@ -122,7 +123,7 @@ We recommend using `XCTAssertEqual(<VALUE>, <EXPECTED VALUE>)` over `XCTAssertEq
 
 ## Performance benchmarking
 
-Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`PerformanceBenchmarks` target) using the iOS-Swift sample app, under the `iOS-Swift-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
+Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`iOS-Benchmarking` target) using the iOS-Swift sample app, under the `iOS-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
 
 ### Test procedure
 
@@ -167,7 +168,11 @@ This feature is experimental and is currently not compatible with SPM.
 
 ## Logging
 
-We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock; to log from special places like crash handlers, see SentryAsyncSafeLog.h. By default, it only writes to file. If you'll be debuggin, you can set `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1` and logs will also write to the console, but note this is unsafe to do from contexts that actually require async safety, so this should always remain disabled in version control by leaving it set it to `0`.
+We have a set of macros for logging at various levels defined in SentryLog.h. These are not async-safe because they use NSLog, which takes its own lock, and aren't suitable for SentryCrash.
+
+### SentryCrash Logging
+
+In SentryCrash we have to use SentryAsyncSafeLog and we can't use NSLog, as it's not async-safe. Therefore, logging to the console is disabled for log messages from SentryAsyncSafeLog. You can enable it by setting `SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE` to `1`, but you MUST NEVER commit this change. SentryAsyncSafeLog writes its messages to the file `/Caches/io.sentry/async.log`. The default log level is error. To see all log messages set `SENTRY_ASYNC_SAFE_LOG_LEVEL` in `SentryAsyncSafeLog.h` to `SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE`.
 
 ## Profiling
 
@@ -193,13 +198,21 @@ With continuous profiling, there's also only ever one profiler instance running 
 
 Also referred to in implementation as continuous profiling V2. Essentially a combination of transaction-based profiling (although now focused on "root spans" instead of transactions) for the trace lifecycle and continuous profiling beta for the manual lifecycle, with the exception that manual mode also respects a configured sample rate.
 
+The sample apps are configured by default to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
+
 ### Sample apps
 
-The iOS-Swift and iOS-ObjectiveC sample apps have several launch args to switch between the different modes.
+> The sample apps are moving towards being managed by [XcodeGen](https://github.com/yonaskolb/XcodeGen). Run `make xcode` to ensure that the projects in Sentry.xcworkspace are present and up-to-date. You can add this to your `post-checkout` git hook to automate the process: `echo "make xcode" >> .git/hooks/post-checkout`.
 
-By default, the launch arguments for the iOS-Swift and iOS-ObjectiveC schemas are configured to use UI Profiling with trace lifecycle (to override the default of manual lifecycle), traces and profile session sample rates of 1 (to override the defaults of 0), and to use app start profiling.
+The iOS-Swift and iOS-ObjectiveC sample apps have schema launch args and environment variables available to customize how the SDK is configured.
 
-In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults` and by default take precedence over launch arg and env variable settings when both are present. If you want to give precedence to schema launch args and environment vars over user defaults values, enable the launch arg `--io.sentry.schema-override-precedence`. You can also remove all stored values in user defaults by launching with `--io.sentry.wipe-data`. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
+In iOS-Swift, these can also be modified at runtime, to help test various configurations in scenarios where using launch args and environment variables isn't possible, like TestFlight builds. Runtime overrides are set via `UserDefaults`. They interact with schema launch arguments and environment variables as follows: - Boolean flags are ORed together: if either a `true` is set in User Defaults, or a launch argument is set, then the override takes effect. - Values written to user defaults take precedence over schema environment variables by default. If you want to give precedence to schema environment vars over user defaults values, enable the launch arg `--io.sentry.schema-environment-variable-precedence`.
+
+Note that if a key we use to write a boolean value to defaults isn't present in defaults, then UserDefaults returns `false` for the query by default. We write all environment variables as strings, so that by default, if the associated key isn't present, `UserDefaults` returns `nil` (if we directly wrote and read Floats, for example, defaults would return `0` if the key isn't present, and we'd have to do more work to disambiguate that from having overridden it to 0, for cases where 0 isn't the default we want to set in the sample app).
+
+You can see the current override value being used in the "Features" tab.
+
+You can also remove all stored values in user defaults by launching with `--io.sentry.wipe-data`. See `SentrySDKWrapper.swift` and `SentrySDKOverrides.swift` for usages.
 
 Note that in-app overrides don't take effect until the app is relaunched (and not simply backgrounded and then foregrounded again). This means that if you want to test changes to launch profiling, you must change the settings, then relaunch the app for the launch profile configuration to be written to disk, and then relaunch once more for the launch profile scenario to actually be tested.
 
@@ -215,6 +228,10 @@ When making an Objective-C class public for Swift SDK code, do the following:
 - Remove existing imports from any test bridging headers.
 - Add the import `@_implementationOnly import _SentryPrivate` to your Swift class that wants to use
   the Objective-C class.
+
+To make internal Swift code accessible to ObjC it needs to be `public`. This allows the ObjC header to be generated by Swift Package Manager.
+To discourage use outside of the SDK, add `@_spi(Private)` to these declarations. This ensures they can only be used when the import also
+adds the SPI attribute.
 
 ## Public Protocols
 

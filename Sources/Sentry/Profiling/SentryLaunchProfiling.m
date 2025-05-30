@@ -213,7 +213,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     // quick and dirty way to get debug logging this early in the process run. this will get
     // overwritten once SentrySDK.startWithOptions is called according to the values of
     // SentryOptions.debug and SentryOptions.diagnosticLevel
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
+    [SentryLogSwiftSupport configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();
@@ -291,7 +291,8 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
-    SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.", getAbsoluteTime());
+    SENTRY_LOG_INFO(@"Starting app launch trace profile at %llu.",
+        [SentryDefaultCurrentDateProvider getAbsoluteTime]);
     sentry_isTracingAppLaunch = YES;
 
     SentryTransactionContext *context

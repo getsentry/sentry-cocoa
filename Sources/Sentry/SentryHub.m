@@ -9,6 +9,7 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
@@ -759,7 +760,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *eventJson =
+            NSDictionary *_Nullable eventJson =
                 [SentrySerialization deserializeDictionaryFromJsonData:item.data];
             if (eventJson == nil) {
                 return NO;
@@ -792,7 +793,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reportFullyDisplayed
 {
 #if SENTRY_HAS_UIKIT
-    [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
+    [[SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker]
+        reportFullyDisplayed];
 #endif // SENTRY_HAS_UIKIT
 }
 

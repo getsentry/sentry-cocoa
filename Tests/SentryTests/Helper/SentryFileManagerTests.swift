@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -37,8 +37,8 @@ class SentryFileManagerTests: XCTestCase {
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             
             options = Options()
-            options.dsn = TestConstants.dsnAsString(username: "SentryFileManagerTests")
-            
+            options.dsn = TestConstants.dsnForTestCase(type: SentryFileManagerTests.self)
+
             sessionEnvelope = SentryEnvelope(session: session)
             
             let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
@@ -72,7 +72,7 @@ class SentryFileManagerTests: XCTestCase {
             return sut
         }
 
-        func getValidPath() -> String {
+        func getValidDirectoryPath() -> String {
             URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent("SentryTest")
                 .path
@@ -893,7 +893,7 @@ class SentryFileManagerTests: XCTestCase {
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())
@@ -1031,7 +1031,7 @@ class SentryFileManagerTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
         SentryLog.configureLog(true, diagnosticLevel: .debug)
 
-        let path = fixture.getValidPath()
+        let path = fixture.getValidDirectoryPath()
         var error: NSError?
         // -- Act --
         let result = createDirectoryIfNotExists(path, &error)
@@ -1072,6 +1072,53 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(error?.domain, SentryErrorDomain)
         XCTAssertEqual(error?.code, 108)
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
+    }
+
+    func testReadDataFromPath_whenFileExistsAtPath_shouldReadData() throws {
+        // -- Arrange --
+        let dirUrl = URL(fileURLWithPath: fixture.getValidDirectoryPath())
+        let fileUrl = dirUrl.appendingPathComponent("test.file")
+        let data = Data("<TEST DATA>".utf8)
+
+        let fm = FileManager.default
+        try fm.createDirectory(at: dirUrl, withIntermediateDirectories: true)
+        try data.write(to: fileUrl)
+
+        // -- Act --
+        let readData = try sut.readData(fromPath: fileUrl.path)
+
+        // -- Assert --
+        XCTAssertEqual(readData, data)
+    }
+
+    func testReadDataFromPath_whenFileExistsNotAtPath_shouldReturnNil() throws {
+        // -- Arrange --
+        let path = fixture.getInvalidPath()
+
+        // -- Act & Assert --
+        try XCTAssertThrowsError(sut.readData(fromPath: path))
+    }
+
+    func testWriteData_whenSentryPathDirectoryNotExists_shouldCreateDirectory() throws {
+        // -- Arrange --
+        let path = sut.sentryPath.appending("/test.file")
+        let data = Data("<TEST DATA>".utf8)
+
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+
+        // Check pre-conditions
+        let fm = FileManager.default
+        if fm.fileExists(atPath: sut.sentryPath) {
+            try fm.removeItem(atPath: sut.sentryPath)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: sut.sentryPath))
+
+        // -- Act --
+        sut.write(data, toPath: path)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: path))
     }
 }
 
@@ -1208,6 +1255,100 @@ extension SentryFileManagerTests {
         
         // set the original value back so other tests don't crash
         sentryLaunchConfigFileURL = (originalURL as NSURL)
+    }
+
+    func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
+#if os(macOS)
+        throw XCTSkip("Test is disabled for macOS")
+#else
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+
+        // -- Act --
+        let result = sentryGetScopedCachesDirectory(cachesDirectoryPath)
+
+        // -- Assert
+        XCTAssertEqual(result, cachesDirectoryPath)
+#endif // os(macOS)
+    }
+
+    func testSentryGetScopedCachesDirectory_targetIsMacOS_shouldReturnPath() throws {
+#if !os(macOS)
+        throw XCTSkip("Test is disabled for non macOS")
+#else
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+
+        // -- Act --
+        let result = sentryGetScopedCachesDirectory(cachesDirectoryPath)
+
+        // -- Assert
+        // Xcode unit tests are not sandboxed, therefore we expect it to use the bundle identifier to unique the path
+        // The bundle identifier will then be the xctest bundle identifier
+        XCTAssertEqual(result, "some/path/to/caches/com.apple.dt.xctest.tool")
+#endif // os(macOS)
+
+    }
+
+    func testSentryBuildScopedCachesDirectoryPath_isSandboxed_shouldReturnInputPath() {
+        // -- Arrange --
+        let cachesDirectoryPath = "some/path/to/caches"
+        let isSandboxed = true
+        let bundleIdentifier: String? = nil
+        let lastPathComponent: String? = nil
+
+        // -- Act --
+        let result = sentryBuildScopedCachesDirectoryPath(
+            cachesDirectoryPath,
+            isSandboxed,
+            bundleIdentifier,
+            lastPathComponent
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result, cachesDirectoryPath)
+    }
+
+    func test_sentryBuildScopedCachesDirectoryPath_inputCombinations() {
+        // -- Arrange --
+        for testCase: (isSandboxed: Bool, bundleIdentifier: String?, lastPathComponent: String?, expected: String?) in [
+            // bundleIdentifier defined
+            (isSandboxed: false, bundleIdentifier: "com.example.app", lastPathComponent: "AppBinaryName", expected: "some/path/to/caches/com.example.app"),
+            (isSandboxed: false, bundleIdentifier: "com.example.app", lastPathComponent: "", expected: "some/path/to/caches/com.example.app"),
+            (isSandboxed: false, bundleIdentifier: "com.example.app", lastPathComponent: nil, expected: "some/path/to/caches/com.example.app"),
+
+            // bundleIdentifier zero length string
+            (isSandboxed: false, bundleIdentifier: "", lastPathComponent: "AppBinaryName", expected: "some/path/to/caches/AppBinaryName"),
+            (isSandboxed: false, bundleIdentifier: "", lastPathComponent: "", expected: nil),
+            (isSandboxed: false, bundleIdentifier: "", lastPathComponent: nil, expected: nil),
+
+            // bundleIdentifier nil
+            (isSandboxed: false, bundleIdentifier: nil, lastPathComponent: "AppBinaryName", expected: "some/path/to/caches/AppBinaryName"),
+            (isSandboxed: false, bundleIdentifier: nil, lastPathComponent: "", expected: nil),
+            (isSandboxed: false, bundleIdentifier: nil, lastPathComponent: nil, expected: nil),
+
+            // for sandboxed scenarios, always return the original path
+            (isSandboxed: true, bundleIdentifier: "com.example.app", lastPathComponent: "AppBinaryName", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: "", lastPathComponent: "AppBinaryName", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: nil, lastPathComponent: "AppBinaryName", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: "com.example.app", lastPathComponent: "", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: "", lastPathComponent: "", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: nil, lastPathComponent: "", expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: "com.example.app", lastPathComponent: nil, expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: "", lastPathComponent: nil, expected: "some/path/to/caches"),
+            (isSandboxed: true, bundleIdentifier: nil, lastPathComponent: nil, expected: "some/path/to/caches")
+        ] {
+            // -- Act --
+            let result = sentryBuildScopedCachesDirectoryPath(
+                "some/path/to/caches",
+                testCase.isSandboxed,
+                testCase.bundleIdentifier,
+                testCase.lastPathComponent
+            )
+
+            // -- Assert --
+            XCTAssertEqual(result, testCase.expected, "Inputs: (isSandboxed: \(testCase.isSandboxed), bundleIdentifier: \(String(describing: testCase.bundleIdentifier)), lastPathComponent: \(String(describing: testCase.lastPathComponent)), expected: \(String(describing: testCase.expected))); Output: \(String(describing: result))")
+        }
     }
 }
 

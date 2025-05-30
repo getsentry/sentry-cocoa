@@ -6,11 +6,14 @@ on:
 
   pull_request:
     paths:
-      - 'Sources/**'
-      - '.github/workflows/ui-tests-critical.yml'
-      - 'fastlane/**'
-      - 'TestSamples/**'
-      - '**/*.xctestplan'
+      - "Sources/**"
+      - ".github/workflows/ui-tests-critical.yml"
+      - "fastlane/**"
+      - "TestSamples/**"
+      - "**/*.xctestplan"
+      # Explicitly list used scripts to avoid unnecessary runs
+      - "scripts/ci-boot-simulator.sh"
+      - "scripts/ci-select-xcode.sh"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -34,7 +37,7 @@ jobs:
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
 
   run-tests:
-    name: Test iOS on Xcode ${{matrix.xcode}}
+    name: Test iOS on Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
     needs: [build-sample]
     runs-on: ${{matrix.runs-on}}
     env:
@@ -51,19 +54,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-
-          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see 
+          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
           - runs-on: macos-13
             xcode: "14.3.1"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
-          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see 
+          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - runs-on: macos-15
             xcode: "16.2"
-            
 
     steps:
       - uses: actions/checkout@v4
@@ -91,7 +92,7 @@ jobs:
         with:
           name: maestro-logs-${{matrix.xcode}}
           path: ${{env.MAESTRO_LOGS_PATH}}
-      
+
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}

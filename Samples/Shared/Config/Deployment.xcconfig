@@ -1,0 +1,4 @@
+#include "../../Sources/Configuration/DeploymentTargets.xcconfig"
+
+COPY_PHASE_STRIP = NO
+TARGETED_DEVICE_FAMILY = 1,2

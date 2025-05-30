@@ -1,0 +1,51 @@
+name: macOS-SwiftUI
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - macOS-SwiftUI.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  macOS-SwiftUI:
+    type: application
+    platform: auto
+    sources:
+      - macOS-SwiftUI
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: macOS-SwiftUI.xcconfig
+      Release: macOS-SwiftUI.xcconfig
+      Test: macOS-SwiftUI.xcconfig
+      TestCI: macOS-SwiftUI.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+schemes:
+  macOS-SwiftUI:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        macOS-SwiftUI: all

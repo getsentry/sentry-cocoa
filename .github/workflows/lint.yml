@@ -10,9 +10,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint.yml"
       - "scripts/ci-select-xcode.sh"
-      - "*.json"
-      - "*.md"
-      
+
   pull_request:
     paths:
       - "Sources/**"
@@ -24,9 +22,7 @@ on:
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
-      - "*.json"
-      - "*.md"
-      
+
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -78,23 +74,3 @@ jobs:
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
-
-  shellcheck:
-    name: Run Shellcheck
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v4
-      - run: brew install shellcheck
-      - run: shellcheck **/*.sh
-
-  lint-prettier:
-    name: Run Prettier
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-      - run: corepack enable
-      - run: yarn install
-      - run: yarn prettier --check --ignore-unknown --config .prettierrc "**/*.{md,json}"

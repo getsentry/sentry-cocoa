@@ -1,4 +1,4 @@
-#import "Sentry/Sentry-Swift.h"
+#import "Sentry/SentryIntegrationProtocol.h"
 #import <Foundation/Foundation.h>
 
 @class SentryOptions;

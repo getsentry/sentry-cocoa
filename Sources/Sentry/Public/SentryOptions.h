@@ -1,10 +1,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 #    import <Sentry/SentryDefines.h>
-#    import <Sentry/SentryProfilingConditionals.h>
-#else
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
-#    import <SentryWithoutUIKit/SentryProfilingConditionals.h>
+#else
+#    import <SentryDefines.h>
 #endif
+#import SENTRY_HEADER(SentryProfilingConditionals)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -646,8 +647,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
  enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
  enableAppHangTracking.
- *
- * @warning This is an experimental feature and may still have bugs.
  */
 @property (nonatomic, assign) BOOL enableAppHangTrackingV2;
 
@@ -800,6 +799,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * either this block to configure a widget and UI form to gather feedback, or directly submits
  * feedback you've gathered using your own UI by calling the method @c SentrySDK.captureFeedback
  * (se https://docs.sentry.io/platforms/apple/user-feedback/configuration/).
+ * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));

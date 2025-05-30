@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -23,7 +23,7 @@ class SentryLogTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         SentryLog.setLogOutput(oldOutput)
         SentryLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
@@ -31,7 +31,7 @@ class SentryLogTests: XCTestCase {
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .error)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .error)
         
         SentryLog.log(message: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "1", andLevel: SentryLevel.error)
@@ -51,7 +51,7 @@ class SentryLogTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
 
         // -- Act --
-        SentryLog.configure(false, diagnosticLevel: SentryLevel.none)
+        SentryLogSwiftSupport.configure(false, diagnosticLevel: SentryLevel.none)
         SentryLog.log(message: "fatal", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "error", andLevel: SentryLevel.error)
         SentryLog.log(message: "warning", andLevel: SentryLevel.warning)
@@ -68,7 +68,7 @@ class SentryLogTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
         
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.none)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.none)
         SentryLog.log(message: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(message: "1", andLevel: SentryLevel.error)
         SentryLog.log(message: "2", andLevel: SentryLevel.warning)
@@ -86,7 +86,7 @@ class SentryLogTests: XCTestCase {
     func testMacroLogsErrorMessage() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.error)
         
         sentryLogErrorWithMacro("error")
         
@@ -96,7 +96,7 @@ class SentryLogTests: XCTestCase {
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.info)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.info)
         
         sentryLogDebugWithMacroArgsNotEvaluated()
         
@@ -106,10 +106,35 @@ class SentryLogTests: XCTestCase {
     func testConvenientLogFunction() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.debug)
         let line = #line + 1
         SentryLog.debug("Debug Log")
         XCTAssertEqual(["[Sentry] [debug] [timeIntervalSince1970:\(timeIntervalSince1970)] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
     }
-    
+
+    /// This test only ensures we're not crashing when calling configure and log from multiple threads.
+    func testAccessFromMultipleThreads_DoesNotCrash() {
+        let dispatchQueue = DispatchQueue(label: "com.sentry.log.configuration.test", attributes: [.concurrent, .initiallyInactive])
+
+        let expectation = self.expectation(description: "SentryLog Configuration and Logging")
+        expectation.expectedFulfillmentCount = 1_000
+
+        for _ in 0..<1_000 {
+            dispatchQueue.async {
+                SentryLog._configure(false, diagnosticLevel: .error)
+
+                for _ in 0..<100 {
+                    SentryLog.log(message: "This is a test message", andLevel: SentryLevel.debug)
+                    SentryLog.log(message: "This is another test message", andLevel: SentryLevel.info)
+                }
+
+                expectation.fulfill()
+            }
+        }
+
+        dispatchQueue.activate()
+
+        wait(for: [expectation], timeout: 5.0)
+    }
+
 }

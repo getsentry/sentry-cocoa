@@ -273,7 +273,7 @@ The SDK manually creates a JSON-like dict:
 And then the [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) calls serialize on the event and then converts it to JSON data.
 
 ```objectivec
- NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
 ```
 
 To implement a deserialized method, we would need to manually implement the counterparts, which is plenty of code. As ObjC is slowly dying out and the future is Swift, we would like to avoid writing plenty of ObjC code that we will convert to Swift in the future.
@@ -307,7 +307,7 @@ To do this conversion safely, we should do it in a major release. We need to con
 The [SentryEnvelope](https://github.com/getsentry/sentry-cocoa/blob/72e34fae44b817d8c12490bbc5c1ce7540f86762/Sources/Sentry/SentryEnvelope.m#L70-L90) first creates a JSON dict and then converts it to JSON data. Instead, we could directly use the Swift JSONEncoder to save one step in between. This would convert the classes to JSON data directly.
 
 ```objectivec
- NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
+NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
 ```
 
 All that said, I suggest converting all public protocol classes to Swift and switching to Swift Codable for serialization, cause it will be less code and more future-proof. Of course, we will run into problems and challenges on the way, but it’s worth doing it.
@@ -405,3 +405,17 @@ See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846
 ## Use preinstalled GH actions simulators
 
 Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
+
+## Do not use Swift String constants in ObjC code
+
+Date: April 11, 2025
+Contributors: @philipphofmann, @philprime, @kahest
+
+Due to a potential memory-management bug in the Swift standard library for bridging `String` to Objective-C, we experienced SDK crashes when accessing Swift String constants from an Objective-C `NSBlock` closure.
+
+To avoid this issue, we should not use Swift String constants in Objective-C code and instead define them as Objective-C constants.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/4887
+- https://github.com/getsentry/sentry-cocoa/pull/4910

@@ -13,7 +13,8 @@ protocol SentryReplayVideoMaker: NSObjectProtocol {
         forScreen screen: String?
     )
     func releaseFramesUntil(_ date: Date)
-    func createVideoWith(beginning: Date, end: Date) throws -> [SentryVideoInfo]
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void)
+    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo]
 }
 
 extension SentryReplayVideoMaker {

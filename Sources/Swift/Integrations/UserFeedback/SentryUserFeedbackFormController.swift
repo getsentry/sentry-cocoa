@@ -2,7 +2,6 @@
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
-@_implementationOnly import _SentryPrivate
 import UIKit
 
 @available(iOS 13.0, *)
@@ -11,10 +10,9 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 }
 
 @available(iOS 13.0, *)
-@objcMembers
 class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
-    weak var delegate: (any SentryUserFeedbackFormDelegate)?
+    weak var delegate: SentryUserFeedbackFormDelegate?
     let screenshot: UIImage?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
     
@@ -24,7 +22,7 @@ class SentryUserFeedbackFormController: UIViewController {
         viewModel.updateLayout()
     }
     
-    init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackFormDelegate, screenshot: UIImage?) {
+    init(config: SentryUserFeedbackConfiguration, delegate: SentryUserFeedbackFormDelegate?, screenshot: UIImage?) {
         self.config = config
         self.delegate = delegate
         self.screenshot = screenshot
@@ -52,6 +50,7 @@ extension SentryUserFeedbackFormController {
         NSLayoutConstraint.activate(viewModel.allConstraints(view: view))
     }
     
+    @objc
     func showedKeyboard(note: Notification) {
         guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
             SentryLog.warning("Received a keyboard display notification with no frame information.")
@@ -61,6 +60,7 @@ extension SentryUserFeedbackFormController {
         viewModel.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
     }
     
+    @objc
     func hidKeyboard() {
         viewModel.setScrollViewBottomInset(0)
     }
@@ -126,6 +126,46 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
         viewModel.updateSubmitButtonAccessibilityHint()
     }
 }
+
+#if DEBUG && swift(>=5.10)
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct ViewControllerWrapper: UIViewControllerRepresentable {
+    let viewController: UIViewController
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        return viewController
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) { }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    SentryUserFeedbackFormController(config: .init(), delegate: nil, screenshot: nil)
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    ViewControllerWrapper(
+        viewController: SentryUserFeedbackFormController(
+            config: .init(),
+            delegate: nil,
+            screenshot: nil))
+    .preferredColorScheme(.dark).colorScheme(.dark)
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    ViewControllerWrapper(
+        viewController: SentryUserFeedbackFormController(
+            config: .init(),
+            delegate: nil,
+            screenshot: nil))
+    .dynamicTypeSize(.accessibility5)
+}
+#endif // DEBUG && swift(>=5.10)
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 

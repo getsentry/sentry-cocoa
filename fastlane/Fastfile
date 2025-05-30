@@ -1,9 +1,23 @@
 default_platform(:ios)
 
 platform :ios do
+  before_all do |lane|
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
+  end
+
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
+
+  lane :prepare_signed_xcframework do
+    setup_ci
+
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift"], # Any app identifier will do
+    )
+  end
 
   lane :bump_build_number do
     increment_build_number(
@@ -16,7 +30,7 @@ platform :ios do
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
     version = get_version_number(
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      xcodeproj: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
       target: "iOS-Swift"
       )
     new_version = version.split("-", -1)[0]
@@ -82,13 +96,7 @@ platform :ios do
 
     sync_code_signing(
       type: "appstore",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
@@ -114,20 +122,15 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -141,13 +144,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
@@ -164,22 +161,16 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
-      
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift-Benchmarking",
+      scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -198,7 +189,8 @@ platform :ios do
       derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
       destination: "generic/platform=iOS Simulator",
       xcargs: "-sdk 'iphonesimulator'",
-      skip_archive: true
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
     )
   end
 
@@ -317,13 +309,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
     )
 
     build_app(
@@ -333,7 +319,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-plain.ipa"
+      output_name: "test-app-plain.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -347,13 +334,7 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      readonly: true,
       app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
-      
-      # Directly cloning the branch instead of using a shallow clone fixes the rare error:
-      #   fatal: a branch named 'master' already exists in GitHub Action workflows.
-      git_branch: "master",
-      clone_branch_directly: true
     )
 
     build_app(
@@ -363,7 +344,8 @@ platform :ios do
       include_symbols: false,
       export_method: "development",
       output_directory: "Tests/Perf/",
-      output_name: "test-app-sentry.ipa"
+      output_name: "test-app-sentry.ipa",
+      skip_package_dependencies_resolution: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci

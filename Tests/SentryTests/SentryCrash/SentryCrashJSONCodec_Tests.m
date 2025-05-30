@@ -31,6 +31,7 @@
 #import "FileBasedTestCase.h"
 #import "SentryCrashJSONCodec.h"
 #import "SentryCrashJSONCodecObjC.h"
+#import "SentryInvalidJSONString.h"
 
 @interface SentryCrashJSONCodec_Tests : FileBasedTestCase
 @end
@@ -194,6 +195,39 @@ toString(NSData *data)
     XCTAssertNotNil(result, @"");
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(result, original, @"");
+}
+
+- (void)testSerializeJapaneseArrayString
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[\"こんにちは\"]"; // "Hello" in Japanese
+    id original = [NSArray arrayWithObjects:@"こんにちは", nil];
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(result, original, @"");
+}
+
+- (void)testSerializeInvalidJSONString
+{
+
+    NSString *string = [[SentryInvalidJSONString alloc] initWithLengthInvocationsToBeInvalid:0];
+    NSError *error = (NSError *)self;
+
+    id original = [NSArray arrayWithObjects:string, nil];
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, @"[null]", @"");
+    XCTAssertNotNil(jsonString, @"");
 }
 
 - (void)testSerializeDeserializeArrayStringIntl

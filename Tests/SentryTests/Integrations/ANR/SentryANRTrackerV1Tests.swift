@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -38,7 +38,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
             timeoutInterval: fixture.timeoutInterval,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
-            threadWrapper: fixture.threadWrapper)
+            threadWrapper: fixture.threadWrapper) as? SentryANRTracker
     }
     
     override func tearDown() {
@@ -115,8 +115,6 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     }
     
     func testAppSuspended_NoANR() {
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
         
         anrDetectedExpectation.isInverted = true
         fixture.dispatchQueue.blockBeforeMainBlock = {
@@ -127,8 +125,6 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
-        
-        SentryLog.setTestDefaultLogLevel()
     }
     
     func testRemoveListener_StopsReportingANRs() {
@@ -208,7 +204,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         // and finish multiple times. Most importantly, the code covers every start with one finish.
         XCTAssertEqual(fixture.threadWrapper.threadStartedInvocations.count, fixture.threadWrapper.threadFinishedInvocations.count, "The number of started and finished threads should be equal, otherwise the ANR tracker could run.")
     }
-    
+
     // swiftlint:disable test_case_accessibility
     // Protocl implementation can't be private
     

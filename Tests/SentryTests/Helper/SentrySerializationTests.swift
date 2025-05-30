@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -363,6 +363,39 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(SentryAttachmentType.eventAttachment, header.attachmentType)
         XCTAssertNil(header.contentType)
         XCTAssertEqual(Data(payloadAsString.utf8), item.data)
+    }
+    
+    func testEnvelopeWithData_withLogItems_shouldDeserializeLogItemFields() throws {
+        let logs = Data("""
+        {
+            \"items\": [
+                {
+                    \"timestamp\":\"1969-07-20T20:18:04.000Z\",
+                    \"trace_id\":\"00000000000000000000000000000000\",
+                    \"level\":\"info\",
+                    \"body\":\"foobar\",
+                    \"attributes\":{}
+                }
+            ]
+        }
+        """.utf8)
+        
+        var itemData = Data()
+        itemData.appendString("{}\n")
+        itemData.appendString("{\"length\":\(logs.count),\"type\":\"log\",\"item_count\":1,\"content_type\":\"application/vnd.sentry.items.log+json\"}\n")
+        itemData.append(logs)
+        
+        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        
+        XCTAssertEqual(1, envelope.items.count)
+        let item = try XCTUnwrap(envelope.items.first)
+        
+        let header = try XCTUnwrap(item.header)
+        XCTAssertEqual(UInt(logs.count), header.length)
+        XCTAssertEqual("log", header.type)
+        XCTAssertEqual(1, header.itemCount?.intValue)
+        XCTAssertEqual("application/vnd.sentry.items.log+json", header.contentType)
+        XCTAssertEqual(logs, item.data)
     }
     
     func testEnvelopeWithData_EmptyEnvelope_ReturnsNil() throws {
