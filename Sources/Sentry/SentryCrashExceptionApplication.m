@@ -5,6 +5,7 @@
 #    import "SentryCrash.h"
 #    import "SentryCrashExceptionApplication.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentrySDK+Private.h"
 #    import "SentrySDK.h"
 #    import "SentryUncaughtNSExceptions.h"
 
