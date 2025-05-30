@@ -63,7 +63,7 @@ format-clang:
 		| xargs clang-format -i -style=file
 
 # Format all Swift files
-format-swift:
+format-swift-all:
 	@echo "Running swiftlint --fix on all files"
 	swiftlint --fix
 
