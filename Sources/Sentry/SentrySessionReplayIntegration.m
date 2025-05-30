@@ -236,6 +236,7 @@ static SentryTouchTracker *_touchTracker;
                                              dateProvider:_dateProvider];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    resumeReplayMaker.frameRate = _replayOptions.frameRate;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
@@ -384,9 +385,15 @@ static SentryTouchTracker *_touchTracker;
                                             dateProvider:_dateProvider];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
-    replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
-                                              : replayOptions.errorReplayDuration + 1);
+    replayMaker.frameRate = replayOptions.frameRate;
+    replayMaker.onNewFrame = replayOptions.onNewFrame;
+
+    // The cache should be at least the amount of frames fitting into the session segment duration
+    // plus one frame to ensure that the last frame is not dropped.
+    NSInteger sessionSegmentDuration
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
+    replayMaker.cacheMaxSize = (sessionSegmentDuration * replayOptions.frameRate) + 1;
 
     SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
     self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions

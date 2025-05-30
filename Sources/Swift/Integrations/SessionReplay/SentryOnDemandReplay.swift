@@ -12,7 +12,7 @@ import UIKit
 // swiftlint:disable type_body_length
 @objcMembers
 class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
-        
+
     private let _outputPath: String
     private var _totalFrames = 0
     private let dateProvider: SentryCurrentDateProvider
@@ -26,12 +26,19 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         get { _frames }
         set { _frames = newValue }
     }
-    #endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+#endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     var videoScale: Float = 1
     var bitRate = 20_000
     var frameRate = 1
     var cacheMaxSize = UInt.max
-        
+    var onNewFrame: ((
+        _ timestamp: Date,
+        _ viewHiearchy: ViewHierarchyNode,
+        _ redactRegions: [RedactRegion],
+        _ renderedViewImage: UIImage,
+        _ maskedViewImage: UIImage
+    ) -> Void)?
+    
     init(
         outputPath: String,
         processingQueue: SentryDispatchQueueWrapper,
@@ -79,22 +86,43 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
 
-    func addFrameAsync(image: UIImage, forScreen: String?) {
-        SentryLog.debug("[Session Replay] Adding frame async for screen: \(forScreen ?? "nil")")
+    @objc func addFrameAsync(
+        timestamp: Date,
+        viewHiearchy: ViewHierarchyNode,
+        redactRegions: [RedactRegion],
+        renderedViewImage: UIImage,
+        maskedViewImage: UIImage,
+        forScreen screen: String?
+    ) {
+        SentryLog.debug("[Session Replay] Adding frame async for screen: \(screen ?? "nil")")
         // Dispatch the frame addition to a background queue to avoid blocking the main queue.
         // This must be on the processing queue to avoid deadlocks.
         processingQueue.dispatchAsync {
-            self.addFrame(image: image, forScreen: forScreen)
+            self.addFrame(
+                timestamp: timestamp, 
+                viewHiearchy: viewHiearchy, 
+                redactRegions: redactRegions, 
+                renderedViewImage: renderedViewImage, 
+                maskedViewImage: maskedViewImage, 
+                forScreen: screen
+            )
         }
     }
     
-    private func addFrame(image: UIImage, forScreen: String?) {
-        SentryLog.debug("[Session Replay] Adding frame to replay, screen: \(forScreen ?? "nil")")
-        guard let data = rescaleImage(image)?.pngData() else {
+    private func addFrame(
+        timestamp: Date,
+        viewHiearchy: ViewHierarchyNode,
+        redactRegions: [RedactRegion],
+        renderedViewImage: UIImage,
+        maskedViewImage: UIImage,
+        forScreen screen: String?
+    ) {
+        SentryLog.debug("[Session Replay] Adding frame to replay, screen: \(screen ?? "nil")")
+        guard let data = rescaleImage(maskedViewImage)?.pngData() else {
             SentryLog.error("[Session Replay] Could not rescale image, dropping frame")
             return
         }
-
+        
         let date = dateProvider.date()
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(date.timeIntervalSinceReferenceDate).png")
         do {
@@ -105,7 +133,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             SentryLog.error("[Session Replay] Could not save replay frame, reason: \(error)")
             return
         }
-        _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: forScreen))
+        _frames.append(SentryReplayFrame(imagePath: imagePath, time: date, screenName: screen))
+        onNewFrame?(timestamp, viewHiearchy, redactRegions, renderedViewImage, maskedViewImage)
 
         // Remove the oldest frames if the cache size exceeds the maximum size.
         while _frames.count > cacheMaxSize {
@@ -117,7 +146,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         _totalFrames += 1
         SentryLog.debug("[Session Replay] Added frame, total frames counter: \(_totalFrames), current frames count: \(_frames.count)")
     }
-    
+
     private func rescaleImage(_ originalImage: UIImage) -> UIImage? {
         SentryLog.debug("[Session Replay] Rescaling image with scale: \(originalImage.scale)")
         guard originalImage.scale > 1 else { 
@@ -127,11 +156,11 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
         UIGraphicsBeginImageContextWithOptions(originalImage.size, false, 1)
         defer { UIGraphicsEndImageContext() }
-        
+
         originalImage.draw(in: CGRect(origin: .zero, size: originalImage.size))
         return UIGraphicsGetImageFromCurrentImageContext()
     }
-    
+
     func releaseFramesUntil(_ date: Date) {
         processingQueue.dispatchAsync {
             SentryLog.debug("[Session Replay] Releasing frames until date: \(date)")
@@ -148,7 +177,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             SentryLog.debug("[Session Replay] Frames released, remaining frames count: \(self._frames.count)")
         }
     }
-        
+
     var oldestFrameDate: Date? {
         return _frames.first?.time
     }

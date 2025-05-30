@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-typealias ScreenshotCallback = (UIImage) -> Void
+typealias ScreenshotCallback = (_ viewHierarchy: ViewHierarchyNode, _ redactRegions: [RedactRegion], _ renderedViewImage: UIImage, _ maskedViewImage: UIImage) -> Void
 
 @objc
 protocol SentryViewScreenshotProvider: NSObjectProtocol {

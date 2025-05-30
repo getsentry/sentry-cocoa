@@ -20,10 +20,13 @@ public struct SentrySDKWrapper {
     }()
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
-    public func startSentry() {
-        SentrySDK.start(configureOptions: configureSentryOptions(options:))
+    public func startSentry(additionalOptions: ((Options) -> Void)? = nil) {
+        SentrySDK.start { options in
+            configureSentryOptions(options: options)
+            additionalOptions?(options)
+        }
     }
-
+    
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
         options.beforeSend = { $0 }

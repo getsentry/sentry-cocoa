@@ -1,5 +1,8 @@
 // swiftlint:disable file_length
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
@@ -215,6 +218,16 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var enableFastViewRendering: Bool
 
+    #if canImport(UIKit)
+    public var onNewFrame: ((
+        _ timestamp: Date,
+        _ viewHiearchy: ViewHierarchyNode,
+        _ redactRegions: [RedactRegion],
+        _ renderedViewImage: UIImage,
+        _ maskedViewImage: UIImage
+    ) -> Void)?
+    #endif
+
     /**
      * Defines the quality of the session replay.
      *
@@ -242,7 +255,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.frameRate`` for the default value.
      */
-    var frameRate: UInt {
+    public var frameRate: UInt {
         didSet {
             if frameRate < 1 {
                 frameRate = 1
