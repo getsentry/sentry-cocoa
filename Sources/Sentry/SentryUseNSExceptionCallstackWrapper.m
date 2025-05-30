@@ -12,13 +12,13 @@
 
 @interface SentryUseNSExceptionCallstackWrapper ()
 
-@property (nonatomic, strong) NSException *originalException;
+@property (nonatomic, strong) NSObject<ExceptionProtocol> *originalException;
 
 @end
 
 @implementation SentryUseNSExceptionCallstackWrapper
 
-- (instancetype)initWithException:(NSException *)exception
+- (instancetype)initWithException:(NSObject<ExceptionProtocol> *)exception
 {
     if (self = [super initWithName:exception.name
                             reason:exception.reason
