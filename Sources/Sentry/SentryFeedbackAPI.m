@@ -1,7 +1,9 @@
 #if __has_include(<Sentry/SentryDefines.h>)
 #    import <Sentry/SentryDefines.h>
-#else
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
 #endif
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT

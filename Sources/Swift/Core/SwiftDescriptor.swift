@@ -5,17 +5,17 @@ import UIKit
 #endif
 
 @objc
-class SwiftDescriptor: NSObject {
+@_spi(Private) public class SwiftDescriptor: NSObject {
     
     @objc
-    static func getObjectClassName(_ object: AnyObject) -> String { 
+    public static func getObjectClassName(_ object: AnyObject) -> String {
         return String(describing: type(of: object))
     }
 
     /// UIViewControllers aren't available on watchOS
 #if canImport(UIKit) && !os(watchOS) && !SENTRY_NO_UIKIT
     @objc
-    static func getViewControllerClassName(_ object: UIViewController) -> String {
+    public static func getViewControllerClassName(_ object: UIViewController) -> String {
         if let object = object as? SentryUIViewControllerDescriptor {
             return object.sentryName
         }
@@ -24,7 +24,7 @@ class SwiftDescriptor: NSObject {
 #endif
 
     @objc
-    static func getSwiftErrorDescription(_ error: Error) -> String? {
+    public static func getSwiftErrorDescription(_ error: Error) -> String? {
         return String(describing: error)
     }
 }

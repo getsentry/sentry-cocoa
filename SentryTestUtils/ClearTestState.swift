@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 public func clearTestState() {
     TestCleanup.clearTestState()
@@ -30,8 +30,8 @@ class TestCleanup: NSObject {
         SentrySDK.setStart(nil)
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
-        
-        SentryLog.setTestDefaultLogLevel()
+
+        SentryLog.setDefaultTestLogConfiguration()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
