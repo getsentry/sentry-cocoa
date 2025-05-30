@@ -46,6 +46,7 @@
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUIApplication.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -213,6 +214,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
+
+#if TARGET_OS_OSX
+    // When a exception class is SentryUseNSExceptionCallstackWrapper, we should use the thread from
+    // it
+    if ([exception isKindOfClass:[SentryUseNSExceptionCallstackWrapper class]]) {
+        event.threads = [(SentryUseNSExceptionCallstackWrapper *)exception buildThreads];
+    }
+#endif
+
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
