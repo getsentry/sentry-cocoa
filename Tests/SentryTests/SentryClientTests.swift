@@ -2113,6 +2113,17 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(actual.threads?[0].crashed, true)
         XCTAssertEqual(actual.threads?[0].current, true)
         XCTAssertEqual(actual.threads?[0].isMain, true)
+        // Make sure the stacktrace is not empty
+        XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
+        // We will need to update it if the test class / module changes
+        let testMangledName = "$s11SentryTests0A10ClientTestC011testCaptureA16WrappedExceptionyyKF"
+        let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
+            frame.function == testMangledName
+        }
+        XCTAssertNotNil(frameWithTestFunction)
+        
+        // Last frame should always be `__exceptionPreprocess`
+        XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
     }
 #endif // os(macOS)
 }
