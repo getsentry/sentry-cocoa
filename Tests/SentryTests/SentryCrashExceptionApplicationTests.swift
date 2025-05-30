@@ -2,6 +2,8 @@
 import SentryTestUtils
 import XCTest
 
+#if os(macOS)
+
 class SentryCrashExceptionApplicationHelperTests: XCTestCase {
     
     override func tearDown() {
@@ -52,3 +54,5 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
         XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
     }
 }
+
+#endif // os(macOS)
