@@ -1,12 +1,10 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
-class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
-    
-    private static let dsn = TestConstants.dsnAsString(username: "SentryWatchdogTerminationScopeObserverTests")
-    
+class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationBreadcrumbProcessorTests.self)
+
     private class Fixture {
         let breadcrumb: Breadcrumb
         let invalidJSONbreadcrumb: [String: Double]
@@ -18,25 +16,28 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         init() {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
-          
+
             invalidJSONbreadcrumb = [ "invalid": Double.infinity ]
 
             options = Options()
-            options.dsn = SentryWatchdogTerminationScopeObserverTests.dsn
+            options.dsn = SentryWatchdogTerminationBreadcrumbProcessorTests.dsn
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         }
 
-        func getSut() -> SentryWatchdogTerminationScopeObserver {
+        func getSut() -> SentryWatchdogTerminationBreadcrumbProcessor {
             return getSut(fileManager: self.fileManager)
         }
 
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
-            return SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: maxBreadcrumbs, fileManager: fileManager)
+        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationBreadcrumbProcessor {
+            return SentryWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: maxBreadcrumbs,
+                fileManager: fileManager
+            )
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationScopeObserver!
+    private var sut: SentryWatchdogTerminationBreadcrumbProcessor!
 
     override func setUp() {
         super.setUp()
@@ -51,16 +52,23 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     }
 
     // Test that we're storing the serialized breadcrumb in a proper JSON string
-    func testStoreInvalidJSONBreadcrumb() throws {
+    func testAddSerializedBreadcrumb_withInvalidJSON_shouldNotBeWrittenToFile() throws {
+        // -- Arrange --
         let breadcrumb = fixture.invalidJSONbreadcrumb
 
+        // -- Act --
         sut.addSerializedBreadcrumb(breadcrumb)
 
+        // -- Assert --
         let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        let firstLine = fileOneContents.split(separator: "\n").first
-        XCTAssertNil(firstLine)
+        let fileOneFirstLine = fileOneContents.split(separator: "\n").first
+        XCTAssertNil(fileOneFirstLine)
+
+        let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        let fileTwoFirstLine = fileTwoContents.split(separator: "\n").first
+        XCTAssertNil(fileTwoFirstLine)
     }
-  
+
     // Test that we're storing the serialized breadcrumb in a proper JSON string
     func testStoreBreadcrumb() throws {
         let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
@@ -140,35 +148,58 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
     }
-    
+
+    func testClear_shouldClearBreadcrumbs() throws {
+        // -- Arrange --
+        let breadcrumb = fixture.breadcrumb.serialize()
+
+        for _ in 0..<15 {
+            sut.addSerializedBreadcrumb(breadcrumb)
+        }
+
+        // Check pre-conditions
+        var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(fileOneContents.count, 1_210)
+
+        let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
+        XCTAssertEqual(fileTwoContents.count, 605)
+
+        // -- Act --
+        sut.clear()
+
+        // -- Assert --
+        fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(fileOneContents.count, 0)
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
+    }
+
     func testWritingToClosedFile() throws {
-            let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
+        let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+        sut.addSerializedBreadcrumb(breadcrumb)
 
-            let fileHandle = try XCTUnwrap(Dynamic(sut).fileHandle.asObject as? FileHandle)
-            fileHandle.closeFile()
+        let fileHandle = try XCTUnwrap(Dynamic(sut).fileHandle.asObject as? FileHandle)
+        fileHandle.closeFile()
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+        sut.addSerializedBreadcrumb(breadcrumb)
 
-            fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
-        }
+        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
+    }
 
-        func testWritingToFullFileSystem() throws {
-            let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
+    func testWritingToFullFileSystem() throws {
+        let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+        sut.addSerializedBreadcrumb(breadcrumb)
 
-            // "/dev/urandom" simulates a bad file descriptor
-            let fileHandle = FileHandle(forReadingAtPath: "/dev/urandom")
-            Dynamic(sut).fileHandle = fileHandle
+        // "/dev/urandom" simulates a bad file descriptor
+        let fileHandle = FileHandle(forReadingAtPath: "/dev/urandom")
+        Dynamic(sut).fileHandle = fileHandle
 
-            sut.addSerializedBreadcrumb(breadcrumb)
+        sut.addSerializedBreadcrumb(breadcrumb)
 
-            fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
-        }
+        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        XCTAssertEqual(1, fixture.fileManager.readPreviousBreadcrumbs().count)
+    }
 }
-
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
