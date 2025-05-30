@@ -57,7 +57,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             let scopeContextPersistentStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
             watchdogTerminationContextProcessor = TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                scopeContextStore: scopeContextPersistentStore,
+                scopeContextStore: scopeContextPersistentStore
             )
             container.watchdogTerminationContextProcessor = watchdogTerminationContextProcessor
 
