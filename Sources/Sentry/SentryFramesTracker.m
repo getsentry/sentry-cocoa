@@ -168,7 +168,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     _isRunning = YES;
 
-    [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
+    // Set the display link to use the default frame rate of 60 fps.
+    [_displayLinkWrapper linkWithTarget:self
+                               selector:@selector(displayLinkCallback)
+               preferredFramesPerSecond:-1];
 }
 
 - (void)displayLinkCallback
