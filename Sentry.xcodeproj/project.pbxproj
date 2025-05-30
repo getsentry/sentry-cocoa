@@ -1002,6 +1002,9 @@
 		F452438A2DE65968003E8F50 /* ExceptionCatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = F45243862DE65968003E8F50 /* ExceptionCatcher.h */; };
 		F452438C2DE65BC0003E8F50 /* SentryUseNSExceptionCallstackWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = F452438B2DE65BC0003E8F50 /* SentryUseNSExceptionCallstackWrapper.h */; };
 		F49D41982DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49D41972DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift */; };
+		F49D419A2DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */; };
+		F49D419C2DEA30C300D9244E /* SentryCrashExceptionApplicationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */; };
+		F49D419E2DEA3D0600D9244E /* SentryCrashExceptionApplicationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F49D419D2DEA3D0300D9244E /* SentryCrashExceptionApplicationHelper.m */; };
 		FA034AC82DD3DB4900FE3107 /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FA034AC72DD3DB4900FE3107 /* SentryIntegrationProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA67DCC12DDBD4C800896B02 /* SentryLog+Configure.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCC02DDBD4C800896B02 /* SentryLog+Configure.swift */; };
 		FA67DCF42DDBD4EA00896B02 /* SentryExperimentalOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCF12DDBD4EA00896B02 /* SentryExperimentalOptions.swift */; };
@@ -2221,6 +2224,9 @@
 		F45243872DE65968003E8F50 /* ExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExceptionCatcher.m; sourceTree = "<group>"; };
 		F452438B2DE65BC0003E8F50 /* SentryUseNSExceptionCallstackWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryUseNSExceptionCallstackWrapper.h; path = include/SentryUseNSExceptionCallstackWrapper.h; sourceTree = "<group>"; };
 		F49D41972DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUseNSExceptionCallstackWrapperTests.swift; sourceTree = "<group>"; };
+		F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashExceptionApplicationTests.swift; sourceTree = "<group>"; };
+		F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryCrashExceptionApplicationHelper.h; sourceTree = "<group>"; };
+		F49D419D2DEA3D0300D9244E /* SentryCrashExceptionApplicationHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplicationHelper.m; sourceTree = "<group>"; };
 		FA034AC72DD3DB4900FE3107 /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProtocol.h; path = Public/SentryIntegrationProtocol.h; sourceTree = "<group>"; };
 		FA67DCC02DDBD4C800896B02 /* SentryLog+Configure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryLog+Configure.swift"; sourceTree = "<group>"; };
 		FA67DCC22DDBD4EA00896B02 /* NSLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLock.swift; sourceTree = "<group>"; };
@@ -2601,6 +2607,8 @@
 			children = (
 				632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */,
 				632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */,
+				F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */,
+				F49D419D2DEA3D0300D9244E /* SentryCrashExceptionApplicationHelper.m */,
 				6344DDAE1EC308E400D9160D /* SentryCrashInstallationReporter.h */,
 				6344DDAF1EC308E400D9160D /* SentryCrashInstallationReporter.m */,
 				6344DDB21EC309E000D9160D /* SentryCrashReportSink.h */,
@@ -2811,6 +2819,7 @@
 				8ED3D305264DFE700049393B /* SwiftDescriptorTests.swift */,
 				0A1B497228E597DD00D7BFA3 /* TestLogOutput.swift */,
 				D8AE48C02C57B1550092A2A6 /* SentryLevelTests.swift */,
+				F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */,
 				7B6438AD26A710E6000D0F65 /* Categories */,
 				D8BC28D32C00C6A60054DA4D /* Extensions */,
 				7BD7299B24654CD500EA3610 /* Helper */,
@@ -4577,6 +4586,7 @@
 				8EA1ED0D2669028C00E62B98 /* SentryUIViewControllerSwizzling.h in Headers */,
 				33C374B92D103F17004598F1 /* SentryExtraPackages.h in Headers */,
 				D820CDB82BB1895F00BA339D /* SentrySessionReplayIntegration.h in Headers */,
+				F49D419C2DEA30C300D9244E /* SentryCrashExceptionApplicationHelper.h in Headers */,
 				7B98D7E425FB7A7200C5A389 /* SentryAppState.h in Headers */,
 				7BDEAA022632A4580001EA25 /* SentryOptions+Private.h in Headers */,
 				A8AFFCCD29069C3E00967CD7 /* SentryHttpStatusCodeRange.h in Headers */,
@@ -5137,6 +5147,7 @@
 				7B3B473825D6CC7E00D01640 /* SentryNSError.m in Sources */,
 				621AE74D2C626C510012E730 /* SentryANRTrackerV2.m in Sources */,
 				84CFA4CA2C9DF884008DA5F4 /* SentryUserFeedbackWidget.swift in Sources */,
+				F49D419E2DEA3D0600D9244E /* SentryCrashExceptionApplicationHelper.m in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryFileIOTracker.m in Sources */,
 				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,
 				D8B088B729C9E3FF00213258 /* SentryTracerConfiguration.m in Sources */,
@@ -5589,6 +5600,7 @@
 				62CFD9AD2C99770B00834E1B /* SentryInvalidJSONString.m in Sources */,
 				62375FB92B47F9F000CC55F1 /* SentryDependencyContainerTests.swift in Sources */,
 				7BC6EC08255C36DE0059822A /* SentryStacktraceTests.swift in Sources */,
+				F49D419A2DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift in Sources */,
 				D88817DD26D72BA500BF2251 /* SentryTraceContextTests.swift in Sources */,
 				7B26BBFB24C0A66D00A79CCC /* SentrySdkInfoNilTests.m in Sources */,
 				D4E3F35D2D4A864600F79E2B /* SentryNSDictionarySanitizeTests.swift in Sources */,
