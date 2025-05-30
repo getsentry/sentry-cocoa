@@ -196,8 +196,18 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testCrashInBackground_LaunchInForeground() throws {
         // -- Arrange --
-        crashInBackground()
-        assertNoSessionSent()
+        // During testing we observed that the deallocation of the session tracker happens after the method returns
+        // and not immediately when a new `sut` is set.
+        // This causes multiple session tracker to be registered as observers, until they are fully released and
+        // weak references are nil.
+        // Using an autoreleasepool to ensure that the deallocation happens before the test continues.
+        autoreleasepool {
+            crashInBackground()
+            assertNoSessionSent()
+
+            // Manually deallocate the previous sut to avoid race-conditions of duplicate observers
+            sut = nil
+        }
 
         // -- Act & Assert --
         sut = fixture.getSut()
@@ -343,26 +353,37 @@ class SentrySessionTrackerTests: XCTestCase {
         // -- Assert --
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
-    
+
     func testForeground_Background_Terminate_LaunchAgain() throws {
+        // During testing we observed that the deallocation of the session tracker happens after the method returns
+        // and not immediately when a new `sut` is set.
+        // This causes multiple session tracker to be registered as observers, until they are fully released and
+        // weak references are nil.
+        // Using an autoreleasepool to ensure that the deallocation happens before the test continues.
         // -- Arrange --
         let sessionStartTime = fixture.currentDateProvider.date()
         startSutInAppDelegate()
 
         // -- Act --
-        goToForeground()
-        advanceTime(bySeconds: 1)
-        goToBackground()
-        
-        advanceTime(bySeconds: 10)
-        terminateApp()
-        assertEndSessionSent(started: sessionStartTime, duration: 1)
-        stopSut()
+        autoreleasepool {
+            goToForeground()
+            advanceTime(bySeconds: 1)
+            goToBackground()
 
-        advanceTime(bySeconds: 1)
-        
-        // Launch the app again
-        fixture.setNewHubToSDK()
+            advanceTime(bySeconds: 10)
+            terminateApp()
+            assertEndSessionSent(started: sessionStartTime, duration: 1)
+            stopSut()
+
+            advanceTime(bySeconds: 1)
+
+            // Launch the app again
+            fixture.setNewHubToSDK()
+
+            // Manually deallocate the previous sut to avoid race-conditions of duplicate observers
+            sut = nil
+        }
+
         sut = fixture.getSut()
 
         startSutInAppDelegate()
@@ -515,7 +536,6 @@ class SentrySessionTrackerTests: XCTestCase {
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidBecomeActive`.
         fixture.application.applicationState = .active
         #endif
-        // Dynamic(sut).didBecomeActive()
         fixture.notificationCenter
             .post(
                 Notification(
@@ -533,7 +553,6 @@ class SentrySessionTrackerTests: XCTestCase {
         // It is expected that the app state is background when the didEnterBackground is called
         fixture.application.applicationState = .background
         #endif
-        // Dynamic(sut).didEnterBackground()
         fixture.notificationCenter
            .post(
                Notification(
@@ -550,7 +569,6 @@ class SentrySessionTrackerTests: XCTestCase {
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillResignActive`.
         fixture.application.applicationState = .active
         #endif
-        // Dynamic(sut).willResignActive()
         fixture.notificationCenter
             .post(
                 Notification(
@@ -566,7 +584,6 @@ class SentrySessionTrackerTests: XCTestCase {
         // When an app did become active, it is in the active state.
         fixture.application.applicationState = .active
         #endif
-        // Dynamic(sut).didBecomeActive()
         fixture.notificationCenter
             .post(
                 Notification(
@@ -589,7 +606,6 @@ class SentrySessionTrackerTests: XCTestCase {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         fixture.application.applicationState = .background
         #endif
-        // Dynamic(sut).willTerminate()
         fixture.notificationCenter
             .post(
                 Notification(
@@ -775,6 +791,10 @@ class SentrySessionTrackerTests: XCTestCase {
         override var applicationState: UIApplication.State {
             get { _underlyingAppState }
             set { _underlyingAppState = newValue }
+        }
+
+        override func isActive() -> Bool {
+            return applicationState == .active
         }
     }
 #endif
