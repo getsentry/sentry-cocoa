@@ -2102,7 +2102,7 @@ class SentryClientTest: XCTestCase {
         let raisedException = ExceptionCatcher.try {
             exception.raise()
         }
-        let sentryException = SentryExceptionWrapper(exception: raisedException!)
+        let sentryException = SentryUseNSExceptionCallstackWrapper(exception: raisedException!)
         let eventId = fixture.getSut().capture(exception: sentryException, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()

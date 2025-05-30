@@ -16,7 +16,6 @@
 #import "SentryLog.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNSExceptionWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
@@ -27,6 +26,7 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
@@ -397,8 +397,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryId *)captureCrashOnException:(NSException *)exception
 {
-    SentryNSExceptionWrapper *wrappedException =
-        [[SentryNSExceptionWrapper alloc] initWithException:exception];
+    SentryUseNSExceptionCallstackWrapper *wrappedException =
+        [[SentryUseNSExceptionCallstackWrapper alloc] initWithException:exception];
     return [SentrySDK captureException:wrappedException withScope:SentrySDK.currentHub.scope];
 }
 

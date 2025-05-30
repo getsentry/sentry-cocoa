@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * This is a helper class to identify exceptions that should use the stacktrace within
  */
-@interface SentryNSExceptionWrapper : NSException
+@interface SentryUseNSExceptionCallstackWrapper : NSException
 
 - (instancetype)initWithException:(NSException *)exception;
 - (NSArray<SentryThread *> *)buildThreads;

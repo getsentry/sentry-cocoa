@@ -253,5 +253,5 @@
 #import "SentryCrashMachineContext_Apple.h"
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryCrashStackCursor_Backtrace.h"
-#import "SentryNSExceptionWrapper.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
