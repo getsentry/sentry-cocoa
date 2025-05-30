@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Fixes
+
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+
 ## 8.52.0-beta
 
 ### Features

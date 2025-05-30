@@ -5,6 +5,8 @@
 @class SentryNSNotificationCenterWrapper;
 @class SentryOptions;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * Tracks sessions for release health. For more info see:
  * https://docs.sentry.io/workflow/releases/health/#session
@@ -19,3 +21,5 @@ SENTRY_NO_INIT
 - (void)start;
 - (void)stop;
 @end
+
+NS_ASSUME_NONNULL_END

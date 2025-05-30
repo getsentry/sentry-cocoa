@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
+@property (nonatomic, readonly, copy, class) NSNotificationName didEnterBackgroundNotificationName;
 #endif
 
 - (void)addObserver:(NSObject *)observer
