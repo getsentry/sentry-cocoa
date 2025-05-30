@@ -25,7 +25,6 @@
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
 #        import "SentryNSNotificationCenterWrapper.h"
-#        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -109,9 +108,8 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
             && v2Lifecycle == SentryProfileLifecycleTrace;
         const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
-        SentryUIViewControllerPerformanceTracker *performanceTracker =
-            [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
-        if (profileIsCorrelatedToTrace && performanceTracker.alwaysWaitForFullDisplay) {
+
+        if (profileIsCorrelatedToTrace && options.enableTimeToFullDisplayTracing) {
             SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
                              @"display reported.");
             shouldStopAndTransmitLaunchProfile = NO;
