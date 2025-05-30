@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -307,12 +307,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: thirdListener)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
 
         let firstActual = try XCTUnwrap(firstListener.anrStoppedResults.last)
         XCTAssertLessThanOrEqual(2.0, firstActual.minDuration)
@@ -363,12 +359,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     func testAppSuspended_NoAppHang() throws {
@@ -388,12 +380,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     func testRemoveListener_StopsReporting() throws {
@@ -513,11 +501,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         triggerFullyBlockingAppHang(currentDate)
         
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     private func renderNormalFramesToStopAppHang(_ displayLinkWrapper: TestDisplayLinkWrapper) {

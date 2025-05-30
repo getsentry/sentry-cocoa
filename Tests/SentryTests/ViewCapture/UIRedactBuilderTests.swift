@@ -19,6 +19,27 @@ class RedactOptions: SentryRedactOptions {
     }
 }
 
+/*
+ * Mocked RCTTextView to test the redaction of text from React Native apps.
+ */
+@objc(RCTTextView)
+class RCTTextView: UIView {
+}
+
+/*
+ * Mocked RCTParagraphComponentView to test the redaction of text from React Native apps.
+ */
+@objc(RCTParagraphComponentView)
+class RCTParagraphComponentView: UIView {
+}
+
+/*
+ * Mocked RCTImageView to test the redaction of images from React Native apps.
+ */
+@objc(RCTImageView)
+class RCTImageView: UIView {
+}
+
 class UIRedactBuilderTests: XCTestCase {
     private class CustomVisibilityView: UIView {
         class CustomLayer: CALayer {
@@ -77,6 +98,69 @@ class UIRedactBuilderTests: XCTestCase {
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 0)
+    }
+    
+    func testRedactRCTTextView() {
+        let sut = getSut(RedactOptions(maskAllText: true))
+        let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(textView)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+    }
+
+    func testDoNotRedactRCTTextView() {
+        let sut = getSut(RedactOptions(maskAllText: false))
+        let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(textView)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 0)
+    }
+    
+    func testRedactRCTParagraphComponentView() {
+        let sut = getSut(RedactOptions(maskAllText: true))
+        let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(textView)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+    }
+    
+    func testDoNotRedactRCTParagraphComponentView() {
+        let sut = getSut(RedactOptions(maskAllText: false))
+        let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(textView)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 0)
+    }
+    
+    func testRedactRCTImageView() {
+        let sut = getSut(RedactOptions(maskAllImages: true))
+        let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(imageView)
+        
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+    }
+    
+    func testDoNotRedactRCTImageView() {
+        let sut = getSut(RedactOptions(maskAllImages: false))
+        let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(imageView)
         
         let result = sut.redactRegionsFor(view: rootView)
         

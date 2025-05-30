@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 8.52.0-beta
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
+## 8.51.1
+
+### Fixes
+
+- Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
 
 ### Improvements
 

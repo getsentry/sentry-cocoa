@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -650,10 +650,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(assetWorkerQueue.queue.label, "io.sentry.session-replay.asset-worker")
-        XCTAssertEqual(assetWorkerQueue.queue.qos.qosClass, .background)
+        XCTAssertEqual(assetWorkerQueue.queue.qos.qosClass, .utility)
 
         XCTAssertEqual(processingQueue.queue.label, "io.sentry.session-replay.processing")
-        XCTAssertEqual(processingQueue.queue.qos.qosClass, .background)
+        XCTAssertEqual(processingQueue.queue.qos.qosClass, .utility)
 
         // The actual priorities are not relevant, we just need to check that the processing queue has a lower priority
         // than the asset worker queue and that both are lower than the default priority.
