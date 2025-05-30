@@ -54,7 +54,7 @@ lint-staged:
 	$(call run-lint-tools,$(STAGED_SWIFT_FILES))
 .PHONY: lint-staged
 
-format: format-clang format-swift-all format-markdown format-json format-yaml
+format: format-clang format-swift format-markdown format-json format-yaml
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
