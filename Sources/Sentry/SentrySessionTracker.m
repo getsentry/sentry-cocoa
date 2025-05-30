@@ -92,9 +92,9 @@
     //
     // We need to use the global app state tracker to check if the app is active, because
     // we need to know if the app has become active before the SDK was started.
-//    if ([self isAppActive]) {
-//        [self startSession];
-//    }
+    if ([self isAppActive]) {
+        [self startSession];
+    }
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -117,7 +117,9 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    // self.wasStarted = NO;
+    self.wasDidBecomeActiveCalled = NO;
+    self.lastInForeground = nil;
+    self.wasStarted = NO;
 }
 
 - (void)dealloc
@@ -143,6 +145,10 @@
     }
 
     [hub closeCachedSessionWithTimestamp:lastInForeground];
+
+    self.wasDidBecomeActiveCalled = NO;
+    self.lastInForeground = nil;
+    self.wasStarted = NO;
 }
 
 /**
@@ -177,15 +183,15 @@
 
 - (void)startSession
 {
-    // if (self.wasStarted) {
-    //     return;
-    // }
-    // self.wasStarted = YES;
+    if (self.wasStarted) {
+        return;
+    }
+    self.wasStarted = YES;
 
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
-    if (nil == self.lastInForeground) {
+    if (!self.lastInForeground) {
         // Cause we don't want to track sessions if the app is in the background we need to wait
         // until the app is in the foreground to start a session.
         SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the foreground for the first time. "
