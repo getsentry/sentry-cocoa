@@ -1,11 +1,11 @@
 import Foundation
 
 @objcMembers
-class SentryBaggageSerialization: NSObject {
+@_spi(Private) public class SentryBaggageSerialization: NSObject {
     
     private static let SENTRY_BAGGAGE_MAX_SIZE = 8_192
     
-    static func encodeDictionary(_ dictionary: [String: String]) -> String {
+    public static func encodeDictionary(_ dictionary: [String: String]) -> String {
         var items: [String] = []
         items.reserveCapacity(dictionary.count)
         
@@ -29,7 +29,7 @@ class SentryBaggageSerialization: NSObject {
         return items.sorted().joined(separator: ",")
     }
     
-    static func decode(_ baggage: String) -> [String: String] {
+    public static func decode(_ baggage: String) -> [String: String] {
         guard !baggage.isEmpty else {
             return [:]
         }

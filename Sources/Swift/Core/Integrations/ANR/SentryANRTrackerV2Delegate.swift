@@ -2,14 +2,14 @@ import Foundation
 
 /// The  methods are called from a  background thread.
 @objc
-protocol SentryANRTrackerDelegate {
+@_spi(Private) public protocol SentryANRTrackerDelegate {
     func anrDetected(type: SentryANRType)
     
     func anrStopped(result: SentryANRStoppedResult?)
 }
 
 @objcMembers
-class SentryANRStoppedResult: NSObject {
+@_spi(Private) public class SentryANRStoppedResult: NSObject {
     
     let minDuration: TimeInterval
     let maxDuration: TimeInterval
