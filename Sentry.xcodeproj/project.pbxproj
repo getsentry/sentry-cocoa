@@ -1817,7 +1817,7 @@
 		84302A7F2B5767A50027A629 /* SentryLaunchProfiling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryLaunchProfiling.m; sourceTree = "<group>"; };
 		8431D4522BE1741E009EAEC1 /* SentryProfileTestFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryProfileTestFixture.swift; sourceTree = "<group>"; };
 		8431D4572BE175A1009EAEC1 /* SentryContinuousProfiler+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryContinuousProfiler+Test.h"; sourceTree = "<group>"; };
-		8431D4612BE1B534009EAEC1 /* SentryProfilerDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProfilerDefines.h; sourceTree = "<group>"; };
+		8431D4612BE1B534009EAEC1 /* SentryProfilerDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilerDefines.h; path = ../include/SentryProfilerDefines.h; sourceTree = "<group>"; };
 		8431EE5A29ADB8EA00D8DC56 /* SentryTimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTimeTests.m; sourceTree = "<group>"; };
 		8431EFD929B27B1100D8DC56 /* SentryProfilerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryProfilerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSentryTestUtils.a; sourceTree = BUILT_PRODUCTS_DIR; };
