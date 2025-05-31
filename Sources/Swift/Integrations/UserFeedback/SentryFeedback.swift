@@ -18,7 +18,7 @@ public class SentryFeedback: NSObject {
     var email: String?
     var message: String
     var source: SentryFeedbackSource
-    let eventId: SentryId
+    @_spi(Private) public let eventId: SentryId
     
     /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
     private var attachments: [Data]?
@@ -83,7 +83,7 @@ extension SentryFeedback {
     /**
      * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
      */
-    func attachmentsForEnvelope() -> [Attachment] {
+    @_spi(Private) public func attachmentsForEnvelope() -> [Attachment] {
         var items = [Attachment]()
         if let screenshot = attachments?.first {
             items.append(Attachment(data: screenshot, filename: "screenshot.png", contentType: "application/png"))
