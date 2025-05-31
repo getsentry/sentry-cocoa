@@ -33,6 +33,7 @@ public enum SentrySDKOverrides {
     public enum Special: String, SentrySDKOverride {
         case wipeDataOnLaunch = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
+        case skipSDKInit = "--skip-sentry-init"
 
         public var boolValue: Bool {
             get {
