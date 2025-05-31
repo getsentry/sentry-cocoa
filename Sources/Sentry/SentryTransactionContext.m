@@ -4,13 +4,13 @@
 #import "SentrySpanContext+Private.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#include "SentryThreadHandle.hpp"
 #import "SentryTraceOrigin.h"
 #import "SentryTransactionContext+Private.h"
+#import "ThreadInfoHelper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
+static const NSUInteger kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
 
 @implementation SentryTransactionContext
 
@@ -197,8 +197,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 - (void)getThreadInfo
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
-    self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+    self.threadInfo = [ThreadInfoHelper threadInfo];
 #endif
 }
 

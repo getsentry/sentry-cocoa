@@ -13,7 +13,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
-#import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
@@ -30,6 +29,10 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED || SENTRY_TARGET_REPLAY_SUPPORTED
+#    import "SentrySwift.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED || SENTRY_TARGET_REPLAY_SUPPORTED
 
 @implementation PrivateSentrySDKOnly
 
