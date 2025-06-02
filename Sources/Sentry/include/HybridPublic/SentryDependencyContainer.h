@@ -142,10 +142,6 @@ SENTRY_NO_INIT
     SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
 
-#if SENTRY_TEST || SENTRY_TEST_CI || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-+ (instancetype)createForTesting;
-#endif
-
 @end
 
 NS_ASSUME_NONNULL_END

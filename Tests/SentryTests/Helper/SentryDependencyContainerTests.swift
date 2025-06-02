@@ -6,6 +6,10 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     private static let dsn = TestConstants.dsnAsString(username: "SentryDependencyContainerTests")
 
+    override func tearDown() {
+        SentryDependencyContainer.reset()
+    }
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testReset_CallsFramesTrackerStop() throws {
         let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
@@ -157,12 +161,14 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
     func testScopeContextStore_shouldReturnSameInstance() throws {
-        // -- Act --
+        // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(options)
 
-        let container = SentryDependencyContainer.createForTesting()
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
         let scopeContextStore1 = container.scopeContextPersistentStore
         let scopeContextStore2 = container.scopeContextPersistentStore
 
@@ -172,12 +178,14 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        // -- Act --
+        // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(options)
 
-        let container = SentryDependencyContainer.createForTesting()
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
         let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
         let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
 
@@ -190,12 +198,14 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldUseParameters() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        // -- Act --
+        // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(options)
 
-        let container = SentryDependencyContainer.createForTesting()
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
         let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
         let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
 
@@ -212,12 +222,14 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testSentryWatchdogTerminationContextProcessor_shouldReturnSameInstance() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        // -- Act --
+        // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(options)
 
-        let container = SentryDependencyContainer.createForTesting()
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
         let processor1 = container.watchdogTerminationContextProcessor
         let processor2 = container.watchdogTerminationContextProcessor
 
@@ -235,7 +247,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(options)
 
-        let container = SentryDependencyContainer.createForTesting()
+        let container = SentryDependencyContainer.sharedInstance()
         let dispatchFactory = TestDispatchFactory()
         container.dispatchFactory = dispatchFactory
 

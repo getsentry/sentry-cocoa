@@ -391,11 +391,4 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 #endif
 
-#if SENTRY_TEST || SENTRY_TEST_CI
-+ (instancetype)createForTesting;
-{
-    return [[SentryDependencyContainer alloc] init];
-}
-#endif
-
 @end
