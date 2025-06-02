@@ -3,10 +3,10 @@
 #include "SentryProfilingConditionals.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySwift.h"
+#import "SentryThread+Private.h"
 #import "SentryThread.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTransactionContext+Private.h"
-#import "ThreadInfoHelper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -197,7 +197,7 @@ static const NSUInteger kSentryDefaultSamplingDecision = kSentrySampleDecisionUn
 - (void)getThreadInfo
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    self.threadInfo = [ThreadInfoHelper threadInfo];
+    self.threadInfo = [SentryThread threadInfo];
 #endif
 }
 
