@@ -3,6 +3,7 @@
 #import "NSLocale+Sentry.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryNSDataUtils.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryRandom.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"

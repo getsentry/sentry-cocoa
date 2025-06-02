@@ -1366,6 +1366,18 @@ extension SentryFileManagerTests {
             XCTAssertEqual(result, testCase.expected, "Inputs: (isSandboxed: \(testCase.isSandboxed), bundleIdentifier: \(String(describing: testCase.bundleIdentifier)), lastPathComponent: \(String(describing: testCase.lastPathComponent)), expected: \(String(describing: testCase.expected))); Output: \(String(describing: result))")
         }
     }
+
+    func testGetSentryPathAsURL_whenSentryPathIsValid_shouldReturnUrl() throws {
+        // We only cover the test case when the sentryPath is valid, because the path is built in the file manager's
+        // initializer and therefore the path is always valid to begin with.
+
+        // -- Act --
+        let url = sut.getSentryPathAsURL()
+
+        // -- Assert --
+        XCTAssertEqual(url.scheme, "file")
+        XCTAssertEqual(url.path, sut.sentryPath)
+    }
 }
 
 // MARK: Private profiling tests

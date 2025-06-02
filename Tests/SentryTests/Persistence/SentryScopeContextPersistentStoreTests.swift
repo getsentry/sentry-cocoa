@@ -179,6 +179,33 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
     }
 
+    func testWriteContextToDisk_whenNonLiteralsINJSONDictionary_shouldSanitizeAndWriteToContextFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let context: [String: [String: Any]] = [
+            "key": ["nestedKey": Date(timeIntervalSince1970: 0xF00D)]
+        ]
+        if fm.fileExists(atPath: sut.contextFileURL.path) {
+            try fm.removeItem(at: sut.contextFileURL)
+        }
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+
+        // -- Act --
+        sut.writeContextToDisk(context: context)
+
+        // -- Assert --
+        // Use the SentrySerialization to compare the written data
+        // We can assume the utility to serialize the context correctly as it is tested by other tests.
+        let writtenData = try Data(contentsOf: sut.contextFileURL)
+        let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
+
+        XCTAssertEqual(serializedData.count, 1)
+        let nestedDict = try XCTUnwrap(serializedData["key"] as? [String: String])
+        XCTAssertEqual(nestedDict["nestedKey"], "1970-01-01T17:04:13.000Z")
+    }
+
     func testDeleteContextFile_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default

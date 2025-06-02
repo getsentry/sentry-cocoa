@@ -50,7 +50,11 @@ class SentryScopeContextPersistentStore: NSObject {
         // We need to check if the context is a valid JSON object before encoding it.
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
-        guard let data = SentrySerialization.data(withJSONObject: context) else {
+        guard let sanitizedContext = sentry_sanitize(context) else {
+            SentryLog.error("Failed to sanitize context, reason: context is not valid json: \(context)")
+            return nil
+        }
+        guard let data = SentrySerialization.data(withJSONObject: sanitizedContext) else {
             SentryLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
             return nil
         }
