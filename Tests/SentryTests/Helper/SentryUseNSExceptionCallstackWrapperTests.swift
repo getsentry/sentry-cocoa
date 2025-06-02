@@ -16,9 +16,8 @@ class SentryUseNSExceptionCallstackWrapperTests: XCTestCase {
         let name = "TestException"
         let reason = "Test Reason"
         let userInfo = ["key": "value"]
-        let exception = NSException(name: NSExceptionName(name), reason: reason, userInfo: userInfo)
         
-        let wrapper = SentryUseNSExceptionCallstackWrapper(exception: exception)
+        let wrapper = SentryUseNSExceptionCallstackWrapper(name: NSExceptionName(name), reason: reason, userInfo: userInfo, callStackReturnAddresses: [])
         
         // Make sure the name, reason and userInfo stay the same
         XCTAssertEqual(wrapper.name, NSExceptionName(name))
@@ -28,9 +27,7 @@ class SentryUseNSExceptionCallstackWrapperTests: XCTestCase {
     
     func testBuildThreads() {
         let addresses = [0x1234, 0x5678, 0x9ABC]
-        // Use a fake exception so we can se the return addresses
-        let exception = FakeException(returnAddresses: addresses.map { NSNumber(value: $0) })
-        let wrapper = SentryUseNSExceptionCallstackWrapper(exception: exception)
+        let wrapper = SentryUseNSExceptionCallstackWrapper(name: NSExceptionName(rawValue: "Exception Name"), reason: "Exception Reason", userInfo: [:], callStackReturnAddresses: addresses.map { NSNumber(value: $0) })
         
         let threads = wrapper.buildThreads()
         
@@ -53,9 +50,7 @@ class SentryUseNSExceptionCallstackWrapperTests: XCTestCase {
     }
     
     func testBuildThreadsWithEmptyCallStack() {
-        // Use a fake exception so we can se the return addresses
-        let exception = FakeException(returnAddresses: [])
-        let wrapper = SentryUseNSExceptionCallstackWrapper(exception: exception)
+        let wrapper = SentryUseNSExceptionCallstackWrapper(name: NSExceptionName(rawValue: "Exception Name"), reason: "Exception Reason", userInfo: [:], callStackReturnAddresses: [])
         
         let threads = wrapper.buildThreads()
         
@@ -63,31 +58,6 @@ class SentryUseNSExceptionCallstackWrapperTests: XCTestCase {
         let thread = threads[0]
         XCTAssertNotNil(thread.stacktrace)
         XCTAssertEqual(thread.stacktrace?.frames.count, 0)
-    }
-    
-    private class FakeException: NSObject, ExceptionProtocol {
-        let addresses: [NSNumber]
-        
-        init(returnAddresses: [NSNumber]) {
-            addresses = returnAddresses
-            super.init()
-        }
-        
-        func name() -> String {
-            "TestException"
-        }
-        
-        func reason() -> String {
-            "Test Reason"
-        }
-        
-        func userInfo() -> [AnyHashable: Any] {
-            ["key": "value"]
-        }
-        
-        func callStackReturnAddresses() -> [NSNumber] {
-            addresses
-        }
     }
 }
 #endif // os(macOS)

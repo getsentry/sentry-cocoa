@@ -12,18 +12,19 @@
 
 @interface SentryUseNSExceptionCallstackWrapper ()
 
-@property (nonatomic, strong) NSObject<ExceptionProtocol> *originalException;
+@property (nonatomic, strong) NSArray<NSNumber *> *returnAddressesArray;
 
 @end
 
 @implementation SentryUseNSExceptionCallstackWrapper
 
-- (instancetype)initWithException:(NSObject<ExceptionProtocol> *)exception
+- (instancetype)initWithName:(NSExceptionName)aName
+                      reason:(NSString *_Nullable)aReason
+                    userInfo:(NSDictionary *_Nullable)aUserInfo
+    callStackReturnAddresses:(NSArray<NSNumber *> *)callStackReturnAddresses
 {
-    if (self = [super initWithName:exception.name
-                            reason:exception.reason
-                          userInfo:exception.userInfo]) {
-        _originalException = exception;
+    if (self = [super initWithName:aName reason:aReason userInfo:aUserInfo]) {
+        self.returnAddressesArray = callStackReturnAddresses;
     }
     return self;
 }
@@ -41,7 +42,7 @@
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
 
     // Iterate over all the addresses, symbolicate and create a SentryFrame
-    [self.originalException.callStackReturnAddresses
+    [self.returnAddressesArray
         enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             SentryCrashStackCursor stackCursor;
             stackCursor.stackEntry.address = [obj unsignedLongValue];

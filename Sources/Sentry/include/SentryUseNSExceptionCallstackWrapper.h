@@ -6,22 +6,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread;
 
-@protocol ExceptionProtocol <NSObject>
-- (NSString *)name;
-- (NSString *)reason;
-- (NSDictionary *)userInfo;
-- (NSArray<NSNumber *> *)callStackReturnAddresses;
-@end
-
-@interface NSException (ExceptionProtocol) <ExceptionProtocol>
-@end
-
 /**
  * This is a helper class to identify exceptions that should use the stacktrace within
  */
 @interface SentryUseNSExceptionCallstackWrapper : NSException
 
-- (instancetype)initWithException:(NSObject<ExceptionProtocol> *)exception;
+- (instancetype)initWithName:(NSExceptionName)aName
+                      reason:(NSString *_Nullable)aReason
+                    userInfo:(NSDictionary *_Nullable)aUserInfo
+    callStackReturnAddresses:(NSArray<NSNumber *> *)callStackReturnAddresses;
 - (NSArray<SentryThread *> *)buildThreads;
 
 @end
