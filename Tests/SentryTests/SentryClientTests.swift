@@ -2121,7 +2121,7 @@ class SentryClientTest: XCTestCase {
         let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
             frame.function == testMangledName
         }
-        XCTAssertNotNil(frameWithTestFunction, "testCaptureSentryWrappedException not found in stacktrace")
+        XCTAssertNotNil(frameWithTestFunction, "Mangled name for testCaptureSentryWrappedException not found in stacktrace")
         
         // Last frame should always be `__exceptionPreprocess`
         XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
