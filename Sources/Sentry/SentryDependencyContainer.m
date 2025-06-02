@@ -36,6 +36,7 @@
 #import <SentryThreadWrapper.h>
 #import <SentryTracer.h>
 #import <SentryUIViewControllerPerformanceTracker.h>
+#import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
@@ -43,6 +44,7 @@
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
 #    import <SentryViewHierarchy.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_IOS
@@ -346,5 +348,47 @@ static NSObject *sentryDependencyContainerInstanceLock;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
+
+- (SentryScopeContextPersistentStore *)
+    scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
+        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+#if SENTRY_HAS_UIKIT
+- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+    (SentryOptions *)options
+{
+    // This method is only a factory, therefore do not keep a reference.
+    // The scope observer will be created each time it is needed.
+    return [[SentryWatchdogTerminationScopeObserver alloc]
+        initWithBreadcrumbProcessor:
+            [self
+                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
+                   contextProcessor:self.watchdogTerminationContextProcessor];
+}
+
+- (SentryWatchdogTerminationBreadcrumbProcessor *)
+    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    // This method is only a factory, therefore do not keep a reference.
+    // The processor will be created each time it is needed.
+    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+        initWithMaxBreadcrumbs:maxBreadcrumbs
+                   fileManager:self.fileManager];
+}
+
+- (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
+        [[SentryWatchdogTerminationContextProcessor alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory createLowPriorityQueue:
+                        "io.sentry.watchdog-termination-tracking.context-processor"
+                                            relativePriority:0]
+                       scopeContextStore:self.scopeContextPersistentStore])
+}
+#endif
 
 @end

@@ -241,6 +241,8 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+    [SentryDependencyContainer.sharedInstance
+            .scopeContextPersistentStore moveCurrentFileToPreviousFile];
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);

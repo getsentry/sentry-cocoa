@@ -191,6 +191,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     _delegate = delegate;
 }
 
+#pragma mark - Convenience Accessors
+
+- (NSURL *)getSentryPathAsURL
+{
+    return [NSURL fileURLWithPath:self.sentryPath];
+}
+
 #pragma mark - Envelope
 
 - (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope

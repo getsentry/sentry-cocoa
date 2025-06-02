@@ -11,7 +11,7 @@ import Foundation
 /// and the thread sanitizer would surface these race conditions. We accept these race conditions for
 /// the log messages in the tests over adding locking for all log messages.
 @objc
-class SentryLog: NSObject {
+@_spi(Private) public class SentryLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -29,7 +29,7 @@ class SentryLog: NSObject {
     }
     
     @objc
-    static func log(message: String, andLevel level: SentryLevel) {
+    public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
         // We use the timeIntervalSinceReferenceDate because date format is
@@ -45,7 +45,7 @@ class SentryLog: NSObject {
      * @c NO if not.
      */
     @objc
-    static func willLog(atLevel level: SentryLevel) -> Bool {
+    public static func willLog(atLevel level: SentryLevel) -> Bool {
         if level == .none {
             return false
         }
