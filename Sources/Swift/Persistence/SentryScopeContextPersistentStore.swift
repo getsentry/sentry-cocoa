@@ -66,13 +66,28 @@ class SentryScopeContextPersistentStore: NSObject {
             SentryLog.error("Failed to deserialize context, reason: data is not valid json")
             return nil
         }
-        // Validate that the deserialized values are of the expected type.
+
+        // `SentrySerialization` is a wrapper around `NSJSONSerialization` which returns any type of data (`id`).
+        // It is the casted to a `NSDictionary`, which is then casted to a `[AnyHashable: Any]` in Swift.
+        //
+        // The responsibility of validating and casting the deserialized data from any data to a dictionary is delegated
+        // to the `SentrySerialization` class.
+        //
+        // As this decode context method specifically returns a dictionary of dictionaries, we need to ensure that
+        // each value is a dictionary of type `[String: Any]`.
+        //
+        // If the deserialized value is not a dictionary, something clearly went wrong and we should discard the data.
+
+        // Iterate through the deserialized dictionary and check if the type is a dictionary.
+        // When all values are dictionaries, we can safely cast it to `[String: [String: Any]]` without allocating
+        // additional memory (like when mapping values).
         for (key, value) in deserialized {
             guard value is [String: Any] else {
                 SentryLog.error("Failed to deserialize context, reason: value for key \(key) is not a valid dictionary")
                 return nil
             }
         }
+
         return deserialized as? [String: [String: Any]]
     }
 
