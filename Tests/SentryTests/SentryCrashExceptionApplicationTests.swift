@@ -18,7 +18,6 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDK.setCurrentHub(hub)
-
         let exception = NSException(name: NSExceptionName("TestException"), reason: "Test Reason", userInfo: nil)
         
         SentryCrashExceptionApplicationHelper._crash(on: exception)
@@ -32,7 +31,6 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
     
     func testReportExceptionWithUncaughtExceptionHandler() {
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
         defer {
             crashReporter.uncaughtExceptionHandler = nil
             wasUncaughtExceptionHandlerCalled = false
