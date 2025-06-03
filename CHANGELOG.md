@@ -5,6 +5,7 @@
 ### Fixes
 
 - Add missing context for watchdog termination events (#5242)
+- Use timestamp of screenshot for frames (#5342)
 
 ## 8.52.0-beta
 
