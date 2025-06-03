@@ -6,10 +6,13 @@ import QuartzCore
         case children
     }
 
-    public var layer: CALayerBox?
+    private let layer: CALayerBox?
+
     public var children: [SentryViewHierarchyNode]
 
     init(layer: CALayer?, children: [SentryViewHierarchyNode] = []) {
+        // Do not keep a reference to the layer, as it would require all encoding to be done on the main thread.
+        // Instead we store a box of relevant layer information.
         if let layer = layer {
             self.layer = CALayerBox(layer)
         } else {
