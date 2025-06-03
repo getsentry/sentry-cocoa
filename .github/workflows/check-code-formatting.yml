@@ -1,12 +1,22 @@
 name: Check Code Formatting
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/check-code-formatting.yml"
+      
   pull_request:
     paths:
       - "Sources/**"
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/format-code.yml"
+      - ".github/workflows/check-code-formatting.yml"
 
 jobs:
   format-code:
