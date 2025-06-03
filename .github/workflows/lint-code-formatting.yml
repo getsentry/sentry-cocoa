@@ -20,7 +20,7 @@ on:
 
 jobs:
   format-code:
-    name: Check Code of Swiftlint and Clang Format
+    name: Check Formatting of Swiftlint and Clang Format
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
