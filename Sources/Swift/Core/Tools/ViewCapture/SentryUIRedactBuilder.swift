@@ -7,7 +7,7 @@ import UIKit
 import WebKit
 #endif
 
-class UIRedactBuilder {
+class SentryUIRedactBuilder {
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
     ///This is a wrapper which marks it's direct children to be redacted
@@ -147,8 +147,8 @@ class UIRedactBuilder {
      
      This function returns the redaction regions in reverse order from what was found in the view hierarchy, allowing the processing of regions from top to bottom. This ensures that clip regions are applied first before drawing a redact mask on lower views.
      */
-    func redactRegionsFor(view: UIView) -> (ViewHierarchyNode, [RedactRegion]) {
-        var redactingRegions = [RedactRegion]()
+    func redactRegionsFor(view: UIView) -> (SentryViewHierarchyNode, [SentryRedactRegion]) {
+        var redactingRegions = [SentryRedactRegion]()
         
         let node = self.mapRedactRegion(fromLayer: view.layer.presentation() ?? view.layer,
                              relativeTo: nil,
@@ -156,8 +156,8 @@ class UIRedactBuilder {
                              rootFrame: view.frame,
                              transform: .identity)
         
-        var swiftUIRedact = [RedactRegion]()
-        var otherRegions = [RedactRegion]()
+        var swiftUIRedact = [SentryRedactRegion]()
+        var otherRegions = [SentryRedactRegion]()
         
         for region in redactingRegions {
             if region.type == .redactSwiftUI {
@@ -208,8 +208,8 @@ class UIRedactBuilder {
     }
 
     // swiftlint:disable:next function_body_length
-    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [RedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) -> ViewHierarchyNode {
-        let node = ViewHierarchyNode(layer: layer)
+    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [SentryRedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) -> SentryViewHierarchyNode {
+        let node = SentryViewHierarchyNode(layer: layer)
         guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else {
             return node
         }
@@ -221,7 +221,7 @@ class UIRedactBuilder {
         var enforceRedact = forceRedact
         
         if !ignore && redact {
-            redacting.append(RedactRegion(
+            redacting.append(SentryRedactRegion(
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: swiftUI ? .redactSwiftUI : .redact,
@@ -239,7 +239,7 @@ class UIRedactBuilder {
                 //Because the current view is covering everything we found so far we can clear `redacting` list
                 redacting.removeAll()
             } else {
-                redacting.append(RedactRegion(
+                redacting.append(SentryRedactRegion(
                     size: layer.bounds.size,
                     transform: newTransform,
                     type: .clipOut,
@@ -255,7 +255,7 @@ class UIRedactBuilder {
         if clipToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
-            redacting.append(RedactRegion(
+            redacting.append(SentryRedactRegion(
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
@@ -267,7 +267,7 @@ class UIRedactBuilder {
             node.children.append(child)
         }
         if clipToBounds {
-            redacting.append(RedactRegion(
+            redacting.append(SentryRedactRegion(
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
@@ -310,48 +310,6 @@ class UIRedactBuilder {
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
         return SentryRedactViewHelper.shouldClipOut(view) || (layer.opacity == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1)
-    }
-}
-
-@objcMembers
-public class SentryRedactViewHelper: NSObject {
-    private static var associatedRedactObjectHandle: UInt8 = 0
-    private static var associatedIgnoreObjectHandle: UInt8 = 0
-    private static var associatedClipOutObjectHandle: UInt8 = 0
-    private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
-    
-    override private init() {}
-    
-    static func maskView(_ view: UIView) {
-        objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
-    }
-    
-    static func shouldMaskView(_ view: UIView) -> Bool {
-        (objc_getAssociatedObject(view, &associatedRedactObjectHandle) as? NSNumber)?.boolValue ?? false
-    }
-    
-    static func shouldUnmask(_ view: UIView) -> Bool {
-        (objc_getAssociatedObject(view, &associatedIgnoreObjectHandle) as? NSNumber)?.boolValue ?? false
-    }
-    
-    static func unmaskView(_ view: UIView) {
-        objc_setAssociatedObject(view, &associatedIgnoreObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
-    }
-    
-    static func shouldClipOut(_ view: UIView) -> Bool {
-        (objc_getAssociatedObject(view, &associatedClipOutObjectHandle) as? NSNumber)?.boolValue ?? false
-    }
-    
-    static public func clipOutView(_ view: UIView) {
-        objc_setAssociatedObject(view, &associatedClipOutObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
-    }
-    
-    static func shouldRedactSwiftUI(_ view: UIView) -> Bool {
-        (objc_getAssociatedObject(view, &associatedSwiftUIRedactObjectHandle) as? NSNumber)?.boolValue ?? false
-    }
-    
-    static public func maskSwiftUI(_ view: UIView) {
-        objc_setAssociatedObject(view, &associatedSwiftUIRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
     }
 }
 

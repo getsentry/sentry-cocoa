@@ -8,7 +8,7 @@ import UIKit
 
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    private let redactBuilder: UIRedactBuilder
+    private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
@@ -29,7 +29,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     ) {
         self.renderer = renderer
         self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
-        redactBuilder = UIRedactBuilder(options: redactOptions)
+        redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         super.init()
     }
 

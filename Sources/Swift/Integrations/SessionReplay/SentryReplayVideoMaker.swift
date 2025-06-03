@@ -6,8 +6,8 @@ import UIKit
 protocol SentryReplayVideoMaker: NSObjectProtocol {
     func addFrameAsync(
         timestamp: Date,
-        viewHiearchy: ViewHierarchyNode,
-        redactRegions: [RedactRegion],
+        viewHiearchy: SentryViewHierarchyNode,
+        redactRegions: [SentryRedactRegion],
         renderedViewImage: UIImage,
         maskedViewImage: UIImage,
         forScreen screen: String?
@@ -20,8 +20,8 @@ protocol SentryReplayVideoMaker: NSObjectProtocol {
 extension SentryReplayVideoMaker {
     func addFrameAsync(
         timestamp: Date,
-        viewHiearchy: ViewHierarchyNode,
-        redactRegions: [RedactRegion],
+        viewHiearchy: SentryViewHierarchyNode,
+        redactRegions: [SentryRedactRegion],
         renderedViewImage: UIImage,
         maskedViewImage: UIImage,
         forScreen screen: String?

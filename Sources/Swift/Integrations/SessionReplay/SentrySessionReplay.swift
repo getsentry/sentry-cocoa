@@ -364,8 +364,8 @@ class SentrySessionReplay: NSObject {
 
     private func newImage(
         timestamp: Date,
-        viewHiearchy: ViewHierarchyNode,
-        redactRegions: [RedactRegion],
+        viewHiearchy: SentryViewHierarchyNode,
+        redactRegions: [SentryRedactRegion],
         renderedViewImage: UIImage,
         maskedViewImage: UIImage,
         forScreen screen: String?

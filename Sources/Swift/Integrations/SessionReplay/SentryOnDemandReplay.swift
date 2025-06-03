@@ -33,8 +33,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     var cacheMaxSize = UInt.max
     var onNewFrame: ((
         _ timestamp: Date,
-        _ viewHiearchy: ViewHierarchyNode,
-        _ redactRegions: [RedactRegion],
+        _ viewHiearchy: SentryViewHierarchyNode,
+        _ redactRegions: [SentryRedactRegion],
         _ renderedViewImage: UIImage,
         _ maskedViewImage: UIImage
     ) -> Void)?
@@ -88,8 +88,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
     @objc func addFrameAsync(
         timestamp: Date,
-        viewHiearchy: ViewHierarchyNode,
-        redactRegions: [RedactRegion],
+        viewHiearchy: SentryViewHierarchyNode,
+        redactRegions: [SentryRedactRegion],
         renderedViewImage: UIImage,
         maskedViewImage: UIImage,
         forScreen screen: String?
@@ -111,8 +111,8 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
     
     private func addFrame(
         timestamp: Date,
-        viewHiearchy: ViewHierarchyNode,
-        redactRegions: [RedactRegion],
+        viewHiearchy: SentryViewHierarchyNode,
+        redactRegions: [SentryRedactRegion],
         renderedViewImage: UIImage,
         maskedViewImage: UIImage,
         forScreen screen: String?

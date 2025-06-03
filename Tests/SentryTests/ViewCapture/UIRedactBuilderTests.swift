@@ -55,8 +55,8 @@ class UIRedactBuilderTests: XCTestCase {
     
     private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     
-    private func getSut(_ option: RedactOptions = RedactOptions()) -> UIRedactBuilder {
-        return UIRedactBuilder(options: option)
+    private func getSut(_ option: RedactOptions = RedactOptions()) -> SentryUIRedactBuilder {
+        return SentryUIRedactBuilder(options: option)
     }
     
     func testNoNeedForRedact() {

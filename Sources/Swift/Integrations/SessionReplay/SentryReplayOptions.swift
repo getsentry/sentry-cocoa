@@ -221,8 +221,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     #if canImport(UIKit)
     public var onNewFrame: ((
         _ timestamp: Date,
-        _ viewHiearchy: ViewHierarchyNode,
-        _ redactRegions: [RedactRegion],
+        _ viewHiearchy: SentryViewHierarchyNode,
+        _ redactRegions: [SentryRedactRegion],
         _ renderedViewImage: UIImage,
         _ maskedViewImage: UIImage
     ) -> Void)?
