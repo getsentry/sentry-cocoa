@@ -31,7 +31,7 @@ jobs:
       - name: Format Code
         run: make format
 
-      - name: Fail Formatting Changes
+      - name: Check for Formatting Changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "❌ Some code is not formatted correctly. Please run 'make format' and commit the changes."
