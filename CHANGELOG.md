@@ -17,6 +17,9 @@
 ### Fixes
 
 - Missing debug meta for non fatal events (#5352)
+### Improvements
+
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
 
 ## 8.52.0
 
