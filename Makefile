@@ -25,6 +25,7 @@ init-ci-deploy:
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
+	rbenv install --skip-existing
 
 .PHONY: update-versions
 update-versions:
@@ -63,8 +64,7 @@ format-clang:
 
 # Format all Swift files
 format-swift-all:
-	@echo "Running swiftlint --fix on all files"
-	$(shell which swiftlint) --fix
+	swiftlint --fix
 
 # Format Swift staged files
 .PHONY: format-swift-staged

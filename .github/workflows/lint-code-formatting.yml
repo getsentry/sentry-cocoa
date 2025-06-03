@@ -20,7 +20,7 @@ on:
 
 jobs:
   format-code:
-    name: Format Code
+    name: Check Code of Swiftlint and Clang Format
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -28,8 +28,11 @@ jobs:
       - name: Install tooling
         run: make init-ci-format
 
-      - name: Format Code
-        run: make format
+      - name: Format with Clang
+        run: make format-clang
+
+      - name: Format with Swiftlint
+        run: make format-swift-all
 
       - name: Check for Formatting Changes
         run: |

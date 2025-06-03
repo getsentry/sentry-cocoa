@@ -1,3 +1,2 @@
-# swiftlint is preinstalled
+ # swiftlint is preinstalled
 brew 'clang-format'
-brew 'dprint'
