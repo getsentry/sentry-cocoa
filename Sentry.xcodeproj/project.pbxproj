@@ -1024,6 +1024,7 @@
 		F49D419C2DEA30C300D9244E /* SentryCrashExceptionApplicationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */; };
 		F49D419E2DEA3D0600D9244E /* SentryCrashExceptionApplicationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F49D419D2DEA3D0300D9244E /* SentryCrashExceptionApplicationHelper.m */; };
 		FA034AC82DD3DB4900FE3107 /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FA034AC72DD3DB4900FE3107 /* SentryIntegrationProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA3E4C792DEF950B0005022A /* Options+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8A35B62DEA93160058D883 /* Options+Swift.swift */; };
 		FA67DCC12DDBD4C800896B02 /* SentryLog+Configure.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCC02DDBD4C800896B02 /* SentryLog+Configure.swift */; };
 		FA67DCF42DDBD4EA00896B02 /* SentryExperimentalOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCF12DDBD4EA00896B02 /* SentryExperimentalOptions.swift */; };
 		FA67DCF52DDBD4EA00896B02 /* SentryCurrentDateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCCA2DDBD4EA00896B02 /* SentryCurrentDateProvider.swift */; };
@@ -5252,6 +5253,7 @@
 				7BDB03BB2513652900BAE198 /* SentryDispatchQueueWrapper.m in Sources */,
 				D8739D142BEE5049007D2F66 /* SentryRRWebSpanEvent.swift in Sources */,
 				7B6C5EDE264E8DF00010D138 /* SentryFramesTracker.m in Sources */,
+				FA3E4C792DEF950B0005022A /* Options+Swift.swift in Sources */,
 				D84F833E2A1CC401005828E0 /* SentrySwiftAsyncIntegration.m in Sources */,
 				7B6438AB26A70F24000D0F65 /* UIViewController+Sentry.m in Sources */,
 				84302A812B5767A50027A629 /* SentryLaunchProfiling.m in Sources */,
@@ -5348,7 +5350,6 @@
 				7BA61CAD247BAA0B00C130A8 /* SentryDebugImageProvider.m in Sources */,
 				63FE70E720DA4C1000CDBAE8 /* SentryCrashMonitor.c in Sources */,
 				84354E1229BF944900CDBB8B /* SentryProfileTimeseries.mm in Sources */,
-				FA8A35B72DEA93160058D883 /* Options+Swift.swift in Sources */,
 				D85852B627ECEEDA00C6D8AE /* SentryScreenshot.m in Sources */,
 				7D5C441C237C2E1F00DAB0A3 /* SentryHub.m in Sources */,
 				84E13B842CBF1D91003B52EC /* SentryUserFeedbackWidgetButtonMegaphoneIconView.swift in Sources */,
