@@ -11,15 +11,13 @@
 - Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
 
 ## 8.52.1
 
 ### Fixes
 
 - Missing debug meta for non fatal events (#5352)
-### Improvements
-
-- Move SentryExperimentalOptions to a property defined in Swift (#5329)
 
 ## 8.52.0
 
