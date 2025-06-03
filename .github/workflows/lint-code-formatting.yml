@@ -8,7 +8,7 @@ on:
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/check-code-formatting.yml"
+      - ".github/workflows/lint-code-formatting.yml"
 
   pull_request:
     paths:
@@ -16,7 +16,7 @@ on:
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/check-code-formatting.yml"
+      - ".github/workflows/lint-code-formatting.yml"
 
 jobs:
   format-code:
