@@ -64,7 +64,7 @@ format-clang:
 # Format all Swift files
 format-swift-all:
 	@echo "Running swiftlint --fix on all files"
-	swiftlint --fix
+	$(shell which swiftlint) --fix
 
 # Format Swift staged files
 .PHONY: format-swift-staged
