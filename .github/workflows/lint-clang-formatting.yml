@@ -39,7 +39,7 @@ jobs:
       - name: Check for Formatting Changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "❌ Some code is not formatted correctly. Please run 'make format' and commit the changes."
+            echo "❌ Some code formatted with clang-format is not formatted correctly. Please run 'make format' and commit the changes."
             git status
             git diff
             exit 1
