@@ -10,6 +10,7 @@ coverage:
   round: down
 
 ignore:
+  - "SentryTestUtilsTests/**"
   - "Tests/**"
 
 comment:
