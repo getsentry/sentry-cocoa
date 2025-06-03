@@ -10,4 +10,10 @@ protocol SentryReplayVideoMaker: NSObjectProtocol {
     func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo]
 }
 
+extension SentryReplayVideoMaker {
+    func addFrameAsync(timestamp: Date, maskedViewImage: UIImage) {
+        self.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: nil)
+    }
+}
+
 #endif
