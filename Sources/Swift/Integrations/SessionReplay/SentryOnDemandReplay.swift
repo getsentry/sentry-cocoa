@@ -50,7 +50,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         self.init(
             outputPath: outputPath,
             processingQueue: processingQueue,
-            assetWorkerQueue: assetWorkerQueue,
+            assetWorkerQueue: assetWorkerQueue
         )
         loadFrames(fromPath: outputPath)
     }
