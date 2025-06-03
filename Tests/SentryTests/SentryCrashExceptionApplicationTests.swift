@@ -15,14 +15,16 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
     }
     
     func testCrashOnException() throws {
+        // Arrange
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         let exception = NSException(name: NSExceptionName("TestException"), reason: "Test Reason", userInfo: nil)
         
+        // Act
         SentryCrashExceptionApplicationHelper._crash(on: exception)
         
-        // Ensure SentrySDK was called
+        // Assert
         let testClient = try XCTUnwrap(SentrySDK.currentHub().getClient() as? TestClient)
         XCTAssertEqual(1, testClient.captureExceptionWithScopeInvocations.count)
         XCTAssertEqual(exception.name, testClient.captureExceptionWithScopeInvocations.first?.exception.name)
@@ -30,6 +32,7 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
     }
     
     func testReportExceptionWithUncaughtExceptionHandler() {
+        // Arrange
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
         defer {
             crashReporter.uncaughtExceptionHandler = nil
@@ -38,8 +41,10 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
         }
         crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
         
+        // Act
         SentryCrashExceptionApplicationHelper.report(uncaughtInternalInconsistencyException)
         
+        // Assert
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
     
