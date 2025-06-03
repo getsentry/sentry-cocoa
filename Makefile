@@ -25,7 +25,6 @@ init-ci-deploy:
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
-	rbenv install --skip-existing
 
 .PHONY: update-versions
 update-versions:
@@ -54,7 +53,7 @@ lint-staged:
 	$(call run-lint-tools,$(STAGED_SWIFT_FILES))
 .PHONY: lint-staged
 
-format: format-clang format-swift format-markdown format-json format-yaml
+format: format-clang format-swift-all format-markdown format-json format-yaml
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
