@@ -1,0 +1,35 @@
+name: Check Code Formatting
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+
+  pull_request:
+    paths:
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+
+jobs:
+  format-code:
+    name: Check Formatting of Swiftlint Code
+    # As of June 3rd 2025, swiftlint is only available on macos-13, even though the runner images spec of macos-14 and macos-15 claim to have it.
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run SwiftLint
+        run: make format-swift-all
+
+      - name: Check for Formatting Changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "❌ Some Swiftcode is not formatted correctly. Please run 'make format' and commit the changes."
+            git status
+            git diff
+            exit 1
+          else
+            echo "✅ All code is formatted correctly."
+          fi
