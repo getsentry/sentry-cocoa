@@ -30,7 +30,7 @@ protocol SentryCurrentDateProvider {
         Self.getAbsoluteTime()
     }
     
-    func systemUptime() -> TimeInterval {
+    public func systemUptime() -> TimeInterval {
         ProcessInfo.processInfo.systemUptime
     }
 
