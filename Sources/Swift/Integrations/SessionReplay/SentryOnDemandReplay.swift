@@ -74,22 +74,22 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
 
-    @objc func addFrameAsync(timestamp: Date, image: UIImage, forScreen screen: String?) {
-        SentryLog.debug("[Session Replay] Adding frame async for screen: \(screen ?? "nil") at timestamp: \(timestamp)")
+    @objc func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
+        SentryLog.debug("[Session Replay] Adding frame async for screen: \(screen ?? "nil")")
         // Dispatch the frame addition to a background queue to avoid blocking the main queue.
         // This must be on the processing queue to avoid deadlocks.
         processingQueue.dispatchAsync {
-            self.addFrame(timestamp: timestamp, image: image, forScreen: screen)
+            self.addFrame(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
         }
     }
     
-    private func addFrame(timestamp: Date, image: UIImage, forScreen screen: String?) {
-        SentryLog.debug("[Session Replay] Adding frame to replay, screen: \(screen ?? "nil") at timestamp: \(timestamp)")
-        guard let data = rescaleImage(image)?.pngData() else {
+    private func addFrame(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
+        SentryLog.debug("[Session Replay] Adding frame to replay, screen: \(screen ?? "nil")")
+        guard let data = rescaleImage(maskedViewImage)?.pngData() else {
             SentryLog.error("[Session Replay] Could not rescale image, dropping frame")
             return
         }
-
+        
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(timestamp.timeIntervalSinceReferenceDate).png")
         do {
             let url = URL(fileURLWithPath: imagePath)
