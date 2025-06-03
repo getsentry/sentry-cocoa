@@ -24,6 +24,8 @@ on:
 
 jobs:
   format-code:
+    # While ubuntu runners have clang-format preinstalled, they use an older version. We want to use the most recent one, 
+    # that we can easily install locally via brew.
     name: Check Formatting of Clang Format
     runs-on: macos-15
     steps:
