@@ -298,8 +298,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: secondListener)
         
         triggerFullyBlockingAppHang(currentDate)
-        triggerFullyBlockingAppHang(currentDate)
-        triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
         
@@ -311,18 +309,18 @@ class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
 
         let firstActual = try XCTUnwrap(firstListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, firstActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, firstActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(firstActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(firstActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, firstActual.maxDuration - firstActual.minDuration, accuracy: 0.01)
 
         let secondActual = try XCTUnwrap(secondListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, secondActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, secondActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(secondActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(secondActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, secondActual.maxDuration - secondActual.minDuration, accuracy: 0.01)
 
         let thirdActual = try XCTUnwrap(thirdListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, thirdActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, thirdActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(thirdActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(thirdActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, thirdActual.maxDuration - thirdActual.minDuration, accuracy: 0.01)
     }
     
