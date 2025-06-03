@@ -1,11 +1,10 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
-#import "SentryFrameRemover.h"
 #import "SentryInAppLogic.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
-#import "SentryStacktrace.h"
+#import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
 
 #if TARGET_OS_OSX
@@ -52,13 +51,7 @@
                                   sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry]];
         }];
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
-
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-
-    sentryThread.stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
-                                                             registers:@{}];
+    sentryThread.stacktrace = [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 
     return @[ sentryThread ];
 }
