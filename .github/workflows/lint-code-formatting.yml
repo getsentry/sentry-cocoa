@@ -21,7 +21,7 @@ on:
 jobs:
   format-code:
     name: Check Formatting of Swiftlint and Clang Format
-    runs-on: macos-15
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - run: swiftlint --version
