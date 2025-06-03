@@ -28,6 +28,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *basePath;
 @property (nonatomic, readonly) NSString *sentryPath;
+
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePathTwo;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
@@ -67,6 +68,12 @@ SENTRY_NO_INIT
  * Only used for teting.
  */
 - (void)deleteAllEnvelopes;
+
+#pragma mark - Convenience Accessors
+- (NSURL *)getSentryPathAsURL;
+
+#pragma mark - State
+- (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath;
 
 #pragma mark - Session
 - (void)storeCurrentSession:(SentrySession *)session;
@@ -114,6 +121,9 @@ SENTRY_NO_INIT
 - (void)removeFileAtPath:(NSString *)path;
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 - (BOOL)isDirectory:(NSString *)path;
+- (nullable NSData *)readDataFromPath:(NSString *)path
+                                error:(NSError *__autoreleasing _Nullable *)error;
+- (BOOL)writeData:(NSData *)data toPath:(NSString *)path;
 
 BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
 

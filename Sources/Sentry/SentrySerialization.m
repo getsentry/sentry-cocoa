@@ -283,12 +283,12 @@ NS_ASSUME_NONNULL_BEGIN
     return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
 }
 
-+ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data
++ (NSDictionary *_Nullable)deserializeDictionaryFromJsonData:(NSData *)data
 {
     NSError *error = nil;
-    NSDictionary *eventDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                    options:0
-                                                                      error:&error];
+    NSDictionary *_Nullable eventDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                              options:0
+                                                                                error:&error];
     if (nil != error) {
         SENTRY_LOG_ERROR(@"Failed to deserialize json item dictionary: %@", error);
     }

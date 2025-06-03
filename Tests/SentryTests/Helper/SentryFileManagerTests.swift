@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -37,8 +37,8 @@ class SentryFileManagerTests: XCTestCase {
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             
             options = Options()
-            options.dsn = TestConstants.dsnAsString(username: "SentryFileManagerTests")
-            
+            options.dsn = TestConstants.dsnForTestCase(type: SentryFileManagerTests.self)
+
             sessionEnvelope = SentryEnvelope(session: session)
             
             let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
@@ -72,7 +72,7 @@ class SentryFileManagerTests: XCTestCase {
             return sut
         }
 
-        func getValidPath() -> String {
+        func getValidDirectoryPath() -> String {
             URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent("SentryTest")
                 .path
@@ -849,8 +849,16 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testReadPreviousBreadcrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<3 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
@@ -871,8 +879,16 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
-        
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor
+        )
+
         for count in 0..<5 {
             let crumb = TestData.crumb
             crumb.message = "\(count)"
@@ -893,7 +909,7 @@ class SentryFileManagerTests: XCTestCase {
     }
     
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())
@@ -1031,7 +1047,7 @@ class SentryFileManagerTests: XCTestCase {
         SentryLog.setLogOutput(logOutput)
         SentryLog.configureLog(true, diagnosticLevel: .debug)
 
-        let path = fixture.getValidPath()
+        let path = fixture.getValidDirectoryPath()
         var error: NSError?
         // -- Act --
         let result = createDirectoryIfNotExists(path, &error)
@@ -1072,6 +1088,53 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(error?.domain, SentryErrorDomain)
         XCTAssertEqual(error?.code, 108)
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
+    }
+
+    func testReadDataFromPath_whenFileExistsAtPath_shouldReadData() throws {
+        // -- Arrange --
+        let dirUrl = URL(fileURLWithPath: fixture.getValidDirectoryPath())
+        let fileUrl = dirUrl.appendingPathComponent("test.file")
+        let data = Data("<TEST DATA>".utf8)
+
+        let fm = FileManager.default
+        try fm.createDirectory(at: dirUrl, withIntermediateDirectories: true)
+        try data.write(to: fileUrl)
+
+        // -- Act --
+        let readData = try sut.readData(fromPath: fileUrl.path)
+
+        // -- Assert --
+        XCTAssertEqual(readData, data)
+    }
+
+    func testReadDataFromPath_whenFileExistsNotAtPath_shouldReturnNil() throws {
+        // -- Arrange --
+        let path = fixture.getInvalidPath()
+
+        // -- Act & Assert --
+        try XCTAssertThrowsError(sut.readData(fromPath: path))
+    }
+
+    func testWriteData_whenSentryPathDirectoryNotExists_shouldCreateDirectory() throws {
+        // -- Arrange --
+        let path = sut.sentryPath.appending("/test.file")
+        let data = Data("<TEST DATA>".utf8)
+
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+
+        // Check pre-conditions
+        let fm = FileManager.default
+        if fm.fileExists(atPath: sut.sentryPath) {
+            try fm.removeItem(atPath: sut.sentryPath)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: sut.sentryPath))
+
+        // -- Act --
+        sut.write(data, toPath: path)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: path))
     }
 }
 
@@ -1302,6 +1365,18 @@ extension SentryFileManagerTests {
             // -- Assert --
             XCTAssertEqual(result, testCase.expected, "Inputs: (isSandboxed: \(testCase.isSandboxed), bundleIdentifier: \(String(describing: testCase.bundleIdentifier)), lastPathComponent: \(String(describing: testCase.lastPathComponent)), expected: \(String(describing: testCase.expected))); Output: \(String(describing: result))")
         }
+    }
+
+    func testGetSentryPathAsURL_whenSentryPathIsValid_shouldReturnUrl() throws {
+        // We only cover the test case when the sentryPath is valid, because the path is built in the file manager's
+        // initializer and therefore the path is always valid to begin with.
+
+        // -- Act --
+        let url = sut.getSentryPathAsURL()
+
+        // -- Assert --
+        XCTAssertEqual(url.scheme, "file")
+        XCTAssertEqual(url.path, sut.sentryPath)
     }
 }
 
