@@ -187,6 +187,7 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryUncaughtNSExceptions.h"
+#import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryWeakMap.h"
 
 #import "Sentry/Sentry-Swift.h"

@@ -36,12 +36,12 @@ extension SentryLevel: CustomStringConvertible {
 }
 
 @objcMembers
-class SentryLevelHelper: NSObject {
-    static func nameForLevel(_  level: SentryLevel) -> String {
+@_spi(Private) public class SentryLevelHelper: NSObject {
+    public static func nameForLevel(_  level: SentryLevel) -> String {
         return level.description
     }
     
-    static func levelForName(_ name: String) -> SentryLevel {
+    public static func levelForName(_ name: String) -> SentryLevel {
         .fromName(name)
     }
 }

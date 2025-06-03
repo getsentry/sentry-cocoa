@@ -6,6 +6,11 @@
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
 
+### Fixes
+
+- Add missing context for watchdog termination events (#5242)
+
+
 ## 8.52.0-beta
 
 ### Features
@@ -15,6 +20,7 @@
 ### Improvements
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
 
 ## 8.51.1
 

@@ -95,7 +95,7 @@ type_name:
     - 2
     - 1
   max_length:
-    warning: 50
-    error: 50
+    warning: 60
+    error: 60
 large_tuple:
   - 3
