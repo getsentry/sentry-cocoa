@@ -2,11 +2,19 @@
 
 ## Unreleased
 
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
 ### Fixes
 
 - Add missing context for watchdog termination events (#5242)
 - Use frame rate for cache max size of session replay (#5341)
-- Use timestamp of screenshot for frames (#5342)
 - Use timestamp of screenshot for frames (#5342)
 - Use frame rate for cache max size of session replay (#5341)
 
