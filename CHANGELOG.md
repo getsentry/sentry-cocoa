@@ -6,6 +6,7 @@
 
 - Add missing context for watchdog termination events (#5242)
 - Use timestamp of screenshot for frames (#5342)
+- Use frame rate for cache max size of session replay (#5341)
 
 ## 8.52.0-beta
 
