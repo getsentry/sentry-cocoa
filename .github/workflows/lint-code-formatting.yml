@@ -32,7 +32,7 @@ jobs:
         run: make format-clang
 
       - name: Format with Swiftlint
-        run: make format-swift-all
+        run: swiftlint --fix
 
       - name: Check for Formatting Changes
         run: |
