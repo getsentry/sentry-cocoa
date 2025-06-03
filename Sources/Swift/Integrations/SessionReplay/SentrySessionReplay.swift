@@ -359,7 +359,7 @@ class SentrySessionReplay: NSObject {
         SentryLog.debug("[Session Replay] New frame available, for screen: \(screen ?? "nil")")
         lock.synchronized {
             processingScreenshot = false
-            replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: image, forScreen: screen)
+            replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
         }
     }
 }
