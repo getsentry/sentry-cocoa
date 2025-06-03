@@ -10,7 +10,7 @@ coverage:
   round: down
 
 ignore:
-  - "Tests/*"
+  - "Tests/**"
 
 comment:
   layout: "reach,diff,flags,files,footer"
