@@ -231,8 +231,7 @@ static SentryTouchTracker *_touchTracker;
     SentryOnDemandReplay *resumeReplayMaker =
         [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
                                           processingQueue:_replayProcessingQueue
-                                         assetWorkerQueue:_replayAssetWorkerQueue
-                                             dateProvider:_dateProvider];
+                                         assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
     resumeReplayMaker.frameRate = _replayOptions.frameRate;
@@ -380,8 +379,7 @@ static SentryTouchTracker *_touchTracker;
     SentryOnDemandReplay *replayMaker =
         [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
                                          processingQueue:_replayProcessingQueue
-                                        assetWorkerQueue:_replayAssetWorkerQueue
-                                            dateProvider:_dateProvider];
+                                        assetWorkerQueue:_replayAssetWorkerQueue];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
     replayMaker.frameRate = replayOptions.frameRate;
