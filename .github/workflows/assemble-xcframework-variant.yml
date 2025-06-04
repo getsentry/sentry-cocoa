@@ -20,6 +20,7 @@ on:
       variant-id:
         description: |-
           The ID of the variant to build an XCFramework slice for. Used to collect appropriate slices for final deliverable assembly.
+          E.g. "sentry-static", "sentry-dynamic" or "sentry-withoutuikit-dynamic"
         required: true
         type: string
 
@@ -41,7 +42,7 @@ jobs:
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}${{inputs.suffix}}"
         shell: bash
 
-      - name: Archive XCFramework
+      - name: Upload XCFramework
         uses: actions/upload-artifact@v4
         with:
           name: xcframework-${{github.sha}}-${{inputs.variant-id}}

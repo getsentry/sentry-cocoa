@@ -81,7 +81,7 @@ jobs:
           find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
-      - name: Archiving xcarchive
+      - name: Upload xcarchive
         uses: actions/upload-artifact@v4
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
@@ -91,7 +91,7 @@ jobs:
             ${{github.workspace}}/Carthage/DerivedData/Build/Products/${{inputs.name}}${{inputs.suffix}}.framework
             ${{github.workspace}}/Carthage/DerivedData/Build/Products/${{inputs.name}}${{inputs.suffix}}.framework.dSYM
 
-      - name: Archive build log if failed
+      - name: Upload build log if failed
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
