@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;
 
++ (BOOL)writeEnvelope:(SentryEnvelope *)envelope toPath:(NSString *)path;
+
 @end
 
 NS_ASSUME_NONNULL_END

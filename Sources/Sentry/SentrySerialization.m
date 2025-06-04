@@ -35,25 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
 {
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    if (nil != envelope.header.eventId) {
-        [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
-    }
-
-    SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
-    if (nil != sdkInfo) {
-        [serializedData setValue:[sdkInfo serialize] forKey:@"sdk"];
-    }
-
-    SentryTraceContext *traceContext = envelope.header.traceContext;
-    if (traceContext != nil) {
-        [serializedData setValue:[traceContext serialize] forKey:@"trace"];
-    }
-
-    NSDate *sentAt = envelope.header.sentAt;
-    if (sentAt != nil) {
-        [serializedData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
-    }
+    NSMutableDictionary *serializedData = [self buildEnvelopeSerialized:envelope];
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
@@ -308,6 +290,78 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return sentryLevelForString(eventDictionary[@"level"]);
+}
+
++ (BOOL)writeObject:(id)jsonObject toStream:(NSOutputStream *)stream
+{
+    NSError *error = nil;
+    @autoreleasepool {
+        [NSJSONSerialization writeJSONObject:jsonObject toStream:stream options:0 error:&error];
+    }
+
+    if (error) {
+        SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
+        return NO;
+    }
+
+    return YES;
+}
+
++ (NSMutableDictionary *)buildEnvelopeSerialized:(SentryEnvelope *_Nonnull)envelope
+{
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    if (nil != envelope.header.eventId) {
+        [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
+    }
+
+    SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
+    if (nil != sdkInfo) {
+        [serializedData setValue:[sdkInfo serialize] forKey:@"sdk"];
+    }
+
+    SentryTraceContext *traceContext = envelope.header.traceContext;
+    if (traceContext != nil) {
+        [serializedData setValue:[traceContext serialize] forKey:@"trace"];
+    }
+
+    NSDate *sentAt = envelope.header.sentAt;
+    if (sentAt != nil) {
+        [serializedData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
+    }
+    return serializedData;
+}
+
++ (BOOL)writeEnvelope:(SentryEnvelope *)envelope toPath:(NSString *)path
+{
+    NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:path append:NO];
+    [outputStream open];
+
+    NSMutableDictionary *serializedData = [self buildEnvelopeSerialized:envelope];
+    BOOL headerSuccess = [self writeObject:serializedData toStream:outputStream];
+    if (!headerSuccess) {
+        [outputStream close];
+        SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
+        return NO;
+    }
+
+    for (int i = 0; i < envelope.items.count; ++i) {
+        [outputStream write:[@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes maxLength:1];
+
+        NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
+
+        BOOL itemSuccess = [self writeObject:serializedItemHeaderData toStream:outputStream];
+        if (!itemSuccess) {
+            [outputStream close];
+            SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
+            return NO;
+        }
+
+        [outputStream write:[@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes maxLength:1];
+        [outputStream write:envelope.items[i].data.bytes maxLength:envelope.items[i].data.length];
+    }
+
+    [outputStream close];
+    return YES;
 }
 
 @end
