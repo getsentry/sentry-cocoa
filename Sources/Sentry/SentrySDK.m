@@ -26,6 +26,7 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIApplication.h"
 #import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
@@ -697,6 +698,15 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_HAS_UIKIT
+
+/** Only needed for testing */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames
+{
+    return SentryDependencyContainer.sharedInstance.application.relevantViewControllersNames;
+}
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

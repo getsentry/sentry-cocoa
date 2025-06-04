@@ -59,6 +59,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+/** Needed for testing */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames;
+
 @end
 
 NS_ASSUME_NONNULL_END
