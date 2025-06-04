@@ -91,14 +91,11 @@ class SentryUIApplicationTests: XCTestCase {
     
     @available(iOS 13.0, tvOS 13.0, *)
     func test_ApplicationState() {
-        let notificationCenter = TestNSNotificationCenterWrapper()
-        notificationCenter.ignoreRemoveObserver = true
-        SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
-        
         let sut = MockSentryUIApplicationTests()
+        sut.notificationCenterWrapper.ignoreRemoveObserver = true
         XCTAssertEqual(sut.applicationState, .active)
         
-        notificationCenter.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+        sut.notificationCenterWrapper.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
             if name == UIApplication.didEnterBackgroundNotification {
                 sut.perform(selector, with: observer)
             }
@@ -106,7 +103,7 @@ class SentryUIApplicationTests: XCTestCase {
         
         XCTAssertEqual(sut.applicationState, .background)
         
-        notificationCenter.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+        sut.notificationCenterWrapper.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
             if name == UIApplication.didBecomeActiveNotification {
                 sut.perform(selector, with: observer)
             }
@@ -124,9 +121,15 @@ class SentryUIApplicationTests: XCTestCase {
     }
 
     private class MockSentryUIApplicationTests: SentryUIApplication {
-        weak var appDelegate: TestApplicationDelegate?
 
+        var notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        weak var appDelegate: TestApplicationDelegate?
         var scenes: [Any]?
+
+        init() {
+            notificationCenterWrapper = TestNSNotificationCenterWrapper()
+            super.init(notificationCenterWrapper: notificationCenterWrapper, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
 
         override func getDelegate(_ application: UIApplication) -> UIApplicationDelegate? {
             return appDelegate

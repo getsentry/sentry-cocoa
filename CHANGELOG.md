@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Missing debug meta for non fatal events (#5352)
+
 ## 8.52.0
 
 > [!Warning]

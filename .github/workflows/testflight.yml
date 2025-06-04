@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - fix/missing-debug-meta
 
     paths:
       - "Sources/**"

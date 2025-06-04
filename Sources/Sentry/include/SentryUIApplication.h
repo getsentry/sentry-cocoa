@@ -6,6 +6,8 @@
 @class UIScene;
 @class UIWindow;
 @class UIViewController;
+@class SentryNSNotificationCenterWrapper;
+@class SentryDispatchQueueWrapper;
 @protocol UIApplicationDelegate;
 
 typedef NS_ENUM(NSInteger, UIApplicationState);
@@ -16,6 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
  * A helper tool to retrieve informations from the application instance.
  */
 @interface SentryUIApplication : NSObject
+SENTRY_NO_INIT
+
+- (instancetype)
+    initWithNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                 dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 /**
  * Returns the application state available at @c NSApplication.sharedApplication.applicationState

@@ -1,6 +1,6 @@
 #import "SentryUIApplication.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
@@ -10,25 +10,29 @@
 
 @implementation SentryUIApplication {
     UIApplicationState appState;
+    SentryNSNotificationCenterWrapper *_notificationCenterWrapper;
+    SentryDispatchQueueWrapper *_dispatchQueueWrapper;
 }
 
-- (instancetype)init
+- (instancetype)initWithNotificationCenterWrapper:
+                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
+        _notificationCenterWrapper = notificationCenterWrapper;
+        _dispatchQueueWrapper = dispatchQueueWrapper;
 
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(didEnterBackground)
-                   name:UIApplicationDidEnterBackgroundNotification];
+        [_notificationCenterWrapper addObserver:self
+                                       selector:@selector(didEnterBackground)
+                                           name:UIApplicationDidEnterBackgroundNotification];
 
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(didBecomeActive)
-                   name:UIApplicationDidBecomeActiveNotification];
+        [_notificationCenterWrapper addObserver:self
+                                       selector:@selector(didBecomeActive)
+                                           name:UIApplicationDidBecomeActiveNotification];
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+        [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
             self->appState = self.sharedApplication.applicationState;
         }];
     }
@@ -37,7 +41,7 @@
 
 - (void)dealloc
 {
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
+    [_notificationCenterWrapper removeObserver:self];
 }
 
 - (UIApplication *)sharedApplication
@@ -66,7 +70,7 @@
 - (NSArray<UIWindow *> *)windows
 {
     __block NSArray<UIWindow *> *windows = nil;
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+    [_dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
             UIApplication *app = [self sharedApplication];
             NSMutableSet *result = [NSMutableSet set];
@@ -119,11 +123,16 @@
 - (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
     __block NSArray<NSString *> *result = nil;
+    __weak SentryUIApplication *weakSelf = self;
 
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+    [_dispatchQueueWrapper
         dispatchSyncOnMainQueue:^{
-            NSArray<UIViewController *> *viewControllers
-                = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+            if (weakSelf == nil) {
+                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+                return;
+            }
+
+            NSArray<UIViewController *> *viewControllers = weakSelf.relevantViewControllers;
             NSMutableArray *vcsNames =
                 [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
             for (UIViewController *vc in viewControllers) {
