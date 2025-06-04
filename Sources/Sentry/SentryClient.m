@@ -83,9 +83,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
     NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
-                                                           dispatchQueueWrapper:dispatchQueue
-                                                                          error:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc]
+             initWithOptions:options
+        dispatchQueueWrapper:dispatchQueue
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                       error:&error];
     if (error != nil) {
         SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;

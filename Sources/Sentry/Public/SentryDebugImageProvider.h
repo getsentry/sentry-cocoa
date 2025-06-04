@@ -1,8 +1,14 @@
-#import <Foundation/Foundation.h>
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
 
 @class SentryDebugMeta;
 @class SentryFrame;
 @class SentryThread;
+@class SentryBinaryImageCache;
+@protocol SentryCrashBinaryImageProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,8 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @todo This class should be renamed to @c SentryDebugImage in a future version.
  */
 @interface SentryDebugImageProvider : NSObject
+SENTRY_NO_INIT
 
-- (instancetype)init;
+- (instancetype)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider
+                           binaryImageCache:(SentryBinaryImageCache *)binaryImageCache;
 
 /**
  * Returns a list of debug images that are being referenced in the given threads.

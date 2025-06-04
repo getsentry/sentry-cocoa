@@ -59,7 +59,9 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 SENTRY_NO_INIT
 
 /** Init SentryCrash instance with custom base path. */
-- (instancetype)initWithBasePath:(NSString *)basePath NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithBasePath:(NSString *)basePath
+       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+    NS_DESIGNATED_INITIALIZER;
 
 /** Cache directory base path. */
 @property (nonatomic, readwrite, retain) NSString *basePath;

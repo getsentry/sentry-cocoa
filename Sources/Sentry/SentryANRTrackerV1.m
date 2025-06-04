@@ -1,6 +1,5 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentrySwift.h"
@@ -21,6 +20,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
@@ -35,12 +35,14 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
+                           dateProvider:(id<SentryCurrentDateProvider>)dateProvider
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
+        self.dateProvider = dateProvider;
         self.listeners = [NSHashTable weakObjectsHashTable];
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
@@ -75,9 +77,6 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
 
-    id<SentryCurrentDateProvider> dateProvider
-        = SentryDependencyContainer.sharedInstance.dateProvider;
-
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
         @synchronized(threadLock) {
@@ -86,7 +85,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             }
         }
 
-        NSDate *blockDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
+        NSDate *blockDeadline =
+            [[self.dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
 
         atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
 
@@ -114,7 +114,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
         // false positives, we don't report ANRs if the delta is too big.
         NSTimeInterval deltaFromNowToBlockDeadline =
-            [[dateProvider date] timeIntervalSinceDate:blockDeadline];
+            [[self.dateProvider date] timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
             SENTRY_LOG_DEBUG(

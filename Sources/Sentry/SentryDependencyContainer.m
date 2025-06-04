@@ -20,6 +20,7 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
+#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultRateLimits.h>
@@ -141,11 +142,30 @@ static NSObject *sentryDependencyContainerInstanceLock;
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
-        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-        _extraContextProvider = [[SentryExtraContextProvider alloc] init];
+
+        SentryCrashDefaultBinaryImageProvider *provider =
+            [[SentryCrashDefaultBinaryImageProvider alloc] init];
+        _debugImageProvider =
+            [[SentryDebugImageProvider alloc] initWithBinaryImageProvider:provider
+                                                         binaryImageCache:_binaryImageCache];
+
+#if SENTRY_HAS_UIKIT
+        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _application = [[SentryUIApplication alloc] init];
+#endif // SENTRY_HAS_UIKIT
+
+        _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _extraContextProvider = [[SentryExtraContextProvider alloc]
+            initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
+              processInfoWrapper:_processInfoWrapper
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+                   deviceWrapper:_uiDeviceWrapper
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+        ];
+
         _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
         _crashWrapper = [[SentryCrashWrapper alloc] init];
-        _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+
         _sysctlWrapper = [[SentrySysctl alloc] init];
 
         SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
@@ -162,11 +182,6 @@ static NSObject *sentryDependencyContainerInstanceLock;
 #if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
-
-#if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
-        _application = [[SentryUIApplication alloc] init];
-#endif // SENTRY_HAS_UIKIT
     }
     return self;
 }
@@ -175,8 +190,11 @@ static NSObject *sentryDependencyContainerInstanceLock;
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                          error:&error];
+        SentryFileManager *manager =
+            [[SentryFileManager alloc] initWithOptions:SentrySDK.options
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                          dateProvider:self.dateProvider
+                                                 error:&error];
         if (manager == nil) {
             SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
         }
@@ -191,7 +209,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                           crashWrapper:self.crashWrapper
                                            fileManager:self.fileManager
                                   dispatchQueueWrapper:self.dispatchQueueWrapper
-                             notificationCenterWrapper:self.notificationCenterWrapper]);
+                             notificationCenterWrapper:self.notificationCenterWrapper
+                                         sysctlWrapper:self.sysctlWrapper]);
 }
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -210,7 +229,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath
+                    notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
@@ -220,7 +240,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
         [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
                                                 crashWrapper:self.crashWrapper
                                         dispatchQueueWrapper:self.dispatchQueueWrapper
-                                               threadWrapper:self.threadWrapper] asProtocol]);
+                                               threadWrapper:self.threadWrapper
+                                                dateProvider:self.dateProvider] asProtocol]);
 }
 
 #if SENTRY_HAS_UIKIT
@@ -233,7 +254,8 @@ static NSObject *sentryDependencyContainerInstanceLock;
                                                     crashWrapper:self.crashWrapper
                                             dispatchQueueWrapper:self.dispatchQueueWrapper
                                                    threadWrapper:self.threadWrapper
-                                                   framesTracker:self.framesTracker] asProtocol]);
+                                                   framesTracker:self.framesTracker
+                                                    dateProvider:self.dateProvider] asProtocol]);
     } else {
         return [self getANRTracker:timeout];
     }

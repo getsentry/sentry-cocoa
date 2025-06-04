@@ -5,6 +5,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryFileManagerDelegate;
+@protocol SentryCurrentDateProvider;
 
 @class SentryAppState;
 @class SentryDispatchQueueWrapper;
@@ -34,10 +35,9 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;

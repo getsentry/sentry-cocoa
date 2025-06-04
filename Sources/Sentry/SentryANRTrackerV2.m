@@ -26,6 +26,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
@@ -42,6 +43,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker
+                           dateProvider:(id<SentryCurrentDateProvider>)dateProvider
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
@@ -49,6 +51,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
         self.framesTracker = framesTracker;
+        self.dateProvider = dateProvider;
         self.listeners = [NSHashTable weakObjectsHashTable];
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
@@ -77,9 +80,6 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         state = kSentryANRTrackerRunning;
     }
 
-    id<SentryCurrentDateProvider> dateProvider
-        = SentryDependencyContainer.sharedInstance.dateProvider;
-
     BOOL reported = NO;
 
     NSInteger reportThreshold = 5;
@@ -91,7 +91,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     CFTimeInterval appHangStoppedFrameDelayThreshold
         = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2;
 
-    uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
+    uint64_t lastAppHangStoppedSystemTime = self.dateProvider.systemTime - timeoutIntervalInNanos;
     uint64_t lastAppHangStartedSystemTime = 0;
 
     // Canceling the thread can take up to sleepInterval.
@@ -102,7 +102,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             }
         }
 
-        NSDate *sleepDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
+        NSDate *sleepDeadline =
+            [[self.dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
@@ -115,7 +116,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         // an AppHang. If the app gets suspended this thread could sleep and wake up again. To avoid
         // false positives, we don't report AppHangs if the delta is too big.
         NSTimeInterval deltaFromNowToSleepDeadline =
-            [[dateProvider date] timeIntervalSinceDate:sleepDeadline];
+            [[self.dateProvider date] timeIntervalSinceDate:sleepDeadline];
 
         if (deltaFromNowToSleepDeadline >= self.timeoutInterval) {
             SENTRY_LOG_DEBUG(@"Ignoring App Hang because the delta is too big: %f.",
@@ -123,7 +124,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             continue;
         }
 
-        uint64_t nowSystemTime = dateProvider.systemTime;
+        uint64_t nowSystemTime = self.dateProvider.systemTime;
 
         if (reported) {
 
@@ -158,7 +159,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                     [self ANRStopped:appHangDurationMinimum to:appHangDurationMaximum];
                 }];
 
-                lastAppHangStoppedSystemTime = dateProvider.systemTime;
+                lastAppHangStoppedSystemTime = self.dateProvider.systemTime;
                 reported = NO;
             }
 
@@ -168,7 +169,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         uint64_t lastAppHangLongEnoughInPastThreshold
             = lastAppHangStoppedSystemTime + timeoutIntervalInNanos;
 
-        if (dateProvider.systemTime < lastAppHangLongEnoughInPastThreshold) {
+        if (self.dateProvider.systemTime < lastAppHangLongEnoughInPastThreshold) {
             SENTRY_LOG_DEBUG(@"Ignoring app hang cause one happened recently.");
             continue;
         }
@@ -192,7 +193,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
             reported = YES;
-            lastAppHangStartedSystemTime = dateProvider.systemTime;
+            lastAppHangStartedSystemTime = self.dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeFullyBlocking];
         }
 
@@ -203,7 +204,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
 
             reported = YES;
-            lastAppHangStartedSystemTime = dateProvider.systemTime;
+            lastAppHangStartedSystemTime = self.dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeNonFullyBlocking];
         }
     }

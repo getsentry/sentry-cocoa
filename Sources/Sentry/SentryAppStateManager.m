@@ -1,5 +1,4 @@
 #import "SentryCrashSysCtl.h"
-#import "SentryDependencyContainer.h"
 #import "SentrySysctl.h"
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
@@ -23,6 +22,7 @@
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic) NSInteger startCount;
 
 @end
@@ -34,6 +34,7 @@
                     fileManager:(SentryFileManager *)fileManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                  sysctlWrapper:(SentrySysctl *)sysctlWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -41,6 +42,7 @@
         self.fileManager = fileManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.notificationCenterWrapper = notificationCenterWrapper;
+        self.sysctlWrapper = sysctlWrapper;
         self.startCount = 0;
     }
     return self;
@@ -184,8 +186,7 @@
                                              osVersion:device.systemVersion
                                               vendorId:vendorId
                                            isDebugging:isDebugging
-                                   systemBootTimestamp:SentryDependencyContainer.sharedInstance
-                                                           .sysctlWrapper.systemBootTimestamp];
+                                   systemBootTimestamp:self.sysctlWrapper.systemBootTimestamp];
 }
 
 - (SentryAppState *)loadPreviousAppState

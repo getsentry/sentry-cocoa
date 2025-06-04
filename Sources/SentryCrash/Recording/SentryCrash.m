@@ -37,7 +37,6 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalCDefines.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <SentryNSDataUtils.h>
@@ -59,6 +58,7 @@
 @property (nonatomic, readwrite, retain) NSString *bundleName;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
 @property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 
 - (NSString *)getBundleName;
 
@@ -88,10 +88,12 @@
 // ============================================================================
 
 - (instancetype)initWithBasePath:(NSString *)basePath
+       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if ((self = [super init])) {
         self.bundleName = [self getBundleName];
         self.basePath = basePath;
+        self.notificationCenterWrapper = notificationCenterWrapper;
         self.deleteBehaviorAfterSendAll = SentryCrashCDeleteAlways;
         self.introspectMemory = YES;
         self.maxReportCount = 5;
@@ -238,8 +240,7 @@
     }
 
 #if SENTRY_HAS_UIKIT
-    SentryNSNotificationCenterWrapper *notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    SentryNSNotificationCenterWrapper *notificationCenter = self.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:UIApplicationDidBecomeActiveNotification];
@@ -257,8 +258,7 @@
                                name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    SentryNSNotificationCenterWrapper *notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    SentryNSNotificationCenterWrapper *notificationCenter = self.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:NSExtensionHostDidBecomeActiveNotification];
@@ -285,8 +285,7 @@
     sentrycrash_uninstall();
 
 #if SENTRY_HAS_UIKIT
-    SentryNSNotificationCenterWrapper *notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    SentryNSNotificationCenterWrapper *notificationCenter = self.notificationCenterWrapper;
     [notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification];
     [notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification];
     [notificationCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification];
@@ -294,8 +293,7 @@
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    SentryNSNotificationCenterWrapper *notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    SentryNSNotificationCenterWrapper *notificationCenter = self.notificationCenterWrapper;
     [notificationCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification];
     [notificationCenter removeObserver:self name:NSExtensionHostWillResignActiveNotification];
     [notificationCenter removeObserver:self name:NSExtensionHostDidEnterBackgroundNotification];

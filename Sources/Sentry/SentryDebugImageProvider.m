@@ -4,7 +4,6 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -24,19 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDebugImageProvider
 
-- (instancetype)init
-{
-    SentryCrashDefaultBinaryImageProvider *provider =
-        [[SentryCrashDefaultBinaryImageProvider alloc] init];
-
-    self = [self
-        initWithBinaryImageProvider:provider
-                   binaryImageCache:SentryDependencyContainer.sharedInstance.binaryImageCache];
-
-    return self;
-}
-
-/** Internal constructor for testing */
 - (instancetype)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider
                            binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {

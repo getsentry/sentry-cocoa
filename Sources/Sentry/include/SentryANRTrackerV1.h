@@ -5,6 +5,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @protocol SentryANRTracker;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,7 +28,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                          threadWrapper:(SentryThreadWrapper *)threadWrapper;
+                          threadWrapper:(SentryThreadWrapper *)threadWrapper
+                           dateProvider:(id<SentryCurrentDateProvider>)dateProvider;
 
 - (id<SentryANRTracker>)asProtocol;
 

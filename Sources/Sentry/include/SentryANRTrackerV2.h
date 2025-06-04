@@ -7,6 +7,7 @@
 @class SentryThreadWrapper;
 @class SentryFramesTracker;
 @protocol SentryANRTracker;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,7 +28,8 @@ SENTRY_NO_INIT
                            crashWrapper:(SentryCrashWrapper *)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
-                          framesTracker:(SentryFramesTracker *)framesTracker;
+                          framesTracker:(SentryFramesTracker *)framesTracker
+                           dateProvider:(id<SentryCurrentDateProvider>)dateProvider;
 
 - (id<SentryANRTracker>)asProtocol;
 

@@ -6,6 +6,7 @@
 @class SentryFileManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryOptions;
+@class SentrySysctl;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +19,8 @@ SENTRY_NO_INIT
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
+      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                  sysctlWrapper:(SentrySysctl *)sysctlWrapper;
 
 #if SENTRY_HAS_UIKIT
 
