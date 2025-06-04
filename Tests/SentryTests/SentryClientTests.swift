@@ -68,11 +68,11 @@ class SentryClientTest: XCTestCase {
             
             debugImageProvider.debugImages = [TestData.debugImage]
 
-            #if os(iOS) || targetEnvironment(macCatalyst)
-            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
-#endif // os(iOS) || targetEnvironment(macCatalyst)
-            
+#if os(iOS) || targetEnvironment(macCatalyst)
+            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
+            #else
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
@@ -2284,6 +2284,10 @@ private extension SentryClientTest {
     
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         override func relevantViewControllers() -> [UIViewController] {
             return [ClientTestViewController()]
         }
