@@ -79,9 +79,29 @@ static SentryCrashAddressPair *g_cxa_originals = NULL;
 static size_t g_cxa_originals_capacity = 0;
 static size_t g_cxa_originals_count = 0;
 
+static uintptr_t
+findAddress(uintptr_t address)
+{
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Finding address for %p", address);
+
+    for (size_t i = 0; i < g_cxa_originals_count; i++) {
+        if (g_cxa_originals[i].image == address) {
+            return g_cxa_originals[i].function;
+        }
+    }
+    SENTRY_ASYNC_SAFE_LOG_WARN("Address %p not found", address);
+    return (uintptr_t)NULL;
+}
+
 static void
 addPair(SentryCrashAddressPair pair)
 {
+    uintptr_t function = findAddress(pair.image);
+    if (function != (uintptr_t)NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not adding twice.");
+        return;
+    }
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Adding address pair: image=%p, function=%p", (void *)pair.image, (void *)pair.function);
 
@@ -96,39 +116,6 @@ addPair(SentryCrashAddressPair pair)
         }
     }
     memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair, sizeof(SentryCrashAddressPair));
-}
-
-// static void
-// sentrycrashct_clear_pairs(void)
-//{
-//     SENTRY_ASYNC_SAFE_LOG_TRACE("Clearing all stored pairs");
-//
-//     if (g_cxa_originals == NULL) {
-//         SENTRY_ASYNC_SAFE_LOG_WARN("g_cxa_originals is NULL, nothing to clear");
-//         return;
-//     }
-//
-//     // Free the allocated memory
-//     free(g_cxa_originals);
-//     g_cxa_originals = NULL;
-//     g_cxa_originals_count = 0;
-//     g_cxa_originals_capacity = 0;
-//
-//     SENTRY_ASYNC_SAFE_LOG_TRACE("Freed memory for stored pairs");
-// }
-
-static uintptr_t
-findAddress(void *address)
-{
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Finding address for %p", address);
-
-    for (size_t i = 0; i < g_cxa_originals_count; i++) {
-        if (g_cxa_originals[i].image == (uintptr_t)address) {
-            return g_cxa_originals[i].function;
-        }
-    }
-    SENTRY_ASYNC_SAFE_LOG_WARN("Address %p not found", address);
-    return (uintptr_t)NULL;
 }
 
 static void
@@ -166,7 +153,7 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
         return;
     }
 
-    uintptr_t function = findAddress(info.dli_fbase);
+    uintptr_t function = findAddress((uintptr_t)info.dli_fbase);
     if (function == (uintptr_t)NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
             "Can't find original cxa_throw for the image of the throwsite.");
@@ -227,7 +214,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
                         (void *)indirect_symbol_bindings[i]);
                 } else {
                     // Unswapping: Restore original handler
-                    uintptr_t original_function = findAddress(info.dli_fbase);
+                    uintptr_t original_function = findAddress((uintptr_t)info.dli_fbase);
                     if (original_function != (uintptr_t)NULL) {
                         indirect_symbol_bindings[i] = (void *)original_function;
                         SENTRY_ASYNC_SAFE_LOG_TRACE("Restored original __cxa_throw function at %p",
@@ -392,29 +379,30 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
 int
 sentrycrashct_unswap_cxa_throw(void)
 {
-    //    if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0)
-    //    {
-    //        SENTRY_ASYNC_SAFE_LOG_INFO("No original __cxa_throw handlers to restore");
-    //        return -1;
-    //    }
-    //
-    //    SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
-    //
-    //    // Call _dyld_image_count inside the loop in case images get loaded or unloaded while
-    //    iterating. for (uint32_t i = 0; i < _dyld_image_count(); i++) {
-    //        const struct mach_header *header = _dyld_get_image_header(i);
-    //        intptr_t slide = _dyld_get_image_vmaddr_slide(i);
-    //
-    //        if (header == NULL || slide == 0) {
-    //            continue;
-    //        }
-    //
-    //        rebind_symbols_for_image(header, slide, false);
-    //    }
-    //
-    //    sentrycrashct_clear_pairs();
-    //    g_cxa_throw_handler = NULL;
-    //
+    if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0) {
+        SENTRY_ASYNC_SAFE_LOG_INFO("No original __cxa_throw handlers to restore");
+        return -1;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
+
+    // Call _dyld_image_count inside the loop in case images get loaded or unloaded while
+    // iterating.
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        intptr_t slide = _dyld_get_image_vmaddr_slide(i);
+
+        if (header == NULL || slide == 0) {
+            continue;
+        }
+
+        rebind_symbols_for_image(header, slide, false);
+    }
+
+    // We don't clear the pairs because a if we can't unswap one of the cxa_throw handlers, we still
+    // need to call the original.
+    g_cxa_throw_handler = NULL;
+
     return 0;
 }
 
