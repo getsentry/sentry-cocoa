@@ -87,7 +87,7 @@ jobs:
 
       - name: Run Maestro Flows
         run: |
-          maestro test TestSamples/SwiftUITestSample/Maestro 
+          maestro test TestSamples/SwiftUITestSample/Maestro
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
