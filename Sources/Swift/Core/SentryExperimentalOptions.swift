@@ -27,6 +27,6 @@ public class SentryExperimentalOptions: NSObject {
     ///
     public var enableUnhandledCPPExceptionsV2 = false
 
-    func validateOptions(_ options: [String: Any]?) {
+    @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

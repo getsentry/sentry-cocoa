@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 final class SentryANRTypeTests: XCTestCase {
