@@ -6,6 +6,10 @@
 
 - Missing debug meta for non fatal events (#5352)
 
+### Improvements
+
+- Memory footprint decrese when serializing envelopes (#5360)
+
 ## 8.52.0
 
 > [!Warning]
