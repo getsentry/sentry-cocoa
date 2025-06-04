@@ -621,6 +621,80 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(envelope.items.count, deserializedEnvelope.items.count)
     }
     
+    func testEnvelopeToPath_InvalidEnvelopeHeaderJSON_ReturnsFalse_NoFileExists() {
+        // Arrange
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [])
+        let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+        let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
+        
+        // Act
+        let success = SentrySerialization.write(envelope, toPath: fileURL.path)
+        
+        // Assert
+        XCTAssertFalse(success)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+    
+    func testEnvelopeToPath_InvalidEnvelopeItemHeaderJSON_ReturnsFalse_NoFileExists() throws {
+        // Arrange
+        let envelopeItemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
+        let envelopeItem = SentryEnvelopeItem(header: envelopeItemHeader, data: Data())
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+        let envelope = SentryEnvelope(header: SentryEnvelopeHeader(id: SentryId()), singleItem: envelopeItem)
+        
+        // Act
+        let success = SentrySerialization.write(envelope, toPath: fileURL.path)
+        
+        // Assert
+        XCTAssertFalse(success)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+    
+    func testEnvelopeToPath_WithSingleEvent() throws {
+        // Arrange
+        let event = Event()
+        
+        let item = SentryEnvelopeItem(event: event)
+        let envelope = SentryEnvelope(id: event.eventId, singleItem: item)
+        envelope.header.sentAt = Date(timeIntervalSince1970: 9_001)
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+        
+        // Sanity check
+        XCTAssertEqual(event.eventId, envelope.header.eventId)
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
+        
+        // Act
+        let success = SentrySerialization.write(envelope, toPath: fileURL.path)
+        
+        // Assert
+        XCTAssertTrue(success)
+        
+        let data = try XCTUnwrap(FileManager.default.contents(atPath: fileURL.path))
+        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: data))
+        XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId)
+        assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+        XCTAssertEqual(1, deserializedEnvelope.items.count)
+        XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
+        XCTAssertEqual(try XCTUnwrap(envelope.items.first).header.length, try XCTUnwrap(deserializedEnvelope.items.first).header.length)
+        XCTAssertEqual(try XCTUnwrap(envelope.items.first).data, try XCTUnwrap(deserializedEnvelope.items.first).data)
+        XCTAssertNil(deserializedEnvelope.header.traceContext)
+        XCTAssertEqual(Date(timeIntervalSince1970: 9_001), deserializedEnvelope.header.sentAt)
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {

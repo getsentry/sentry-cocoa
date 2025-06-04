@@ -341,6 +341,7 @@ NS_ASSUME_NONNULL_BEGIN
     BOOL headerSuccess = [self writeObject:serializedData toStream:outputStream];
     if (!headerSuccess) {
         [outputStream close];
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
         return NO;
     }
@@ -353,6 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
         BOOL itemSuccess = [self writeObject:serializedItemHeaderData toStream:outputStream];
         if (!itemSuccess) {
             [outputStream close];
+            [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
             return NO;
         }
