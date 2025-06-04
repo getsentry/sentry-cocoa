@@ -385,9 +385,10 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    // SentryDebugImageProvider is public, so we can't initialize the dependency initialize cause
-    // the SentryDebugImageProvider.init uses the SentryDependencyContainer, which doesn't work
-    // because of a chicken egg problem. For more information check `sharedInstance`.
+    // SentryDebugImageProvider is public, so we can't initialize the dependency in
+    // SentryDependencyInitialize because the SentryDebugImageProvider.init uses the
+    // SentryDependencyContainer, which doesn't work because of a chicken egg problem. For more
+    // information check SentryDebugImageProvider.sharedInstance.
     SENTRY_LAZY_INIT(_debugImageProvider, [[SentryDebugImageProvider alloc] init]);
 }
 
