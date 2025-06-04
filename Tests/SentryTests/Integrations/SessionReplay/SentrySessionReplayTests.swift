@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -56,9 +56,11 @@ class SentrySessionReplayTests: XCTestCase {
             createVideoCallBack?(videoInfo)
             return [videoInfo]
         }
-        
+
+        var lastFrameTimestamp: Date?
         var lastFrame: UIImage?
-        func addFrameAsync(image: UIImage, forScreen: String?) {
+        func addFrameAsync(timestamp: Date, image: UIImage, forScreen: String?) {
+            lastFrameTimestamp = timestamp
             lastFrame = image
             guard let forScreen = forScreen else { return }
             screens.append(forScreen)

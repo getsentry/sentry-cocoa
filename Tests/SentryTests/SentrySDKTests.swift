@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -891,14 +891,20 @@ class SentrySDKTests: XCTestCase {
 
     }
 
-#if SENTRY_HAS_UIKIT
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testSetAppStartMeasurementConcurrently() {
+        let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
-                let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval( TimeInterval(i))
-                let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, appStartTimestamp: timestamp)
+                let appStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(i))
+                let appStartMeasurement = TestData.getAppStartMeasurement(
+                    type: .warm,
+                    appStartTimestamp: appStartTimestamp,
+                    runtimeInitSystemTimestamp: UInt64(runtimeInitSystemTimestamp.timeIntervalSince1970)
+                )
                 SentrySDK.setAppStartMeasurement(appStartMeasurement)
                 group.leave()
             }
@@ -927,12 +933,19 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
 
-    func testMovesBreadcrumbsToPreviousBreadcrumbs() {
+    func testMovesBreadcrumbsToPreviousBreadcrumbs() throws {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let fileManager = try! TestFileManager(options: options)
-        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
+        let fileManager = try TestFileManager(options: options)
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeContextStore: scopeContextStore
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -945,7 +958,49 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 3)
     }
 
-#endif // SENTRY_HAS_UIKIT
+    func testStartWithOptions_shouldMoveCurrentContextFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeContextStore: scopeContextStore
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
+        observer.setContext([
+            "a": ["b": "c"]
+        ])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setContext completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous context file if it exists
+        scopeContextStore.deletePreviousContextOnDisk()
+        // Sanity-check for the pre-condition
+        let previousContext = scopeContextStore.readPreviousContextFromDisk()
+        XCTAssertNil(previousContext)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeContextStore.readPreviousContextFromDisk())
+        XCTAssertEqual(result.count, 1)
+        let value = try XCTUnwrap(result["a"] as? [String: String])
+        XCTAssertEqual(value["b"], "c")
+    }
+
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 private extension SentrySDKTests {
@@ -1019,33 +1074,30 @@ private extension SentrySDKTests {
 class SentrySDKWithSetupTests: XCTestCase {
 
     func testAccessingHubAndOptions_NoDeadlock() {
-        SentryLog.withoutLogs {
+        let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
 
-            let concurrentQueue = DispatchQueue(label: "concurrent", attributes: .concurrent)
+        let expectation = expectation(description: "no deadlock")
+        expectation.expectedFulfillmentCount = 20
 
-            let expectation = expectation(description: "no deadlock")
-            expectation.expectedFulfillmentCount = 20
+        SentrySDK.setStart(Options())
 
-            SentrySDK.setStart(Options())
+        for _ in 0..<10 {
+            concurrentQueue.async {
+                SentrySDK.currentHub().capture(message: "mess")
+                SentrySDK.setCurrentHub(nil)
 
-            for _ in 0..<10 {
-                concurrentQueue.async {
-                    SentrySDK.currentHub().capture(message: "mess")
-                    SentrySDK.setCurrentHub(nil)
-
-                    expectation.fulfill()
-                }
-
-                concurrentQueue.async {
-                    let hub = SentryHub(client: nil, andScope: nil)
-                    XCTAssertNotNil(hub)
-
-                    expectation.fulfill()
-                }
+                expectation.fulfill()
             }
 
-            wait(for: [expectation], timeout: 5.0)
+            concurrentQueue.async {
+                let hub = SentryHub(client: nil, andScope: nil)
+                XCTAssertNotNil(hub)
+
+                expectation.fulfill()
+            }
         }
+
+        wait(for: [expectation], timeout: 5.0)
     }
 }
 

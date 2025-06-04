@@ -21,6 +21,6 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableFileManagerSwizzling = false
 
-    func validateOptions(_ options: [String: Any]?) {
+    @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

@@ -25,7 +25,6 @@ init-ci-deploy:
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
-	rbenv install --skip-existing
 
 .PHONY: update-versions
 update-versions:
@@ -35,14 +34,26 @@ update-versions:
 check-versions:
 	./scripts/check-tooling-versions.sh
 
-lint:
+define run-lint-tools
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint --strict
+	swiftlint --strict $(1)
 	dprint check "**/*.{md,json,yaml,yml}"
+endef
+
+# Get staged Swift files
+STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
+
+lint:
+# calling run-lint-tools with no arguments will run swift lint on all files
+	$(call run-lint-tools)
 .PHONY: lint
 
-format: format-clang format-swift format-markdown format-json format-yaml
+lint-staged:
+	$(call run-lint-tools,$(STAGED_SWIFT_FILES))
+.PHONY: lint-staged
+
+format: format-clang format-swift-all format-markdown format-json format-yaml
 
 # Format ObjC, ObjC++, C, and C++
 format-clang:
@@ -50,9 +61,16 @@ format-clang:
 		! \( -path "**.build/*" -or -path "**Build/*" -or -path "**/Carthage/Checkouts/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		| xargs clang-format -i -style=file
 
-# Format Swift
-format-swift:
+# Format all Swift files
+format-swift-all:
+	@echo "Running swiftlint --fix on all files"
 	swiftlint --fix
+
+# Format Swift staged files
+.PHONY: format-swift-staged
+format-swift-staged:
+	@echo "Running swiftlint --fix on staged files"
+	swiftlint --fix $(STAGED_SWIFT_FILES)
 
 # Format Markdown
 format-markdown:
@@ -65,6 +83,9 @@ format-json:
 # Format YAML
 format-yaml:
 	dprint fmt "**/*.{yaml,yml}"
+
+generate-public-api:
+	./scripts/update-api.sh
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)

@@ -24,6 +24,13 @@ on:
         required: true
         type: string
 
+      signed:
+        description: |-
+          Whether or not the assembled XCFramework should be signed.
+        required: false
+        type: string
+        default: "--do-not-sign"
+
 jobs:
   assemble-xcframework-variant:
     name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
@@ -40,6 +47,10 @@ jobs:
 
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}${{inputs.suffix}}"
+        shell: bash
+
+      - name: Zip XCFramework
+        run: ./scripts/zip_built_sdks.sh ${{inputs.signed}}
         shell: bash
 
       - name: Upload XCFramework

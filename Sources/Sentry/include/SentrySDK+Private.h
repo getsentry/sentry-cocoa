@@ -59,6 +59,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+#if SENTRY_HAS_UIKIT
+
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames;
+
+#endif // SENTRY_HAS_UIKIT
+
 @end
 
 NS_ASSUME_NONNULL_END

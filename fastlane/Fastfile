@@ -9,6 +9,16 @@ platform :ios do
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
 
+  lane :prepare_xcframework_signing do
+    setup_ci
+
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift"], # Any app identifier will do
+    )
+  end
+
   lane :bump_build_number do
     increment_build_number(
       build_number: ENV["FASTLANE_BUILD_NUMBER"],

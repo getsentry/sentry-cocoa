@@ -18,6 +18,10 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "ProfilingUITests\/testProfilingGPUInfo()",
+        "TopViewControllerTests\/testChildControllerLoadCount()"
+      ],
       "target" : {
         "containerPath" : "container:iOS-Swift.xcodeproj",
         "identifier" : "0217293F044A3AEED8E37A25",

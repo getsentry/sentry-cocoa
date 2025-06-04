@@ -15,6 +15,15 @@ on:
         required: false
 
 jobs:
+
+  bump-version:
+    runs-on: macos-15
+    steps:
+      - name: Bump version
+        run: |
+          ./scripts/ci-select-xcode.sh 15.2
+          make bump-version TO=${{ github.event.inputs.version }}
+
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
@@ -46,6 +55,7 @@ jobs:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
       variant-id: ${{matrix.variant.id}}
+      signed: "--sign"
     strategy:
       matrix:
         variant:

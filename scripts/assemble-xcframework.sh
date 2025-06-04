@@ -23,5 +23,3 @@ done
 xcodebuild_cmd+=" -output \"$xcframework_name.xcframework\""
 
 eval "$xcodebuild_cmd"
-
-ditto -c -k -X --rsrc --keepParent "$xcframework_name.xcframework" "$xcframework_name.xcframework.zip"
