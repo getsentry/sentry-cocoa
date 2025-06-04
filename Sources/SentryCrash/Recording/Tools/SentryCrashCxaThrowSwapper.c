@@ -101,13 +101,13 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
     if (originalCxaThrowFunction != (uintptr_t)NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Already added address pair with image with base address: %p, "
                                     "and originalCxaThrowFunction: %p",
-            (void *)pair.image, (void *)pair.function);
+            (void *)pair.cxa_throw_original_function, (void *)pair.cxa_throw_original_function);
         return;
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Adding pair for image with base address: %p, and originalCxaThrowFunction: %p",
-        (void *)pair.image, (void *)pair.cxa_throw_original_function);
+        (void *)pair.cxa_throw_original_function, (void *)pair.cxa_throw_original_function);
 
     if (g_cxa_originals_count == g_cxa_originals_capacity) {
         g_cxa_originals_capacity *= 2;
