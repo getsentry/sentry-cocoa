@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
 ## 8.52.0
 
 ### Features
@@ -10,10 +16,6 @@
 
 - Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
 - Redact React Native text and images by default without the RN SDK (#5302)
-
-### Features
-
-- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
 
 ### Fixes
 
