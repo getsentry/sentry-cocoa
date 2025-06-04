@@ -71,6 +71,7 @@ repos:
         types_or: [json]
         entry: dprint
         language: system
+        exclude: ^sdk_api.json$
         args:
           - "fmt"
 
