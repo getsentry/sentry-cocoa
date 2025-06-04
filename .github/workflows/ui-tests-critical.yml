@@ -87,7 +87,7 @@ jobs:
 
       - name: Run Maestro Flows
         run: |
-          maestro test TestSamples/SwiftUITestSample/Maestro
+          maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
