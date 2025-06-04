@@ -98,24 +98,24 @@ addPair(SentryCrashAddressPair pair)
     memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair, sizeof(SentryCrashAddressPair));
 }
 
-static void
-sentrycrashct_clear_pairs(void)
-{
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Clearing all stored pairs");
-
-    if (g_cxa_originals == NULL) {
-        SENTRY_ASYNC_SAFE_LOG_WARN("g_cxa_originals is NULL, nothing to clear");
-        return;
-    }
-
-    // Free the allocated memory
-    free(g_cxa_originals);
-    g_cxa_originals = NULL;
-    g_cxa_originals_count = 0;
-    g_cxa_originals_capacity = 0;
-
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Freed memory for stored pairs");
-}
+// static void
+// sentrycrashct_clear_pairs(void)
+//{
+//     SENTRY_ASYNC_SAFE_LOG_TRACE("Clearing all stored pairs");
+//
+//     if (g_cxa_originals == NULL) {
+//         SENTRY_ASYNC_SAFE_LOG_WARN("g_cxa_originals is NULL, nothing to clear");
+//         return;
+//     }
+//
+//     // Free the allocated memory
+//     free(g_cxa_originals);
+//     g_cxa_originals = NULL;
+//     g_cxa_originals_count = 0;
+//     g_cxa_originals_capacity = 0;
+//
+//     SENTRY_ASYNC_SAFE_LOG_TRACE("Freed memory for stored pairs");
+// }
 
 static uintptr_t
 findAddress(void *address)
@@ -392,28 +392,29 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
 int
 sentrycrashct_unswap_cxa_throw(void)
 {
-    if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0) {
-        SENTRY_ASYNC_SAFE_LOG_INFO("No original __cxa_throw handlers to restore");
-        return -1;
-    }
-
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
-
-    // Call _dyld_image_count inside the loop in case images get loaded or unloaded while iterating.
-    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
-        const struct mach_header *header = _dyld_get_image_header(i);
-        intptr_t slide = _dyld_get_image_vmaddr_slide(i);
-
-        if (header == NULL || slide == 0) {
-            continue;
-        }
-
-        rebind_symbols_for_image(header, slide, false);
-    }
-
-    sentrycrashct_clear_pairs();
-    g_cxa_throw_handler = NULL;
-
+    //    if (g_cxa_throw_handler == NULL || g_cxa_originals == NULL || g_cxa_originals_count == 0)
+    //    {
+    //        SENTRY_ASYNC_SAFE_LOG_INFO("No original __cxa_throw handlers to restore");
+    //        return -1;
+    //    }
+    //
+    //    SENTRY_ASYNC_SAFE_LOG_TRACE("Unswapping __cxa_throw handler");
+    //
+    //    // Call _dyld_image_count inside the loop in case images get loaded or unloaded while
+    //    iterating. for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+    //        const struct mach_header *header = _dyld_get_image_header(i);
+    //        intptr_t slide = _dyld_get_image_vmaddr_slide(i);
+    //
+    //        if (header == NULL || slide == 0) {
+    //            continue;
+    //        }
+    //
+    //        rebind_symbols_for_image(header, slide, false);
+    //    }
+    //
+    //    sentrycrashct_clear_pairs();
+    //    g_cxa_throw_handler = NULL;
+    //
     return 0;
 }
 
