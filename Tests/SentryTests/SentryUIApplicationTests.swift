@@ -122,7 +122,8 @@ class SentryUIApplicationTests: XCTestCase {
 
     private class MockSentryUIApplicationTests: SentryUIApplication {
 
-        var notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let notificationCenterWrapper: TestNSNotificationCenterWrapper
+
         weak var appDelegate: TestApplicationDelegate?
         var scenes: [Any]?
 

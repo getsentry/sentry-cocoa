@@ -8,40 +8,44 @@
 
 #    import <UIKit/UIKit.h>
 
-@implementation SentryUIApplication {
-    UIApplicationState appState;
-    SentryNSNotificationCenterWrapper *_notificationCenterWrapper;
-    SentryDispatchQueueWrapper *_dispatchQueueWrapper;
-}
+@interface SentryUIApplication ()
+
+@property (nonatomic, assign) UIApplicationState appState;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+@end
+
+@implementation SentryUIApplication
 
 - (instancetype)initWithNotificationCenterWrapper:
                     (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
                              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        _notificationCenterWrapper = notificationCenterWrapper;
-        _dispatchQueueWrapper = dispatchQueueWrapper;
+        self.notificationCenterWrapper = notificationCenterWrapper;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
 
-        [_notificationCenterWrapper addObserver:self
-                                       selector:@selector(didEnterBackground)
-                                           name:UIApplicationDidEnterBackgroundNotification];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(didEnterBackground)
+                                               name:UIApplicationDidEnterBackgroundNotification];
 
-        [_notificationCenterWrapper addObserver:self
-                                       selector:@selector(didBecomeActive)
-                                           name:UIApplicationDidBecomeActiveNotification];
+        [self.notificationCenterWrapper addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:UIApplicationDidBecomeActiveNotification];
+
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
         // this way we avoid calling sharedApplication in a background thread
-        [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-            self->appState = self.sharedApplication.applicationState;
-        }];
+        [self.dispatchQueueWrapper
+            dispatchAsyncOnMainQueue:^{ self.appState = self.sharedApplication.applicationState; }];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [_notificationCenterWrapper removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 - (UIApplication *)sharedApplication
@@ -252,17 +256,17 @@
 
 - (UIApplicationState)applicationState
 {
-    return appState;
+    return self.appState;
 }
 
 - (void)didEnterBackground
 {
-    appState = UIApplicationStateBackground;
+    self.appState = UIApplicationStateBackground;
 }
 
 - (void)didBecomeActive
 {
-    appState = UIApplicationStateActive;
+    self.appState = UIApplicationStateActive;
 }
 
 @end

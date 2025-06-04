@@ -701,7 +701,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #if SENTRY_HAS_UIKIT
 
-/** Only needed for testing */
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
 + (nullable NSArray<NSString *> *)relevantViewControllersNames
 {
     return SentryDependencyContainer.sharedInstance.application.relevantViewControllersNames;
