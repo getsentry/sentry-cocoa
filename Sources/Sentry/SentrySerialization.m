@@ -295,6 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)writeObject:(id)jsonObject toStream:(NSOutputStream *)stream
 {
     NSError *error = nil;
+    // Use an autoreleasepool to release memory as soon as possible
     @autoreleasepool {
         [NSJSONSerialization writeJSONObject:jsonObject toStream:stream options:0 error:&error];
     }
