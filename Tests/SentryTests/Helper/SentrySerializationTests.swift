@@ -593,6 +593,34 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(unserialized)
     }
     
+    func testWriteEnvelopeToPath() throws {
+        // Arrange
+        let event = Event()
+        let item = SentryEnvelopeItem(event: event)
+        let envelope = SentryEnvelope(id: event.eventId, singleItem: item)
+        envelope.header.sentAt = Date(timeIntervalSince1970: 9_001)
+        
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+        
+        // Act
+        let success = SentrySerialization.write(envelope, toPath: fileURL.path)
+        
+        // Assert
+        XCTAssertTrue(success, "Writing envelope to file should succeed")
+        
+        // Double check data
+        let fileData = try Data(contentsOf: fileURL)
+        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: fileData))
+        
+        XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId)
+        XCTAssertEqual(envelope.header.sentAt, deserializedEnvelope.header.sentAt)
+        XCTAssertEqual(envelope.items.count, deserializedEnvelope.items.count)
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
