@@ -7413,7 +7413,7 @@
               "ObjC",
               "Dynamic"
             ],
-            "init_kind": "Convenience"
+            "init_kind": "Designated"
           },
           {
             "kind": "Constructor",
@@ -26457,215 +26457,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryEventDecodable",
-        "printedName": "SentryEventDecodable",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:objc(cs)SentryEventDecodable"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryEvent(im)init",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "implicit": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "Override",
-              "Required",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(level:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:objc(cs)SentryEventDecodable"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLevel",
-                "printedName": "Sentry.SentryLevel",
-                "usr": "c:@M@Sentry@E@SentryLevel"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryEvent(im)initWithLevel:",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "implicit": true,
-            "objc_name": "initWithLevel:",
-            "declAttributes": [
-              "Override",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(error:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:objc(cs)SentryEventDecodable"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Error",
-                "printedName": "any Swift.Error",
-                "usr": "s:s5ErrorP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryEvent(im)initWithError:",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "implicit": true,
-            "objc_name": "initWithError:",
-            "declAttributes": [
-              "Override",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Convenience"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(from:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:objc(cs)SentryEventDecodable"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Decoder",
-                "printedName": "any Swift.Decoder",
-                "usr": "s:s7DecoderP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:So20SentryEventDecodableC0A0E4fromABs7Decoder_p_tKcfc",
-            "mangledName": "$sSo20SentryEventDecodableC0A0E4fromABs7Decoder_p_tKcfc",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Required"
-            ],
-            "isFromExtension": true,
-            "throwing": true,
-            "init_kind": "Convenience"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:objc(cs)SentryEventDecodable",
-        "moduleName": "Sentry",
-        "isOpen": true,
-        "objc_name": "SentryEventDecodable",
-        "declAttributes": [
-          "ObjC",
-          "Dynamic"
-        ],
-        "superclassUsr": "c:objc(cs)SentryEvent",
-        "inheritsConvenienceInitializers": true,
-        "superclassNames": [
-          "Sentry.Event",
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Decodable",
-            "printedName": "Decodable",
-            "usr": "s:Se",
-            "mangledName": "$sSe"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "SentryFeedbackAPI",
         "printedName": "SentryFeedbackAPI",
         "children": [
@@ -44677,6 +44468,150 @@
             "name": "SentrySerializable",
             "printedName": "SentrySerializable",
             "usr": "c:objc(pl)SentrySerializable"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentryEventDecodable",
+        "printedName": "SentryEventDecodable",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryEventDecodable",
+                "printedName": "Sentry.SentryEventDecodable",
+                "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A14EventDecodableC4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s6Sentry0A14EventDecodableC4fromACs7Decoder_p_tKcfc",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Required"
+            ],
+            "throwing": true,
+            "init_kind": "Convenience"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryEventDecodable",
+                "printedName": "Sentry.SentryEventDecodable",
+                "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable(im)init",
+            "mangledName": "$s6Sentry0A14EventDecodableCACycfc",
+            "moduleName": "Sentry",
+            "overriding": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic",
+              "Required"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable",
+        "mangledName": "$s6Sentry0A14EventDecodableC",
+        "moduleName": "Sentry",
+        "isOpen": true,
+        "objc_name": "SentryEventDecodable",
+        "declAttributes": [
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)SentryEvent",
+        "superclassNames": [
+          "Sentry.Event",
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SentrySerializable",
+            "printedName": "SentrySerializable",
+            "usr": "c:objc(pl)SentrySerializable"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
           }
         ]
       },

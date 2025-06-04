@@ -1,7 +1,25 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryEventDecodable: Decodable {
+/**
+ * Subclass of SentryEvent so we can add the Decodable implementation via a Swift extension. We need
+ * this due to our mixed use of public Swift and ObjC classes. We could avoid this class by
+ * converting SentryReplayEvent back to ObjC, but we rather accept this tradeoff as we want to
+ * convert all public classes to Swift in the future. This does not need to be public, but was previously
+ * defined in objc and was public. In the next major version of the SDK we should make it `internal` and `final`
+ * and remove the `@objc` annotation.
+ *
+ * @note: We can’t add the extension for Decodable directly on SentryEvent, because we get an error
+ * in SentryReplayEvent: 'required' initializer 'init(from:)' must be provided by subclass of
+ * 'Event' Once we add the initializer with required convenience public init(from decoder: any
+ * Decoder) throws { fatalError("init(from:) has not been implemented")
+ * }
+ * we get the error initializer 'init(from:)' is declared in extension of 'Event' and cannot be
+ * overridden. Therefore, we add the Decodable implementation not on the Event, but to a subclass of
+ * the event.
+ */
+@objc(SentryEventDecodable)
+open class SentryEventDecodable: Event, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case eventId = "event_id"
