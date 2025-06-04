@@ -68,54 +68,59 @@
 #include "SentryCrashPlatformSpecificDefines.h"
 
 typedef struct {
-    uintptr_t image;
-    uintptr_t function;
-} SentryCrashAddressPair;
+    uintptr_t image_dli_fbase_address;
+    uintptr_t cxa_throw_original_function;
+} SentryCrashImageToOriginalCxaThrowPair;
 
 static cxa_throw_type g_cxa_throw_handler = NULL;
 static const char *const g_cxa_throw_name = "__cxa_throw";
 
-static SentryCrashAddressPair *g_cxa_originals = NULL;
+static SentryCrashImageToOriginalCxaThrowPair *g_cxa_originals = NULL;
 static size_t g_cxa_originals_capacity = 0;
 static size_t g_cxa_originals_count = 0;
 
 static uintptr_t
-findAddress(uintptr_t address)
+findOriginalCxaThrowFunction(uintptr_t image_dli_fbase_address)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Finding address for %p", address);
+    SENTRY_ASYNC_SAFE_LOG_TRACE(
+        "Finding original __cxa_throw for image with base address %p", image_dli_fbase_address);
 
     for (size_t i = 0; i < g_cxa_originals_count; i++) {
-        if (g_cxa_originals[i].image == address) {
-            return g_cxa_originals[i].function;
+        if (g_cxa_originals[i].image_dli_fbase_address == image_dli_fbase_address) {
+            return g_cxa_originals[i].cxa_throw_original_function;
         }
     }
-    SENTRY_ASYNC_SAFE_LOG_WARN("Address %p not found", address);
+    SENTRY_ASYNC_SAFE_LOG_WARN("Address %p not found", image_dli_fbase_address);
     return (uintptr_t)NULL;
 }
 
 static void
-addPair(SentryCrashAddressPair pair)
+addPair(SentryCrashImageToOriginalCxaThrowPair pair)
 {
-    uintptr_t function = findAddress(pair.image);
-    if (function != (uintptr_t)NULL) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not adding twice.");
+    uintptr_t originalCxaThrowFunction = findOriginalCxaThrowFunction(pair.image_dli_fbase_address);
+    if (originalCxaThrowFunction != (uintptr_t)NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Already added address pair with image with base address: %p, "
+                                    "and originalCxaThrowFunction: %p",
+            (void *)pair.image, (void *)pair.function);
         return;
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
-        "Adding address pair: image=%p, function=%p", (void *)pair.image, (void *)pair.function);
+        "Adding pair for image with base address: %p, and originalCxaThrowFunction: %p",
+        (void *)pair.image, (void *)pair.cxa_throw_original_function);
 
     if (g_cxa_originals_count == g_cxa_originals_capacity) {
         g_cxa_originals_capacity *= 2;
-        g_cxa_originals = (SentryCrashAddressPair *)realloc(
-            g_cxa_originals, sizeof(SentryCrashAddressPair) * g_cxa_originals_capacity);
+        g_cxa_originals = (SentryCrashImageToOriginalCxaThrowPair *)realloc(g_cxa_originals,
+            sizeof(SentryCrashImageToOriginalCxaThrowPair) * g_cxa_originals_capacity);
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to realloc memory for g_cxa_originals: %s", strerror(errno));
             return;
         }
     }
-    memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair, sizeof(SentryCrashAddressPair));
+    memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair,
+        sizeof(SentryCrashImageToOriginalCxaThrowPair));
 }
 
 static void
@@ -123,9 +128,9 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 {
     const int k_requiredFrames = 2;
 
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Decorating __cxa_throw");
-
     if (g_cxa_throw_handler != NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Not __cxa_throw decorator, because no g_cxa_throw_handler set.");
         g_cxa_throw_handler(thrown_exception, tinfo, dest);
     }
 
@@ -153,7 +158,7 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
         return;
     }
 
-    uintptr_t function = findAddress((uintptr_t)info.dli_fbase);
+    uintptr_t function = findOriginalCxaThrowFunction((uintptr_t)info.dli_fbase);
     if (function == (uintptr_t)NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
             "Can't find original cxa_throw for the image of the throwsite.");
@@ -206,7 +211,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
             if (dladdr(dataSection, &info) != 0) {
                 if (is_swapping_cxa_throw) {
                     // Swapping: Store original and set new handler
-                    SentryCrashAddressPair pair
+                    SentryCrashImageToOriginalCxaThrowPair pair
                         = { (uintptr_t)info.dli_fbase, (uintptr_t)indirect_symbol_bindings[i] };
                     addPair(pair);
                     indirect_symbol_bindings[i] = (void *)__cxa_throw_decorator;
@@ -214,11 +219,16 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
                         (void *)indirect_symbol_bindings[i]);
                 } else {
                     // Unswapping: Restore original handler
-                    uintptr_t original_function = findAddress((uintptr_t)info.dli_fbase);
+                    uintptr_t original_function
+                        = findOriginalCxaThrowFunction((uintptr_t)info.dli_fbase);
                     if (original_function != (uintptr_t)NULL) {
                         indirect_symbol_bindings[i] = (void *)original_function;
                         SENTRY_ASYNC_SAFE_LOG_TRACE("Restored original __cxa_throw function at %p",
                             (void *)original_function);
+                    } else {
+                        SENTRY_ASYNC_SAFE_LOG_WARN("Can't unswap orignal __cxa_throw function for "
+                                                   "image with base address %p",
+                            (void *)info.dli_fbase);
                     }
                 }
             }
@@ -344,8 +354,8 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
     if (g_cxa_originals == NULL) {
         g_cxa_originals_count = 0;
         g_cxa_originals_capacity = 25;
-        g_cxa_originals = (SentryCrashAddressPair *)malloc(
-            sizeof(SentryCrashAddressPair) * g_cxa_originals_capacity);
+        g_cxa_originals = (SentryCrashImageToOriginalCxaThrowPair *)malloc(
+            sizeof(SentryCrashImageToOriginalCxaThrowPair) * g_cxa_originals_capacity);
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to allocate memory for g_cxa_originals: %s", strerror(errno));
@@ -399,8 +409,8 @@ sentrycrashct_unswap_cxa_throw(void)
         rebind_symbols_for_image(header, slide, false);
     }
 
-    // We don't clear the pairs because a if we can't unswap one of the cxa_throw handlers, we still
-    // need to call the original.
+    // We MUST NOT clear the pairs because a if we can't unswap one of the cxa_throw handlers, we
+    // still MUST call the original cxa_throw handler.
     g_cxa_throw_handler = NULL;
 
     return 0;
