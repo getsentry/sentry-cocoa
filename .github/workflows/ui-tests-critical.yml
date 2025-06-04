@@ -26,6 +26,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - uses: ruby/setup-ruby@v1
         with:
@@ -68,6 +71,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
 
       - name: Install tooling
         run: make init-ci-test

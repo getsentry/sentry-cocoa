@@ -31,6 +31,9 @@ jobs:
         target: ["ios_objc", "tvos_swift"]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -73,6 +76,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -130,6 +136,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -173,6 +182,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -217,6 +229,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
