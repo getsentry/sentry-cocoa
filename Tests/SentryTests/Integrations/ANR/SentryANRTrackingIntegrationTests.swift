@@ -309,7 +309,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         givenInitializedTracker()
         setUpThreadInspector()
-        SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
 
