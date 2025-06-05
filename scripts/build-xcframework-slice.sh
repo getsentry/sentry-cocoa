@@ -91,17 +91,17 @@ if [ "$sdk" = "macosx" ]; then
     maccatalyst_build_product_directory="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
     if [ "$MACH_O_TYPE" = "staticlib" ]; then
-        infoPlist="$maccatalyst_build_product_directory/${resolved_product_name}/Resources/Info.plist"
+        infoPlist="${maccatalyst_build_product_directory}/${resolved_product_name}/Resources/Info.plist"
         plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
     fi
 
-    maccatalyst_archive_directory="$carthage_xcarchive_path/maccatalyst.xcarchive/Library/Frameworks"
-    mkdir -p "$maccatalyst_archive_directory"
-    cp -r "$maccatalyst_build_product_directory/${resolved_product_name}" "$maccatalyst_archive_directory"
+    maccatalyst_archive_directory="${carthage_xcarchive_path}/maccatalyst.xcarchive/Library/Frameworks"
+    mkdir -p "${maccatalyst_archive_directory}"
+    cp -r "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_archive_directory}"
 
-    if [ -d "maccatalyst_build_product_directory/${resolved_product_name}.dSYM" ]; then
-        maccatalyst_archive_dsym_directory="$maccatalyst_archive_directory/dSYMs"
-        mkdir maccatalyst_archive_dsym_directory
-        cp -r "$maccatalyst_build_product_directory/${resolved_product_name}.dSYM" "$maccatalyst_archive_dsym_directory"
+    if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
+        maccatalyst_archive_dsym_directory="${maccatalyst_archive_directory}/dSYMs"
+        mkdir "${maccatalyst_archive_dsym_directory}"
+        cp -r "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_directory}"
     fi
 fi
