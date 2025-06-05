@@ -34,7 +34,7 @@ on:
       sdks:
         description: |-
           The SDK slices to assemble into an XCFramework.
-        required: true
+        required: false
         type: string
         default: "iphoneos,iphonesimulator,macosx,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 
