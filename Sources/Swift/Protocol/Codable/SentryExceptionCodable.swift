@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Exception: Decodable {
+final class ExceptionDecodable: Exception, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case value
@@ -20,9 +20,9 @@ extension Exception: Decodable {
 
         self.init(value: value, type: type)
 
-        self.mechanism = try container.decodeIfPresent(Mechanism.self, forKey: .mechanism)
+        self.mechanism = try container.decodeIfPresent(MechanismDecodable.self, forKey: .mechanism)
         self.module = try container.decodeIfPresent(String.self, forKey: .module)
         self.threadId = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .threadId)?.value
-        self.stacktrace = try container.decodeIfPresent(SentryStacktrace.self, forKey: .stacktrace)
+        self.stacktrace = try container.decodeIfPresent(SentryStacktraceDecodable.self, forKey: .stacktrace)
     }
 }

@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension MechanismMeta: Decodable {
+final class MechanismMetaDecodable: MechanismMeta, Decodable {
 
     enum CodingKeys: String, CodingKey {
         case signal
@@ -19,6 +19,6 @@ extension MechanismMeta: Decodable {
         self.machException = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .machException)
         }
-        self.error = try container.decodeIfPresent(SentryNSError.self, forKey: .error)
+        self.error = try container.decodeIfPresent(SentryNSErrorDecodable.self, forKey: .error)
     }
 }
