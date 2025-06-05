@@ -83,6 +83,8 @@ jobs:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
 
+      - uses: ./.github/actions/add-microphone-permissions
+
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Install App
