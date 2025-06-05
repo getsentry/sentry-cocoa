@@ -5,18 +5,20 @@ set -eoux pipefail
 search_path="$1"
 scheme="$2"
 suffix="$3"
-IFS=',' read -r -a sdks <<< "$4"
+configuration_suffix="$4"
+IFS=',' read -r -a sdks <<< "$5"
 
 xcodebuild_cmd="xcodebuild -create-xcframework"
+resolved_product_name="$scheme$configuration_suffix.framework"
 
 for sdk in "${sdks[@]}"; do
     xcarchive_path="$search_path/$scheme$suffix/$sdk.xcarchive"
-    framework_path="$xcarchive_path/Products/Library/Frameworks/$scheme.framework"
+    framework_path="$xcarchive_path/Products/Library/Frameworks/$resolved_product_name"
     echo "Processing $framework_path"
 
     xcodebuild_cmd+=" -framework \"$framework_path\""
 
-    dsym_path="$xcarchive_path/dSYMs/$scheme.framework.dSYM"
+    dsym_path="$xcarchive_path/dSYMs/$resolved_product_name.dSYM"
     if [[ -d "$dsym_path" ]]; then
         echo "Processing $dsym_path"
 
@@ -28,9 +30,9 @@ for sdk in "${sdks[@]}"; do
         if [[ -d "$mac_catalyst_path" ]]; then
             echo "Processing $mac_catalyst_path"
 
-            xcodebuild_cmd+=" -framework \"$mac_catalyst_path/Library/Frameworks/$scheme.framework\""
+            xcodebuild_cmd+=" -framework \"$mac_catalyst_path/Library/Frameworks/$resolved_product_name\""
 
-            mac_catalyst_dsym_path="$mac_catalyst_path/dSYMs/$scheme.framework.dSYM"
+            mac_catalyst_dsym_path="$mac_catalyst_path/dSYMs/$resolved_product_name.dSYM"
             if [[ -d "$mac_catalyst_dsym_path" ]]; then
                 echo "Processing $mac_catalyst_dsym_path"
 

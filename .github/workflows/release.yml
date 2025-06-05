@@ -41,7 +41,7 @@ jobs:
             macho-type: staticlib
             id: sentry-static
           - name: SentrySwiftUI
-            id: sentryswiftui
+            id: sentry-swiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
             macho-type: mh_dylib
@@ -65,7 +65,7 @@ jobs:
           - name: Sentry
             id: sentry-static
           - name: SentrySwiftUI
-            id: sentryswiftui
+            id: sentry-swiftui
           - name: Sentry
             suffix: "-WithoutUIKitOrAppKit"
             id: sentry-withoutuikit-dynamic

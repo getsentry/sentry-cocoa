@@ -14,5 +14,5 @@ if [ "$args" = "iOSOnly" ]; then
 fi
 
 ./scripts/build-xcframework-variant.sh "Sentry" "" "staticlib" "" "$args"
-./scripts/build-xcframework-variant.sh "SentrySwiftUI" "" "" "" "$args"
+./scripts/build-xcframework-variant.sh "SentrySwiftUI" "" "mh_dylib" "" "$args"
 ./scripts/build-xcframework-variant.sh "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "$args"

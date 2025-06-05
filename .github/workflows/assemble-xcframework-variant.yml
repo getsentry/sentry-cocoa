@@ -17,6 +17,13 @@ on:
         required: false
         type: string
 
+      configuration-suffix:
+        description: |-
+          The suffix to add to the build product name to build an alternate configuration of the target.
+          E.g. "WithoutUIKit".
+        required: false
+        type: string
+
       variant-id:
         description: |-
           The ID of the variant to build an XCFramework slice for. Used to collect appropriate slices for final deliverable assembly.
@@ -53,7 +60,7 @@ jobs:
           path: xcframework-slices
 
       - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.sdks}}"
+        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}"
         shell: bash
 
       - name: Zip XCFramework
