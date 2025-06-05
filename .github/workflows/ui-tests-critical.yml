@@ -39,8 +39,6 @@ jobs:
         with:
           name: SwiftUITestSample
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
-          # If no files are found, fail the job with an error, because they are required for the next step
-          if-no-files-found: error
 
   run-tests:
     name: Test iOS on Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
@@ -95,19 +93,12 @@ jobs:
         run: |
           maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
 
-      - name: Print Maestro Logs File Hierarchy
-        if: always()
-        run: |
-          set -x
-          ls -laR ${{env.MAESTRO_LOGS_PATH}}
-          ls -laR ~/Library/Logs/DiagnosticReports
-
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: maestro-logs-${{matrix.xcode}}
-          path: ${{env.MAESTRO_LOGS_PATH}}/.maestro/**
+          path: ${{env.MAESTRO_LOGS_PATH}}
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
