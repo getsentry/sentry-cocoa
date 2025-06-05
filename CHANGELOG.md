@@ -5,16 +5,13 @@
 ### Improvements
 
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Memory footprint decrese when serializing envelopes (#5360)
 
 ## 8.52.1
 
 ### Fixes
 
 - Missing debug meta for non fatal events (#5352)
-
-### Improvements
-
-- Memory footprint decrese when serializing envelopes (#5360)
 
 ## 8.52.0
 
