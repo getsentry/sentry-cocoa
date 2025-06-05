@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - release/**
+
     paths:
       - "**/*.h"
       - "**/*.hpp"
@@ -11,6 +13,7 @@ on:
       - "**/*.m"
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
+      - ".clang-format"
 
   pull_request:
     paths:
@@ -21,6 +24,7 @@ on:
       - "**/*.m"
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
+      - ".clang-format"
 
 jobs:
   format-code:

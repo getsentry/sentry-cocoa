@@ -1,2 +1,2 @@
- # swiftlint is preinstalled
 brew 'clang-format'
+brew 'swiftlint'
