@@ -74,6 +74,7 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" ${{inputs.macho-type}} ${{inputs.configuration-suffix}}
         shell: bash
 
+      # The SentrySwiftUI archive build also builds Sentry.framework as a byproduct of the dependency. We need to remove that to avoid downstream assembly tasks from tripping on these extra files. In the future we could investigate using this byproduct instead of running a separate task for Sentry.framework, or use the one already built by that other task instead of rebuilding it here.
       - name: Remove Sentry.framework from SentrySwiftUI build
         if: inputs.name == 'SentrySwiftUI'
         run: |
