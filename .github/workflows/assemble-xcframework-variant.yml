@@ -62,6 +62,9 @@ jobs:
       - name: ls slices
         run: ls /Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices
 
+      - name: ls a slice directory
+        run: ls /Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-sentry-swiftui-slice-appletvos
+
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}"
         shell: bash
