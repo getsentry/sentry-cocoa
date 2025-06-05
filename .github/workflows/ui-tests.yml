@@ -265,7 +265,7 @@ jobs:
     with:
       name: Sentry
       variant-id: sentry-static
-      sdk-list: "iphoneos,iphonesimulator"
+      sdks: "iphoneos,iphonesimulator"
 
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
