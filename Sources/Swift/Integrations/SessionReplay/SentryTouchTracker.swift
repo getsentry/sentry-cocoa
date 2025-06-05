@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @objcMembers
-class SentryTouchTracker: NSObject {
+@_spi(Private) public class SentryTouchTracker: NSObject {
     
     private struct TouchEvent {
         let x: CGFloat

@@ -2,7 +2,7 @@
 import Foundation
 
 @objc
-enum SentryRRWebEventType: Int {
+@_spi(Private) public enum SentryRRWebEventType: Int {
     case none = 0
     case touch = 3
     case meta = 4
@@ -10,22 +10,22 @@ enum SentryRRWebEventType: Int {
 }
 
 @objc(SentryRRWebEvent)
-protocol SentryRRWebEventProtocol: SentrySerializable {
+@_spi(Private) public protocol SentryRRWebEventProtocol: SentrySerializable {
 }
 
 @objcMembers
-class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
+@_spi(Private) public class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
     let type: SentryRRWebEventType
     let timestamp: Date
     let data: [String: Any]?
     
-    init(type: SentryRRWebEventType, timestamp: Date, data: [String: Any]?) {
+    public init(type: SentryRRWebEventType, timestamp: Date, data: [String: Any]?) {
         self.type = type
         self.timestamp = timestamp
         self.data = data
     }
     
-    func serialize() -> [String: Any] {
+    public func serialize() -> [String: Any] {
         var result: [String: Any] = [
             "type": type.rawValue,
             "timestamp": SentryDateUtil.millisecondsSince1970(timestamp)

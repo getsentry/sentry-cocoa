@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable type_body_length
 @objcMembers
-class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+@_spi(Private) public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         
     private let _outputPath: String
     private var _totalFrames = 0
@@ -26,9 +26,9 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-    var videoScale: Float = 1
-    var bitRate = 20_000
-    var frameRate = 1
+    public internal(set) var videoScale: Float = 1
+    public internal(set) var bitRate = 20_000
+    public internal(set) var frameRate = 1
     var cacheMaxSize = UInt.max
         
     init(
@@ -143,7 +143,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
         
-    var oldestFrameDate: Date? {
+    public var oldestFrameDate: Date? {
         return _frames.first?.time
     }
 

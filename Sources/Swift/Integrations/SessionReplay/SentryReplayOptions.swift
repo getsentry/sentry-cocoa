@@ -222,7 +222,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.quality`` for the default value.
      */
-    var replayBitRate: Int {
+    public var replayBitRate: Int {
         quality.bitrate
     }
 
@@ -253,7 +253,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * The maximum duration of replays for error events.
      */
-    var errorReplayDuration: TimeInterval
+    public internal(set) var errorReplayDuration: TimeInterval
 
     /**
      * The maximum duration of the segment of a session replay.

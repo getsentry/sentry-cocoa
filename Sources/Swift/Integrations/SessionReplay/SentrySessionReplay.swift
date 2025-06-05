@@ -5,7 +5,7 @@ import UIKit
 
 // swiftlint:disable type_body_length
 @objcMembers
-class SentrySessionReplay: NSObject {
+@_spi(Private) public class SentrySessionReplay: NSObject {
     private(set) var isFullSession = false
     private(set) var sessionReplayId: SentryId?
 
