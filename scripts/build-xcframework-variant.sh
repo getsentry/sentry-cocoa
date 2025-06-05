@@ -12,8 +12,6 @@ args="${5:-}"
 # Define SDKs
 if [ "$args" = "iOSOnly" ]; then
     sdks=( iphoneos iphonesimulator )
-elif [ "$args" = "gameOnly" ]; then
-    sdks=( iphoneos iphonesimulator macosx )
 else
     sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
