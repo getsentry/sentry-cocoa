@@ -98,7 +98,8 @@ jobs:
         run: |
           set -x
           pwd
-          ls -laR ${{env.MAESTRO_LOGS_PATH}}j
+          ls -la .
+          ls -laR ${{env.MAESTRO_LOGS_PATH}}
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
