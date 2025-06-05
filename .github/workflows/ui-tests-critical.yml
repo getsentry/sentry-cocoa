@@ -100,13 +100,14 @@ jobs:
         run: |
           set -x
           ls -laR ${{env.MAESTRO_LOGS_PATH}}
+          ls -laR ~/Library/Logs/DiagnosticReports
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: maestro-logs-${{matrix.xcode}}
-          path: ${{env.MAESTRO_LOGS_PATH}}/**
+          path: ${{env.MAESTRO_LOGS_PATH}}/.maestro/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
