@@ -35,11 +35,11 @@ for sdk in "${sdks[@]}"; do
     fi
 
     if [ "$sdk" = "macosx" ]; then
-        mac_catalyst_xcarchive_path="${xcarchive_path_template//SDK_NAME/maccatalyst}"
+        mac_catalyst_xcarchive_path="${xcarchive_path_template//SDK_NAME/maccatalyst}/Library/Frameworks"
         if [[ -d "$mac_catalyst_xcarchive_path" ]]; then
             echo "Processing $mac_catalyst_xcarchive_path"
 
-            xcodebuild_cmd+=" -framework \"$mac_catalyst_xcarchive_path/Library/Frameworks/$resolved_product_name\""
+            xcodebuild_cmd+=" -framework \"$mac_catalyst_xcarchive_path/$resolved_product_name\""
 
             mac_catalyst_dsym_path="$mac_catalyst_xcarchive_path/dSYMs/$resolved_product_name.dSYM"
             if [[ -d "$mac_catalyst_dsym_path" ]]; then
