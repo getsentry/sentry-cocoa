@@ -81,7 +81,6 @@ _unsafe_cleanUpContinuousProfilerV2()
 {
     if (_gInFlightRootSpans == 0) {
         SENTRY_LOG_ERROR(@"Attemtpted to stop continuous profiler with no root spans in flight.");
-        return;
     } else {
         _gInFlightRootSpans -= 1;
     }
