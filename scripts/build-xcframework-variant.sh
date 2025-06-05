@@ -6,12 +6,14 @@ scheme="$1"
 suffix="${2:-}"
 MACH_O_TYPE="${3-mh_dylib}"
 configuration_suffix="${4-}"
-args="${5:-}"
+sdks_to_build="${5:-}"
 
-if [ "$args" = "iOSOnly" ]; then
+if [ "$sdks_to_build" = "iOSOnly" ]; then
     sdks=( iphoneos iphonesimulator )
+elif [ "$sdks_to_build" = "macOSOnly" ]; then
+    sdks=( macosx )
 else
-    sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+    sdks_to_build=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
 
  for sdk in "${sdks[@]}"; do

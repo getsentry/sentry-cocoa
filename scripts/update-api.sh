@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-./scripts/build-xcframework-local.sh iOSOnly
+./scripts/build-xcframework-local.sh iOSOnly DynamicOnly
 
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
