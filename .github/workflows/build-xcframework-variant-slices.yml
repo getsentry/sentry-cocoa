@@ -89,8 +89,15 @@ jobs:
           if-no-files-found: error
           path: |
             ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive
-            ${{github.workspace}}/Carthage/DerivedData/Build/Products/${{inputs.name}}${{inputs.suffix}}.framework
-            ${{github.workspace}}/Carthage/DerivedData/Build/Products/${{inputs.name}}${{inputs.suffix}}.framework.dSYM
+
+      - name: Upload xcarchive
+        uses: actions/upload-artifact@v4
+        if: matrix.sdk == "macosx"
+        with:
+          name: xcframework-${{inputs.variant-id}}-slice-maccatalyst
+          if-no-files-found: error
+          path: |
+            ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/maccatalyst.xcarchive
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@v4
