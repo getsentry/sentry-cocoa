@@ -1,4 +1,4 @@
-name: "Build Sentry XCFramework"
+name: "Build XCFramework"
 on:
   push:
     branches:
