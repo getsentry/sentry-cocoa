@@ -83,6 +83,9 @@ jobs:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
 
+      - name: Add Microphone permissions
+        uses: ./.github/actions/add-microphone-permissions
+
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Install App
@@ -106,3 +109,7 @@ jobs:
           name: crash-logs-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
