@@ -307,6 +307,8 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     sentry_launchTracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                        hub:nil
                                                              configuration:config];
+
+    removeAppLaunchProfilingConfigFile();
 }
 
 #    pragma mark - Public
