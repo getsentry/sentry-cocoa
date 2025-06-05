@@ -7,7 +7,6 @@ args="${1:-}"
 rm -rf Carthage/
 mkdir Carthage
 
-# Build all variants using build-xcframework-variant.sh
 ./scripts/build-xcframework-variant.sh "Sentry" "-Dynamic" "mh_dylib" "" "$args"
 
 if [ "$args" = "iOSOnly" ]; then
