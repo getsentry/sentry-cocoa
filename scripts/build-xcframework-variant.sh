@@ -19,4 +19,4 @@ fi
  done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-./scripts/assemble-xcframework.sh "$(pwd)/Carthage/archive" "$scheme" "$suffix" "$configuration_suffix" "$xcframework_sdks"
+./scripts/assemble-xcframework.sh "$scheme" "$suffix" "$configuration_suffix" "$xcframework_sdks" "$(pwd)/Carthage/archive/$scheme$suffix/SDK_NAME.xcarchive"
