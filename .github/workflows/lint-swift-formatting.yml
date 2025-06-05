@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - release/**
+
     paths:
       - "**/*.swift"
       - ".github/workflows/lint-swift-formatting.yml"
