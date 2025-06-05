@@ -39,16 +39,18 @@ jobs:
       matrix:
         variant:
           - name: Sentry
+            macho-type: mh_dylib
             suffix: "-Dynamic"
             id: sentry-dynamic
           - name: Sentry
             macho-type: staticlib
             id: sentry-static
           - name: SentrySwiftUI
+            macho-type: mh_dylib
             id: sentry-swiftui
           - name: Sentry
-            suffix: "-WithoutUIKitOrAppKit"
             macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
 
