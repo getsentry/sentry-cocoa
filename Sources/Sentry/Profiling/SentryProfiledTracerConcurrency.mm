@@ -80,6 +80,11 @@ void
 _unsafe_cleanUpContinuousProfilerV2()
 {
     if (_gInFlightRootSpans == 0) {
+        // This log message has been changed from an assertion failing in debug builds and tests to
+        // be less disruptive. This needs to be investigated because spans should not be finished
+        // multiple times.
+        //
+        // See https://github.com/getsentry/sentry-cocoa/pull/5363 for the full context.
         SENTRY_LOG_ERROR(@"Attemtpted to stop continuous profiler with no root spans in flight.");
     } else {
         _gInFlightRootSpans -= 1;
