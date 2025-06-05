@@ -40,7 +40,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.2
       - run: make init-ci-build
       - run: make xcode
-      - uses: ./.github/actions/add-microphone-permissions.yml
+      - uses: ./.github/actions/add-microphone-permissions
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_${{matrix.target}}
         shell: sh
@@ -88,7 +88,7 @@ jobs:
       - run: make xcode
         name: XcodeGen iOS-Swift project
 
-      - uses: ./.github/actions/add-microphone-permissions.yml
+      - uses: ./.github/actions/add-microphone-permissions
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swiftui
         shell: sh
@@ -150,7 +150,7 @@ jobs:
       - run: make xcode
         name: XcodeGen iOS-Swift project
 
-      - uses: ./.github/actions/add-microphone-permissions.yml
+      - uses: ./.github/actions/add-microphone-permissions
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift device:"${{matrix.device}}"
 
@@ -197,7 +197,7 @@ jobs:
       - run: make xcode
         name: XcodeGen iOS-Swift project
 
-      - uses: ./.github/actions/add-microphone-permissions.yml
+      - uses: ./.github/actions/add-microphone-permissions
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests_ios_swift6
 
@@ -243,7 +243,7 @@ jobs:
 
       - run: ./scripts/build-xcframework.sh gameOnly
 
-      - uses: ./.github/actions/add-microphone-permissions.yml
+      - uses: ./.github/actions/add-microphone-permissions
       - name: Run Fastlane
         run: bundle exec fastlane duplication_test
 
