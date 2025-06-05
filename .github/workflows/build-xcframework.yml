@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   build-xcframework-variant-slices:
+    name: Build ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -52,6 +53,7 @@ jobs:
             id: sentry-withoutuikit-dynamic
 
   assemble-xcframework-variant:
+    name: Assemble ${{matrix.variant.name}}${{matrix.variant.suffix}}.xcframework
     needs: build-xcframework-variant-slices
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     with:
