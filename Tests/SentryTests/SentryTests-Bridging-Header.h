@@ -247,6 +247,7 @@
 #import "TestSentryViewHierarchy.h"
 #import "URLSessionTaskMock.h"
 @import _SentryPrivate;
+#import "Helper/ExceptionCatcher.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
@@ -254,3 +255,4 @@
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
