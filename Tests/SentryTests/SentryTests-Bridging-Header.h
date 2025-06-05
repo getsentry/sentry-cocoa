@@ -31,6 +31,7 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryProfiledTracerConcurrency+Test.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerDefines.h"
 #    import "SentryProfilerMocksSwiftCompatible.h"

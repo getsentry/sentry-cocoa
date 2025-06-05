@@ -49,7 +49,7 @@ static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
 static NSMutableDictionary</* SentryTracer.internalTraceId */ NSString *, SentryProfiler *>
     *_gTracersToProfilers;
 
-static unsigned int _gInFlightRootSpans = 0;
+unsigned int _gInFlightRootSpans = 0;
 
 namespace {
 
