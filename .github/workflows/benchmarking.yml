@@ -187,6 +187,7 @@ jobs:
       name: Sentry
       suffix: "-Dynamic"
       variant-id: sentry-dynamic
+      sdk-list: "iphoneos,iphonesimulator"
 
   app-metrics:
     name: Collect app metrics

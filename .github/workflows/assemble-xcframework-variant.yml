@@ -31,6 +31,13 @@ on:
         type: string
         default: "--do-not-sign"
 
+      sdks:
+        description: |-
+          The SDK slices to assemble into an XCFramework.
+        required: true
+        type: string
+        default: "iphoneos,iphonesimulator,macosx,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
+
 jobs:
   assemble-xcframework-variant:
     name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
@@ -46,7 +53,7 @@ jobs:
           path: xcframework-slices
 
       - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}${{inputs.suffix}}"
+        run: ./scripts/assemble-xcframework.sh "${{github.workspace}}/xcframework-slices" "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.sdks}}"
         shell: bash
 
       - name: Zip XCFramework

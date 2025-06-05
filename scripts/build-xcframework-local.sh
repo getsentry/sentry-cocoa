@@ -1,41 +1,24 @@
 #!/bin/bash
 
-set -eou pipefail
+set -eoux pipefail
 
 args="${1:-}"
-
-if [ "$args" = "iOSOnly" ]; then
-    sdks=( iphoneos iphonesimulator )
-elif [ "$args" = "gameOnly" ]; then
-    sdks=( iphoneos iphonesimulator macosx )
-else
-    sdks=( iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
-fi
 
 rm -rf Carthage/
 mkdir Carthage
 
-ALL_SDKS=$(xcodebuild -showsdks)
+# Build all variants using build-xcframework-variant.sh
+./scripts/build-xcframework-variant.sh "Sentry" "-Dynamic" "mh_dylib" "" "$args"
 
-# Build slices for each SDK
-for sdk in "${sdks[@]}"; do
-    if grep -q "${sdk}" <<< "$ALL_SDKS"; then
-        ./scripts/build-xcframework-slice.sh "$sdk" "Sentry" "-Dynamic"
-    else
-        echo "${sdk} SDK not found"
-    fi
-done
-
-if [ "$args" != "iOSOnly" ]; then
-    for sdk in "${sdks[@]}"; do
-        ./scripts/build-xcframework-slice.sh "$sdk" "Sentry" "" "staticlib"
-        
-        if [ "$args" != "gameOnly" ]; then
-            ./scripts/build-xcframework-slice.sh "$sdk" "SentrySwiftUI"
-            ./scripts/build-xcframework-slice.sh "$sdk" "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit"
-        fi
-    done
+if [ "$args" = "iOSOnly" ]; then
+    exit 0
 fi
 
-# Assemble the XCFramework
-./scripts/assemble-xcframework.sh "./Carthage/archive" "Sentry"
+./scripts/build-xcframework-variant.sh "Sentry" "" "staticlib" "" "$args"
+
+if [ "$args" = "gameOnly" ]; then
+    exit 0
+fi
+
+./scripts/build-xcframework-variant.sh "SentrySwiftUI" "" "" "" "$args"
+./scripts/build-xcframework-variant.sh "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "$args"

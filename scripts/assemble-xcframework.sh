@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
 
-set -x
+set -eoux pipefail
 
 search_path="$1"
-xcframework_name="$2"
+scheme="$2"
+suffix="$3"
+IFS=',' read -r -a sdks <<< "$4"
 
 xcodebuild_cmd="xcodebuild -create-xcframework"
 
-for slice_dir in "$search_path"/xcframework-*; do
-    framework_path=$(find "$slice_dir" -name '*.framework' -print -quit)
-    dsym_path=$(find "$slice_dir" -name '*.framework.dSYM' -print -quit)
+for sdk in "${sdks[@]}"; do
+    framework_path="$search_path/$scheme$suffix/$sdk.xcarchive/Products/Library/Frameworks/$scheme.framework"
+    echo "Processing $framework_path"
 
-    if [[ -n "$framework_path" ]]; then
-        xcodebuild_cmd+=" -framework \"$framework_path\""
+    xcodebuild_cmd+=" -framework \"$framework_path\""
 
-        if [[ -n "$dsym_path" ]]; then
-            xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
-        fi
+    dsym_path="$search_path/$scheme$suffix/$sdk.xcarchive/dSYMs/$scheme.framework.dSYM"
+    if [[ -n "$dsym_path" ]]; then
+        echo "Processing $dsym_path"
+
+        xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
     fi
 done
 
-xcodebuild_cmd+=" -output \"$xcframework_name.xcframework\""
+rm -rf "$scheme$suffix.xcframework"
+xcodebuild_cmd+=" -output \"$scheme$suffix.xcframework\""
 
 eval "$xcodebuild_cmd"

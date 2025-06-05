@@ -2,7 +2,7 @@
 #
 # Builds a single slice of the SDK to be packaged into an XCFramework
 
-set -eou pipefail
+set -eoux pipefail
 
 sdk="${1:-}"
 
