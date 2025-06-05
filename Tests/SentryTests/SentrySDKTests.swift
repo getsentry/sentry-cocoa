@@ -1001,6 +1001,21 @@ class SentrySDKTests: XCTestCase {
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
+#if os(macOS)
+    func testCaptureCrashOnException() {
+        givenSdkWithHub()
+        
+        SentrySDK.captureCrashOn(exception: fixture.exception)
+
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureExceptionWithScopeInvocations.count)
+        XCTAssertNotEqual(fixture.exception, client.captureExceptionWithScopeInvocations.first?.exception)
+        XCTAssertEqual(fixture.exception.name, client.captureExceptionWithScopeInvocations.first?.exception.name)
+        XCTAssertEqual(fixture.exception.reason, client.captureExceptionWithScopeInvocations.first?.exception.reason)
+        XCTAssertEqual(fixture.scope, client.captureExceptionWithScopeInvocations.first?.scope)
+    }
+#endif // os(macOS)
 }
 
 private extension SentrySDKTests {

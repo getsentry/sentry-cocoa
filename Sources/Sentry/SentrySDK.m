@@ -27,6 +27,7 @@
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
@@ -394,6 +395,21 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     return [SentrySDK.currentHub captureException:exception withScope:scope];
 }
+
+#if TARGET_OS_OSX
+
++ (SentryId *)captureCrashOnException:(NSException *)exception
+{
+    SentryUseNSExceptionCallstackWrapper *wrappedException =
+        [[SentryUseNSExceptionCallstackWrapper alloc]
+                        initWithName:exception.name
+                              reason:exception.reason
+                            userInfo:exception.userInfo
+            callStackReturnAddresses:exception.callStackReturnAddresses];
+    return [SentrySDK captureException:wrappedException withScope:SentrySDK.currentHub.scope];
+}
+
+#endif // TARGET_OS_OSX
 
 + (SentryId *)captureMessage:(NSString *)message
 {

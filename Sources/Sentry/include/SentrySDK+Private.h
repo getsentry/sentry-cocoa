@@ -59,6 +59,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 
+#if TARGET_OS_OSX
+/**
+ * Captures an exception event and sends it to Sentry using the stacktrace from the exception.
+ * @param exception The exception to send to Sentry.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ *
+ */
++ (SentryId *)captureCrashOnException:(NSException *)exception
+    NS_SWIFT_NAME(captureCrashOn(exception:));
+
+#endif // TARGET_OS_OSX
+
 #if SENTRY_HAS_UIKIT
 
 /** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from

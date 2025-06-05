@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Improvements
+
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+
+## 8.52.1
+
 ### Fixes
 
 - Missing debug meta for non fatal events (#5352)
