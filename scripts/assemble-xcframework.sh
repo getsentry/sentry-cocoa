@@ -16,7 +16,7 @@ for sdk in "${sdks[@]}"; do
     xcodebuild_cmd+=" -framework \"$framework_path\""
 
     dsym_path="$search_path/$scheme$suffix/$sdk.xcarchive/dSYMs/$scheme.framework.dSYM"
-    if [[ -n "$dsym_path" ]]; then
+    if [[ -d "$dsym_path" ]]; then
         echo "Processing $dsym_path"
 
         xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
