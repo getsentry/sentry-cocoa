@@ -109,3 +109,7 @@ jobs:
           name: crash-logs-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()

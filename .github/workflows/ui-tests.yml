@@ -70,6 +70,10 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
+
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI - V4 # Up the version with every change to keep track of flaky tests
@@ -118,6 +122,10 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
 
   ui-tests-swift:
     name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V4 # Up the version with every change to keep track of flaky tests
@@ -182,6 +190,10 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
+
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
@@ -231,6 +243,10 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
@@ -278,3 +294,7 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()

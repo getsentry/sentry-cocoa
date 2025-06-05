@@ -1,0 +1,14 @@
+name: "Capture screenshot"
+description: "Captures a screenshot of the machine"
+runs:
+  using: "composite"
+  steps:
+    - name: Capture screenshot
+      shell: bash
+      run: |
+        screencapture -x /tmp/screenshot.png
+    - name: Store screenshot
+      uses: actions/upload-artifact@v4
+      with:
+        name: screenshot
+        path: /tmp/screenshot.png
