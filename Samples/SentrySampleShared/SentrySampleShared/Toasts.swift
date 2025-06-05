@@ -1,3 +1,5 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+
 import UIKit
 
 public enum ToastType {
@@ -40,3 +42,5 @@ public func showToast(in vc: UIViewController, type: ToastType, message: String)
         }
     }
 }
+
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
