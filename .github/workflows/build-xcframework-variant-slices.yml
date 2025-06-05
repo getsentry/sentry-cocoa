@@ -48,7 +48,7 @@ on:
 
 jobs:
   build-xcframework-variant-slices:
-    name: Build ${{matrix.sdk}} Slice
+    name: ${{matrix.sdk}}
 
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
