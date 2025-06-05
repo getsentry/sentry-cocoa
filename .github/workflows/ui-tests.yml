@@ -128,7 +128,7 @@ jobs:
         if: failure()
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V4 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -141,8 +141,8 @@ jobs:
             xcode: "15.4"
             device: "iPhone 15 (17.5)"
           - runs-on: macos-15
-            xcode: "16.3"
-            device: "iPhone 16 (18.4)"
+            xcode: "16.4"
+            device: "iPhone 16 (18.5)"
 
     steps:
       - uses: actions/checkout@v4
@@ -248,7 +248,7 @@ jobs:
         if: failure()
 
   duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
 
     steps:
@@ -260,7 +260,7 @@ jobs:
         with:
           bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh "16.2"
+      - run: ./scripts/ci-select-xcode.sh "16.4"
 
       - run: ./scripts/build-xcframework.sh gameOnly
 
