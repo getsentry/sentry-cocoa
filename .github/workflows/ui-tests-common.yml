@@ -11,10 +11,6 @@ on:
         description: "Name for the xcresult artifact"
         required: true
         type: string
-      raw_output_name:
-        description: "Name for the raw output artifact"
-        required: true
-        type: string
       xcode_version:
         description: "Xcode version"
         required: true
@@ -97,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: ${{ inputs.raw_output_name }}
+          name: ${{ inputs.xcresult_name }}_raw_output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**

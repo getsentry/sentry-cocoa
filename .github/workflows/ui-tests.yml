@@ -32,7 +32,6 @@ jobs:
     with:
       fastlane_command: ui_tests_${{matrix.target}}
       xcresult_name: ui-tests-${{matrix.target}}
-      raw_output_name: raw-uitest-output-${{matrix.target}}
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-14
@@ -44,7 +43,6 @@ jobs:
     with:
       fastlane_command: ui_tests_ios_swiftui
       xcresult_name: ui-tests-ios-swiftui
-      raw_output_name: ui-tests-ios-swiftui-raw-output
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
@@ -68,7 +66,6 @@ jobs:
     with:
       fastlane_command: ui_tests_ios_swift device:"${{matrix.device}}"
       xcresult_name: ui-tests-ios-swift-xcode_${{matrix.xcode}}-${{matrix.device}}
-      raw_output_name: ui-tests-ios-swift-raw-logs-xcode_${{matrix.xcode}}-${{matrix.device}}
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
@@ -79,7 +76,6 @@ jobs:
     with:
       fastlane_command: ui_tests_ios_swift6
       xcresult_name: ui-tests-ios-swift6
-      raw_output_name: ui-tests-ios-swift6-raw-output
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
@@ -90,7 +86,6 @@ jobs:
     with:
       fastlane_command: duplication_test
       xcresult_name: duplication-test
-      raw_output_name: duplication-test-raw-output
       xcode_version: 16.4
       build_with_script: true
       build_script_parameters: gameOnly
