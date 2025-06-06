@@ -82,13 +82,19 @@ jobs:
           find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
+      # the upload action broke symlinks in the mac sdk slice's xcarchive
+      - name: Zip xcarchive
+        run: |
+          ditto -c -k -X --rsrc --keepParent ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
+        shell: bash
+
       - name: Upload xcarchive
         uses: actions/upload-artifact@v4
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
           path: |
-            ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive
+            ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@v4

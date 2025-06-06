@@ -98,7 +98,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
-          path: xcframework-slices
+          path: xcframework-slices.zip
+
+      - name: Unzip Slices
+        run: |
+          unzip xcframework-slices.zip -d xcframework-slices
+        shell: bash
+
+      - name: List Slices
+        run: |
+          ls -la xcframework-slices
+        shell: bash
+
+      - name: Find directories in xcframework-slices
+        run: |
+          find xcframework-slices -type d
+        shell: bash
+
+      - name: Find symlinks in xcframework-slices
+        run: |
+          find xcframework-slices -type l
+        shell: bash
 
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME"
