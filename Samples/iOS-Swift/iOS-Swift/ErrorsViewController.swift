@@ -55,6 +55,11 @@ class ErrorsViewController: UIViewController {
         }
     }
 
+    @IBAction func unhandledCppException(_ sender: Any) {
+        let cpp = CppWrapper()
+        cpp.throwCPPException()
+    }
+
     // swiftlint:disable force_unwrapping
     @IBAction func unwrapCrash(_ sender: UIButton) {
         highlightButton(sender)
