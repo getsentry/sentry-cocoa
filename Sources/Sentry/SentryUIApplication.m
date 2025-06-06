@@ -271,7 +271,7 @@
 
 - (BOOL)isActive
 {
-    return appState == UIApplicationStateActive;
+    return self.appState == UIApplicationStateActive;
 }
 
 @end

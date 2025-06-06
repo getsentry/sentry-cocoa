@@ -170,6 +170,8 @@ static BOOL isInitialializingDependencyContainer = NO;
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];
+#elif TARGET_OS_OSX
+        _application = [[SentryNSApplication alloc] init];
 #endif // SENTRY_HAS_UIKIT
 
         _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
@@ -350,16 +352,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
-- (id<SentryApplication>)application SENTRY_DISABLE_THREAD_SANITIZER(
-    "double-checked lock produce false alarms")
+- (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-#if SENTRY_HAS_UIKIT
-    SENTRY_LAZY_INIT(_application, [[SentryUIApplication alloc] init]);
-#elif TARGET_OS_OSX
-    SENTRY_LAZY_INIT(_application, [[SentryNSApplication alloc] init]);
-#else
-    return nil;
-#endif
+    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
 }
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

@@ -55,11 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
  * result to a string array with the class name of each view controller.
  */
 - (nullable NSArray<NSString *> *)relevantViewControllersNames;
-
-/**
- * Retrieves a list of view controllers that are currently visible.
- */
-- (NSArray<UIViewController *> *)relevantViewControllers;
 #endif // SENTRY_HAS_UIKIT
 
 @end
