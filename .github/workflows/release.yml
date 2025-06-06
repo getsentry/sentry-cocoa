@@ -78,6 +78,7 @@ jobs:
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       signed: "--sign"
     strategy:
