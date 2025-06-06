@@ -1,0 +1,109 @@
+name: Release
+run-name: Release ${{ github.event.inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release
+        required: true
+      force:
+        description: Force a release even when there are release-blockers (optional)
+        required: false
+      merge_target:
+        description: Target branch to merge into. Uses the default branch as a fallback (optional)
+        required: false
+
+jobs:
+  bump-version:
+    runs-on: macos-15
+    steps:
+      - name: Bump version
+        run: |
+          ./scripts/ci-select-xcode.sh 15.2
+          make bump-version TO=${{ github.event.inputs.version }}
+
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            id: sentry-swiftui
+          - name: Sentry
+            suffix: "-WithoutUIKitOrAppKit"
+            macho-type: mh_dylib
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      variant-id: ${{matrix.variant.id}}
+      signed: "--sign"
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            macho-type: mh_dylib
+            id: sentry-swiftui
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
+  job_release:
+    runs-on: ubuntu-latest
+    name: "Release a new version"
+    needs: prepare_framework
+    steps:
+      - name: Get auth token
+        id: token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        with:
+          app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
+      - name: Check out current commit (${{ github.sha }})
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.token.outputs.token }}
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: xcframework-${{github.sha}}-*
+
+      # update-package-sha.sh uses this env variable to update Package.swift.
+      # During release Craft calls bump.sh that uses update-package-sha.sh.
+      - run: export GITHUB_RUN_ID=${{ github.run_id }}
+
+      - name: Prepare release
+        uses: getsentry/action-prepare-release@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+        with:
+          version: ${{ github.event.inputs.version }}
+          force: ${{ github.event.inputs.force }}
+          merge_target: ${{ github.event.inputs.merge_target }}
