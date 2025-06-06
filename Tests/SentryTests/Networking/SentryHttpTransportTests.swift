@@ -233,8 +233,13 @@ class SentryHttpTransportTests: XCTestCase {
 
         XCTAssertEqual(1, fixture.requestManager.requests.count)
 
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
+        let actualData = fixture.requestManager.requests.last?.httpBody
+        let expectedData = fixture.userFeedbackRequest.httpBody
+        let decompressedActualData = sentry_unzippedData(actualData!)
+        let decompressedExpectedData = sentry_unzippedData(expectedData!)
+        let actualEnvelope = SentrySerialization.envelope(with: decompressedActualData!)
+        let expectedEnvelope = SentrySerialization.envelope(with: decompressedExpectedData!)
+        try! EnvelopeUtils.assertEnvelope(expected: expectedEnvelope!, actual: actualEnvelope!)
     }
     
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() {
@@ -257,7 +262,14 @@ class SentryHttpTransportTests: XCTestCase {
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
         envelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let request = SentryHttpTransportTests.buildRequest(envelope)
-        XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
+
+        let actualData = request.httpBody
+        let expectedData = fixture.requestManager.requests.last!.httpBody
+        let decompressedActualData = sentry_unzippedData(actualData!)
+        let decompressedExpectedData = sentry_unzippedData(expectedData!)
+        let actualEnvelope = SentrySerialization.envelope(with: decompressedActualData!)
+        let expectedEnvelope = SentrySerialization.envelope(with: decompressedExpectedData!)
+        try! EnvelopeUtils.assertEnvelope(expected: expectedEnvelope!, actual: actualEnvelope!)
     }
     
     func testSendAllCachedEvents() {

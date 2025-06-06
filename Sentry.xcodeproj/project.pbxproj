@@ -1064,6 +1064,7 @@
 		FA67DD182DDBD4EA00896B02 /* UIImageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCED2DDBD4EA00896B02 /* UIImageHelper.swift */; };
 		FA67DD192DDBD4EA00896B02 /* SwizzleClassNameExclude.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCD52DDBD4EA00896B02 /* SwizzleClassNameExclude.swift */; };
 		FA8A36182DEAA1EB0058D883 /* SentryThread+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = FA8A36172DEAA1EB0058D883 /* SentryThread+Private.h */; };
+		FAEC273D2DF3933A00878871 /* NSData+Unzip.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEC273C2DF3933200878871 /* NSData+Unzip.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2306,6 +2307,8 @@
 		FA67DCF12DDBD4EA00896B02 /* SentryExperimentalOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryExperimentalOptions.swift; sourceTree = "<group>"; };
 		FA67DCF22DDBD4EA00896B02 /* SwiftDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDescriptor.swift; sourceTree = "<group>"; };
 		FA8A36172DEAA1EB0058D883 /* SentryThread+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryThread+Private.h"; path = "include/SentryThread+Private.h"; sourceTree = "<group>"; };
+		FAEC273C2DF3933200878871 /* NSData+Unzip.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+Unzip.m"; sourceTree = "<group>"; };
+		FAEC273E2DF393E000878871 /* NSData+Unzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+Unzip.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3368,6 +3371,8 @@
 				7B4E23B5251A07BD00060D68 /* SentryDispatchQueueWrapperTests.swift */,
 				8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */,
 				7B4D308926FC616B00C94DE9 /* SentryHttpTransportTests.swift */,
+				FAEC273E2DF393E000878871 /* NSData+Unzip.h */,
+				FAEC273C2DF3933200878871 /* NSData+Unzip.m */,
 				62A3C7BD2B7E2A6A00C75227 /* SentrySpotlightTransportTests.swift */,
 				7BA0C04B28056556003E0326 /* SentryTransportAdapterTests.swift */,
 				7B01CE3C271993AB00B5AF31 /* SentryTransportFactoryTests.swift */,
@@ -5838,6 +5843,7 @@
 				63FE720420DA66EC00CDBAE8 /* SentryCrashString_Tests.m in Sources */,
 				62872B632BA1B86100A4FA7D /* LocksTests.swift in Sources */,
 				849AC40029E0C1FF00889C16 /* SentryFormatterTests.swift in Sources */,
+				FAEC273D2DF3933A00878871 /* NSData+Unzip.m in Sources */,
 				7BDDE3CC2966BD4700EB9177 /* SentryMXManagerTests.swift in Sources */,
 				7BC6EC0C255C3DF80059822A /* SentryThreadTests.swift in Sources */,
 				D42E48572D48DF1600D251BC /* SentryBuildAppStartSpansTests.swift in Sources */,
