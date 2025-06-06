@@ -238,3 +238,6 @@ Samples/tvOS-Swift/tvOS-Swift.xcodeproj
 Samples/visionOS-Swift/visionOS-Swift.xcodeproj
 Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 Samples/SentrySampleShared/SentrySampleShared.xcodeproj
+
+# Logs
+MaestroLogs/
