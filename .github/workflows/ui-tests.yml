@@ -9,6 +9,7 @@ on:
       - "Sources/**"
       - "Tests/**"
       - ".github/workflows/ui-tests.yml"
+      - ".github/workflows/ui-tests-common.yml"
       - "fastlane/**"
       - ".sauce/config.yml"
       - "scripts/ci-select-xcode.sh"
