@@ -60,7 +60,6 @@ jobs:
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       signed: "--sign"
-      release-version: "${{ github.event.inputs.version }}"
     strategy:
       matrix:
         variant:
