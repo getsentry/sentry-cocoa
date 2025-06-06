@@ -23,6 +23,7 @@ repos:
         args: [--allow-multiple-documents]
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: ^sdk_api.json$
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.27.3
