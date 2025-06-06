@@ -69,7 +69,7 @@ jobs:
         run: find . -name "*.xcframework" -type d
 
       - name: Zip XCFramework
-        run: ./scripts/zip_built_sdk.sh ${{inputs.signed}} ${{inputs.name}}${{suffix}}
+        run: ./scripts/zip_built_sdk.sh ${{inputs.signed}} ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
       - name: Upload XCFramework
