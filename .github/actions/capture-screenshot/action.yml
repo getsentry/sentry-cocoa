@@ -10,5 +10,5 @@ runs:
     - name: Store screenshot
       uses: actions/upload-artifact@v4
       with:
-        name: screenshot
+        name: screenshot-${{ github.run_id }}
         path: /tmp/screenshot.png
