@@ -38,6 +38,8 @@ jobs:
         with:
           name: SwiftUITestSample
           path: TestSamples/SwiftUITestSample/DerivedData/Build/Products/Debug-iphonesimulator/SwiftUITestSample.app
+          # If no files are found, fail the job with an error, because they are required for the next step
+          if-no-files-found: error
 
   run-tests:
     name: Test iOS on Xcode ${{matrix.xcode}} - V2 # Up the version with every change to keep track of flaky tests
