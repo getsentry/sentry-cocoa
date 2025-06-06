@@ -20,7 +20,7 @@ inputs:
   build_with_script:
     description: "Build with script"
     required: false
-    default: "true"
+    default: "false"
   build_script_parameters:
     description: "Parameters for the build script"
     required: false
