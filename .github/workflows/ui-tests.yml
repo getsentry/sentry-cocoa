@@ -32,7 +32,6 @@ jobs:
         target: ["ios_objc", "tvos_swift"]
     with:
       fastlane_command: ui_tests_${{matrix.target}}
-      xcresult_name: ui-tests-${{matrix.target}}
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-14
@@ -43,7 +42,6 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcresult_name: ui-tests-ios-swiftui
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
@@ -66,7 +64,7 @@ jobs:
             device: "iPhone 16 (18.5)"
     with:
       fastlane_command: ui_tests_ios_swift device:"${{matrix.device}}"
-      xcresult_name: ui-tests-ios-swift-xcode_${{matrix.xcode}}-${{matrix.device}}
+      xcresult_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
@@ -76,7 +74,6 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
-      xcresult_name: ui-tests-ios-swift6
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
@@ -86,7 +83,6 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: duplication_test
-      xcresult_name: duplication-test
       xcode_version: 16.4
       build_xcframework: true
       xcframework_type: gameOnly

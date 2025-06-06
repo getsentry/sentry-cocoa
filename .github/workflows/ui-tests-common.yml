@@ -7,9 +7,10 @@ on:
         description: "The fastlane command to run"
         required: true
         type: string
-      xcresult_name:
-        description: "Name for the xcresult artifact"
-        required: true
+      xcresult_suffix:
+        description: "Suffix for the xcresult artifact (if needed)"
+        required: false
+        default: ""
         type: string
       xcode_version:
         description: "Xcode version"
@@ -86,14 +87,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.xcresult_name }}
-          path: fastlane/test_results/${{ inputs.xcresult_name }}.xcresult
+          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}
+          path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: ${{ inputs.xcresult_name }}_raw_output
+          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}_raw_output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
