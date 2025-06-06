@@ -13,10 +13,18 @@ inputs:
   xcode_version:
     description: "Xcode version"
     required: true
-  build_from_scratch:
-    description: "Build from scratch"
+  build_with_make:
+    description: "Build with make"
+    required: false
+    default: "false"
+  build_with_script:
+    description: "Build with script"
     required: false
     default: "true"
+  build_script_parameters:
+    description: "Parameters for the build script"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -35,15 +43,15 @@ runs:
 
     - run: make init-ci-build
       shell: sh
-      if: inputs.build_from_scratch == true
+      if: ${{ inputs.build_with_make == 'true' }}
 
     - run: make xcode
       shell: sh
-      if: inputs.build_from_scratch == true
+      if: ${{ inputs.build_with_make == 'true' }}
 
-    - run: ./scripts/build-xcframework.sh gameOnly
+    - run: ./scripts/build-xcframework.sh ${{ inputs.build_script_parameters }}
       shell: sh
-      if: inputs.build_from_scratch == true
+      if: ${{ inputs.build_with_script == 'true' }}
 
     - name: Add Microphone permissions
       uses: ./.github/actions/add-microphone-permissions
