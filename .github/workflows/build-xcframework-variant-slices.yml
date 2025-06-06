@@ -8,7 +8,7 @@ on:
           The list of Apple platform SDKs for which to build slices and assemble into an XCFramework. This must be a JSON array of strings, itself in a string since GitHub Actions doesn't support arrays as inputs.
           Possible values: iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator.
         required: false
-        default: '["iphoneos", "iphonesimulator", "macosx", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
+        default: '["iphoneos", "iphonesimulator", "macosx", "maccatalyst", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
         type: string
 
       name:
@@ -89,15 +89,6 @@ jobs:
           if-no-files-found: error
           path: |
             ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive
-
-      - name: Upload xcarchive
-        uses: actions/upload-artifact@v4
-        if: matrix.sdk == 'macosx'
-        with:
-          name: xcframework-${{inputs.variant-id}}-slice-maccatalyst
-          if-no-files-found: error
-          path: |
-            ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/maccatalyst.xcarchive
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@v4
