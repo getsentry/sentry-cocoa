@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
 ### Improvements
 
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 
 ## 8.52.1
 
