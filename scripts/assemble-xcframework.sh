@@ -7,9 +7,9 @@ suffix="$2"
 IFS=',' read -r -a sdks <<< "$3"
 
 # on ci, the xcarchives live in paths like the following:
-#   /path/to/.../xcframework-slices/xcframework-sentry-withoutuikit-dynamic-slice-appletvos/archive/Sentry-WithoutUIKitOrAppKit/appletvos.xcarchive
-#   /path/to/.../xcframework-slices/xcframework-sentry-withoutuikit-dynamic-slice-macos/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
-#   /path/to/.../xcframework-slices/xcframework-sentry-withoutuikit-dynamic-slice-iphoneos/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
+#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
+#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-macosx/Library/Frameworks/SentrySwiftUI.framework
+#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-iphoneos/Library/Frameworks/SentrySwiftUI.framework
 # in the local build script they're in something like:
 #   /path/to/.../Carthage/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
 #   /path/to/.../Carthage/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
