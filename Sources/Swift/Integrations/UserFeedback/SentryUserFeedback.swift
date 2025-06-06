@@ -4,7 +4,7 @@ import Foundation
 /// @deprecated Use `SentryFeedback`.
 @objc(SentryUserFeedback)
 @available(*, deprecated, message: "Use SentryFeedback.")
-public class SentryUserFeedback: NSObject, SentrySerializable {
+public class UserFeedback: NSObject, SentrySerializable {
     
     /// The eventId of the event to which the user feedback is associated.
     @objc public private(set) var eventId: SentryId
