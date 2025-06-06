@@ -4,8 +4,7 @@ set -eoux pipefail
 
 scheme="$1"
 suffix="$2"
-configuration_suffix="$3"
-IFS=',' read -r -a sdks <<< "$4"
+IFS=',' read -r -a sdks <<< "$3"
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-withoutuikit-dynamic-slice-appletvos/archive/Sentry-WithoutUIKitOrAppKit/appletvos.xcarchive
@@ -18,7 +17,7 @@ IFS=',' read -r -a sdks <<< "$4"
 xcarchive_path_template="${5}" # may contain any number of instances of the template query string "SDK_NAME" that will be replaced with the actual sdk name below
 
 xcodebuild_cmd="xcodebuild -create-xcframework"
-resolved_product_name="$scheme$configuration_suffix.framework"
+resolved_product_name="$scheme$suffix.framework"
 
 for sdk in "${sdks[@]}"; do
     xcarchive_path="${xcarchive_path_template//SDK_NAME/$sdk}"
