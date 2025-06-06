@@ -1,9 +1,10 @@
 #import "SentryDefines.h"
 
-@class SentryCurrentDateProvider;
 @class SentryEvent;
 @class SentryNSNotificationCenterWrapper;
 @class SentryOptions;
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Tracks sessions for release health. For more info see:
@@ -19,3 +20,5 @@ SENTRY_NO_INIT
 - (void)start;
 - (void)stop;
 @end
+
+NS_ASSUME_NONNULL_END

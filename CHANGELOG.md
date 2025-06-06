@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Fixes
+
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
