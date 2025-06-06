@@ -3,8 +3,9 @@
 set -eoux pipefail
 
 scheme="$1"
-configuration_suffix="$2"
-IFS=',' read -r -a sdks <<< "$3"
+suffix="$2"
+configuration_suffix="$3"
+IFS=',' read -r -a sdks <<< "$4"
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
@@ -14,15 +15,13 @@ IFS=',' read -r -a sdks <<< "$3"
 #   /path/to/.../Carthage/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
 #   /path/to/.../Carthage/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
 # the issue is that we need to inject the sdk name once into the local version, and twice into the ci version. a template string satisfies this requirement.
-xcarchive_path_template="${4}" # may contain any number of instances of the template query string "SDK_NAME" that will be replaced with the actual sdk name below
+xcarchive_path_template="${5}" # may contain any number of instances of the template query string "SDK_NAME" that will be replaced with the actual sdk name below
 
 xcodebuild_cmd="xcodebuild -create-xcframework"
 
 if [ -z "$configuration_suffix" ]; then
-    echo "no configuration suffix supplied"
     resolved_product_name="$scheme"
 else
-    echo "configuration suffix supplied: $configuration_suffix"
     resolved_product_name="$scheme$configuration_suffix"
 fi
 
@@ -59,7 +58,12 @@ for sdk in "${sdks[@]}"; do
     fi
 done
 
-xcframework_filename="$resolved_product_name.xcframework"
+if [ -z "$suffix" ]; then
+    resolved_xcframework_name="$scheme"
+else
+    resolved_xcframework_name="$scheme-$suffix"
+fi
+xcframework_filename="$resolved_xcframework_name.xcframework"
 rm -rf "$xcframework_filename"
 xcodebuild_cmd+=" -output \"$xcframework_filename\""
 

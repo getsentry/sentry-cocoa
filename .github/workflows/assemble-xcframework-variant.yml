@@ -63,7 +63,7 @@ jobs:
         run: find xcframework-slices -type d
 
       - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME"
+        run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME"
         shell: bash
 
       - name: Find xcframeworks
