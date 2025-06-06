@@ -1,5 +1,5 @@
 name: Release
-run-name: Release ${{ github.event.inputs.version }}
+run-name: Release ${{ github.event.inputs.version || github.sha }}
 
 on:
   pull_request:
@@ -46,7 +46,7 @@ jobs:
       - name: Bump version
         run: |
           ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ github.event.inputs.version }}
+          make bump-version TO=${{ github.event.inputs.version || github.sha }}
 
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
@@ -102,36 +102,37 @@ jobs:
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
 
-#  job_release:
-#    runs-on: ubuntu-latest
-#    name: "Release a new version"
-#    needs: prepare_framework
-#    steps:
-#      - name: Get auth token
-#        id: token
-#        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
-#        with:
-#          app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
-#          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
-#      - name: Check out current commit (${{ github.sha }})
-#        uses: actions/checkout@v4
-#        with:
-#          token: ${{ steps.token.outputs.token }}
-#          fetch-depth: 0
-#
-#      - uses: actions/download-artifact@v4
-#        with:
-#          name: xcframework-${{github.sha}}-*
-#
-#      # update-package-sha.sh uses this env variable to update Package.swift.
-#      # During release Craft calls bump.sh that uses update-package-sha.sh.
-#      - run: export GITHUB_RUN_ID=${{ github.run_id }}
-#
-#      - name: Prepare release
-#        uses: getsentry/action-prepare-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-#        with:
-#          version: ${{ github.event.inputs.version }}
-#          force: ${{ github.event.inputs.force }}
-#          merge_target: ${{ github.event.inputs.merge_target }}
+  job_release:
+    runs-on: ubuntu-latest
+    name: "Release a new version"
+    needs: prepare_framework
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - name: Get auth token
+        id: token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        with:
+          app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
+      - name: Check out current commit (${{ github.sha }})
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.token.outputs.token }}
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: xcframework-${{github.sha}}-*
+
+      # update-package-sha.sh uses this env variable to update Package.swift.
+      # During release Craft calls bump.sh that uses update-package-sha.sh.
+      - run: export GITHUB_RUN_ID=${{ github.run_id }}
+
+      - name: Prepare release
+        uses: getsentry/action-prepare-release@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+        with:
+          version: ${{ github.event.inputs.version }}
+          force: ${{ github.event.inputs.force }}
+          merge_target: ${{ github.event.inputs.merge_target }}
