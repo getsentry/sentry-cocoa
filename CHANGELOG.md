@@ -6,6 +6,10 @@
 
 - Fix auto-start for session tracker when SDK is started after app did become active (#5121)
 
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
 ### Improvements
 
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
