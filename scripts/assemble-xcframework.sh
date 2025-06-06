@@ -61,7 +61,7 @@ done
 if [ -z "$suffix" ]; then
     resolved_xcframework_name="$scheme"
 else
-    resolved_xcframework_name="$scheme-$suffix"
+    resolved_xcframework_name="$scheme$suffix"
 fi
 xcframework_filename="$resolved_xcframework_name.xcframework"
 rm -rf "$xcframework_filename"
