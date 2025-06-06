@@ -4,6 +4,7 @@
 
 ### Improvements
 
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 
 ## 8.52.1
