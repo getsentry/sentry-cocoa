@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-should_sign_arg="${1:}"
+should_sign_arg="${1}"
 
 frameworks=( Sentry Sentry-Dynamic SentrySwiftUI Sentry-WithoutUIKitOrAppKit )
 
