@@ -182,6 +182,14 @@ jobs:
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
 
+  build-spm:
+    name: Build with SPM
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && xcodebuild build -scheme SentryObjc -sdk watchos -destination 'generic/platform=watchOS'
+        shell: sh
+
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13

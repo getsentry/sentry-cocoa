@@ -46,3 +46,18 @@ import Foundation
         return result
     }
 }
+
+@objc
+extension Event {
+  @objc
+  public var eventId: SentryId {
+    get {
+      // swiftlint:disable force_cast
+      _swiftEventId as! SentryId
+      // swiftlint:enable force_cast
+    }
+    set {
+      _swiftEventId = newValue
+    }
+  }
+}
