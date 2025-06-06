@@ -1,0 +1,81 @@
+name: Test Version Bump Util
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - "Utils/VersionBump/**"
+      - ".github/workflows/version-bump-util.yml"
+      - "./Sentry.podspec"
+      - "./Package.swift"
+      - "./SentryPrivate.podspec"
+      - "./SentrySwiftUI.podspec"
+      - "./Sources/Sentry/SentryMeta.m"
+      - "./Tests/HybridSDKTest/HybridPod.podspec"
+      - "./Sources/Configuration/SDK.xcconfig"
+      - "./Sources/Configuration/Versioning.xcconfig"
+      - "./Sources/Configuration/SentrySwiftUI.xcconfig"
+      - "./Samples/Shared/Config/Versioning.xcconfig"
+      - "./scripts/bump.sh"
+
+jobs:
+  run-version-bump:
+    # The release workflow uses the Makefile to bump the version so it needs to be tested.
+    name: Run Version Bump (Makefile)
+    # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Version Number
+        id: generate-version-number
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
+      # We don't care which version we bump to, as long as it's a valid semver
+      - run: make bump-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+
+  run-version-bump-script:
+    # Craft uses the shell script to bump the version so it needs to be tested.
+    name: Run Version Bump (Shell Script)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Version Number
+        id: generate-version-number
+        run: |
+          OLD_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
+          echo "Read old version: ${OLD_VERSION}"
+          echo "OLD_VERSION=${OLD_VERSION}" >> $GITHUB_OUTPUT
+
+          NEW_VERSION="100.0.$(date +%Y%m%d%H%M%S)"
+          echo "Generated new version: ${NEW_VERSION}"
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Verify OLD_VERSION is defined
+        if: ${{ steps.generate-version-number.outputs.OLD_VERSION == '' }}
+        run: |
+          echo "OLD_VERSION is not defined. Make sure this script is reading the version from the correct file."
+          exit 1
+
+      - name: Create fake xcframework for update-package-sha.sh
+        run: |
+          mkdir -p Carthage
+          echo "<FAKE STATIC ZIP>" > Carthage/Sentry.xcframework.zip
+          echo "<FAKE DYNAMIC ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
+
+      - name: Bump version
+        run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+
+      - name: Verify outputs of bump.sh
+        run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
+
+      - name: Verify outputs of update-package-sha.sh
+        run: |
+          ./scripts/verify-package-sha.sh \
+            --static-checksum "7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd" \
+            --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
+            --last-release-runid "${{ github.run_id }}"
