@@ -50,11 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return NSApplicationWillTerminateNotification;
 }
-
-+ (NSNotificationName)didEnterBackgroundNotificationName
-{
-    return NSApplicationDidEnterBackgroundNotification;
-}
 #endif
 
 - (void)addObserver:(NSObject *)observer

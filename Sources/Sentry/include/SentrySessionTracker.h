@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 
-@class SentryCurrentDateProvider;
 @class SentryEvent;
 @class SentryNSNotificationCenterWrapper;
 @class SentryOptions;

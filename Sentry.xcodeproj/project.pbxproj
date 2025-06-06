@@ -2439,13 +2439,6 @@
 			path = Helper;
 			sourceTree = "<group>";
 		};
-		624729162DE597DB00DFEE00 /* SentryTestUtilsTests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SentryTestUtilsTests;
-			sourceTree = "<group>";
-		};
 		62872B602BA1B84400A4FA7D /* Swift */ = {
 			isa = PBXGroup;
 			children = (
@@ -2872,7 +2865,6 @@
 				63FE71D220DA66C500CDBAE8 /* SentryCrash */,
 				7B944FAC2469B41600A10721 /* State */,
 				7BF536D224BEF240004FA6A2 /* TestUtils */,
-				624729162DE597DB00DFEE00 /* SentryTestUtilsTests */,
 				D81FDF0F280E9FEC0045E0E4 /* Tools */,
 				7B6C5ED4264E62B60010D138 /* Transaction */,
 			);

@@ -16,6 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
+#endif
+
+#if SENTRY_HAS_UIKIT
+// macOS apps can not enter the background, therefore this notification
+// is not available there.
 @property (nonatomic, readonly, copy, class) NSNotificationName didEnterBackgroundNotificationName;
 #endif
 
