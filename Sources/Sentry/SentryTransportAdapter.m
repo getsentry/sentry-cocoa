@@ -2,7 +2,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"
-#import "SentryUserFeedback.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
