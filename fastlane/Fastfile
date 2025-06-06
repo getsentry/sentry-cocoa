@@ -192,6 +192,8 @@ platform :ios do
       skip_archive: true,
       skip_package_dependencies_resolution: true
     )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
