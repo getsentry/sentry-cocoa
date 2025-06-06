@@ -49175,6 +49175,79 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "enableUnhandledCPPExceptionsV2",
+            "printedName": "enableUnhandledCPPExceptionsV2",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableUnhandledCPPExceptionsV2",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvp",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableUnhandledCPPExceptionsV2",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableUnhandledCPPExceptionsV2:",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "validateOptions",
             "printedName": "validateOptions(_:)",
