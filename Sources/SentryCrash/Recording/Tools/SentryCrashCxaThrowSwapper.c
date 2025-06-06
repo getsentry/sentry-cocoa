@@ -130,7 +130,7 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 
     if (g_cxa_throw_handler != NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Not __cxa_throw decorator, because no g_cxa_throw_handler set.");
+            "Not calling __cxa_throw decorator, because no g_cxa_throw_handler set.");
         g_cxa_throw_handler(thrown_exception, tinfo, dest);
     }
 
