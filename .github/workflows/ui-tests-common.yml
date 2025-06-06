@@ -7,6 +7,11 @@ on:
         description: "The fastlane command to run"
         required: true
         type: string
+      fastlane_command_extra_arguments:
+        description: "Extra arguments for the fastlane command"
+        required: false
+        default: ""
+        type: string
       xcresult_suffix:
         description: "Suffix for the xcresult artifact (if needed)"
         required: false
@@ -72,7 +77,7 @@ jobs:
 
       - name: Run Fastlane
         shell: sh
-        run: bundle exec fastlane ${{ inputs.fastlane_command }}
+        run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@65fe03598d8d251738592a497a9e8547a5c48eaa # v5.6.0

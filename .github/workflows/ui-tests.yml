@@ -63,7 +63,8 @@ jobs:
             xcode: "16.4"
             device: "iPhone 16 (18.5)"
     with:
-      fastlane_command: ui_tests_ios_swift device:"${{matrix.device}}"
+      fastlane_command: ui_tests_ios_swift
+      fastlane_command_extra_arguments: device:"${{matrix.device}}"
       xcresult_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
