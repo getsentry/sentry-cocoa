@@ -82,7 +82,7 @@ jobs:
   job_release:
     runs-on: ubuntu-latest
     name: "Release a new version"
-    needs: prepare_framework
+    needs: assemble-xcframework-variant
     if: ${{ github.event_name != 'pull_request' }}
     steps:
       - name: Get auth token
