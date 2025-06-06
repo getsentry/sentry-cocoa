@@ -74,6 +74,7 @@ jobs:
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
     uses: ./.github/workflows/assemble-xcframework-variant.yml
+    secrets: inherit
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
