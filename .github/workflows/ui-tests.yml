@@ -54,7 +54,7 @@ jobs:
           build_with_make: true
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V4 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests
     runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
@@ -67,8 +67,8 @@ jobs:
             xcode: "15.4"
             device: "iPhone 15 (17.5)"
           - runs-on: macos-15
-            xcode: "16.3"
-            device: "iPhone 16 (18.4)"
+            xcode: "16.4"
+            device: "iPhone 16 (18.5)"
 
     steps:
       - uses: actions/checkout@v4
@@ -94,7 +94,7 @@ jobs:
           build_with_make: true
 
   duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V3 # Up the version with every change to keep track of flaky tests
+    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -103,6 +103,6 @@ jobs:
           fastlane_command: duplication_test
           xcresult_name: duplication-test
           raw_output_name: duplication-test-raw-output
-          xcode_version: 16.2
+          xcode_version: 16.4
           build_with_script: true
           build_script_parameters: gameOnly
