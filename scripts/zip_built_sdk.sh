@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eou pipefail
+set -eoux pipefail
 
 should_sign_arg="${1}"
 framework="${2}" # examples: Sentry, Sentry-Dynamic, SentrySwiftUI, Sentry-WithoutUIKitOrAppKit

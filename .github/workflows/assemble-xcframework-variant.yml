@@ -36,7 +36,6 @@ on:
           Whether or not the assembled XCFramework should be signed.
         required: false
         type: string
-        default: "--do-not-sign"
 
       sdks:
         description: |-
@@ -70,7 +69,7 @@ jobs:
         run: find . -name "*.xcframework" -type d
 
       - name: Zip XCFramework
-        run: ./scripts/zip_built_sdks.sh ${{inputs.signed}} ${{inputs.name}}${{suffix}}
+        run: ./scripts/zip_built_sdk.sh ${{inputs.signed}} ${{inputs.name}}${{suffix}}
         shell: bash
 
       - name: Upload XCFramework
