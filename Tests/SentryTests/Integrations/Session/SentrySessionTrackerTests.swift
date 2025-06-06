@@ -797,6 +797,10 @@ class SentrySessionTrackerTests: XCTestCase {
 
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     private class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         private var _underlyingAppState: UIApplication.State = .active
         override var applicationState: UIApplication.State {
             get { _underlyingAppState }

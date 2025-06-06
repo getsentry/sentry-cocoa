@@ -5,7 +5,7 @@ import XCTest
 class SentryScreenShotTests: XCTestCase {
     private class Fixture {
         
-        let uiApplication = TestSentryUIApplication()
+        let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         var sut: SentryScreenshot {
             return SentryScreenshot()

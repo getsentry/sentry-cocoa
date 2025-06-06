@@ -16,7 +16,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        
+
+        let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
+        let contextProcessor: SentryWatchdogTerminationContextProcessor
+
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             options = Options()
@@ -25,7 +28,15 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             options.releaseName = TestData.appState.releaseName
             
             fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
-            
+
+            breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
+            let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
+            let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            contextProcessor = SentryWatchdogTerminationContextProcessor(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeContextStore: scopeContextStore
+            )
+
             client = TestClient(options: options)
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
@@ -51,12 +62,16 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
+            let scopePersistentStore = SentryScopeContextPersistentStore(
+                fileManager: fileManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
-                fileManager: fileManager
+                fileManager: fileManager,
+                scopeContextStore: scopePersistentStore
             )
         }
     }
@@ -265,8 +280,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut = fixture.getSut()
 
         let breadcrumb = TestData.crumb
-
-        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: fixture.breadcrumbProcessor,
+            contextProcessor: fixture.contextProcessor
+        )
 
         for _ in 0..<3 {
             sentryWatchdogTerminationScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())

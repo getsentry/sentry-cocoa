@@ -1,5 +1,8 @@
 .PHONY: init
-init:
+init: init-local init-ci-build init-ci-test init-ci-deploy init-ci-format
+
+.PHONY: init-local
+init-local:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	pre-commit install
@@ -25,7 +28,6 @@ init-ci-deploy:
 .PHONY: init-ci-format
 init-ci-format:
 	brew bundle --file Brewfile-ci-format
-	rbenv install --skip-existing
 
 .PHONY: update-versions
 update-versions:

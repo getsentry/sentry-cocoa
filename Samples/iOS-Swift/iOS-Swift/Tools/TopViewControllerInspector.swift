@@ -7,7 +7,6 @@ class TopViewControllerInspector: UIView {
     
     private var btn: UIButton!
     private var lbl: UILabel!
-    private var sentryUIApplication = SentryUIApplication()
     
     private init() {
         super.init(frame: CGRect(x: 0, y: 0, width: 360, height: 360))
@@ -52,7 +51,7 @@ class TopViewControllerInspector: UIView {
     
     @objc
     private func getTopVC() {
-        let names = sentryUIApplication.relevantViewControllersNames()
+        let names = SentrySDK.relevantViewControllersNames()
         lbl.text = names?.joined(separator: ", ")
     }
     

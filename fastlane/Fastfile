@@ -192,6 +192,8 @@ platform :ios do
       skip_archive: true,
       skip_package_dependencies_resolution: true
     )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
@@ -295,6 +297,7 @@ platform :ios do
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
       scheme: "DuplicatedSDKTest",
+      device: "iPhone 16 (18.5)",
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
