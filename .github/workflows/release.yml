@@ -44,13 +44,13 @@ jobs:
         shell: sh
 
       - name: Get release version
-        id: get_version
+        id: get_version-release
         if: ${{ github.event_name != 'pull_request' }}
         run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
         shell: sh
 
       - name: Get alpha version
-        id: get_version
+        id: get_version-pr-alpha
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
         shell: sh
