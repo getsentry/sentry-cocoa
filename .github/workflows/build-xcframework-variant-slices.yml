@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload xcarchive
         uses: actions/upload-artifact@v4
-        if: ${{ contains(matrix.sdk, "macosx") }}
+        if: matrix.sdk == 'macosx'
         with:
           name: xcframework-${{inputs.variant-id}}-slice-maccatalyst
           if-no-files-found: error
