@@ -60,12 +60,12 @@ if [ "$sdk" = "maccatalyst" ]; then
 
     maccatalyst_archive_directory="${carthage_xcarchive_path}/maccatalyst.xcarchive/Products/Library/Frameworks"
     mkdir -p "${maccatalyst_archive_directory}"
-    cp -r "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_archive_directory}"
+    cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_archive_directory}"
 
     if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
         maccatalyst_archive_dsym_directory="${maccatalyst_archive_directory}/dSYMs"
         mkdir "${maccatalyst_archive_dsym_directory}"
-        cp -r "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_directory}"
+        cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_directory}"
     fi
 else
     sentry_xcarchive_path="$carthage_xcarchive_path/${sdk}.xcarchive"
