@@ -77,13 +77,13 @@ jobs:
 
       - name: Get release version
         id: get_version-release
-        if: inputs.release-version
+        if: inputs.release-version != ""
         run: echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
         shell: sh
 
       - name: Get alpha version
         id: get_version-pr-alpha
-        if: ! inputs.release-version
+        if: ! inputs.release-version == ""
         run: echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
         shell: sh
 
