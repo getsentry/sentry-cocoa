@@ -9,6 +9,7 @@
 ### Improvements
 
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Memory footprint decrese when serializing envelopes (#5360)
 
 ## 8.52.1
 
