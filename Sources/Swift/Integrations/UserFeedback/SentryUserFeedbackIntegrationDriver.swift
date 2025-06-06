@@ -74,7 +74,7 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
 }
 
 // MARK: SentryUserFeedbackFormDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func finished(with feedback: SentryFeedback?) {
         if let feedback = feedback {
@@ -89,7 +89,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 }
 
 // MARK: SentryUserFeedbackWidgetDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
     func showForm() {
         showForm(screenshot: nil)
@@ -97,7 +97,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 }
 
 // MARK: UIAdaptivePresentationControllerDelegate
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
@@ -107,7 +107,7 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 }
 
 // MARK: Private
-@available(iOSApplicationExtension 13.0, *)
+@available(iOS 13.0, *)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
