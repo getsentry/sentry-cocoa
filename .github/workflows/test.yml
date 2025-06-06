@@ -240,6 +240,7 @@ jobs:
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
+            raw-test-output.log
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v4
