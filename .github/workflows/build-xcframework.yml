@@ -90,7 +90,7 @@ jobs:
           path: Carthage/
       - uses: actions/download-artifact@v4
         with:
-          pattern: xcframework-${{github.sha}}-sentryswiftui
+          pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
       - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
       - run: ./scripts/ci-select-xcode.sh 15.2
