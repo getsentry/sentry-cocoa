@@ -87,6 +87,6 @@ jobs:
       fastlane_command: duplication_test
       xcresult_name: duplication-test
       xcode_version: 16.4
-      build_with_script: true
-      build_script_parameters: gameOnly
+      build_xcframework: true
+      xcframework_type: gameOnly
       macos_version: macos-15

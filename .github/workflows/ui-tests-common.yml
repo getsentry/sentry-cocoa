@@ -20,12 +20,12 @@ on:
         required: false
         default: false
         type: boolean
-      build_with_script:
-        description: "Build with script"
+      build_xcframework:
+        description: "Build xcframework"
         required: false
         default: false
         type: boolean
-      build_script_parameters:
+      xcframework_type:
         description: "Parameters for the build script"
         required: false
         default: ""
@@ -62,9 +62,9 @@ jobs:
         shell: sh
         if: ${{ inputs.build_with_make }}
 
-      - run: ./scripts/build-xcframework.sh ${{ inputs.build_script_parameters }}
+      - run: ./scripts/build-xcframework.sh ${{ inputs.xcframework_type }}
         shell: sh
-        if: ${{ inputs.build_with_script }}
+        if: ${{ inputs.build_xcframework }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
