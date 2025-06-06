@@ -21,6 +21,7 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
+#import <SentryLog.h>
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
@@ -170,6 +171,8 @@ sentry_finishAndSaveTransaction(void)
 #endif // TARGET_OS_OSX
 
         if (enableCppExceptionsV2) {
+            SENTRY_LOG_DEBUG(@"Enabling CppExceptionsV2 by swapping cxa_throw.");
+
             sentrycrashcm_cppexception_enable_swap_cxa_throw();
         }
 

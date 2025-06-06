@@ -409,7 +409,7 @@ sentrycrashct_unswap_cxa_throw(void)
         rebind_symbols_for_image(header, slide, false);
     }
 
-    // We MUST NOT clear the pairs because a if we can't unswap one of the cxa_throw handlers, we
+    // We MUST NOT clear the pairs because if we can't unswap one of the cxa_throw handlers, we
     // still MUST call the original cxa_throw handler.
     g_cxa_throw_handler = NULL;
 
