@@ -60,15 +60,15 @@ jobs:
 
       - run: make init-ci-build
         shell: sh
-        if: ${{ inputs.build_with_make == 'true' }}
+        if: ${{ inputs.build_with_make }}
 
       - run: make xcode
         shell: sh
-        if: ${{ inputs.build_with_make == 'true' }}
+        if: ${{ inputs.build_with_make }}
 
       - run: ./scripts/build-xcframework.sh ${{ inputs.build_script_parameters }}
         shell: sh
-        if: ${{ inputs.build_with_script == 'true' }}
+        if: ${{ inputs.build_with_script }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
