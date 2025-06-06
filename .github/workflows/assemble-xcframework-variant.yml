@@ -66,6 +66,9 @@ jobs:
         run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME"
         shell: bash
 
+      - name: Find xcframeworks
+        run: find . -name "*.xcframework" -type d
+
       - name: Zip XCFramework
         run: ./scripts/zip_built_sdks.sh ${{inputs.signed}}
         shell: bash
