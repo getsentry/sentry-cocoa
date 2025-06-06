@@ -25,37 +25,33 @@ concurrency:
 jobs:
   ui-tests:
     name: UI Tests for ${{matrix.target}} - V3 # Up the version with every change to keep track of flaky tests
-    runs-on: macos-14
+    uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       matrix:
         target: ["ios_objc", "tvos_swift"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common-ui-test
-        with:
-          fastlane_command: ui_tests_${{matrix.target}}
-          xcresult_name: ui-tests-${{matrix.target}}
-          raw_output_name: raw-uitest-output-${{matrix.target}}
-          xcode_version: 16.2
-          build_with_make: true
+    with:
+      fastlane_command: ui_tests_${{matrix.target}}
+      xcresult_name: ui-tests-${{matrix.target}}
+      raw_output_name: raw-uitest-output-${{matrix.target}}
+      xcode_version: 16.2
+      build_with_make: true
+      macos_version: macos-14
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI - V4 # Up the version with every change to keep track of flaky tests
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common-ui-test
-        with:
-          fastlane_command: ui_tests_ios_swiftui
-          xcresult_name: ui-tests-ios-swiftui
-          raw_output_name: ui-tests-ios-swiftui-raw-output
-          xcode_version: 16.2
-          build_with_make: true
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swiftui
+      xcresult_name: ui-tests-ios-swiftui
+      raw_output_name: ui-tests-ios-swiftui-raw-output
+      xcode_version: 16.2
+      build_with_make: true
+      macos_version: macos-15
 
   ui-tests-swift:
     name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests
-    runs-on: ${{matrix.runs-on}}
+    uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
@@ -69,40 +65,33 @@ jobs:
           - runs-on: macos-15
             xcode: "16.4"
             device: "iPhone 16 (18.5)"
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common-ui-test
-        with:
-          fastlane_command: ui_tests_ios_swift device:"${{matrix.device}}"
-          xcresult_name: ui-tests-ios-swift-xcode_${{matrix.xcode}}-${{matrix.device}}
-          raw_output_name: ui-tests-ios-swift-raw-logs-xcode_${{matrix.xcode}}-${{matrix.device}}
-          xcode_version: ${{matrix.xcode}}
-          build_with_make: true
+    with:
+      fastlane_command: ui_tests_ios_swift device:"${{matrix.device}}"
+      xcresult_name: ui-tests-ios-swift-xcode_${{matrix.xcode}}-${{matrix.device}}
+      raw_output_name: ui-tests-ios-swift-raw-logs-xcode_${{matrix.xcode}}-${{matrix.device}}
+      xcode_version: ${{matrix.xcode}}
+      build_with_make: true
+      macos_version: ${{matrix.runs-on}}
 
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common-ui-test
-        with:
-          fastlane_command: ui_tests_ios_swift6
-          xcresult_name: ui-tests-ios-swift6
-          raw_output_name: ui-tests-ios-swift6-raw-output
-          xcode_version: 16.2
-          build_with_make: true
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swift6
+      xcresult_name: ui-tests-ios-swift6
+      raw_output_name: ui-tests-ios-swift6-raw-output
+      xcode_version: 16.2
+      build_with_make: true
+      macos_version: macos-15
 
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common-ui-test
-        with:
-          fastlane_command: duplication_test
-          xcresult_name: duplication-test
-          raw_output_name: duplication-test-raw-output
-          xcode_version: 16.4
-          build_with_script: true
-          build_script_parameters: gameOnly
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: duplication_test
+      xcresult_name: duplication-test
+      raw_output_name: duplication-test-raw-output
+      xcode_version: 16.4
+      build_with_script: true
+      build_script_parameters: gameOnly
+      macos_version: macos-15
