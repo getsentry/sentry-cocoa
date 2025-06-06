@@ -1,0 +1,239 @@
+name: Benchmarking
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      # test changes to Sentry SDK sources
+      - "Sources/**"
+
+      # test changes to benchmarking implementation
+      - "Samples/iOS-Swift/**"
+      - ".github/workflows/benchmarking.yml"
+      - ".sauce/benchmarking-config.yml"
+      - "fastlane/**"
+      - "scripts/ci-select-xcode.sh"
+      - "Samples/iOS-Swift/iOS-Swift.yml"
+      - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+      - "Samples/iOS-Swift/iOS-SwiftClilp.xcconfig"
+      - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-benchmark-test-target:
+    name: Build app and test runner
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: make init-ci-build
+      - run: make xcode
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
+      - name: Cache iOS-Swift App and dSYM build products
+        id: ios-swift-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
+      - name: Cache iOS-Swift UI Test Runner App build product
+        id: ios-swift-benchmark-runner-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Benchmarking/**') }}
+      - run: bundle exec fastlane build_ios_swift_for_tests
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - run: bundle exec fastlane build_ios_benchmark_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Upload dSYMs
+        run: |
+          sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v4
+        with:
+          name: DerivedData-Xcode
+          path: |
+            **/Debug-iphoneos/iOS-Swift.app
+            **/Debug-iphoneos/iOS-Benchmarking-Runner.app
+
+  run-ui-tests-with-sauce:
+    name: Run benchmarks on Sauce Labs
+    runs-on: ubuntu-latest
+    needs: build-benchmark-test-target
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ["High-end device", "Mid-range device", "Low-end device"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: DerivedData-Xcode
+      - run: npm install -g saucectl@0.186.0
+      - name: Run Benchmarks in SauceLab
+        id: run-benchmarks-in-sauce-lab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        # Note: We are not setting continue-on-error here, because we want the step to be marked as failed.
+        run: |
+          set -o pipefail && saucectl run \
+            --select-suite "${{matrix.suite}}" \
+            --config .sauce/benchmarking-config.yml \
+            --tags benchmark \
+            --verbose \
+            2>&1 | tee output.log
+
+      - name: Recovery - Extract Test ID from output
+        id: should-retry-test
+        # Note: We need to use always() here, because the previous run step might be marked as failed.
+        if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
+        uses: actions/github-script@v7
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+
+            console.log("Extracting test ID from output log");
+            const outputLog = fs.readFileSync('output.log', 'utf8');
+
+            // Lookup for the test ID in the output log
+            // Note: The CLI output might change over time, so this might need to be updated.
+            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
+            const testId = match?.[1] ?? '';
+
+            if (!testId) {
+              core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
+              core.setOutput('RETRY_TEST', 'true');
+
+              return;
+            }
+
+            try {
+              console.log(`Checking if the test exists in SauceLabs: ${testId}`);
+              execSync(`saucectl jobs get ${testId}`, {
+                env: process.env,
+                stdio: 'inherit'
+              });
+
+              console.log("Test exists but failed, not retrying.");
+              core.setFailed('Test exists but failed');
+            } catch (error) {
+              console.log("Failed to get job, retrying...");
+              core.setOutput('RETRY_TEST', 'true');
+            }
+
+      - name: Run Benchmarks in SauceLab - Retry 1
+        id: run-benchmarks-in-sauce-lab-retry-1
+        # Note: We need to use always() here, because the previous run step might be marked as failed.
+        if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: |
+          echo "::warning SauceLabs benchmark tests need to be retried"
+          saucectl run \
+            --select-suite "${{matrix.suite}}" \
+            --config .sauce/benchmarking-config.yml \
+            --tags benchmark \
+            --verbose
+
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      suffix: "-Dynamic"
+      variant-id: sentry-dynamic
+      sdk-list: '["iphoneos", "iphonesimulator"]'
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: Sentry
+      suffix: "-Dynamic"
+      variant-id: sentry-dynamic
+      sdks: "iphoneos,iphonesimulator"
+
+  app-metrics:
+    name: Collect app metrics
+    runs-on: macos-15
+    needs: assemble-xcframework-variant
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 16.3
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - uses: actions/cache@v4
+        id: app-plain-cache
+        with:
+          path: Tests/Perf/test-app-plain.ipa
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
+      - name: Build test app plain
+        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
+        run: bundle exec fastlane build_perf_test_app_plain
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-dynamic
+          path: Carthage/
+      - run: find Carthage -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
+      - name: Build test app with sentry
+        run: bundle exec fastlane build_perf_test_app_sentry
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Collect app metrics
+        uses: getsentry/action-app-sdk-overhead-metrics@v1
+        with:
+          config: Tests/Perf/metrics-test.yml
+          sauce-user: ${{ secrets.SAUCE_USERNAME }}
+          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
