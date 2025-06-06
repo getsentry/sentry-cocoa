@@ -8,11 +8,11 @@ on:
   pull_request:
     paths:
       - "Sources/**"
-      - ".github/workflows/build-xcframework.yml"
       - "scripts/ci-select-xcode.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - "Package.swift"
+      - ".github/workflows/build-xcframework.yml"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
