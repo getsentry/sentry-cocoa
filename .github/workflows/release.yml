@@ -30,6 +30,7 @@ jobs:
       macho-type: ${{matrix.variant.macho-type}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
+      release-version: ${{ github.event.inputs.version }}
     strategy:
       matrix:
         variant:

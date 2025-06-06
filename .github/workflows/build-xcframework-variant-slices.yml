@@ -46,6 +46,12 @@ on:
         required: true
         type: string
 
+      release-version:
+        description: |-
+          For release workflows, the version to inject into the SDK.
+        required: false
+        type: string
+
 jobs:
   build-xcframework-variant-slices:
     name: ${{matrix.sdk}}
@@ -68,6 +74,23 @@ jobs:
       # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
       - run: ./scripts/ci-select-xcode.sh 15.2
         shell: bash
+
+      - name: Get release version
+        id: get_version-release
+        if: inputs.release-version
+        run: echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
+        shell: sh
+
+      - name: Get alpha version
+        id: get_version-pr-alpha
+        if: ! inputs.release-version
+        run: echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+        shell: sh
+
+      - name: Bump version
+        run: |
+          ./scripts/ci-select-xcode.sh 15.2
+          make bump-version TO=${{ env.VERSION }}
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         if: startsWith(github.ref, 'refs/heads/release/') == false

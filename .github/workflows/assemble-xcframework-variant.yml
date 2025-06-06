@@ -44,13 +44,6 @@ on:
         type: string
         default: "iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 
-      release-version:
-        description: |-
-          For release workflows, the version to inject into the SDK.
-        required: false
-        type: string
-        default: ""
-
 jobs:
   assemble-xcframework-variant:
     name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
@@ -63,23 +56,6 @@ jobs:
         if: ${{ inputs.signed == '--sign' }}
         with:
           bundler-cache: true
-
-      - name: Get release version
-        id: get_version-release
-        if: inputs.release-version
-        run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-        shell: sh
-
-      - name: Get alpha version
-        id: get_version-pr-alpha
-        if: ! inputs.release-version
-        run: echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
-        shell: sh
-
-      - name: Bump version
-        run: |
-          ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ env.VERSION }}
 
       - name: "Download Fastlane Certificate"
         if: ${{ inputs.signed == '--sign' }}
