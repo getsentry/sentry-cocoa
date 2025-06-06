@@ -74,12 +74,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
-          path: xcframework-slices.zip
-
-      - name: Unzip Slices
-        run: |
-          unzip xcframework-slices.zip -d xcframework-slices
-        shell: bash
+          path: xcframework-slices
 
       - name: List Slices
         run: |
@@ -95,6 +90,11 @@ jobs:
         run: |
           find xcframework-slices -type l
         shell: bash
+
+#      - name: Unzip Slices
+#        run: |
+#          unzip xcframework-slices.zip -d xcframework-slices
+#        shell: bash
 
       - name: Assemble XCFramework
         run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME"
