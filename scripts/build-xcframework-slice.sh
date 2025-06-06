@@ -58,7 +58,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         plutil -replace "MinimumOSVersion" -string "100.0" "$infoPlist"
     fi
 
-    maccatalyst_archive_directory="${carthage_xcarchive_path}/maccatalyst.xcarchive/Library/Frameworks"
+    maccatalyst_archive_directory="${carthage_xcarchive_path}/maccatalyst.xcarchive/Products/Library/Frameworks"
     mkdir -p "${maccatalyst_archive_directory}"
     cp -r "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_archive_directory}"
 
