@@ -26,6 +26,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
       - run: ./scripts/ci-select-xcode.sh "16.2"
       - uses: ruby/setup-ruby@v1
         with:
@@ -69,6 +72,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
       - name: Install tooling
         run: make init-ci-test
 
@@ -77,6 +83,9 @@ jobs:
           name: ${{env.APP_ARTIFACT_NAME}}
           path: ${{env.APP_PATH}}
 
+      - name: Add Microphone permissions
+        uses: ./.github/actions/add-microphone-permissions
+
       - run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       - name: Install App
@@ -84,7 +93,7 @@ jobs:
 
       - name: Run Maestro Flows
         run: |
-          maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}}
+          maestro test ${{env.MAESTRO_FLOWS_PATH}} --format junit --debug-output ${{env.MAESTRO_LOGS_PATH}} --flatten-debug-output
 
       - name: Store Maestro Logs
         uses: actions/upload-artifact@v4
@@ -100,3 +109,7 @@ jobs:
           name: crash-logs-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()

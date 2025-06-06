@@ -6,7 +6,20 @@
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
 
+### Improvements
+
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+
+## 8.52.1
+
+### Fixes
+
+- Missing debug meta for non fatal events (#5352)
+
 ## 8.52.0
+
+> [!Warning]
+> This version has a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
 
 ### Features
 
@@ -35,6 +48,9 @@
 - Redact React Native text and images by default without the RN SDK (#5302)
 
 ## 8.51.1
+
+> [!Warning]
+> This version introduces a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
 
 ### Fixes
 
