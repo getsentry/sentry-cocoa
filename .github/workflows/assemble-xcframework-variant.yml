@@ -60,7 +60,7 @@ jobs:
           path: xcframework-slices
 
       - name: Assemble XCFramework
-        run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.sdks}}" "xcframework-${{inputs.variant-id}}-slice-SDK_NAME/archive/${{inputs.name}}${{inputs.suffix}}/SDK_NAME.xcarchive"
+        run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.sdks}}" "xcframework-slices/xcframework-${{inputs.variant-id}}-slice-SDK_NAME/archive/${{inputs.name}}${{inputs.suffix}}/SDK_NAME.xcarchive"
         shell: bash
 
       - name: Zip XCFramework
