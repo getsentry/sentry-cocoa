@@ -19,7 +19,8 @@ NSData *_Nullable sentry_unzippedData(NSData *data)
     stream.avail_out = 0;
 
     NSMutableData *decompressed = nil;
-    if (inflateInit2(&stream, 47) == Z_OK) {
+    // window bits set to use the largest sliding window and automatically detect the header
+    if (inflateInit2(&stream, MAX_WBITS + 32) == Z_OK) {
         int err = Z_OK;
         decompressed = [NSMutableData dataWithCapacity:data.length * 2];
         while (err == Z_OK) {
