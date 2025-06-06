@@ -46,7 +46,7 @@ jobs:
       - name: Bump version
         run: |
           ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ github.event.inputs.version || github.sha }}
+          make bump-version TO=${{ github.event.inputs.version || (grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3) + '+' + github.sha }}
 
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
