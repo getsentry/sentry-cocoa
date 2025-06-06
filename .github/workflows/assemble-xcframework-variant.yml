@@ -42,7 +42,7 @@ on:
           The SDK slices to assemble into an XCFramework.
         required: false
         type: string
-        default: "iphoneos,iphonesimulator,macosx,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
+        default: "iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 
 jobs:
   assemble-xcframework-variant:
