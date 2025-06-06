@@ -2,17 +2,17 @@
 
 set -eou pipefail
 
-args="${1:-}"
+should_sign_arg="${1:}"
 
 frameworks=( Sentry Sentry-Dynamic SentrySwiftUI Sentry-WithoutUIKitOrAppKit )
 
 should_sign=false
-[[ "$args" == "--sign" ]] && should_sign=true
+[[ "$should_sign_arg" == "--sign" ]] && should_sign=true
 
 sentry_certificate="Apple Distribution: GetSentry LLC (97JCY7859U)"
 
 for framework in "${frameworks[@]}"; do
-    framework_path="Carthage/$framework.xcframework"
+    framework_path="$framework.xcframework"
 
     if [[ "$should_sign" == true ]]; then
         echo "Signing $framework"
