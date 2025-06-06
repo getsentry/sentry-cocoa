@@ -5,14 +5,6 @@
 set -eoux pipefail
 
 sdk="${1:-}"
-
-ALL_SDKS=$(xcodebuild -showsdks)
-
-if ! [[ $ALL_SDKS =~ $sdk ]]; then
-    echo "${sdk} SDK not found"
-    exit 1
-fi
-
 scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
