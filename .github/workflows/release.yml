@@ -43,10 +43,16 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
         shell: sh
 
+      - name: Get current version from xcconfig
+        id: get_version
+        if: ${{ github.event_name != 'pull_request' }}
+        run: echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)" >> $GITHUB_ENV
+        shell: sh
+
       - name: Bump version
         run: |
           ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ github.event.inputs.version || (grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3) + '+' + github.sha }}
+          make bump-version TO=${{ github.event.inputs.version || env.VERSION + '+' + github.sha }}
 
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
