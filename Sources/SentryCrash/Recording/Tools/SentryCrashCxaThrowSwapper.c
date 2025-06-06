@@ -111,8 +111,16 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
 
     if (g_cxa_originals_count == g_cxa_originals_capacity) {
         g_cxa_originals_capacity *= 2;
+
         g_cxa_originals = (SentryCrashImageToOriginalCxaThrowPair *)realloc(g_cxa_originals,
             sizeof(SentryCrashImageToOriginalCxaThrowPair) * g_cxa_originals_capacity);
+
+        // Strictly speaking we should use a temp variable for g_cxa_originals and free
+        // g_cxa_originals in case realloc fails. But if realloc fails for such a small structure
+        // the leak we're causing here is negligible. Ideally, we would need to escalate this and
+        // return an error, because we would free the global structure g_cxa_originals. We
+        // intentionally ignore this edge case in the first iteration of this code.
+
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to realloc memory for g_cxa_originals: %s", strerror(errno));
