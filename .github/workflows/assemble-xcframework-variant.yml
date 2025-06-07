@@ -89,6 +89,13 @@ jobs:
         run: ./scripts/zip_built_sdk.sh "${{inputs.signed}}" ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
+      - name: Cache XCFramework
+        id: xcframework-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
+          key: xcframework-cache-key-${{ hashFiles('Samples/iOS-Swift/**') }}-${{ hashFiles('Sources') }}
+
       - name: Upload XCFramework
         uses: actions/upload-artifact@v4
         with:
