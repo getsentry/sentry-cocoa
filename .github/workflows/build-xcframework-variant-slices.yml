@@ -1,0 +1,126 @@
+name: "Build Sentry Cocoa XCFramework variant slices"
+
+on:
+  workflow_call:
+    inputs:
+      sdk-list:
+        description: |-
+          The list of Apple platform SDKs for which to build slices and assemble into an XCFramework. This must be a JSON array of strings, itself in a string since GitHub Actions doesn't support arrays as inputs.
+          Possible values: iphoneos, iphonesimulator, macosx, appletvos, appletvsimulator, watchos, watchsimulator, xros, xrsimulator.
+        required: false
+        default: '["iphoneos", "iphonesimulator", "macosx", "maccatalyst", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
+        type: string
+
+      name:
+        description: |-
+          The Sentry project target to build an XCFramework slice for.
+          Possible values: Sentry, SentrySwiftUI.
+        required: true
+        type: string
+
+      suffix:
+        description: |-
+          The suffix to add to the build product name.
+          E.g. "-Dynamic" or "-WithoutUIKitOrAppKit".
+        required: false
+        type: string
+
+      macho-type:
+        description: |-
+          The Mach-O type of the build product.
+          Possible values: mh_dylib, staticlib.
+        required: false
+        type: string
+        default: "mh_dylib"
+
+      configuration-suffix:
+        description: |-
+          The suffix to add to the build product name to build an alternate configuration of the target.
+          E.g. "WithoutUIKit".
+        required: false
+        type: string
+
+      variant-id:
+        description: |-
+          The ID of the variant to build an XCFramework slice for. Used to collect appropriate slices for final deliverable assembly.
+        required: true
+        type: string
+
+      release-version:
+        description: |-
+          For release workflows, the version to inject into the SDK.
+        required: false
+        type: string
+
+jobs:
+  build-xcframework-variant-slices:
+    name: ${{matrix.sdk}}
+
+    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
+    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
+    runs-on: macos-14
+
+    strategy:
+      matrix:
+        sdk: ${{ fromJson(inputs.sdk-list) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
+      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
+      # and cannot be used here because C++ types from imported module 'Foundation' do not support
+      # library evolution; this is an error in the Swift 6 language mode
+      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
+      - run: ./scripts/ci-select-xcode.sh 15.2
+        shell: bash
+
+      - name: Get version
+        id: get-version
+        run: |
+          if [ -n "${{ inputs.release-version }}" ]; then
+            echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+          fi
+        shell: sh
+
+      - name: Bump version
+        run: |
+          ./scripts/ci-select-xcode.sh 15.2
+          make bump-version TO=${{ env.VERSION }}
+
+      - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
+        if: startsWith(github.ref, 'refs/heads/release/') == false
+        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" "${{inputs.macho-type}}" "${{inputs.configuration-suffix}}"
+        shell: bash
+
+      # The SentrySwiftUI archive build also builds Sentry.framework as a byproduct of the dependency. We need to remove that to avoid downstream assembly tasks from tripping on these extra files. In the future we could investigate using this byproduct instead of running a separate task for Sentry.framework, or use the one already built by that other task instead of rebuilding it here.
+      - name: Remove Sentry.framework from SentrySwiftUI build
+        if: inputs.name == 'SentrySwiftUI'
+        run: |
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
+        shell: bash
+
+      # the upload action broke symlinks in the mac sdk slice's xcarchive
+      - name: Zip xcarchive
+        run: |
+          ditto -c -k -X --rsrc --keepParent ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
+        shell: bash
+
+      - name: Upload xcarchive
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
+          if-no-files-found: error
+          path: |
+            ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
+
+      - name: Upload build log if failed
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}
+          path: |
+            *.log

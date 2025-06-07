@@ -9,7 +9,7 @@ platform :ios do
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
 
-  lane :prepare_signed_xcframework do
+  lane :prepare_xcframework_signing do
     setup_ci
 
     match(

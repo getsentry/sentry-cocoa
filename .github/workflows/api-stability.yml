@@ -9,7 +9,7 @@ on:
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - "Package.swift"
-      - "scripts/build-xcframework.sh"
+      - "scripts/build-xcframework-local.sh"
 
 jobs:
   api-stability:

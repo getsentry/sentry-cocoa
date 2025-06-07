@@ -127,13 +127,11 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	./scripts/build-xcframework.sh | tee build-xcframework.log
-	./scripts/zip_built_sdks.sh
+	./scripts/build-xcframework-local.sh | tee build-xcframework.log
 
 build-signed-xcframework:
 	@echo "--> Carthage: creating Signed Sentry xcframework"
-	./scripts/build-xcframework.sh | tee build-xcframework.log
-	./scripts/zip_built_sdks.sh --sign
+	./scripts/build-xcframework-local.sh | tee build-xcframework.log
 
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
