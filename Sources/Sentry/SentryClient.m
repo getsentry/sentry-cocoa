@@ -48,7 +48,6 @@
 #import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
-#import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT

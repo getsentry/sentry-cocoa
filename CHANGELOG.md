@@ -8,6 +8,7 @@
 
 ### Improvements
 
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 
