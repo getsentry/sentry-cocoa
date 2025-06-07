@@ -1,0 +1,109 @@
+name: UI Tests Common
+
+on:
+  workflow_call:
+    inputs:
+      fastlane_command:
+        description: "The fastlane command to run"
+        required: true
+        type: string
+      fastlane_command_extra_arguments:
+        description: "Extra arguments for the fastlane command"
+        required: false
+        default: ""
+        type: string
+      xcresult_suffix:
+        description: "Suffix for the xcresult artifact (if needed)"
+        required: false
+        default: ""
+        type: string
+      xcode_version:
+        description: "Xcode version"
+        required: true
+        type: string
+      build_with_make:
+        description: "Build with make"
+        required: false
+        default: false
+        type: boolean
+      build_xcframework:
+        description: "Build xcframework"
+        required: false
+        default: false
+        type: boolean
+      xcframework_type:
+        description: "Parameters for the build script"
+        required: false
+        default: ""
+        type: string
+      macos_version:
+        description: "macOS version"
+        required: true
+        type: string
+
+jobs:
+  common-ui-tests:
+    name: UI Tests Common
+    runs-on: ${{ inputs.macos_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Print hardware info
+        shell: bash
+        run: system_profiler SPHardwareDataType
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
+        with:
+          bundler-cache: true
+
+      - run: ./scripts/ci-select-xcode.sh ${{ inputs.xcode_version }}
+        shell: sh
+
+      - run: make init-ci-build
+        shell: sh
+        if: ${{ inputs.build_with_make }}
+
+      - run: make xcode
+        shell: sh
+        if: ${{ inputs.build_with_make }}
+
+      - run: ./scripts/build-xcframework.sh ${{ inputs.xcframework_type }}
+        shell: sh
+        if: ${{ inputs.build_xcframework }}
+
+      - name: Add Microphone permissions
+        uses: ./.github/actions/add-microphone-permissions
+
+      - name: Run Fastlane
+        shell: sh
+        run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@65fe03598d8d251738592a497a9e8547a5c48eaa # v5.6.0
+        if: always()
+        with:
+          report_paths: "build/reports/junit.xml"
+          fail_on_failure: true
+          fail_on_parse_error: true
+          detailed_summary: true
+
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}
+          path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}_raw_output
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
