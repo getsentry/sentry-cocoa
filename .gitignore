@@ -109,3 +109,5 @@ Integration/*/Podfile*
 Integration/*/*xcodeproj*
 Integration/*/*xcworkspace*
 Integration/*/*.yml
+Integration/*/Cartfile
+Integration/*/*.Carthage.json
