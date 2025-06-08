@@ -113,7 +113,7 @@ test-ui-critical:
 	./scripts/test-ui-critical.sh
 
 package-integration-test-local:
-	./scripts/package-integration-test-local.sh
+	./scripts/package-integration-test-local.sh allPlatforms allPackageTypes
 
 analyze:
 	rm -rf analyzer

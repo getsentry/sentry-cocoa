@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eoux pipefail
+set -eou pipefail
 
 get_proper_case_platform() {
   case $1 in
@@ -33,8 +33,11 @@ fi
 
 PLATFORM=$1
 PROPER_CASE_PLATFORM=$(get_proper_case_platform "$PLATFORM")
-
 PACKAGE_TYPE=$2
+
+echo "--------------------------------"
+echo "Testing integration on $PROPER_CASE_PLATFORM via $PACKAGE_TYPE"
+echo "--------------------------------"
 
 DEPLOYMENT_TARGET=$(get_deployment_target "$PLATFORM")
 

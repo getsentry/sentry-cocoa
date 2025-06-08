@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
-set -eoux pipefail
+set -eou pipefail
 
 scheme="$1"
 suffix="$2"
 configuration_suffix="$3"
 IFS=',' read -r -a sdks <<< "$4"
+
+echo "--------------------------------"
+echo "Assembling XCFramework ${scheme}${suffix} for ${4}"
+echo "--------------------------------"
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework

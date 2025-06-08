@@ -1,15 +1,20 @@
 #!/bin/bash
 
-set -oux pipefail
+set -ou pipefail
 
-PLATFORM_SDK=${1:-all} # examples: all, ios, macosx, maccatalyst, tvos, watchos, visionos
-DELIVERY_METHOD=${2:-all} # examples: all, cocoapods, spm, xcframework-static, xcframework-dynamic, carthage
+PLATFORM_SDK=${1:-allPlatforms} # examples: allPlatforms, ios, macosx, maccatalyst, tvos, watchos, visionos
+PACKAGE_TYPE=${2:-allPackageTypes} # examples: allPackageTypes, cocoapods, spm, xcframework-static, xcframework-dynamic, carthage
+
+echo "--------------------------------"
+echo "Integration testing ${PLATFORM_SDK} via ${PACKAGE_TYPE}."
+echo "--------------------------------"
 
 FRAMEWORK_DIR="Integration/Frameworks"
+mkdir -p "$FRAMEWORK_DIR"
 
 # cocoapods doesn't use the prebuilt xcframeworks
-if [ "$DELIVERY_METHOD" != "cocoapods" ]; then
-  case "$DELIVERY_METHOD" in
+if [ "$PACKAGE_TYPE" != "cocoapods" ]; then
+  case "$PACKAGE_TYPE" in
     spm)
       ./scripts/build-xcframework-local.sh "$PLATFORM_SDK" "dynamic"
       ./scripts/build-xcframework-local.sh "$PLATFORM_SDK" "swiftui"
@@ -32,7 +37,7 @@ if [ "$DELIVERY_METHOD" != "cocoapods" ]; then
       XCFRAMEWORK_FILENAMES="Sentry.xcframework SentrySwiftUI.xcframework"
       XCFRAMEWORK_ZIP_FILENAMES="Carthage/Sentry.xcframework.zip Carthage/SentrySwiftUI.xcframework.zip"
     ;;
-    all)
+    allPackageTypes)
       ./scripts/build-xcframework-local.sh
       XCFRAMEWORK_FILENAMES="Sentry.xcframework SentrySwiftUI.xcframework Sentry-Dynamic.xcframework Sentry-WithoutUIKitOrAppKit.xcframework"
       XCFRAMEWORK_ZIP_FILENAMES="Carthage/Sentry.xcframework.zip Carthage/SentrySwiftUI.xcframework.zip Sentry-Dynamic.xcframework.zip Sentry-WithoutUIKitOrAppKit.xcframework.zip"
@@ -43,8 +48,8 @@ if [ "$DELIVERY_METHOD" != "cocoapods" ]; then
     ;;
   esac
   
-  "cp -Rf $XCFRAMEWORK_FILENAMES $FRAMEWORK_DIR"
-  "cp -Rf $XCFRAMEWORK_ZIP_FILENAMES $FRAMEWORK_DIR"
+  eval "cp -Rf $XCFRAMEWORK_FILENAMES $FRAMEWORK_DIR"
+  eval "cp -f $XCFRAMEWORK_ZIP_FILENAMES $FRAMEWORK_DIR"
 fi
 
 succeeded_tests=()
@@ -53,30 +58,30 @@ failed_tests=()
 # Run the package integration tests for all platform and SDK variant combinations
 # todo: add maccatalyst, it'll need to be special-cased for platform/destination combination
 for platform in ios tvos watchos macos visionos; do
-  for delivery_method in cocoapods spm xcframework-static xcframework-dynamic carthage; do
-    if [ "$PLATFORM_SDK" == "all" ] || [ "$PLATFORM_SDK" == "$platform" ]; then
-      if [ "$DELIVERY_METHOD" == "all" ] || [ "$DELIVERY_METHOD" == "$delivery_method" ]; then
-        if [ "$DELIVERY_METHOD" == "coocapods" ] && [ "$PLATFORM_SDK" == "visionos" ]; then
+  for package_type in cocoapods spm xcframework-static xcframework-dynamic carthage; do
+    if [ "$PLATFORM_SDK" == "allPlatforms" ] || [ "$PLATFORM_SDK" == "$platform" ]; then
+      if [ "$PACKAGE_TYPE" == "allPackageTypes" ] || [ "$PACKAGE_TYPE" == "$package_type" ]; then
+
+        if [ "$package_type" == "cocoapods" ] && [ "$platform" == "visionos" ]; then
           echo "visionos via cocoapods doesn't work due to the issue initially reported in https://github.com/getsentry/sentry-cocoa/issues/3809"
           continue
         fi
-        if [ "$DELIVERY_METHOD" == "carthage" ] && [ "$PLATFORM_SDK" == "visionos" ]; then
+        if [ "$package_type" == "carthage" ] && [ "$platform" == "visionos" ]; then
           echo "carthage doesn't support visionos"
           continue
         fi
 
-        if ./scripts/package-integration-test.sh $platform $delivery_method; then
-          echo "Succeeded integrating $platform via $delivery_method"
-          succeeded_tests+=("$platform-$delivery_method")
+        if ./scripts/package-integration-test.sh $platform $package_type; then
+          echo "Succeeded integrating $platform via $package_type"
+          succeeded_tests+=("$platform-$package_type")
         else
-          failed_tests+=("$platform-$delivery_method")
+          failed_tests+=("$platform-$package_type")
         fi
       fi
     fi
   done
 done
 
-echo "Summary of the results:"
 echo "Succeeded tests:"
 for test in "${succeeded_tests[@]}"; do
   echo "  $test"
