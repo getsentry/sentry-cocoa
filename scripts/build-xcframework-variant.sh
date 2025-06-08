@@ -6,13 +6,19 @@ scheme="$1"
 suffix="${2:-}"
 MACH_O_TYPE="${3-mh_dylib}"
 configuration_suffix="${4-}"
-sdks_to_build="${5:-}"
+sdks_to_build="${5:-}" # examples: all, ios, macosx, maccatalyst, tvos, watchos, visionos
 
-if [ "$sdks_to_build" = "iOSOnly" ]; then
+if [ "$sdks_to_build" = "ios" ]; then
     sdks=( iphoneos iphonesimulator )
-elif [ "$sdks_to_build" = "macOSOnly" ]; then
+elif [ "$sdks_to_build" = "tvos" ]; then
+    sdks=( appletvos appletvsimulator )
+elif [ "$sdks_to_build" = "watchos" ]; then
+    sdks=( watchos watchsimulator )
+elif [ "$sdks_to_build" = "visionos" ]; then
+    sdks=( xros xrsimulator )
+elif [ "$sdks_to_build" = "macosx" ]; then
     sdks=( macosx )
-elif [ "$sdks_to_build" = "macCatalystOnly" ]; then
+elif [ "$sdks_to_build" = "maccatalyst" ]; then
     sdks=( maccatalyst )
 else
     sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator )

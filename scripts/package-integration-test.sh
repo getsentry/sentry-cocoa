@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eou pipefail
+set -eoux pipefail
 
 get_proper_case_platform() {
   case $1 in
@@ -57,13 +57,24 @@ options:
   bundleIdPrefix: com.example
   deploymentTarget:
     $PLATFORM: '$DEPLOYMENT_TARGET'
+fileGroups: 
+  - ./$SPEC_FILENAME
+EOL
+
+if [ "$PACKAGE_TYPE" = "carthage" ]; then
+cat >> "$SPEC_PATH" <<EOL
+  - ./Cartfile
+  - ./Sentry.Carthage.json
+  - ./SentrySwiftUI.Carthage.json
+EOL
+fi
+
+cat >> "$SPEC_PATH" <<EOL
 targets:
   ${PROPER_CASE_PLATFORM}App:
     type: application
     platform: $PROPER_CASE_PLATFORM
     sources: [../Sources]
-    fileGroups: 
-      - $SPEC_FILENAME
     info:
       path: Info.plist
       properties:
@@ -100,18 +111,33 @@ EOL
         sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: ".\/Integration\/Frameworks\/Sentry.xcframework.zip"/g' "$PACKAGE_FILE_PATH"
         sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: ".\/Integration\/Frameworks\/Sentry-Dynamic.xcframework.zip"/g' "$PACKAGE_FILE_PATH"
         ;;
+
     carthage)
+        ./scripts/create-carthage-json.sh "$PROJECT_DIR" "$(pwd)/Integration/Frameworks"
+
+        cat > "$PROJECT_DIR/Cartfile" <<EOL
+binary "./Sentry.Carthage.json" ~> 1.0
+binary "./SentrySwiftUI.Carthage.json" ~> 1.0
+EOL
+
+        pushd "$PROJECT_DIR"
+        carthage update --use-xcframeworks
+        popd
+
         cat >> "$SPEC_PATH" <<EOL
     dependencies:
-        - carthage: Sentry
+        - framework: ./Carthage/Build/Sentry.xcframework
+        - framework: ./Carthage/Build/SentrySwiftUI.xcframework
 EOL
         ;;
+
     xcframework-static)
         cat >> "$SPEC_PATH" <<EOL
     dependencies:
         - framework: ../Frameworks/Sentry.xcframework
 EOL
         ;;
+
     xcframework-dynamic)
         cat >> "$SPEC_PATH" <<EOL
     dependencies:
@@ -119,9 +145,11 @@ EOL
         - framework: ../Frameworks/SentrySwiftUI.xcframework
 EOL
         ;;
+
     cocoapods)
         # we'll handle this case after generating the xcode project
         ;;
+
     *)
         echo "Invalid package type: $PACKAGE_TYPE"
         exit 1

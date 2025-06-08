@@ -2,33 +2,40 @@
 
 set -eoux pipefail
 
-sdks="${1:-AllSDKs}"
-variants="${2:-AllVariants}"
+sdks="${1:-all}" # examples: all, ios, macosx, maccatalyst, tvos, watchos, visionos
+variants="${2:-all}" # examples: all, dynamic, static, swiftui, withoutUIKit
 signed="${3:-}"
 
-rm -rf Carthage/
-mkdir Carthage
+mkdir -p Carthage
 
-if [ "$variants" = "DynamicOnly" ] || [ "$variants" = "AllVariants" ]; then
+if [ "$variants" = "dynamic" ] || [ "$variants" = "all" ]; then
+    final_zip_path="Carthage/Sentry-Dynamic.xcframework.zip"
+    rm -rf "$final_zip_path"
     ./scripts/build-xcframework-variant.sh "Sentry" "-Dynamic" "mh_dylib" "" "$sdks"
     ./scripts/zip_built_sdk.sh "$signed" Sentry-Dynamic
-    mv Sentry-Dynamic.xcframework.zip Carthage/Sentry-Dynamic.xcframework.zip
+    mv -f Sentry-Dynamic.xcframework.zip "$final_zip_path"
 fi
 
-if [ "$variants" = "StaticOnly" ] || [ "$variants" = "AllVariants" ]; then
+if [ "$variants" = "static" ] || [ "$variants" = "all" ]; then
+    final_zip_path="Carthage/Sentry.xcframework.zip"
+    rm -rf "$final_zip_path"
     ./scripts/build-xcframework-variant.sh "Sentry" "" "staticlib" "" "$sdks"
     ./scripts/zip_built_sdk.sh "$signed" Sentry
-    mv Sentry.xcframework.zip Carthage/Sentry.xcframework.zip
+    mv -f Sentry.xcframework.zip "$final_zip_path"
 fi
 
-if [ "$variants" = "SwiftUIOnly" ] || [ "$variants" = "AllVariants" ]; then
+if [ "$variants" = "swiftui" ] || [ "$variants" = "all" ]; then
+    final_zip_path="Carthage/SentrySwiftUI.xcframework.zip"
+    rm -rf "$final_zip_path"
     ./scripts/build-xcframework-variant.sh "SentrySwiftUI" "" "mh_dylib" "" "$sdks"
     ./scripts/zip_built_sdk.sh "$signed" SentrySwiftUI
-    mv SentrySwiftUI.xcframework.zip Carthage/SentrySwiftUI.xcframework.zip
+    mv -f SentrySwiftUI.xcframework.zip "$final_zip_path"
 fi
 
-if [ "$variants" = "WithoutUIKitOnly" ] || [ "$variants" = "AllVariants" ]; then
+if [ "$variants" = "withoutUIKit" ] || [ "$variants" = "all" ]; then
+    final_zip_path="Carthage/Sentry-WithoutUIKitOrAppKit.xcframework.zip"
+    rm -rf "$final_zip_path"
     ./scripts/build-xcframework-variant.sh "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "$sdks"
     ./scripts/zip_built_sdk.sh "$signed" Sentry-WithoutUIKitOrAppKit
-    mv Sentry-WithoutUIKitOrAppKit.xcframework.zip Carthage/Sentry-WithoutUIKitOrAppKit.xcframework.zip
+    mv -f Sentry-WithoutUIKitOrAppKit.xcframework.zip "$final_zip_path"
 fi
