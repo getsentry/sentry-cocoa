@@ -242,3 +242,8 @@ Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 MaestroLogs/
 
 Integration/*/Package.swift
+Integration/*/Info.plist
+Integration/*/Podfile*
+Integration/*/*xcodeproj*
+Integration/*/*xcworkspace*
+Integration/*/*.yml
