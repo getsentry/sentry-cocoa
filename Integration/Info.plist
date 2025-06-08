@@ -22,11 +22,16 @@
 	<array>
 		<string>armv7</string>
 	</array>
-	<key>UISupportedInterfaceOrientations</key>
+	<key>dependencies</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<dict>
+			<key>framework</key>
+			<string>Frameworks/Sentry-Dynamic.xcframework</string>
+		</dict>
+		<dict>
+			<key>framework</key>
+			<string>Frameworks/SentrySwiftUI.xcframework</string>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -1,49 +1,7 @@
 #!/bin/bash
 
-set -eoux pipefail
+set -eou pipefail
 
-# Check for required arguments
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <platform> <packageType>"
-    echo "platform: ios, tvos, watchos, macos, visionos"
-    echo "packageType: carthage, cocoapods, spm, xcframework-static, xcframework-dynamic"
-    exit 1
-fi
-
-PLATFORM=$1
-PACKAGE_TYPE=$2
-
-echo "Platform: $PLATFORM"
-
-# Function to get deployment target for a platform
-get_deployment_target() {
-  case $1 in
-    ios) echo "13.0" ;;
-    tvos) echo "13.0" ;;
-    watchos) echo "6.0" ;;
-    macos) echo "10.15" ;;
-    visionos) echo "1.0" ;;
-    *) echo "Invalid platform: $1"; exit 1 ;;
-  esac
-}
-
-# Get the deployment target for the specified platform
-DEPLOYMENT_TARGET=$(get_deployment_target "$PLATFORM")
-
-# Debug statement to print the deployment target for the platform
-echo "Deployment target for $PLATFORM: $DEPLOYMENT_TARGET"
-
-# Check if the platform is valid
-if [[ -z "$DEPLOYMENT_TARGET" ]]; then
-    echo "Invalid platform: $PLATFORM"
-    exit 1
-fi
-
-# Define the XcodeGen spec file path
-PROJECT_NAME="project-$PLATFORM-$PACKAGE_TYPE"
-SPEC_PATH="Integration/$PROJECT_NAME.yml"
-
-# Function to map platform names to their proper case
 get_proper_case_platform() {
   case $1 in
     ios) echo "iOS" ;;
@@ -55,8 +13,42 @@ get_proper_case_platform() {
   esac
 }
 
-# Get the proper case platform name
+get_deployment_target() {
+  case $1 in
+    ios) echo "13.0" ;;
+    tvos) echo "13.0" ;;
+    watchos) echo "6.0" ;;
+    macos) echo "10.15" ;;
+    visionos) echo "1.0" ;;
+    *) echo "Invalid platform: $1"; exit 1 ;;
+  esac
+}
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <platform> <packageType>"
+    echo "platform: ios, tvos, watchos, macos, visionos"
+    echo "packageType: carthage, cocoapods, spm, xcframework-static, xcframework-dynamic"
+    exit 1
+fi
+
+PLATFORM=$1
 PROPER_CASE_PLATFORM=$(get_proper_case_platform "$PLATFORM")
+
+PACKAGE_TYPE=$2
+
+DEPLOYMENT_TARGET=$(get_deployment_target "$PLATFORM")
+
+if [[ -z "$DEPLOYMENT_TARGET" ]]; then
+    echo "Invalid platform: $PLATFORM"
+    exit 1
+fi
+
+PROJECT_NAME="project-$PLATFORM-$PACKAGE_TYPE"
+PROJECT_DIR="Integration/$PROJECT_NAME"
+SPEC_FILENAME="$PROJECT_NAME.yml"
+SPEC_PATH="$PROJECT_DIR/$SPEC_FILENAME"
+
+mkdir -p "$PROJECT_DIR"
 
 # Create the XcodeGen spec
 cat > "$SPEC_PATH" <<EOL
@@ -69,7 +61,9 @@ targets:
   ${PROPER_CASE_PLATFORM}App:
     type: application
     platform: $PROPER_CASE_PLATFORM
-    sources: [Sources]
+    sources: [../Sources]
+    fileGroups: 
+      - $SPEC_FILENAME
     info:
       path: Info.plist
       properties:
@@ -87,33 +81,43 @@ if [ "$PLATFORM" == "ios" ]; then
 EOL
 fi
 
-cat >> "$SPEC_PATH" <<EOL
-    dependencies:
-EOL
-
 # Add dependencies based on the package type
 case $PACKAGE_TYPE in
     spm)
         cat >> "$SPEC_PATH" <<EOL
+    dependencies:
       - package: Sentry
 packages:
   Sentry:
-    path: .
+    path: ../..
 EOL
+
+        PACKAGE_FILE_PATH="$PROJECT_DIR/Package.swift"
+        cp Package.swift "$PACKAGE_FILE_PATH"
+
         # Modify Package.swift for SPM
-        sed -i '' 's/url.*//g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Frameworks/Sentry.xcframework.zip"/g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Frameworks/Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        sed -i '' 's/url.*//g' "$PACKAGE_FILE_PATH"
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: ".\/Integration\/Frameworks\/Sentry.xcframework.zip"/g' "$PACKAGE_FILE_PATH"
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: ".\/Integration\/Frameworks\/Sentry-Dynamic.xcframework.zip"/g' "$PACKAGE_FILE_PATH"
         ;;
     carthage)
-        echo "      - carthage: Sentry" >> "$SPEC_PATH"
+        cat >> "$SPEC_PATH" <<EOL
+    dependencies:
+        - carthage: Sentry
+EOL
         ;;
     xcframework-static)
-        echo "      - framework: Frameworks/Sentry.xcframework" >> "$SPEC_PATH"
+        cat >> "$SPEC_PATH" <<EOL
+    dependencies:
+        - framework: ../Frameworks/Sentry.xcframework
+EOL
         ;;
     xcframework-dynamic)
-        echo "      - framework: Frameworks/Sentry-Dynamic.xcframework" >> "$SPEC_PATH"
-        echo "      - framework: Frameworks/SentrySwiftUI.xcframework" >> "$SPEC_PATH"
+        cat >> "$SPEC_PATH" <<EOL
+    dependencies:
+        - framework: ../Frameworks/Sentry-Dynamic.xcframework
+        - framework: ../Frameworks/SentrySwiftUI.xcframework
+EOL
         ;;
     cocoapods)
         # we'll handle this case after generating the xcode project
@@ -130,15 +134,16 @@ xcodegen generate --spec "$SPEC_PATH"
 
 if [ "$PACKAGE_TYPE" == "cocoapods" ]; then
     # Write a Podfile
-    cat > Integration/Podfile <<EOL
+    cat > "$PROJECT_DIR/Podfile" <<EOL
 platform :$PLATFORM, '$DEPLOYMENT_TARGET'
+project '$PROJECT_NAME.xcodeproj'
 target '${PROPER_CASE_PLATFORM}App' do
-  pod 'Sentry', :path => '.'
+  pod 'Sentry', :path => '../..'
 end
 EOL
-    pushd Integration
+    pushd "$PROJECT_DIR"
     if command -v rbenv >/dev/null; then
-        if ! rbenv version | grep -q "$(cat .ruby-version)"; then
+        if ! rbenv version | grep -q "$(cat ../../.ruby-version)"; then
             echo "Ruby version $(cat .ruby-version) is not installed. Run make init to install it and try again."
             exit 1
         fi
@@ -151,19 +156,19 @@ fi
 
 # build the app in the project to validate compilation and linking of the SDK
 if [ "$PACKAGE_TYPE" == "cocoapods" ]; then
-    container="-workspace Integration/$PROJECT_NAME.xcworkspace"
+    container="-workspace $PROJECT_DIR/$PROJECT_NAME.xcworkspace"
 else
-    container="-project Integration/$PROJECT_NAME.xcodeproj"
+    container="-project $PROJECT_DIR/$PROJECT_NAME.xcodeproj"
 fi
 
 # Function to get a valid destination specifier for each platform
 get_destination_specifier() {
   case $1 in
     ios) echo "platform=iOS Simulator,name=iPhone 16,OS=18.4" ;;
-    tvos) echo "platform=tvOS Simulator,name=Apple TV,OS=16.0" ;;
-    watchos) echo "platform=watchOS Simulator,name=Apple Watch Series 8 - 45mm,OS=9.0" ;;
+    tvos) echo "platform=tvOS Simulator,name=Apple TV,OS=18.4" ;;
+    watchos) echo "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm),OS=11.4" ;;
     macos) echo "platform=macOS,arch=arm64" ;;
-    visionos) echo "platform=visionOS Simulator,name=Apple Vision Pro,OS=2.3" ;;
+    visionos) echo "platform=visionOS Simulator,name=Apple Vision Pro,OS=2.4" ;;
     *) echo "Invalid platform: $1"; exit 1 ;;
   esac
 }
@@ -172,7 +177,7 @@ get_destination_specifier() {
 destination=$(get_destination_specifier "$PLATFORM")
 
 # Update the xcodebuild command with the new destination
-xcodebuild_cmd="xcodebuild $container -scheme ${PROPER_CASE_PLATFORM}App -configuration Debug -destination \"$destination\" build"
+xcodebuild_cmd="xcodebuild $container -scheme ${PROPER_CASE_PLATFORM}App -configuration Debug -destination \"$destination\" -quiet build | tee $PROJECT_DIR/$PROJECT_NAME.build.log"
 
 # Print and execute the xcodebuild command
 echo "Running: $xcodebuild_cmd"

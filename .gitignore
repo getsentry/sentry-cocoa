@@ -102,3 +102,5 @@ Sentry.xcframework*
 Sentry-Dynamic.xcframework*
 SentrySwiftUI.xcframework*
 Sentry-WithoutUIKitOrAppKit.xcframework*
+
+Integration/*/Package.swift
