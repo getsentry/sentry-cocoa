@@ -4,19 +4,19 @@ import Foundation
 /// @deprecated Use `SentryFeedback`.
 @objc(SentryUserFeedback)
 @available(*, deprecated, message: "Use SentryFeedback.")
-public class UserFeedback: NSObject, SentrySerializable {
+open class UserFeedback: NSObject, SentrySerializable {
     
     /// The eventId of the event to which the user feedback is associated.
-    @objc public private(set) var eventId: SentryId
+    @objc open private(set) var eventId: SentryId
     
     /// The name of the user.
-    @objc public var name: String
+    @objc open var name: String
     
     /// The email of the user.
-    @objc public var email: String
+    @objc open var email: String
     
     /// Comments of the user about what happened.
-    @objc public var comments: String
+    @objc open var comments: String
     
     /// Initializes SentryUserFeedback and sets the required eventId.
     /// - Parameter eventId: The eventId of the event to which the user feedback is associated.
@@ -28,7 +28,7 @@ public class UserFeedback: NSObject, SentrySerializable {
         super.init()
     }
     
-    public func serialize() -> [String: Any] {
+    open func serialize() -> [String: Any] {
         return [
             "event_id": eventId.sentryIdString,
             "email": email,
