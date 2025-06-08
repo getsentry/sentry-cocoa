@@ -103,3 +103,8 @@ SentrySwiftUI.xcframework*
 Sentry-WithoutUIKitOrAppKit.xcframework*
 
 Integration/*/Package.swift
+Integration/*/Info.plist
+Integration/*/Podfile*
+Integration/*/*xcodeproj*
+Integration/*/*xcworkspace*
+Integration/*/*.yml
