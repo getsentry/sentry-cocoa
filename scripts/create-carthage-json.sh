@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 
 SPEC_PATH_FOLDER="${1:-./Samples/Carthage-Validation}"
 XCFRAMEWORK_FOLDER="${2:-$(pwd)/Carthage}"
