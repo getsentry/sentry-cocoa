@@ -26,6 +26,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install tooling
+        run: make init-ci-build
+
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
 
