@@ -197,6 +197,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: xcframework-${{github.sha}}-*
+          path: Carthage/
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.

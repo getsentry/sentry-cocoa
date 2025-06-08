@@ -276,6 +276,7 @@ jobs:
 
       - name: Print hardware info
         run: system_profiler SPHardwareDataType
+
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -286,6 +287,7 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
+
       - run: find Carthage -name "Sentry.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
 
       - name: Add Microphone permissions

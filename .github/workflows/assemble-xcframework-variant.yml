@@ -92,6 +92,7 @@ jobs:
       - name: Upload XCFramework
         uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: xcframework-${{github.sha}}-${{inputs.variant-id}}
           if-no-files-found: error
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
