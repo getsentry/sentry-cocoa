@@ -39,24 +39,6 @@ if [[ -z "$DEPLOYMENT_TARGET" ]]; then
     exit 1
 fi
 
-# Define the destination directory for frameworks
-FRAMEWORKS_DIR="Integration/Frameworks"
-mkdir -p "$FRAMEWORKS_DIR"
-
-# Determine the SDK variant type and copy the appropriate frameworks
-case $PACKAGE_TYPE in
-    xcframework-static)
-        cp -R ./Sentry.xcframework "$FRAMEWORKS_DIR/"
-        ;;
-    xcframework-dynamic)
-        cp -R ./Sentry-Dynamic.xcframework "$FRAMEWORKS_DIR/"
-        cp -R ./SentrySwiftUI.xcframework "$FRAMEWORKS_DIR/"
-        ;;
-    *)
-        # For other package types, no need to copy frameworks
-        ;;
-esac
-
 # Define the XcodeGen spec file path
 PROJECT_NAME="project-$PLATFORM-$PACKAGE_TYPE"
 SPEC_PATH="Integration/$PROJECT_NAME.yml"
@@ -120,8 +102,8 @@ packages:
 EOL
         # Modify Package.swift for SPM
         sed -i '' 's/url.*//g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Frameworks/Sentry.xcframework.zip"/g' Package.swift
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Frameworks/Sentry-Dynamic.xcframework.zip"/g' Package.swift
         ;;
     carthage)
         echo "      - carthage: Sentry" >> "$SPEC_PATH"

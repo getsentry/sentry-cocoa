@@ -175,6 +175,29 @@ jobs:
         shell: bash
       - run: swift build
 
+  package-integration-test:
+    needs: assemble-xcframework-variant
+    runs-on: macos-13
+    strategy:
+      matrix:
+        platform: [ios, tvos, watchos, macos, visionos]
+        sdk_variant: [carthage, cocoapods, spm, xcframework-static, xcframework-dynamic]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+          path: Integration/Frameworks
+      - name: Run Integration Test
+        run: ./scripts/package-integration-test.sh ${{ matrix.platform }} ${{ matrix.sdk_variant }}
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: integration-test-${{ matrix.platform }}-${{ matrix.sdk_variant }}.xcresult
+          path: Integration/fastlane/test_results/results.xcresult
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
@@ -243,6 +266,7 @@ jobs:
       validate-spm,
       validate-spm-dynamic,
       swift-build,
+      package-integration-test,
       duplication-tests,
       app-metrics,
     ]
