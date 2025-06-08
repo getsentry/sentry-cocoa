@@ -179,7 +179,12 @@ jobs:
   job_release:
     runs-on: ubuntu-latest
     name: "Release a new version"
-    needs: [validate-xcframework, validate-spm, validate-spm-dynamic, swift-build]
+    needs: [
+      validate-xcframework,
+      validate-spm,
+      validate-spm-dynamic,
+      swift-build
+    ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Get auth token
