@@ -196,7 +196,8 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-*
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
           path: Carthage/
 
       # update-package-sha.sh uses this env variable to update Package.swift.
