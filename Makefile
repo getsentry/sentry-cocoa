@@ -118,6 +118,9 @@ test-homekit:
 test-ui-critical:
 	./scripts/test-ui-critical.sh
 
+package-integration-test-local:
+	./scripts/package-integration-test-local.sh
+
 analyze:
 	rm -rf analyzer
 	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]

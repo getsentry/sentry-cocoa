@@ -240,3 +240,5 @@ Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 
 # Logs
 MaestroLogs/
+
+Integration/*/Package.swift
