@@ -2,13 +2,17 @@
 #
 # Builds a single slice of the SDK to be packaged into an XCFramework
 
-set -eoux pipefail
+set -eou pipefail
 
 sdk="${1:-}"
 scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
 configuration_suffix="${5-}"
+
+echo "--------------------------------"
+echo "Building ${scheme}${suffix} XCFramework slice for ${sdk}"
+echo "--------------------------------"
 
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
@@ -50,7 +54,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify -qq
 
     maccatalyst_build_product_directory="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
@@ -59,7 +63,7 @@ if [ "$sdk" = "maccatalyst" ]; then
     cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_xcarchive_framework_directory}"
 
     if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
-        maccatalyst_archive_dsym_destination="${carthage_xcarchive_path}/maccatalyst.xcarchive/dSYMs"
+        maccatalyst_archive_dsym_destination="${xcarchive_path}/dSYMs"
         mkdir "${maccatalyst_archive_dsym_destination}"
         cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_destination}"
     fi
@@ -77,7 +81,7 @@ else
         MACH_O_TYPE="$MACH_O_TYPE" \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify -qq
 fi
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then

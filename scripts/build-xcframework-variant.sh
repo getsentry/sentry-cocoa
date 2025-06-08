@@ -1,12 +1,22 @@
 #!/bin/bash
 
-set -eoux pipefail
+set -eou pipefail
 
 scheme="$1"
 suffix="${2:-}"
 MACH_O_TYPE="${3-mh_dylib}"
 configuration_suffix="${4-}"
-sdks_to_build="${5:-}" # examples: all, ios, macosx, maccatalyst, tvos, watchos, visionos
+sdks_to_build="${5:-allSDKs}" # examples: allSDKs, ios, macosx, maccatalyst, tvos, watchos, visionos
+verbose="${6:-}" # examples: --verbose)
+
+if [ "${verbose:-}" = "--verbose" ]; then
+    set -x
+else
+    set +x
+fi
+echo "--------------------------------"
+echo "Building XCFramework ${scheme}${suffix} for ${sdks_to_build}"
+echo "--------------------------------"
 
 if [ "$sdks_to_build" = "ios" ]; then
     sdks=( iphoneos iphonesimulator )
