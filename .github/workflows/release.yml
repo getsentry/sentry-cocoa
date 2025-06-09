@@ -195,6 +195,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: Integration/Frameworks
+      - name: Unzip Frameworks
+        run: |
+          unzip -o Integration/Frameworks/Sentry.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/Sentry-Dynamic.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/SentrySwiftUI.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/Sentry-WithoutUIKitOrAppKit.xcframework.zip -d Integration/Frameworks/
       - name: Run Integration Test
         run: ./scripts/package-integration-test.sh ${{ matrix.platform }} ${{ matrix.sdk_variant }}
       - name: Upload Result Bundle
