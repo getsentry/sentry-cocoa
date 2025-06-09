@@ -177,7 +177,7 @@ jobs:
 
   package-integration-test:
     needs: assemble-xcframework-variant
-    runs-on: macos-13
+    runs-on: macos-15
     strategy:
       matrix:
         platform: [ios, tvos, watchos, macos, visionos]
