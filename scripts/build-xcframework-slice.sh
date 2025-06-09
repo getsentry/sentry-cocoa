@@ -63,7 +63,7 @@ if [ "$sdk" = "maccatalyst" ]; then
     cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_xcarchive_framework_directory}"
 
     if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
-        maccatalyst_archive_dsym_destination="${xcarchive_path}/dSYMs"
+        maccatalyst_archive_dsym_destination="${sentry_xcarchive_path}/dSYMs"
         mkdir "${maccatalyst_archive_dsym_destination}"
         cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_destination}"
     fi
