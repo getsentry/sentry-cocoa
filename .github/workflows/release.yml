@@ -183,7 +183,7 @@ jobs:
       validate-xcframework,
       validate-spm,
       validate-spm-dynamic,
-      swift-build
+      swift-build,
     ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
