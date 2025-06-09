@@ -236,7 +236,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUserFeedback.h"
 #import "SentryViewHierarchy.h"
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryWatchdogTerminationLogic.h"
