@@ -184,6 +184,8 @@ jobs:
         sdk_variant: [carthage, cocoapods, spm, xcframework-static, xcframework-dynamic]
     steps:
       - uses: actions/checkout@v4
+      - name: Install tooling
+        run: make init-ci-build
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
