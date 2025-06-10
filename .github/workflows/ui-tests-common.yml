@@ -26,16 +26,6 @@ on:
         required: false
         default: false
         type: boolean
-      build_xcframework:
-        description: "Build xcframework"
-        required: false
-        default: false
-        type: boolean
-      xcframework_type:
-        description: "Parameters for the build script"
-        required: false
-        default: ""
-        type: string
       macos_version:
         description: "macOS version"
         required: true
@@ -67,10 +57,6 @@ jobs:
       - run: make xcode
         shell: sh
         if: ${{ inputs.build_with_make }}
-
-      - run: ./scripts/build-xcframework.sh ${{ inputs.xcframework_type }}
-        shell: sh
-        if: ${{ inputs.build_xcframework }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
