@@ -86,7 +86,7 @@ jobs:
         shell: bash
 
       - name: Zip XCFramework
-        run: ./scripts/zip_built_sdk.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
+        run: ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
       - name: Upload XCFramework
