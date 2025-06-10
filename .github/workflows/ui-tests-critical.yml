@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{matrix.platform.xcode}}
+          name: crash-logs-${{matrix.platform.xcode}}-${{matrix.test.name}}
           path: ~/Library/Logs/DiagnosticReports/**
 
       - name: Store screenshot
