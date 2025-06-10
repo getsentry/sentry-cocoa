@@ -42,9 +42,67 @@ on:
         type: string
 
 jobs:
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    if: ${{ inputs.build_xcframework }}
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            macho-type: mh_dylib
+            id: sentry-swiftui
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    if: ${{ inputs.build_xcframework }}
+    secrets: inherit
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            macho-type: mh_dylib
+            id: sentry-swiftui
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
+    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
 
@@ -67,10 +125,6 @@ jobs:
       - run: make xcode
         shell: sh
         if: ${{ inputs.build_with_make }}
-
-      - run: ./scripts/build-xcframework.sh ${{ inputs.xcframework_type }}
-        shell: sh
-        if: ${{ inputs.build_xcframework }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
