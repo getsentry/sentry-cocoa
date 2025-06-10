@@ -89,6 +89,7 @@ jobs:
       name: Sentry
       macho-type: staticlib
       variant-id: sentry-static-uitests
+      sdk-list: '["iphoneos", "iphonesimulator"]'
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
@@ -97,6 +98,7 @@ jobs:
     with:
       name: Sentry
       variant-id: sentry-static-uitests
+      sdks: "iphoneos,iphonesimulator"
 
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests

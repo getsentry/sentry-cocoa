@@ -18,6 +18,6 @@ if [[ "$should_sign" == true ]]; then
     codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
 fi
 
-echo "Zipping $framework"
+echo "Compressing $framework"
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 ditto -c -k -X --rsrc --keepParent "$framework_path" "$framework_path.zip"
