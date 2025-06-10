@@ -2,7 +2,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryMechanismMeta.h"
 #import "SentryNSDictionarySanitize.h"
-#import "SentryNSError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
