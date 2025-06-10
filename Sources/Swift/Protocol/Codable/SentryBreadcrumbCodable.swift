@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Breadcrumb: Decodable {
+final class BreadcrumbDecodable: Breadcrumb, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case level

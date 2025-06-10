@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension DebugMeta: Decodable {
+final class DebugMetaDecodable: DebugMeta, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case uuid

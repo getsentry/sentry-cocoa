@@ -12,6 +12,7 @@
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Implement Decodable conformances in new Swift subclass (#5388) 
 
 ## 8.52.1
 

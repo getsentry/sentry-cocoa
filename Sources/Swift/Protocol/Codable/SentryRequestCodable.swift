@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryRequest: Decodable {
+final class SentryRequestDecodable: SentryRequest, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case bodySize = "body_size"

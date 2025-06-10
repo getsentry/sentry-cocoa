@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Frame: Decodable {
+final class FrameDecodable: Frame, Decodable {
 
     enum CodingKeys: String, CodingKey {
         case symbolAddress = "symbol_addr"

@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension User: Decodable {
+final class UserDecodable: User, Decodable {
     
     enum CodingKeys: String, CodingKey {
         case userId = "id"
@@ -32,7 +32,7 @@ extension User: Decodable {
         self.ipAddress = try container.decodeIfPresent(String.self, forKey: .ipAddress)
         self.segment = try container.decodeIfPresent(String.self, forKey: .segment)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
-        self.geo = try container.decodeIfPresent(Geo.self, forKey: .geo)
+        self.geo = try container.decodeIfPresent(GeoDecodable.self, forKey: .geo)
         
         self.data = decodeArbitraryData {
             try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)

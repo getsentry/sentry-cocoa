@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryThread: Decodable {
+final class SentryThreadDecodable: SentryThread, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case threadId = "id"
@@ -21,7 +21,7 @@ extension SentryThread: Decodable {
         
         self.init(threadId: threadId)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
-        self.stacktrace = try container.decodeIfPresent(SentryStacktrace.self, forKey: .stacktrace)
+        self.stacktrace = try container.decodeIfPresent(SentryStacktraceDecodable.self, forKey: .stacktrace)
         self.crashed = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .crashed)?.value
         self.current = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .current)?.value
         self.isMain = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .isMain)?.value

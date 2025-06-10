@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryStacktrace: Decodable {
+final class SentryStacktraceDecodable: SentryStacktrace, Decodable {
 
     enum CodingKeys: String, CodingKey {
         case frames
@@ -12,7 +12,7 @@ extension SentryStacktrace: Decodable {
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let frames = try container.decodeIfPresent([Frame].self, forKey: .frames) ?? []
+        let frames = try container.decodeIfPresent([FrameDecodable].self, forKey: .frames) ?? []
         let registers = try container.decodeIfPresent([String: String].self, forKey: .registers) ?? [:]
         self.init(frames: frames, registers: registers)
         

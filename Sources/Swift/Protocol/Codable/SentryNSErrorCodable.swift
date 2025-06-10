@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryNSError: Decodable {
+final class SentryNSErrorDecodable: SentryNSError, Decodable {
 
     enum CodingKeys: String, CodingKey {
         case domain

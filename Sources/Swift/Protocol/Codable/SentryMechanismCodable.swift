@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Mechanism: Decodable {
+final class MechanismDecodable: Mechanism, Decodable {
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -26,6 +26,6 @@ extension Mechanism: Decodable {
         self.handled = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .handled)?.value
         self.synthetic = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .synthetic)?.value
         self.helpLink = try container.decodeIfPresent(String.self, forKey: .helpLink)
-        self.meta = try container.decodeIfPresent(MechanismMeta.self, forKey: .meta)
+        self.meta = try container.decodeIfPresent(MechanismMetaDecodable.self, forKey: .meta)
     }
 }

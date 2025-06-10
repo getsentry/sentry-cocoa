@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryMessage: Decodable {
+final class SentryMessageDecodable: SentryMessage, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case formatted
