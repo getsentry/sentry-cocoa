@@ -46,6 +46,7 @@ jobs:
 
       - name: Install Tools
         run: |
+          make init
           make init-ci-format
 
       - name: Update tooling versions
