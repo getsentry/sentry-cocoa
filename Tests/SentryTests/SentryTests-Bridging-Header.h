@@ -190,6 +190,7 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryWeakMap.h"
 
+#import "NSData+Unzip.h"
 #import "Sentry/Sentry-Swift.h"
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
@@ -235,7 +236,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUserFeedback.h"
 #import "SentryViewHierarchy.h"
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryWatchdogTerminationLogic.h"
