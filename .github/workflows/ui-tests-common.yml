@@ -44,7 +44,6 @@ on:
 jobs:
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    if: ${{ inputs.build_xcframework }}
     with:
       name: Sentry
       macho-type: staticlib
@@ -53,7 +52,6 @@ jobs:
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
     uses: ./.github/workflows/assemble-xcframework-variant.yml
-    if: ${{ inputs.build_xcframework }}
     secrets: inherit
     with:
       name: Sentry
