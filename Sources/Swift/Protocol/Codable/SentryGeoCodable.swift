@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Geo: Decodable {
+final class GeoDecodable: Geo, Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case city

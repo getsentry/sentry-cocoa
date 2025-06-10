@@ -58,7 +58,7 @@ open class SentryEventDecodable: Event, Decodable {
 
         let eventIdAsString = try container.decode(String.self, forKey: .eventId)
         self.eventId = SentryId(uuidString: eventIdAsString)
-        self.message = try container.decodeIfPresent(SentryMessage.self, forKey: .message)
+        self.message = try container.decodeIfPresent(SentryMessageDecodable.self, forKey: .message)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.startTimestamp = try container.decodeIfPresent(Date.self, forKey: .startTimestamp)
 
@@ -89,27 +89,27 @@ open class SentryEventDecodable: Event, Decodable {
 
         self.modules = try container.decodeIfPresent([String: String].self, forKey: .modules)
         self.fingerprint = try container.decodeIfPresent([String].self, forKey: .fingerprint)
-        self.user = try container.decodeIfPresent(User.self, forKey: .user)
+        self.user = try container.decodeIfPresent(UserDecodable.self, forKey: .user)
         
         self.context = decodeArbitraryData {
             try container.decodeIfPresent([String: [String: ArbitraryData]].self, forKey: .context)
         }
 
-        if let rawThreads = try container.decodeIfPresent([String: [SentryThread]].self, forKey: .threads) {
+        if let rawThreads = try container.decodeIfPresent([String: [SentryThreadDecodable]].self, forKey: .threads) {
             self.threads = rawThreads["values"]
         }
             
-        if let rawExceptions = try container.decodeIfPresent([String: [Exception]].self, forKey: .exception) {
+        if let rawExceptions = try container.decodeIfPresent([String: [ExceptionDecodable]].self, forKey: .exception) {
             self.exceptions = rawExceptions["values"]
         }
         
-        self.stacktrace = try container.decodeIfPresent(SentryStacktrace.self, forKey: .stacktrace)
+        self.stacktrace = try container.decodeIfPresent(SentryStacktraceDecodable.self, forKey: .stacktrace)
         
-        if let rawDebugMeta = try container.decodeIfPresent([String: [DebugMeta]].self, forKey: .debugMeta) {
+        if let rawDebugMeta = try container.decodeIfPresent([String: [DebugMetaDecodable]].self, forKey: .debugMeta) {
             self.debugMeta = rawDebugMeta["images"]
         }
         
-        self.breadcrumbs = try container.decodeIfPresent([Breadcrumb].self, forKey: .breadcrumbs)
-        self.request = try container.decodeIfPresent(SentryRequest.self, forKey: .request)
+        self.breadcrumbs = try container.decodeIfPresent([BreadcrumbDecodable].self, forKey: .breadcrumbs)
+        self.request = try container.decodeIfPresent(SentryRequestDecodable.self, forKey: .request)
     }
 }
