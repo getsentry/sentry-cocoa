@@ -36,7 +36,7 @@ on:
         default: false
         type: boolean
 
-jobs: 
+jobs:
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
