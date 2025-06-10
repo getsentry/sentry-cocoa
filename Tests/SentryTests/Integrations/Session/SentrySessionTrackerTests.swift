@@ -15,6 +15,8 @@ class SentrySessionTrackerTests: XCTestCase {
 
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         let application: TestSentryUIApplication
+        #else
+        let application: TestSentryNSApplication
         #endif
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -34,6 +36,10 @@ class SentrySessionTrackerTests: XCTestCase {
             #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
             application = TestSentryUIApplication()
             application.applicationState = .inactive
+            SentryDependencyContainer.sharedInstance().application = application
+            #else
+            application = TestSentryNSApplication()
+            application.setIsActive(false)
             SentryDependencyContainer.sharedInstance().application = application
             #endif
         }
@@ -514,12 +520,18 @@ class SentrySessionTrackerTests: XCTestCase {
 
     private func startSutInAppDelegate() {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-        // The Sentry SDK should be initialized in the UIAppDelegate.didFinishLaunchingWithOptions
+        // The Sentry SDK should be initialized in the `UIAppDelegate.didFinishLaunchingWithOptions`
         // At this point the application state is `inactive`, because the app just launched but did not
         // become the active app yet.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.didFinishLaunchingWithOptions`.
         fixture.application.applicationState = .inactive
+        #else
+        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
+        // At this point the app is not active yet.
+        //
+        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        fixture.application.setIsActive(false)
         #endif
         sut.start()
     }
@@ -534,6 +546,12 @@ class SentrySessionTrackerTests: XCTestCase {
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #else
+        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
+        // At this point the app is not active yet.
+        //
+        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        fixture.application.setIsActive(false)
         #endif
     }
 
@@ -543,6 +561,12 @@ class SentrySessionTrackerTests: XCTestCase {
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #else
+        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
+        // At this point the app is not active yet.
+        //
+        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        fixture.application.setIsActive(false)
         #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
@@ -556,6 +580,10 @@ class SentrySessionTrackerTests: XCTestCase {
         // When the app becomes active, the app state is `active`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidBecomeActive`.
         fixture.application.applicationState = .active
+        #else
+        // When the app becomes active, the app state is `active`.
+        // This can be observed by viewing the application state in `NSApplicationDelegate.applicationDidBecomeActive`.
+        fixture.application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -581,14 +609,25 @@ class SentrySessionTrackerTests: XCTestCase {
                    userInfo: nil
                )
            )
+        #else
+        // When the app becomes active, the app state is `active`.
+        //
+        // This can be observed by viewing the application state in `NSAppDelegate.applicationDidResignActive`.
+        fixture.application.setIsActive(false)
         #endif
     }
     
     private func willResignActive() {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app is about to resign being active, it is still active.
+        //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillResignActive`.
         fixture.application.applicationState = .active
+        #else
+        // When the app becomes active, the app state is `active`.
+        //
+        // This can be observed by viewing the application state in `NSAppDelegate.applicationWillResignActive`.
+        fixture.application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -601,9 +640,11 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func hybridSdkDidBecomeActive() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When an app did become active, it is in the active state.
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         fixture.application.applicationState = .active
+        #else
+        fixture.application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -622,10 +663,18 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private  func willTerminate() {
-        // When terminating an app, it will first move to the background and then terminate.
-        // This can be observed by viewing the application state in `UIAppDelegate.applicationWillTerminate`.
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When terminating an app, it will first move to the background and then terminate.
+        //
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationWillTerminate`.
         fixture.application.applicationState = .background
+        #else
+        // When terminating an app, it will first move to the background and then terminate.
+        //
+        // This can be observed by viewing the application state in `NSApplicationDelegate.applicationWillTerminate`.
+        //
+        // Important: According to the documentation, this method isn’t called during sudden termination of an app.
+        fixture.application.setIsActive(false)
         #endif
         fixture.notificationCenter
             .post(
@@ -820,6 +869,16 @@ class SentrySessionTrackerTests: XCTestCase {
 
         override func isActive() -> Bool {
             return applicationState == .active
+        }
+    }
+#else
+    private class TestSentryNSApplication: SentryNSApplication {
+        private var _underlyingIsActive = true
+        func setIsActive(_ isActive: Bool) {
+            _underlyingIsActive = isActive
+        }
+        override func isActive() -> Bool {
+            return _underlyingIsActive
         }
     }
 #endif
