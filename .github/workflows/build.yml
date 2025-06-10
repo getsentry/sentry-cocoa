@@ -47,7 +47,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
         run: bundle exec fastlane build_ios_swift
-        shell: sh
 
   build-sample:
     name: Sample ${{ matrix.scheme }}

@@ -116,21 +116,17 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{ inputs.xcode_version }}
-        shell: sh
 
       - run: make init-ci-build
-        shell: sh
         if: ${{ inputs.build_with_make }}
 
       - run: make xcode
-        shell: sh
         if: ${{ inputs.build_with_make }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
 
       - name: Run Fastlane
-        shell: sh
         run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
 
       - name: Publish Test Report

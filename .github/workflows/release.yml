@@ -112,7 +112,6 @@ jobs:
       - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
       - run: ./scripts/ci-select-xcode.sh 15.2
       - run: make build-xcframework-sample
-        shell: sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
@@ -135,7 +134,6 @@ jobs:
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
-        shell: sh
 
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
@@ -155,7 +153,6 @@ jobs:
         shell: bash
       - run: swift build
         working-directory: Samples/SPM-Dynamic
-        shell: sh
 
   swift-build:
     name: Build with Swift
@@ -174,7 +171,6 @@ jobs:
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
         shell: bash
       - run: swift build
-        shell: sh
 
   job_release:
     runs-on: ubuntu-latest
