@@ -27,7 +27,7 @@ NS_SWIFT_NAME(Event)
 /**
  * This will be set by the initializer.
  */
-@property (nonatomic, strong) SentryId *eventId;
+@property (nonatomic, strong) NSObject *_swiftEventId;
 
 /**
  * Message of the event.
