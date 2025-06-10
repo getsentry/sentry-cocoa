@@ -106,3 +106,4 @@ jobs:
       fastlane_command: duplication_test
       xcode_version: 16.4
       macos_version: macos-15
+      needs_xcframework: true

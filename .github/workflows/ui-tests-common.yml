@@ -30,6 +30,11 @@ on:
         description: "macOS version"
         required: true
         type: string
+      needs_xcframework:
+        description: "Whether the workflow needs to download the XCFramework."
+        required: false
+        default: false
+        type: boolean
 
 jobs: 
   common-ui-tests:
@@ -59,14 +64,14 @@ jobs:
         uses: ./.github/actions/add-microphone-permissions
 
       - name: Download XCFramework
-        if: ${{ inputs.build_xcframework }}
+        if: ${{ inputs.needs_xcframework }}
         uses: actions/download-artifact@v4
         with:
-          name: xcframework-uitests-${{github.sha}}-sentry-static
+          name: xcframework-${{github.sha}}-sentry-static-uitests
           path: Carthage/
 
       - name: Unzip XCFramework
-        if: ${{ inputs.build_xcframework }}
+        if: ${{ inputs.needs_xcframework }}
         run: |
           unzip -o Carthage/Sentry.xcframework.zip -d Carthage/
 
