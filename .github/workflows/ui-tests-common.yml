@@ -90,7 +90,7 @@ jobs:
         if: ${{ inputs.build_xcframework }}
         uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-*
+          name: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
 
       - name: Unzip XCFramework
