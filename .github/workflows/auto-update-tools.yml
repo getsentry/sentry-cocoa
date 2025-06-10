@@ -45,9 +45,7 @@ jobs:
         run: brew update
 
       - name: Install Tools
-        run: |
-          make init
-          make init-ci-format
+        run: make init
 
       - name: Update tooling versions
         run: make update-versions
