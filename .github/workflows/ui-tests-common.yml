@@ -26,20 +26,15 @@ on:
         required: false
         default: false
         type: boolean
-      build_xcframework:
-        description: "Build xcframework"
-        required: false
-        default: false
-        type: boolean
-      xcframework_type:
-        description: "Parameters for the build script"
-        required: false
-        default: ""
-        type: string
       macos_version:
         description: "macOS version"
         required: true
         type: string
+      needs_xcframework:
+        description: "Whether the workflow needs to download the XCFramework."
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   common-ui-tests:
@@ -58,25 +53,29 @@ jobs:
           bundler-cache: true
 
       - run: ./scripts/ci-select-xcode.sh ${{ inputs.xcode_version }}
-        shell: sh
 
       - run: make init-ci-build
-        shell: sh
         if: ${{ inputs.build_with_make }}
 
       - run: make xcode
-        shell: sh
         if: ${{ inputs.build_with_make }}
-
-      - run: ./scripts/build-xcframework.sh ${{ inputs.xcframework_type }}
-        shell: sh
-        if: ${{ inputs.build_xcframework }}
 
       - name: Add Microphone permissions
         uses: ./.github/actions/add-microphone-permissions
 
+      - name: Download XCFramework
+        if: ${{ inputs.needs_xcframework }}
+        uses: actions/download-artifact@v4
+        with:
+          name: xcframework-${{github.sha}}-sentry-static-uitests
+          path: Carthage/
+
+      - name: Unzip XCFramework
+        if: ${{ inputs.needs_xcframework }}
+        run: |
+          unzip -o Carthage/Sentry.xcframework.zip -d Carthage/
+
       - name: Run Fastlane
-        shell: sh
         run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
 
       - name: Publish Test Report

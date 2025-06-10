@@ -46,8 +46,6 @@ Carthage/Checkouts
 Carthage
 Sentry.Carthage.json
 SentrySwiftUI.Carthage.json
-Sentry.framework.zip
-Sentry.xcframework.zip
 
 # CocoaPods
 Examples/**/Pods
@@ -241,3 +239,8 @@ Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 
 # Logs
 MaestroLogs/
+
+Sentry.xcframework*
+Sentry-Dynamic.xcframework*
+SentrySwiftUI.xcframework*
+Sentry-WithoutUIKitOrAppKit.xcframework*
