@@ -26,41 +26,15 @@ on:
         required: false
         default: false
         type: boolean
-      build_xcframework:
-        description: "Build xcframework"
-        required: false
-        default: false
-        type: boolean
-      xcframework_type:
-        description: "Parameters for the build script"
-        required: false
-        default: ""
-        type: string
       macos_version:
         description: "macOS version"
         required: true
         type: string
 
-jobs:
-  build-xcframework-variant-slices:
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    with:
-      name: Sentry
-      macho-type: staticlib
-      variant-id: sentry-static
-
-  assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
-    with:
-      name: Sentry
-      variant-id: sentry-static
-
+jobs: 
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
-    needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
 
@@ -88,7 +62,7 @@ jobs:
         if: ${{ inputs.build_xcframework }}
         uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-sentry-static
+          name: xcframework-uitests-${{github.sha}}-sentry-static
           path: Carthage/
 
       - name: Unzip XCFramework

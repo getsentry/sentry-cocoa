@@ -83,12 +83,26 @@ jobs:
       build_with_make: true
       macos_version: macos-15
 
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      macho-type: staticlib
+      variant-id: sentry-static-uitests
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    secrets: inherit
+    with:
+      name: Sentry
+      variant-id: sentry-static-uitests
+
   duplication-tests:
     name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
+    needs: assemble-xcframework-variant
     with:
       fastlane_command: duplication_test
       xcode_version: 16.4
-      build_xcframework: true
-      xcframework_type: gameOnly
       macos_version: macos-15
