@@ -16,6 +16,7 @@
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Fix building with Xcode 26 (#5386)
 
 ## 8.52.1
 

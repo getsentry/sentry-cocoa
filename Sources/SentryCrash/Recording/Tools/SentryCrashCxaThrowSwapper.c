@@ -134,7 +134,7 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
 static void
 __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 {
-    const int k_requiredFrames = 2;
+#define REQUIRED_FRAMES 2
 
     if (g_cxa_throw_handler != NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
@@ -142,11 +142,11 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
         g_cxa_throw_handler(thrown_exception, tinfo, dest);
     }
 
-    void *backtraceArr[k_requiredFrames];
-    int count = backtrace(backtraceArr, k_requiredFrames);
+    void *backtraceArr[REQUIRED_FRAMES];
+    int count = backtrace(backtraceArr, REQUIRED_FRAMES);
 
     Dl_info info;
-    if (count < k_requiredFrames) {
+    if (count < REQUIRED_FRAMES) {
         // This can happen if the throw happened in a signal handler. This is an edge case we ignore
         // for now. It can also happen with concurrency frameworks for which backtrace does not work
         // reliably, such as Swift async. It can be that we have to use backtrace_async which uses
@@ -160,7 +160,7 @@ __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
         return;
     }
 
-    if (dladdr(backtraceArr[k_requiredFrames - 1], &info) == 0) {
+    if (dladdr(backtraceArr[REQUIRED_FRAMES - 1], &info) == 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
             "dladdr failed for throwsite. Can't identify image of throwsite.");
         return;
