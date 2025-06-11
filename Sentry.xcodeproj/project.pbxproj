@@ -1066,8 +1066,8 @@
 		FA67DD182DDBD4EA00896B02 /* UIImageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCED2DDBD4EA00896B02 /* UIImageHelper.swift */; };
 		FA67DD192DDBD4EA00896B02 /* SwizzleClassNameExclude.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCD52DDBD4EA00896B02 /* SwizzleClassNameExclude.swift */; };
 		FA8A36182DEAA1EB0058D883 /* SentryThread+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = FA8A36172DEAA1EB0058D883 /* SentryThread+Private.h */; };
-		FAEC273D2DF3933A00878871 /* NSData+Unzip.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEC273C2DF3933200878871 /* NSData+Unzip.m */; };
 		FAEC270E2DF3526000878871 /* SentryUserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEC270D2DF3526000878871 /* SentryUserFeedback.swift */; };
+		FAEC273D2DF3933A00878871 /* NSData+Unzip.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEC273C2DF3933200878871 /* NSData+Unzip.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2269,7 +2269,7 @@
 		F452438B2DE65BC0003E8F50 /* SentryUseNSExceptionCallstackWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryUseNSExceptionCallstackWrapper.h; path = include/SentryUseNSExceptionCallstackWrapper.h; sourceTree = "<group>"; };
 		F49D41972DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUseNSExceptionCallstackWrapperTests.swift; sourceTree = "<group>"; };
 		F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashExceptionApplicationTests.swift; sourceTree = "<group>"; };
-		F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryCrashExceptionApplicationHelper.h; sourceTree = "<group>"; };
+		F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplicationHelper.h; path = include/SentryCrashExceptionApplicationHelper.h; sourceTree = "<group>"; };
 		F49D419D2DEA3D0300D9244E /* SentryCrashExceptionApplicationHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplicationHelper.m; sourceTree = "<group>"; };
 		FA034AC72DD3DB4900FE3107 /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProtocol.h; path = Public/SentryIntegrationProtocol.h; sourceTree = "<group>"; };
 		FA4C32962DF7513F001D7B00 /* SentryExperimentalOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryExperimentalOptions.swift; sourceTree = "<group>"; };
