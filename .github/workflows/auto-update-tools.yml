@@ -11,6 +11,14 @@ on:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/auto-update-tools.yml"
+      - "Brewfile*"
+      - "Makefile"
+      - "scripts/.clang-format-version"
+      - "scripts/.swiftlint-version"
+      - ".pre-commit-config.yaml"
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository
@@ -45,8 +53,7 @@ jobs:
         run: brew update
 
       - name: Install Tools
-        run: |
-          make init
+        run: make init
 
       - name: Update tooling versions
         run: make update-versions
@@ -61,6 +68,7 @@ jobs:
 
       - name: Create pull request for clang-format version
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           add-paths: scripts/.clang-format-version
           branch: github-actions/auto-update-tools-clang-format
@@ -72,6 +80,7 @@ jobs:
 
       - name: Create pull request for swiftlint version
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           add-paths: scripts/.swiftlint-version
           branch: github-actions/auto-update-tools-swiftlint

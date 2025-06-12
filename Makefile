@@ -9,6 +9,9 @@ init-local:
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle install
+	
+# Install the tools needed to update tooling versions locally
+	$(MAKE) init-ci-format
 	./scripts/update-tooling-versions.sh
 
 .PHONY: init-ci-build
