@@ -6,3 +6,4 @@ INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES
 INFOPLIST_KEY_UILaunchScreen_Generation = YES
 CODE_SIGN_STYLE = Manual
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+CURRENT_PROJECT_VERSION = 1
