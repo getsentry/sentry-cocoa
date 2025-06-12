@@ -12,8 +12,8 @@ on:
         required: false
         default: ""
         type: string
-      xcresult_suffix:
-        description: "Suffix for the xcresult artifact (if needed)"
+      files_suffix:
+        description: "Suffix for the files to upload"
         required: false
         default: ""
         type: string
@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}
+          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}.xcresult
           path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
 
       - name: Archiving Raw Test Logs
@@ -110,3 +110,5 @@ jobs:
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
         if: failure()
+        with:
+          suffix: "raw_output"
