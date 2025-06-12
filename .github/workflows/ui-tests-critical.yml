@@ -24,7 +24,12 @@ concurrency:
 jobs:
   run-tests:
     name: Test iOS on Xcode ${{matrix.platform.xcode}} - V4 # Up the version with every change to keep track of flaky tests
-    runs-on: ${{matrix.platform.runs-on}}
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: build_ios_swift_ui_test_sample
+      build_with_make: true
+      xcode_version: ${{matrix.platform.xcode}}
+      macos_version: ${{matrix.platform.runs-on}}
     strategy:
       fail-fast: false
       matrix:
@@ -40,16 +45,3 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - runs-on: macos-15
             xcode: "16.2"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Print hardware info
-        run: system_profiler SPHardwareDataType
-
-      - uses: ./.github/workflows/ui-tests-common.yml
-        with:
-          fastlane_command: build_ios_swift_ui_test_sample
-          build_with_make: true
-          xcode_version: ${{matrix.platform.xcode}}
-          macos_version: ${{matrix.platform.runs-on}}
