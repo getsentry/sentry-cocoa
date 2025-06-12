@@ -40,7 +40,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of
      * up to **5x faster render times** (reducing `~160ms` to `~30ms`) on older devices.
      *
-     * This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+     * This flag controls the way the view hierarchy is drawn into a graphics context. By default, the view hierarchy is drawn using
      * the `UIView.drawHierarchy(in:afterScreenUpdates:)` method, which is the most complete way to render the view hierarchy. However,
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
@@ -59,7 +59,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     // MARK: - Masking
 
     /**
-     * Indicates whether session replay should redact all non-bundled image
+     * Indicates whether the screenshot should redact all non-bundled image
      * in the app by drawing a black rectangle over it.
      *
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
@@ -67,7 +67,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     public var maskAllImages: Bool
 
     /**
-     * Indicates whether session replay should redact all text in the app
+     * Indicates whether the screenshot should redact all text in the app
      * by drawing a black rectangle over it.
      *
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
@@ -76,7 +76,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
 
     /**
      * A list of custom UIView subclasses that need
-     * to be masked during session replay.
+     * to be masked during the screenshot.
      * By default Sentry already mask text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      *
@@ -86,7 +86,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
 
     /**
      * A list of custom UIView subclasses to be ignored
-     * during masking step of the session replay.
+     * during masking step of the screenshot.
      * The views of given classes will not be redacted but their children may be.
      * This property has precedence over `redactViewTypes`.
      *
@@ -95,11 +95,11 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
 
     /**
-     * Initialize session replay options disabled
+     * Initialize screenshot options disabled
      *
      * - Note: This initializer is added for Objective-C compatibility, as constructors with default values
      *         are not supported in Objective-C.
-     * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
+     * - Note: See ``SentryScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
     public convenience override init() {
         // Setting all properties to nil will fallback to the default values in the init method.
@@ -114,9 +114,9 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     }
 
     /**
-     * Initializes a new instance of ``SentryReplayOptions`` using a dictionary.
+     * Initializes a new instance of ``SentryScreenshotOptions`` using a dictionary.
      *
-     * - Parameter dictionary: A dictionary containing the configuration options for the session replay.
+     * - Parameter dictionary: A dictionary containing the configuration options for the screenshot.
      *
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
@@ -138,17 +138,17 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     }
 
     /**
-     * Initializes a new instance of ``SentryReplayOptions`` with the specified parameters.
+     * Initializes a new instance of ``SentryScreenshotOptions`` with the specified parameters.
      *
      * - Parameters:
      *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
      *   - enableFastViewRendering: Enables faster but incomplete view rendering. See ``SentryScreenshotOptions.enableFastViewRendering`` for more information.
      *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
      *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
-     *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during session replay.
-     *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking step of the session replay.
+     *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during the screenshot.
+     *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking step of the screenshot.
      *
-     * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
+     * - Note: See ``SentryScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
     public convenience init(
         enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
