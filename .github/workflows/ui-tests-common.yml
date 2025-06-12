@@ -57,7 +57,7 @@ jobs:
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 
-      - run: make xcode
+      - run: make xcode-ci
         if: ${{ inputs.build_with_make }}
 
       - name: Add Microphone permissions
