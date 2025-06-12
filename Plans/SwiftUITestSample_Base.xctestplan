@@ -12,7 +12,13 @@
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:SwiftUITestSample.xcodeproj",
+        "identifier" : "F48BEAFB2DFA4DBB00004C33",
+        "name" : "SwiftUITestSampleUITests"
+      }
+    }
   ],
   "version" : 1
 }

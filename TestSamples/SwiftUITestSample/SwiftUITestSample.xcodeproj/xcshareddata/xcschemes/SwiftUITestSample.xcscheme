@@ -25,14 +25,28 @@
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../../Plans/SwiftUITestSample_Base.xctestplan">
+            reference = "container:../../Plans/SwiftUITestSample_Base.xctestplan"
+            default = "YES">
          </TestPlanReference>
       </TestPlans>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F48BEAFB2DFA4DBB00004C33"
+               BuildableName = "SwiftUITestSampleUITests.xctest"
+               BlueprintName = "SwiftUITestSampleUITests"
+               ReferencedContainer = "container:SwiftUITestSample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

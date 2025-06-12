@@ -14,10 +14,6 @@ init-local:
 .PHONY: init-ci-build
 init-ci-build:
 	brew bundle --file Brewfile-ci-build
-
-.PHONY: init-ci-test
-init-ci-test:
-	brew bundle --file Brewfile-ci-test
 	
 # installs the tools needed to run CI deploy tasks locally (note that carthage is preinstalled in github actions)
 .PHONY: init-ci-deploy

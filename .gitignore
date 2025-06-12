@@ -97,7 +97,6 @@ Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 
 # Logs
-MaestroLogs/
 
 Sentry.xcframework*
 Sentry-Dynamic.xcframework*
