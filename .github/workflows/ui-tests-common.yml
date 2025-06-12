@@ -47,6 +47,22 @@ jobs:
         shell: bash
         run: system_profiler SPHardwareDataType
 
+      - name: Print available disk space
+        shell: bash
+        run: df -h
+
+      - name: Clear CoreSimulator cache
+        shell: bash
+        run: sudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*
+
+      - name: Delete all WatchOS and visionOS simulators
+        shell: bash
+        run: ./scripts/remove_simulators.sh
+
+      - name: Print available disk space
+        shell: bash
+        run: df -h
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
         with:
