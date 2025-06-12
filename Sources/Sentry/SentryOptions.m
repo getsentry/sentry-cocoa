@@ -131,6 +131,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
+        self.screenshot = [[SentryScreenshotOptions alloc] init];
         self.attachViewHierarchy = NO;
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
@@ -448,6 +449,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    if ([options[@"screenshot"] isKindOfClass:NSDictionary.class]) {
+        self.screenshot =
+            [[SentryScreenshotOptions alloc] initWithDictionary:options[@"screenshot"]];
+    }
 
     [self setBool:options[@"attachViewHierarchy"]
             block:^(BOOL value) { self->_attachViewHierarchy = value; }];

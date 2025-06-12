@@ -21,7 +21,7 @@
 #import <SentryExtraPackages.h>
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
-#import <SentryScreenshot.h>
+#import <SentryScreenshotProvider.h>
 #import <SentryUser.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -293,7 +293,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsData];
+    SentryScreenshotOptions *_Nonnull options = SentrySDK.options.screenshot;
+    SentryScreenshotProvider *_Nonnull screenshotProvider =
+        [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];
+    return [screenshotProvider appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "

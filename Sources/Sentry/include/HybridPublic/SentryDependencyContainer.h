@@ -24,6 +24,7 @@
 @class SentryFileIOTracker;
 @class SentryScopeContextPersistentStore;
 @class SentryOptions;
+@class SentryScreenshotOptions;
 
 @protocol SentryANRTracker;
 @protocol SentryRandom;
@@ -37,7 +38,7 @@
 
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
-@class SentryScreenshot;
+@class SentryScreenshotProvider;
 @class SentryUIApplication;
 @class SentryViewHierarchy;
 @class SentryUIViewControllerPerformanceTracker;
@@ -122,7 +123,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
-@property (nonatomic, strong) SentryScreenshot *screenshot;
+- (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
+    (nonnull SentryScreenshotOptions *)options;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong)
     SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;

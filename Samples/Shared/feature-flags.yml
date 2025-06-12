@@ -26,7 +26,6 @@ schemeTemplates:
         "--disable-spotlight": false
         "--disable-automatic-session-tracking": false
         "--disable-metrickit-integration": false
-        "--disable-session-replay": false
         "--io.sentry.wipe-data": false
         "--io.sentry.slow-load-method": false
         "--disable-watchdog-tracking": false
@@ -44,6 +43,17 @@ schemeTemplates:
         "--disable-ui-tracing": false
         "--io.sentry.feedback.no-auto-inject-widget": false
         "--disable-filemanager-swizzling": false
+        "--io.sentry.screenshot.disable-view-renderer-v2": false
+        "--io.sentry.screenshot.disable-fast-view-rendering": false
+        "--io.sentry.screenshot.disable-mask-all-images": false
+        "--io.sentry.screenshot.disable-mask-all-text": false
+        "--io.sentry.session-replay.disable": false
+        "--io.sentry.session-replay.on-error-sample-rate": false
+        "--io.sentry.session-replay.session-sample-rate": false
+        "--io.sentry.session-replay.disable-view-renderer-v2": false
+        "--io.sentry.session-replay.enable-fast-view-rendering": false
+        "--io.sentry.session-replay.disable-mask-all-images": false
+        "--io.sentry.session-replay.disable-mask-all-text": false
       environmentVariables:
         - variable: "--io.sentry.tracesSampleRate"
           value:
@@ -76,5 +86,11 @@ schemeTemplates:
           value:
           isEnabled: false
         - variable: "--io.sentry.profile-session-sample-rate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.session-replay.on-error-sample-rate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.session-replay.session-sample-rate"
           value:
           isEnabled: false

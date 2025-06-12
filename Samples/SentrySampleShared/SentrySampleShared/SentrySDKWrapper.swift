@@ -33,17 +33,17 @@ public struct SentrySDKWrapper {
         options.debug = true
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 0,
-                onErrorSampleRate: 1,
-                maskAllText: true,
-                maskAllImages: true
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 0,
+                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
+                enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
+                // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
+                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
             options.sessionReplay.quality = .high
-            options.sessionReplay.enableViewRendererV2 = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
         }
 
 #if !os(tvOS)
@@ -81,7 +81,14 @@ public struct SentrySDKWrapper {
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
+        // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
+        options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
+        options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
+        options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
+
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
 #endif // !os(macOS) && !os(watchOS)

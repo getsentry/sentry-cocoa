@@ -18,10 +18,10 @@ class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
-    let screenshotProvider: SentryScreenshot
+    let screenshotProvider: SentryScreenshotProvider
     weak var customButton: UIButton?
 
-    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
+    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshotProvider) {
         self.configuration = configuration
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider

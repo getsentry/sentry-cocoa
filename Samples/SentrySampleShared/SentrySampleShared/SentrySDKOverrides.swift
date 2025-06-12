@@ -91,10 +91,96 @@ public enum SentrySDKOverrides {
         }
     }
 
+    public enum Screenshot: String, SentrySDKOverride {
+        case disableViewRendererV2 = "--io.sentry.screenshot.disable-view-renderer-v2"
+        case enableFastViewRendering = "--io.sentry.screenshot.enable-fast-view-rendering"
+        case disableMaskAllImages = "--io.sentry.screenshot.disable-mask-all-images"
+        case disableMaskAllText = "--io.sentry.screenshot.disable-mask-all-text"
+
+        public var boolValue: Bool {
+            get {
+                switch self {
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var floatValue: Float? {
+            get {
+                switch self {
+                case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllImages, .disableMaskAllText: fatalError(
+                    "Use boolValue to get the value of this override"
+                )
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllImages, .disableMaskAllText: fatalError("Use boolValue to get the value of this override")
+                }
+            }
+        }
+
+        public static var boolValues: [Self] { [.disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages] }
+        public static var floatValues: [Self] { [] }
+    }
+
+    public enum SessionReplay: String, SentrySDKOverride {
+        case disable = "--io.sentry.session-replay.disable"
+        
+        case onErrorSampleRate = "--io.sentry.session-replay.on-error-sample-rate"
+        case sessionSampleRate = "--io.sentry.session-replay.session-sample-rate"
+
+        case disableViewRendererV2 = "--io.sentry.session-replay.disable-view-renderer-v2"
+        case enableFastViewRendering = "--io.sentry.session-replay.enable-fast-view-rendering"
+        
+        case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
+        case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
+
+        public var boolValue: Bool {
+            get {
+                switch self {
+                case .onErrorSampleRate, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
+                default: return getBoolOverride(for: "--io.sentry.disable-everything") || getBoolOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .onErrorSampleRate, .sessionSampleRate: fatalError("Use floatValue to get the value of this override")
+                default: setBoolOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public var floatValue: Float? {
+            get {
+                switch self {
+                case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllImages, .disableMaskAllText: fatalError(
+                    "Use boolValue to get the value of this override")
+                case .onErrorSampleRate, .sessionSampleRate: return getFloatValueOverride(for: rawValue)
+                }
+            }
+            set(newValue) {
+                switch self {
+                case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllImages, .disableMaskAllText: fatalError("Use boolValue to get the value of this override")
+                case .onErrorSampleRate, .sessionSampleRate: setFloatOverride(for: rawValue, value: newValue)
+                }
+            }
+        }
+
+        public static var boolValues: [Self] {
+            [.disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages]
+        }
+        public static var floatValues: [Self] { [.onErrorSampleRate, .sessionSampleRate] }
+    }
+
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
         case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
-        case disableSessionReplay = "--disable-session-replay"
         case disableMetricKit = "--disable-metrickit-integration"
         case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
         case disableNetworkBreadcrumbs = "--disable-network-breadcrumbs"
@@ -132,7 +218,7 @@ public enum SentrySDKOverrides {
             }
         }
 
-        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableSessionReplay, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
+        public static var boolValues: [Other] { [.disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling] }
         public static var stringVars: [Other] { [.userName, .userEmail] }
     }
 

@@ -44,7 +44,7 @@
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
-#    import <SentryScreenshot.h>
+#    import <SentryScreenshotProvider.h>
 #    import <SentryViewHierarchy.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
@@ -78,6 +78,7 @@
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryScreenshotProvider *screenshotProvider;
 
 @end
 
@@ -270,16 +271,13 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (SentryScreenshot *)screenshot SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
+    (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-#    if SENTRY_HAS_UIKIT
-    SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
+    SENTRY_LAZY_INIT(_screenshotProvider,
+        [[SentryScreenshotProvider alloc] initWith:options
+                              enableViewRendererV2:options.enableViewRendererV2
+                           enableFastViewRendering:options.enableFastViewRendering]);
 }
 #endif
 

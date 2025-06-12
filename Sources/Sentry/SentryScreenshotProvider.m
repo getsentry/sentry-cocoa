@@ -1,24 +1,37 @@
-#import "SentryScreenshot.h"
+#import "SentryScreenshotProvider.h"
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryLog.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 
-@implementation SentryScreenshot {
+@implementation SentryScreenshotProvider {
     SentryViewPhotographer *photographer;
 }
 
-- (instancetype)init
+- (instancetype)initWith:(SentryRedactDefaultOptions *)redactOptions
+       enableViewRendererV2:(BOOL)enableViewRendererV2
+    enableFastViewRendering:(BOOL)enableFastViewRendering
 {
     if (self = [super init]) {
-        photographer = [[SentryViewPhotographer alloc]
-                initWithRenderer:[[SentryDefaultViewRenderer alloc] init]
-                   redactOptions:[[SentryRedactDefaultOptions alloc] init]
-            enableMaskRendererV2:false];
+        id<SentryViewRenderer> viewRenderer;
+        if (enableViewRendererV2) {
+            SENTRY_LOG_DEBUG(@"[Screenshot] Setting up view renderer v2, fast view rendering: %@",
+                enableFastViewRendering ? @"YES" : @"NO");
+            viewRenderer = [[SentryViewRendererV2 alloc]
+                initWithEnableFastViewRendering:enableFastViewRendering];
+        } else {
+            SENTRY_LOG_DEBUG(@"[Screenshot] Setting up default view renderer");
+            viewRenderer = [[SentryDefaultViewRenderer alloc] init];
+        }
+
+        photographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                          redactOptions:redactOptions
+                                                   enableMaskRendererV2:enableViewRendererV2];
     }
     return self;
 }
