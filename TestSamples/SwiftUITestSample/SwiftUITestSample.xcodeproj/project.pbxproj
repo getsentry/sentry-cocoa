@@ -3,12 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		330854EE2CB6C1DA00D06618 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; };
 		330854EF2CB6C1DA00D06618 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F48BEB262DFA814900004C33 /* SwiftUITestSampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48BEB242DFA814900004C33 /* SwiftUITestSampleUITests.swift */; };
+		F48BEB272DFA814900004C33 /* XCUIApplication+uninstall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48BEB252DFA814900004C33 /* XCUIApplication+uninstall.swift */; };
+		F48BEB2A2DFA816A00004C33 /* SwiftUITestSampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48BEB292DFA816A00004C33 /* SwiftUITestSampleApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,12 +42,10 @@
 		330854C22CB6B5CF00D06618 /* SwiftUITestSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUITestSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		330854ED2CB6C1DA00D06618 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F48BEAFC2DFA4DBB00004C33 /* SwiftUITestSampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUITestSampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F48BEB242DFA814900004C33 /* SwiftUITestSampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUITestSampleUITests.swift; sourceTree = "<group>"; };
+		F48BEB252DFA814900004C33 /* XCUIApplication+uninstall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIApplication+uninstall.swift"; sourceTree = "<group>"; };
+		F48BEB292DFA816A00004C33 /* SwiftUITestSampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUITestSampleApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		330854C42CB6B5CF00D06618 /* SwiftUITestSample */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SwiftUITestSample; sourceTree = "<group>"; };
-		F48BEAFD2DFA4DBB00004C33 /* SwiftUITestSampleUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SwiftUITestSampleUITests; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		330854BF2CB6B5CF00D06618 /* Frameworks */ = {
@@ -68,8 +69,8 @@
 		330854B92CB6B5CF00D06618 = {
 			isa = PBXGroup;
 			children = (
-				330854C42CB6B5CF00D06618 /* SwiftUITestSample */,
-				F48BEAFD2DFA4DBB00004C33 /* SwiftUITestSampleUITests */,
+				F48BEB282DFA815800004C33 /* SwiftUITestSample */,
+				F48BEB232DFA811400004C33 /* SwiftUITestSampleUITests */,
 				330854EC2CB6C1DA00D06618 /* Frameworks */,
 				330854C32CB6B5CF00D06618 /* Products */,
 			);
@@ -92,6 +93,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		F48BEB232DFA811400004C33 /* SwiftUITestSampleUITests */ = {
+			isa = PBXGroup;
+			children = (
+				F48BEB242DFA814900004C33 /* SwiftUITestSampleUITests.swift */,
+				F48BEB252DFA814900004C33 /* XCUIApplication+uninstall.swift */,
+			);
+			path = SwiftUITestSampleUITests;
+			sourceTree = "<group>";
+		};
+		F48BEB282DFA815800004C33 /* SwiftUITestSample */ = {
+			isa = PBXGroup;
+			children = (
+				F48BEB292DFA816A00004C33 /* SwiftUITestSampleApp.swift */,
+			);
+			path = SwiftUITestSample;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -107,9 +125,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				330854C42CB6B5CF00D06618 /* SwiftUITestSample */,
 			);
 			name = SwiftUITestSample;
 			packageProductDependencies = (
@@ -131,9 +146,6 @@
 			dependencies = (
 				F48BEB032DFA4DBB00004C33 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				F48BEAFD2DFA4DBB00004C33 /* SwiftUITestSampleUITests */,
-			);
 			name = SwiftUITestSampleUITests;
 			packageProductDependencies = (
 			);
@@ -153,9 +165,11 @@
 				TargetAttributes = {
 					330854C12CB6B5CF00D06618 = {
 						CreatedOnToolsVersion = 16.0;
+						LastSwiftMigration = 1640;
 					};
 					F48BEAFB2DFA4DBB00004C33 = {
 						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
 						TestTargetID = 330854C12CB6B5CF00D06618;
 					};
 				};
@@ -202,6 +216,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F48BEB2A2DFA816A00004C33 /* SwiftUITestSampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,6 +224,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F48BEB262DFA814900004C33 /* SwiftUITestSampleUITests.swift in Sources */,
+				F48BEB272DFA814900004C33 /* XCUIApplication+uninstall.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +364,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -365,6 +383,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.SwiftUITestSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -375,6 +394,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -401,6 +421,7 @@
 		F48BEB042DFA4DBB00004C33 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -409,6 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SwiftUITestSampleUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = SwiftUITestSample;
@@ -418,6 +440,7 @@
 		F48BEB052DFA4DBB00004C33 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
