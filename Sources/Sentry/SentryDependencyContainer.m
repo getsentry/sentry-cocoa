@@ -78,7 +78,9 @@
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 @property (nonatomic, strong) SentryScreenshotProvider *screenshotProvider;
+#endif
 
 @end
 
