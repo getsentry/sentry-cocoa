@@ -95,14 +95,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}.xcresult
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}.xcresult
           path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{inputs.xcresult_suffix}}_raw_output
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -111,4 +111,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: ${{ inputs.files_suffix }}
+          suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
