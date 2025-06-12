@@ -26,7 +26,7 @@ jobs:
     name: Test iOS on Xcode ${{matrix.platform.xcode}} - V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
-      fastlane_command: build_ios_swift_ui_test_sample
+      fastlane_command: ui_critical_tests_ios_swiftui
       build_with_make: true
       xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
