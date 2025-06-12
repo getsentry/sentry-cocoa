@@ -1,0 +1,6 @@
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SwiftUITestSampleUITests
+GENERATE_INFOPLIST_FILE = YES
+
+CODE_SIGN_STYLE = Manual
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+TEST_TARGET_NAME = SwiftUITestSample
