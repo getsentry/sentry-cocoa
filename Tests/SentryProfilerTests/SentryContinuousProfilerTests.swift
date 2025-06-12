@@ -1,5 +1,5 @@
 import _SentryPrivate
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -10,7 +10,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     
     override class func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
     }
     
     override func setUp() {

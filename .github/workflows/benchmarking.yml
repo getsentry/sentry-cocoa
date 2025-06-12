@@ -15,11 +15,14 @@ on:
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
-      - "scripts/build-xcframework.sh"
       - "Samples/iOS-Swift/iOS-Swift.yml"
       - "Samples/iOS-Swift/iOS-Swift.xcconfig"
       - "Samples/iOS-Swift/iOS-SwiftClilp.xcconfig"
       - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -146,7 +149,7 @@ jobs:
                 env: process.env,
                 stdio: 'inherit'
               });
-              
+
               console.log("Test exists but failed, not retrying.");
               core.setFailed('Test exists but failed');
             } catch (error) {
@@ -169,9 +172,27 @@ jobs:
             --tags benchmark \
             --verbose
 
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      suffix: "-Dynamic"
+      variant-id: sentry-dynamic
+      sdk-list: '["iphoneos", "iphonesimulator"]'
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      name: Sentry
+      suffix: "-Dynamic"
+      variant-id: sentry-dynamic
+      sdks: "iphoneos,iphonesimulator"
+
   app-metrics:
     name: Collect app metrics
     runs-on: macos-15
+    needs: assemble-xcframework-variant
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -195,17 +216,11 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Build Framework
-        run: ./scripts/build-xcframework.sh iOSOnly
-
-      - name: Archive build log if failed
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
+      - uses: actions/download-artifact@v4
         with:
-          name: raw-build-output-build-xcframework
-          path: |
-            build-xcframework.log
-
+          pattern: xcframework-${{github.sha}}-sentry-dynamic
+          path: Carthage/
+      - run: find Carthage -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:

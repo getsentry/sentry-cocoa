@@ -1,7 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 import ObjectiveC
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 

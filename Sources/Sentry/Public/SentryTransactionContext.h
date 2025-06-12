@@ -1,10 +1,12 @@
 #if __has_include(<Sentry/Sentry.h>)
-#    import <Sentry/SentrySampleDecision.h>
-#    import <Sentry/SentrySpanContext.h>
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import <SentryWithoutUIKit/SentrySampleDecision.h>
-#    import <SentryWithoutUIKit/SentrySpanContext.h>
+#    import <SentryDefines.h>
 #endif
+#import SENTRY_HEADER(SentrySampleDecision)
+#import SENTRY_HEADER(SentrySpanContext)
 
 NS_ASSUME_NONNULL_BEGIN
 

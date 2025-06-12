@@ -226,7 +226,7 @@
         SENTRY_LOG_DEBUG(@"Finished flushing.");
         return kSentryFlushResultSuccess;
     } else {
-        SENTRY_LOG_DEBUG(@"Flushing timed out.");
+        SENTRY_LOG_WARN(@"Flushing timed out.");
         return kSentryFlushResultTimedOut;
     }
 }
@@ -442,7 +442,7 @@
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
     if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
-        NSDictionary *transactionJson =
+        NSDictionary *_Nullable transactionJson =
             [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
         if (transactionJson == nil) {
             return;

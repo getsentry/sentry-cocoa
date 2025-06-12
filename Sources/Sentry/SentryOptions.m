@@ -125,7 +125,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableTimeToFullDisplayTracing = NO;
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
-        _experimental = [[SentryExperimentalOptions alloc] init];
+        __swiftExperimentalOptions = [[SentryExperimentalOptions alloc] init];
         _enableTracing = NO;
         _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT

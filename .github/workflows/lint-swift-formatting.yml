@@ -1,0 +1,39 @@
+name: Check Code Formatting
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+      - ".swiftlint.yml"
+
+  pull_request:
+    paths:
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+      - ".swiftlint.yml"
+
+jobs:
+  format-code:
+    name: Check Formatting of Swiftlint Code
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: make init-ci-format
+
+      - name: Run SwiftLint
+        run: make format-swift-all
+
+      - name: Check for Formatting Changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "❌ Some Swift code is not formatted correctly. Please run 'make format' and commit the changes."
+            git status
+            git diff
+            exit 1
+          else
+            echo "✅ All code is formatted correctly."
+          fi

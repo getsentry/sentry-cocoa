@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -149,9 +149,6 @@ class SentryHubTests: XCTestCase {
     }
     
     func testBreadcrumbCapLimit() {
-        // To avoid spamming the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
-        
         let hub = fixture.getSut()
         
         for _ in 0...100 {
@@ -159,8 +156,6 @@ class SentryHubTests: XCTestCase {
         }
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
-        
-        SentryLog.setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
