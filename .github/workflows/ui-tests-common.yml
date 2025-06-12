@@ -111,4 +111,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: "raw_output"
+          suffix: ${{ inputs.files_suffix }}

@@ -15,5 +15,5 @@ runs:
     - name: Store screenshot
       uses: actions/upload-artifact@v4
       with:
-        name: screenshot-${{ github.job }}-${{ inputs.suffix }}
+        name: screenshot-${{ github.job }}${{ inputs.suffix }}
         path: /tmp/screenshot.png
