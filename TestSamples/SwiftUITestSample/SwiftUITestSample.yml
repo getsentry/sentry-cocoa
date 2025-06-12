@@ -44,5 +44,6 @@ schemes:
         SwiftUITestSampleUITests: test
     test:
       config: Test
+      debugEnabled: false
       testPlans:
         - path: ../../Plans/SwiftUITestSample_Base.xctestplan
