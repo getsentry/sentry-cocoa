@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		330854EE2CB6C1DA00D06618 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; };
 		330854EF2CB6C1DA00D06618 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 330854ED2CB6C1DA00D06618 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		330855282CB6CC3C00D06618 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 330855272CB6CC3400D06618 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,7 +38,6 @@
 /* Begin PBXFileReference section */
 		330854C22CB6B5CF00D06618 /* SwiftUITestSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUITestSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		330854ED2CB6C1DA00D06618 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		330855272CB6CC3400D06618 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		F48BEAFC2DFA4DBB00004C33 /* SwiftUITestSampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUITestSampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -70,7 +68,6 @@
 		330854B92CB6B5CF00D06618 = {
 			isa = PBXGroup;
 			children = (
-				330855272CB6CC3400D06618 /* .gitignore */,
 				330854C42CB6B5CF00D06618 /* SwiftUITestSample */,
 				F48BEAFD2DFA4DBB00004C33 /* SwiftUITestSampleUITests */,
 				330854EC2CB6C1DA00D06618 /* Frameworks */,
@@ -188,7 +185,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				330855282CB6CC3C00D06618 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
