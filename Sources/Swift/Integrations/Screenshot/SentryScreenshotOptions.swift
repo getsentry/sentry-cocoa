@@ -170,7 +170,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
             maskAllText: maskAllText,
             maskAllImages: maskAllImages,
             maskedViewClasses: maskedViewClasses,
-            unmaskedViewClasses: unmaskedViewClasses,
+            unmaskedViewClasses: unmaskedViewClasses
         )
     }
 
