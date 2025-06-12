@@ -7,15 +7,13 @@ final class SwiftUITestSampleUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-    }
 
-    override func tearDownWithError() throws {
         if app.state != .notRunning {
             app.terminate()
         }
         
         // Uninstall the app after every test to make sure we run on a clean state
-        app.uninstall()
+        app.uninstall(skipIfNotFound: true)
     }
 
     @MainActor
@@ -45,6 +43,8 @@ final class SwiftUITestSampleUITests: XCTestCase {
     
     private func launchApp() {
         app.activate()
+        // Wait for the app to be ready
+        sleep(2)
         app.launch()
     }
 }
