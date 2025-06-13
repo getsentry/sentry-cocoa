@@ -1,0 +1,48 @@
+name: SwiftUITestSample
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - SwiftUITestSample.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  SwiftUITestSample:
+    type: application
+    platform: auto
+    dependencies:
+      - target: Sentry/Sentry
+    sources:
+      - SwiftUITestSample
+    configFiles:
+      Debug: SwiftUITestSample.xcconfig
+      Release: SwiftUITestSample.xcconfig
+      Test: SwiftUITestSample.xcconfig
+      TestCI: SwiftUITestSample.xcconfig
+  SwiftUITestSampleUITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - SwiftUITestSampleUITests
+    configFiles:
+      Debug: SwiftUITestSampleUITests.xcconfig
+      Release: SwiftUITestSampleUITests.xcconfig
+      Test: SwiftUITestSampleUITests.xcconfig
+      TestCI: SwiftUITestSampleUITests.xcconfig
+schemes:
+  SwiftUITestSample:
+    build:
+      targets:
+        SwiftUITestSample: all
+        SwiftUITestSampleUITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/SwiftUITestSample_Base.xctestplan
