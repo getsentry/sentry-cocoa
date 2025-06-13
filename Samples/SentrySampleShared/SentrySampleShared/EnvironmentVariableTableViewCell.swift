@@ -1,4 +1,4 @@
-#if !os(macOS) && !os(tvOS) && !os(watchOS)
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 import UIKit
 
 class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
@@ -10,7 +10,6 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         return field
     }()
 
-    var float: Bool = false
     var override: (any SentrySDKOverride)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -27,25 +26,8 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with override: any SentrySDKOverride, float: Bool) {
-        titleLabel.text = override.rawValue as? String
-
-        var text: String
-        if let value = override.floatValue {
-            text = String(format: "%.2f", value)
-        } else if let value = override.stringValue {
-            text = value
-        } else {
-            text = "nil"
-        }
-        valueField.text = text
-
-        self.float = float
-        self.override = override
-    }
-
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if self.float {
+        if override?.overrideType == .float {
             override?.floatValue = textField.text.flatMap { Float($0) }
         } else {
             override?.stringValue = textField.text
@@ -53,4 +35,22 @@ class EnvironmentVariableTableViewCell: UITableViewCell, UITextFieldDelegate {
         SentrySDKWrapper.shared.startSentry()
     }
 }
-#endif // !os(macOS) && !os(tvOS) && !os(watchOS)
+
+extension EnvironmentVariableTableViewCell: FeatureFlagCell {
+    func configure(with override: any SentrySDKOverride) {
+        titleLabel.text = override.rawValue
+
+        var text: String
+        if override.overrideType == .float, let value = override.floatValue {
+            text = String(format: "%.2f", value)
+        } else if override.overrideType == .string, let value = override.stringValue {
+            text = value
+        } else {
+            text = "nil"
+        }
+        valueField.text = text
+
+        self.override = override
+    }
+}
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
