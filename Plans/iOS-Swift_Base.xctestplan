@@ -18,9 +18,6 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "ProfilingUITests\/testProfilingGPUInfo()"
-      ],
       "target" : {
         "containerPath" : "container:iOS-Swift.xcodeproj",
         "identifier" : "0217293F044A3AEED8E37A25",

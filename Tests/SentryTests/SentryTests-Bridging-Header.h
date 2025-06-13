@@ -74,6 +74,7 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashC.h"
+#import "SentryCrashCxaThrowSwapper.h"
 #import "SentryCrashDebug.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -189,6 +190,7 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryWeakMap.h"
 
+#import "NSData+Unzip.h"
 #import "Sentry/Sentry-Swift.h"
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
@@ -234,7 +236,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUserFeedback.h"
 #import "SentryViewHierarchy.h"
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryWatchdogTerminationLogic.h"
@@ -247,6 +248,7 @@
 #import "TestSentryViewHierarchy.h"
 #import "URLSessionTaskMock.h"
 @import _SentryPrivate;
+#import "Helper/ExceptionCatcher.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
@@ -254,3 +256,4 @@
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"

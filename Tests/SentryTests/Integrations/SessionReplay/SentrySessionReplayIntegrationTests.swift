@@ -8,6 +8,10 @@ import XCTest
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         var windowsMock: [UIWindow]? = [UIWindow()]
         var screenName: String?
         

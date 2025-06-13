@@ -1,8 +1,5 @@
-brew 'clang-format'
-brew 'swiftlint'
 brew 'pre-commit'
 brew 'python3'
 brew 'xcbeautify'
 brew 'rbenv'
-brew 'xcodegen'
 brew 'dprint'

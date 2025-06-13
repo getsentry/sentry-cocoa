@@ -1,4 +1,0 @@
-tap 'facebook/fb'
-brew 'facebook/fb/idb-companion'
-tap 'mobile-dev-inc/tap'
-brew 'mobile-dev-inc/tap/maestro'

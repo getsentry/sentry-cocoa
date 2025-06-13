@@ -20,11 +20,13 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
+#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryHttpDateParser.h>
+#import <SentryInternalDefines.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
@@ -84,16 +86,18 @@
 static SentryDependencyContainer *instance;
 static NSObject *sentryDependencyContainerDependenciesLock;
 static NSObject *sentryDependencyContainerInstanceLock;
+static BOOL isInitialializingDependencyContainer = NO;
 
 + (void)initialize
 {
     if (self == [SentryDependencyContainer class]) {
-        instance = [[SentryDependencyContainer alloc] init];
         // We use two locks, because we don't want the dependencies to block the instance lock.
         // Using two locks speeds up the accessing the dependencies around 5%, which is worth having
         // the extra lock. Measured with self.measure in unit tests.
         sentryDependencyContainerInstanceLock = [[NSObject alloc] init];
         sentryDependencyContainerDependenciesLock = [[NSObject alloc] init];
+
+        instance = [[SentryDependencyContainer alloc] init];
     }
 }
 
@@ -103,6 +107,17 @@ static NSObject *sentryDependencyContainerInstanceLock;
     // As we don't call this method in a tight loop, it's acceptable. Measured with self.measure in
     // unit tests.
     @synchronized(sentryDependencyContainerInstanceLock) {
+
+        if (isInitialializingDependencyContainer) {
+            SENTRY_GRACEFUL_FATAL(
+                @"SentryDependencyContainer is currently being initialized, so your requested "
+                @"dependency via sharedInstance will be nil. You MUST NOT call sharedInstance in "
+                @"your initializer. Instead, pass the dependency you're trying to get via the "
+                @"constructor. If the stacktrace doesn't point to the root cause, the easiest way "
+                @"to identify the root caus is to set a breakpoint exactly here and then check the "
+                @"stacktrace.");
+        }
+
         return instance;
     }
 }
@@ -136,16 +151,33 @@ static NSObject *sentryDependencyContainerInstanceLock;
 - (instancetype)init
 {
     if (self = [super init]) {
+        isInitialializingDependencyContainer = YES;
+
         _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
-        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-        _extraContextProvider = [[SentryExtraContextProvider alloc] init];
+
         _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
-        _crashWrapper = [[SentryCrashWrapper alloc] init];
+#if SENTRY_HAS_UIKIT
+        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _application = [[SentryUIApplication alloc]
+            initWithNotificationCenterWrapper:_notificationCenterWrapper
+                         dispatchQueueWrapper:_dispatchQueueWrapper];
+#endif // SENTRY_HAS_UIKIT
+
         _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _extraContextProvider = [[SentryExtraContextProvider alloc]
+            initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
+              processInfoWrapper:_processInfoWrapper
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+                   deviceWrapper:_uiDeviceWrapper
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+        ];
+
+        _crashWrapper = [[SentryCrashWrapper alloc] init];
+
         _sysctlWrapper = [[SentrySysctl alloc] init];
 
         SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
@@ -163,10 +195,7 @@ static NSObject *sentryDependencyContainerInstanceLock;
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
 
-#if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
-        _application = [[SentryUIApplication alloc] init];
-#endif // SENTRY_HAS_UIKIT
+        isInitialializingDependencyContainer = NO;
     }
     return self;
 }
@@ -354,6 +383,15 @@ static NSObject *sentryDependencyContainerInstanceLock;
 {
     SENTRY_LAZY_INIT(_scopeContextPersistentStore,
         [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+- (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    // SentryDebugImageProvider is public, so we can't initialize the dependency in
+    // SentryDependencyInitialize because the SentryDebugImageProvider.init uses the
+    // SentryDependencyContainer, which doesn't work because of a chicken egg problem. For more
+    // information check SentryDebugImageProvider.sharedInstance.
+    SENTRY_LAZY_INIT(_debugImageProvider, [[SentryDebugImageProvider alloc] init]);
 }
 
 #if SENTRY_HAS_UIKIT

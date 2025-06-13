@@ -68,11 +68,11 @@ class SentryClientTest: XCTestCase {
             
             debugImageProvider.debugImages = [TestData.debugImage]
 
-            #if os(iOS) || targetEnvironment(macCatalyst)
-            SentryDependencyContainer.sharedInstance().uiDeviceWrapper = deviceWrapper
-#endif // os(iOS) || targetEnvironment(macCatalyst)
-            
+#if os(iOS) || targetEnvironment(macCatalyst)
+            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
+            #else
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
@@ -2094,6 +2094,39 @@ class SentryClientTest: XCTestCase {
         sut.captureFatalEvent(event, with: SentrySession(releaseName: "", distinctId: ""), with: scope)
         XCTAssertEqual(scope.replayId, "someReplay")
     }
+    
+#if os(macOS)
+    func testCaptureSentryWrappedException() throws {
+        let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
+        // If we don't raise the exception, it won't have the callStack data
+        let raisedException = ExceptionCatcher.try {
+            exception.raise()
+        }
+        let raisedExceptionUnwrapped = raisedException!
+        let sentryException = SentryUseNSExceptionCallstackWrapper(name: raisedExceptionUnwrapped.name, reason: raisedExceptionUnwrapped.reason, userInfo: raisedExceptionUnwrapped.userInfo, callStackReturnAddresses: raisedExceptionUnwrapped.callStackReturnAddresses)
+        let eventId = fixture.getSut().capture(exception: sentryException, scope: fixture.scope)
+
+        eventId.assertIsNotEmpty()
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(actual.threads?.count, 1)
+        XCTAssertEqual(actual.threads?[0].name, "NSException Thread")
+        XCTAssertEqual(actual.threads?[0].threadId, 0)
+        XCTAssertEqual(actual.threads?[0].crashed, true)
+        XCTAssertEqual(actual.threads?[0].current, true)
+        XCTAssertEqual(actual.threads?[0].isMain, true)
+        // Make sure the stacktrace is not empty
+        XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
+        // We will need to update it if the test class / module changes
+        let testMangledName = "$s11SentryTests0A10ClientTestC011testCaptureA16WrappedExceptionyyKF"
+        let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
+            frame.function == testMangledName
+        }
+        XCTAssertNotNil(frameWithTestFunction, "Mangled name for testCaptureSentryWrappedException not found in stacktrace")
+        
+        // Last frame should always be `__exceptionPreprocess`
+        XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
+    }
+#endif // os(macOS)
 }
 
 private extension SentryClientTest {
@@ -2251,6 +2284,10 @@ private extension SentryClientTest {
     
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         override func relevantViewControllers() -> [UIViewController] {
             return [ClientTestViewController()]
         }
