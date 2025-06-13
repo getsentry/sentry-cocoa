@@ -7,12 +7,12 @@ import XCTest
 class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     private class Fixture {
-        let viewHierarchy: TestSentryViewHierarchy
+        let viewHierarchyProvider: TestSentryViewHierarchyProvider
 
         init() {
-            let testViewHierarchy = TestSentryViewHierarchy()
+            let testViewHierarchy = TestSentryViewHierarchyProvider()
             testViewHierarchy.result = Data("view hierarchy".utf8)
-            viewHierarchy = testViewHierarchy
+            viewHierarchyProvider = testViewHierarchy
         }
 
         func getSut() -> SentryViewHierarchyIntegration {
@@ -27,7 +27,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
 
-        SentryDependencyContainer.sharedInstance().viewHierarchy = fixture.viewHierarchy
+        SentryDependencyContainer.sharedInstance().viewHierarchyProvider = fixture.viewHierarchyProvider
     }
 
     override func tearDown() {
@@ -69,7 +69,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
         saveViewHierarchy("/test/path")
-        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchy.saveFilePathUsed)
+        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
     }
 
     func test_processAttachments() {
@@ -147,9 +147,9 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     
     func test_backgroundForAppHangs() {
         let sut = fixture.getSut()
-        let testVH = TestSentryViewHierarchy()
-        SentryDependencyContainer.sharedInstance().viewHierarchy = testVH
-        
+        let testVH = TestSentryViewHierarchyProvider()
+        SentryDependencyContainer.sharedInstance().viewHierarchyProvider = testVH
+
         let event = Event()
         event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
         
@@ -173,7 +173,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.attachViewHierarchy = true
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
-        XCTAssertTrue(SentryDependencyContainer.sharedInstance().viewHierarchy.reportAccessibilityIdentifier)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().viewHierarchyProvider.reportAccessibilityIdentifier)
     }
     
     func testReportAccessibilityIdentifierFalse() {
@@ -182,7 +182,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.reportAccessibilityIdentifier = false
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().viewHierarchy.reportAccessibilityIdentifier)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().viewHierarchyProvider.reportAccessibilityIdentifier)
     }
 }
 
