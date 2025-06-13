@@ -89,7 +89,6 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             SentryLog.error("[Session Replay] Could not rescale image, dropping frame")
             return
         }
-        
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(timestamp.timeIntervalSinceReferenceDate).png")
         do {
             let url = URL(fileURLWithPath: imagePath)

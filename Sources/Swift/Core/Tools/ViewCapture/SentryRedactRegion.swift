@@ -5,14 +5,6 @@ import ObjectiveC.NSObjCRuntime
 import UIKit
 
 class SentryRedactRegion {
-    enum CodingKeys: CodingKey {
-        case size
-        case transform
-        case type
-        case color
-        case name
-    }
-
     let size: CGSize
     let transform: CGAffineTransform
     let type: SentryRedactRegionType
