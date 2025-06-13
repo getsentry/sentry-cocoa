@@ -1,5 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
+#import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -52,6 +53,10 @@
 #if TARGET_OS_IOS
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
+
+#if TARGET_OS_OSX
+#    import "SentryNSApplication.h"
+#endif
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
@@ -165,6 +170,8 @@ static BOOL isInitialializingDependencyContainer = NO;
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];
+#elif TARGET_OS_OSX
+        _application = [[SentryNSApplication alloc] init];
 #endif // SENTRY_HAS_UIKIT
 
         _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];

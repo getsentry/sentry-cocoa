@@ -269,6 +269,11 @@
     self.appState = UIApplicationStateActive;
 }
 
+- (BOOL)isActive
+{
+    return self.appState == UIApplicationStateActive;
+}
+
 @end
 
 #endif // SENTRY_HAS_UIKIT
