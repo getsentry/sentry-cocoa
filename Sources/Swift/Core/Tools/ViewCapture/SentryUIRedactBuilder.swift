@@ -79,7 +79,7 @@ class SentryUIRedactBuilder {
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
@@ -172,7 +172,7 @@ class SentryUIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
+        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {

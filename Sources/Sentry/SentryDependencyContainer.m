@@ -79,7 +79,8 @@
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-@property (nonatomic, strong) SentryScreenshotProvider *screenshotProvider;
+@property (nonatomic, strong)
+    NSMapTable<SentryScreenshotOptions *, SentryScreenshotProvider *> *screenshotProviderMap;
 #endif
 
 @end
@@ -198,6 +199,11 @@ static BOOL isInitialializingDependencyContainer = NO;
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        _screenshotProviderFactory = [[SentryScreenshotProviderFactory alloc] init];
+        _screenshotProviderMap = [NSMapTable strongToWeakObjectsMapTable];
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
         isInitialializingDependencyContainer = NO;
     }
     return self;
@@ -270,18 +276,23 @@ static BOOL isInitialializingDependencyContainer = NO;
         return [self getANRTracker:timeout];
     }
 }
-#endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_screenshotProvider,
-        [[SentryScreenshotProvider alloc] initWith:options
-                              enableViewRendererV2:options.enableViewRendererV2
-                           enableFastViewRendering:options.enableFastViewRendering]);
+    @synchronized(sentryDependencyContainerDependenciesLock) {
+        SentryScreenshotProvider *_Nullable provider =
+            [_screenshotProviderMap objectForKey:options];
+
+        if (provider == nil) {
+            provider = [self.screenshotProviderFactory getScreenshotProviderForOptions:options];
+            [_screenshotProviderMap setObject:provider forKey:options];
+        }
+
+        return provider;
+    }
 }
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
 - (SentryViewHierarchy *)viewHierarchy SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

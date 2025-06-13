@@ -45,6 +45,7 @@
 @class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationContextProcessor;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
+@class SentryScreenshotProviderFactory;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -123,6 +124,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
+@property (nonatomic, strong) SentryScreenshotProviderFactory *screenshotProviderFactory;
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;

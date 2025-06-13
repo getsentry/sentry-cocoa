@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -8,7 +9,11 @@ class SentryScreenshotProviderTests: XCTestCase {
         let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         var sut: SentryScreenshotProvider {
-            return SentryScreenshotProvider()
+            return SentryScreenshotProvider(
+                SentryRedactDefaultOptions(),
+                enableViewRendererV2: false,
+                enableFastViewRendering: false
+            )
         }
     }
     

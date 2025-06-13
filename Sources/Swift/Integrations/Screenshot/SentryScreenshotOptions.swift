@@ -10,15 +10,15 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     public class DefaultValues {
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
-
+        
         public static let maskAllText: Bool = true
         public static let maskAllImages: Bool = true
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
     }
-
+    
     // MARK: - Rendering
-
+    
     /**
      * Enables the up to 5x faster new view renderer.
      *
@@ -32,7 +32,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var enableViewRendererV2: Bool
-
+    
     /**
      * Enables up to 5x faster but incomplete view rendering.
      *
@@ -55,9 +55,9 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var enableFastViewRendering: Bool
-
+    
     // MARK: - Masking
-
+    
     /**
      * Indicates whether the screenshot should redact all non-bundled image
      * in the app by drawing a black rectangle over it.
@@ -65,7 +65,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var maskAllImages: Bool
-
+    
     /**
      * Indicates whether the screenshot should redact all text in the app
      * by drawing a black rectangle over it.
@@ -73,7 +73,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var maskAllText: Bool
-
+    
     /**
      * A list of custom UIView subclasses that need
      * to be masked during the screenshot.
@@ -83,7 +83,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var maskedViewClasses: [AnyClass]
-
+    
     /**
      * A list of custom UIView subclasses to be ignored
      * during masking step of the screenshot.
@@ -93,7 +93,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryScreenshotOptions.init`` for the default value.
      */
     public var unmaskedViewClasses: [AnyClass]
-
+    
     /**
      * Initialize screenshot options disabled
      *
@@ -104,15 +104,15 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
     public convenience override init() {
         // Setting all properties to nil will fallback to the default values in the init method.
         self.init(
-            enableViewRendererV2: nil,
-            enableFastViewRendering: nil,
-            maskAllText: nil,
-            maskAllImages: nil,
-            maskedViewClasses: nil,
-            unmaskedViewClasses: nil
+            enableViewRendererV2: DefaultValues.maskAllText,
+            enableFastViewRendering: DefaultValues.enableFastViewRendering,
+            maskAllText: DefaultValues.maskAllText,
+            maskAllImages: DefaultValues.maskAllImages,
+            maskedViewClasses: DefaultValues.maskedViewClasses,
+            unmaskedViewClasses: DefaultValues.unmaskedViewClasses
         )
     }
-
+    
     /**
      * Initializes a new instance of ``SentryScreenshotOptions`` using a dictionary.
      *
@@ -124,19 +124,19 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
-            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue,
-            enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue,
-            maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue,
-            maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue,
+            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? DefaultValues.enableViewRendererV2,
+            enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue ?? DefaultValues.enableFastViewRendering,
+            maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? DefaultValues.maskAllText,
+            maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? DefaultValues.maskAllImages,
             maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
-            }),
+            }) ?? DefaultValues.maskedViewClasses,
             unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
-            })
+            }) ?? DefaultValues.unmaskedViewClasses
         )
     }
-
+    
     /**
      * Initializes a new instance of ``SentryScreenshotOptions`` with the specified parameters.
      *
@@ -150,7 +150,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See ``SentryScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
-    public convenience init(
+    public init(
         enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
         enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering,
         maskAllText: Bool = DefaultValues.maskAllText,
@@ -164,35 +164,56 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
         // - Parameter values are not optional, because SDK users should not be able to set them to nil.
         // - The publicly available property `quality` is omitted in this initializer, because adding it would break backwards compatibility
         //   with the automatically bridged Objective-C initializer.
-        self.init(
-            enableViewRendererV2: enableViewRendererV2,
-            enableFastViewRendering: enableFastViewRendering,
-            maskAllText: maskAllText,
-            maskAllImages: maskAllImages,
-            maskedViewClasses: maskedViewClasses,
-            unmaskedViewClasses: unmaskedViewClasses
-        )
-    }
-
-    private init(
-        enableViewRendererV2: Bool?,
-        enableFastViewRendering: Bool?,
-        maskAllText: Bool?,
-        maskAllImages: Bool?,
-        maskedViewClasses: [AnyClass]?,
-        unmaskedViewClasses: [AnyClass]?
-    ) {
-        self.maskAllText = maskAllText ?? DefaultValues.maskAllText
-        self.maskAllImages = maskAllImages ?? DefaultValues.maskAllImages
-        self.enableViewRendererV2 = enableViewRendererV2 ?? DefaultValues.enableViewRendererV2
-        self.enableFastViewRendering = enableFastViewRendering ?? DefaultValues.enableFastViewRendering
-        self.maskedViewClasses = maskedViewClasses ?? DefaultValues.maskedViewClasses
-        self.unmaskedViewClasses = unmaskedViewClasses ?? DefaultValues.unmaskedViewClasses
+        self.enableViewRendererV2 = enableViewRendererV2
+        self.enableFastViewRendering = enableFastViewRendering
+        self.maskAllText = maskAllText
+        self.maskAllImages = maskAllImages
+        self.maskedViewClasses = maskedViewClasses
+        self.unmaskedViewClasses = unmaskedViewClasses
 
         super.init()
     }
-
+    
     public override var description: String {
         return "SentryScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses))"
+    }
+    
+    // MARK: - Equatable & Hashable
+    
+    public override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(enableViewRendererV2)
+        hasher.combine(enableFastViewRendering)
+        hasher.combine(maskAllText)
+        hasher.combine(maskAllImages)
+        
+        // Hash the class names for maskedViewClasses
+        for viewClass in maskedViewClasses {
+            hasher.combine(NSStringFromClass(viewClass))
+        }
+        
+        // Hash the class names for unmaskedViewClasses
+        for viewClass in unmaskedViewClasses {
+            hasher.combine(NSStringFromClass(viewClass))
+        }
+        return hasher.finalize()
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? SentryScreenshotOptions else {
+            return false
+        }
+        return self.enableViewRendererV2 == other.enableViewRendererV2 &&
+        self.enableFastViewRendering == other.enableFastViewRendering &&
+        self.maskAllText == other.maskAllText &&
+        self.maskAllImages == other.maskAllImages &&
+        self.maskedViewClasses.count == other.maskedViewClasses.count &&
+        self.unmaskedViewClasses.count == other.unmaskedViewClasses.count &&
+        self.maskedViewClasses.allSatisfy { viewClass in
+            other.maskedViewClasses.contains { NSStringFromClass($0) == NSStringFromClass(viewClass) }
+        } &&
+        self.unmaskedViewClasses.allSatisfy { viewClass in
+            other.unmaskedViewClasses.contains { NSStringFromClass($0) == NSStringFromClass(viewClass) }
+        }
     }
 }

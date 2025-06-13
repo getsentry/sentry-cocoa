@@ -48,7 +48,7 @@ schemeTemplates:
         "--io.sentry.screenshot.disable-mask-all-images": false
         "--io.sentry.screenshot.disable-mask-all-text": false
         "--io.sentry.session-replay.disable": false
-        "--io.sentry.session-replay.on-error-sample-rate": false
+        "--io.sentry.session-replay.on-error-sample-rate": true
         "--io.sentry.session-replay.session-sample-rate": false
         "--io.sentry.session-replay.disable-view-renderer-v2": false
         "--io.sentry.session-replay.enable-fast-view-rendering": false
@@ -89,7 +89,7 @@ schemeTemplates:
           value:
           isEnabled: false
         - variable: "--io.sentry.session-replay.on-error-sample-rate"
-          value:
+          value: 1.0
           isEnabled: false
         - variable: "--io.sentry.session-replay.session-sample-rate"
           value:

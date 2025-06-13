@@ -1,18 +1,28 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Sentry
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let screenshot: TestSentryScreenshot
-        
+        let screenshotProvider: TestSentryScreenshotProvider
+        let screenshotProviderFactory: TestSentryScreenshotProviderFactory
+
         init() {
-            let testScreenShot = TestSentryScreenshot()
-            testScreenShot.result = [Data(count: 10)]
-            screenshot = testScreenShot
+            let redactOptions = SentryRedactDefaultOptions()
+            let provider = TestSentryScreenshotProvider(
+                redactOptions,
+                enableViewRendererV2: true,
+                enableFastViewRendering: false
+            )
+            provider.result = [Data(count: 10)]
+            screenshotProvider = provider
+
+            screenshotProviderFactory = TestSentryScreenshotProviderFactory()
+            screenshotProviderFactory.getScreenshotProviderForOptionsReturnValue = provider
+            SentryDependencyContainer.sharedInstance().screenshotProviderFactory = screenshotProviderFactory
         }
         
         func getSut() -> SentryScreenshotIntegration {
@@ -26,8 +36,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-
-        SentryDependencyContainer.sharedInstance().screenshot = fixture.screenshot
     }
     
     override func tearDown() {
@@ -172,7 +180,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     func test_Attachments_Info() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        fixture.screenshot.result = [Data(repeating: 0, count: 1), Data(repeating: 0, count: 2), Data(repeating: 0, count: 3)]
+        fixture.screenshotProvider.result = [Data(repeating: 0, count: 1), Data(repeating: 0, count: 2), Data(repeating: 0, count: 3)]
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
@@ -193,15 +201,13 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
     func test_backgroundForAppHangs() {
         let sut = fixture.getSut()
-        let testVH = TestSentryScreenshot()
-        SentryDependencyContainer.sharedInstance().screenshot = testVH
         
         let event = Event()
         event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
 
         let ex = expectation(description: "Attachment Added")
         
-        testVH.processScreenshotsCallback = {
+        fixture.screenshotProvider.processScreenshotsCallback = {
             XCTFail("Should not add screenshots to App Hanging events")
         }
         
