@@ -51171,6 +51171,140 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SentryRedactViewHelper",
+        "printedName": "SentryRedactViewHelper",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "clipOutView",
+            "printedName": "clipOutView(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UIView",
+                "printedName": "UIKit.UIView",
+                "usr": "c:objc(cs)UIView"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)clipOutView:",
+            "mangledName": "$s6Sentry0A16RedactViewHelperC07clipOutC0yySo6UIViewCFZ",
+            "moduleName": "Sentry",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "maskSwiftUI",
+            "printedName": "maskSwiftUI(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UIView",
+                "printedName": "UIKit.UIView",
+                "usr": "c:objc(cs)UIView"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)maskSwiftUI:",
+            "mangledName": "$s6Sentry0A16RedactViewHelperC11maskSwiftUIyySo6UIViewCFZ",
+            "moduleName": "Sentry",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper",
+        "mangledName": "$s6Sentry0A16RedactViewHelperC",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "ObjCMembers",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "hasMissingDesignatedInitializers": true,
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SentryMXCallStackTree",
         "printedName": "SentryMXCallStackTree",
         "children": [
@@ -54725,140 +54859,6 @@
           "Private"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "inheritsConvenienceInitializers": true,
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryRedactViewHelper",
-        "printedName": "SentryRedactViewHelper",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "clipOutView",
-            "printedName": "clipOutView(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "UIView",
-                "printedName": "UIKit.UIView",
-                "usr": "c:objc(cs)UIView"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)clipOutView:",
-            "mangledName": "$s6Sentry0A16RedactViewHelperC07clipOutC0yySo6UIViewCFZ",
-            "moduleName": "Sentry",
-            "static": true,
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "maskSwiftUI",
-            "printedName": "maskSwiftUI(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "UIView",
-                "printedName": "UIKit.UIView",
-                "usr": "c:objc(cs)UIView"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)maskSwiftUI:",
-            "mangledName": "$s6Sentry0A16RedactViewHelperC11maskSwiftUIyySo6UIViewCFZ",
-            "moduleName": "Sentry",
-            "static": true,
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper",
-        "mangledName": "$s6Sentry0A16RedactViewHelperC",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "ObjCMembers",
-          "ObjC"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "hasMissingDesignatedInitializers": true,
         "inheritsConvenienceInitializers": true,
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -58482,6 +58482,362 @@
             "printedName": "CustomDebugStringConvertible",
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentryRedactRegionType",
+        "printedName": "SentryRedactRegionType",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "redact",
+            "printedName": "redact",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryRedactRegionType.Type) -> Sentry.SentryRedactRegionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryRedactRegionType",
+                        "printedName": "Sentry.SentryRedactRegionType",
+                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A16RedactRegionTypeO6redactyA2CmF",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO6redactyA2CmF",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "clipOut",
+            "printedName": "clipOut",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryRedactRegionType.Type) -> Sentry.SentryRedactRegionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryRedactRegionType",
+                        "printedName": "Sentry.SentryRedactRegionType",
+                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A16RedactRegionTypeO7clipOutyA2CmF",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO7clipOutyA2CmF",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "clipBegin",
+            "printedName": "clipBegin",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryRedactRegionType.Type) -> Sentry.SentryRedactRegionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryRedactRegionType",
+                        "printedName": "Sentry.SentryRedactRegionType",
+                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A16RedactRegionTypeO9clipBeginyA2CmF",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO9clipBeginyA2CmF",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "clipEnd",
+            "printedName": "clipEnd",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryRedactRegionType.Type) -> Sentry.SentryRedactRegionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryRedactRegionType",
+                        "printedName": "Sentry.SentryRedactRegionType",
+                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A16RedactRegionTypeO7clipEndyA2CmF",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO7clipEndyA2CmF",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "redactSwiftUI",
+            "printedName": "redactSwiftUI",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryRedactRegionType.Type) -> Sentry.SentryRedactRegionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryRedactRegionType",
+                        "printedName": "Sentry.SentryRedactRegionType",
+                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A16RedactRegionTypeO13redactSwiftUIyA2CmF",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO13redactSwiftUIyA2CmF",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryRedactRegionType?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactRegionType",
+                    "printedName": "Sentry.SentryRedactRegionType",
+                    "usr": "s:6Sentry0A16RedactRegionTypeO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A16RedactRegionTypeO8rawValueACSgSS_tcfc",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO8rawValueACSgSS_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A16RedactRegionTypeO8RawValuea",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO8RawValuea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:6Sentry0A16RedactRegionTypeO8rawValueSSvp",
+            "mangledName": "$s6Sentry0A16RedactRegionTypeO8rawValueSSvp",
+            "moduleName": "Sentry",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:6Sentry0A16RedactRegionTypeO8rawValueSSvg",
+                "mangledName": "$s6Sentry0A16RedactRegionTypeO8rawValueSSvg",
+                "moduleName": "Sentry",
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:6Sentry0A16RedactRegionTypeO",
+        "mangledName": "$s6Sentry0A16RedactRegionTypeO",
+        "moduleName": "Sentry",
+        "enumRawTypeName": "String",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryRedactRegionType.RawValue",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
           }
         ]
       },
