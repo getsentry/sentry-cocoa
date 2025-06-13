@@ -1,6 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-class TestSentryViewHierarchy: SentryViewHierarchy {
+class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
 
     var result: Data?
     var viewHierarchyResult: Int32 = 0
@@ -15,7 +15,7 @@ class TestSentryViewHierarchy: SentryViewHierarchy {
         return result
     }
 
-    override func save(_ filePath: String) -> Bool {
+    override func saveViewHierarchy(_ filePath: String) -> Bool {
         saveFilePathUsed = filePath
         return true
     }

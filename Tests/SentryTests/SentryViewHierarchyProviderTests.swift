@@ -2,12 +2,12 @@ import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewHierarchyTests: XCTestCase {
+class SentryViewHierarchyProviderTests: XCTestCase {
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
 
-        var sut: SentryViewHierarchy {
-            return SentryViewHierarchy()
+        var sut: SentryViewHierarchyProvider {
+            return SentryViewHierarchyProvider()
         }
     }
 
@@ -142,7 +142,7 @@ class SentryViewHierarchyTests: XCTestCase {
         fixture.uiApplication.windows = [window]
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
-        self.fixture.sut.save(path)
+        self.fixture.sut.saveViewHierarchy(path)
 
         let descriptions = (try? String(contentsOfFile: path)) ?? ""
 
@@ -158,7 +158,7 @@ class SentryViewHierarchyTests: XCTestCase {
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         let sut = self.fixture.sut
         sut.reportAccessibilityIdentifier = false
-        sut.save(path)
+        sut.saveViewHierarchy(path)
 
         let descriptions = try XCTUnwrap(String(contentsOfFile: path))
 
@@ -171,11 +171,11 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [window]
 
-        XCTAssertFalse(self.fixture.sut.save(""))
+        XCTAssertFalse(self.fixture.sut.saveViewHierarchy(""))
     }
 
     func test_invalidSerialization() {
-        let sut = TestSentryViewHierarchy()
+        let sut = TestSentryViewHierarchyProvider()
         sut.viewHierarchyResult = -1
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
@@ -186,7 +186,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_appViewHierarchyFromBackgroundTest() {
-        let sut = TestSentryViewHierarchy()
+        let sut = TestSentryViewHierarchyProvider()
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
@@ -205,7 +205,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_appViewHierarchy_usesMainThread() {
-        let sut = TestSentryViewHierarchy()
+        let sut = TestSentryViewHierarchyProvider()
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
