@@ -59,6 +59,11 @@ jobs:
         shell: bash
         run: ./scripts/remove_simulators.sh
 
+      - name: Delete unused Xcodes
+        shell: bash
+        run: |
+          find /Applications/Xcode_* -maxdepth 0 -type d ! -name 'Xcode_${{ inputs.xcode_version }}.app' -exec rm -rf {} \;
+
       - name: Print available disk space
         shell: bash
         run: df -h
