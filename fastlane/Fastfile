@@ -201,7 +201,7 @@ platform :ios do
 
     tests.each do |test|
       run_ui_tests(
-        scheme: "SwiftUITestSampleCrash",
+        scheme: test,
         result_bundle_name: "ui_critical_tests_ios_swiftui_#{test}"
       )
     end
@@ -275,7 +275,7 @@ platform :ios do
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
       scheme: "DuplicatedSDKTest",
       device: "iPhone 16 (18.5)",
-      xcodebuild_formatter: "xcbeautify --report junit",
+      xcodebuild_formatter: "xcbeautify --report junit --output fastlane/test_results/duplication_test_junit.xml",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"
     )
