@@ -29,7 +29,7 @@ jobs:
           bundler-cache: true
 
       - run: make init-ci-build
-      - run: make xcode
+      - run: make xcode-ci
 
       # We upload a new version to TestFlight on every commit on main
       # So we need to bump the build number each time

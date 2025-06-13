@@ -17,10 +17,6 @@ init-local:
 .PHONY: init-ci-build
 init-ci-build:
 	brew bundle --file Brewfile-ci-build
-
-.PHONY: init-ci-test
-init-ci-test:
-	brew bundle --file Brewfile-ci-test
 	
 # installs the tools needed to run CI deploy tasks locally (note that carthage is preinstalled in github actions)
 .PHONY: init-ci-deploy
@@ -174,6 +170,10 @@ release-pod:
 	pod trunk push SentrySwiftUI.podspec
 
 xcode:
+	make xcode-ci
+	open Sentry.xcworkspace
+
+xcode-ci:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
@@ -187,4 +187,4 @@ xcode:
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
-	open Sentry.xcworkspace
+	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml

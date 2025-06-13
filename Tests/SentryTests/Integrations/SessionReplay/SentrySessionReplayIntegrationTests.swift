@@ -309,7 +309,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
     }
     
@@ -322,7 +322,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
