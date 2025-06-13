@@ -1,5 +1,10 @@
 name: "Capture screenshot"
 description: "Captures a screenshot of the machine"
+inputs:
+  suffix:
+    description: "The suffix of the screenshot"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -10,5 +15,5 @@ runs:
     - name: Store screenshot
       uses: actions/upload-artifact@v4
       with:
-        name: screenshot-${{ github.job }}
+        name: screenshot-${{ github.job }}${{ inputs.suffix }}
         path: /tmp/screenshot.png
