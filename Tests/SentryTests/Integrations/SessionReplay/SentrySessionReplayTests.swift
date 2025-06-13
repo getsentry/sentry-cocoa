@@ -61,7 +61,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastFrame: UIImage?
         func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {
             lastFrameTimestamp = timestamp
-            lastFrame = image
+            lastFrame = maskedViewImage
             guard let forScreen = forScreen else { return }
             screens.append(forScreen)
         }
