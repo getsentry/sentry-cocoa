@@ -472,7 +472,7 @@ class UIRedactBuilderTests: XCTestCase {
     func testRedactList() {
         let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "UILabel", "UITextView", "UITextField", "WKWebView"
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView"
         ].compactMap { NSClassFromString($0) }
         
         let sut = getSut()
