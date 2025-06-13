@@ -8,7 +8,7 @@ import UIKit
 
 @objcMembers
 class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    private let redactBuilder: UIRedactBuilder
+    private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
@@ -29,13 +29,13 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     ) {
         self.renderer = renderer
         self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
-        redactBuilder = UIRedactBuilder(options: redactOptions)
+        redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         super.init()
     }
 
     func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let viewSize = view.bounds.size
-        let redact = redactBuilder.redactRegionsFor(view: view)
+        let redactRegions = redactBuilder.redactRegionsFor(view: view)
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
@@ -44,16 +44,17 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
             // The mask renderer does not need to be on the main thread.
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
-            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redact)
+            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
+
             onComplete(maskedScreenshot)
         }
     }
 
     func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
-        let redact = redactBuilder.redactRegionsFor(view: view)
+        let redactRegions = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)
-        let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redact)
+        let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
 
         return maskedScreenshot
     }
@@ -79,7 +80,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
-    func getRedactBuild() -> UIRedactBuilder {
+    func getRedactBuilder() -> SentryUIRedactBuilder {
         redactBuilder
     }
 #endif

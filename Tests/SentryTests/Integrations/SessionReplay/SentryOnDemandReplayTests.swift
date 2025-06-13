@@ -36,13 +36,13 @@ class SentryOnDemandReplayTests: XCTestCase {
     
     func testAddFrame() {
         let sut = getSut()
-        sut.addFrameAsync(timestamp: Date(timeIntervalSinceReferenceDate: 0xBAAD_F00D), image: UIImage.add)
+        sut.addFrameAsync(timestamp: Date(timeIntervalSinceReferenceDate: 0xBAAD_F00D), maskedViewImage: UIImage.add)
 
         guard let frame = sut.frames.first else {
             XCTFail("Frame was not saved")
             return
         }
-        
+
         XCTAssertEqual(FileManager.default.fileExists(atPath: frame.imagePath), true)
         XCTAssertEqual(frame.imagePath.hasPrefix(self.outputPath.path), true)
     }
@@ -52,17 +52,14 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<10 {
-            sut.addFrameAsync(
-                    timestamp: start.addingTimeInterval(TimeInterval(i)),
-                    image: UIImage.add
-                )
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add)
         }
         let end = start.addingTimeInterval(10)
        
         sut.releaseFramesUntil(end.addingTimeInterval(-5))
 
         let frames = sut.frames
-        
+
         XCTAssertEqual(frames.count, 5)
         XCTAssertEqual(frames.first?.time, start.addingTimeInterval(5))
         XCTAssertEqual(frames.last?.time, start.addingTimeInterval(9))
@@ -70,16 +67,16 @@ class SentryOnDemandReplayTests: XCTestCase {
     
     func testFramesWithScreenName() {
         let sut = getSut()
-        
+
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<4 {
-            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), image: UIImage.add, forScreen: "\(i)")
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add, forScreen: "\(i)")
         }
-        
+
         sut.releaseFramesUntil(start)
 
         let frames = sut.frames
-        
+
         for i in 0..<4 {
             XCTAssertEqual(frames[i].screenName, "\(i)")
         }
@@ -91,7 +88,7 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<10 {
-            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), image: UIImage.add)
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add)
         }
         let end = start.addingTimeInterval(10)
 
@@ -103,15 +100,15 @@ class SentryOnDemandReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(videos.count, 1)
         let info = try XCTUnwrap(videos.first)
-        
+
         XCTAssertEqual(info.duration, 10)
         XCTAssertEqual(info.start, Date(timeIntervalSinceReferenceDate: 0))
         XCTAssertEqual(info.end, Date(timeIntervalSinceReferenceDate: 10))
-        
+
         let videoPath = info.path
-        
+
         XCTAssertTrue(FileManager.default.fileExists(atPath: videoPath.path))
-        
+
         videoExpectation.fulfill()
         try FileManager.default.removeItem(at: videoPath)
         wait(for: [videoExpectation], timeout: 1)
@@ -125,18 +122,17 @@ class SentryOnDemandReplayTests: XCTestCase {
             processingQueue: processingQueue,
             assetWorkerQueue: workerQueue
         )
-
         let group = DispatchGroup()
-        
+
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), image: UIImage.add)
+                sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add)
                 group.leave()
             }
         }
-        
+
         group.wait()
         processingQueue.queue.sync {} // Wait for all enqueued operation to finish
         XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
@@ -152,9 +148,9 @@ class SentryOnDemandReplayTests: XCTestCase {
         )
 
         sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
-                
+
         let group = DispatchGroup()
-        
+
         for i in 1...10 {
             group.enter()
             DispatchQueue.global().async {
@@ -162,9 +158,9 @@ class SentryOnDemandReplayTests: XCTestCase {
                 group.leave()
             }
         }
-        
+
         group.wait()
-        
+
         processingQueue.queue.sync {} //Wait for all enqueued operation to finish
         XCTAssertEqual(sut.frames.count, 0)
     }
@@ -180,7 +176,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         )
 
         let start = Date(timeIntervalSinceReferenceDate: 0xBAAD_F00D)
-        sut.addFrameAsync(timestamp: start, image: UIImage.add)
+        sut.addFrameAsync(timestamp: start, maskedViewImage: UIImage.add)
         processingQueue.dispatchSync {
             // Wait for the frame to be added by adding a sync operation to the serial queue
         }
@@ -200,16 +196,13 @@ class SentryOnDemandReplayTests: XCTestCase {
     func testGenerateVideoForEachSize() throws {
         // -- Arrange --
         let sut = getSut()
-        
+
         let image1 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 19)).image { _ in }
         let image2 = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { _ in }
 
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<10 {
-            sut.addFrameAsync(
-                timestamp: start.addingTimeInterval(TimeInterval(i)),
-                image: i < 5 ? image1 : image2
-            )
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: i < 5 ? image1 : image2)
         }
         let end = start.addingTimeInterval(10)
 
@@ -218,22 +211,22 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(videos.count, 2)
-        
+
         let firstVideo = try XCTUnwrap(videos.first)
         let secondVideo = try XCTUnwrap(videos.last)
-        
+
         XCTAssertEqual(firstVideo.duration, 5)
         XCTAssertEqual(secondVideo.duration, 5)
-        
+
         XCTAssertEqual(firstVideo.start, start)
         XCTAssertEqual(secondVideo.start, start.addingTimeInterval(5))
-        
+
         XCTAssertEqual(firstVideo.end, start.addingTimeInterval(5))
         XCTAssertEqual(secondVideo.end, end)
-        
+
         XCTAssertEqual(firstVideo.width, 20)
         XCTAssertEqual(firstVideo.height, 19)
-        
+
         XCTAssertEqual(secondVideo.width, 20)
         XCTAssertEqual(secondVideo.height, 10)
     }
@@ -241,7 +234,6 @@ class SentryOnDemandReplayTests: XCTestCase {
     func testGenerateVideoInfo_whenNoFramesAdded_shouldNotThrowError() throws {
         // -- Arrange --
         let sut = getSut()
-
         // -- Act --
         let videos = sut.createVideoWith(
             beginning: Date(timeIntervalSinceReferenceDate: 0),
@@ -251,7 +243,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(videos.count, 0)
     }
-  
+    
     func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {
         // -- Arrange --
         let framesPerSecond = 1
@@ -346,7 +338,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
         XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 0)
         XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 0)
-        
+
         let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
 
         XCTAssertEqual(compressionProperties.count, 4)
@@ -354,7 +346,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
         XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
         XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
-        
+
         let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
 
         XCTAssertEqual(colorProperties.count, 3)
@@ -362,7 +354,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(colorProperties[AVVideoTransferFunctionKey] as? String, AVVideoTransferFunction_ITU_R_709_2)
         XCTAssertEqual(colorProperties[AVVideoYCbCrMatrixKey] as? String, AVVideoYCbCrMatrix_ITU_R_709_2)
     }
-
+    
     func testCreateVideoSettings_anySize_shouldReturnFullSettings() throws {
         // -- Arrange --
         let sut = getSut()
@@ -375,7 +367,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(settings[AVVideoCodecKey] as? AVVideoCodecType, AVVideoCodecType.h264)
         XCTAssertEqual(settings[AVVideoWidthKey] as? CGFloat, 100)
         XCTAssertEqual(settings[AVVideoHeightKey] as? CGFloat, 100)
-        
+
         let compressionProperties = try XCTUnwrap(settings[AVVideoCompressionPropertiesKey] as? [String: Any], "Compression properties not found")
 
         XCTAssertEqual(compressionProperties.count, 4)
@@ -383,7 +375,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(compressionProperties[AVVideoProfileLevelKey] as? String, AVVideoProfileLevelH264MainAutoLevel)
         XCTAssertEqual(compressionProperties[AVVideoAllowFrameReorderingKey] as? Bool, false)
         XCTAssertEqual(compressionProperties[AVVideoMaxKeyFrameIntervalKey] as? Int, 6)
-        
+
         let colorProperties = try XCTUnwrap(settings[AVVideoColorPropertiesKey] as? [String: Any], "Color properties not found")
 
         XCTAssertEqual(colorProperties.count, 3)
