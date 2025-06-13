@@ -95,8 +95,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}.xcresult
-          path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+          path: |
+            fastlane/test_results/**/*.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4

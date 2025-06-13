@@ -194,10 +194,17 @@ platform :ios do
   end
 
   lane :ui_critical_tests_ios_swiftui do
-    run_ui_tests(
-      scheme: "SwiftUITestSample",
-      result_bundle_name: "ui_critical_tests_ios_swiftui"
-    )
+    tests = [
+      "SwiftUITestSampleCrash",
+      "SwiftUITestSampleEnvelope"
+    ]
+
+    tests.each do |test|
+      run_ui_tests(
+        scheme: "SwiftUITestSampleCrash",
+        result_bundle_name: "ui_critical_tests_ios_swiftui_#{test}"
+      )
+    end
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"

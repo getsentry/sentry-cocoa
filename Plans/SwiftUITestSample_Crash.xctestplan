@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "D5A59117-63AC-45A7-9579-3E6C2F6A84D5",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "EnvelopeTest",
+        "EnvelopeTest\/testCorruptedEnvelope()"
+      ],
+      "target" : {
+        "containerPath" : "container:SwiftUITestSample.xcodeproj",
+        "identifier" : "CB685CB9DBE9C3FFCE8BD314",
+        "name" : "SwiftUITestSampleUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
