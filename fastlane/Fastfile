@@ -176,24 +176,18 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  lane :build_ios_swift_ui_test_sample do
-
-    setup_ci(
-      force: true
-    )
-
-    build_app(
+  lane :ui_critical_tests_ios_swiftui do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui_critical_tests_ios_swiftui.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
+    run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "SwiftUITestSample",
       configuration: "Debug",
-      derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
-      destination: "generic/platform=iOS Simulator",
-      xcargs: "-sdk 'iphonesimulator'",
-      skip_archive: true,
-      skip_package_dependencies_resolution: true
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
