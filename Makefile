@@ -170,6 +170,10 @@ release-pod:
 	pod trunk push SentrySwiftUI.podspec
 
 xcode:
+	make xcode-ci
+	open Sentry.xcworkspace
+
+xcode-ci:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
@@ -184,4 +188,3 @@ xcode:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
-	open Sentry.xcworkspace
