@@ -133,7 +133,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshot)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getScreenshotProvider(for: .init()))
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchy)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
@@ -263,4 +263,55 @@ final class SentryDependencyContainerTests: XCTestCase {
         throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
 #endif
     }
+
+    func testGetScreenshotProviderForOptions_sameScreenshotOptions_shouldReturnSameInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        let options1 = SentryScreenshotOptions()
+        let options2 = SentryScreenshotOptions()
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options1)
+        let provider2 = sut.getScreenshotProvider(for: options2)
+
+        // -- Assert --
+        XCTAssertIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testGetScreenshotProviderForOptions_differentScreenshotOptions_shouldReturnDifferentInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        let options1 = SentryScreenshotOptions(
+            enableViewRendererV2: true
+        )
+        let options2 = SentryScreenshotOptions(
+            enableViewRendererV2: false
+        )
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options1)
+        let provider2 = sut.getScreenshotProvider(for: options2)
+
+        // -- Assert --
+        XCTAssertNotIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
 }

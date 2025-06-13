@@ -44,7 +44,7 @@
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
-#    import <SentryScreenshot.h>
+#    import <SentryScreenshotProvider.h>
 #    import <SentryViewHierarchy.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
@@ -78,6 +78,10 @@
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+@property (nonatomic, strong)
+    NSMapTable<SentryScreenshotOptions *, SentryScreenshotProvider *> *screenshotProviderMap;
+#endif
 
 @end
 
@@ -195,6 +199,11 @@ static BOOL isInitialializingDependencyContainer = NO;
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        _screenshotProviderFactory = [[SentryScreenshotProviderFactory alloc] init];
+        _screenshotProviderMap = [NSMapTable strongToWeakObjectsMapTable];
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
         isInitialializingDependencyContainer = NO;
     }
     return self;
@@ -267,21 +276,23 @@ static BOOL isInitialializingDependencyContainer = NO;
         return [self getANRTracker:timeout];
     }
 }
-#endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-- (SentryScreenshot *)screenshot SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
+    (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-#    if SENTRY_HAS_UIKIT
-    SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
+    @synchronized(sentryDependencyContainerDependenciesLock) {
+        SentryScreenshotProvider *_Nullable provider =
+            [_screenshotProviderMap objectForKey:options];
+
+        if (provider == nil) {
+            provider = [self.screenshotProviderFactory getScreenshotProviderForOptions:options];
+            [_screenshotProviderMap setObject:provider forKey:options];
+        }
+
+        return provider;
+    }
 }
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
 - (SentryViewHierarchy *)viewHierarchy SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
