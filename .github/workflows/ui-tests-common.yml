@@ -86,7 +86,7 @@ jobs:
         uses: mikepenz/action-junit-report@65fe03598d8d251738592a497a9e8547a5c48eaa # v5.6.0
         if: always()
         with:
-          report_paths: "build/reports/junit.xml"
+          report_paths: build/reports/*junit.xml
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
