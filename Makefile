@@ -1,5 +1,5 @@
 .PHONY: init
-init: init-local init-ci-build init-ci-test init-ci-deploy init-ci-format
+init: init-local init-ci-build init-ci-deploy init-ci-format
 
 .PHONY: init-local
 init-local:
