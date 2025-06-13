@@ -4,7 +4,84 @@
 
 ### Features
 
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Improvements
+
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Fix building with Xcode 26 (#5386)
+
+## 8.52.1
+
+### Fixes
+
+- Missing debug meta for non fatal events (#5352)
+
+## 8.52.0
+
+> [!Warning]
+> This version has a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
+### Fixes
+
+- Add missing context for watchdog termination events (#5242)
+- Use timestamp of screenshot for frames (#5342)
+- Use frame rate for cache max size of session replay (#5341)
+
+## 8.52.0-beta
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
+## 8.51.1
+
+> [!Warning]
+> This version introduces a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
+
+### Fixes
+
+- Uses low-priority queues to reduce the chance of session replay internal multi-threading processes being dropped (#5280)
+
+### Improvements
+
+- Threading issues in internal dependency container (#5225)
+
+## 8.51.0
+
+> [!Important]
+> This version creates new issue groups for your unhandled C++ exceptions because it now again reports the message of unhandled C++ exceptions, which we use for grouping.
+
+### Features
+
 - Apps can now manually show and hide the included feedback widget button (#5236)
+
+### Fixes
+
+- Reporting unhandled C++ exception message (#5190)
+- Improved internal multi-threading of session replay to fix thread inversion warning and reduce chance of queue starvation (#5018)
+
+### Improvements
+
+- Add `itemCount` to `SentryEnvelopeItemHeader` ([#5230](https://github.com/getsentry/sentry-cocoa/pull/5230))
+- Improve warn log in SentryTracer (#5248)
 
 ## 8.50.2
 

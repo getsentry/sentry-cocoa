@@ -1,8 +1,11 @@
 #if __has_include(<Sentry/Sentry.h>)
-#    import <Sentry/SentrySerializable.h>
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
 #else
-#    import <SentryWithoutUIKit/SentrySerializable.h>
+#    import <SentryDefines.h>
 #endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,6 +23,11 @@ SENTRY_NO_INIT
                    filenname:(NSString *)filename
                  contentType:(NSString *)contentType;
 
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                 contentType:(NSString *)contentType
+                   itemCount:(NSNumber *)itemCount;
+
 /**
  * The type of the envelope item.
  */
@@ -27,6 +35,7 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly, copy, nullable) NSString *filename;
 @property (nonatomic, readonly, copy, nullable) NSString *contentType;
+@property (nonatomic, readonly, copy, nullable) NSNumber *itemCount;
 
 /**
  * Some envelopes need to report the platform name for enhanced rate limiting functionality in

@@ -9,12 +9,12 @@ on:
       - main
     paths:
       - ".github/workflows/lint-shellcheck.yml"
-      - "*.sh"
+      - "**/*.sh"
 
   pull_request:
     paths:
       - ".github/workflows/lint-shellcheck.yml"
-      - "*.sh"
+      - "**/*.sh"
 
 jobs:
   shellcheck:

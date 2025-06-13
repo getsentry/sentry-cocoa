@@ -57,7 +57,6 @@ SentrySDK.start { options in
     options.dsn = @"___PUBLIC_DSN___";
     options.debug = @YES; // Helpful to see what's going on
 }];
-
 ```
 
 For more information checkout the [docs](https://docs.sentry.io/platforms/apple).

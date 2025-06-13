@@ -8,3 +8,7 @@ race:disable
 race:URLSessionDataTaskMock
 race:getOriginalImplementation
 race:SentrySpanContext
+
+# False positives
+# SentryLog isn't 100% thread safe, which we accept. For more information read the code docs of SentryLog.
+race:SentryLog

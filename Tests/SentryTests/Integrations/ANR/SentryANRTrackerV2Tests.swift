@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -298,8 +298,6 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: secondListener)
         
         triggerFullyBlockingAppHang(currentDate)
-        triggerFullyBlockingAppHang(currentDate)
-        triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
         
@@ -307,26 +305,22 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: thirdListener)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [firstListener.anrDetectedExpectation, firstListener.anrStoppedExpectation, thirdListener.anrStoppedExpectation, thirdListener.anrDetectedExpectation], timeout: waitTimeout)
 
         let firstActual = try XCTUnwrap(firstListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, firstActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, firstActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(firstActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(firstActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, firstActual.maxDuration - firstActual.minDuration, accuracy: 0.01)
 
         let secondActual = try XCTUnwrap(secondListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, secondActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, secondActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(secondActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(secondActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, secondActual.maxDuration - secondActual.minDuration, accuracy: 0.01)
 
         let thirdActual = try XCTUnwrap(thirdListener.anrStoppedResults.last)
-        XCTAssertLessThanOrEqual(2.0, thirdActual.minDuration)
-        XCTAssertGreaterThanOrEqual(5.0, thirdActual.maxDuration)
+        XCTAssertGreaterThanOrEqual(thirdActual.minDuration, 2.0, "minDuration should be greater than or equal to 2.0")
+        XCTAssertLessThanOrEqual(thirdActual.maxDuration, 5.0, "maxDuration should be less than or equal to 5.0")
         XCTAssertEqual(0.8, thirdActual.maxDuration - thirdActual.minDuration, accuracy: 0.01)
     }
     
@@ -363,12 +357,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     func testAppSuspended_NoAppHang() throws {
@@ -388,12 +378,8 @@ class SentryANRTrackerV2Tests: XCTestCase {
         sut.add(listener: listener)
         
         triggerFullyBlockingAppHang(currentDate)
-        
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     func testRemoveListener_StopsReporting() throws {
@@ -513,11 +499,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         triggerFullyBlockingAppHang(currentDate)
         
-        // This would print thousands of logs so we execute it without
-        // to avoid spamming the test logs.
-        SentryLog.withoutLogs {
-            wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
-        }
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
     private func renderNormalFramesToStopAppHang(_ displayLinkWrapper: TestDisplayLinkWrapper) {

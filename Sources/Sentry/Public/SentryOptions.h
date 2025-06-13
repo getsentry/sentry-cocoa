@@ -1,15 +1,15 @@
 #if __has_include(<Sentry/Sentry.h>)
 #    import <Sentry/SentryDefines.h>
-#    import <Sentry/SentryProfilingConditionals.h>
-#else
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
-#    import <SentryWithoutUIKit/SentryProfilingConditionals.h>
+#else
+#    import <SentryDefines.h>
 #endif
+#import SENTRY_HEADER(SentryProfilingConditionals)
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDsn;
-@class SentryExperimentalOptions;
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
 @class SentryReplayOptions;
@@ -781,11 +781,9 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nonatomic, copy) NSString *spotlightUrl;
 
-/**
- * This aggregates options for experimental features.
- * Be aware that the options available for experimental can change at any time.
- */
-@property (nonatomic, readonly) SentryExperimentalOptions *experimental;
+// Do not use this directly, instead use the non-underscored `experimental` property that is
+// defined through a Swift extension.
+@property (nonatomic, readonly) NSObject *_swiftExperimentalOptions;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
@@ -10,12 +10,12 @@ final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
 
         defer {
             SentryLog.setLogOutput(oldOutput)
-            SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         }
 
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
-        SentryLog.configure(true, diagnosticLevel: .debug)
+        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
 
         var cursor = SentryCrashStackCursor()
         sentrycrashsc_initSelfThread(&cursor, 1)

@@ -23,6 +23,7 @@ repos:
         args: [--allow-multiple-documents]
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: ^sdk_api.json$
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.27.3
@@ -52,34 +53,38 @@ repos:
         language: system
         types_or: ["swift"]
         args:
-          - "format-swift"
+          - "format-swift-staged"
 
       - id: format-markdown
         name: Format Markdown
         description: "Format Markdown"
-        language: node
         files: ^.*\.md$
         types_or: [markdown]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        args:
+          - "fmt"
 
       - id: format-json
         name: Format JSON
         description: "Format JSON"
-        language: node
         files: ^.*\.json$
         types_or: [json]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        exclude: ^sdk_api.json$
+        args:
+          - "fmt"
 
       - id: format-yaml
         name: Format YAML
         description: "Format YAML"
-        language: node
         files: ^.*\.{yaml,yml}$
         types_or: [yaml]
-        entry: prettier --write --ignore-unknown --config .prettierrc
-        additional_dependencies: ["prettier@3.5.0"]
+        entry: dprint
+        language: system
+        args:
+          - "fmt"
 
       - id: lint
         name: Run Linters
@@ -87,4 +92,4 @@ repos:
         language: system
         types_or: ["swift", "objective-c", "objective-c++", "c", "c++"]
         args:
-          - "lint"
+          - "lint-staged"

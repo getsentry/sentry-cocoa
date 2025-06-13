@@ -1,3 +1,2 @@
 brew 'clang-format'
 brew 'swiftlint'
-brew 'rbenv'

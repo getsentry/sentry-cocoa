@@ -5,6 +5,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
@@ -41,14 +42,18 @@ static SentryTouchTracker *_touchTracker;
 
 @interface SentrySessionReplayIntegration () <SentryReachabilityObserver, SentrySessionListener,
     SentrySessionReplayDelegate>
+
+@property (nonatomic, strong) SentryDispatchQueueWrapper *replayProcessingQueue;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *replayAssetWorkerQueue;
+
 - (void)newSceneActivate;
+
 @end
 
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
-    SentryOnDemandReplay *_resumeReplayMaker;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
@@ -111,9 +116,9 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] Setting up default view renderer");
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
-    // We are using the flag for the experimental view renderer also for the experimental mask
-    // renderer, as it would just introduce another option without affecting the SDK user
-    // experience.
+
+    // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
+    // just introduce another option without affecting the SDK user experience.
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                                            redactOptions:replayOptions
                                                     enableMaskRendererV2:enableViewRendererV2];
@@ -127,6 +132,24 @@ static SentryTouchTracker *_touchTracker;
     }
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+
+    // We use the dispatch queue provider as a factory to create the queues, but store the queues
+    // directly in this instance, so they get deallocated when the integration is deallocated.
+    id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider
+        = SentryDependencyContainer.sharedInstance.dispatchQueueProvider;
+
+    // The asset worker queue is used to work on video and frames data.
+    // Use a relative priority of -1 to make it lower than the default background priority.
+    _replayAssetWorkerQueue =
+        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.asset-worker"
+                                     relativePriority:-1];
+    // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
+    // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
+    // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
+    _replayProcessingQueue =
+        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.processing"
+                                     relativePriority:-2];
 
     // The asset worker queue is used to work on video and frames data.
 
@@ -206,9 +229,12 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryOnDemandReplay *resumeReplayMaker =
-        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path];
+        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
+                                          processingQueue:_replayProcessingQueue
+                                         assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    resumeReplayMaker.frameRate = _replayOptions.frameRate;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
@@ -219,14 +245,11 @@ static SentryTouchTracker *_touchTracker;
     }
     NSDate *end = [beginning dateByAddingTimeInterval:duration];
 
-    NSError *error;
     NSArray<SentryVideoInfo *> *videos = [resumeReplayMaker createVideoWithBeginning:beginning
-                                                                                 end:end
-                                                                               error:&error];
+                                                                                 end:end];
     if (videos == nil) {
-        SENTRY_LOG_ERROR(@"[Session Replay] Could not create replay video, reason: no videos "
-                         @"available, error: %@",
-            error);
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Could not create replay video, reason: no videos available");
         return;
     }
     SENTRY_LOG_DEBUG(@"[Session Replay] Created replay with %lu video segments", videos.count);
@@ -353,30 +376,31 @@ static SentryTouchTracker *_touchTracker;
                                                      error:nil];
     }
 
-    SentryOnDemandReplay *replayMaker = [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path];
+    SentryOnDemandReplay *replayMaker =
+        [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
+                                         processingQueue:_replayProcessingQueue
+                                        assetWorkerQueue:_replayAssetWorkerQueue];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
-    replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
-                                              : replayOptions.errorReplayDuration + 1);
+    replayMaker.frameRate = replayOptions.frameRate;
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
-    SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.session-replay"
-                                              attributes:attributes];
+    // The cache should be at least the amount of frames fitting into the session segment duration
+    // plus one frame to ensure that the last frame is not dropped.
+    NSInteger sessionSegmentDuration
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
+    replayMaker.cacheMaxSize = (sessionSegmentDuration * replayOptions.frameRate) + 1;
 
-    self.sessionReplay = [[SentrySessionReplay alloc]
-        initWithReplayOptions:replayOptions
-             replayFolderPath:docs
-           screenshotProvider:screenshotProvider
-                  replayMaker:replayMaker
-          breadcrumbConverter:breadcrumbConverter
-                 touchTracker:_touchTracker
-                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     delegate:self
-                dispatchQueue:dispatchQueue
-           displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+    SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
+    self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions
+                                                           replayFolderPath:docs
+                                                         screenshotProvider:screenshotProvider
+                                                                replayMaker:replayMaker
+                                                        breadcrumbConverter:breadcrumbConverter
+                                                               touchTracker:_touchTracker
+                                                               dateProvider:_dateProvider
+                                                                   delegate:self
+                                                         displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
         startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject

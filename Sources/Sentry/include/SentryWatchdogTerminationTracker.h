@@ -5,6 +5,7 @@
 @class SentryFileManager;
 @class SentryOptions;
 @class SentryWatchdogTerminationLogic;
+@class SentryScopeContextPersistentStore;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +27,8 @@ SENTRY_NO_INIT
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                    fileManager:(SentryFileManager *)fileManager;
+                    fileManager:(SentryFileManager *)fileManager
+              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore;
 
 - (void)start;
 - (void)stop;

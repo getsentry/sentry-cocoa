@@ -1,5 +1,4 @@
 // swiftlint:disable file_length
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers

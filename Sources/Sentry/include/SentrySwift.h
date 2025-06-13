@@ -31,8 +31,10 @@
 
 #    if __has_include("Sentry-Swift.h")
 #        import "Sentry-Swift.h"
-#    else
+#    elif __has_include(<Sentry/Sentry-Swift.h>)
 #        import <Sentry/Sentry-Swift.h>
+#    else
+@import SentrySwift;
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
 
