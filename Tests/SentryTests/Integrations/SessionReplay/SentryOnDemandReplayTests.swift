@@ -202,10 +202,7 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         let start = Date(timeIntervalSinceReferenceDate: 0)
         for i in 0..<10 {
-            sut.addFrameAsync(
-                timestamp: start.addingTimeInterval(TimeInterval(i)),
-                image: i < 5 ? image1 : image2
-            )
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: i < 5 ? image1 : image2)
         }
         let end = start.addingTimeInterval(10)
 
