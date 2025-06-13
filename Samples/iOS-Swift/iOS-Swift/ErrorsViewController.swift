@@ -8,12 +8,9 @@ class ErrorsViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
-    
-    @IBOutlet weak var dsnView: UIView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        addDSNDisplay(self, vcview: dsnView)
 
         if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
             let button = SentrySDKWrapper.shared.feedbackButton
