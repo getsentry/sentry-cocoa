@@ -30,6 +30,7 @@ jobs:
       build_with_make: true
       xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
+      files_suffix: _${{matrix.platform.xcode}}
     strategy:
       fail-fast: false
       matrix:
