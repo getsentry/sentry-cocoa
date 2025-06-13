@@ -37,7 +37,7 @@ targets:
       Test: SwiftUITestSampleUITests.xcconfig
       TestCI: SwiftUITestSampleUITests.xcconfig
 schemes:
-  SwiftUITestSample:
+  SwiftUITestSampleCrash:
     build:
       targets:
         SwiftUITestSample: all
@@ -45,4 +45,21 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../../Plans/SwiftUITestSample_Base.xctestplan
+        - path: ../../Plans/SwiftUITestSample_Crash.xctestplan
+      preActions:
+        - script: |
+            echo "Uninstalling app"
+            xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
+  SwiftUITestSampleEnvelope:
+    build:
+      targets:
+        SwiftUITestSample: all
+        SwiftUITestSampleUITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/SwiftUITestSample_Envelope.xctestplan
+      preActions:
+        - script: |
+            echo "Uninstalling app"
+            xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
