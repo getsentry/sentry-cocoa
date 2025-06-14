@@ -33,8 +33,33 @@ using namespace sentry::profiling;
 
 @implementation SentryLaunchProfileConfiguration
 
-- (void)reevaluateSessionSampleRate {
-    self.profilerSessionSampleDecision = sentry_sampleProfileSession(self.profileOptions.sessionSampleRate);
+- (instancetype)initContinuousProfilingV1WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+{
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    self.waitForFullDisplay = shouldWaitForFullDisplay;
+    return self;
+}
+
+- (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                                               samplerDecision:(SentrySamplerDecision *)decision
+                                                profileOptions:(SentryProfileOptions *)options
+{
+    if (!(self = [self initContinuousProfilingV1WaitingForFullDisplay:shouldWaitForFullDisplay])) {
+        return nil;
+    }
+
+    self.profileOptions = options;
+    self.profilerSessionSampleDecision = decision;
+    return self;
+}
+
+- (void)reevaluateSessionSampleRate
+{
+    self.profilerSessionSampleDecision
+        = sentry_sampleProfileSession(self.profileOptions.sessionSampleRate);
 }
 
 @end
@@ -53,6 +78,22 @@ void
 sentry_reevaluateSessionSampleRate()
 {
     [sentry_launchProfileConfiguration reevaluateSessionSampleRate];
+}
+
+BOOL
+sentry_isLaunchProfileCorrelatedToTraces(void)
+{
+    if (nil == sentry_launchProfileConfiguration) {
+        return NO;
+    }
+
+    SentryProfileOptions *options = sentry_launchProfileConfiguration.profileOptions;
+
+    if (nil == options) {
+        return !sentry_launchProfileConfiguration.isContinuousV1;
+    }
+
+    return options.profileAppStarts == true && options.lifecycle == SentryProfileLifecycleTrace;
 }
 
 void
@@ -104,7 +145,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         // get the configuration options from the last time the launch config was written; it may be
         // different than the new options the SDK was just started with
-        const auto configDict = sentry_appLaunchProfileConfiguration();
+        const auto configDict = sentry_persistedLaunchProfileConfigurationOptions();
         const auto profileIsContinuousV1 =
             [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
         const auto profileIsContinuousV2 =
@@ -144,7 +185,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
             sentry_stopAndTransmitLaunchProfile(hub);
         }
 
-        sentry_configureLaunchProfiling(options);
+        sentry_configureLaunchProfilingForNextLaunch(options);
     }];
 }
 

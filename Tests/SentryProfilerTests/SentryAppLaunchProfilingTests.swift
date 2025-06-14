@@ -24,7 +24,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = 1
         fixture.options.tracesSampleRate = 1
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssertNotNil(sentry_launchTracer)
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
@@ -50,7 +50,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], expectedTracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand], expectedTracesSampleRand)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], expectedProfilesSampleRate)
@@ -93,7 +93,7 @@ extension SentryAppLaunchProfilingTests {
     }
 }
 
-// MARK: transaction based profiling iOS-only
+// MARK: transaction based profiling (iOS-only)
 #if !os(macOS)
 extension SentryAppLaunchProfilingTests {
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profile is stopped
@@ -101,7 +101,7 @@ extension SentryAppLaunchProfilingTests {
         // start a launch profile
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = nil
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
@@ -130,7 +130,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = 1
         fixture.options.tracesSampleRate = 1
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
 
@@ -158,7 +158,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
 
         _sentry_nondeduplicated_startLaunchProfile()
@@ -183,7 +183,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -194,7 +194,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -203,7 +203,7 @@ extension SentryAppLaunchProfilingTests {
     }
 }
 
-// MARK: continuous profiling v1 iOS-only
+// MARK: continuous profiling v1 (iOS-only)
 #if !os(macOS)
 extension SentryAppLaunchProfilingTests {
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profiler continues running
@@ -211,7 +211,7 @@ extension SentryAppLaunchProfilingTests {
         // start a launch profile
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = nil
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
@@ -232,7 +232,7 @@ extension SentryAppLaunchProfilingTests {
         // start a launch profile
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = nil
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
@@ -270,7 +270,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -303,7 +303,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
-        let dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -333,7 +333,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -349,7 +349,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
@@ -374,7 +374,7 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         XCTAssert(appLaunchProfileConfigFileExists())
-        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
@@ -390,7 +390,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
@@ -415,7 +415,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -432,7 +432,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
@@ -457,7 +457,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        var dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -475,7 +475,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
-        dict = try XCTUnwrap(sentry_appLaunchProfileConfiguration())
+        dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
@@ -486,7 +486,7 @@ extension SentryAppLaunchProfilingTests {
     }
 }
 
-// MARK: continuous profiling v2 iOS-only
+// MARK: continuous profiling v2 (iOS-only)
 #if !os(macOS)
 extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
@@ -499,7 +499,7 @@ extension SentryAppLaunchProfilingTests {
             $0.lifecycle = .trace
         }
         sentry_configureContinuousProfiling(fixture.options)
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -531,7 +531,7 @@ extension SentryAppLaunchProfilingTests {
             $0.lifecycle = .manual
         }
         sentry_configureContinuousProfiling(fixture.options)
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -564,7 +564,7 @@ extension SentryAppLaunchProfilingTests {
             $0.lifecycle = .trace
         }
         sentry_configureContinuousProfiling(fixture.options)
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -595,7 +595,7 @@ extension SentryAppLaunchProfilingTests {
             $0.lifecycle = .manual
         }
         sentry_configureContinuousProfiling(fixture.options)
-        sentry_configureLaunchProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -615,6 +615,105 @@ extension SentryAppLaunchProfilingTests {
 
         // Assert
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+}
+#endif // !os(macOS)
+
+// the following tests validate stopping behavior of launch profiles that run with one set of configured options, where the SDK is started on that launch with a different set of options, to validate that the configured options persisted to disk from the previous launch are the ones used to determine how/when to stop the profiler, and not the new options currently in memory
+
+// MARK: configuration changes between launches (no TTFD combinations, see iOS-only tests)
+extension SentryAppLaunchProfilingTests {
+    func test_lastLaunch_traceBased_currentLaunch_continuousV1() {
+
+    }
+
+    func test_lastLaunch_traceBased_currentLaunch_continuousV2() {
+
+    }
+
+    func test_lastLaunch_continuousV1_currentLaunch_continuousV2() {
+
+    }
+
+    func test_lastLaunch_continuousV1_currentLaunch_traceBased() {
+
+    }
+
+    func test_lastLaunch_continuousV2_currentLaunch_continuousV1() {
+
+    }
+
+    func test_lastLaunch_continuousV2_currentLaunch_traceBased() {
+
+    }
+}
+
+// MARK: configuration changes between launches (iOS-only)
+#if !os(macOS)
+extension SentryAppLaunchProfilingTests {
+    // starting with trace-based
+    func test_lastLaunch_traceBased_currentLaunch_continuousV1_withTTFD() {
+
+    }
+
+    func test_lastLaunch_traceBased_currentLaunch_continuousV2_withTTFD() {
+
+    }
+
+    // starting with continuous v1 no TTFD
+    func test_lastLaunch_continuousV1_noTTFD_currentLaunch_continuousV1_withTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV1_noTTFD_currentLaunch_continuousV2_withTTFD() {
+
+    }
+
+    // starting with continuous v1 with TTFD
+    func test_lastLaunch_continuousV1_withTTFD_currentLaunch_continuousV1_noTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV1_withTTFD_currentLaunch_continuousV2_noTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV1_withTTFD_currentLaunch_continuousV2_withTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV1_withTTFD_currentLaunch_traceBased() {
+
+    }
+
+    // starting with continuous v2 no TTFD
+    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_continuousV1_withTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_continuousV2_withTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_traceBased() {
+
+    }
+
+    // starting with continuous v2 with TTFD
+    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV1_noTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV1_withTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV2_noTTFD() {
+
+    }
+
+    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_traceBased() {
+
     }
 }
 #endif // !os(macOS)

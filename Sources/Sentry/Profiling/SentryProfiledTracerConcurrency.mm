@@ -129,7 +129,8 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
-    if (sentry_launchProfileConfiguration.profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+    if (sentry_launchProfileConfiguration.profilerSessionSampleDecision.decision
+        != kSentrySampleDecisionYes) {
         return nil;
     }
 
@@ -328,12 +329,12 @@ sentry_stopProfilerDueToFinishedTransaction(
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
     SentryHub *hub, SentryTransactionContext *transactionContext)
 {
-    if (configuration.profileOptions != nil) {
+    if (sentry_launchProfileConfiguration != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
         // profile config file and packaged into the tracer configuration in the launch profile
         // codepath
         return _sentry_startContinuousProfilerV2ForTrace(
-            configuration.profileOptions, transactionContext);
+            sentry_launchProfileConfiguration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingV2Enabled]) {
         // non launch profile
         if (transactionContext.parentSpanId != nil) {

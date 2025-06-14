@@ -30,13 +30,28 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
+/**
+ * A data structure to hold in memory the options that were persisted when configuring launch
+ * profiling on the previous launch's call to @c SentrySDK.startWith(options:) .
+ * @note @c profilerSessionSampleDecision and @c profileOptions will be @c nil for continuous
+ * profiling v1 (continuous profiling beta).
+ */
 @interface SentryLaunchProfileConfiguration : NSObject
 
-@property (strong, nonatomic) SentrySamplerDecision *profilerSessionSampleDecision;
+@property (assign, nonatomic) BOOL isContinuousV1; // TODO: set where needed
+@property (strong, nonatomic, nullable) SentrySamplerDecision *profilerSessionSampleDecision;
 @property (assign, nonatomic) BOOL waitForFullDisplay;
-@property (strong, nonatomic) SentryProfileOptions *profileOptions;
+@property (strong, nonatomic, nullable) SentryProfileOptions *profileOptions;
 
 - (void)reevaluateSessionSampleRate;
+
+SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
+
+- (instancetype)initContinuousProfilingV1WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay;
+
+- (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                                               samplerDecision:(SentrySamplerDecision *)decision
+                                                profileOptions:(SentryProfileOptions *)options;
 
 @end
 
