@@ -31,15 +31,27 @@
 
 using namespace sentry::profiling;
 
+@interface SentryLaunchProfileConfiguration ()
+
+@property (assign, nonatomic, readwrite) BOOL isContinuousV1;
+@property (assign, nonatomic, readwrite) BOOL waitForFullDisplay;
+@property (strong, nonatomic, nullable, readwrite)
+    SentrySamplerDecision *profilerSessionSampleDecision;
+@property (strong, nonatomic, nullable, readwrite) SentryProfileOptions *profileOptions;
+
+@end
+
 @implementation SentryLaunchProfileConfiguration
 
-- (instancetype)initContinuousProfilingV1WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                             continuousV1:(BOOL)continuousV1
 {
     if (!(self = [super init])) {
         return nil;
     }
 
     self.waitForFullDisplay = shouldWaitForFullDisplay;
+    self.isContinuousV1 = continuousV1;
     return self;
 }
 
@@ -47,7 +59,7 @@ using namespace sentry::profiling;
                                                samplerDecision:(SentrySamplerDecision *)decision
                                                 profileOptions:(SentryProfileOptions *)options
 {
-    if (!(self = [self initContinuousProfilingV1WaitingForFullDisplay:shouldWaitForFullDisplay])) {
+    if (!(self = [self initWaitingForFullDisplay:shouldWaitForFullDisplay continuousV1:NO])) {
         return nil;
     }
 

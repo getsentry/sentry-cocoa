@@ -38,16 +38,18 @@ typedef struct {
  */
 @interface SentryLaunchProfileConfiguration : NSObject
 
-@property (assign, nonatomic) BOOL isContinuousV1; // TODO: set where needed
-@property (strong, nonatomic, nullable) SentrySamplerDecision *profilerSessionSampleDecision;
-@property (assign, nonatomic) BOOL waitForFullDisplay;
-@property (strong, nonatomic, nullable) SentryProfileOptions *profileOptions;
+@property (assign, nonatomic, readonly) BOOL isContinuousV1;
+@property (assign, nonatomic, readonly) BOOL waitForFullDisplay;
+@property (strong, nonatomic, nullable, readonly)
+    SentrySamplerDecision *profilerSessionSampleDecision;
+@property (strong, nonatomic, nullable, readonly) SentryProfileOptions *profileOptions;
 
 - (void)reevaluateSessionSampleRate;
 
 SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
 
-- (instancetype)initContinuousProfilingV1WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay;
+- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                             continuousV1:(BOOL)continuousV1;
 
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
                                                samplerDecision:(SentrySamplerDecision *)decision

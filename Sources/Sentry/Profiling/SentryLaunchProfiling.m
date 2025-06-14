@@ -26,7 +26,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-BOOL isProfilingAppLaunch;
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand = @"traces.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
@@ -78,21 +77,18 @@ _sentry_hydrateV2Options(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
     profileOptions.profileAppStarts = true;
     profileOptions.sessionSampleRate = samplerDecision.sampleRate.floatValue;
 
-    // start with options common to continuous profiling v1 and v2
-    SentryLaunchProfileConfiguration *launchConfig = [[SentryLaunchProfileConfiguration alloc]
-        initContinuousProfilingV1WaitingForFullDisplay:shouldWaitForFullDisplay];
-
-    // hydrate the v2-specific options
-    launchConfig.profilerSessionSampleDecision = samplerDecision;
-    launchConfig.profileOptions = profileOptions;
-    sentry_launchProfileConfiguration = launchConfig;
+    sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
+        initContinuousProfilingV2WaitingForFullDisplay:shouldWaitForFullDisplay
+                                       samplerDecision:samplerDecision
+                                        profileOptions:profileOptions];
 }
 
 void
 _sentry_continuousProfilingV1_startLaunchProfile(BOOL shouldWaitForFullDisplay)
 {
-    sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
-        initContinuousProfilingV1WaitingForFullDisplay:shouldWaitForFullDisplay];
+    sentry_launchProfileConfiguration =
+        [[SentryLaunchProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
+                                                               continuousV1:YES];
     [SentryContinuousProfiler start];
 }
 
@@ -134,8 +130,8 @@ sentry_contextForLaunchProfilerForTrace(NSNumber *tracesRate, NSNumber *tracesRa
 }
 
 void
-_sentry_startTraceProfiler(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
-    SentrySamplerDecision *decision, SentryProfileOptions *_Nullable profileOptions)
+_sentry_startTraceProfiler(
+    NSDictionary<NSString *, NSNumber *> *launchConfigDict, SentrySamplerDecision *decision)
 {
     NSNumber *tracesRate = launchConfigDict[kSentryLaunchProfileConfigKeyTracesSampleRate];
     if (tracesRate == nil) {
@@ -156,9 +152,7 @@ _sentry_startTraceProfiler(NSDictionary<NSString *, NSNumber *> *launchConfigDic
     sentry_isTracingAppLaunch = YES;
 
     SentryTracerConfiguration *tracerConfig = [SentryTracerConfiguration defaultConfiguration];
-    if (nil != profileOptions) {
-        tracerConfig.profilesSamplerDecision = decision;
-    }
+    tracerConfig.profilesSamplerDecision = decision;
 
     SentryTransactionContext *transactionContext
         = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
@@ -320,23 +314,20 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         [persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]
             boolValue];
     if (isContinuousV1 && isContinuousV2) {
-        SENTRY_LOG_WARN(@"Launch profile misconfiguration detected");
+        SENTRY_LOG_WARN(@"Launch profile misconfiguration detected.");
         return;
     }
 
-    BOOL shouldWaitForFullDisplay = NO;
-    if (isContinuousV1 || isContinuousV2) {
-        NSNumber *shouldWaitForFullDisplayValue
-            = persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay];
-        if (shouldWaitForFullDisplayValue == nil) {
-            SENTRY_LOG_DEBUG(@"Received a nil configured launch profile value indicating whether "
-                             @"or not the profile should be finished on full display or SDK start, "
-                             @"cannot know when to stop the profile, will not start this launch.");
-            return;
-        }
-
-        shouldWaitForFullDisplay = shouldWaitForFullDisplayValue.boolValue;
+    NSNumber *shouldWaitForFullDisplayValue
+        = persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay];
+    if (shouldWaitForFullDisplayValue == nil) {
+        SENTRY_LOG_DEBUG(@"Received a nil configured launch profile value indicating whether "
+                         @"or not the profile should be finished on full display or SDK start, "
+                         @"cannot know when to stop the profile, will not start this launch.");
+        return;
     }
+
+    BOOL shouldWaitForFullDisplay = shouldWaitForFullDisplayValue.boolValue;
 
     if (isContinuousV1) {
         SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
@@ -367,11 +358,15 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 
         _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
             SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
+    } else {
+        sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
+            initWaitingForFullDisplay:shouldWaitForFullDisplay
+                         continuousV1:NO];
     }
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
     // paths here
-    _sentry_startTraceProfiler(persistedLaunchConfigOptionsDict, decision, profileOptions);
+    _sentry_startTraceProfiler(persistedLaunchConfigOptionsDict, decision);
 }
 
 #    pragma mark - Public
@@ -391,9 +386,9 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
 
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+        configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
+            @(options.enableTimeToFullDisplayTracing);
         if ([options isContinuousProfilingEnabled]) {
-            configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
-                @(options.enableTimeToFullDisplayTracing);
             if ([options isContinuousProfilingV2Enabled]) {
                 SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
                 configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
@@ -443,6 +438,7 @@ sentry_stopAndTransmitLaunchProfile(SentryHub *hub)
 {
     if (sentry_launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
+        sentry_launchProfileConfiguration = nil;
         return;
     }
 
@@ -455,6 +451,7 @@ sentry_stopAndDiscardLaunchProfileTracer(void)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [sentry_launchTracer finish];
+    sentry_launchProfileConfiguration = nil;
     sentry_isTracingAppLaunch = NO;
     sentry_launchTracer = nil;
 }

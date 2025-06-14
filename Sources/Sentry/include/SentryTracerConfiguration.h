@@ -38,8 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether a profile is sampled for this trace.
- * @note This can be set for either launch profiles (trace-based or trace lifecycle ui/v2 profiles)
- * or non-launch trace-based profiles.
+ * @note This can be set for either launch profiles (trace-based via @c
+ * SentryOptions.profilesSampleRate/SentryOptions.profilesSampler or trace lifecycle ui/v2 profiles
+ * via @c SentryProfilingOptions.sessionSampleRate) or non-launch trace-based profiles.
  */
 @property (nonatomic, strong, nullable) SentrySamplerDecision *profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"

@@ -100,11 +100,12 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchTraceProfileStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // start a launch profile
         fixture.options.enableAppLaunchProfiling = true
-        fixture.options.profilesSampleRate = nil
+        fixture.options.profilesSampleRate = 1.0
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssert(sentry_isLaunchProfileCorrelatedToTraces())
+        XCTAssertNotNil(sentry_launchTracer)
 
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
@@ -114,7 +115,7 @@ extension SentryAppLaunchProfilingTests {
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
         fixture.displayLinkWrapper.call()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
     }
 
     func testContentsOfLaunchTraceProfileTransactionContext() {

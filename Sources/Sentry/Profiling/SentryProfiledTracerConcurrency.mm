@@ -329,10 +329,9 @@ sentry_stopProfilerDueToFinishedTransaction(
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
     SentryHub *hub, SentryTransactionContext *transactionContext)
 {
-    if (sentry_launchProfileConfiguration != nil) {
+    if (sentry_launchProfileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
-        // profile config file and packaged into the tracer configuration in the launch profile
-        // codepath
+        // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
             sentry_launchProfileConfiguration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingV2Enabled]) {
