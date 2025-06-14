@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 public func clearTestState() {
     TestCleanup.clearTestState()

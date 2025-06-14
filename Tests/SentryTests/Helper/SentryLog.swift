@@ -1,6 +1,4 @@
-@testable import Sentry
-
-typealias SentryLog = Sentry.SentryLog
+@_spi(Private) @testable import Sentry
 
 //Exposing internal/test functions from SentryLog
 extension Sentry.SentryLog {

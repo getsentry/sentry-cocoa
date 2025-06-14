@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class UrlSanitizedTests: XCTestCase {

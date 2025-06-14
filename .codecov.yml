@@ -10,7 +10,8 @@ coverage:
   round: down
 
 ignore:
-  - "Tests/*"
+  - "SentryTestUtilsTests/**"
+  - "Tests/**"
 
 comment:
   layout: "reach,diff,flags,files,footer"

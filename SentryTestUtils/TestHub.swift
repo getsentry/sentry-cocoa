@@ -1,6 +1,6 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 public class TestHub: SentryHub {
 
@@ -51,8 +51,8 @@ public class TestHub: SentryHub {
     }
     
     public var onReplayCapture: (() -> Void)?
-    public var capturedReplayRecordingVideo = Invocations<(replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)>()
-    public override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {
+    @_spi(Private) public var capturedReplayRecordingVideo = Invocations<(replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)>()
+    @_spi(Private) public override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {
         capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
         onReplayCapture?()
     }

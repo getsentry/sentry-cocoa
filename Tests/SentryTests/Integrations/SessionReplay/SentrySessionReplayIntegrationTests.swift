@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -8,6 +8,10 @@ import XCTest
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         var windowsMock: [UIWindow]? = [UIWindow()]
         var screenName: String?
         
@@ -305,7 +309,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
     }
     
@@ -318,7 +322,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     

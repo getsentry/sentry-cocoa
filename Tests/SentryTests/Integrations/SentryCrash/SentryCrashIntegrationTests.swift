@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -473,7 +473,37 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
     }
 #endif // os(macOS)
-    
+
+    func testEnableCppExceptionsV2_SwapsCxaThrow() {
+        // Arrange
+        defer { sentrycrashct_unswap_cxa_throw() }
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+
+        let options = Options()
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
+
+        // Act
+        sut.install(with: options)
+
+        // Assert
+        XCTAssertTrue(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must be swapped when enableUnhandledCPPExceptionsV2 is true.")
+    }
+
+    func testCppExceptionsV2NotEnabled_DoesNotSwapCxaThrow() {
+        // Arrange
+        defer { sentrycrashct_unswap_cxa_throw() }
+        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+
+        let options = Options()
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
+
+        // Act
+        sut.install(with: options)
+
+        // Assert
+        XCTAssertFalse(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must NOT be swapped when enableUnhandledCPPExceptionsV2 is false.")
+    }
+
     func testEnableTracingForCrashes_SetsCallback() throws {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()

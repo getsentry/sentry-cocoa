@@ -9,7 +9,7 @@ platform :ios do
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
 
-  lane :prepare_signed_xcframework do
+  lane :prepare_xcframework_signing do
     setup_ci
 
     match(
@@ -176,21 +176,17 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  lane :build_ios_swift_ui_test_sample do
-
-    setup_ci(
-      force: true
-    )
-
-    build_app(
+  lane :ui_critical_tests_ios_swiftui do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/ui_critical_tests_ios_swiftui.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
+    run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "SwiftUITestSample",
       configuration: "Debug",
-      derived_data_path: "TestSamples/SwiftUITestSample/DerivedData",
-      destination: "generic/platform=iOS Simulator",
-      xcargs: "-sdk 'iphonesimulator'",
-      skip_archive: true,
-      skip_package_dependencies_resolution: true
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
     )
   end
 
@@ -217,7 +213,7 @@ platform :ios do
 
   lane :ui_tests_ios_swiftui do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/ui-tests-ios-swiftui.xcresult"
+    result_bundle_path = "test_results/ui_tests_ios_swiftui.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -231,7 +227,7 @@ platform :ios do
   
   lane :ui_tests_ios_swift6 do |options|
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/ui-tests-ios-swift6.xcresult"
+    result_bundle_path = "test_results/ui_tests_ios_swift6.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -245,7 +241,7 @@ platform :ios do
 
   lane :ui_tests_ios_objc do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/ui-tests-ios-objc.xcresult"
+    result_bundle_path = "test_results/ui_tests_ios_objc.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -259,7 +255,7 @@ platform :ios do
 
   lane :ui_tests_ios_swift do |options|
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/ui-tests-ios-swift.xcresult"
+    result_bundle_path = "test_results/ui_tests_ios_swift.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -275,7 +271,7 @@ platform :ios do
 
   lane :ui_tests_tvos_swift do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/ui-tests-tvos-swift.xcresult"
+    result_bundle_path = "test_results/ui_tests_tvos_swift.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -290,11 +286,12 @@ platform :ios do
   desc "Run Duplication test"
   lane :duplication_test do
     # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
-    result_bundle_path = "test_results/duplication-test.xcresult"
+    result_bundle_path = "test_results/duplication_test.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     run_tests(
       project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
       scheme: "DuplicatedSDKTest",
+      device: "iPhone 16 (18.5)",
       xcodebuild_formatter: "xcbeautify --report junit",
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}"

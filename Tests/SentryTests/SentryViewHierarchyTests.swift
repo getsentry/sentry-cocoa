@@ -221,6 +221,11 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     private class TestSentryUIApplication: SentryUIApplication {
+
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         private var _windows: [UIWindow]?
         private var _calledOnMainThread = true
 
