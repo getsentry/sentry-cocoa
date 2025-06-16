@@ -118,6 +118,8 @@ bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
 
 void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 
+struct dyld_all_image_infos *getAllImageInfo(void);
+
 #ifdef __cplusplus
 }
 #endif

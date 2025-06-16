@@ -29,6 +29,7 @@
 
 #include <limits.h>
 #include <mach-o/dyld.h>
+#include <mach-o/dyld_images.h>
 #include <mach-o/getsect.h>
 #include <mach-o/nlist.h>
 #include <string.h>
@@ -55,6 +56,8 @@ typedef struct {
 #pragma pack()
 #define SENTRYCRASHDL_SECT_CRASH_INFO "__crash_info"
 
+#define DYLD_INDEX UINT_MAX - 1
+
 /** Get the address of the first command following a header (which will be of
  * type struct load_command).
  *
@@ -79,10 +82,34 @@ firstCmdAfterHeader(const struct mach_header *const header)
     }
 }
 
+/** Get the dyld all image infos structure for the current task.
+ *
+ * This function retrieves the dyld_all_image_infos structure which contains information
+ * about all loaded images in the current task, including dyld itself. This is particularly
+ * useful for accessing dyld information since it's no longer included in the regular
+ * _dyld_image_count() and related functions.
+ *
+ * @return A pointer to the dyld_all_image_infos structure if successful, NULL otherwise.
+ */
+struct dyld_all_image_infos *
+getAllImageInfo(void)
+{
+    struct task_dyld_info dyld_info;
+    mach_msg_type_number_t count = TASK_DYLD_INFO_COUNT;
+
+    kern_return_t kr = task_info(mach_task_self(), TASK_DYLD_INFO, (task_info_t)&dyld_info, &count);
+
+    if (kr != KERN_SUCCESS) {
+        return NULL;
+    }
+    return (struct dyld_all_image_infos *)dyld_info.all_image_info_addr;
+}
+
 /** Get the image index that the specified address is part of.
  *
  * @param address The address to examine.
- * @return The index of the image it is part of, or UINT_MAX if none was found.
+ * @return The index of the image it is part of, DYLD_INDEX if the address belongs to dyld, or
+ * UINT_MAX if none was found.
  */
 static uint32_t
 imageIndexContainingAddress(const uintptr_t address)
@@ -118,21 +145,46 @@ imageIndexContainingAddress(const uintptr_t address)
             }
         }
     }
+
+    // Add a special handler to check if the address belongs to DYLD
+    struct dyld_all_image_infos *infos = getAllImageInfo();
+    if (infos && infos->dyldImageLoadAddress) {
+        const struct mach_header *dyldHeader
+            = (const struct mach_header *)infos->dyldImageLoadAddress;
+        uintptr_t cmdPtr = firstCmdAfterHeader(dyldHeader);
+        for (uint32_t iCmd = 0; iCmd < dyldHeader->ncmds; iCmd++) {
+            const struct load_command *loadCmd = (struct load_command *)cmdPtr;
+            if (loadCmd->cmd == LC_SEGMENT) {
+                const struct segment_command *segCmd = (struct segment_command *)cmdPtr;
+                if (strcmp(segCmd->segname, "__TEXT") == 0) {
+                    uintptr_t segStart = (uintptr_t)dyldHeader + segCmd->vmaddr;
+                    if (address >= segStart && address < segStart + segCmd->vmsize) {
+                        return DYLD_INDEX;
+                    }
+                }
+            } else if (loadCmd->cmd == LC_SEGMENT_64) {
+                const struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
+                if (strcmp(segCmd->segname, "__TEXT") == 0) {
+                    uintptr_t segStart = (uintptr_t)dyldHeader + segCmd->vmaddr;
+                    if (address >= segStart && address < segStart + segCmd->vmsize) {
+                        return DYLD_INDEX;
+                    }
+                }
+            }
+            cmdPtr += loadCmd->cmdsize;
+        }
+    }
     return UINT_MAX;
 }
 
-/** Get the segment base address of the specified image.
+/** Get the segment base address of the specified image header.
  *
- * This is required for any symtab command offsets.
- *
- * @param idx The image index.
+ * @param header The header to get the segment base address for.
  * @return The image's base address, or 0 if none was found.
  */
 static uintptr_t
-segmentBaseOfImageIndex(const uint32_t idx)
+segmentBaseOfHeader(const struct mach_header *header)
 {
-    const struct mach_header *header = _dyld_get_image_header(idx);
-
     // Look for a segment command and return the file image address.
     uintptr_t cmdPtr = firstCmdAfterHeader(header);
     if (cmdPtr == 0) {
@@ -155,6 +207,20 @@ segmentBaseOfImageIndex(const uint32_t idx)
     }
 
     return 0;
+}
+
+/** Get the segment base address of the specified image.
+ *
+ * This is required for any symtab command offsets.
+ *
+ * @param idx The image index.
+ * @return The image's base address, or 0 if none was found.
+ */
+static uintptr_t
+segmentBaseOfImageIndex(const uint32_t idx)
+{
+    const struct mach_header *header = _dyld_get_image_header(idx);
+    return segmentBaseOfHeader(header);
 }
 
 uint32_t
@@ -213,18 +279,51 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
     info->dli_saddr = NULL;
 
     const uint32_t idx = imageIndexContainingAddress(address);
-    if (idx == UINT_MAX) {
-        return false;
+
+    const struct mach_header *header = NULL;
+    uintptr_t imageVMAddrSlide = 0;
+    uintptr_t segmentBase = 0;
+
+    if (idx == DYLD_INDEX) {
+        // Handle dyld manually
+        struct dyld_all_image_infos *infos = getAllImageInfo();
+        if (!infos || !infos->dyldImageLoadAddress)
+            return false;
+        header = (const struct mach_header *)infos->dyldImageLoadAddress;
+
+        // Calculate dyld slide from __TEXT vmaddr
+        uintptr_t cmdPtr = firstCmdAfterHeader(header);
+        for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
+            const struct load_command *loadCmd = (struct load_command *)cmdPtr;
+            if (loadCmd->cmd == LC_SEGMENT || loadCmd->cmd == LC_SEGMENT_64) {
+                const char *segname = (loadCmd->cmd == LC_SEGMENT)
+                    ? ((struct segment_command *)cmdPtr)->segname
+                    : ((struct segment_command_64 *)cmdPtr)->segname;
+                if (strcmp(segname, "__TEXT") == 0) {
+                    uintptr_t vmaddr = (loadCmd->cmd == LC_SEGMENT)
+                        ? ((struct segment_command *)cmdPtr)->vmaddr
+                        : ((struct segment_command_64 *)cmdPtr)->vmaddr;
+                    imageVMAddrSlide = (uintptr_t)header - vmaddr;
+                    segmentBase = (uintptr_t)header;
+                    break;
+                }
+            }
+            cmdPtr += loadCmd->cmdsize;
+        }
+
+        info->dli_fname = "dyld";
+    } else if (idx != UINT_MAX) {
+        // Normal image path
+        header = _dyld_get_image_header(idx);
+        imageVMAddrSlide = (uintptr_t)_dyld_get_image_vmaddr_slide(idx);
+        segmentBase = segmentBaseOfImageIndex(idx) + imageVMAddrSlide;
+        info->dli_fname = _dyld_get_image_name(idx);
     }
-    const struct mach_header *header = _dyld_get_image_header(idx);
-    const uintptr_t imageVMAddrSlide = (uintptr_t)_dyld_get_image_vmaddr_slide(idx);
     const uintptr_t addressWithSlide = address - imageVMAddrSlide;
-    const uintptr_t segmentBase = segmentBaseOfImageIndex(idx) + imageVMAddrSlide;
     if (segmentBase == 0) {
         return false;
     }
 
-    info->dli_fname = _dyld_get_image_name(idx);
     info->dli_fbase = (void *)header;
 
     // Find symbol tables and get whichever symbol is closest to the address.
