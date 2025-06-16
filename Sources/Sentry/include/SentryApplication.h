@@ -30,12 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 /**
- * Returns the application state available at @c NSApplication.sharedApplication.applicationState
+ * Returns the application state available at @c UIApplication.sharedApplication.applicationState
  */
 @property (nonatomic, readonly) UIApplicationState applicationState;
 
 /**
- * All application open windows.
+ * All windows connected to scenes.
  */
 @property (nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;
 
