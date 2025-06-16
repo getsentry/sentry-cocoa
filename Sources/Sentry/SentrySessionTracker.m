@@ -163,8 +163,8 @@
     // synchronize to be safe.
     @synchronized(self) {
         if (self.wasDidBecomeActiveCalled) {
-            SENTRY_LOG_DEBUG(@"[Session Tracker] Ignoring didBecomeActive notification because it "
-                             @"was already called.");
+            SENTRY_LOG_DEBUG(
+                @"Ignoring didBecomeActive notification because it was already called.");
             return;
         }
         self.wasDidBecomeActiveCalled = YES;
@@ -178,11 +178,10 @@
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
-    if (!self.lastInForeground) {
+    if (nil == self.lastInForeground) {
         // Cause we don't want to track sessions if the app is in the background we need to wait
         // until the app is in the foreground to start a session.
-        SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the foreground for the first time. "
-                         @"Starting a new session.");
+        SENTRY_LOG_DEBUG(@"App was in the foreground for the first time. Starting a new session.");
         [hub startSession];
     } else {
         // When the app was already in the foreground we have to decide whether it was long enough
@@ -193,14 +192,13 @@
                 timeIntervalSinceDate:self.lastInForeground];
 
         if (secondsInBackground * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
-            SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the background for %f seconds. "
-                             @"Starting a new session.",
+            SENTRY_LOG_DEBUG(@"App was in the background for %f seconds. Starting a new session.",
                 secondsInBackground);
             [hub endSessionWithTimestamp:self.lastInForeground];
             [hub startSession];
         } else {
-            SENTRY_LOG_DEBUG(@"[Session Tracker] App was in the background for %f seconds. Not "
-                             @"starting a new session.",
+            SENTRY_LOG_DEBUG(
+                @"App was in the background for %f seconds. Not starting a new session.",
                 secondsInBackground);
         }
     }
@@ -244,8 +242,7 @@
 
 - (BOOL)isAppActive
 {
-    id<SentryApplication> application = SentryDependencyContainer.sharedInstance.application;
-    return application.isActive;
+    return SentryDependencyContainer.sharedInstance.application.isActive;
 }
 
 @end
