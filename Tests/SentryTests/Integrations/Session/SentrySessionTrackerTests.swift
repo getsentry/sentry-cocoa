@@ -530,7 +530,7 @@ class SentrySessionTrackerTests: XCTestCase {
         // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
         // At this point the app is not active yet.
         //
-        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.applicationDidFinishLaunching`.
         fixture.application.setIsActive(false)
         #endif
         sut.start()
@@ -547,10 +547,10 @@ class SentrySessionTrackerTests: XCTestCase {
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
         #else
-        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
-        // At this point the app is not active yet.
+        // When the app crashes, the app state is `inactive`.
         //
-        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
+        // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
         fixture.application.setIsActive(false)
         #endif
     }
@@ -559,13 +559,14 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.stop()
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
+        //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
         #else
-        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
-        // At this point the app is not active yet.
+        // When the app crashes, the app state is `inactive`.
         //
-        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.didFinishLaunchingWithOptions`.
+        // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
+        // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
         fixture.application.setIsActive(false)
         #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
