@@ -504,6 +504,9 @@ class SentryUIRedactBuilderTests: XCTestCase {
     }
 
     func testRedactSFSafariView() throws {
+        #if targetEnvironment(macCatalyst)
+        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
+        #else
         // -- Arrange --
         let sut = getSut()
         let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
@@ -519,9 +522,13 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(result.first?.type, .redact)
         XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        #endif
     }
 
     func testRedactSFSafariViewEvenWithMaskingDisabled() throws {
+        #if targetEnvironment(macCatalyst)
+        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
+        #else
         // -- Arrange --
         // SFSafariView should always be redacted for security reasons,
         // regardless of maskAllText and maskAllImages settings
@@ -539,6 +546,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(result.first?.type, .redact)
         XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        #endif
     }
 }
 
