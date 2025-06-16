@@ -65,7 +65,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         /**
          * Used by Hybrid SDKs.
          */
-        public static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
+        static func fromName(_ name: String) -> SentryReplayOptions.SentryReplayQuality {
             switch name {
             case "low": return .low
             case "medium": return .medium
