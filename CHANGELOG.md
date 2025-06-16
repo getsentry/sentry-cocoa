@@ -13,7 +13,7 @@
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Fix building with Xcode 26 (#5386)
-- Redact `SFSafariView` in Session Replay (#5408)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 
 ## 8.52.1
 

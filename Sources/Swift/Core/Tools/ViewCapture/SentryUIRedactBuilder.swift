@@ -60,9 +60,11 @@ class SentryUIRedactBuilder {
         redactClasses += [ WKWebView.self ]
 
         redactClasses += [
-            //If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
+            // If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
             "UIWebView",
-            //Used by https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller
+            // Used by:
+            // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
+            // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
             "SFSafariView"
         ].compactMap(NSClassFromString(_:))
 
