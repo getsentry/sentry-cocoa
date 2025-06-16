@@ -5,6 +5,7 @@
 #import <XCTest/XCTest.h>
 
 #include <mach-o/dyld.h>
+#include <mach-o/dyld_images.h>
 
 // Exposing test only functions from `SentryCrashBinaryImageCache.m`
 void sentry_setRegisterFuncForAddImage(void *addFunction);
@@ -24,7 +25,8 @@ sentry_register_func_for_add_image(
     addBinaryImage = func;
 
     if (mach_headers_expect_array) {
-        for (NSUInteger i = 0; i < mach_headers_expect_array.count; i++) {
+        // Skipping first item which is dyld and already included when starting the cache
+        for (NSUInteger i = 1; i < mach_headers_expect_array.count; i++) {
             NSValue *header = mach_headers_expect_array[i];
             func(header.pointerValue, 0);
         }
@@ -81,6 +83,11 @@ delayAddBinaryImage(void)
 {
     // Create a test cache of actual binary images to be used during tests.
     mach_headers_test_cache = [NSMutableArray array];
+
+    // Manually include dyld
+    struct dyld_all_image_infos *infos = getAllImageInfo();
+    const struct mach_header *header = (const struct mach_header *)infos->dyldImageLoadAddress;
+    [mach_headers_test_cache addObject:[NSValue valueWithPointer:header]];
     _dyld_register_func_for_add_image(&cacheMachHeaders);
 }
 
