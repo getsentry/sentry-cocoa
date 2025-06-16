@@ -88,9 +88,6 @@
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
     //            closing the SDK and starting it again.
-    //
-    // We need to use the global app state tracker to check if the app is active, because
-    // we need to know if the app has become active before the SDK was started.
     if ([self isAppActive]) {
         [self startSession];
     }
