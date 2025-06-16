@@ -231,7 +231,7 @@ class SentryUIRedactBuilder {
                 transform: newTransform,
                 type: swiftUI ? .redactSwiftUI : .redact,
                 color: self.color(for: view),
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
 
             guard !view.clipsToBounds else {
@@ -248,7 +248,7 @@ class SentryUIRedactBuilder {
                     size: layer.bounds.size,
                     transform: newTransform,
                     type: .clipOut,
-                    name: layer.debugDescription
+                    name: layer.name ?? layer.debugDescription
                 ))
             }
         }
@@ -264,7 +264,7 @@ class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
         }
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
@@ -275,7 +275,7 @@ class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
         }
     }

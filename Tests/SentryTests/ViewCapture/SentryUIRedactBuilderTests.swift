@@ -40,12 +40,16 @@ class SentryUIRedactBuilderTests: XCTestCase {
         }
     }
 
-    private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    
+    private var rootView: UIView!
+
     private func getSut(_ option: TestRedactOptions = TestRedactOptions()) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: option)
     }
-    
+
+    override func setUp() {
+        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+    }
+
     func testNoNeedForRedact() {
         let sut = getSut()
         rootView.addSubview(UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
@@ -518,10 +522,20 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(result.first?.type, .redact)
-        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        if #available(iOS 17, *) {
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(result.first?.type, .redact)
+            XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        } else if #available(iOS 16, *) {
+            XCTAssertEqual(result.count, 4)
+            XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 0, height: 0)) // UIToolbar layer
+            XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 0, height: 0)) // UINavigationBar bar layer
+            XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 40, height: 40)) // SFSafariLaunchPlaceholderView view
+            XCTAssertEqual(result.element(at: 3)?.size, CGSize(width: 40, height: 40)) // "VC:SFSafariViewController"
+        } else {
+            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 16")
+        }
         #endif
     }
 
@@ -530,7 +544,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
         #else
         // -- Arrange --
-        // SFSafariView should always be redacted for security reasons,
+        // SFSafariView should always be redacted for security reasons, 
         // regardless of maskAllText and maskAllImages settings
         let sut = getSut(TestRedactOptions(maskAllText: false, maskAllImages: false))
         let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
@@ -542,10 +556,21 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(result.first?.type, .redact)
-        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        if #available(iOS 17, *) {
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(result.first?.type, .redact)
+            XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        } else if #available(iOS 16, *) {
+            // On iOS 16, SFSafariViewController has a different structure and may have multiple layers
+            XCTAssertEqual(result.count, 4)
+            XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 0, height: 0)) // UIToolbar layer
+            XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 0, height: 0)) // UINavigationBar bar layer
+            XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 40, height: 40)) // SFSafariLaunchPlaceholderView view
+            XCTAssertEqual(result.element(at: 3)?.size, CGSize(width: 40, height: 40)) // "VC:SFSafariViewController"
+        } else {
+            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 16")
+        }
         #endif
     }
 }
