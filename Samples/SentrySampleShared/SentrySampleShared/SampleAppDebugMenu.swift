@@ -2,7 +2,10 @@
 import UIKit
 
 public class SampleAppDebugMenu: NSObject {
+    public static let shared = SampleAppDebugMenu()
+
     static var displayingForm = false
+
     let window = {
         if #available(iOS 13.0, *) {
             if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
