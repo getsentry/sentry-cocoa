@@ -177,14 +177,18 @@ imageIndexContainingAddress(const uintptr_t address)
     return UINT_MAX;
 }
 
-/** Get the segment base address of the specified image header.
+/** Get the segment base address of the specified image.
  *
- * @param header The header to get the segment base address for.
+ * This is required for any symtab command offsets.
+ *
+ * @param idx The image index.
  * @return The image's base address, or 0 if none was found.
  */
 static uintptr_t
-segmentBaseOfHeader(const struct mach_header *header)
+segmentBaseOfImageIndex(const uint32_t idx)
 {
+    const struct mach_header *header = _dyld_get_image_header(idx);
+
     // Look for a segment command and return the file image address.
     uintptr_t cmdPtr = firstCmdAfterHeader(header);
     if (cmdPtr == 0) {
@@ -207,20 +211,6 @@ segmentBaseOfHeader(const struct mach_header *header)
     }
 
     return 0;
-}
-
-/** Get the segment base address of the specified image.
- *
- * This is required for any symtab command offsets.
- *
- * @param idx The image index.
- * @return The image's base address, or 0 if none was found.
- */
-static uintptr_t
-segmentBaseOfImageIndex(const uint32_t idx)
-{
-    const struct mach_header *header = _dyld_get_image_header(idx);
-    return segmentBaseOfHeader(header);
 }
 
 uint32_t
