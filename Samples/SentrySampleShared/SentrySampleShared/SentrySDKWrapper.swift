@@ -48,14 +48,14 @@ public struct SentrySDKWrapper {
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionReplaySampleRate.floatValue ?? 0,
-                onErrorSampleRate: SentrySDKOverrides.SessionReplay.sessionReplayOnErrorSampleRate.floatValue ?? 1,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
                 maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
             )
 
             let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
-            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.sessionReplayQuality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
 
             options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
 

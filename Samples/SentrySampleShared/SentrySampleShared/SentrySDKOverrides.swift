@@ -90,9 +90,9 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableSessionReplay = "--disable-session-replay"
         case disableViewRendererV2 = "--io.sentry.session-replay.disableViewRendereV2"
         case enableFastViewRendering = "--io.sentry.session-replay.enableFastViewRendering"
-        case sessionReplaySampleRate = "--io.sentry.sessionReplaySampleRate"
-        case sessionReplayOnErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
-        case sessionReplayQuality = "--io.sentry.sessionReplayQuality"
+        case sampleRate = "--io.sentry.sessionReplaySampleRate"
+        case onErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
+        case quality = "--io.sentry.sessionReplayQuality"
         case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
     }
@@ -264,8 +264,8 @@ extension SentrySDKOverrides.SessionReplay {
     public var overrideType: OverrideType {
         switch self {
         case .disableSessionReplay, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
-        case .sessionReplayOnErrorSampleRate, .sessionReplaySampleRate: return .float
-        case .sessionReplayQuality: return .string
+        case .onErrorSampleRate, .sampleRate: return .float
+        case .quality: return .string
         }
     }
 }
