@@ -20,6 +20,7 @@ SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle;
+SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay;
 
 /**
  * Whether or not the profiler started with the app launch. With trace profiling, this means there
@@ -52,7 +53,7 @@ void sentry_stopAndDiscardLaunchProfileTracer(void);
  * thread sampling decisions through to SentryHub later when it needs to start a transaction for the
  * profile to be attached to.
  */
-SENTRY_EXTERN void sentry_configureLaunchProfiling(SentryOptions *options);
+SENTRY_EXTERN void sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options);
 
 NS_ASSUME_NONNULL_END
 

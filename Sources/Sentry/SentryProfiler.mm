@@ -31,7 +31,52 @@
 
 using namespace sentry::profiling;
 
-SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+@interface SentryLaunchProfileConfiguration ()
+
+@property (assign, nonatomic, readwrite) BOOL isContinuousV1;
+@property (assign, nonatomic, readwrite) BOOL waitForFullDisplay;
+@property (strong, nonatomic, nullable, readwrite)
+    SentrySamplerDecision *profilerSessionSampleDecision;
+@property (strong, nonatomic, nullable, readwrite) SentryProfileOptions *profileOptions;
+
+@end
+
+@implementation SentryLaunchProfileConfiguration
+
+- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                             continuousV1:(BOOL)continuousV1
+{
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    self.waitForFullDisplay = shouldWaitForFullDisplay;
+    self.isContinuousV1 = continuousV1;
+    return self;
+}
+
+- (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
+                                               samplerDecision:(SentrySamplerDecision *)decision
+                                                profileOptions:(SentryProfileOptions *)options
+{
+    if (!(self = [self initWaitingForFullDisplay:shouldWaitForFullDisplay continuousV1:NO])) {
+        return nil;
+    }
+
+    self.profileOptions = options;
+    self.profilerSessionSampleDecision = decision;
+    return self;
+}
+
+- (void)reevaluateSessionSampleRate
+{
+    self.profilerSessionSampleDecision
+        = sentry_sampleProfileSession(self.profileOptions.sessionSampleRate);
+}
+
+@end
+
+SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
 
 namespace {
 
@@ -42,9 +87,25 @@ static const int kSentryProfilerFrequencyHz = 101;
 #    pragma mark - Public
 
 void
-sentry_reevaluateSessionSampleRate(float sessionSampleRate)
+sentry_reevaluateSessionSampleRate()
 {
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
+    [sentry_launchProfileConfiguration reevaluateSessionSampleRate];
+}
+
+BOOL
+sentry_isLaunchProfileCorrelatedToTraces(void)
+{
+    if (nil == sentry_launchProfileConfiguration) {
+        return NO;
+    }
+
+    SentryProfileOptions *options = sentry_launchProfileConfiguration.profileOptions;
+
+    if (nil == options) {
+        return !sentry_launchProfileConfiguration.isContinuousV1;
+    }
+
+    return options.profileAppStarts == true && options.lifecycle == SentryProfileLifecycleTrace;
 }
 
 void
@@ -74,7 +135,12 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
+    if (sentry_launchProfileConfiguration == nil) {
+        sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc] init];
+    }
+    sentry_launchProfileConfiguration.profileOptions = options.profiling;
+
+    sentry_reevaluateSessionSampleRate();
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
                      @"%.2f\n  profileAppStarts: %@\n}",
@@ -91,7 +157,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         // get the configuration options from the last time the launch config was written; it may be
         // different than the new options the SDK was just started with
-        const auto configDict = sentry_appLaunchProfileConfiguration();
+        const auto configDict = sentry_persistedLaunchProfileConfigurationOptions();
         const auto profileIsContinuousV1 =
             [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
         const auto profileIsContinuousV2 =
@@ -131,7 +197,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
             sentry_stopAndTransmitLaunchProfile(hub);
         }
 
-        sentry_configureLaunchProfiling(options);
+        sentry_configureLaunchProfilingForNextLaunch(options);
     }];
 }
 
