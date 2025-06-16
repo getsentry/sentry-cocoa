@@ -13,6 +13,7 @@
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Fix building with Xcode 26 (#5386)
+- Correctly stop launch profiles if settings change between calls to `SentrySDK.startWithOptions` (#5417)
 
 ## 8.52.1
 
