@@ -14,6 +14,7 @@
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Fix building with Xcode 26 (#5386)
 - Add masking options for screenshots (#5401)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 
 ## 8.52.1
 

@@ -1,4 +1,7 @@
+// swiftlint:disable file_length
+import AuthenticationServices
 import Foundation
+import SafariServices
 import Sentry
 import SentrySampleShared
 import UIKit
@@ -14,7 +17,6 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var dataMarshalingStatusLabel: UILabel!
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
     
-    @IBOutlet weak var dsnView: UIView!
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
     
     override func viewDidLoad() {
@@ -27,8 +29,6 @@ class ExtraViewController: UIViewController {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
-
-        addDSNDisplay(self, vcview: dsnView)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -141,6 +141,31 @@ class ExtraViewController: UIViewController {
         navigationController?.pushViewController(WebViewController(), animated: true)
     }
 
+    @IBAction func openSafariWebView(_ sender: UIButton) {
+        guard let url = URL(string: "https://docs.sentry.io/platforms/apple/guides/ios/") else {
+            fatalError("The hard-coded URL is invalid.")
+        }
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.modalPresentationStyle = .pageSheet
+        self.present(safariVC, animated: true)
+    }
+
+    @available(iOS 13.0, *)
+    @IBAction func openAuthenticationServicesWebView(_ sender: UIButton) {
+        let url = URL(string: "https://sentry.io/auth/login/")!
+        let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "sentry-callback") { url, error in
+            if let error = error {
+                print("[iOS-Swift] ASWebAuthenticationSession failed with error: \(error.localizedDescription)")
+            } else if let url = url {
+                print("[iOS-Swift] ASWebAuthenticationSession completed with URL: \(url)")
+            } else {
+                print("[iOS-Swift] ASWebAuthenticationSession completed without URL or error.")
+            }
+        }
+        session.presentationContextProvider = self
+        session.start()
+    }
+
     @IBAction func captureUserFeedbackV2(_ sender: UIButton) {
         highlightButton(sender)
         var attachments: [Data]?
@@ -191,6 +216,7 @@ class ExtraViewController: UIViewController {
     @IBAction func startSDK(_ sender: UIButton) {
         highlightButton(sender)
         SentrySDKWrapper.shared.startSentry()
+        SampleAppDebugMenu.shared.display()
     }
 
     @IBAction func causeFrozenFrames(_ sender: Any) {
@@ -198,10 +224,6 @@ class ExtraViewController: UIViewController {
         for i in 0..<100_000_000 {
             a.append(String(i))
         }
-    }
-
-    @IBAction func featureFlags(_ sender: Any) {
-        navigationController?.pushViewController(FeaturesViewController(style: .plain), animated: true)
     }
 
     private func calcPi() -> Double {
@@ -365,3 +387,14 @@ class ExtraViewController: UIViewController {
         }
     }
 }
+
+@available(iOS 13.0, *)
+extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        guard let window = view.window else {
+            fatalError("No window available for ASAuthorizationControllerPresentationContextProviding.")
+        }
+        return window
+    }
+}
+// swiftlint:enable file_length

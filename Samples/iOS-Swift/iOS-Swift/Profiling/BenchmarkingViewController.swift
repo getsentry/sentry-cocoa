@@ -11,7 +11,6 @@ class BenchmarkingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var maxWorkIntensityTextField: UITextField!
     @IBOutlet weak var valueTextField: UITextField!
         
-    @IBOutlet weak var dsnView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
         minWorkIntensityTextField.text = String(defaultLongestIntervalMicros)
@@ -21,7 +20,6 @@ class BenchmarkingViewController: UIViewController, UITextFieldDelegate {
         [maxThreadsTextField, minThreadsTextField, minWorkIntensityTextField, maxWorkIntensityTextField].forEach {
             $0?.delegate = self
         }
-        addDSNDisplay(self, vcview: dsnView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
