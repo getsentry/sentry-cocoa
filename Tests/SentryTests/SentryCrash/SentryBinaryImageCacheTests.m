@@ -212,14 +212,17 @@ delayAddBinaryImage(void)
 
 - (void)testRemoveImageAddAgain
 {
+    // Use index 1 since we can't dynamically insert dyld image (`dladdr` returns null)
+    int indexToRemove = 1;
+
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mach_headers_expect_array[0] pointerValue], 0);
+    removeBinaryImage([mach_headers_expect_array[indexToRemove] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
 
-    NSValue *removeItem = mach_headers_expect_array[0];
-    [mach_headers_expect_array removeObjectAtIndex:0];
+    NSValue *removeItem = mach_headers_expect_array[indexToRemove];
+    [mach_headers_expect_array removeObjectAtIndex:indexToRemove];
     [self assertCachedBinaryImages];
 
     addBinaryImage(removeItem.pointerValue, 0);
