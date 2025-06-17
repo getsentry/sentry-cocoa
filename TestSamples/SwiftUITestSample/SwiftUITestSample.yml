@@ -71,4 +71,4 @@ schemes:
     test:
       config: Test
       testPlans:
-          - path: ../../Plans/SwiftUITestSample_All.xctestplan
+        - path: ../../Plans/SwiftUITestSample_All.xctestplan
