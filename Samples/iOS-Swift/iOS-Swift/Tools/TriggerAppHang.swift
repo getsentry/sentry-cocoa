@@ -20,7 +20,23 @@ func triggerNonFullyBlockingAppHang() {
     }
 }
 
-/// Sleep on the main thread for long enough to trigger a hang
+/// Do heavy work on the main thread, blocking it for 5 seconds.
+/// This is more realistic than calling sleep on the main thread While
+/// executing the following code the app might still render a few frames,
+/// but it still appears fully blocking to the user.
 func triggerFullyBlockingAppHang(button: UIButton) {
-  sleep(5)
+    let buttonTitle = button.currentTitle
+    var i = 0
+
+    let currentTime = Date()
+    let timeToFinishUpdatingUI = currentTime.addingTimeInterval(5)
+
+    while timeToFinishUpdatingUI > Date() {
+        i += Int.random(in: 0...10)
+        i -= 1
+
+        button.setTitle("\(i)", for: .normal)
+    }
+
+    button.setTitle(buttonTitle, for: .normal)
 }
