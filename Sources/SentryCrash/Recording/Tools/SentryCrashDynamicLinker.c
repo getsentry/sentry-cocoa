@@ -38,6 +38,14 @@
 #include "SentryCrashMemory.h"
 #include "SentryCrashPlatformSpecificDefines.h"
 
+#if __LP64__
+#    define SEGMENT_TYPE LC_SEGMENT_64
+#    define segment_command_t struct segment_command_64
+#else
+#    define SEGMENT_TYPE LC_SEGMENT
+#    define segment_command_t struct segment_command
+#endif
+
 #ifndef SENTRYCRASHDL_MaxCrashInfoStringLength
 #    define SENTRYCRASHDL_MaxCrashInfoStringLength 1024
 #endif
@@ -128,14 +136,8 @@ imageIndexContainingAddress(const uintptr_t address)
             }
             for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
                 const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-                if (loadCmd->cmd == LC_SEGMENT) {
-                    const struct segment_command *segCmd = (struct segment_command *)cmdPtr;
-                    if (addressWSlide >= segCmd->vmaddr
-                        && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
-                        return iImg;
-                    }
-                } else if (loadCmd->cmd == LC_SEGMENT_64) {
-                    const struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
+                if (loadCmd->cmd == SEGMENT_TYPE) {
+                    const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
                     if (addressWSlide >= segCmd->vmaddr
                         && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
                         return iImg;
@@ -154,16 +156,8 @@ imageIndexContainingAddress(const uintptr_t address)
         uintptr_t cmdPtr = firstCmdAfterHeader(dyldHeader);
         for (uint32_t iCmd = 0; iCmd < dyldHeader->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == LC_SEGMENT) {
-                const struct segment_command *segCmd = (struct segment_command *)cmdPtr;
-                if (strcmp(segCmd->segname, "__TEXT") == 0) {
-                    uintptr_t segStart = (uintptr_t)dyldHeader + segCmd->vmaddr;
-                    if (address >= segStart && address < segStart + segCmd->vmsize) {
-                        return DYLD_INDEX;
-                    }
-                }
-            } else if (loadCmd->cmd == LC_SEGMENT_64) {
-                const struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
+            if (loadCmd->cmd == SEGMENT_TYPE) {
+                const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
                 if (strcmp(segCmd->segname, "__TEXT") == 0) {
                     uintptr_t segStart = (uintptr_t)dyldHeader + segCmd->vmaddr;
                     if (address >= segStart && address < segStart + segCmd->vmsize) {
@@ -188,28 +182,21 @@ static uintptr_t
 segmentBaseOfImageIndex(const uint32_t idx)
 {
     const struct mach_header *header = _dyld_get_image_header(idx);
-
-    // Look for a segment command and return the file image address.
     uintptr_t cmdPtr = firstCmdAfterHeader(header);
     if (cmdPtr == 0) {
         return 0;
     }
+
     for (uint32_t i = 0; i < header->ncmds; i++) {
         const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == LC_SEGMENT) {
-            const struct segment_command *segmentCmd = (struct segment_command *)cmdPtr;
-            if (strcmp(segmentCmd->segname, SEG_LINKEDIT) == 0) {
-                return segmentCmd->vmaddr - segmentCmd->fileoff;
-            }
-        } else if (loadCmd->cmd == LC_SEGMENT_64) {
-            const struct segment_command_64 *segmentCmd = (struct segment_command_64 *)cmdPtr;
-            if (strcmp(segmentCmd->segname, SEG_LINKEDIT) == 0) {
-                return (uintptr_t)(segmentCmd->vmaddr - segmentCmd->fileoff);
+        if (loadCmd->cmd == SEGMENT_TYPE) {
+            const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+            if (strcmp(segCmd->segname, SEG_LINKEDIT) == 0) {
+                return (uintptr_t)(segCmd->vmaddr - segCmd->fileoff);
             }
         }
         cmdPtr += loadCmd->cmdsize;
     }
-
     return 0;
 }
 
@@ -285,14 +272,10 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
         uintptr_t cmdPtr = firstCmdAfterHeader(header);
         for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == LC_SEGMENT || loadCmd->cmd == LC_SEGMENT_64) {
-                const char *segname = (loadCmd->cmd == LC_SEGMENT)
-                    ? ((struct segment_command *)cmdPtr)->segname
-                    : ((struct segment_command_64 *)cmdPtr)->segname;
-                if (strcmp(segname, "__TEXT") == 0) {
-                    uintptr_t vmaddr = (loadCmd->cmd == LC_SEGMENT)
-                        ? ((struct segment_command *)cmdPtr)->vmaddr
-                        : ((struct segment_command_64 *)cmdPtr)->vmaddr;
+            if (loadCmd->cmd == SEGMENT_TYPE) {
+                const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+                if (strcmp(segCmd->segname, "__TEXT") == 0) {
+                    uintptr_t vmaddr = (uintptr_t)header + segCmd->vmaddr;
                     imageVMAddrSlide = (uintptr_t)header - vmaddr;
                     segmentBase = (uintptr_t)header;
                     break;
@@ -510,16 +493,8 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
         struct load_command *loadCmd = (struct load_command *)cmdPtr;
         switch (loadCmd->cmd) {
-        case LC_SEGMENT: {
-            struct segment_command *segCmd = (struct segment_command *)cmdPtr;
-            if (strcmp(segCmd->segname, SEG_TEXT) == 0) {
-                imageSize = segCmd->vmsize;
-                imageVmAddr = segCmd->vmaddr;
-            }
-            break;
-        }
-        case LC_SEGMENT_64: {
-            struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
+        case SEGMENT_TYPE: {
+            segment_command_t *segCmd = (segment_command_t *)cmdPtr;
             if (strcmp(segCmd->segname, SEG_TEXT) == 0) {
                 imageSize = segCmd->vmsize;
                 imageVmAddr = segCmd->vmaddr;
