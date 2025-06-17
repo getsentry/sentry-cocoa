@@ -80,7 +80,7 @@
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 @property (nonatomic, strong)
-    NSMapTable<SentryScreenshotOptions *, SentryScreenshotProvider *> *screenshotProviderMap;
+    NSMapTable<NSNumber *, SentryScreenshotProvider *> *screenshotProviderMap;
 #endif
 
 @end
@@ -282,8 +282,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
-        SentryScreenshotProvider *_Nullable provider =
-            [_screenshotProviderMap objectForKey:options];
+        // Ideally we would not use the entire options object as a key, but rather just the
+        // properties that are relevant for the screenshot provider.
+        NSNumber *key = @(options.hash);
+        SentryScreenshotProvider *_Nullable provider = [_screenshotProviderMap objectForKey:key];
 
         if (provider == nil) {
             id<SentryViewRenderer> viewRenderer;
@@ -298,7 +300,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                 [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                                    redactOptions:options
                                             enableMaskRendererV2:options.enableViewRendererV2];
-            return [[SentryScreenshotProvider alloc] initWithPhotographer:photographer];
+            provider = [[SentryScreenshotProvider alloc] initWithPhotographer:photographer];
+            [_screenshotProviderMap setObject:provider forKey:key];
         }
 
         return provider;
@@ -309,10 +312,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                    forOptions:(SentryScreenshotOptions *)options
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
+        NSNumber *key = @(options.hash);
         if (provider == nil) {
-            [_screenshotProviderMap removeObjectForKey:options];
+            [_screenshotProviderMap removeObjectForKey:key];
         } else {
-            [_screenshotProviderMap setObject:provider forKey:options];
+            [_screenshotProviderMap setObject:provider forKey:key];
         }
     }
 }

@@ -264,7 +264,27 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
-    func testGetScreenshotProviderForOptions_sameScreenshotOptions_shouldReturnSameInstancePerCall() throws {
+    func testGetScreenshotProviderForOptions_sameScreenshotOptionsInstance_shouldReturnSameInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options.screenshot)
+        let provider2 = sut.getScreenshotProvider(for: options.screenshot)
+
+        // -- Assert --
+        XCTAssertIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
+#endif
+    }
+
+    func testGetScreenshotProviderForOptions_sameScreenshotOptionsHash_shouldReturnSameInstancePerCall() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         // -- Arrange --
         let options = Options()
@@ -275,6 +295,9 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         let options1 = SentryScreenshotOptions()
         let options2 = SentryScreenshotOptions()
+
+        // Pre-condition check
+        XCTAssertEqual(options1.hashValue, options2.hashValue, "Both options should have the same hash value.")
 
         // -- Act --
         let provider1 = sut.getScreenshotProvider(for: options1)
@@ -302,6 +325,9 @@ final class SentryDependencyContainerTests: XCTestCase {
         let options2 = SentryScreenshotOptions(
             enableViewRendererV2: false
         )
+
+        // Pre-condition check
+        XCTAssertNotEqual(options1.hashValue, options2.hashValue, "Both options should have different hash values.")
 
         // -- Act --
         let provider1 = sut.getScreenshotProvider(for: options1)
