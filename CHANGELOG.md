@@ -14,6 +14,10 @@
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Fix building with Xcode 26 (#5386)
 
+### Fixes
+
+- Manually add Dyld image to images cache + locate addresses in dyld (#5418)
+
 ## 8.52.1
 
 ### Fixes
