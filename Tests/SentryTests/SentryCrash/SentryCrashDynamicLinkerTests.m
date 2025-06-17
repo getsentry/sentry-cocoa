@@ -11,6 +11,7 @@
 extern void sentrycrashdl_clearDyld(void);
 struct dyld_all_image_infos *getAllImageInfo(void);
 extern uint32_t imageIndexContainingAddress(const uintptr_t address);
+extern bool sentrycrashbic_shouldAddDyld(void);
 
 @interface SentryCrashDynamicLinkerTests : XCTestCase
 @end
@@ -35,22 +36,25 @@ extern uint32_t imageIndexContainingAddress(const uintptr_t address);
     XCTAssertEqual(sentryDyldHeader->magic, MH_MAGIC_64, @"Should be a 64-bit Mach-O header");
 }
 
+#if !TARGET_OS_MAC && !TARGET_OS_MACCATALYST
+// macOS does have dyld in memory
 - (void)testImageIndexContainingAddress
 {
     sentrycrashdl_initialize();
 
     // Test an address within dyld's __TEXT segment
-    uintptr_t dyldAddress = (uintptr_t)sentryDyldHeader;
-    uint32_t index = imageIndexContainingAddress(dyldAddress);
+    void *dyldAddress = (void *)&_dyld_image_count;
+    uint32_t index = imageIndexContainingAddress((uintptr_t)dyldAddress);
     XCTAssertEqual(index, DYLD_INDEX, @"Address should be found in dyld");
 }
 
 - (void)testImageIndexContainingAddressWhenDyldIsNotSet
 {
-    uintptr_t dyldAddress = (uintptr_t)sentryDyldHeader;
-    uint32_t index = imageIndexContainingAddress(dyldAddress);
+    void *dyldAddress = (void *)&_dyld_image_count;
+    uint32_t index = imageIndexContainingAddress((uintptr_t)dyldAddress);
     XCTAssertEqual(index, UINT_MAX, @"Address should be found in dyld");
 }
+#endif
 
 - (void)testDyldAddressLookup
 {
