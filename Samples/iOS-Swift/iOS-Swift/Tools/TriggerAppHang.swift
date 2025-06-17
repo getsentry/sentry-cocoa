@@ -21,9 +21,9 @@ func triggerNonFullyBlockingAppHang() {
 }
 
 /// Do heavy work on the main thread, blocking it for 5 seconds.
-/// This is more realistic than calling sleep on the main thread While
-/// executing the following code the app might still render a few frames,
-/// but it still appears fully blocking to the user.
+/// This is a different scenraio than calling sleep on the main thread.
+/// With sleep the main thread is blocked, but  not doing anything. With the
+/// following code, the main thread is too busy rendering frames.
 /// We don't use a fixed loop count, because in CI the loop might take longer,
 /// leading to flaky UI tests. Instead, we want to block the main thread for around
 /// 5 seconds.
