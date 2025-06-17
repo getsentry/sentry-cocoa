@@ -170,11 +170,7 @@ sentrycrashbic_shouldAddDyld(void)
 SentryCrashBinaryImageNode *
 sentrycrashbic_getDyldNode(void)
 {
-    struct dyld_all_image_infos *infos = getAllImageInfo();
-    const struct mach_header *header;
-    if (infos && infos->dyldImageLoadAddress) {
-        header = (const struct mach_header *)infos->dyldImageLoadAddress;
-    }
+    const struct mach_header *header = sentryDyldHeader;
 
     SentryCrashBinaryImage binaryImage = { 0 };
     if (!sentrycrashdl_getBinaryImageForHeader((const void *)header, "dyld", &binaryImage, false)) {
@@ -200,6 +196,7 @@ sentrycrashbic_startCache(void)
     }
 
     if (sentrycrashbic_shouldAddDyld()) {
+        sentrycrashdl_initialize();
         SentryCrashBinaryImageNode *dyldNode = sentrycrashbic_getDyldNode();
         tailNode = dyldNode;
         rootNode.next = dyldNode;

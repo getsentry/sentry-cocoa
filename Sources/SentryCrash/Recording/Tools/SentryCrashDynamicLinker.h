@@ -118,7 +118,9 @@ bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
 
 void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 
-struct dyld_all_image_infos *getAllImageInfo(void);
+void sentrycrashdl_initialize(void);
+
+extern const struct mach_header *sentryDyldHeader;
 
 #ifdef __cplusplus
 }

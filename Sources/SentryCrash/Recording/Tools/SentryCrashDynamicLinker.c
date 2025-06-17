@@ -66,6 +66,9 @@ typedef struct {
 
 #define DYLD_INDEX UINT_MAX - 1
 
+// Cache for dyld header information
+const struct mach_header *sentryDyldHeader = NULL;
+
 /** Get the address of the first command following a header (which will be of
  * type struct load_command).
  *
@@ -113,6 +116,23 @@ getAllImageInfo(void)
     return (struct dyld_all_image_infos *)dyld_info.all_image_info_addr;
 }
 
+/** Initialize the dyld header cache.
+ * This should be called once at startup.
+ */
+static void
+initializeDyldHeader(void)
+{
+    if (sentryDyldHeader == NULL) {
+        struct dyld_all_image_infos *infos = getAllImageInfo();
+        if (infos && infos->dyldImageLoadAddress) {
+            sentryDyldHeader = (const struct mach_header *)infos->dyldImageLoadAddress;
+            SENTRY_ASYNC_SAFE_LOG_TRACE("Initialized dyld header at %p", sentryDyldHeader);
+        } else {
+            SENTRY_ASYNC_SAFE_LOG_TRACE("Failed to get dyld info");
+        }
+    }
+}
+
 /** Get the image index that the specified address is part of.
  *
  * @param address The address to examine.
@@ -148,18 +168,15 @@ imageIndexContainingAddress(const uintptr_t address)
         }
     }
 
-    // Add a special handler to check if the address belongs to DYLD
-    struct dyld_all_image_infos *infos = getAllImageInfo();
-    if (infos && infos->dyldImageLoadAddress) {
-        const struct mach_header *dyldHeader
-            = (const struct mach_header *)infos->dyldImageLoadAddress;
-        uintptr_t cmdPtr = firstCmdAfterHeader(dyldHeader);
-        for (uint32_t iCmd = 0; iCmd < dyldHeader->ncmds; iCmd++) {
+    // Check if the address belongs to dyld using cached header
+    if (sentryDyldHeader != NULL) {
+        uintptr_t cmdPtr = firstCmdAfterHeader(sentryDyldHeader);
+        for (uint32_t iCmd = 0; iCmd < sentryDyldHeader->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
             if (loadCmd->cmd == SEGMENT_TYPE) {
                 const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
                 if (strcmp(segCmd->segname, "__TEXT") == 0) {
-                    uintptr_t segStart = (uintptr_t)dyldHeader + segCmd->vmaddr;
+                    uintptr_t segStart = (uintptr_t)sentryDyldHeader + segCmd->vmaddr;
                     if (address >= segStart && address < segStart + segCmd->vmsize) {
                         return DYLD_INDEX;
                     }
@@ -263,10 +280,10 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
 
     if (idx == DYLD_INDEX) {
         // Handle dyld manually
-        struct dyld_all_image_infos *infos = getAllImageInfo();
-        if (!infos || !infos->dyldImageLoadAddress)
+        header = sentryDyldHeader;
+        if (header == NULL) {
             return false;
-        header = (const struct mach_header *)infos->dyldImageLoadAddress;
+        }
 
         // Calculate dyld slide from __TEXT vmaddr
         uintptr_t cmdPtr = firstCmdAfterHeader(header);
@@ -522,4 +539,11 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     }
 
     return true;
+}
+
+void
+sentrycrashdl_initialize(void)
+{
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Forcing dyld header initialization");
+    initializeDyldHeader();
 }

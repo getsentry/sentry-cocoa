@@ -85,9 +85,7 @@ delayAddBinaryImage(void)
     mach_headers_test_cache = [NSMutableArray array];
 
     // Manually include dyld
-    struct dyld_all_image_infos *infos = getAllImageInfo();
-    const struct mach_header *header = (const struct mach_header *)infos->dyldImageLoadAddress;
-    [mach_headers_test_cache addObject:[NSValue valueWithPointer:header]];
+    [mach_headers_test_cache addObject:[NSValue valueWithPointer:sentryDyldHeader]];
     _dyld_register_func_for_add_image(&cacheMachHeaders);
 }
 
