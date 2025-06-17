@@ -63,3 +63,12 @@ schemes:
         - script: |
             echo "Uninstalling app"
             xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
+  SwiftUITestSampleAll:
+    build:
+      targets:
+        SwiftUITestSample: all
+        SwiftUITestSampleUITests: test
+    test:
+      config: Test
+      testPlans:
+          - path: ../../Plans/SwiftUITestSample_All.xctestplan

@@ -193,18 +193,25 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  lane :ui_critical_tests_ios_swiftui do
-    tests = [
-      "SwiftUITestSampleCrash",
-      "SwiftUITestSampleEnvelope"
-    ]
+  lane :ui_critical_tests_ios_swiftui_all do
+    run_ui_tests(
+      scheme: "SwiftUITestSampleAll",
+      result_bundle_name: "ui_critical_tests_ios_swiftui_all"
+    )
+  end
 
-    tests.each do |test|
-      run_ui_tests(
-        scheme: test,
-        result_bundle_name: "ui_critical_tests_ios_swiftui_#{test}"
-      )
-    end
+  lane :ui_critical_tests_ios_swiftui_crash do
+    run_ui_tests(
+      scheme: "SwiftUITestSampleCrash",
+      result_bundle_name: "ui_critical_tests_ios_swiftui_crash"
+    )
+  end
+
+  lane :ui_critical_tests_ios_swiftui_envelope do
+    run_ui_tests(
+      scheme: "SwiftUITestSampleEnvelope",
+      result_bundle_name: "ui_critical_tests_ios_swiftui_envelope"
+    )
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
