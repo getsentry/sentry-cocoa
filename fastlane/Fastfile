@@ -7,10 +7,10 @@ platform :ios do
 
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
-  configuration = if is_ci then 'TestCI' else 'Test' end
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, options: {})
+    configuration = if is_ci then 'TestCI' else 'Test' end
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     
