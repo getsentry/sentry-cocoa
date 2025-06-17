@@ -126,9 +126,6 @@ initializeDyldHeader(void)
         struct dyld_all_image_infos *infos = getAllImageInfo();
         if (infos && infos->dyldImageLoadAddress) {
             sentryDyldHeader = (const struct mach_header *)infos->dyldImageLoadAddress;
-            SENTRY_ASYNC_SAFE_LOG_TRACE("Initialized dyld header at %p", sentryDyldHeader);
-        } else {
-            SENTRY_ASYNC_SAFE_LOG_TRACE("Failed to get dyld info");
         }
     }
 }
@@ -550,6 +547,5 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
 void
 sentrycrashdl_initialize(void)
 {
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Forcing dyld header initialization");
     initializeDyldHeader();
 }
