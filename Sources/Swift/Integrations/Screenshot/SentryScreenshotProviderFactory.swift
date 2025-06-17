@@ -3,7 +3,7 @@ import Foundation
 
 @objcMembers
 class SentryScreenshotProviderFactory: NSObject {
-    func getScreenshotProviderForOptions(_ options: SentryScreenshotOptions) -> SentryScreenshotProvider {
+    func getProviderForOptions(_ options: SentryScreenshotOptions) -> SentryScreenshotProvider {
         SentryScreenshotProvider(
             options,
             enableViewRendererV2: options.enableViewRendererV2,

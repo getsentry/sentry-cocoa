@@ -12,25 +12,25 @@
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
+@class SentryFileIOTracker;
 @class SentryFileManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
+@class SentryOptions;
+@class SentryScopeContextPersistentStore;
+@class SentryScreenshotOptions;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentrySystemWrapper;
-@class SentryThreadWrapper;
 @class SentryThreadInspector;
-@class SentryFileIOTracker;
-@class SentryScopeContextPersistentStore;
-@class SentryOptions;
-@class SentryScreenshotOptions;
+@class SentryThreadWrapper;
 
 @protocol SentryANRTracker;
-@protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
-@protocol SentryRateLimits;
 @protocol SentryDispatchQueueProviderProtocol;
+@protocol SentryRandom;
+@protocol SentryRateLimits;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -39,13 +39,13 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshotProvider;
-@class SentryUIApplication;
-@class SentryViewHierarchy;
-@class SentryUIViewControllerPerformanceTracker;
-@class SentryWatchdogTerminationScopeObserver;
-@class SentryWatchdogTerminationContextProcessor;
-@class SentryWatchdogTerminationBreadcrumbProcessor;
 @class SentryScreenshotProviderFactory;
+@class SentryUIApplication;
+@class SentryUIViewControllerPerformanceTracker;
+@class SentryViewHierarchy;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
+@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationScopeObserver;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -124,9 +124,14 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
+
+/// The screenshot provider factory is used by the container to create the screenshot provider.
+/// It can be overridden in tests to replace the factory method with a mock.
+/// Use `getScreenshotProviderForOptions:` to get the screenshot provider instead.
 @property (nonatomic, strong) SentryScreenshotProviderFactory *screenshotProviderFactory;
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options;
+
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong)
     SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;

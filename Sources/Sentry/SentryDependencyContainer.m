@@ -285,7 +285,7 @@ static BOOL isInitialializingDependencyContainer = NO;
             [_screenshotProviderMap objectForKey:options];
 
         if (provider == nil) {
-            provider = [self.screenshotProviderFactory getScreenshotProviderForOptions:options];
+            provider = [self.screenshotProviderFactory getProviderForOptions:options];
             [_screenshotProviderMap setObject:provider forKey:options];
         }
 

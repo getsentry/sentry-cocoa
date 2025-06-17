@@ -293,6 +293,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
 #if SENTRY_TARGET_REPLAY_SUPPORTED
+    // As the options are not passed in by the hybrid SDK, we need to use the options from the
+    // current hub.
     SentryScreenshotOptions *_Nonnull options = SentrySDK.options.screenshot;
     SentryScreenshotProvider *_Nonnull screenshotProvider =
         [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];

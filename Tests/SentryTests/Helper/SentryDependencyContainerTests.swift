@@ -283,7 +283,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Assert --
         XCTAssertIdentical(provider1, provider2)
 #else
-        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
 #endif
     }
 
@@ -310,8 +310,43 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Assert --
         XCTAssertNotIdentical(provider1, provider2)
 #else
-        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
 #endif
     }
 
+    /// This test ensures that if all references to the screenshot provider are deallocated and the container is not keeping strong references.
+    func testGetScreenshotProviderForOptions_allReferencesDeallocated_shouldCreateNewInstance() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        var provider1MemoryAddress: UnsafeMutableRawPointer?
+        var provider2MemoryAddress: UnsafeMutableRawPointer?
+
+        autoreleasepool {
+            var provider1: SentryScreenshotProvider! = sut.getScreenshotProvider(for: options.screenshot)
+            provider1MemoryAddress = Unmanaged.passUnretained(provider1).toOpaque()
+
+            var provider2: SentryScreenshotProvider! = sut.getScreenshotProvider(for: options.screenshot)
+            provider2MemoryAddress = Unmanaged.passUnretained(provider2).toOpaque()
+
+            provider1 = nil
+            provider2 = nil
+        }
+
+        let newProvider = sut.getScreenshotProvider(for: options.screenshot)
+        let newProviderMemoryAddress = Unmanaged.passUnretained(newProvider).toOpaque()
+
+        // -- Assert --
+        XCTAssertEqual(provider1MemoryAddress, provider2MemoryAddress)
+        XCTAssertNotEqual(newProviderMemoryAddress, provider1MemoryAddress)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
+#endif
+    }
 }
