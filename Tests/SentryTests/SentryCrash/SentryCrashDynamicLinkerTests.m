@@ -36,7 +36,7 @@ extern bool sentrycrashbic_shouldAddDyld(void);
     XCTAssertEqual(sentryDyldHeader->magic, MH_MAGIC_64, @"Should be a 64-bit Mach-O header");
 }
 
-#if !TARGET_OS_MAC && !TARGET_OS_MACCATALYST
+#if !TARGET_OS_OSX && !TARGET_OS_MACCATALYST
 // macOS does have dyld in memory
 - (void)testImageIndexContainingAddress
 {
