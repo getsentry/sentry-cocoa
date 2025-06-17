@@ -13,14 +13,10 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "EnvelopeTest",
-        "EnvelopeTest\/testCorruptedEnvelope()"
-      ],
       "target" : {
         "containerPath" : "container:SwiftUITestSample.xcodeproj",
-        "identifier" : "CB685CB9DBE9C3FFCE8BD314",
-        "name" : "SwiftUITestSampleUITests"
+        "identifier" : "CB685CB9DBE9C3FFCE8BD315",
+        "name" : "SwiftUITestSampleUITestsCrashOnly"
       }
     }
   ],

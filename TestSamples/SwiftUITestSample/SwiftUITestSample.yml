@@ -30,7 +30,28 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - SwiftUITestSampleUITests
+      - SwiftUITestSampleUITestsCrashOnly
+      - SwiftUITestSampleUITestsEnvelopeOnly
+    configFiles:
+      Debug: SwiftUITestSampleUITests.xcconfig
+      Release: SwiftUITestSampleUITests.xcconfig
+      Test: SwiftUITestSampleUITests.xcconfig
+      TestCI: SwiftUITestSampleUITests.xcconfig
+  SwiftUITestSampleUITestsCrashOnly:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - SwiftUITestSampleUITestsCrashOnly
+    configFiles:
+      Debug: SwiftUITestSampleUITests.xcconfig
+      Release: SwiftUITestSampleUITests.xcconfig
+      Test: SwiftUITestSampleUITests.xcconfig
+      TestCI: SwiftUITestSampleUITests.xcconfig
+  SwiftUITestSampleUITestsEnvelopeOnly:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - SwiftUITestSampleUITestsEnvelopeOnly
     configFiles:
       Debug: SwiftUITestSampleUITests.xcconfig
       Release: SwiftUITestSampleUITests.xcconfig
@@ -41,7 +62,7 @@ schemes:
     build:
       targets:
         SwiftUITestSample: all
-        SwiftUITestSampleUITests: test
+        SwiftUITestSampleUITestsCrashOnly: test
     test:
       config: Test
       testPlans:
@@ -54,7 +75,7 @@ schemes:
     build:
       targets:
         SwiftUITestSample: all
-        SwiftUITestSampleUITests: test
+        SwiftUITestSampleUITestsEnvelopeOnly: test
     test:
       config: Test
       testPlans:
@@ -71,4 +92,4 @@ schemes:
     test:
       config: Test
       testPlans:
-        - path: ../../Plans/SwiftUITestSample_All.xctestplan
+        - path: ../../Plans/SwiftUITestSample_Base.xctestplan
