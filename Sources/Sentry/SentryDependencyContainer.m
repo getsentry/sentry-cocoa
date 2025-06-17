@@ -25,6 +25,7 @@
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
+#import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
 #import <SentryNSNotificationCenterWrapper.h>
@@ -417,7 +418,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
+- (SentryWatchdogTerminationContextProcessor *)
+    watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
@@ -429,4 +431,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 #endif
 
+- (SentryGlobalEventProcessor *)globalEventProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_globalEventProcessor, [[SentryGlobalEventProcessor alloc] init])
+}
 @end
