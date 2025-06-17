@@ -275,7 +275,9 @@ static BOOL isInitialializingDependencyContainer = NO;
         return [self getANRTracker:timeout];
     }
 }
+#endif
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
