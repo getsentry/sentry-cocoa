@@ -1294,16 +1294,6 @@
                                                                     <action selector="getApplicationSupportPath:" destination="VqS-l1-kwe" eventType="touchUpInside" id="nck-yy-OlS"/>
                                                                 </connections>
                                                             </button>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yHr-LA-gOE">
-                                                                <rect key="frame" x="0.0" y="400" width="152" height="30"/>
-                                                                <state key="normal" title="Button"/>
-                                                                <buttonConfiguration key="configuration" style="plain" title="Feature flags">
-                                                                    <fontDescription key="titleFontDescription" type="system" pointSize="13"/>
-                                                                </buttonConfiguration>
-                                                                <connections>
-                                                                    <action selector="featureFlags:" destination="VqS-l1-kwe" eventType="touchUpInside" id="oCJ-x4-a6n"/>
-                                                                </connections>
-                                                            </button>
                                                         </subviews>
                                                     </stackView>
                                                 </subviews>
