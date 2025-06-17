@@ -10,6 +10,7 @@
 #    import "SentryHub+Private.h"
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
+#    import "SentryScreenshotProvider.h"
 
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"

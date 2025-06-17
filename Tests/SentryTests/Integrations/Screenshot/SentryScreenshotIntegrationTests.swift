@@ -8,21 +8,15 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
         let screenshotProvider: TestSentryScreenshotProvider
-        let screenshotProviderFactory: TestSentryScreenshotProviderFactory
 
         init() {
-            let redactOptions = SentryRedactDefaultOptions()
-            let provider = TestSentryScreenshotProvider(
-                redactOptions,
-                enableViewRendererV2: true,
-                enableFastViewRendering: false
-            )
+            let redactOptions = SentryScreenshotOptions()
+            let photographer = TestSentryViewPhotographer(redactOptions: redactOptions)
+            let provider = TestSentryScreenshotProvider(photographer: photographer)
             provider.result = [Data(count: 10)]
             screenshotProvider = provider
 
-            screenshotProviderFactory = TestSentryScreenshotProviderFactory()
-            screenshotProviderFactory.getScreenshotProviderForOptionsReturnValue = provider
-            SentryDependencyContainer.sharedInstance().screenshotProviderFactory = screenshotProviderFactory
+            SentryDependencyContainer.sharedInstance().setScreenshotProvider(provider, for: redactOptions)
         }
         
         func getSut() -> SentryScreenshotIntegration {

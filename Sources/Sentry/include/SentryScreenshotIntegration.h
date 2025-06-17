@@ -4,7 +4,6 @@
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryClient+Private.h"
-#    import "SentryScreenshotProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

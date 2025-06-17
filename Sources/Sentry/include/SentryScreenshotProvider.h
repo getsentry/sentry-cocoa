@@ -6,14 +6,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryRedactOptions;
+@class SentryViewPhotographer;
 
 @interface SentryScreenshotProvider : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWith:(id<SentryRedactOptions>)redactOptions
-       enableViewRendererV2:(BOOL)enableViewRendererV2
-    enableFastViewRendering:(BOOL)enableFastViewRendering;
+- (instancetype)initWithPhotographer:(SentryViewPhotographer *)photographer;
 
 /**
  * Get a screenshot of every open window in the app.

@@ -7,13 +7,10 @@ class SentryScreenshotProviderTests: XCTestCase {
     private class Fixture {
         
         let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        
+        let photographer = TestSentryViewPhotographer(redactOptions: SentryRedactDefaultOptions())
+
         var sut: SentryScreenshotProvider {
-            return SentryScreenshotProvider(
-                SentryRedactDefaultOptions(),
-                enableViewRendererV2: false,
-                enableFastViewRendering: false
-            )
+            return SentryScreenshotProvider(photographer: photographer)
         }
     }
     

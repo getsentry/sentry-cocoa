@@ -9,29 +9,18 @@
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 
-@implementation SentryScreenshotProvider {
-    SentryViewPhotographer *photographer;
-}
+@interface SentryScreenshotProvider ()
 
-- (instancetype)initWith:(SentryRedactDefaultOptions *)redactOptions
-       enableViewRendererV2:(BOOL)enableViewRendererV2
-    enableFastViewRendering:(BOOL)enableFastViewRendering
+@property (nonatomic, strong) SentryViewPhotographer *photographer;
+
+@end
+
+@implementation SentryScreenshotProvider
+
+- (instancetype)initWithPhotographer:(SentryViewPhotographer *)photographer
 {
     if (self = [super init]) {
-        id<SentryViewRenderer> viewRenderer;
-        if (enableViewRendererV2) {
-            SENTRY_LOG_DEBUG(@"[Screenshot] Setting up view renderer v2, fast view rendering: %@",
-                enableFastViewRendering ? @"YES" : @"NO");
-            viewRenderer = [[SentryViewRendererV2 alloc]
-                initWithEnableFastViewRendering:enableFastViewRendering];
-        } else {
-            SENTRY_LOG_DEBUG(@"[Screenshot] Setting up default view renderer");
-            viewRenderer = [[SentryDefaultViewRenderer alloc] init];
-        }
-
-        photographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                          redactOptions:redactOptions
-                                                   enableMaskRendererV2:enableViewRendererV2];
+        self.photographer = photographer;
     }
     return self;
 }
@@ -91,7 +80,7 @@
             continue;
         }
 
-        UIImage *img = [photographer imageWithView:window];
+        UIImage *img = [self.photographer imageWithView:window];
 
         // this shouldn't happen now that we discard windows with either 0 height or 0 width,
         // but still, we shouldn't send any images with either one.

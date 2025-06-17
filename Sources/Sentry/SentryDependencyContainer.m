@@ -200,7 +200,6 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // !SENTRY_HAS_REACHABILITY
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-        _screenshotProviderFactory = [[SentryScreenshotProviderFactory alloc] init];
         _screenshotProviderMap = [NSMapTable strongToWeakObjectsMapTable];
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -285,13 +284,37 @@ static BOOL isInitialializingDependencyContainer = NO;
             [_screenshotProviderMap objectForKey:options];
 
         if (provider == nil) {
-            provider = [self.screenshotProviderFactory getProviderForOptions:options];
-            [_screenshotProviderMap setObject:provider forKey:options];
+            id<SentryViewRenderer> viewRenderer;
+            if (options.enableViewRendererV2) {
+                viewRenderer = [[SentryViewRendererV2 alloc]
+                    initWithEnableFastViewRendering:options.enableFastViewRendering];
+            } else {
+                viewRenderer = [[SentryDefaultViewRenderer alloc] init];
+            }
+
+            SentryViewPhotographer *photographer =
+                [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                   redactOptions:options
+                                            enableMaskRendererV2:options.enableViewRendererV2];
+            return [[SentryScreenshotProvider alloc] initWithPhotographer:photographer];
         }
 
         return provider;
     }
 }
+
+- (void)setScreenshotProvider:(SentryScreenshotProvider *)provider
+                   forOptions:(SentryScreenshotOptions *)options
+{
+    @synchronized(sentryDependencyContainerDependenciesLock) {
+        if (provider == nil) {
+            [_screenshotProviderMap removeObjectForKey:options];
+        } else {
+            [_screenshotProviderMap setObject:provider forKey:options];
+        }
+    }
+}
+
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE

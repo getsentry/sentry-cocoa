@@ -39,7 +39,6 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshotProvider;
-@class SentryScreenshotProviderFactory;
 @class SentryUIApplication;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryViewHierarchy;
@@ -125,12 +124,11 @@ SENTRY_NO_INIT
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 
-/// The screenshot provider factory is used by the container to create the screenshot provider.
-/// It can be overridden in tests to replace the factory method with a mock.
-/// Use `getScreenshotProviderForOptions:` to get the screenshot provider instead.
-@property (nonatomic, strong) SentryScreenshotProviderFactory *screenshotProviderFactory;
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options;
+/// Used only for testing purposes.
+- (void)setScreenshotProvider:(nullable SentryScreenshotProvider *)provider
+                   forOptions:(nonnull SentryScreenshotOptions *)options;
 
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong)
