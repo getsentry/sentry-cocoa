@@ -17,11 +17,8 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var traceLifecycleSwitch: UISwitch!
     @IBOutlet weak var sessionSampleRateField: UITextField!
 
-    @IBOutlet weak var dsnView: UIView!
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        addDSNDisplay(self, vcview: dsnView)
         optionsConfiguration()
     }
 

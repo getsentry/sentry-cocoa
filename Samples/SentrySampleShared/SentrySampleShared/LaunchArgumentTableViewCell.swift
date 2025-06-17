@@ -12,6 +12,7 @@ class LaunchArgumentTableViewCell: UITableViewCell {
 
     @objc func toggleFlag() {
         override?.boolValue = flagSwitch.isOn
+        SentrySDKWrapper.shared.startSentry()
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -19,7 +20,7 @@ class LaunchArgumentTableViewCell: UITableViewCell {
         let stack = UIStackView(arrangedSubviews: [flagSwitch, titleLabel])
         stack.spacing = 8
         contentView.addSubview(stack)
-        stack.matchEdgeAnchors(from: contentView, topPad: 8, bottomPad: 8)
+        stack.matchEdgeAnchors(from: contentView)
     }
 
     required init?(coder: NSCoder) {

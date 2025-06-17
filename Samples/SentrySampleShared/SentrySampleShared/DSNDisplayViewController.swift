@@ -1,14 +1,9 @@
-import SentrySampleShared
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+
+import Sentry
 import UIKit
 
 let fontSize: CGFloat = 12
-
-func addDSNDisplay(_ vc: UIViewController, vcview: UIView) {
-    let dsnVC = DSNDisplayViewController(nibName: nil, bundle: nil)
-    vcview.addSubview(dsnVC.view)
-    dsnVC.view.matchEdgeAnchors(from: vcview)
-    vc.addChild(dsnVC)
-}
 
 class DSNDisplayViewController: UIViewController {
     let dispatchQueue = DispatchQueue(label: "io.sentry.iOS-Swift.queue.dsn-management", attributes: .concurrent)
@@ -48,7 +43,7 @@ class DSNDisplayViewController: UIViewController {
         ])
         
         view.addSubview(stack)
-        stack.matchEdgeAnchors(from: view, leadingPad: 20)
+        stack.matchEdgeAnchors(from: view)
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
         buttonStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3).isActive = true
     }
@@ -172,3 +167,5 @@ class DSNDisplayViewController: UIViewController {
         return attributedString
     }
 }
+
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
