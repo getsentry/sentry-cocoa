@@ -309,6 +309,8 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
         imageVMAddrSlide = (uintptr_t)_dyld_get_image_vmaddr_slide(idx);
         segmentBase = segmentBaseOfImageIndex(idx) + imageVMAddrSlide;
         info->dli_fname = _dyld_get_image_name(idx);
+    } else {
+        return false;
     }
     const uintptr_t addressWithSlide = address - imageVMAddrSlide;
     if (segmentBase == 0) {
