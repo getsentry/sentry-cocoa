@@ -162,7 +162,9 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
 bool
 sentrycrashbic_shouldAddDyld(void)
 {
-    return sentrycrashdl_imageNamed("libdyld.dylib", false) == UINT32_MAX;
+    // dyld is different from libdyld.dylib, the later contains the public API
+    // while the former contains the runtime information
+    return sentrycrashdl_imageNamed("/usr/lib/dyld", false) == UINT32_MAX;
 }
 
 // Since Apple no longer includes dyld in the images listed `_dyld_image_count` and related

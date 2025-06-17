@@ -75,7 +75,7 @@ const struct mach_header *sentryDyldHeader = NULL;
  * @return The address of the first command, or NULL if none was found (which
  *         should not happen unless the header or image is corrupt).
  */
-static uintptr_t
+uintptr_t
 firstCmdAfterHeader(const struct mach_header *const header)
 {
     switch (header->magic) {

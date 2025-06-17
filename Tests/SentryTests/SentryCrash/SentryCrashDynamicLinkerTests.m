@@ -12,6 +12,14 @@ extern void sentrycrashdl_clearDyld(void);
 struct dyld_all_image_infos *getAllImageInfo(void);
 extern uint32_t imageIndexContainingAddress(const uintptr_t address);
 extern bool sentrycrashbic_shouldAddDyld(void);
+extern uintptr_t firstCmdAfterHeader(const struct mach_header *const header);
+#if __LP64__
+#    define SEGMENT_TYPE LC_SEGMENT_64
+#    define segment_command_t struct segment_command_64
+#else
+#    define SEGMENT_TYPE LC_SEGMENT
+#    define segment_command_t struct segment_command
+#endif
 
 @interface SentryCrashDynamicLinkerTests : XCTestCase
 @end
@@ -36,25 +44,21 @@ extern bool sentrycrashbic_shouldAddDyld(void);
     XCTAssertEqual(sentryDyldHeader->magic, MH_MAGIC_64, @"Should be a 64-bit Mach-O header");
 }
 
-#if !TARGET_OS_OSX && !TARGET_OS_MACCATALYST
-// macOS does have dyld in memory
 - (void)testImageIndexContainingAddress
 {
     sentrycrashdl_initialize();
 
-    // Test an address within dyld's __TEXT segment
-    void *dyldAddress = (void *)&_dyld_image_count;
-    uint32_t index = imageIndexContainingAddress((uintptr_t)dyldAddress);
+    uintptr_t addressToFind = [self findDyldAddress];
+    uint32_t index = imageIndexContainingAddress((uintptr_t)addressToFind);
     XCTAssertEqual(index, DYLD_INDEX, @"Address should be found in dyld");
 }
 
 - (void)testImageIndexContainingAddressWhenDyldIsNotSet
 {
-    void *dyldAddress = (void *)&_dyld_image_count;
-    uint32_t index = imageIndexContainingAddress((uintptr_t)dyldAddress);
+    uintptr_t addressToFind = [self findDyldAddress];
+    uint32_t index = imageIndexContainingAddress((uintptr_t)addressToFind);
     XCTAssertEqual(index, UINT_MAX, @"Address should be found in dyld");
 }
-#endif
 
 - (void)testDyldAddressLookup
 {
@@ -121,6 +125,30 @@ extern bool sentrycrashbic_shouldAddDyld(void);
 
     XCTAssert(info.dli_saddr != NULL, @"Symbol address should not be NULL");
     XCTAssertEqual(info.dli_saddr, testAddress, @"Symbol address should match the input address");
+}
+
+// vmaddrs changes by platform, so we cannot use a static value
+- (uintptr_t)findDyldAddress
+{
+    struct dyld_all_image_infos *infos = getAllImageInfo();
+    const struct mach_header *header = NULL;
+    if (infos && infos->dyldImageLoadAddress) {
+        header = (const struct mach_header *)infos->dyldImageLoadAddress;
+    }
+
+    // Calculate an address within dyld TEXT segment (varies by platform)
+    uintptr_t cmdPtr = firstCmdAfterHeader(header);
+    for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
+        const struct load_command *loadCmd = (struct load_command *)cmdPtr;
+        if (loadCmd->cmd == SEGMENT_TYPE) {
+            const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+            if (strcmp(segCmd->segname, "__TEXT") == 0) {
+                return (uintptr_t)header + segCmd->vmaddr;
+            }
+        }
+        cmdPtr += loadCmd->cmdsize;
+    }
+    return (uintptr_t)header;
 }
 
 @end
