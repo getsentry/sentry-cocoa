@@ -171,6 +171,9 @@ imageIndexContainingAddress(const uintptr_t address)
     // Check if the address belongs to dyld using cached header
     if (sentryDyldHeader != NULL) {
         uintptr_t cmdPtr = firstCmdAfterHeader(sentryDyldHeader);
+        if (cmdPtr == 0) {
+            return UINT_MAX;
+        }
         for (uint32_t iCmd = 0; iCmd < sentryDyldHeader->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
             if (loadCmd->cmd == SEGMENT_TYPE) {
@@ -287,6 +290,9 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
 
         // Calculate dyld slide from __TEXT vmaddr
         uintptr_t cmdPtr = firstCmdAfterHeader(header);
+        if (cmdPtr == 0) {
+            return false;
+        }
         for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
             if (loadCmd->cmd == SEGMENT_TYPE) {
