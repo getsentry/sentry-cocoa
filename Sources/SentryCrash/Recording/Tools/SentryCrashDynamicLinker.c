@@ -64,8 +64,6 @@ typedef struct {
 #pragma pack()
 #define SENTRYCRASHDL_SECT_CRASH_INFO "__crash_info"
 
-#define DYLD_INDEX UINT_MAX - 1
-
 // Cache for dyld header information
 const struct mach_header *sentryDyldHeader = NULL;
 
@@ -136,7 +134,7 @@ initializeDyldHeader(void)
  * @return The index of the image it is part of, DYLD_INDEX if the address belongs to dyld, or
  * UINT_MAX if none was found.
  */
-static uint32_t
+uint32_t
 imageIndexContainingAddress(const uintptr_t address)
 {
     const uint32_t imageCount = _dyld_image_count();
@@ -548,4 +546,10 @@ void
 sentrycrashdl_initialize(void)
 {
     initializeDyldHeader();
+}
+
+void
+sentrycrashdl_clearDyld(void)
+{
+    sentryDyldHeader = NULL;
 }

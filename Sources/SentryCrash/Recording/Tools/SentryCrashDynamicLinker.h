@@ -36,6 +36,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define DYLD_INDEX UINT_MAX - 1
+
 typedef struct {
     uint64_t address;
     uint64_t vmAddress;
