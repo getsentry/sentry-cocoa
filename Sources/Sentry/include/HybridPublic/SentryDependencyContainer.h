@@ -24,6 +24,7 @@
 @class SentryFileIOTracker;
 @class SentryScopeContextPersistentStore;
 @class SentryOptions;
+@class SentrySessionTracker;
 
 @protocol SentryANRTracker;
 @protocol SentryRandom;
@@ -141,6 +142,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong)
     SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
+
+- (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options;
 
 @end
 

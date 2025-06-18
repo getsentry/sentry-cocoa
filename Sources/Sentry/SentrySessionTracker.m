@@ -2,17 +2,14 @@
 #import "SentryApplication.h"
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
-#import "SentryNSApplication.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-#import "SentryUIApplication.h"
 
 #import "SentryProfilingConditionals.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -29,17 +26,25 @@
 @property (atomic, strong) NSDate *lastInForeground;
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
+
+@property (nonatomic, strong) id<SentryApplication> application;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
+
 @end
 
 @implementation SentrySessionTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
+                    application:(id<SentryApplication>)application
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
+             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
 {
     if (self = [super init]) {
         self.options = options;
         self.wasDidBecomeActiveCalled = NO;
+        self.application = application;
+        self.dateProvider = dateProvider;
         self.notificationCenter = notificationCenter;
     }
     return self;
@@ -88,7 +93,7 @@
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
     //            closing the SDK and starting it again.
-    if ([self isAppActive]) {
+    if (self.application.isActive) {
         [self startSession];
     }
 #else
@@ -185,8 +190,7 @@
         // in the background to start a new session or to keep the session open. We don't want a new
         // session if the user switches to another app for just a few seconds.
         NSTimeInterval secondsInBackground =
-            [[SentryDependencyContainer.sharedInstance.dateProvider date]
-                timeIntervalSinceDate:self.lastInForeground];
+            [[self.dateProvider date] timeIntervalSinceDate:self.lastInForeground];
 
         if (secondsInBackground * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
             SENTRY_LOG_DEBUG(@"App was in the background for %f seconds. Starting a new session.",
@@ -217,7 +221,7 @@
  */
 - (void)willResignActive
 {
-    self.lastInForeground = [SentryDependencyContainer.sharedInstance.dateProvider date];
+    self.lastInForeground = [self.dateProvider date];
     SentryHub *hub = [SentrySDK currentHub];
     [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
     self.wasDidBecomeActiveCalled = NO;
@@ -228,18 +232,12 @@
  */
 - (void)willTerminate
 {
-    NSDate *sessionEnded = nil == self.lastInForeground
-        ? [SentryDependencyContainer.sharedInstance.dateProvider date]
-        : self.lastInForeground;
+    NSDate *sessionEnded
+        = nil == self.lastInForeground ? [self.dateProvider date] : self.lastInForeground;
     SentryHub *hub = [SentrySDK currentHub];
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     self.wasDidBecomeActiveCalled = NO;
-}
-
-- (BOOL)isAppActive
-{
-    return SentryDependencyContainer.sharedInstance.application.isActive;
 }
 
 @end

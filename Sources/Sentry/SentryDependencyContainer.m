@@ -15,6 +15,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
+#import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
@@ -435,5 +436,13 @@ static BOOL isInitialializingDependencyContainer = NO;
                        scopeContextStore:self.scopeContextPersistentStore])
 }
 #endif
+
+- (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
+{
+    return [[SentrySessionTracker alloc] initWithOptions:options
+                                             application:self.application
+                                            dateProvider:self.dateProvider
+                                      notificationCenter:self.notificationCenterWrapper];
+}
 
 @end

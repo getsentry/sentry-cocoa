@@ -45,7 +45,12 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, notificationCenter: notificationCenter)
+            return SessionTracker(
+                options: options,
+                application: application,
+                dateProvider: currentDateProvider,
+                notificationCenter: notificationCenter
+            )
         }
         
         func setNewHubToSDK() {
