@@ -1,0 +1,48 @@
+name: "Integrate Sentry SDK deliverable variant with a package manager"
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        description: |-
+          The Apple platform being built for by the sample project that is integrating the Sentry SDK deliverable. Examples: ios, tvos, watchos, macos, visionos
+        required: true
+        type: string
+
+      sdk-variant:
+        description: |-
+          The deliverable variant to integrate into the test project. Examples: carthage, cocoapods, spm, xcframework-static, xcframework-dynamic
+        required: true
+        type: string
+
+jobs:
+  package-integration-test:
+    name: ${{inputs.sdk-variant}}-${{inputs.platform}}
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tooling
+        run: make init-ci-build
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@32110d4e311bd8996b2a82bf2a43b714ccc91777 # v1.221.0
+        with:
+          bundler-cache: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+          path: Integration/Frameworks
+      - name: Unzip Frameworks
+        run: |
+          unzip -o Integration/Frameworks/Sentry.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/Sentry-Dynamic.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/SentrySwiftUI.xcframework.zip -d Integration/Frameworks/
+          unzip -o Integration/Frameworks/Sentry-WithoutUIKitOrAppKit.xcframework.zip -d Integration/Frameworks/
+      - name: Run Integration Test
+        run: ./scripts/package-integration-test.sh ${{ inputs.platform }} ${{ inputs.sdk_variant }}
+      - name: Upload Result Bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: integration-test-${{ inputs.platform }}-${{ inputs.sdk_variant }}.xcresult
+          path: Integration/fastlane/test_results/results.xcresult
