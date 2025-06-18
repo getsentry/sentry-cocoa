@@ -29,6 +29,9 @@ extension BaseUITest {
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
+        app.launchArguments.append(contentsOf: [
+            "--io.sentry.wipe-data"
+        ])
         return app
     }
     
