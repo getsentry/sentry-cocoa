@@ -9,6 +9,7 @@ public enum OverrideType {
 /// This protocol defines the typed value access for a specific feature flag.
 public protocol SentrySDKOverride: RawRepresentable, CaseIterable where Self.RawValue == String {
     var overrideType: OverrideType { get }
+    var ignoresDisableEverything: Bool { get }
 
     var boolValue: Bool { get set }
     var floatValue: Float? { get set }
@@ -145,6 +146,11 @@ public extension SentrySDKOverride {
     var boolValue: Bool {
         get {
             guard overrideType == .boolean else { fatalError("Unsupported bool override: \(self.rawValue)") }
+            
+            if !ignoresDisableEverything {
+                return Self.getBoolOverride(for: SentrySDKOverrides.Special.disableEverything.rawValue) || Self.getBoolOverride(for: rawValue)
+            }
+
             return Self.getBoolOverride(for: rawValue)
         }
         set(newValue) {
@@ -282,6 +288,71 @@ extension SentrySDKOverrides.Special {
     public var overrideType: OverrideType {
         switch self {
         case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode: return .boolean
+        }
+    }
+}
+
+// MARK: Disable Everything Helper
+
+// These are listed exhaustively, without using default cases, so that when new cases are added to the enums above, the compiler helps remind you to annotate what type it is down here.
+
+extension SentrySDKOverrides.Profiling {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .sampleRate, .samplerValue, .sessionSampleRate, .manualLifecycle: return true
+        case .disableAppStartProfiling, .disableUIProfiling: return false
+        }
+    }
+}
+
+extension SentrySDKOverrides.Tracing {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .sampleRate, .samplerValue: return false
+        case .disableTracing: return true
+        }
+    }
+}
+
+extension SentrySDKOverrides.Other {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .rejectAllEvents, .username, .userFullName, .userEmail, .userID, .environment: return true
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling: return false
+        }
+    }
+}
+
+extension SentrySDKOverrides.Performance {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableNetworkTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
+        case .sessionTrackingIntervalMillis: return true
+        }
+    }
+}
+
+extension SentrySDKOverrides.SessionReplay {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .disableSessionReplay: return false
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sampleRate, .quality: return true
+        }
+    }
+}
+
+extension SentrySDKOverrides.Feedback {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .allDefaults, .disableAutoInject, .noWidgetText, .noWidgetIcon, .noUserInjection, .requireEmail, .requireName, .noAnimations, .injectScreenshot, .useCustomFeedbackButton, .noScreenshots, .noShakeGesture: return true
+        }
+    }
+}
+
+extension SentrySDKOverrides.Special {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode: return true
         }
     }
 }
