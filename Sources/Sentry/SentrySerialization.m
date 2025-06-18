@@ -294,14 +294,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)writeObject:(id)jsonObject toStream:(NSOutputStream *)stream
 {
+    NSInteger writeResult;
     NSError *error = nil;
     // Use an autoreleasepool to release memory as soon as possible
     @autoreleasepool {
-        [NSJSONSerialization writeJSONObject:jsonObject toStream:stream options:0 error:&error];
+        writeResult = [NSJSONSerialization writeJSONObject:jsonObject
+                                                  toStream:stream
+                                                   options:0
+                                                     error:&error];
     }
 
     if (error) {
         SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
+        return NO;
+    }
+    if (writeResult < 0) {
+        SENTRY_LOG_ERROR(@"Internal error while writing object to stream");
         return NO;
     }
 
@@ -310,7 +318,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSMutableDictionary *)buildEnvelopeSerialized:(SentryEnvelope *_Nonnull)envelope
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedData = [NSMutableDictionary dictionary];
     if (nil != envelope.header.eventId) {
         [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
     }
@@ -332,39 +340,104 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
++ (const void *)newlineData
+{
+    static const void *newlineData = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(
+        &onceToken, ^{ newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes; });
+    return newlineData;
+}
+
 + (BOOL)writeEnvelope:(SentryEnvelope *)envelope toPath:(NSString *)path
 {
-    NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:path append:NO];
+    // Make sure we don't leave partial envelopes
+    NSString *tempPath = [path stringByAppendingString:@".tmp"];
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSError *deleteError = nil;
+        [[NSFileManager defaultManager] removeItemAtPath:tempPath error:&deleteError];
+
+        if (deleteError) {
+            SENTRY_LOG_ERROR(@"Could not make sure files do not exists.");
+            return NO;
+        }
+    }
+
+    NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:tempPath append:NO];
+    if (!outputStream) {
+        SENTRY_LOG_ERROR(@"Failed to create output stream for path: %@", tempPath);
+        return NO;
+    }
     [outputStream open];
 
     NSMutableDictionary *serializedData = [self buildEnvelopeSerialized:envelope];
     BOOL headerSuccess = [self writeObject:serializedData toStream:outputStream];
     if (!headerSuccess) {
-        [outputStream close];
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        [self cleanupFailedWrite:outputStream tempPath:tempPath];
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
         return NO;
     }
 
-    for (int i = 0; i < envelope.items.count; ++i) {
-        [outputStream write:[@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes maxLength:1];
+    for (SentryEnvelopeItem *envelopeItem in envelope.items) {
+        if (![self writeNewlineToStream:outputStream tempPath:tempPath]) {
+            return NO;
+        }
 
-        NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
-
+        NSDictionary *serializedItemHeaderData = [envelopeItem.header serialize];
         BOOL itemSuccess = [self writeObject:serializedItemHeaderData toStream:outputStream];
         if (!itemSuccess) {
-            [outputStream close];
-            [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+            [self cleanupFailedWrite:outputStream tempPath:tempPath];
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
             return NO;
         }
 
-        [outputStream write:[@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes maxLength:1];
-        [outputStream write:envelope.items[i].data.bytes maxLength:envelope.items[i].data.length];
+        if (![self writeNewlineToStream:outputStream tempPath:tempPath]) {
+            return NO;
+        }
+        NSInteger writeResult = [outputStream write:envelopeItem.data.bytes
+                                          maxLength:envelopeItem.data.length];
+        if (writeResult < 0) {
+            [self cleanupFailedWrite:outputStream tempPath:tempPath];
+            SENTRY_LOG_ERROR(@"Failed to write item data to stream.");
+            return NO;
+        }
     }
 
     [outputStream close];
+
+    NSError *moveError;
+    [[NSFileManager defaultManager] moveItemAtPath:tempPath toPath:path error:&moveError];
+    if (moveError) {
+        SENTRY_LOG_ERROR(@"Failed to move temporary envelope file to path: %@", path);
+        // Remove the temporary file if the move fails, ignore errors
+        [[NSFileManager defaultManager] removeItemAtPath:tempPath error:nil];
+        return NO;
+    }
+
     return YES;
+}
+
++ (BOOL)writeNewlineToStream:(NSOutputStream *)outputStream tempPath:(NSString *)tempPath
+{
+    NSInteger writeResult = [outputStream write:[self newlineData] maxLength:1];
+    if (writeResult < 0) {
+        [self cleanupFailedWrite:outputStream tempPath:tempPath];
+        SENTRY_LOG_ERROR(@"Failed to write newline to stream.");
+        return NO;
+    }
+    return YES;
+}
+
++ (void)cleanupFailedWrite:(NSOutputStream *)outputStream tempPath:(NSString *)tempPath
+{
+    [outputStream close];
+
+    NSError *deleteError = nil;
+    [[NSFileManager defaultManager] removeItemAtPath:tempPath error:&deleteError];
+    if (deleteError) {
+        SENTRY_LOG_ERROR(@"Failed to delete temporary envelope file.");
+    }
 }
 
 @end
