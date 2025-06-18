@@ -15,13 +15,14 @@ final class SwiftUITestSampleUITests: XCTestCase {
         app.buttons["Crash"].tap()
         
         launchApp()
-        XCTAssertTrue(app.staticTexts["Welcome!"].exists)
+        XCTAssertTrue(app.staticTexts["Welcome!"].waitForExistence(timeout: 10), "App did not load properly - Welcome text not found")
     }
     
     private func launchApp() {
         app.activate()
-        // Wait for the app to be ready
-        sleep(2)
+        // Make sure the app is ready before launching it
+        XCTAssertTrue(app.staticTexts["Welcome!"].waitForExistence(timeout: 10), "App did not activate properly")
+
         app.launch()
     }
 }
