@@ -16,7 +16,7 @@
 
 ### Fixes
 
-- Manually add Dyld image to images cache + locate addresses in dyld (#5418)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
 
 ## 8.52.1
 
