@@ -26,6 +26,7 @@
 //
 
 #include "SentryCrashDynamicLinker.h"
+#include "SentryCrashDynamicLinker+Internal.h"
 
 #include <limits.h>
 #include <mach-o/dyld.h>
@@ -37,14 +38,6 @@
 #include "SentryAsyncSafeLog.h"
 #include "SentryCrashMemory.h"
 #include "SentryCrashPlatformSpecificDefines.h"
-
-#if __LP64__
-#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
-#    define sentry_segment_command_t struct segment_command_64
-#else
-#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
-#    define sentry_segment_command_t struct segment_command
-#endif
 
 #ifndef SENTRYCRASHDL_MaxCrashInfoStringLength
 #    define SENTRYCRASHDL_MaxCrashInfoStringLength 1024

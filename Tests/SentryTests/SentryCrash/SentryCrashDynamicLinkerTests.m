@@ -1,3 +1,4 @@
+#import "SentryCrashDynamicLinker+Internal.h"
 #import "SentryCrashDynamicLinker.h"
 #import <XCTest/XCTest.h>
 #import <mach-o/dyld.h>
@@ -6,20 +7,6 @@
 #    import <UIKit/UIKit.h>
 #endif
 #import <Foundation/Foundation.h>
-
-// Added for tests
-extern void sentrycrashdl_clearDyld(void);
-struct dyld_all_image_infos *getAllImageInfo(void);
-extern uint32_t imageIndexContainingAddress(const uintptr_t address);
-extern bool sentrycrashbic_shouldAddDyld(void);
-extern uintptr_t firstCmdAfterHeader(const struct mach_header *const header);
-#if __LP64__
-#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
-#    define sentry_segment_command_t struct segment_command_64
-#else
-#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
-#    define sentry_segment_command_t struct segment_command
-#endif
 
 @interface SentryCrashDynamicLinkerTests : XCTestCase
 @end

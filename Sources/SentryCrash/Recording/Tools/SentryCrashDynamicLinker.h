@@ -38,6 +38,14 @@ extern "C" {
 
 #define SENTRY_DYLD_INDEX UINT_MAX - 1
 
+#if __LP64__
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
+#    define sentry_segment_command_t struct segment_command_64
+#else
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
+#    define sentry_segment_command_t struct segment_command
+#endif
+
 typedef struct {
     uint64_t address;
     uint64_t vmAddress;
