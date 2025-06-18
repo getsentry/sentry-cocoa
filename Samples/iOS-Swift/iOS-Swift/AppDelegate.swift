@@ -16,10 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if args.contains("--io.sentry.wipe-data") {
             removeAppData()
         }
-        if !args.contains("--skip-sentry-init") {
-            SentrySDKWrapper.shared.startSentry()
-        }
-        
+
+        SentrySDKWrapper.shared.startSentry()
+        SampleAppDebugMenu.shared.display()
+
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }

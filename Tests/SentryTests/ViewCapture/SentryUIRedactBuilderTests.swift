@@ -1,23 +1,10 @@
 #if os(iOS)
 import Foundation
+import SafariServices
 @testable import Sentry
 import SentryTestUtils
 import UIKit
 import XCTest
-
-class RedactOptions: SentryRedactOptions {
-    var maskedViewClasses: [AnyClass]
-    var unmaskedViewClasses: [AnyClass]
-    var maskAllText: Bool
-    var maskAllImages: Bool
-
-    init(maskAllText: Bool = true, maskAllImages: Bool = true) {
-        self.maskAllText = maskAllText
-        self.maskAllImages = maskAllImages
-        maskedViewClasses = []
-        unmaskedViewClasses = []
-    }
-}
 
 /*
  * Mocked RCTTextView to test the redaction of text from React Native apps.
@@ -40,7 +27,7 @@ class RCTParagraphComponentView: UIView {
 class RCTImageView: UIView {
 }
 
-class UIRedactBuilderTests: XCTestCase {
+class SentryUIRedactBuilderTests: XCTestCase {
     private class CustomVisibilityView: UIView {
         class CustomLayer: CALayer {
             override var opacity: Float {
@@ -52,13 +39,17 @@ class UIRedactBuilderTests: XCTestCase {
             return CustomLayer.self
         }
     }
-    
-    private let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    
-    private func getSut(_ option: RedactOptions = RedactOptions()) -> SentryUIRedactBuilder {
+
+    private var rootView: UIView!
+
+    private func getSut(_ option: TestRedactOptions = TestRedactOptions()) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: option)
     }
-    
+
+    override func setUp() {
+        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+    }
+
     func testNoNeedForRedact() {
         let sut = getSut()
         rootView.addSubview(UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40)))
@@ -94,7 +85,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactALabelOptionDisabled() {
-        let sut = getSut(RedactOptions(maskAllText: false))
+        let sut = getSut(TestRedactOptions(maskAllText: false))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = .purple
         rootView.addSubview(label)
@@ -105,7 +96,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactRCTTextView() {
-        let sut = getSut(RedactOptions(maskAllText: true))
+        let sut = getSut(TestRedactOptions(maskAllText: true))
         let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
         
@@ -116,7 +107,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
 
     func testDoNotRedactRCTTextView() {
-        let sut = getSut(RedactOptions(maskAllText: false))
+        let sut = getSut(TestRedactOptions(maskAllText: false))
         let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
         
@@ -126,7 +117,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactRCTParagraphComponentView() {
-        let sut = getSut(RedactOptions(maskAllText: true))
+        let sut = getSut(TestRedactOptions(maskAllText: true))
         let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
         
@@ -137,7 +128,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDoNotRedactRCTParagraphComponentView() {
-        let sut = getSut(RedactOptions(maskAllText: false))
+        let sut = getSut(TestRedactOptions(maskAllText: false))
         let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
         
@@ -147,7 +138,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testRedactRCTImageView() {
-        let sut = getSut(RedactOptions(maskAllImages: true))
+        let sut = getSut(TestRedactOptions(maskAllImages: true))
         let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(imageView)
         
@@ -158,7 +149,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDoNotRedactRCTImageView() {
-        let sut = getSut(RedactOptions(maskAllImages: false))
+        let sut = getSut(TestRedactOptions(maskAllImages: false))
         let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(imageView)
         
@@ -186,7 +177,7 @@ class UIRedactBuilderTests: XCTestCase {
     }
     
     func testDontRedactAImageOptionDisabled() {
-        let sut = getSut(RedactOptions(maskAllImages: false))
+        let sut = getSut(TestRedactOptions(maskAllImages: false))
         
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
@@ -472,7 +463,7 @@ class UIRedactBuilderTests: XCTestCase {
     func testRedactList() {
         let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "UILabel", "UITextView", "UITextField", "WKWebView"
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView"
         ].compactMap { NSClassFromString($0) }
         
         let sut = getSut()
@@ -514,6 +505,73 @@ class UIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
         XCTAssertEqual(result.first?.type, .redact)
         XCTAssertEqual(result.count, 1)
+    }
+
+    func testRedactSFSafariView() throws {
+        #if targetEnvironment(macCatalyst)
+        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
+        #else
+        // -- Arrange --
+        let sut = getSut()
+        let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
+        let safariView = try XCTUnwrap(safariViewController.view)
+        safariView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(safariView)
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        if #available(iOS 17, *) {
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(result.first?.type, .redact)
+            XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        } else if #available(iOS 16, *) {
+            XCTAssertEqual(result.count, 4)
+            XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 0, height: 0)) // UIToolbar layer
+            XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 0, height: 0)) // UINavigationBar bar layer
+            XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 40, height: 40)) // SFSafariLaunchPlaceholderView view
+            XCTAssertEqual(result.element(at: 3)?.size, CGSize(width: 40, height: 40)) // "VC:SFSafariViewController"
+        } else {
+            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 16")
+        }
+        #endif
+    }
+
+    func testRedactSFSafariViewEvenWithMaskingDisabled() throws {
+        #if targetEnvironment(macCatalyst)
+        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
+        #else
+        // -- Arrange --
+        // SFSafariView should always be redacted for security reasons, 
+        // regardless of maskAllText and maskAllImages settings
+        let sut = getSut(TestRedactOptions(maskAllText: false, maskAllImages: false))
+        let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
+        let safariView = try XCTUnwrap(safariViewController.view)
+        safariView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(safariView)
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        if #available(iOS 17, *) {
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(result.first?.type, .redact)
+            XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        } else if #available(iOS 16, *) {
+            // On iOS 16, SFSafariViewController has a different structure and may have multiple layers
+            XCTAssertEqual(result.count, 4)
+            XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 0, height: 0)) // UIToolbar layer
+            XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 0, height: 0)) // UINavigationBar bar layer
+            XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 40, height: 40)) // SFSafariLaunchPlaceholderView view
+            XCTAssertEqual(result.element(at: 3)?.size, CGSize(width: 40, height: 40)) // "VC:SFSafariViewController"
+        } else {
+            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 16")
+        }
+        #endif
     }
 }
 
