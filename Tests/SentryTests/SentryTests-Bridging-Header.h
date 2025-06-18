@@ -238,8 +238,8 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryViewHierarchy.h"
 #import "SentryViewHierarchyIntegration.h"
+#import "SentryViewHierarchyProvider.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import "SentryWatchdogTerminationScopeObserver.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -247,7 +247,7 @@
 #import "TestNSURLRequestBuilder.h"
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
-#import "TestSentryViewHierarchy.h"
+#import "TestSentryViewHierarchyProvider.h"
 #import "URLSessionTaskMock.h"
 @import _SentryPrivate;
 #import "Helper/ExceptionCatcher.h"

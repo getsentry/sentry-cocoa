@@ -47,7 +47,7 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
-#    import <SentryViewHierarchy.h>
+#    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
@@ -292,15 +292,15 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif
 
 #if SENTRY_UIKIT_AVAILABLE
-- (SentryViewHierarchy *)viewHierarchy SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryViewHierarchyProvider *)viewHierarchyProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
 
-    SENTRY_LAZY_INIT(_viewHierarchy, [[SentryViewHierarchy alloc] init]);
+    SENTRY_LAZY_INIT(_viewHierarchyProvider, [[SentryViewHierarchyProvider alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
+        @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
+        @"enabled. Ensure you're using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }

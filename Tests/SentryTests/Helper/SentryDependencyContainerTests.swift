@@ -134,7 +134,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshot)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchy)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
