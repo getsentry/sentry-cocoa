@@ -1,4 +1,4 @@
-#import "SentryCrashDynamicLinker+Internal.h"
+#import "SentryCrashDynamicLinker+Test.h"
 #import "SentryCrashDynamicLinker.h"
 #import <XCTest/XCTest.h>
 #import <mach-o/dyld.h>
@@ -123,19 +123,7 @@
         header = (const struct mach_header *)infos->dyldImageLoadAddress;
     }
 
-    // Calculate an address within dyld TEXT segment (varies by platform)
-    uintptr_t cmdPtr = firstCmdAfterHeader(header);
-    for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
-        const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
-            const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
-            if (strcmp(segCmd->segname, "__TEXT") == 0) {
-                return (uintptr_t)header + segCmd->vmaddr;
-            }
-        }
-        cmdPtr += loadCmd->cmdsize;
-    }
-    return (uintptr_t)header;
+    return (uintptr_t)getSegmentAddress(header, SEG_TEXT).start;
 }
 
 @end

@@ -26,7 +26,6 @@
 //
 
 #include "SentryCrashDynamicLinker.h"
-#include "SentryCrashDynamicLinker+Internal.h"
 
 #include <limits.h>
 #include <mach-o/dyld.h>
@@ -121,6 +120,58 @@ initializeDyldHeader(void)
     }
 }
 
+/** Get the segment command for a specific segment from a mach_header.
+ *
+ * @param header The mach_header to search in.
+ * @param segmentName The name of the segment to find (e.g., "__TEXT").
+ * @return Pointer to the segment command, or NULL if not found.
+ */
+static const sentry_segment_command_t *
+getSegmentCommand(const struct mach_header *header, const char *segmentName)
+{
+    if (header == NULL || segmentName == NULL) {
+        return NULL;
+    }
+
+    uintptr_t cmdPtr = firstCmdAfterHeader(header);
+    if (cmdPtr == 0) {
+        return NULL;
+    }
+
+    for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
+        const struct load_command *loadCmd = (struct load_command *)cmdPtr;
+        if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+            const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
+            if (strcmp(segCmd->segname, segmentName) == 0) {
+                return segCmd;
+            }
+        }
+        cmdPtr += loadCmd->cmdsize;
+    }
+
+    return NULL;
+}
+
+/** Get the address information of a specific segment from a mach_header.
+ *
+ * @param header The mach_header to search in.
+ * @param segmentName The name of the segment to find (e.g., "__TEXT").
+ * @return Structure containing start, end, and size of the segment, or {0, 0, 0} if not found.
+ */
+SentrySegmentAddress
+getSegmentAddress(const struct mach_header *header, const char *segmentName)
+{
+    SentrySegmentAddress result = { 0, 0 };
+
+    const sentry_segment_command_t *segCmd = getSegmentCommand(header, segmentName);
+    if (segCmd != NULL) {
+        result.start = (uintptr_t)header + segCmd->vmaddr;
+        result.size = segCmd->vmsize;
+    }
+
+    return result;
+}
+
 /** Get the image index that the specified address is part of.
  *
  * @param address The address to examine.
@@ -158,22 +209,10 @@ imageIndexContainingAddress(const uintptr_t address)
 
     // Check if the address belongs to dyld using cached header
     if (sentryDyldHeader != NULL) {
-        uintptr_t cmdPtr = firstCmdAfterHeader(sentryDyldHeader);
-        if (cmdPtr == 0) {
-            return UINT_MAX;
-        }
-        for (uint32_t iCmd = 0; iCmd < sentryDyldHeader->ncmds; iCmd++) {
-            const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
-                const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
-                if (strcmp(segCmd->segname, "__TEXT") == 0) {
-                    uintptr_t segStart = (uintptr_t)sentryDyldHeader + segCmd->vmaddr;
-                    if (address >= segStart && address < segStart + segCmd->vmsize) {
-                        return SENTRY_DYLD_INDEX;
-                    }
-                }
-            }
-            cmdPtr += loadCmd->cmdsize;
+        SentrySegmentAddress textSegment = getSegmentAddress(sentryDyldHeader, SEG_TEXT);
+        if (textSegment.start != 0 && address >= textSegment.start
+            && address < textSegment.start + textSegment.size) {
+            return SENTRY_DYLD_INDEX;
         }
     }
     return UINT_MAX;
@@ -190,20 +229,9 @@ static uintptr_t
 segmentBaseOfImageIndex(const uint32_t idx)
 {
     const struct mach_header *header = _dyld_get_image_header(idx);
-    uintptr_t cmdPtr = firstCmdAfterHeader(header);
-    if (cmdPtr == 0) {
-        return 0;
-    }
-
-    for (uint32_t i = 0; i < header->ncmds; i++) {
-        const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
-            const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
-            if (strcmp(segCmd->segname, SEG_LINKEDIT) == 0) {
-                return (uintptr_t)(segCmd->vmaddr - segCmd->fileoff);
-            }
-        }
-        cmdPtr += loadCmd->cmdsize;
+    const sentry_segment_command_t *segCmd = getSegmentCommand(header, SEG_LINKEDIT);
+    if (segCmd != NULL) {
+        return (uintptr_t)(segCmd->vmaddr - segCmd->fileoff);
     }
     return 0;
 }
@@ -277,22 +305,11 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
         }
 
         // Calculate dyld slide from __TEXT vmaddr
-        uintptr_t cmdPtr = firstCmdAfterHeader(header);
-        if (cmdPtr == 0) {
-            return false;
-        }
-        for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
-            const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
-                const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
-                if (strcmp(segCmd->segname, "__TEXT") == 0) {
-                    uintptr_t vmaddr = (uintptr_t)header + segCmd->vmaddr;
-                    imageVMAddrSlide = (uintptr_t)header - vmaddr;
-                    segmentBase = (uintptr_t)header;
-                    break;
-                }
-            }
-            cmdPtr += loadCmd->cmdsize;
+        SentrySegmentAddress textSegment = getSegmentAddress(header, SEG_TEXT);
+        uintptr_t vmaddr = textSegment.start;
+        if (vmaddr != 0) {
+            imageVMAddrSlide = (uintptr_t)header - vmaddr;
+            segmentBase = (uintptr_t)header;
         }
 
         info->dli_fname = "dyld";

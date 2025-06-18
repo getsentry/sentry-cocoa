@@ -58,6 +58,11 @@ typedef struct {
     const char *crashInfoMessage2;
 } SentryCrashBinaryImage;
 
+typedef struct {
+    uintptr_t start;
+    uintptr_t size;
+} SentrySegmentAddress;
+
 /** Get the number of loaded binary images.
  */
 int sentrycrashdl_imageCount(void);
