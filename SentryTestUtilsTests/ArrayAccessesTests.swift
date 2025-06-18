@@ -103,16 +103,16 @@ class ArrayAccessesTests: XCTestCase {
         XCTAssertNil(array.element(at: -1))
     }
     
-    func testElementAtIndex_optionalArray_returnsCorrectElement() {
+    func testElementAtIndex_optionalArray_returnsCorrectElement() throws {
         // -- Arrange --
         let array: [String?] = ["hello", nil, "world"]
         
         // -- Act --
         XCTAssertEqual(array.element(at: 0), "hello")
-        XCTAssertNil(array.element(at: 1))
+        XCTAssertNil(try XCTUnwrap(array.element(at: 1))) // The element should be accessible, but the value is nil
         XCTAssertEqual(array.element(at: 2), "world")
-        XCTAssertNil(array.element(at: 3))
-        XCTAssertNil(array.element(at: -1))
+        XCTAssertTrue(array.element(at: 3) == nil)
+        XCTAssertTrue(array.element(at: -1) == nil)
     }
     
     func testElementAtIndex_customStructArray_returnsCorrectElement() {
