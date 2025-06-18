@@ -30,14 +30,61 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - SwiftUITestSampleUITests
+      - SwiftUITestSampleUITestsCrashOnly
+      - SwiftUITestSampleUITestsEnvelopeOnly
+    configFiles:
+      Debug: SwiftUITestSampleUITests.xcconfig
+      Release: SwiftUITestSampleUITests.xcconfig
+      Test: SwiftUITestSampleUITests.xcconfig
+      TestCI: SwiftUITestSampleUITests.xcconfig
+  SwiftUITestSampleUITestsCrashOnly:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - SwiftUITestSampleUITestsCrashOnly
+    configFiles:
+      Debug: SwiftUITestSampleUITests.xcconfig
+      Release: SwiftUITestSampleUITests.xcconfig
+      Test: SwiftUITestSampleUITests.xcconfig
+      TestCI: SwiftUITestSampleUITests.xcconfig
+  SwiftUITestSampleUITestsEnvelopeOnly:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - SwiftUITestSampleUITestsEnvelopeOnly
     configFiles:
       Debug: SwiftUITestSampleUITests.xcconfig
       Release: SwiftUITestSampleUITests.xcconfig
       Test: SwiftUITestSampleUITests.xcconfig
       TestCI: SwiftUITestSampleUITests.xcconfig
 schemes:
-  SwiftUITestSample:
+  SwiftUITestSampleCrash:
+    build:
+      targets:
+        SwiftUITestSample: all
+        SwiftUITestSampleUITestsCrashOnly: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/SwiftUITestSample_Crash.xctestplan
+      preActions:
+        - script: |
+            echo "Uninstalling app"
+            xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
+  SwiftUITestSampleEnvelope:
+    build:
+      targets:
+        SwiftUITestSample: all
+        SwiftUITestSampleUITestsEnvelopeOnly: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/SwiftUITestSample_Envelope.xctestplan
+      preActions:
+        - script: |
+            echo "Uninstalling app"
+            xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
+  SwiftUITestSampleAll:
     build:
       targets:
         SwiftUITestSample: all
