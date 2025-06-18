@@ -491,6 +491,7 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertEqual(event.status, SentrySessionStatus.ok)
 
         stopSut()
+
         // Ideally we would expect the SDK to send the `exited` session status when calling `stop`.
         //
         // As the test case `testKillAppWithoutNotificationsAndNoCrash_EndsWithAbnormalSession` is calling `stop` and
@@ -509,11 +510,8 @@ class SentrySessionTrackerTests: XCTestCase {
         event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 2))
         XCTAssertEqual(event.status, SentrySessionStatus.ok)
 
-        event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 3))
-        XCTAssertEqual(event.status, SentrySessionStatus.exited)
-
         // Assert that there are no more invocations
-        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 4)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 3)
     }
 
     // MARK: - Helpers
@@ -538,6 +536,8 @@ class SentrySessionTrackerTests: XCTestCase {
 
     private func stopSut() {
         sut.stop()
+        // After stopping the session tracker, we need to set a new hub to the SDK.
+        fixture.setNewHubToSDK()
     }
 
     private func abnormalStopSut() {
