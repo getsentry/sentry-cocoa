@@ -172,6 +172,17 @@ jobs:
         shell: bash
       - run: swift build
 
+  package-integration-test:
+    needs: assemble-xcframework-variant
+    strategy:
+      matrix:
+        platform: [ios, tvos, watchos, macos, visionos]
+        sdk-variant: [carthage, cocoapods, spm, xcframework-static, xcframework-dynamic]
+    uses: ./.github/workflows/package-integration-test.yml
+    with:
+      platform: ${{matrix.platform}}
+      sdk-variant: ${{matrix.sdk-variant}}
+
   job_release:
     runs-on: ubuntu-latest
     name: "Release a new version"
@@ -180,6 +191,7 @@ jobs:
       validate-spm,
       validate-spm-dynamic,
       swift-build,
+      package-integration-test,
     ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
