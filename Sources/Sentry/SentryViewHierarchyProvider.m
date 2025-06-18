@@ -1,4 +1,4 @@
-#import "SentryViewHierarchy.h"
+#import "SentryViewHierarchyProvider.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -27,7 +27,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return SentryCrashJSON_OK;
 }
 
-@implementation SentryViewHierarchy
+@implementation SentryViewHierarchyProvider
 
 - (instancetype)init
 {
