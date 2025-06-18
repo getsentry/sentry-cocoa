@@ -39,11 +39,11 @@
 #include "SentryCrashPlatformSpecificDefines.h"
 
 #if __LP64__
-#    define SEGMENT_TYPE LC_SEGMENT_64
-#    define segment_command_t struct segment_command_64
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
+#    define sentry_segment_command_t struct segment_command_64
 #else
-#    define SEGMENT_TYPE LC_SEGMENT
-#    define segment_command_t struct segment_command
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
+#    define sentry_segment_command_t struct segment_command
 #endif
 
 #ifndef SENTRYCRASHDL_MaxCrashInfoStringLength
@@ -131,8 +131,8 @@ initializeDyldHeader(void)
 /** Get the image index that the specified address is part of.
  *
  * @param address The address to examine.
- * @return The index of the image it is part of, DYLD_INDEX if the address belongs to dyld, or
- * UINT_MAX if none was found.
+ * @return The index of the image it is part of, SENTRY_DYLD_INDEX if the address belongs to dyld,
+ * or UINT_MAX if none was found.
  */
 uint32_t
 imageIndexContainingAddress(const uintptr_t address)
@@ -151,8 +151,8 @@ imageIndexContainingAddress(const uintptr_t address)
             }
             for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
                 const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-                if (loadCmd->cmd == SEGMENT_TYPE) {
-                    const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+                if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+                    const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
                     if (addressWSlide >= segCmd->vmaddr
                         && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
                         return iImg;
@@ -171,12 +171,12 @@ imageIndexContainingAddress(const uintptr_t address)
         }
         for (uint32_t iCmd = 0; iCmd < sentryDyldHeader->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == SEGMENT_TYPE) {
-                const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+            if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+                const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
                 if (strcmp(segCmd->segname, "__TEXT") == 0) {
                     uintptr_t segStart = (uintptr_t)sentryDyldHeader + segCmd->vmaddr;
                     if (address >= segStart && address < segStart + segCmd->vmsize) {
-                        return DYLD_INDEX;
+                        return SENTRY_DYLD_INDEX;
                     }
                 }
             }
@@ -204,8 +204,8 @@ segmentBaseOfImageIndex(const uint32_t idx)
 
     for (uint32_t i = 0; i < header->ncmds; i++) {
         const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == SEGMENT_TYPE) {
-            const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+        if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+            const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
             if (strcmp(segCmd->segname, SEG_LINKEDIT) == 0) {
                 return (uintptr_t)(segCmd->vmaddr - segCmd->fileoff);
             }
@@ -276,7 +276,7 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
     uintptr_t imageVMAddrSlide = 0;
     uintptr_t segmentBase = 0;
 
-    if (idx == DYLD_INDEX) {
+    if (idx == SENTRY_DYLD_INDEX) {
         // Handle dyld manually
         header = sentryDyldHeader;
         if (header == NULL) {
@@ -290,8 +290,8 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
         }
         for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
             const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-            if (loadCmd->cmd == SEGMENT_TYPE) {
-                const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+            if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+                const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
                 if (strcmp(segCmd->segname, "__TEXT") == 0) {
                     uintptr_t vmaddr = (uintptr_t)header + segCmd->vmaddr;
                     imageVMAddrSlide = (uintptr_t)header - vmaddr;
@@ -513,8 +513,8 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
         struct load_command *loadCmd = (struct load_command *)cmdPtr;
         switch (loadCmd->cmd) {
-        case SEGMENT_TYPE: {
-            segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+        case SENTRY_SEGMENT_TYPE: {
+            sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
             if (strcmp(segCmd->segname, SEG_TEXT) == 0) {
                 imageSize = segCmd->vmsize;
                 imageVmAddr = segCmd->vmaddr;

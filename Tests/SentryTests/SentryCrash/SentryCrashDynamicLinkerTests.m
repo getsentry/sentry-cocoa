@@ -14,11 +14,11 @@ extern uint32_t imageIndexContainingAddress(const uintptr_t address);
 extern bool sentrycrashbic_shouldAddDyld(void);
 extern uintptr_t firstCmdAfterHeader(const struct mach_header *const header);
 #if __LP64__
-#    define SEGMENT_TYPE LC_SEGMENT_64
-#    define segment_command_t struct segment_command_64
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
+#    define sentry_segment_command_t struct segment_command_64
 #else
-#    define SEGMENT_TYPE LC_SEGMENT
-#    define segment_command_t struct segment_command
+#    define SENTRY_SEGMENT_TYPE LC_SEGMENT
+#    define sentry_segment_command_t struct segment_command
 #endif
 
 @interface SentryCrashDynamicLinkerTests : XCTestCase
@@ -50,7 +50,7 @@ extern uintptr_t firstCmdAfterHeader(const struct mach_header *const header);
 
     uintptr_t addressToFind = [self findDyldAddress];
     uint32_t index = imageIndexContainingAddress((uintptr_t)addressToFind);
-    XCTAssertEqual(index, DYLD_INDEX, @"Address should be found in dyld");
+    XCTAssertEqual(index, SENTRY_DYLD_INDEX, @"Address should be found in dyld");
 }
 
 - (void)testImageIndexContainingAddressWhenDyldIsNotSet
@@ -140,8 +140,8 @@ extern uintptr_t firstCmdAfterHeader(const struct mach_header *const header);
     uintptr_t cmdPtr = firstCmdAfterHeader(header);
     for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
         const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == SEGMENT_TYPE) {
-            const segment_command_t *segCmd = (segment_command_t *)cmdPtr;
+        if (loadCmd->cmd == SENTRY_SEGMENT_TYPE) {
+            const sentry_segment_command_t *segCmd = (sentry_segment_command_t *)cmdPtr;
             if (strcmp(segCmd->segname, "__TEXT") == 0) {
                 return (uintptr_t)header + segCmd->vmaddr;
             }
