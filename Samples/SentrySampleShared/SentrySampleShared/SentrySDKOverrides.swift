@@ -292,7 +292,7 @@ extension SentrySDKOverrides.Special {
     }
 }
 
-// MARK: Disable Everything Helpoer
+// MARK: Disable Everything Helper
 
 // These are listed exhaustively, without using default cases, so that when new cases are added to the enums above, the compiler helps remind you to annotate what type it is down here.
 
