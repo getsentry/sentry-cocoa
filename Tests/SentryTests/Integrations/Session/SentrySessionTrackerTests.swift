@@ -207,18 +207,8 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testCrashInBackground_LaunchInForeground() throws {
         // -- Arrange --
-        // During testing we observed that the deallocation of the session tracker happens after the method returns
-        // and not immediately when a new `sut` is set.
-        // This causes multiple session tracker to be registered as observers, until they are fully released and
-        // weak references are nil.
-        // Using an autoreleasepool to ensure that the deallocation happens before the test continues.
-        autoreleasepool {
-            crashInBackground()
-            assertNoSessionSent()
-
-            // Manually deallocate the previous sut to avoid race-conditions of duplicate observers
-            sut = nil
-        }
+        crashInBackground()
+        assertNoSessionSent()
 
         // -- Act & Assert --
         sut = fixture.getSut()
@@ -366,34 +356,24 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testForeground_Background_Terminate_LaunchAgain() throws {
-        // During testing we observed that the deallocation of the session tracker happens after the method returns
-        // and not immediately when a new `sut` is set.
-        // This causes multiple session tracker to be registered as observers, until they are fully released and
-        // weak references are nil.
-        // Using an autoreleasepool to ensure that the deallocation happens before the test continues.
         // -- Arrange --
         let sessionStartTime = fixture.currentDateProvider.date()
         startSutInAppDelegate()
 
         // -- Act --
-        autoreleasepool {
-            goToForeground()
-            advanceTime(bySeconds: 1)
-            goToBackground()
+        goToForeground()
+        advanceTime(bySeconds: 1)
+        goToBackground()
 
-            advanceTime(bySeconds: 10)
-            terminateApp()
-            assertEndSessionSent(started: sessionStartTime, duration: 1)
-            abnormalStopSut()
+        advanceTime(bySeconds: 10)
+        terminateApp()
+        assertEndSessionSent(started: sessionStartTime, duration: 1)
+        abnormalStopSut()
 
-            advanceTime(bySeconds: 1)
+        advanceTime(bySeconds: 1)
 
-            // Launch the app again
-            fixture.setNewHubToSDK()
-
-            // Manually deallocate the previous sut to avoid race-conditions of duplicate observers
-            sut = nil
-        }
+        // Launch the app again
+        fixture.setNewHubToSDK()
 
         sut = fixture.getSut()
 
