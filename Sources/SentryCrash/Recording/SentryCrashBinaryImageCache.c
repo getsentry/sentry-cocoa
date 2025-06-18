@@ -162,8 +162,9 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
 bool
 sentrycrashbic_shouldAddDyld(void)
 {
-    // dyld is different from libdyld.dylib, the later contains the public API
-    // while the former contains the runtime information
+    // dyld is different from libdyld.dylib; the latter contains the public API
+    // (like dlopen, dlsym, dlclose) while the former is the actual dynamic
+    // linker executable that handles runtime library loading and symbol resolution
     return sentrycrashdl_imageNamed("/usr/lib/dyld", false) == UINT32_MAX;
 }
 
