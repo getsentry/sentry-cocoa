@@ -40,7 +40,6 @@ extension BaseUITest {
         // App prewarming can sometimes cause simulators to get stuck in UI tests, activating them
         // before launching clears any prewarming state.
         app.activate()
-        app.launch()
         waitForExistenceOfMainScreen()
     }
     
