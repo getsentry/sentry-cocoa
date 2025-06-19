@@ -1,4 +1,4 @@
-#import "SentryProcessInfo.h"
+@import SentrySampleUITestShared;
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
