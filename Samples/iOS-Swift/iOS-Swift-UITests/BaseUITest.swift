@@ -1,3 +1,4 @@
+import SentrySampleUITestShared
 import XCTest
 
 class BaseUITest: XCTestCase {
@@ -37,10 +38,17 @@ extension BaseUITest {
         for (k, v) in env {
             app.launchEnvironment[k] = v
         }
+
         // App prewarming can sometimes cause simulators to get stuck in UI tests, activating them
         // before launching clears any prewarming state.
         app.activate()
-        app.launch()
+
+        // Calling activate() and then launch() effectively launches the app twice, interfering with
+        // local debugging. Check for attached debuggers first.
+        if !isDebugging() {
+            app.launch()
+        }
+        
         waitForExistenceOfMainScreen()
     }
     
