@@ -10,6 +10,7 @@
 
 - Fix building with Xcode 26 (#5386)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Fix stacktrace symbolication of fatal app hangs (#5438)
 
 ### Improvements
 
