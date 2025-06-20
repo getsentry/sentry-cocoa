@@ -5,7 +5,7 @@
 #    import "SentrySwift.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySDK.h>
 #    import <SentryScope.h>

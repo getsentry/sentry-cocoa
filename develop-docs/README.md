@@ -107,7 +107,7 @@ For more details on test plans and their capabilities, refer to:
 
 We used to set the log level to debug all tests to investigate flaky tests. For individual tests we then disabled the logs because printing the messages via NSLog uses synchronization and caused specific tests to fail due to timeouts in CI. The debug logs can also be extremely verbose for tests using tight loops and completely spamming the test logs.
 
-Therefore, the default log level is error for tests. If debug logs can help with fixing flaky tests, we should enable these for specific test cases only with `SentryLog.withDebugLogs`.
+Therefore, the default log level is error for tests. If debug logs can help with fixing flaky tests, we should enable these for specific test cases only with `SentryLogSwift.withDebugLogs`.
 
 ### UI Tests
 

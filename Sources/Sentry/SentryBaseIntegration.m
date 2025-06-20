@@ -1,6 +1,6 @@
 #import "SentryBaseIntegration.h"
 #import "SentryCrashWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>

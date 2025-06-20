@@ -4,17 +4,17 @@ import XCTest
 final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
 
     func testInitSelfThread_DoesNotUseNonAsyncSafeLogging() throws {
-        let oldDebug = SentryLog.isDebug
-        let oldLevel = SentryLog.diagnosticLevel
-        let oldOutput = SentryLog.getLogOutput()
+        let oldDebug = SentryLogSwift.isDebug
+        let oldLevel = SentryLogSwift.diagnosticLevel
+        let oldOutput = SentryLogSwift.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLogSwift.setLogOutput(oldOutput)
             SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         }
 
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        SentryLogSwift.setLogOutput(logOutput)
         SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
 
         var cursor = SentryCrashStackCursor()

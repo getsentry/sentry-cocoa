@@ -16,7 +16,7 @@
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryLevelHelper.h"
-#import "SentryLogC.h"
+#import "SentryAsyncLog.h"
 #import "SentryMeta.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfiler+Private.h"

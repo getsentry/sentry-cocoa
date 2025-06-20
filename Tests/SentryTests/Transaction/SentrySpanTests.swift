@@ -54,7 +54,7 @@ class SentrySpanTests: XCTestCase {
         
         logOutput = TestLogOutput()
         SentryLogSwiftSupport.configure(true, diagnosticLevel: SentryLevel.debug)
-        SentryLog.setLogOutput(logOutput)
+        SentryLogSwift.setLogOutput(logOutput)
         
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider

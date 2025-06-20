@@ -1,6 +1,6 @@
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryDependencyContainer.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySessionTracker.h"

@@ -9,7 +9,7 @@
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions.h"

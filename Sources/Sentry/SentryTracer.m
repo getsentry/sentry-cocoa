@@ -7,7 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions+Private.h"

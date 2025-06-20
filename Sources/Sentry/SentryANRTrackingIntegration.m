@@ -8,7 +8,7 @@
 #import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"

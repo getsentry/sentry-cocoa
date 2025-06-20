@@ -3,7 +3,7 @@
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"

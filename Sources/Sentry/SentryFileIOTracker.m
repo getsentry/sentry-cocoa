@@ -6,7 +6,7 @@
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"

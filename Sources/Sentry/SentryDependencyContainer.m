@@ -8,7 +8,7 @@
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"

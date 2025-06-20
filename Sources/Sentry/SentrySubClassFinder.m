@@ -1,6 +1,6 @@
 #import "SentrySubClassFinder.h"
 #import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentrySwift.h"
 #import <objc/runtime.h>
