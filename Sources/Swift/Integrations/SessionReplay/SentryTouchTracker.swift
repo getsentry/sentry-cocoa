@@ -118,7 +118,7 @@ class SentryTouchTracker: NSObject {
     }
     
     func flushFinishedEvents() {
-        SentryLog.debug("[Session Replay] Flushing finished events")
+        SentryLogSwift.debug("[Session Replay] Flushing finished events")
         dispatchQueue.dispatchSync { [self] in
             trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
         }

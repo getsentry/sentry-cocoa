@@ -31,7 +31,7 @@ class TestCleanup: NSObject {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
 
-        SentryLog.setDefaultTestLogConfiguration()
+        SentryLogSwift.setDefaultTestLogConfiguration()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 

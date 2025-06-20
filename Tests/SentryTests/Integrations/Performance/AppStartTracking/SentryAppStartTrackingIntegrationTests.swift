@@ -24,7 +24,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentryLogSwift.configureLog(true, diagnosticLevel: .debug)
         clearTestState()
     }
     

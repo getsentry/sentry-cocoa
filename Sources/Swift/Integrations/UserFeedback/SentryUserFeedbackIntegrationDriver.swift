@@ -134,7 +134,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
 #endif // DEBUG
         if !valid {
-            SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
+            SentryLogSwift.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
     }
 

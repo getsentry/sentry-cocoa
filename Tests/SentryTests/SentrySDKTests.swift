@@ -446,14 +446,14 @@ class SentrySDKTests: XCTestCase {
 
     func testSetUserBeforeStartingSDK_LogsFatalMessage() throws {
         // Arrange
-        let oldOutput = SentryLog.getLogOutput()
+        let oldOutput = SentryLogSwift.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLogSwift.setLogOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        SentryLogSwift.setLogOutput(logOutput)
 
         // Act
         SentrySDK.setUser(nil)
@@ -467,14 +467,14 @@ class SentrySDKTests: XCTestCase {
 
     func testSetUserAFterStartingSDK_DoesNotLogFatalMessage() {
         // Arrange
-        let oldOutput = SentryLog.getLogOutput()
+        let oldOutput = SentryLogSwift.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLogSwift.setLogOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        SentryLogSwift.setLogOutput(logOutput)
 
         givenSdkWithHub()
 

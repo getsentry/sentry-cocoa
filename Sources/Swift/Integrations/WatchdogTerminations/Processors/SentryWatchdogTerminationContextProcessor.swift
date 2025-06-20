@@ -20,14 +20,14 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
     }
 
     func setContext(_ context: [String: [String: Any]]?) {
-        SentryLog.debug("Setting context in background queue: \(context ?? [:])")
+        SentryLogSwift.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
-                SentryLog.debug("Can not set context, reason: reference to context processor is nil")
+                SentryLogSwift.debug("Can not set context, reason: reference to context processor is nil")
                 return
             }
             guard let context = context else {
-                SentryLog.debug("Context is nil, deleting active file.")
+                SentryLogSwift.debug("Context is nil, deleting active file.")
                 strongSelf.scopeContextStore.deleteContextOnDisk()
                 return
             }
@@ -36,7 +36,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
     }
 
     func clear() {
-        SentryLog.debug("Deleting context file in persistent store")
+        SentryLogSwift.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()
     }
 }

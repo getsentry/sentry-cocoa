@@ -134,8 +134,8 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentryLogSwift.setLogOutput(logOutput)
+        SentryLogSwift.configureLog(true, diagnosticLevel: .debug)
         
         let eventEnvelope = try givenEventEnvelope()
         requestManager.nextError = NSError(domain: "error", code: 47)
