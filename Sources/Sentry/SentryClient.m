@@ -102,6 +102,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     NSArray<id<SentryTransport>> *transports =
         [SentryTransportFactory initTransports:options
+                                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                              sentryFileManager:fileManager
                                     rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
 
