@@ -5,6 +5,7 @@
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+- The SDK will show a warning in the console if it detects it was loaded twice (#5298)
 
 ### Fixes
 
@@ -32,7 +33,6 @@
 ### Features
 
 - XCFrameworks are now signed (#5271)
-- The SDK will show a warning in the console if it detects it was loaded twice (#5298)
 
 ### Improvements
 
