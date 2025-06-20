@@ -296,7 +296,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     profileOptions.sessionSampleRate = profilesRate.floatValue;
 
     NSNumber *profilesRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
-    if (profilesRate == nil) {
+    if (profilesRand == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rand, will not "
                          @"start trace profiler for launch.");
         _sentry_cleanUpConfigFile();
@@ -312,7 +312,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     }
 
     NSNumber *tracesRand = launchConfig[kSentryLaunchProfileConfigKeyTracesSampleRand];
-    if (tracesRate == nil) {
+    if (tracesRand == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rand, will not start "
                          @"trace profiler for launch.");
         _sentry_cleanUpConfigFile();

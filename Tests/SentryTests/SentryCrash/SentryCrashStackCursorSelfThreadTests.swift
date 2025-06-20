@@ -9,7 +9,7 @@ final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
         let oldOutput = SentryLog.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLog.setOutput(oldOutput)
             SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
         }
 

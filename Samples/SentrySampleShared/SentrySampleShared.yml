@@ -27,3 +27,13 @@ targets:
       Release: SentrySampleShared.xcconfig
       Test: SentrySampleShared.xcconfig
       TestCI: SentrySampleShared.xcconfig
+  SentrySampleUITestShared:
+    type: framework
+    platform: auto
+    sources:
+      - SentrySampleUITestShared
+    configFiles:
+      Debug: SentrySampleUITestShared.xcconfig
+      Release: SentrySampleUITestShared.xcconfig
+      Test: SentrySampleUITestShared.xcconfig
+      TestCI: SentrySampleUITestShared.xcconfig

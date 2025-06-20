@@ -17,7 +17,7 @@ class SentryTouchTracker: NSObject {
         }
     }
     
-    private class TouchInfo {
+    private final class TouchInfo {
         let id: Int
         
         var startEvent: TouchEvent?
