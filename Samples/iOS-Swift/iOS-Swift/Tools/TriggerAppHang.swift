@@ -20,7 +20,26 @@ func triggerNonFullyBlockingAppHang() {
     }
 }
 
-/// Sleep on the main thread for long enough to trigger a hang
-func triggerFullyBlockingAppHang(button: UIButton) {
-  sleep(5)
+/// Triggers a fully blocking app hang by blocking the main thread for around 5 seconds.
+func triggerFullyBlockingAppHangThreadSleeping() {
+    sleep(5)
+}
+
+// Blocks the main thread for 5 seconds while decoding an image in a loop.
+@available(iOS 15.0, *)
+func triggerFullyBlockingAppHangWithImageDecoding() {
+
+    let currentTime = Date()
+    let timeToFinishUpdatingUI = currentTime.addingTimeInterval(5)
+
+    while timeToFinishUpdatingUI > Date() {
+
+        if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg"),
+           let imageData = FileManager.default.contents(atPath: path) {
+
+            if let image = UIImage(data: imageData) {
+                image.preparingForDisplay()
+            }
+        }
+    }
 }
