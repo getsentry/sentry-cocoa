@@ -1,24 +1,26 @@
-#import "SentryScreenshot.h"
+#import "SentryScreenshotProvider.h"
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
+#    import "SentryLog.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 
-@implementation SentryScreenshot {
-    SentryViewPhotographer *photographer;
-}
+@interface SentryScreenshotProvider ()
 
-- (instancetype)init
+@property (nonatomic, strong) SentryViewPhotographer *photographer;
+
+@end
+
+@implementation SentryScreenshotProvider
+
+- (instancetype)initWithPhotographer:(SentryViewPhotographer *)photographer
 {
     if (self = [super init]) {
-        photographer = [[SentryViewPhotographer alloc]
-                initWithRenderer:[[SentryDefaultViewRenderer alloc] init]
-                   redactOptions:[[SentryRedactDefaultOptions alloc] init]
-            enableMaskRendererV2:false];
+        self.photographer = photographer;
     }
     return self;
 }
@@ -78,7 +80,7 @@
             continue;
         }
 
-        UIImage *img = [photographer imageWithView:window];
+        UIImage *img = [self.photographer imageWithView:window];
 
         // this shouldn't happen now that we discard windows with either 0 height or 0 width,
         // but still, we shouldn't send any images with either one.

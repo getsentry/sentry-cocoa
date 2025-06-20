@@ -6,7 +6,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryScreenshot : NSObject
+@class SentryViewPhotographer;
+
+@interface SentryScreenshotProvider : NSObject
+SENTRY_NO_INIT
+
+- (instancetype)initWithPhotographer:(SentryViewPhotographer *)photographer;
 
 /**
  * Get a screenshot of every open window in the app.

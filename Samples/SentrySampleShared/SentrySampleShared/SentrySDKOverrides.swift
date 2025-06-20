@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 
 public enum OverrideType {
@@ -39,6 +41,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .feedback: return SentrySDKOverrides.Feedback.allCases
         case .performance: return SentrySDKOverrides.Performance.allCases
         case .sessionReplay: return SentrySDKOverrides.SessionReplay.allCases
+        case .screenshot: return SentrySDKOverrides.Screenshot.allCases
         case .other: return SentrySDKOverrides.Other.allCases
         case .tracing: return SentrySDKOverrides.Tracing.allCases
         case .profiling: return SentrySDKOverrides.Profiling.allCases
@@ -88,16 +91,27 @@ public enum SentrySDKOverrides: String, CaseIterable {
     case performance = "Performance"
 
     public enum SessionReplay: String, SentrySDKOverride {
-        case disableSessionReplay = "--disable-session-replay"
-        case disableViewRendererV2 = "--io.sentry.session-replay.disableViewRendereV2"
-        case enableFastViewRendering = "--io.sentry.session-replay.enableFastViewRendering"
-        case sampleRate = "--io.sentry.sessionReplaySampleRate"
-        case onErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
-        case quality = "--io.sentry.sessionReplayQuality"
-        case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
+        case disable = "--io.sentry.session-replay.disable"
+        
+        case onErrorSampleRate = "--io.sentry.session-replay.on-error-sample-rate"
+        case sessionSampleRate = "--io.sentry.session-replay.session-sample-rate"
+        case quality = "--io.sentry.session-replay.quality"
+        
+        case disableViewRendererV2 = "--io.sentry.session-replay.disable-view-renderer-v2"
+        case enableFastViewRendering = "--io.sentry.session-replay.enable-fast-view-rendering"
+        
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
+        case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
     }
     case sessionReplay = "Session Replay"
+
+    public enum Screenshot: String, SentrySDKOverride {
+        case disableViewRendererV2 = "--io.sentry.screenshot.disable-view-renderer-v2"
+        case enableFastViewRendering = "--io.sentry.screenshot.enable-fast-view-rendering"
+        case disableMaskAllImages = "--io.sentry.screenshot.disable-mask-all-images"
+        case disableMaskAllText = "--io.sentry.screenshot.disable-mask-all-text"
+    }
+    case screenshot = "Screenshot"
 
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot = "--disable-attach-screenshot"
@@ -269,9 +283,17 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.SessionReplay {
     public var overrideType: OverrideType {
         switch self {
-        case .disableSessionReplay, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
-        case .onErrorSampleRate, .sampleRate: return .float
+        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
+        case .onErrorSampleRate, .sessionSampleRate: return .float
         case .quality: return .string
+        }
+    }
+}
+
+extension SentrySDKOverrides.Screenshot {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
         }
     }
 }
@@ -335,8 +357,16 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.SessionReplay {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableSessionReplay: return false
-        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sampleRate, .quality: return true
+        case .disable: return false
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality: return true
+        }
+    }
+}
+
+extension SentrySDKOverrides.Screenshot {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return false
         }
     }
 }
@@ -356,3 +386,5 @@ extension SentrySDKOverrides.Special {
         }
     }
 }
+
+// swiftlint:enable file_length

@@ -1,14 +1,16 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryScreenShotTests: XCTestCase {
+class SentryScreenshotProviderTests: XCTestCase {
     private class Fixture {
         
         let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        
-        var sut: SentryScreenshot {
-            return SentryScreenshot()
+        let photographer = TestSentryViewPhotographer(redactOptions: SentryRedactDefaultOptions())
+
+        var sut: SentryScreenshotProvider {
+            return SentryScreenshotProvider(photographer: photographer)
         }
     }
     

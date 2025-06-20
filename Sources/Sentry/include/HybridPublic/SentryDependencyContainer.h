@@ -38,7 +38,8 @@
 
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
-@class SentryScreenshot;
+@class SentryScreenshotProvider;
+@class SentryScreenshotOptions;
 @class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
@@ -123,11 +124,19 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
-@property (nonatomic, strong) SentryScreenshot *screenshot;
+
 @property (nonatomic, strong) SentryViewHierarchyProvider *viewHierarchyProvider;
 @property (nonatomic, strong)
     SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+- (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
+    (nonnull SentryScreenshotOptions *)options;
+/// Used only for testing purposes.
+- (void)setScreenshotProvider:(nullable SentryScreenshotProvider *)provider
+                   forOptions:(nonnull SentryScreenshotOptions *)options;
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(

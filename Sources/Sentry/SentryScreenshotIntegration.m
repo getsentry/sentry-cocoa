@@ -10,6 +10,7 @@
 #    import "SentryHub+Private.h"
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
+#    import "SentryScreenshotProvider.h"
 
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
@@ -19,7 +20,10 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
+    SentryScreenshotOptions *options = SentrySDK.options.screenshot;
+    SentryScreenshotProvider *screenshotProvider =
+        [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];
+    [screenshotProvider saveScreenShots:reportPath];
 }
 
 @interface SentryScreenshotIntegration ()
@@ -86,8 +90,9 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
-    NSArray<NSData *> *screenshot =
-        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotDatasFromMainThread];
+    SentryScreenshotProvider *screenshotProvider = [SentryDependencyContainer.sharedInstance
+        getScreenshotProviderForOptions:self.options.screenshot];
+    NSArray<NSData *> *screenshot = [screenshotProvider appScreenshotDatasFromMainThread];
 
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];

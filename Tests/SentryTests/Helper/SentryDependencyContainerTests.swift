@@ -133,7 +133,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshot)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getScreenshotProvider(for: .init()))
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
@@ -263,6 +263,118 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
 #else
         throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testGetScreenshotProviderForOptions_sameScreenshotOptionsInstance_shouldReturnSameInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options.screenshot)
+        let provider2 = sut.getScreenshotProvider(for: options.screenshot)
+
+        // -- Assert --
+        XCTAssertIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
+#endif
+    }
+
+    func testGetScreenshotProviderForOptions_sameScreenshotOptionsHash_shouldReturnSameInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        let options1 = SentryScreenshotOptions()
+        let options2 = SentryScreenshotOptions()
+
+        // Pre-condition check
+        XCTAssertEqual(options1.hashValue, options2.hashValue, "Both options should have the same hash value.")
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options1)
+        let provider2 = sut.getScreenshotProvider(for: options2)
+
+        // -- Assert --
+        XCTAssertIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
+#endif
+    }
+
+    func testGetScreenshotProviderForOptions_differentScreenshotOptions_shouldReturnDifferentInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        let options1 = SentryScreenshotOptions(
+            enableViewRendererV2: true
+        )
+        let options2 = SentryScreenshotOptions(
+            enableViewRendererV2: false
+        )
+
+        // Pre-condition check
+        XCTAssertNotEqual(options1.hashValue, options2.hashValue, "Both options should have different hash values.")
+
+        // -- Act --
+        let provider1 = sut.getScreenshotProvider(for: options1)
+        let provider2 = sut.getScreenshotProvider(for: options2)
+
+        // -- Assert --
+        XCTAssertNotIdentical(provider1, provider2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
+#endif
+    }
+
+    /// This test ensures that if all references to the screenshot provider are deallocated and the container is not keeping strong references.
+    func testGetScreenshotProviderForOptions_allReferencesDeallocated_shouldCreateNewInstance() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let sut = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        var provider1MemoryAddress: UnsafeMutableRawPointer?
+        var provider2MemoryAddress: UnsafeMutableRawPointer?
+
+        autoreleasepool {
+            var provider1: SentryScreenshotProvider! = sut.getScreenshotProvider(for: options.screenshot)
+            provider1MemoryAddress = Unmanaged.passUnretained(provider1).toOpaque()
+
+            var provider2: SentryScreenshotProvider! = sut.getScreenshotProvider(for: options.screenshot)
+            provider2MemoryAddress = Unmanaged.passUnretained(provider2).toOpaque()
+
+            provider1 = nil
+            provider2 = nil
+        }
+
+        let newProvider = sut.getScreenshotProvider(for: options.screenshot)
+        let newProviderMemoryAddress = Unmanaged.passUnretained(newProvider).toOpaque()
+
+        // -- Assert --
+        XCTAssertEqual(provider1MemoryAddress, provider2MemoryAddress)
+        XCTAssertNotEqual(newProviderMemoryAddress, provider1MemoryAddress)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and Mac Catalyst platforms.")
 #endif
     }
 }
