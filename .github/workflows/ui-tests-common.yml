@@ -86,7 +86,7 @@ jobs:
         uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1
         if: always()
         with:
-          report_paths: "build/reports/junit.xml"
+          report_paths: build/reports/*junit.xml
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
@@ -95,8 +95,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}.xcresult
-          path: fastlane/test_results/${{ inputs.fastlane_command }}.xcresult
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+          path: |
+            fastlane/test_results/**/*.xcresult
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
