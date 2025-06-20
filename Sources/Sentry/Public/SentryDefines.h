@@ -172,16 +172,6 @@ typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_
     "See `SentryScope.useSpan` for reasoning of deprecation."));
 
 /**
- * Log level.
- */
-typedef NS_ENUM(NSInteger, SentryLogLevel) {
-    kSentryLogLevelNone = 1,
-    kSentryLogLevelError,
-    kSentryLogLevelDebug,
-    kSentryLogLevelVerbose
-};
-
-/**
  * Sentry level.
  */
 typedef NS_ENUM(NSUInteger,
