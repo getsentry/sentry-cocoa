@@ -189,6 +189,19 @@ sentry_contextForLaunchProfilerForTrace(NSNumber *tracesRate, NSNumber *tracesRa
     return context;
 }
 
+/**
+ * We remove the config file after successfully starting a launch profile. the config should
+ * only apply to a single launch. subsequent launches must be configured by subsequent calls to
+ * @c SentrySDK.startWIithOptions ; if that is not called, either deliberately by SDK consumers or
+ * due to a problem before it can run, then we won't reuse the config–in the worst case, the launch
+ * profile itself is the root cause of such a cycle, so this mitigates that and other possibities
+ */
+void
+_sentry_cleanUpConfigFile(void)
+{
+    removeAppLaunchProfilingConfigFile();
+}
+
 #    pragma mark - Testing only
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
@@ -220,6 +233,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
         SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
         [SentryContinuousProfiler start];
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -232,6 +246,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
             SENTRY_TEST_FATAL(
                 @"Missing expected launch profile config parameter for lifecycle. Will "
                 @"not proceed with launch profile.");
+            _sentry_cleanUpConfigFile();
             return;
         }
 
@@ -244,6 +259,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
                 SENTRY_TEST_FATAL(
                     @"Tried to start a continuous profile v2 with no configured sample "
                     @"rate/rand. Will not run profiler.");
+                _sentry_cleanUpConfigFile();
                 return;
             }
 
@@ -254,6 +270,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
             sentry_profilerSessionSampleDecision = decision;
 
             [SentryContinuousProfiler start];
+            _sentry_cleanUpConfigFile();
             return;
         }
 
@@ -266,6 +283,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if (profilesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rate, will not "
                          @"start trace profiler for launch.");
+        _sentry_cleanUpConfigFile();
         return;
     }
     profileOptions.sessionSampleRate = profilesRate.floatValue;
@@ -274,6 +292,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if (profilesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch profile sample rand, will not "
                          @"start trace profiler for launch.");
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -281,6 +300,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if (tracesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rate, will not start "
                          @"trace profiler for launch.");
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -288,6 +308,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if (tracesRate == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rand, will not start "
                          @"trace profiler for launch.");
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -308,7 +329,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
                                                                        hub:nil
                                                              configuration:config];
 
-    removeAppLaunchProfilingConfigFile();
+    _sentry_cleanUpConfigFile();
 }
 
 #    pragma mark - Public
