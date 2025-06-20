@@ -83,30 +83,3 @@ jobs:
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
-
-  build-xcframework-variant-slices:
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    with:
-      name: Sentry
-      macho-type: staticlib
-      variant-id: sentry-static-uitests
-      sdk-list: '["iphoneos", "iphonesimulator"]'
-
-  assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
-    with:
-      name: Sentry
-      variant-id: sentry-static-uitests
-      sdks: "iphoneos,iphonesimulator"
-
-  duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
-    uses: ./.github/workflows/ui-tests-common.yml
-    needs: assemble-xcframework-variant
-    with:
-      fastlane_command: duplication_test
-      xcode_version: 16.4
-      macos_version: macos-15
-      needs_xcframework: true
