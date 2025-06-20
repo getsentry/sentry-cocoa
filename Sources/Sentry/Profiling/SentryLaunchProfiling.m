@@ -230,6 +230,13 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 #    endif // defined(DEBUG)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();
+
+    if (launchConfig == nil) {
+        SENTRY_LOG_DEBUG(@"No launch profile config exists, will not profile launch.");
+        _sentry_cleanUpConfigFile();
+        return;
+    }
+
     if ([launchConfig[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue]) {
         SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
         [SentryContinuousProfiler start];
@@ -243,7 +250,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         NSNumber *lifecycleValue
             = launchConfig[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
         if (lifecycleValue == nil) {
-            SENTRY_TEST_FATAL(
+            SENTRY_LOG_ERROR(
                 @"Missing expected launch profile config parameter for lifecycle. Will "
                 @"not proceed with launch profile.");
             _sentry_cleanUpConfigFile();
@@ -256,7 +263,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
             NSNumber *sampleRand = launchConfig[kSentryLaunchProfileConfigKeyProfilesSampleRand];
 
             if (sampleRate == nil || sampleRand == nil) {
-                SENTRY_TEST_FATAL(
+                SENTRY_LOG_ERROR(
                     @"Tried to start a continuous profile v2 with no configured sample "
                     @"rate/rand. Will not run profiler.");
                 _sentry_cleanUpConfigFile();
