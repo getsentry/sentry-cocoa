@@ -10,6 +10,7 @@
 
 - Fix building with Xcode 26 (#5386)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Improve launch profile configuration management (#5318)
 
 ### Improvements
 
