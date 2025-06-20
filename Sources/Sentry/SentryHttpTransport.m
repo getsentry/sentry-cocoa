@@ -15,8 +15,6 @@
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
-#import "SentryNSURLRequest.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -339,14 +337,13 @@
     rateLimitedEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance.dateProvider.date;
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
-                                                                   dsn:self.options.parsedDsn
-                                                      didFailWithError:&requestError];
+    NSURLRequest *request =
+        [self.requestBuilder createEnvelopeRequestWithEnvelope:rateLimitedEnvelope
+                                                           dsn:self.options.parsedDsn
+                                                         error:&requestError];
 
-    if (nil == request || nil != requestError) {
-        if (nil != requestError) {
-            SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
-        }
+    if (nil != requestError) {
+        SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
         [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFilePath];
         return;

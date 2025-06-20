@@ -121,17 +121,6 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
-    func testShouldNotSendEnvelope_WhenRequestNil() throws {
-        let eventEnvelope = try givenEventEnvelope()
-        requestBuilder.shouldFailReturningNil = true
-        let sut = givenSut()
-        
-        sut.send(envelope: eventEnvelope)
-        
-        requestManager.waitForAllRequests()
-        XCTAssertEqual(self.requestManager.requests.count, 0)
-    }
-    
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
