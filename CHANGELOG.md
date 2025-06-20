@@ -18,6 +18,10 @@
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 
+### Fixes
+
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
+
 ## 8.52.1
 
 ### Fixes
