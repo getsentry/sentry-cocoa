@@ -14,7 +14,7 @@ import UIKit
  *
  * During testing we noticed a significant performance improvement by creating the bitmap context directly using ``CoreGraphics/CGContext``.
  */
-class SentryGraphicsImageRenderer {
+final class SentryGraphicsImageRenderer {
     struct Context {
         let cgContext: CGContext
         let scale: CGFloat

@@ -11,7 +11,7 @@ protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
 }
 
 @available(iOS 13.0, *)
-class SentryUserFeedbackWidget {
+final class SentryUserFeedbackWidget {
     private lazy var button = {
         let button = SentryUserFeedbackWidgetButtonView(config: config, target: self, selector: #selector(showForm))
         return button
@@ -32,7 +32,7 @@ class SentryUserFeedbackWidget {
         self.delegate?.showForm()
     }
 
-    class Window: UIWindow {
+    final class Window: UIWindow {
         init(config: SentryUserFeedbackConfiguration) {
             super.init(frame: UIScreen.main.bounds)
             windowLevel = config.widgetConfig.windowLevel
@@ -57,7 +57,7 @@ class SentryUserFeedbackWidget {
         }
     }
 
-    class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
+    final class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
         let defaultWidgetSpacing: CGFloat = 8
         weak var button: SentryUserFeedbackWidgetButtonView?
         init(config: SentryUserFeedbackConfiguration, button: SentryUserFeedbackWidgetButtonView) {
