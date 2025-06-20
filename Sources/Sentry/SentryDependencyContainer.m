@@ -25,6 +25,7 @@
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
+#import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
 #import <SentryNSNotificationCenterWrapper.h>
@@ -45,7 +46,7 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
 #    import <SentryScreenshot.h>
-#    import <SentryViewHierarchy.h>
+#    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
@@ -284,15 +285,15 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif
 
 #if SENTRY_UIKIT_AVAILABLE
-- (SentryViewHierarchy *)viewHierarchy SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryViewHierarchyProvider *)viewHierarchyProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
 
-    SENTRY_LAZY_INIT(_viewHierarchy, [[SentryViewHierarchy alloc] init]);
+    SENTRY_LAZY_INIT(_viewHierarchyProvider, [[SentryViewHierarchyProvider alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.viewHierarchy only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
+        @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
+        @"enabled. Ensure you're using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT
 }
@@ -417,7 +418,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)watchdogTerminationContextProcessor
+- (SentryWatchdogTerminationContextProcessor *)
+    watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
@@ -429,4 +431,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 #endif
 
+- (SentryGlobalEventProcessor *)globalEventProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_globalEventProcessor, [[SentryGlobalEventProcessor alloc] init])
+}
 @end

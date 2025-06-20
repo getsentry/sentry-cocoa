@@ -226,18 +226,23 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. This test case can be removed in favor of SentryClientTests.testCaptureFeedback")
-    func testSendUserFeedback() {
+    func testSendUserFeedback() throws {
         let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
         sut.send(envelope: envelope)
         waitForAllRequests()
 
         XCTAssertEqual(1, fixture.requestManager.requests.count)
 
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
+        let actualData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
+        let expectedData = try XCTUnwrap(fixture.userFeedbackRequest.httpBody)
+        let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
+        let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
+        let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedActualData))
+        let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedExpectedData))
+        try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
-    func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() {
+    func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() throws {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
@@ -257,7 +262,14 @@ class SentryHttpTransportTests: XCTestCase {
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
         envelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let request = SentryHttpTransportTests.buildRequest(envelope)
-        XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
+
+        let actualData = try XCTUnwrap(request.httpBody)
+        let expectedData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
+        let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
+        let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
+        let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedActualData))
+        let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedExpectedData))
+        try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
     func testSendAllCachedEvents() {

@@ -48,7 +48,6 @@
 #import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
-#import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
@@ -913,9 +912,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
 {
-    SentryEvent *newEvent = event;
+    SentryGlobalEventProcessor *globalEventProcessor
+        = SentryDependencyContainer.sharedInstance.globalEventProcessor;
 
-    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
+    SentryEvent *newEvent = event;
+    for (SentryEventProcessor processor in globalEventProcessor.processors) {
         newEvent = processor(newEvent);
         if (newEvent == nil) {
             SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "

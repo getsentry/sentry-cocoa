@@ -2,10 +2,22 @@
 
 ## Unreleased
 
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+
 ### Improvements
 
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
-- Memory footprint decrese when serializing envelopes (#5360)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- Write envelopes to file with a lower memory footprint (#5360)
 
 ## 8.52.1
 

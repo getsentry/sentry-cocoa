@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-./scripts/build-xcframework.sh iOSOnly
+./scripts/build-xcframework-local.sh iOSOnly DynamicOnly
 
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
@@ -11,4 +11,4 @@ xcrun --sdk iphoneos swift-api-digester \
     -avoid-location \
     -module Sentry \
     -target arm64-apple-ios10.0 \
-    -iframework ./Carthage/Sentry-Dynamic.xcframework/ios-arm64_arm64e
+    -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
