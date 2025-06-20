@@ -4,7 +4,7 @@
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNSDataUtils.h"
 #import "SentryOptions.h"

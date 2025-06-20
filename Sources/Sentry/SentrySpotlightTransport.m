@@ -3,7 +3,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"

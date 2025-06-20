@@ -8,7 +8,7 @@
 #    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentrySwift.h"
 #    import "SentrySystemWrapper.h"

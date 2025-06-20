@@ -12,7 +12,7 @@
 #    import "SentryFileManager.h"
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"

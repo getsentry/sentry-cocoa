@@ -8,7 +8,7 @@
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"

@@ -21,7 +21,7 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
-#import <SentryLog.h>
+#import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT

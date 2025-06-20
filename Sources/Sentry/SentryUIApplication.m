@@ -1,6 +1,6 @@
 #import "SentryUIApplication.h"
 #import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 

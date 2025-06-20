@@ -5,7 +5,7 @@
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"

@@ -3,7 +3,7 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 

@@ -3,7 +3,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
