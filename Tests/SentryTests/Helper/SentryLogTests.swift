@@ -24,7 +24,7 @@ class SentryLogTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentryLogSwiftSupport.configure(oldDebug, diagnosticLevel: oldLevel)
-        SentryLog.setLogOutput(oldOutput)
+        SentryLog.setOutput(oldOutput)
         SentryLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
 

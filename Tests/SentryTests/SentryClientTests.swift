@@ -1356,7 +1356,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testEventDroppedByEventProcessor_RecordsLostEvent() {
-        SentryGlobalEventProcessor.shared().add { _ in return nil }
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { _ in return nil }
         
         beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
         
@@ -1364,16 +1364,16 @@ class SentryClientTest: XCTestCase {
     }
     
     func testTransactionDroppedByEventProcessor_RecordsLostEvent() {
-        SentryGlobalEventProcessor.shared().add { _ in return nil }
-        
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { _ in return nil }
+
         beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
         
         assertLostEventRecorded(category: .transaction, reason: .eventProcessor)
     }
         
     func testRecordEventProcessorDroppingTransaction() {
-        SentryGlobalEventProcessor.shared().add { _ in return nil }
-        
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { _ in return nil }
+
         let transaction = Transaction(
             trace: fixture.trace,
             children: [
@@ -1389,7 +1389,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testRecordEventProcessorDroppingPartiallySpans() {
-        SentryGlobalEventProcessor.shared().add { event in
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
             if let transaction = event as? Transaction {
                 transaction.spans = transaction.spans.filter {
                     $0.operation != "child2"
@@ -1487,8 +1487,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCombinedPartiallyDroppedSpans() {
-        
-        SentryGlobalEventProcessor.shared().add { event in
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
             if let transaction = event as? Transaction {
                 transaction.spans = transaction.spans.filter {
                     $0.operation != "child1"

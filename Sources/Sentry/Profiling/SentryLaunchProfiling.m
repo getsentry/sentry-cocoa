@@ -141,7 +141,7 @@ _sentry_startTraceProfiler(
     }
 
     NSNumber *tracesRand = launchConfigDict[kSentryLaunchProfileConfigKeyTracesSampleRand];
-    if (tracesRate == nil) {
+    if (tracesRand == nil) {
         SENTRY_LOG_DEBUG(@"Received a nil configured launch trace sample rand, will not start "
                          @"trace profiler for launch.");
         return;

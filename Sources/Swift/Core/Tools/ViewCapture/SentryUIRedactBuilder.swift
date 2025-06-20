@@ -7,7 +7,7 @@ import UIKit
 import WebKit
 #endif
 
-class SentryUIRedactBuilder {
+final class SentryUIRedactBuilder {
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
     ///This is a wrapper which marks it's direct children to be redacted
@@ -59,8 +59,14 @@ class SentryUIRedactBuilder {
 #if os(iOS)
         redactClasses += [ WKWebView.self ]
 
-        //If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
-        redactClasses += [ "UIWebView" ].compactMap(NSClassFromString(_:))
+        redactClasses += [
+            // If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
+            "UIWebView",
+            // Used by:
+            // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
+            // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
+            "SFSafariView"
+        ].compactMap(NSClassFromString(_:))
 
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
 #else
@@ -225,7 +231,7 @@ class SentryUIRedactBuilder {
                 transform: newTransform,
                 type: swiftUI ? .redactSwiftUI : .redact,
                 color: self.color(for: view),
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
 
             guard !view.clipsToBounds else {
@@ -242,7 +248,7 @@ class SentryUIRedactBuilder {
                     size: layer.bounds.size,
                     transform: newTransform,
                     type: .clipOut,
-                    name: layer.debugDescription
+                    name: layer.name ?? layer.debugDescription
                 ))
             }
         }
@@ -258,7 +264,7 @@ class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
         }
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
@@ -269,7 +275,7 @@ class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
-                name: layer.debugDescription
+                name: layer.name ?? layer.debugDescription
             ))
         }
     }

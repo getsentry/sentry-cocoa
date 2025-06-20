@@ -3,7 +3,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryPropagationContext.h"

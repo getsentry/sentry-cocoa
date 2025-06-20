@@ -71,6 +71,8 @@ targets:
     platform: auto
     sources:
       - iOS-Swift-UITests
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
     configFiles:
       Debug: iOS-Swift-UITests.xcconfig
       Release: iOS-Swift-UITests.xcconfig
@@ -82,6 +84,8 @@ targets:
     sources:
       - iOS-Benchmarking
       - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig
