@@ -93,12 +93,13 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Bump version
+        if: steps.cache-xcarchive.outputs.cache-hit == 'false'
         run: |
           ./scripts/ci-select-xcode.sh 15.2
           make bump-version TO=${{ env.VERSION }}
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
-        if: steps.cache-xcarchive.outputs.cache-hit == 'false' && startsWith(github.ref, 'refs/heads/release/') == false
+        if: steps.cache-xcarchive.outputs.cache-hit == 'false'
         run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" "${{inputs.macho-type}}" "${{inputs.configuration-suffix}}"
         shell: bash
 
