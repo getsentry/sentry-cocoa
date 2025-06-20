@@ -54,7 +54,7 @@ public struct SentrySDKWrapper {
                 maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
                 enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue,
+                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
