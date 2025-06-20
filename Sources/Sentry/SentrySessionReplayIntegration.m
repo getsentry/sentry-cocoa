@@ -157,7 +157,7 @@ static SentryTouchTracker *_touchTracker;
     [self cleanUp];
 
     [SentrySDK.currentHub registerSessionListener:self];
-    [SentryGlobalEventProcessor.shared
+    [SentryDependencyContainer.sharedInstance.globalEventProcessor
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
             if (event.isFatalEvent) {
                 [self resumePreviousSessionReplay:event];
