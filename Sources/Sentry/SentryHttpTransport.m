@@ -39,6 +39,7 @@
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
@@ -69,6 +70,7 @@
 
 - (id)initWithOptions:(SentryOptions *)options
     cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
+               dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                 fileManager:(SentryFileManager *)fileManager
              requestManager:(id<SentryRequestManager>)requestManager
              requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
@@ -85,6 +87,7 @@
         self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
         self.dispatchQueue = dispatchQueueWrapper;
+        self.dateProvider = dateProvider;
         self.dispatchGroup = dispatch_group_create();
         _isSending = NO;
         _isFlushing = NO;
@@ -336,7 +339,7 @@
     }
 
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
-    rateLimitedEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance.dateProvider.date;
+    rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
     NSError *requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope

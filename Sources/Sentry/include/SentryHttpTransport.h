@@ -8,6 +8,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryOptions;
+@protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,6 +18,7 @@ SENTRY_NO_INIT
 
 - (id)initWithOptions:(SentryOptions *)options
     cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
+               dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                 fileManager:(SentryFileManager *)fileManager
              requestManager:(id<SentryRequestManager>)requestManager
              requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
