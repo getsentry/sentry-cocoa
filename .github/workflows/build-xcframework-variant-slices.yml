@@ -85,7 +85,7 @@ jobs:
           fi
         shell: sh
 
-      - name: Restore cache
+      - name: Restore xcarchive cache
         id: cache-xcarchive
         uses: actions/cache@v4
         with:
