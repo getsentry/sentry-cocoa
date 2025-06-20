@@ -76,12 +76,16 @@
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
+// MARK: - Convenience Types
+
+typedef NSNumber *SCREENSHOTS_PROVIDER_KEY;
+
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 @property (nonatomic, strong)
-    NSMapTable<NSNumber *, SentryScreenshotProvider *> *screenshotProviderMap;
+    NSMapTable<SCREENSHOTS_PROVIDER_KEY, SentryScreenshotProvider *> *screenshotProviderMap;
 #endif
 
 @end
@@ -276,16 +280,14 @@ static BOOL isInitialializingDependencyContainer = NO;
         return [self getANRTracker:timeout];
     }
 }
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryScreenshotProvider *)getScreenshotProviderForOptions:
     (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
-        // Ideally we would not use the entire options object as a key, but rather just the
-        // properties that are relevant for the screenshot provider.
-        NSNumber *key = @(options.hash);
+        SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
         SentryScreenshotProvider *_Nullable provider = [_screenshotProviderMap objectForKey:key];
 
         if (provider == nil) {
@@ -313,13 +315,18 @@ static BOOL isInitialializingDependencyContainer = NO;
                    forOptions:(SentryScreenshotOptions *)options
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
-        NSNumber *key = @(options.hash);
+        SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
         if (provider == nil) {
             [_screenshotProviderMap removeObjectForKey:key];
         } else {
             [_screenshotProviderMap setObject:provider forKey:key];
         }
     }
+}
+
+- (SCREENSHOTS_PROVIDER_KEY)getScreenshotProviderKey:(nonnull SentryScreenshotOptions *)options
+{
+    return @(options.hash);
 }
 
 #endif // SENTRY_HAS_UIKIT

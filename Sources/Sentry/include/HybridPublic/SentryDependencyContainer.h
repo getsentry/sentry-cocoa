@@ -12,29 +12,25 @@
 @class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
-@class SentryFileIOTracker;
 @class SentryFileManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
-@class SentryOptions;
-@class SentryScopeContextPersistentStore;
-@class SentryScreenshotOptions;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentrySystemWrapper;
-@class SentryThreadInspector;
 @class SentryThreadWrapper;
+@class SentryThreadInspector;
 @class SentryFileIOTracker;
 @class SentryScopeContextPersistentStore;
 @class SentryOptions;
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
-@protocol SentryCurrentDateProvider;
-@protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryRandom;
+@protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
+@protocol SentryDispatchQueueProviderProtocol;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -43,12 +39,13 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshotProvider;
+@class SentryScreenshotOptions;
 @class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
-@class SentryWatchdogTerminationBreadcrumbProcessor;
-@class SentryWatchdogTerminationContextProcessor;
 @class SentryWatchdogTerminationScopeObserver;
+@class SentryWatchdogTerminationContextProcessor;
+@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
