@@ -209,11 +209,7 @@ public class SentryScreenshotOptions: NSObject, SentryRedactOptions {
         self.maskAllImages == other.maskAllImages &&
         self.maskedViewClasses.count == other.maskedViewClasses.count &&
         self.unmaskedViewClasses.count == other.unmaskedViewClasses.count &&
-        self.maskedViewClasses.allSatisfy { viewClass in
-            other.maskedViewClasses.contains { NSStringFromClass($0) == NSStringFromClass(viewClass) }
-        } &&
-        self.unmaskedViewClasses.allSatisfy { viewClass in
-            other.unmaskedViewClasses.contains { NSStringFromClass($0) == NSStringFromClass(viewClass) }
-        }
+        self.maskedViewClasses.map { NSStringFromClass($0) } == other.maskedViewClasses.map { NSStringFromClass($0) } &&
+        self.unmaskedViewClasses.map { NSStringFromClass($0) } == other.unmaskedViewClasses.map { NSStringFromClass($0) }
     }
 }
