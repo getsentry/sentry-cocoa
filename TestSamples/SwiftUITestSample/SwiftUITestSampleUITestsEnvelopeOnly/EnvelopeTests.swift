@@ -1,32 +1,12 @@
 import XCTest
 
-// If you want to debug this tests, make sure to enable `Debug Executable` in the scheme.
-// It is disabled because it would stop the test when crashing the app
-final class SwiftUITestSampleUITests: XCTestCase {
+final class EnvelopeTest: XCTestCase {
     let app = XCUIApplication()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-
-        if app.state != .notRunning {
-            app.terminate()
-        }
-        
-        // Uninstall the app after every test to make sure we run on a clean state
-        app.uninstall(skipIfNotFound: true)
     }
 
-    @MainActor
-    func testCrash() throws {
-        launchApp()
-
-        app.buttons["Crash"].tap()
-        
-        launchApp()
-        XCTAssertTrue(app.staticTexts["Welcome!"].exists)
-    }
-
-    @MainActor
     func testCorruptedEnvelope() throws {
         launchApp()
         
