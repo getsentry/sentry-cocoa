@@ -46,7 +46,6 @@
 @class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
-@class SentryViewHierarchy;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
 @class SentryWatchdogTerminationContextProcessor;
 @class SentryWatchdogTerminationScopeObserver;

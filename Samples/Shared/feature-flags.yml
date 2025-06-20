@@ -80,13 +80,13 @@ schemeTemplates:
 
       environmentVariables:
         # session replay
-        - variable: "--io.sentry.sessionReplaySampleRate"
+        - variable: "--io.sentry.session-replay.on-error-sample-rate"
           value:
           isEnabled: false
-        - variable: "--io.sentry.sessionReplayOnErrorSampleRate"
+        - variable: "--io.sentry.session-replay.session-sample-rate"
           value:
           isEnabled: false
-        - variable: "--io.sentry.sessionReplayQuality"
+        - variable: "--io.sentry.session-replay.quality"
           value:
           isEnabled: false
 
@@ -133,11 +133,5 @@ schemeTemplates:
           value:
           isEnabled: false
         - variable: "--io.sentry.profile-session-sample-rate"
-          value:
-          isEnabled: false
-        - variable: "--io.sentry.session-replay.on-error-sample-rate"
-          value: 1.0
-          isEnabled: false
-        - variable: "--io.sentry.session-replay.session-sample-rate"
           value:
           isEnabled: false
