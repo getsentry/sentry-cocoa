@@ -340,12 +340,12 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-+ (const void *)newlineData
++ (NSData *)newlineData
 {
     static NSData *newlineData = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding]; });
-    return newlineData.bytes;
+    return newlineData;
 }
 
 + (BOOL)writeEnvelope:(SentryEnvelope *)envelope toPath:(NSString *)path
@@ -419,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)writeNewlineToStream:(NSOutputStream *)outputStream tempPath:(NSString *)tempPath
 {
-    NSInteger writeResult = [outputStream write:[self newlineData] maxLength:1];
+    NSInteger writeResult = [outputStream write:[self newlineData].bytes maxLength:1];
     if (writeResult < 0) {
         [self cleanupFailedWrite:outputStream tempPath:tempPath];
         SENTRY_LOG_ERROR(@"Failed to write newline to stream.");
