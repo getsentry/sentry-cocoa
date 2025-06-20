@@ -21,35 +21,52 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
     public func startSentry() {
-        SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        if SentrySDK.isEnabled {
+            print("SentrySDK already enabled, closing it")
+            SentrySDK.close()
+        }
+
+        if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            SentrySDK.start(configureOptions: configureSentryOptions(options:))
+        }
     }
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
-        options.beforeSend = { $0 }
-        options.beforeSendSpan = { $0 }
-        options.beforeCaptureScreenshot = { _ in true }
-        options.beforeCaptureViewHierarchy = { _ in true }
-        options.debug = true
+        options.beforeSend = {
+            guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
+            return $0
+        }
+        options.beforeSendSpan = {
+            guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
+            return $0
+        }
+        options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
+        options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
+        options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.Other.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: 0,
-                onErrorSampleRate: 1,
-                maskAllText: true,
-                maskAllImages: true
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
+                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
             )
-            options.sessionReplay.quality = .high
-            options.sessionReplay.enableViewRendererV2 = true
-            // Disable the fast view renderering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = false
+
+            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
+
+            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
         }
 
 #if !os(tvOS)
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
-            options.enableMetricKitRawPayload = true
+            options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
         }
 #endif // !os(tvOS)
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
@@ -69,7 +86,7 @@ public struct SentrySDKWrapper {
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
-        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+        if let sessionTrackingIntervalMillis = SentrySDKOverrides.Performance.sessionTrackingIntervalMillis.stringValue {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
 
@@ -130,10 +147,11 @@ public struct SentrySDKWrapper {
 
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
     }
 
     func configureInitialScope(scope: Scope) -> Scope {
-        if let environmentOverride = self.env["--io.sentry.sdk-environment"] {
+        if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
             scope.setEnvironment("benchmarking")
@@ -153,8 +171,8 @@ public struct SentrySDKWrapper {
 
         injectGitInformation(scope: scope)
 
-        let user = User(userId: "1")
-        user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
+        let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
+        user.email = SentrySDKOverrides.Other.userEmail.stringValue ?? "tony@example.com"
         user.username = username
         user.name = userFullName
         scope.setUser(user)
@@ -168,7 +186,7 @@ public struct SentrySDKWrapper {
     }
 
     var userFullName: String {
-        let name = self.env["--io.sentry.user.name"] ?? NSFullUserName()
+        let name = SentrySDKOverrides.Other.userFullName.stringValue ?? NSFullUserName()
         guard !name.isEmpty else {
             return "cocoa developer"
         }
@@ -176,7 +194,7 @@ public struct SentrySDKWrapper {
     }
 
     var username: String {
-        let username = self.env["--io.sentry.user.username"] ?? NSUserName()
+        let username = SentrySDKOverrides.Other.username.stringValue ?? NSUserName()
         guard !username.isEmpty else {
             return (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
                 .lastPathComponent ?? "cocoadev"
@@ -192,10 +210,7 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        guard !SentrySDKOverrides.Feedback.disableAutoInject.boolValue else {
-            config.autoInject = false
-            return
-        }
+        config.autoInject = !SentrySDKOverrides.Feedback.disableAutoInject.boolValue
 
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
@@ -213,9 +228,7 @@ extension SentrySDKWrapper {
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
         }
-        if SentrySDKOverrides.Feedback.noWidgetIcon.boolValue {
-            config.showIcon = false
-        }
+        config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
@@ -267,8 +280,8 @@ extension SentrySDKWrapper {
         }
 
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
-        config.useShakeGesture = true
-        config.showFormForScreenshots = true
+        config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
+        config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
         config.configureWidget = configureFeedbackWidget(config:)
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
@@ -381,15 +394,11 @@ extension SentrySDKWrapper {
     public static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     var args: [String] {
-        let args = ProcessInfo.processInfo.arguments
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
-        return args
+        return ProcessInfo.processInfo.arguments
     }
 
     var env: [String: String] {
-        let env = ProcessInfo.processInfo.environment
-        print("[iOS-Swift] [debug] environment: \(env)")
-        return env
+        return ProcessInfo.processInfo.environment
     }
 
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
