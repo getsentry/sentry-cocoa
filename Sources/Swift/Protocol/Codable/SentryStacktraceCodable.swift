@@ -1,6 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+// See `develop-docs/README.md` for an explanation of this pattern.
 #if SENTRY_SWIFT_PACKAGE
 final class SentryStacktraceDecodable: SentryStacktrace {
     convenience public init(from decoder: any Decoder) throws {
