@@ -449,7 +449,7 @@ class SentrySDKTests: XCTestCase {
         let oldOutput = SentryLog.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLog.setOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
@@ -470,7 +470,7 @@ class SentrySDKTests: XCTestCase {
         let oldOutput = SentryLog.getLogOutput()
 
         defer {
-            SentryLog.setLogOutput(oldOutput)
+            SentryLog.setOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
