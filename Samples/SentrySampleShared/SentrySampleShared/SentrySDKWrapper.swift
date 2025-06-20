@@ -33,30 +33,39 @@ public struct SentrySDKWrapper {
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
-        options.beforeSend = { $0 }
-        options.beforeSendSpan = { $0 }
-        options.beforeCaptureScreenshot = { _ in true }
-        options.beforeCaptureViewHierarchy = { _ in true }
-        options.debug = true
+        options.beforeSend = {
+            guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
+            return $0
+        }
+        options.beforeSendSpan = {
+            guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
+            return $0
+        }
+        options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
+        options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
+        options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 0,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
                 maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
                 enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
-                // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
-                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
+                // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue,
             )
             options.sessionReplay.quality = .high
+        
+            let defaultReplayQuality = options.sessionReplay.quality
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
         }
 
 #if !os(tvOS)
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
-            options.enableMetricKitRawPayload = true
+            options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
         }
 #endif // !os(tvOS)
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
@@ -76,7 +85,7 @@ public struct SentrySDKWrapper {
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
-        if let sessionTrackingIntervalMillis = env["--io.sentry.sessionTrackingIntervalMillis"] {
+        if let sessionTrackingIntervalMillis = SentrySDKOverrides.Performance.sessionTrackingIntervalMillis.stringValue {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
 
@@ -148,7 +157,7 @@ public struct SentrySDKWrapper {
     }
 
     func configureInitialScope(scope: Scope) -> Scope {
-        if let environmentOverride = self.env["--io.sentry.sdk-environment"] {
+        if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
             scope.setEnvironment("benchmarking")
@@ -168,8 +177,8 @@ public struct SentrySDKWrapper {
 
         injectGitInformation(scope: scope)
 
-        let user = User(userId: "1")
-        user.email = self.env["--io.sentry.user.email"] ?? "tony@example.com"
+        let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
+        user.email = SentrySDKOverrides.Other.userEmail.stringValue ?? "tony@example.com"
         user.username = username
         user.name = userFullName
         scope.setUser(user)
@@ -183,7 +192,7 @@ public struct SentrySDKWrapper {
     }
 
     var userFullName: String {
-        let name = self.env["--io.sentry.user.name"] ?? NSFullUserName()
+        let name = SentrySDKOverrides.Other.userFullName.stringValue ?? NSFullUserName()
         guard !name.isEmpty else {
             return "cocoa developer"
         }
@@ -191,7 +200,7 @@ public struct SentrySDKWrapper {
     }
 
     var username: String {
-        let username = self.env["--io.sentry.user.username"] ?? NSUserName()
+        let username = SentrySDKOverrides.Other.username.stringValue ?? NSUserName()
         guard !username.isEmpty else {
             return (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
                 .lastPathComponent ?? "cocoadev"
@@ -207,10 +216,7 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        guard !SentrySDKOverrides.Feedback.disableAutoInject.boolValue else {
-            config.autoInject = false
-            return
-        }
+        config.autoInject = !SentrySDKOverrides.Feedback.disableAutoInject.boolValue
 
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
@@ -228,9 +234,7 @@ extension SentrySDKWrapper {
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
         }
-        if SentrySDKOverrides.Feedback.noWidgetIcon.boolValue {
-            config.showIcon = false
-        }
+        config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
@@ -282,8 +286,8 @@ extension SentrySDKWrapper {
         }
 
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
-        config.useShakeGesture = true
-        config.showFormForScreenshots = true
+        config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
+        config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
         config.configureWidget = configureFeedbackWidget(config:)
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)

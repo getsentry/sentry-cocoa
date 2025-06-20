@@ -2,19 +2,32 @@ schemeTemplates:
   SampleAppScheme:
     run:
       commandLineArguments:
-        "--io.sentry.disable-everything": false
-        "--io.sentry.ui-test.use-custom-feedback-button": true
-        "--io.sentry.disable-ui-profiling": false
-        "--disable-app-hang-tracking-v2": false
         "--io.sentry.schema-environment-variable-precedence": true
-        "--io.sentry.profile-lifecycle-manual": false
-        "--disable-time-to-full-display-tracing": false
-        "--disable-performance-v2": false
-        "--disable-attach-view-hierarchy": false
-        "--disable-attach-screenshot": false
-        "--io.sentry.base64-attachment-data": false
-        "--io.sentry.disable-http-transport": false
-        "--disable-file-io-tracing": false
+        "--io.sentry.disable-everything": false
+        "--skip-sentry-init": false
+        "--io.sentry.wipe-data": false
+        "--io.sentry.disable-debug-mode": false
+
+        # screenshot
+        "--io.sentry.screenshot.disable": false
+        "--io.sentry.screenshot.disable-view-renderer-v2": false
+        "--io.sentry.screenshot.disable-fast-view-rendering": false
+        "--io.sentry.screenshot.disable-mask-all-images": false
+        "--io.sentry.screenshot.disable-mask-all-text": false
+
+        # session replay
+        "--io.sentry.session-replay.disable": false
+        "--io.sentry.session-replay.disableViewRendereV2": false
+        "--io.sentry.session-replay.enableFastViewRendering": false
+        "--io.sentry.session-replay.disable-mask-all-text": false
+        "--io.sentry.session-replay.disable-mask-all-images": false
+        "--io.sentry.session-replay.on-error-sample-rate": true
+        "--io.sentry.session-replay.session-sample-rate": false
+        "--io.sentry.session-replay.disable-view-renderer-v2": false
+        "--io.sentry.session-replay.enable-fast-view-rendering": false
+
+        # user feedback
+        "--io.sentry.ui-test.use-custom-feedback-button": true
         "--io.sentry.feedback.dont-use-sentry-user": false
         "--io.sentry.feedback.require-name": false
         "--io.sentry.feedback.require-email": false
@@ -22,15 +35,28 @@ schemeTemplates:
         "--io.sentry.feedback.no-widget-icon": false
         "--io.sentry.feedback.no-widget-text": false
         "--io.sentry.feedback.all-defaults": false
-        "--skip-sentry-init": false
-        "--disable-spotlight": false
+        "--io.sentry.feedback.no-auto-inject-widget": false
+        "--io.sentry.feedback.no-screenshots": false
+        "--io.sentry.feedback.no-shake-gesture": false
+
+        # profiling
+        "--io.sentry.disable-ui-profiling": false
+        "--io.sentry.profile-lifecycle-manual": false
+        "--io.sentry.slow-load-method": false
+        "--io.sentry.disable-app-start-profiling": false
+
+        # performance
+        "--disable-app-hang-tracking-v2": false
+        "--disable-time-to-full-display-tracing": false
+        "--disable-performance-v2": false
+        "--disable-attach-view-hierarchy": false
+        "--disable-attach-screenshot": false
+        "--disable-file-io-tracing": false
         "--disable-automatic-session-tracking": false
         "--disable-metrickit-integration": false
-        "--io.sentry.wipe-data": false
-        "--io.sentry.slow-load-method": false
+        "--disable-metrickit-raw-payloads": false
         "--disable-watchdog-tracking": false
         "--disable-tracing": false
-        "--io.sentry.disable-app-start-profiling": false
         "--disable-crash-handler": false
         "--disable-swizzling": false
         "--disable-network-breadcrumbs": false
@@ -41,21 +67,33 @@ schemeTemplates:
         "--disable-anr-tracking": false
         "--disable-auto-performance-tracing": false
         "--disable-ui-tracing": false
-        "--io.sentry.feedback.no-auto-inject-widget": false
         "--disable-filemanager-swizzling": false
-        "--io.sentry.screenshot.disable-view-renderer-v2": false
-        "--io.sentry.screenshot.disable-fast-view-rendering": false
-        "--io.sentry.screenshot.disable-mask-all-images": false
-        "--io.sentry.screenshot.disable-mask-all-text": false
-        "--io.sentry.session-replay.disable": false
-        "--io.sentry.session-replay.on-error-sample-rate": true
-        "--io.sentry.session-replay.session-sample-rate": false
-        "--io.sentry.session-replay.disable-view-renderer-v2": false
-        "--io.sentry.session-replay.enable-fast-view-rendering": false
-        "--io.sentry.session-replay.disable-mask-all-images": false
-        "--io.sentry.session-replay.disable-mask-all-text": false
+
+        # other
+        "--io.sentry.base64-attachment-data": false
+        "--io.sentry.disable-http-transport": false
+        "--disable-spotlight": false
+        "--reject-screenshots-in-before-capture-screenshot": false
+        "--reject-view-hierarchy-in-before-capture-view-hierarchy": false
+        "--reject-all-events": false
+        "--reject-all-spans": false
+
       environmentVariables:
+        # session replay
+        - variable: "--io.sentry.sessionReplaySampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sessionReplayOnErrorSampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sessionReplayQuality"
+          value:
+          isEnabled: false
+
         - variable: "--io.sentry.tracesSampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sessionTrackingIntervalMillis"
           value:
           isEnabled: false
         - variable: "--io.sentry.profilesSampleRate"
@@ -76,6 +114,12 @@ schemeTemplates:
         - variable: "--io.sentry.user.username"
           value:
           isEnabled: false
+        - variable: "--io.sentry.user.name"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.sdk-environment"
+          value:
+          isEnabled: false
         - variable: "--io.sentry.user.email"
           value:
           isEnabled: false
@@ -83,6 +127,9 @@ schemeTemplates:
           value:
           isEnabled: false
         - variable: "--io.sentry.user.name"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.user.id"
           value:
           isEnabled: false
         - variable: "--io.sentry.profile-session-sample-rate"

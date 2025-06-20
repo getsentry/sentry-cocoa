@@ -6,11 +6,15 @@
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
 
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+
 ### Improvements
 
 - Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
-- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Fix building with Xcode 26 (#5386)
 - Add masking options for screenshots (#5401)

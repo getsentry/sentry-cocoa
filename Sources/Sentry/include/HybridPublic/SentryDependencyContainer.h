@@ -25,6 +25,10 @@
 @class SentrySystemWrapper;
 @class SentryThreadInspector;
 @class SentryThreadWrapper;
+@class SentryFileIOTracker;
+@class SentryScopeContextPersistentStore;
+@class SentryOptions;
+@class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
 @protocol SentryCurrentDateProvider;
@@ -40,6 +44,7 @@
 @class SentryFramesTracker;
 @class SentryScreenshotProvider;
 @class SentryUIApplication;
+@class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryViewHierarchy;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
@@ -124,7 +129,7 @@ SENTRY_NO_INIT
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 
-@property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
+@property (nonatomic, strong) SentryViewHierarchyProvider *viewHierarchyProvider;
 @property (nonatomic, strong)
     SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
@@ -150,6 +155,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong)
     SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
+
+@property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;
 
 @end
 

@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryViewHierarchy : NSObject
+@interface SentryViewHierarchyProvider : NSObject
 
 /**
  * Whether we should add `accessibilityIdentifier` to the view hierarchy.

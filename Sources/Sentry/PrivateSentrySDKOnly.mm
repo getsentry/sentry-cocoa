@@ -15,7 +15,7 @@
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
-#import "SentryViewHierarchy.h"
+#import "SentryViewHierarchyProvider.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryExtraPackages.h>
@@ -318,7 +318,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.viewHierarchy appViewHierarchy];
+    return [SentryDependencyContainer.sharedInstance.viewHierarchyProvider appViewHierarchy];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "
