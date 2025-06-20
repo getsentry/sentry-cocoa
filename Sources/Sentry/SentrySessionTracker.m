@@ -118,6 +118,9 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
+    // Reset the `wasDidBecomeActiveCalled` flag to ensure that the next time
+    // `didBecomeActive` is called, it will start a new session.
+    self.wasDidBecomeActiveCalled = NO;
 }
 
 - (void)dealloc
@@ -154,12 +157,14 @@
  * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
  * @warning Hybrid SDKs must only post this notification if they are running in the foreground
  * because the auto session tracking logic doesn't support background tasks. Posting the
- * notification from the background would mess up the session stats. Hybrid SDKs must only post this
- * notification if they are running in the foreground because the auto session tracking logic
- * doesn't support background tasks. Posting the notification from the background would mess up the
- * session stats.
+ * notification from the background would mess up the session stats.
  */
 - (void)didBecomeActive
+{
+    [self startSession];
+}
+
+- (void)startSession
 {
     // We don't know if the hybrid SDKs post the notification from a background thread, so we
     // synchronize to be safe.
@@ -172,11 +177,6 @@
         self.wasDidBecomeActiveCalled = YES;
     }
 
-    [self startSession];
-}
-
-- (void)startSession
-{
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
