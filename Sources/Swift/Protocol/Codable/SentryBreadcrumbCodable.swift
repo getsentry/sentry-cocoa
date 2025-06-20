@@ -1,7 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Breadcrumb: Decodable {
+#if SENTRY_SWIFT_PACKAGE
+final class BreadcrumbDecodable: Breadcrumb {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias BreadcrumbDecodable = Breadcrumb
+#endif
+extension BreadcrumbDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case level
@@ -13,7 +22,13 @@ extension Breadcrumb: Decodable {
         case origin
     }
     
+    #if !SENTRY_SWIFT_PACKAGE
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.init()
