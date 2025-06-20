@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryLogTests: XCTestCase {
+class SentryLogSwiftTests: XCTestCase {
     private var oldDebug: Bool!
     private var oldLevel: SentryLevel!
     private var oldOutput: SentryLogOutput!
