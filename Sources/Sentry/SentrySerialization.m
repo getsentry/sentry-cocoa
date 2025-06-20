@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
     [envelopeData appendData:header];
 
     for (int i = 0; i < envelope.items.count; ++i) {
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:[self newlineData]];
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
         [envelopeData appendData:itemHeader];
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:[self newlineData]];
         [envelopeData appendData:envelope.items[i].data];
     }
 
@@ -246,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableData *recording = [NSMutableData data];
     [recording appendData:[SentrySerialization
                               dataWithJSONObject:[replayRecording headerForReplayRecording]]];
-    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [recording appendData:[self newlineData]];
     [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
     return recording;
 }
@@ -342,11 +342,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (const void *)newlineData
 {
-    static const void *newlineData = nil;
+    static NSData *newlineData = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(
-        &onceToken, ^{ newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding].bytes; });
-    return newlineData;
+    dispatch_once(&onceToken, ^{ newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding]; });
+    return newlineData.bytes;
 }
 
 + (BOOL)writeEnvelope:(SentryEnvelope *)envelope toPath:(NSString *)path
