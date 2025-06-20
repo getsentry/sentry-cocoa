@@ -149,6 +149,8 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationContextProcessor)
 #endif
+
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
                 }
 
                 expectation.fulfill()
