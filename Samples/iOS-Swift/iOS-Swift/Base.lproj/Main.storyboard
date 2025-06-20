@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Cod-iq-tSj">
-                                <rect key="frame" x="30.5" y="109.5" width="259" height="364"/>
+                                <rect key="frame" x="30.5" y="95.5" width="259" height="392"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
                                         <rect key="frame" x="0.0" y="0.0" width="259" height="28"/>
@@ -67,13 +67,22 @@
                                         <rect key="frame" x="0.0" y="84" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="appHangFullyBlocking"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <state key="normal" title="AppHangFullyBlocking"/>
+                                        <state key="normal" title="AppHangFullyBlocking Thread Sleeping"/>
                                         <connections>
                                             <action selector="appHangFullyBlocking:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uqP-sv-C4a"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5IM-MG-9GW">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ql9-1s-eGv" userLabel="AppHangFullyBlockingBusyMainThread">
                                         <rect key="frame" x="0.0" y="112" width="259" height="28"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="appHangFullyBlocking"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="AppHangFullyBlocking Busy Main Thread"/>
+                                        <connections>
+                                            <action selector="appHangFullyBlockingBusyMainThread:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ILm-sA-nNN"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5IM-MG-9GW">
+                                        <rect key="frame" x="0.0" y="140" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Nib Controller"/>
@@ -82,7 +91,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RjO-LN-eHj">
-                                        <rect key="frame" x="0.0" y="140" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="168" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showTableViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Table Controller"/>
@@ -91,7 +100,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ok0-hq-2kK">
-                                        <rect key="frame" x="0.0" y="168" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="196" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Split Controller"/>
@@ -100,7 +109,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
-                                        <rect key="frame" x="0.0" y="196" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="224" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="loremIpsumButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Lorem Ipsum Controller"/>
@@ -109,7 +118,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
-                                        <rect key="frame" x="0.0" y="224" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="252" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Core Data Tests "/>
@@ -118,7 +127,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
-                                        <rect key="frame" x="0.0" y="252" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="280" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="testNavigationTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Load Image Controller"/>
@@ -127,7 +136,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mjD-vZ-Wtp" userLabel="UIClick Transaction">
-                                        <rect key="frame" x="0.0" y="280" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="308" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="uiClickTransactionButton"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="UIClick Transaction"/>
@@ -136,7 +145,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PdX-TT-kn8" userLabel="Page Controller">
-                                        <rect key="frame" x="0.0" y="308" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="336" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="pageControllerBtn"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Page Controller"/>
@@ -146,7 +155,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="csA-q7-7fD" userLabel="Page Controller">
-                                        <rect key="frame" x="0.0" y="336" width="259" height="28"/>
+                                        <rect key="frame" x="0.0" y="364" width="259" height="28"/>
                                         <accessibility key="accessibilityConfiguration" identifier="pageControllerBtn"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="Container Controller"/>
@@ -183,23 +192,23 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ntC-Ea-bhK">
-                                <rect key="frame" x="0.0" y="64" width="320" height="432.5"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="448.5"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="jya-5z-xKN">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="432.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="448.5"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="center" id="DsI-9S-jdi">
-                                                <rect key="frame" x="0.0" y="0.0" width="320" height="146"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="320" height="162"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Continuous profile:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Pv-Or-ZV2">
-                                                        <rect key="frame" x="0.0" y="63" width="226" height="20.5"/>
+                                                        <rect key="frame" x="0.0" y="71" width="226" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AqY-0A-8M9" userLabel="start">
-                                                        <rect key="frame" x="226" y="59" width="47" height="28"/>
+                                                        <rect key="frame" x="226" y="67" width="47" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="io.sentry.ios-swift.ui-tests.button.start-continuous-profiler"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -209,7 +218,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39W-Kv-xim" userLabel="end">
-                                                        <rect key="frame" x="273" y="59" width="47" height="28"/>
+                                                        <rect key="frame" x="273" y="67" width="47" height="28"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -221,7 +230,7 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" translatesAutoresizingMaskIntoConstraints="NO" id="Szg-6a-jAX">
-                                                <rect key="frame" x="0.0" y="150" width="320" height="28"/>
+                                                <rect key="frame" x="0.0" y="166" width="320" height="28"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Files:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mfk-2c-dYY">
                                                         <rect key="frame" x="0.0" y="0.0" width="39.5" height="28"/>
@@ -262,7 +271,7 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eIF-PE-QqH">
-                                                <rect key="frame" x="0.0" y="182" width="320" height="34"/>
+                                                <rect key="frame" x="0.0" y="198" width="320" height="34"/>
                                                 <subviews>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gze-1d-uyQ">
                                                         <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
@@ -287,7 +296,7 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="zeP-Kl-5q9">
-                                                <rect key="frame" x="0.0" y="220" width="320" height="34"/>
+                                                <rect key="frame" x="0.0" y="236" width="320" height="34"/>
                                                 <subviews>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vE8-ol-phx">
                                                         <rect key="frame" x="0.0" y="1.5" width="51" height="31"/>
@@ -313,7 +322,7 @@
                                                 <viewLayoutGuide key="safeArea" id="fFg-gn-sbi"/>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="dS1-Su-a5x">
-                                                <rect key="frame" x="0.0" y="258" width="320" height="31"/>
+                                                <rect key="frame" x="0.0" y="274" width="320" height="31"/>
                                                 <subviews>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8bN-UU-QZD">
                                                         <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
@@ -331,7 +340,7 @@
                                                 <viewLayoutGuide key="safeArea" id="RlG-tL-5qm"/>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DVc-uT-M38">
-                                                <rect key="frame" x="0.0" y="293" width="320" height="85.5"/>
+                                                <rect key="frame" x="0.0" y="309" width="320" height="85.5"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI Profiling" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OET-Ys-74j">
                                                         <rect key="frame" x="0.0" y="0.0" width="320" height="20.5"/>
@@ -382,7 +391,7 @@
                                                 <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LIr-jM-FSX">
-                                                <rect key="frame" x="0.0" y="382.5" width="320" height="50"/>
+                                                <rect key="frame" x="0.0" y="398.5" width="320" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UI test data marshalling:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhg-B3-Rao" userLabel="UI test data marshaling:">
                                                         <rect key="frame" x="0.0" y="15" width="184" height="20.5"/>
