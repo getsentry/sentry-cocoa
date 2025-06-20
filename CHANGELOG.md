@@ -5,6 +5,7 @@
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+- [Structured Logging] Models + Preparation ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
 
 ### Fixes
 
