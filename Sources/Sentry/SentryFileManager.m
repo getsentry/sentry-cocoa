@@ -832,8 +832,13 @@ NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfigura
     NSError *error;
     NSDictionary<NSString *, NSNumber *> *config =
         [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
-    SENTRY_CASSERT(
-        error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
+
+    if (error != nil) {
+        SENTRY_LOG_ERROR(
+            @"Encountered error trying to retrieve app launch profile config: %@", error);
+        return nil;
+    }
+
     return config;
 }
 
