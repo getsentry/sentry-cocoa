@@ -471,32 +471,63 @@ class SentrySessionTrackerTests: XCTestCase {
         startSutInAppDelegate()
         goToForeground()
 
+        // -- Act --
         XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 1)
         var event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 0))
         XCTAssertEqual(event.status, SentrySessionStatus.ok)
 
         stopSut()
 
-        // Ideally we would expect the SDK to send the `exited` session status when calling `stop`.
-        //
-        // As the test case `testKillAppWithoutNotificationsAndNoCrash_EndsWithAbnormalSession` is calling `stop` and
-        // expects that to result in an `abnormal` session next time the tracker is started, we have a contradiction.
-        //
-        // To keep existing tests working as intended, we decided to keep the `abnormal` status being send after the
-        // restart has happened.
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 2)
+        event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 1))
+        XCTAssertEqual(event.status, SentrySessionStatus.exited)
 
-        // -- Act --
         sut.start()
 
         // -- Assert --
-        event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 1))
-        XCTAssertEqual(event.status, SentrySessionStatus.abnormal)
-
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 3)
         event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 2))
         XCTAssertEqual(event.status, SentrySessionStatus.ok)
+    }
 
-        // Assert that there are no more invocations
-        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 3)
+    func testForeground_ThenHybridSdkNotification_ShouldDebounceSessionStart() throws {
+        // -- Arrange --
+        startSutInAppDelegate()
+        let sessionStartTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        // First, the app goes to foreground (starts a session)
+        goToForeground()
+        
+        // Then immediately, the hybrid SDK posts its notification
+        // This should be debounced and not start a new session
+        postHybridSdkDidBecomeActiveNotification()
+
+        // -- Assert --
+        // Should only have one session (the init session), not two
+        assertSessionsSent(count: 1)
+        try assertSessionInitSent(sessionStarted: sessionStartTimestamp)
+        assertSessionStored()
+    }
+    
+    func testHybridSdkNotification_ThenForeground_ShouldDebounceSessionStart() throws {
+        // -- Arrange --
+        startSutInAppDelegate()
+        let sessionStartTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        // First, the hybrid SDK posts its notification (starts a session)
+        postHybridSdkDidBecomeActiveNotification()
+        
+        // Then immediately, the app goes to foreground
+        // This should be debounced and not start a new session
+        goToForeground()
+
+        // -- Assert --
+        // Should only have one session (the init session), not two
+        assertSessionsSent(count: 1)
+        try assertSessionInitSent(sessionStarted: sessionStartTimestamp)
+        assertSessionStored()
     }
 
     // MARK: - Helpers
@@ -520,13 +551,13 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func stopSut() {
-        sut.stop()
+        sut.stop(withGracefully: true)
         // After stopping the session tracker, we need to set a new hub to the SDK.
         fixture.setNewHubToSDK()
     }
 
     private func abnormalStopSut() {
-        sut.stop()
+        sut.stop(withGracefully: false)
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
@@ -541,7 +572,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func crashSut() {
-        sut.stop()
+        sut.stop(withGracefully: false)
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         //
@@ -659,7 +690,7 @@ class SentrySessionTrackerTests: XCTestCase {
         //
         // This can be observed by viewing the application state in `NSApplicationDelegate.applicationWillTerminate`.
         //
-        // Important: According to the documentation, this method isn’t called during sudden termination of an app.
+        // Important: According to the documentation, this method isn't called during sudden termination of an app.
         fixture.application.setIsActive(false)
         #endif
         fixture.notificationCenter
@@ -678,7 +709,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func launchBackgroundTaskAppNotRunning() {
-        sut.stop()
+        sut.stop(withGracefully: false)
 
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
@@ -839,6 +870,23 @@ class SentrySessionTrackerTests: XCTestCase {
             SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
             SentryNSNotificationCenterWrapper.willTerminateNotificationName
         ], notificationNames)
+    }
+
+    private func postHybridSdkDidBecomeActiveNotification() {
+        // When the hybrid SDK posts this notification, the app should be in active state
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        fixture.application.applicationState = .active
+        #else
+        fixture.application.setIsActive(true)
+        #endif
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
 
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)

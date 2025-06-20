@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop
 {
     if (nil != self.tracker) {
-        [self.tracker stop];
+        [self.tracker stopWithGracefully:YES];
     }
 }
 

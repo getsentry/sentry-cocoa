@@ -24,7 +24,7 @@
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (atomic, strong) NSDate *lastInForeground;
-@property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
+@property (nonatomic, assign) BOOL wasStartSessionCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 
 @property (nonatomic, strong) id<SentryApplication> application;
@@ -42,7 +42,7 @@
 {
     if (self = [super init]) {
         self.options = options;
-        self.wasDidBecomeActiveCalled = NO;
+        self.wasStartSessionCalled = NO;
         self.application = application;
         self.dateProvider = dateProvider;
         self.notificationCenter = notificationCenter;
@@ -101,8 +101,12 @@
 #endif
 }
 
-- (void)stop
+- (void)stopWithGracefully:(BOOL)gracefully
 {
+    if (gracefully) {
+        [[SentrySDK currentHub] endSession];
+    }
+
 #if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
@@ -118,14 +122,15 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-    // Reset the `wasDidBecomeActiveCalled` flag to ensure that the next time
-    // `didBecomeActive` is called, it will start a new session.
-    self.wasDidBecomeActiveCalled = NO;
+
+    // Reset the `wasStartSessionCalled` flag to ensure that the next time
+    // `startSession` is called, it will start a new session.
+    self.wasStartSessionCalled = NO;
 }
 
 - (void)dealloc
 {
-    [self stop];
+    [self stopWithGracefully:YES];
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [self.notificationCenter removeObserver:self];
@@ -169,12 +174,12 @@
     // We don't know if the hybrid SDKs post the notification from a background thread, so we
     // synchronize to be safe.
     @synchronized(self) {
-        if (self.wasDidBecomeActiveCalled) {
+        if (self.wasStartSessionCalled) {
             SENTRY_LOG_DEBUG(
                 @"Ignoring didBecomeActive notification because it was already called.");
             return;
         }
-        self.wasDidBecomeActiveCalled = YES;
+        self.wasStartSessionCalled = YES;
     }
 
     SentryHub *hub = [SentrySDK currentHub];
@@ -224,7 +229,7 @@
     self.lastInForeground = [self.dateProvider date];
     SentryHub *hub = [SentrySDK currentHub];
     [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
-    self.wasDidBecomeActiveCalled = NO;
+    self.wasStartSessionCalled = NO;
 }
 
 /**
@@ -237,7 +242,7 @@
     SentryHub *hub = [SentrySDK currentHub];
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
-    self.wasDidBecomeActiveCalled = NO;
+    self.wasStartSessionCalled = NO;
 }
 
 @end

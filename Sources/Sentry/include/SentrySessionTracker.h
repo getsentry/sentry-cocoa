@@ -23,7 +23,7 @@ SENTRY_NO_INIT
              notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 
 - (void)start;
-- (void)stop;
+- (void)stopWithGracefully:(BOOL)gracefully;
 @end
 
 NS_ASSUME_NONNULL_END
