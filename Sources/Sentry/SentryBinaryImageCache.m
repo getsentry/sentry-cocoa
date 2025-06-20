@@ -4,6 +4,8 @@
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryLogC.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,6 +84,11 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
         }
 
         [_cache insertObject:newImage atIndex:left];
+    }
+
+    if ([SentrySDK.currentHub getClient].options.debug == YES) {
+        // Only validate if debug is enabled
+        [LoadValidator validateSDKPresenceIn:newImage];
     }
 }
 
