@@ -1,8 +1,8 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryMeta.h"
-#import "SentryNSURLRequest.h"
 #import "SentryOptions+HybridSDKs.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryDsnTests : XCTestCase
