@@ -11,12 +11,12 @@ class SentryHttpTransportTests: XCTestCase {
         let event: Event
         let eventEnvelope: SentryEnvelope
         let attachmentEnvelopeItem: SentryEnvelopeItem
-        let eventWithAttachmentRequest: SentryNSURLRequest
+        let eventWithAttachmentRequest: URLRequest
         let eventWithSessionEnvelope: SentryEnvelope
-        let eventWithSessionRequest: SentryNSURLRequest
+        let eventWithSessionRequest: URLRequest
         let session: SentrySession
         let sessionEnvelope: SentryEnvelope
-        let sessionRequest: SentryNSURLRequest
+        let sessionRequest: URLRequest
         let currentDateProvider: TestCurrentDateProvider
         let fileManager: SentryFileManager
         let options: Options
@@ -39,7 +39,7 @@ class SentryHttpTransportTests: XCTestCase {
         let userFeedback: UserFeedback = TestData.userFeedback
         let feedback: SentryFeedback = TestData.feedback
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:].")
-        lazy var userFeedbackRequest: SentryNSURLRequest = {
+        lazy var userFeedbackRequest: URLRequest = {
             let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
             userFeedbackEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
             return buildRequest(userFeedbackEnvelope)
@@ -47,7 +47,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
-        let clientReportRequest: SentryNSURLRequest
+        let clientReportRequest: URLRequest
         
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
@@ -152,9 +152,9 @@ class SentryHttpTransportTests: XCTestCase {
         try TestConstants.dsn(username: "SentryHttpTransportTests")
     }
 
-    private class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
+    private class func buildRequest(_ envelope: SentryEnvelope) -> URLRequest {
         let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
-        return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
+        return try! SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
     }
 
     private var fixture: Fixture!
@@ -479,7 +479,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
         let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
-        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
+        let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
             XCTAssertEqual(sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody, "Envelope with only session item should be sent.")
