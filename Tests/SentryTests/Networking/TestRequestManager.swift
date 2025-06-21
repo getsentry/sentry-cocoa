@@ -1,7 +1,7 @@
 import Foundation
 import SentryTestUtils
 
-public class TestRequestManager: NSObject, RequestManager {
+class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse: () -> HTTPURLResponse? = { return nil }
     var nextError: NSError?

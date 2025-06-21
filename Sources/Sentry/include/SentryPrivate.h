@@ -21,6 +21,7 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
+#import "SentryRequestOperation.h"
 #import "SentryScreenshot.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"

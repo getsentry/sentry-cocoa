@@ -1,5 +1,5 @@
 #import "SentryAsynchronousOperation.h"
-#import "SentryQueueableRequestManager.h"
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
