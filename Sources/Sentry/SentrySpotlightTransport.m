@@ -8,6 +8,7 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 #import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -1,10 +1,10 @@
 #import "SentryDefines.h"
-#import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryOptions;
+@protocol SentryRequestManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
