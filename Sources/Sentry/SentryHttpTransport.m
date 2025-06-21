@@ -15,7 +15,6 @@
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
-#import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
