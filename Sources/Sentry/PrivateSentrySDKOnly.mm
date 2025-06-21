@@ -13,12 +13,12 @@
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
+#import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchyProvider.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
-#import <SentryExtraPackages.h>
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
