@@ -3,8 +3,10 @@
 #import "NSLocale+Sentry.h"
 #import "SentryCrashExceptionApplicationHelper.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryHub+Private.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
+#import "SentrySDK+Private.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
 
@@ -22,7 +24,6 @@
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
 #import "SentryScreenshot.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"
