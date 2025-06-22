@@ -11,7 +11,6 @@
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLog.h>
 #    import <SentrySDK+Private.h>
@@ -228,7 +227,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     block();
 #    else
     static dispatch_once_t once;
-    [self.dispatchQueue dispatchOnce:&once block:block];
+    dispatch_once(&once, ^{ block(); });
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 }
 

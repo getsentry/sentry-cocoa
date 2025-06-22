@@ -629,7 +629,7 @@ class SentryTracerTests: XCTestCase {
             
         // dispatch the idle timeout block manually
         for dispatchAfterBlock in fixture.dispatchQueue.dispatchAfterInvocations.invocations {
-            dispatchAfterBlock.block()
+            dispatchAfterBlock.block.workItem.perform()
         }
         
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)

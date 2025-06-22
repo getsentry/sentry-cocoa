@@ -6,7 +6,6 @@
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
@@ -203,7 +202,11 @@ sentry_finishAndSaveTransaction(void)
             [SentryCrashIntegration sendAllSentryCrashReports];
         }
     };
-    [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
+    if (self.dispatchQueueWrapper.usesDispatchOnce) {
+        dispatch_once(&installationToken, ^{ block(); });
+    } else {
+        block();
+    }
 }
 
 /**

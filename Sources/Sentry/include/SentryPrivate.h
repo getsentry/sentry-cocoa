@@ -2,7 +2,6 @@
 // public interfaces here
 #import "NSLocale+Sentry.h"
 #import "SentryCrashExceptionApplicationHelper.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
 #import "SentryTime.h"

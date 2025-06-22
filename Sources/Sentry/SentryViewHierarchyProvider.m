@@ -4,7 +4,6 @@
 
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"

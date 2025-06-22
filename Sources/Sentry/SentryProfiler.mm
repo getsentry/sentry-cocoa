@@ -4,7 +4,6 @@
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"

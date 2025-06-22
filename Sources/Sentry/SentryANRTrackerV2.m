@@ -4,7 +4,6 @@
 
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLog.h"
 #    import "SentrySwift.h"

@@ -1,4 +1,5 @@
-@testable import SentryTestUtils
+@_spi(Private) import Sentry
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 /// This test suite is not intended to test the actual functionality of the dispatch factory,
@@ -32,7 +33,7 @@ class TestDispatchFactoryTests: XCTestCase {
         let queueName = "testUtilityQueue"
         let relativePriority: Int32 = -15
 
-        let expectedQueueWrapper = TestSentryDispatchQueueWrapper(name: queueName, attributes: nil)
+        let expectedQueueWrapper = TestSentryDispatchQueueWrapper(utilityNamed: queueName, relativePriority: Int(relativePriority))
 
         // -- Act --
         let queueWrapper = sut.createUtilityQueue(queueName, relativePriority: relativePriority)

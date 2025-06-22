@@ -4,11 +4,11 @@
 
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
+#    import "SentrySwift.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
 
@@ -26,11 +26,8 @@
         return NO;
     }
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-    SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.ui-view-controller-swizzling"
-                                              attributes:attributes];
+    SentryDispatchQueueWrapper *dispatchQueue = [[SentryDispatchQueueWrapper alloc]
+        initWithUserInitiatedNamed:@"io.sentry.ui-view-controller-swizzling"];
 
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
            initWithDispatchQueue:dispatchQueue

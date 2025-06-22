@@ -1,6 +1,5 @@
 #import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
@@ -9,6 +8,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
+#import "SentrySwift.h"
 
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySpotlightTransport.h"
@@ -45,11 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.http-transport"
-                                              attributes:attributes];
+        [[SentryDispatchQueueWrapper alloc] initWithUtilityNamed:@"io.sentry.http-transport"];
 
     SentryNSURLRequestBuilder *requestBuilder = [[SentryNSURLRequestBuilder alloc] init];
 

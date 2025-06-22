@@ -7,12 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryDispatchQueueProviderProtocol <NSObject>
 
 /**
- * Generate a new @c SentryDispatchQueueWrapper .
- */
-- (SentryDispatchQueueWrapper *)queueWithName:(const char *)name
-                                   attributes:(dispatch_queue_attr_t)attributes;
-
-/**
  * Creates a utility QoS queue with the given name and relative priority, wrapped in a @c
  * SentryDispatchQueueWrapper.
  *

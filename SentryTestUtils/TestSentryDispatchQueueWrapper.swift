@@ -1,12 +1,16 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
-public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
+@_spi(Private) public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
     private let dispatchAsyncLock = NSLock()
-    
+
+    public override var usesDispatchOnce: Bool {
+        false
+    }
+
     public var dispatchAsyncCalled = 0
 
     /// Whether or not delayed dispatches should execute.
@@ -48,31 +52,27 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         }
     }
 
-    public var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
-    public override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
+    public var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: DispatchWorkItemWrapper)>()
+    public override func dispatch(after interval: TimeInterval, block: DispatchWorkItemWrapper) {
         dispatchAfterInvocations.record((interval, block))
         if blockBeforeMainBlock() {
             if dispatchAfterExecutesBlock {
-                block()
+                block.workItem.perform()
             }
         }
     }
 
     public func invokeLastDispatchAfter() {
-        dispatchAfterInvocations.invocations.last?.block()
+        dispatchAfterInvocations.invocations.last?.block.workItem.perform()
     }
 
-    public var dispatchCancelInvocations = Invocations<() -> Void>()
-    public override func dispatchCancel(_ block: @escaping () -> Void) {
+    public var dispatchCancelInvocations = Invocations<DispatchWorkItemWrapper>()
+    public override func dispatchCancel(_ block: DispatchWorkItemWrapper) {
         dispatchCancelInvocations.record(block)
-    }
-
-    public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
-        block()
     }
     
     public var createDispatchBlockReturnsNULL = false
-    public override func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
+    public override func createDispatchBlock(_ block: @escaping () -> Void) -> DispatchWorkItemWrapper? {
         if createDispatchBlockReturnsNULL {
             return nil
         }

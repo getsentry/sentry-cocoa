@@ -9,7 +9,6 @@
 #    import <SentryClient+Private.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
@@ -53,11 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-    SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.watchdog-termination-tracker"
-                                              attributes:attributes];
+    SentryDispatchQueueWrapper *dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc]
+        initWithUserInitiatedNamed:@"io.sentry.watchdog-termination-tracker"];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =

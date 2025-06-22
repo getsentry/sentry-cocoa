@@ -738,7 +738,7 @@ class SentryHttpTransportTests: XCTestCase {
         getSut()
         
         for dispatchAfterBlock in fixture.dispatchQueueWrapper.dispatchAfterInvocations.invocations {
-            dispatchAfterBlock.block()
+            dispatchAfterBlock.block.workItem.perform()
         }
         
         // The amount of sent envelopes is non deterministic as it depends on how fast ARC deallocates the sut above.

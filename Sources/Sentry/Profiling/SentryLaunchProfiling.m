@@ -4,7 +4,6 @@
 
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
