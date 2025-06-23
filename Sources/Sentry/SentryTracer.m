@@ -86,8 +86,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     NSObject *_dispatchTimeoutLock;
-    DispatchWorkItemWrapper *_idleTimeoutBlock;
-    DispatchWorkItemWrapper *_deadlineTimeoutBlock;
+    SentryDispatchWorkItemWrapper *_idleTimeoutBlock;
+    SentryDispatchWorkItemWrapper *_deadlineTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
 
@@ -222,7 +222,7 @@ static BOOL appStartMeasurementRead;
 - (void)startIdleTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    DispatchWorkItemWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
+    SentryDispatchWorkItemWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -250,7 +250,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    DispatchWorkItemWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
+    SentryDispatchWorkItemWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -297,8 +297,8 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-- (void)dispatchTimeout:(DispatchWorkItemWrapper *)currentBlock
-               newBlock:(DispatchWorkItemWrapper *)newBlock
+- (void)dispatchTimeout:(SentryDispatchWorkItemWrapper *)currentBlock
+               newBlock:(SentryDispatchWorkItemWrapper *)newBlock
                interval:(NSTimeInterval)timeInterval
 {
     if (currentBlock != NULL) {

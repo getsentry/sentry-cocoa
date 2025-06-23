@@ -231,10 +231,12 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     const auto intervalNs = (uint64_t)1e9 / frequencyHz;
     const auto leewayNs = intervalNs / 2;
     _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
-         sourceWithInterval:intervalNs
-                     leeway:leewayNs
-        concurrentQueueName:@"io.sentry.metric-profiler"
-               eventHandler:^{ [weakSelf recordMetrics]; }];
+        sourceWithInterval:intervalNs
+                    leeway:leewayNs
+                 queueName:"io.sentry.metric-profiler"
+                attributes:dispatch_queue_attr_make_with_qos_class(
+                               DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
+              eventHandler:^{ [weakSelf recordMetrics]; }];
 }
 
 - (void)recordMemoryFootprint

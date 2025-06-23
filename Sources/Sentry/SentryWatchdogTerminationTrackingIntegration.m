@@ -52,8 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc]
-        initWithUserInitiatedNamed:@"io.sentry.watchdog-termination-tracker"];
+        initWithQueue:dispatch_queue_create("io.sentry.watchdog-termination-tracker", attributes)];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =

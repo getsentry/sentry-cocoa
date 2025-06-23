@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (SentryDispatchSourceWrapper *)sourceWithInterval:(uint64_t)interval
                                              leeway:(uint64_t)leeway
-                                concurrentQueueName:(NSString *)queueName
+                                          queueName:(const char *)queueName
+                                         attributes:(dispatch_queue_attr_t)attributes
                                        eventHandler:(void (^)(void))eventHandler;
 @end
 

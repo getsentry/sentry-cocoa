@@ -18,6 +18,11 @@ import Foundation
         super.init()
     }
     
+    @objc public init(queue: DispatchQueue) {
+        self.queue = queue
+        super.init()
+    }
+    
     @objc public init(utilityNamed name: String) {
         self.queue = DispatchQueue(label: name, qos: .utility)
         super.init()
@@ -30,11 +35,6 @@ import Foundation
     
     @objc public init(utilityNamed name: String, relativePriority: Int) {
         self.queue = DispatchQueue(label: name, qos: DispatchQoS(qosClass: .utility, relativePriority: relativePriority))
-        super.init()
-    }
-    
-    @objc public init(userInitiatedNamed name: String) {
-        self.queue = DispatchQueue(label: name, qos: .userInitiated)
         super.init()
     }
 
@@ -114,7 +114,7 @@ import Foundation
 
 // DispatchWorkItem is not visible to objc so this class wraps it
 // and is used in @objc APIs.
-@_spi(Private) @objc public class DispatchWorkItemWrapper: NSObject {
+@_spi(Private) @objc(SentryDispatchWorkItemWrapper) public class DispatchWorkItemWrapper: NSObject {
     let workItem: DispatchWorkItem
     
     init(workItem: DispatchWorkItem) {

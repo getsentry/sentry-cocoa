@@ -45,8 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
 
-    SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithUtilityNamed:@"io.sentry.http-transport"];
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
+    SentryDispatchQueueWrapper *dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc]
+        initWithQueue:dispatch_queue_create("io.sentry.http-transport", attributes)];
 
     SentryNSURLRequestBuilder *requestBuilder = [[SentryNSURLRequestBuilder alloc] init];
 

@@ -23,17 +23,22 @@
 
     // -- Arrange --
     NSString *queueName = @"sentry-dispatch-factory.test";
+    int relativePriority = -5;
 
     // -- Act --
     SentryDispatchQueueWrapper *wrappedQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithUtilityNamed:queueName];
+        [[SentryDispatchQueueWrapper alloc] initWithUtilityNamed:queueName
+                                                relativePriority:relativePriority];
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);
     XCTAssertEqual(strcmp(actualName, [queueName cStringUsingEncoding:NSUTF8StringEncoding]), 0);
 
-    dispatch_qos_class_t actualQoSClass = dispatch_queue_get_qos_class(wrappedQueue.queue, nil);
+    int actualRelativePriority;
+    dispatch_qos_class_t actualQoSClass
+        = dispatch_queue_get_qos_class(wrappedQueue.queue, &actualRelativePriority);
     XCTAssertEqual(actualQoSClass, QOS_CLASS_UTILITY);
+    XCTAssertEqual(actualRelativePriority, relativePriority);
 }
 
 - (void)
@@ -43,7 +48,7 @@
     // making sure the factory sets the name and attributes correctly.
 
     // -- Arrange --
-    NSString *queueName = @"sentry-dispatch-factory.test";
+    const char *queueName = "sentry-dispatch-factory.test";
     int relativePriority = -5;
 
     // -- Act --
@@ -52,7 +57,7 @@
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);
-    XCTAssertEqual(strcmp(actualName, [queueName cStringUsingEncoding:NSUTF8StringEncoding]), 0);
+    XCTAssertEqual(strcmp(actualName, queueName), 0);
 
     int actualRelativePriority;
     dispatch_qos_class_t actualQoSClass
@@ -70,7 +75,9 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Timer fired"];
     uint64_t interval = 100 * NSEC_PER_MSEC; // 100ms
     uint64_t leeway = 10 * NSEC_PER_MSEC;
-    NSString *queueName = @"sentry-dispatch-factory.timer";
+    const char *queueName = "sentry-dispatch-factory.timer";
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
 
     __block int fireCount = 0;
     void (^eventHandler)(void) = ^{
@@ -83,7 +90,8 @@
     // -- Act --
     SentryDispatchSourceWrapper *source = [self.sut sourceWithInterval:interval
                                                                 leeway:leeway
-                                                   concurrentQueueName:queueName
+                                                             queueName:queueName
+                                                            attributes:attributes
                                                           eventHandler:eventHandler];
 
     // -- Assert --
@@ -100,22 +108,27 @@
     // -- Arrange --
     uint64_t interval = 1000;
     uint64_t leeway = 0;
-    NSString *queueName = @"sentry-dispatch-factory.qos-check";
+    const char *queueName = "sentry-dispatch-factory.qos-check";
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, -10);
     void (^eventHandler)(void) = ^{ };
 
     // -- Act --
     SentryDispatchSourceWrapper *source = [self.sut sourceWithInterval:interval
                                                                 leeway:leeway
-                                                   concurrentQueueName:queueName
+                                                             queueName:queueName
+                                                            attributes:attributes
                                                           eventHandler:eventHandler];
     SentryDispatchQueueWrapper *queueWrapper = source.queue;
 
     // -- Assert --
     const char *actualLabel = dispatch_queue_get_label(queueWrapper.queue);
-    XCTAssertEqual(strcmp(actualLabel, [queueName cStringUsingEncoding:NSUTF8StringEncoding]), 0);
+    XCTAssertEqual(strcmp(actualLabel, queueName), 0);
 
-    dispatch_qos_class_t qos = dispatch_queue_get_qos_class(queueWrapper.queue, nil);
+    int relativePriority;
+    dispatch_qos_class_t qos = dispatch_queue_get_qos_class(queueWrapper.queue, &relativePriority);
     XCTAssertEqual(qos, QOS_CLASS_UTILITY);
+    XCTAssertEqual(relativePriority, -10);
 }
 
 @end

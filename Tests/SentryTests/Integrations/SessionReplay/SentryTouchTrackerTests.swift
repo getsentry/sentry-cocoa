@@ -1,7 +1,7 @@
 #if os(iOS)
 
 @_spi(Private) @testable import Sentry
-@_spi(Private) @_spi(Private) import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryTouchTrackerTests: XCTestCase {

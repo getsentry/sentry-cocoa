@@ -7,12 +7,12 @@ import Foundation
 
     public var createUtilityQueueInvocations = Invocations<(name: String, relativePriority: Int32)>()
 
-    public override func createLowPriorityQueue(_ name: String, relativePriority: Int32) -> SentryDispatchQueueWrapper {
-        createLowPriorityQueueInvocations.record((name, relativePriority))
-        return TestSentryDispatchQueueWrapper(utilityNamed: name, relativePriority: Int(relativePriority))
+    public override func createUtilityQueue(_ name: UnsafePointer<CChar>, relativePriority: Int32) -> SentryDispatchQueueWrapper {
+        createUtilityQueueInvocations.record((String(cString: name), relativePriority))
+        return TestSentryDispatchQueueWrapper(utilityNamed: String(cString: name), relativePriority: Int(relativePriority))
     }
 
-    public override func source(withInterval interval: UInt64, leeway: UInt64, concurrentQueueName: String, eventHandler: @escaping () -> Void) -> SentryDispatchSourceWrapper {
+    public override func source(withInterval interval: UInt64, leeway: UInt64, queueName: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr, eventHandler: @escaping () -> Void) -> SentryDispatchSourceWrapper {
         let source = TestDispatchSourceWrapper(eventHandler: eventHandler)
         vendedSourceHandler?(source)
         return source

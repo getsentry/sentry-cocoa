@@ -367,7 +367,7 @@
     }
 
     __weak SentryHttpTransport *weakSelf = self;
-    DispatchWorkItemWrapper *work = [self.dispatchQueue createDispatchBlock:^{
+    SentryDispatchWorkItemWrapper *work = [self.dispatchQueue createDispatchBlock:^{
         if (weakSelf == nil) {
             return;
         }
