@@ -138,6 +138,7 @@ class SentryHttpTransportTests: XCTestCase {
             return SentryHttpTransport(
                 options: options,
                 cachedEnvelopeSendDelay: 0.0,
+                dateProvider: currentDateProvider,
                 fileManager: fileManager ?? self.fileManager,
                 requestManager: requestManager,
                 requestBuilder: requestBuilder,
