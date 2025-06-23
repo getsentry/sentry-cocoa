@@ -551,13 +551,16 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func stopSut() {
-        sut.stop(withGracefully: true)
+        sut.stop()
         // After stopping the session tracker, we need to set a new hub to the SDK.
         fixture.setNewHubToSDK()
     }
 
     private func abnormalStopSut() {
-        sut.stop(withGracefully: false)
+
+        // We remove the observers, to ensure future notifications are not handled.
+        sut.removeObservers()
+
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
@@ -572,7 +575,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func crashSut() {
-        sut.stop(withGracefully: false)
+        sut.removeObservers()
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         //
@@ -709,7 +712,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func launchBackgroundTaskAppNotRunning() {
-        sut.stop(withGracefully: false)
+        sut.removeObservers()
 
         fixture.setNewHubToSDK()
         sut = fixture.getSut()

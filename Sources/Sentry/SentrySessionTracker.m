@@ -101,12 +101,19 @@
 #endif
 }
 
-- (void)stopWithGracefully:(BOOL)gracefully
+- (void)stop
 {
-    if (gracefully) {
-        [[SentrySDK currentHub] endSession];
-    }
+    [[SentrySDK currentHub] endSession];
 
+    [self removeObservers];
+
+    // Reset the `wasStartSessionCalled` flag to ensure that the next time
+    // `startSession` is called, it will start a new session.
+    self.wasStartSessionCalled = NO;
+}
+
+- (void)removeObservers
+{
 #if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
@@ -122,15 +129,12 @@
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
-
-    // Reset the `wasStartSessionCalled` flag to ensure that the next time
-    // `startSession` is called, it will start a new session.
-    self.wasStartSessionCalled = NO;
 }
 
 - (void)dealloc
 {
-    [self stopWithGracefully:YES];
+    [self removeObservers];
+
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [self.notificationCenter removeObserver:self];
