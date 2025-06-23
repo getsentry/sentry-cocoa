@@ -23,7 +23,11 @@ SENTRY_NO_INIT
              notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 
 - (void)start;
-- (void)stopWithGracefully:(BOOL)gracefully;
+- (void)stop;
+
+/** Only used for testing */
+- (void)removeObservers;
+
 @end
 
 NS_ASSUME_NONNULL_END
