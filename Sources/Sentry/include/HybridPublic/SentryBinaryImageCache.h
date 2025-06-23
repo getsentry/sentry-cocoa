@@ -1,7 +1,20 @@
-#import "SentryBinaryImageInfo.h"
 #import <Foundation/Foundation.h>
 
+#if COCOAPODS
+@class SentryBinaryImageInfo;
+#else
+
+#    if __has_include(<Sentry/SentryBinaryImageInfo.h>)
+#        import <Sentry/SentryBinaryImageInfo.h>
+#    else
+#        import "SentryBinaryImageInfo.h"
+#    endif
+
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class SentryBinaryImageInfo;
 
 /**
  * This class listens to `SentryCrashBinaryImageCache` to keep a copy of the loaded binaries
