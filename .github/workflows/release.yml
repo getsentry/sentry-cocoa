@@ -18,6 +18,7 @@ on:
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
+      - ".github/workflows/ui-tests-common.yml"
       - Samples/macOS-SPM-CommandLine/**
       - Samples/SPM-Dynamic/**
 
