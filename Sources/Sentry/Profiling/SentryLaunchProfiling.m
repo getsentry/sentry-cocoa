@@ -153,7 +153,8 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SENTRY_LOG_DEBUG(@"Continuous profiling v2 conditions satisfied, will profile launch.");
+    SENTRY_LOG_DEBUG(
+        @"Continuous profiling v2 manual lifecycle conditions satisfied, will profile launch.");
     return (SentryLaunchProfileConfig) { YES, nil, profileSampleDecision };
 }
 
@@ -164,12 +165,8 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
 
-    if ([options isContinuousProfilingEnabled] && options.enableAppLaunchProfiling) {
-        return (SentryLaunchProfileConfig) { YES, nil, nil };
-    }
-
     if ([options isContinuousProfilingEnabled]) {
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
     }
 
     return sentry_launchShouldHaveTransactionProfiling(options);

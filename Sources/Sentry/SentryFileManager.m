@@ -858,6 +858,7 @@ void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
     NSError *error;
+    SENTRY_LOG_DEBUG(@"Writing launch profiling config file.");
     SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
         @"Failed to write launch profile config file: %@.", error);
 }

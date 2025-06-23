@@ -165,14 +165,14 @@ extension ProfilingUITests {
         
         switch profileType {
         case .ui:
+            app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
             switch lifecycle {
             case .none:
                 fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
             case .trace:
-                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
+                break
             case .manual:
                 app.launchArguments.append("--io.sentry.profile-lifecycle-manual")
-                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
             }
         case .continuous:
             app.launchArguments.append("--io.sentry.disable-ui-profiling")
