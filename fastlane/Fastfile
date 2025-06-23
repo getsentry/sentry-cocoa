@@ -203,7 +203,8 @@ platform :ios do
   lane :ui_critical_tests_ios_swiftui_crash do
     run_ui_tests(
       scheme: "SwiftUITestSampleCrash",
-      result_bundle_name: "ui_critical_tests_ios_swiftui_crash"
+      result_bundle_name: "ui_critical_tests_ios_swiftui_crash",
+      device: "iPhone 16 (18.5)"
     )
   end
 

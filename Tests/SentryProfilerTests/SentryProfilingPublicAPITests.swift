@@ -625,8 +625,14 @@ extension SentryProfilingPublicAPITests {
             $0.lifecycle = .manual
         }
         fixture.random = TestRandom(value: 0)
-        let nc = SentryDependencyContainer.sharedInstance().notificationCenterWrapper
-        fixture.sessionTracker = SessionTracker(options: fixture.options, notificationCenter: nc)
+        let container = SentryDependencyContainer.sharedInstance()
+        let nc = container.notificationCenterWrapper
+        fixture.sessionTracker = SessionTracker(
+            options: fixture.options,
+            application: container.application,
+            dateProvider: fixture.currentDate,
+            notificationCenter: nc
+        )
         fixture.sessionTracker?.start()
         givenSdkWithHub()
 

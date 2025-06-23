@@ -4,7 +4,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryDispatchQueueWrapper;
+@class SentryUIApplication;
+
 @interface SentryViewHierarchyProvider : NSObject
+
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                         sentryUIApplication:(SentryUIApplication *)sentryUIApplication;
 
 /**
  * Whether we should add `accessibilityIdentifier` to the view hierarchy.

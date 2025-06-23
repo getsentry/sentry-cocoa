@@ -1,5 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
+#import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -14,6 +15,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
+#import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
@@ -53,6 +55,10 @@
 #if TARGET_OS_IOS
 #    import "SentryUIDeviceWrapper.h"
 #endif // TARGET_OS_IOS
+
+#if TARGET_OS_OSX
+#    import "SentryNSApplication.h"
+#endif
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
@@ -174,6 +180,8 @@ static BOOL isInitialializingDependencyContainer = NO;
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];
+#elif TARGET_OS_OSX
+        _application = [[SentryNSApplication alloc] init];
 #endif // SENTRY_HAS_UIKIT
 
         _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
@@ -336,7 +344,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
 #    if SENTRY_HAS_UIKIT
 
-    SENTRY_LAZY_INIT(_viewHierarchyProvider, [[SentryViewHierarchyProvider alloc] init]);
+    SENTRY_LAZY_INIT(_viewHierarchyProvider,
+        [[SentryViewHierarchyProvider alloc] initWithDispatchQueueWrapper:self.dispatchQueueWrapper
+                                                      sentryUIApplication:self.application]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
@@ -481,5 +491,13 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryGlobalEventProcessor *)globalEventProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_globalEventProcessor, [[SentryGlobalEventProcessor alloc] init])
+}
+
+- (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
+{
+    return [[SentrySessionTracker alloc] initWithOptions:options
+                                             application:self.application
+                                            dateProvider:self.dateProvider
+                                      notificationCenter:self.notificationCenterWrapper];
 }
 @end

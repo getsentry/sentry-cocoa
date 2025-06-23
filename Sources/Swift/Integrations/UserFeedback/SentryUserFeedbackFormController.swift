@@ -10,7 +10,7 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 }
 
 @available(iOS 13.0, *)
-class SentryUserFeedbackFormController: UIViewController {
+final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: SentryUserFeedbackFormDelegate?
     let screenshot: UIImage?
