@@ -557,7 +557,10 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     private func abnormalStopSut() {
+
+        // We remove the observers, to ensure future notifications are not handled.
         sut.removeObservers()
+
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
