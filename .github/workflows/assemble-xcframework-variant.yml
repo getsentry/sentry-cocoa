@@ -70,10 +70,14 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
+      - name: Compute cache key
+        run: |
+          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks//,/_}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
+
       - name: Restore XCFramework cache
         uses: actions/cache@v4
         with:
-          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
+          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Download ${{inputs.variant-id}} Slices
@@ -102,7 +106,7 @@ jobs:
       - name: Cache XCFramework
         uses: actions/cache@v4
         with:
-          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
+          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Upload XCFramework
