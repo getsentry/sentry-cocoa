@@ -7,8 +7,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSData *_Nullable sentry_gzippedWithCompressionLevel(
-    NSData *data, NSInteger compressionLevel, NSError *_Nullable *_Nullable error)
+@implementation SentryNSDataUtils
+
++ (NSData *_Nullable)sentry_gzippedWithData:(NSData *)data
+                           compressionLevel:(NSInteger)compressionLevel
+                                      error:(NSError *_Nullable __autoreleasing *)error
 {
     uInt length = (uInt)[data length];
     if (length == 0) {
@@ -52,6 +55,8 @@ NSData *_Nullable sentry_gzippedWithCompressionLevel(
     deflateEnd(&stream);
     return compressedData;
 }
+
+@end
 
 NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
 {
