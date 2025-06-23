@@ -129,7 +129,15 @@ class TransactionsViewController: UIViewController {
     }
     
     @IBAction func appHangFullyBlocking(_ sender: Any) {
-        triggerFullyBlockingAppHang(button: self.appHangFullyBlockingButton)
+        triggerFullyBlockingAppHangThreadSleeping()
+    }
+
+    @IBAction func appHangFullyBlockingBusyMainThread(_ sender: Any) {
+        if #available(iOS 15.0, *) {
+            triggerFullyBlockingAppHangWithImageDecoding()
+        } else {
+            triggerFullyBlockingAppHangThreadSleeping()
+        }
     }
 
     @IBAction func captureTransaction(_ sender: UIButton) {

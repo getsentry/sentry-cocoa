@@ -65,7 +65,7 @@ class ProfilingUITests: BaseUITest {
             goToTransactions()
             startTransaction()
             
-            app.buttons["appHangFullyBlocking"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
+            app.buttons["appHangFullyBlockingThreadSleeping"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
             stopTransaction()
             
             goToProfiling()
