@@ -2,7 +2,6 @@
 import Darwin
 import Foundation
 import MachO
-@_implementationOnly import Sentry._Hybrid
 
 @objc
 class LoadValidator: NSObject {
