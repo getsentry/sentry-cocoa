@@ -5,7 +5,7 @@ import XCTest
 
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
-    
+
     func testAppLaunchesWithTraceProfiler() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
