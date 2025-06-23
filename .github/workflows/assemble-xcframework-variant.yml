@@ -84,25 +84,25 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Download ${{inputs.variant-id}} Slices
-        if: steps.cache-xcframework.outputs.cache-hit == 'false'
+        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
 
       - name: Unzip slice artifact ZIP archives
-        if: steps.cache-xcframework.outputs.cache-hit == 'false'
+        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         run: |
           find xcframework-slices -type f -print0 | xargs -t0I @ unzip @ -d xcframework-slices
         shell: bash
 
       - name: Assemble XCFramework
-        if: steps.cache-xcframework.outputs.cache-hit == 'false'
+        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
         shell: bash
 
       - name: Zip XCFramework
-        if: steps.cache-xcframework.outputs.cache-hit == 'false'
+        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         run: ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
