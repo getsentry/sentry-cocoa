@@ -10,7 +10,7 @@ class LoadValidator: NSObject {
     static let targetClassName = "PrivateSentrySDKOnly"
     
     @objc
-    class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo) {
+    class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) {
         DispatchQueue.global(qos: .background).async {
             let systemLibraryPath = "/usr/lib/"
 #if targetEnvironment(simulator)
@@ -31,9 +31,12 @@ class LoadValidator: NSObject {
 
             var classCount: UInt32 = 0
             imageName.withCString { cImageName in
-                if let classNames = objc_copyClassNamesForImage(cImageName, &classCount) {
+                if let classNames = objcRuntimeWrapper.copyClassNames(forImage: cImageName, amount: &classCount) {
                     for j in 0..<Int(classCount) {
-                        let name = String(cString: classNames[j])
+                        guard let className = classNames[j] else {
+                            continue
+                        }
+                        let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
                         if name.contains(self.targetClassName) {
                             if name == self.targetClassName && isCurrentImageContainingLoadValidator {
                                 // Skip our implementation of `PrivateSentrySDKOnly`

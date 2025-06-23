@@ -1,6 +1,7 @@
 #import "SentryBinaryImageCache.h"
 #import "SentryCrashBinaryImageCache.h"
 #include "SentryCrashUUIDConversion.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryLogC.h"
@@ -88,7 +89,8 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     if ([SentrySDK.currentHub getClient].options.debug == YES) {
         // Only validate if debug is enabled
-        [LoadValidator validateSDKPresenceIn:newImage];
+        [LoadValidator validateSDKPresenceIn:newImage
+                          objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
     }
 }
 
