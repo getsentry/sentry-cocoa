@@ -11,6 +11,7 @@
 - Fix building with Xcode 26 (#5386)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Fix stacktrace symbolication of fatal app hangs (#5438)
+- Robustness against corrupt launch profile configuration files (#5447)
 
 ### Improvements
 
@@ -18,6 +19,10 @@
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+
+### Fixes
+
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
 
 ## 8.52.1
 

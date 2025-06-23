@@ -19,49 +19,6 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
 @implementation SentryNSURLRequest
 
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
-                                         andEvent:(SentryEvent *)event
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error
-{
-    NSDictionary *serialized = [event serialize];
-    NSData *jsonData = [SentrySerialization dataWithJSONObject:serialized];
-    if (nil == jsonData) {
-        SENTRY_LOG_ERROR(@"Event cannot be converted to JSON");
-        return nil;
-    }
-
-    if ([SentrySDK.currentHub getClient].options.debug == YES) {
-        SENTRY_LOG_DEBUG(@"Sending JSON -------------------------------");
-        SENTRY_LOG_DEBUG(
-            @"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
-        SENTRY_LOG_DEBUG(@"--------------------------------------------");
-    }
-    return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
-}
-
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
-                                          andData:(NSData *)data
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error
-{
-    NSURL *apiURL = [dsn getStoreEndpoint];
-    self = [super initWithURL:apiURL
-                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-              timeoutInterval:SentryRequestTimeout];
-    if (self) {
-        NSString *authHeader = newAuthHeader(dsn.url);
-
-        self.HTTPMethod = @"POST";
-        [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
-        [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:[NSString
-                           stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
-            forHTTPHeaderField:@"User-Agent"];
-        [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
-    }
-    return self;
-}
-
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
                                              andData:(NSData *)data
                                     didFailWithError:(NSError *_Nullable *_Nullable)error

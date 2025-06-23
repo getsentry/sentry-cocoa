@@ -1,5 +1,7 @@
 import Foundation
 
+typealias SentryLogOutput = ((String) -> Void)
+
 /// A note on the thread safety:
 /// The methods configure and log don't use synchronization mechanisms, meaning they aren't strictly speaking thread-safe.
 /// Still, you can use log from multiple threads. The problem is that when you call configure while
@@ -20,7 +22,7 @@ import Foundation
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    private static var logOutput = SentryLogOutput()
+    private static var logOutput: ((String) -> Void) = { print($0) }
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
@@ -37,7 +39,7 @@ import Foundation
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
         let time = self.dateProvider.date().timeIntervalSince1970
-        logOutput.log("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
+        logOutput("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
     }
 
     /**
@@ -57,7 +59,7 @@ import Foundation
  
     #if SENTRY_TEST || SENTRY_TEST_CI
     
-    static func setOutput(_ output: SentryLogOutput) {
+    static func setOutput(_ output: @escaping SentryLogOutput) {
         logOutput = output
     }
     
