@@ -72,7 +72,8 @@ jobs:
 
       - name: Compute cache key
         run: |
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks//,/_}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
+          sdks_string="${{inputs.sdks//,/_}}"
+          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-$sdks_string-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
 
       - name: Restore XCFramework cache
         uses: actions/cache@v4
