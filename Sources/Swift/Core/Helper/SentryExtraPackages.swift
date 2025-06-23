@@ -12,6 +12,8 @@ import Foundation
 
         let newPackage = ["name": name, "version": version]
 
+        // Thread-safe write using a barrier block on a concurrent queue.
+        // Ensures no other reads or writes happen during this insertion.
         syncQueue.async(flags: .barrier) {
             extraPackages.insert(newPackage)
         }
@@ -20,6 +22,9 @@ import Foundation
     @objc
     public static func getPackages() -> NSMutableSet {
         var copy: Set<[String: String]> = []
+        // Thread-safe synchronous read on a concurrent queue.
+        // Multiple reads can happen concurrently unless a write barrier is active.
+        // Returns a copy to prevent external mutation of internal state.
         syncQueue.sync {
             copy = extraPackages
         }
