@@ -434,9 +434,9 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:
-                [self.dispatchFactory createLowPriorityQueue:
-                        "io.sentry.watchdog-termination-tracking.context-processor"
-                                            relativePriority:0]
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
+                      relativePriority:0]
                        scopeContextStore:self.scopeContextPersistentStore])
 }
 #endif
