@@ -289,7 +289,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
 #    if SENTRY_HAS_UIKIT
 
-    SENTRY_LAZY_INIT(_viewHierarchyProvider, [[SentryViewHierarchyProvider alloc] init]);
+    SENTRY_LAZY_INIT(_viewHierarchyProvider,
+        [[SentryViewHierarchyProvider alloc] initWithDispatchQueueWrapper:self.dispatchQueueWrapper
+                                                      sentryUIApplication:self.application]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
