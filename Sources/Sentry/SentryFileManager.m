@@ -202,20 +202,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
-
-    if (envelopeData == nil) {
-        SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
-        return nil;
-    }
-
     @synchronized(self) {
         NSString *path =
             [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
-        if (![self writeData:envelopeData toPath:path]) {
-            SENTRY_LOG_WARN(@"Failed to store envelope.");
+        if (![SentrySerialization writeEnvelope:envelope toPath:path]) {
+            SENTRY_LOG_ERROR(@"Failed to serialize and store envelope.");
             return nil;
         }
 
