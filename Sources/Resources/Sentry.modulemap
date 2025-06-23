@@ -28,6 +28,7 @@ framework module Sentry {
         
         header "SentrySdkInfo.h"
         header "SentryInternalSerializable.h"
+        header "SentryBinaryImageInfo.h"
         
         export *
     }
