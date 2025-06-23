@@ -18,7 +18,9 @@
 
     NSError *error = nil;
     NSData *original = [NSData dataWithData:data];
-    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, &error);
+    NSData *compressed = [SentryNSDataUtils sentry_gzippedWithData:original
+                                                  compressionLevel:-1
+                                                             error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(compressed);
 }
@@ -27,7 +29,9 @@
 {
     NSError *error = nil;
     NSData *original = [NSData data];
-    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, &error);
+    NSData *compressed = [SentryNSDataUtils sentry_gzippedWithData:original
+                                                  compressionLevel:-1
+                                                             error:&error];
     XCTAssertNil(error, @"");
 
     XCTAssertEqualObjects(compressed, original, @"");
@@ -43,14 +47,18 @@
     }
 
     NSData *original = [NSData dataWithData:data];
-    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, nil);
+    NSData *compressed = [SentryNSDataUtils sentry_gzippedWithData:original
+                                                  compressionLevel:-1
+                                                             error:nil];
     XCTAssertNotNil(compressed);
 }
 
 - (void)testCompressEmptyNilError
 {
     NSData *original = [NSData data];
-    NSData *compressed = sentry_gzippedWithCompressionLevel(original, -1, nil);
+    NSData *compressed = [SentryNSDataUtils sentry_gzippedWithData:original
+                                                  compressionLevel:-1
+                                                             error:nil];
 
     XCTAssertEqualObjects(compressed, original, @"");
 }
@@ -67,8 +75,10 @@
     NSError *error = nil;
     NSData *original = [NSData dataWithData:data];
 
-    NSData *compressed = sentry_gzippedWithCompressionLevel(original, INT_MAX, &error);
-    ;
+    NSData *compressed = [SentryNSDataUtils sentry_gzippedWithData:original
+                                                  compressionLevel:INT_MAX
+                                                             error:&error];
+
     XCTAssertNil(compressed);
     XCTAssertNotNil(error);
 }

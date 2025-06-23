@@ -15,6 +15,8 @@ class SentrySessionTrackerTests: XCTestCase {
 
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         let application: TestSentryUIApplication
+        #else
+        let application: TestSentryNSApplication
         #endif
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -35,11 +37,20 @@ class SentrySessionTrackerTests: XCTestCase {
             application = TestSentryUIApplication()
             application.applicationState = .inactive
             SentryDependencyContainer.sharedInstance().application = application
+            #else
+            application = TestSentryNSApplication()
+            application.setIsActive(false)
+            SentryDependencyContainer.sharedInstance().application = application
             #endif
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, notificationCenter: notificationCenter)
+            return SessionTracker(
+                options: options,
+                application: application,
+                dateProvider: currentDateProvider,
+                notificationCenter: notificationCenter
+            )
         }
         
         func setNewHubToSDK() {
@@ -60,25 +71,25 @@ class SentrySessionTrackerTests: XCTestCase {
         super.setUp()
         
         fixture = Fixture()
-        
+
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
 
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
-        
+
         fixture.setNewHubToSDK()
-        
+
         sut = fixture.getSut()
     }
     
     override func tearDown() {
-        stopSut()
+        abnormalStopSut()
         clearTestState()
-        
+
         super.tearDown()
     }
-    
+
     func testOnlyForeground() throws {
         // -- Arrange --
         startSutInAppDelegate()
@@ -229,7 +240,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToBackground(forSeconds: 2)
         advanceTime(bySeconds: 2)
         // This is not a crash but an abnormal end.
-        stopSut()
+        abnormalStopSut()
 
         advanceTime(bySeconds: 1)
 
@@ -251,7 +262,7 @@ class SentrySessionTrackerTests: XCTestCase {
         advanceTime(bySeconds: 5)
         goToBackground()
         // This is not a crash but an abnormal end.
-        stopSut()
+        abnormalStopSut()
 
         advanceTime(bySeconds: 1)
 
@@ -343,7 +354,7 @@ class SentrySessionTrackerTests: XCTestCase {
         // -- Assert --
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
-    
+
     func testForeground_Background_Terminate_LaunchAgain() throws {
         // -- Arrange --
         let sessionStartTime = fixture.currentDateProvider.date()
@@ -353,16 +364,17 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
         advanceTime(bySeconds: 1)
         goToBackground()
-        
+
         advanceTime(bySeconds: 10)
         terminateApp()
         assertEndSessionSent(started: sessionStartTime, duration: 1)
-        stopSut()
+        abnormalStopSut()
 
         advanceTime(bySeconds: 1)
-        
+
         // Launch the app again
         fixture.setNewHubToSDK()
+
         sut = fixture.getSut()
 
         startSutInAppDelegate()
@@ -438,35 +450,143 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNotificationNames(notificationNames)
     }
 
+    func testForegroundBeforeStart_shoudStartSession() throws {
+        // -- Arrange --
+        goToForeground()
+
+        // Pre-condition: No session should be sent yet
+        assertNoSessionSent()
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 1)
+        let startSessionEvent = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 0))
+        XCTAssertEqual(startSessionEvent.status, SentrySessionStatus.ok)
+    }
+
+    func testRestartInForeground_shouldStartNewSession() throws {
+        // -- Arrange --
+        startSutInAppDelegate()
+        goToForeground()
+
+        // -- Act --
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 1)
+        var event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 0))
+        XCTAssertEqual(event.status, SentrySessionStatus.ok)
+
+        stopSut()
+
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 2)
+        event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 1))
+        XCTAssertEqual(event.status, SentrySessionStatus.exited)
+
+        sut.start()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client.captureSessionInvocations.invocations.count, 3)
+        event = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.element(at: 2))
+        XCTAssertEqual(event.status, SentrySessionStatus.ok)
+    }
+
+    func testForeground_ThenHybridSdkNotification_ShouldDebounceSessionStart() throws {
+        // -- Arrange --
+        startSutInAppDelegate()
+        let sessionStartTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        // First, the app goes to foreground (starts a session)
+        goToForeground()
+        
+        // Then immediately, the hybrid SDK posts its notification
+        // This should be debounced and not start a new session
+        postHybridSdkDidBecomeActiveNotification()
+
+        // -- Assert --
+        // Should only have one session (the init session), not two
+        assertSessionsSent(count: 1)
+        try assertSessionInitSent(sessionStarted: sessionStartTimestamp)
+        assertSessionStored()
+    }
+    
+    func testHybridSdkNotification_ThenForeground_ShouldDebounceSessionStart() throws {
+        // -- Arrange --
+        startSutInAppDelegate()
+        let sessionStartTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        // First, the hybrid SDK posts its notification (starts a session)
+        postHybridSdkDidBecomeActiveNotification()
+        
+        // Then immediately, the app goes to foreground
+        // This should be debounced and not start a new session
+        goToForeground()
+
+        // -- Assert --
+        // Should only have one session (the init session), not two
+        assertSessionsSent(count: 1)
+        try assertSessionInitSent(sessionStarted: sessionStartTimestamp)
+        assertSessionStored()
+    }
+
     // MARK: - Helpers
 
     private func startSutInAppDelegate() {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-        // The Sentry SDK should be initialized in the UIAppDelegate.didFinishLaunchingWithOptions
+        // The Sentry SDK should be initialized in the `UIAppDelegate.didFinishLaunchingWithOptions`
         // At this point the application state is `inactive`, because the app just launched but did not
         // become the active app yet.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.didFinishLaunchingWithOptions`.
         fixture.application.applicationState = .inactive
+        #else
+        // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
+        // At this point the app is not active yet.
+        //
+        // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.applicationDidFinishLaunching`.
+        fixture.application.setIsActive(false)
         #endif
         sut.start()
     }
 
     private func stopSut() {
         sut.stop()
+        // After stopping the session tracker, we need to set a new hub to the SDK.
+        fixture.setNewHubToSDK()
+    }
+
+    private func abnormalStopSut() {
+
+        // We remove the observers, to ensure future notifications are not handled.
+        sut.removeObservers()
+
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #else
+        // When the app crashes, the app state is `inactive`.
+        //
+        // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
+        // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
+        fixture.application.setIsActive(false)
         #endif
     }
 
     private func crashSut() {
-        sut.stop()
+        sut.removeObservers()
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app stops, the app state is `inactive`.
+        //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
         fixture.application.applicationState = .inactive
+        #else
+        // When the app crashes, the app state is `inactive`.
+        //
+        // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
+        // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
+        fixture.application.setIsActive(false)
         #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
@@ -480,8 +600,19 @@ class SentrySessionTrackerTests: XCTestCase {
         // When the app becomes active, the app state is `active`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidBecomeActive`.
         fixture.application.applicationState = .active
+        #else
+        // When the app becomes active, the app state is `active`.
+        // This can be observed by viewing the application state in `NSApplicationDelegate.applicationDidBecomeActive`.
+        fixture.application.setIsActive(true)
         #endif
-        Dynamic(sut).didBecomeActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func goToBackground() {
@@ -490,25 +621,59 @@ class SentrySessionTrackerTests: XCTestCase {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // It is expected that the app state is background when the didEnterBackground is called
         fixture.application.applicationState = .background
+        fixture.notificationCenter
+           .post(
+               Notification(
+                   name: SentryNSNotificationCenterWrapper.didEnterBackgroundNotificationName,
+                   object: nil,
+                   userInfo: nil
+               )
+           )
+        #else
+        // When the app becomes active, the app state is `active`.
+        //
+        // This can be observed by viewing the application state in `NSAppDelegate.applicationDidResignActive`.
+        fixture.application.setIsActive(false)
         #endif
-        Dynamic(sut).didEnterBackground()
     }
     
     private func willResignActive() {
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When the app is about to resign being active, it is still active.
+        //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillResignActive`.
         fixture.application.applicationState = .active
+        #else
+        // When the app becomes active, the app state is `active`.
+        //
+        // This can be observed by viewing the application state in `NSAppDelegate.applicationWillResignActive`.
+        fixture.application.setIsActive(true)
         #endif
-        Dynamic(sut).willResignActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func hybridSdkDidBecomeActive() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         // When an app did become active, it is in the active state.
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
         fixture.application.applicationState = .active
+        #else
+        fixture.application.setIsActive(true)
         #endif
-        Dynamic(sut).didBecomeActive()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -518,21 +683,36 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private  func willTerminate() {
-        // When terminating an app, it will first move to the background and then terminate.
-        // This can be observed by viewing the application state in `UIAppDelegate.applicationWillTerminate`.
         #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        // When terminating an app, it will first move to the background and then terminate.
+        //
+        // This can be observed by viewing the application state in `UIAppDelegate.applicationWillTerminate`.
         fixture.application.applicationState = .background
+        #else
+        // When terminating an app, it will first move to the background and then terminate.
+        //
+        // This can be observed by viewing the application state in `NSApplicationDelegate.applicationWillTerminate`.
+        //
+        // Important: According to the documentation, this method isn't called during sudden termination of an app.
+        fixture.application.setIsActive(false)
         #endif
-        Dynamic(sut).willTerminate()
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: SentryNSNotificationCenterWrapper.willTerminateNotificationName,
+                    object: nil,
+                    userInfo: nil
+                )
+            )
     }
     
     private func terminateApp() {
         willTerminate()
-        stopSut()
+        abnormalStopSut()
     }
     
     private func launchBackgroundTaskAppNotRunning() {
-        sut.stop()
+        sut.removeObservers()
 
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
@@ -695,6 +875,23 @@ class SentrySessionTrackerTests: XCTestCase {
         ], notificationNames)
     }
 
+    private func postHybridSdkDidBecomeActiveNotification() {
+        // When the hybrid SDK posts this notification, the app should be in active state
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        fixture.application.applicationState = .active
+        #else
+        fixture.application.setIsActive(true)
+        #endif
+        fixture.notificationCenter
+            .post(
+                Notification(
+                    name: NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
+                    object: nil,
+                    userInfo: nil
+                )
+            )
+    }
+
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     private class TestSentryUIApplication: SentryUIApplication {
         init() {
@@ -705,6 +902,20 @@ class SentrySessionTrackerTests: XCTestCase {
         override var applicationState: UIApplication.State {
             get { _underlyingAppState }
             set { _underlyingAppState = newValue }
+        }
+
+        override func isActive() -> Bool {
+            return applicationState == .active
+        }
+    }
+#else
+    private class TestSentryNSApplication: SentryNSApplication {
+        private var _underlyingIsActive = true
+        func setIsActive(_ isActive: Bool) {
+            _underlyingIsActive = isActive
+        }
+        override func isActive() -> Bool {
+            return _underlyingIsActive
         }
     }
 #endif

@@ -10,12 +10,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let options: Options
         
         let currentDate = TestCurrentDateProvider()
-                
+        let debugImageProvider = TestDebugImageProvider()
+
         init() {
             options = Options()
             options.dsn = SentryANRTrackingIntegrationTests.dsn
             options.enableAppHangTracking = true
             options.appHangTimeoutInterval = 4.5
+
+            debugImageProvider.debugImages = [TestData.debugImage]
         }
     }
     
@@ -28,8 +31,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     override func setUp() {
         super.setUp()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         fixture = Fixture()
+
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
     }
     
     override func tearDown() {
@@ -122,6 +127,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
             
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
         }
     }
     
@@ -159,6 +168,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
 
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
         }
     }
 
@@ -197,6 +210,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
 
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
         }
     }
     
@@ -235,6 +252,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
 
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
         }
     }
     
@@ -391,7 +412,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
             
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
-            
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)
             XCTAssertEqual("value", tags["key"])
@@ -445,6 +470,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             }.count
 
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+
+            XCTAssertEqual(event?.debugMeta?.count, 1)
+            let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
+            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
 
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)

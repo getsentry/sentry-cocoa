@@ -41,6 +41,8 @@
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#import "SentryNSApplication.h"
+
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "PrivateSentrySDKOnly.h"
@@ -156,7 +158,6 @@
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
