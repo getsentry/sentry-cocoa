@@ -24,6 +24,7 @@
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- The minimum SDK version has been updated to iOS 12, watchOS 5, tvOS 12, and macOS 10.14. This is consistent with the minimum versions supported by Xcode 15 and resolves warnings when building the SDK. (#5443)
 
 ### Fixes
 
