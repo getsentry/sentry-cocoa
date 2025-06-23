@@ -7,7 +7,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let uiApplication = TestSentryUIApplication()
 
         var sut: SentryViewHierarchyProvider {
-            return SentryViewHierarchyProvider()
+            return SentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: uiApplication)
         }
     }
 
@@ -17,7 +17,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         super.setUp()
 
         fixture = Fixture()
-        SentryDependencyContainer.sharedInstance().application = fixture.uiApplication
     }
 
     override func setUpWithError() throws {
@@ -33,11 +32,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         guard #available(iOS 13, *) else {
             throw XCTSkip("Skipping for iOS < 13")
         }
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        SentryDependencyContainer.reset()
     }
 
     func test_Multiple_Window() {
@@ -175,7 +169,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_invalidSerialization() {
-        let sut = TestSentryViewHierarchyProvider()
+        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
         sut.viewHierarchyResult = -1
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
@@ -186,7 +180,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_appViewHierarchyFromBackgroundTest() {
-        let sut = TestSentryViewHierarchyProvider()
+        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
@@ -205,7 +199,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_appViewHierarchy_usesMainThread() {
-        let sut = TestSentryViewHierarchyProvider()
+        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
