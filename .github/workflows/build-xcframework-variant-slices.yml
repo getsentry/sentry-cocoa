@@ -89,7 +89,7 @@ jobs:
         id: cache-xcarchive
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hasFiles('Sentry.xcodeproj/**')}}
+          key: ${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Bump version
@@ -122,7 +122,7 @@ jobs:
         if: steps.cache-xcarchive.outputs.cache-hit == 'false'
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hasFiles('Sentry.xcodeproj/**')}}
+          key: ${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive

@@ -73,7 +73,7 @@ jobs:
       - name: Restore XCFramework cache
         uses: actions/cache@v4
         with:
-          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hasFiles('Sentry.xcodeproj/**')}}
+          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Download ${{inputs.variant-id}} Slices
@@ -102,7 +102,7 @@ jobs:
       - name: Cache XCFramework
         uses: actions/cache@v4
         with:
-          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hasFiles('Sentry.xcodeproj/**')}}
+          key: ${{runner.os}}-xcframework-${{inputs.variant-id}}-${{inputs.sdks}}-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Upload XCFramework
