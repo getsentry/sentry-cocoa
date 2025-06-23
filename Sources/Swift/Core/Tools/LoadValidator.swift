@@ -11,7 +11,16 @@ class LoadValidator: NSObject {
     
     @objc
     class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) {
+        LoadValidator.validateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper, resultHandler: nil)
+    }
+    
+    @objc
+    class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, resultHandler: ((Bool) -> Void)?) {
         DispatchQueue.global(qos: .background).async {
+            var duplicateFound = false
+            defer {
+                resultHandler?(duplicateFound)
+            }
             let systemLibraryPath = "/usr/lib/"
 #if targetEnvironment(simulator)
             let ignoredPath = "/Library/Developer/CoreSimulator/Profiles/Runtimes/"
@@ -45,7 +54,8 @@ class LoadValidator: NSObject {
                             var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
                             message.append("Ensure the SDK is linked only once, found classes in image paths: \(imageName)")
-                            print(message.joined(separator: "\n"))
+                            SentryLog.warning(message.joined(separator: "\n"))
+                            duplicateFound = true
                             
                             break
                         }
