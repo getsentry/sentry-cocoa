@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -10,7 +10,7 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
         let envelope = givenEnvelope()
         let dsn = try givenDsn()
         
-        let request = try sut.createEnvelopeRequest(envelope, dsn: dsn)
+        let request = try sut.createEnvelopeRequest(envelope: envelope, dsn: dsn)
         XCTAssertNotNil(request)
     }
     
@@ -20,7 +20,7 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
         let envelope = givenEnvelope()
         let url = try givenUrl()
         
-        let request = try sut.createEnvelopeRequest(envelope, url: url)
+        let request = try sut.createEnvelopeRequest(envelope: envelope, url: url)
         XCTAssertNotNil(request)
     }
     
@@ -30,7 +30,7 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
         let envelopeWithInvalidData = givenEnvelopeWithInvalidData()
         let dsn = try givenDsn()
         
-        XCTAssertThrowsError(try sut.createEnvelopeRequest(envelopeWithInvalidData, dsn: dsn))
+        XCTAssertThrowsError(try sut.createEnvelopeRequest(envelope: envelopeWithInvalidData, dsn: dsn))
     }
     
     func testCreateEnvelopeRequestWithUrl_failingEnvelopeSerializationThrows() throws {
@@ -39,13 +39,13 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
         let envelopeWithInvalidData = givenEnvelopeWithInvalidData()
         let url = try givenUrl()
         
-        XCTAssertThrowsError(try sut.createEnvelopeRequest(envelopeWithInvalidData, url: url))
+        XCTAssertThrowsError(try sut.createEnvelopeRequest(envelope: envelopeWithInvalidData, url: url))
     }
     
     // Helper
     
-    private func getSut() -> SentryNSURLRequestBuilder {
-        return SentryNSURLRequestBuilder()
+    private func getSut() -> SentryURLRequestBuilder {
+        return SentryURLRequestBuilder()
     }
     
     private func givenDsn() throws -> SentryDsn {

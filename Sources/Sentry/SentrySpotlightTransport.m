@@ -4,10 +4,9 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryLog.h"
-#import "SentryNSURLRequest.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 #import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -66,14 +65,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       items:allowedEnvelopeItems];
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
-                                                                   url:self.apiURL
-                                                      didFailWithError:&requestError];
+    NSURLRequest *request = [self.requestBuilder createEnvelopeRequestWithEnvelope:envelopeToSend
+                                                                               url:self.apiURL
+                                                                             error:&requestError];
 
-    if (nil == request || nil != requestError) {
-        if (nil != requestError) {
-            SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
-        }
+    if (nil != requestError) {
+        SENTRY_LOG_ERROR(@"Unable to build envelope request with error %@", requestError);
         return;
     }
 
