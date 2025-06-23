@@ -2,11 +2,6 @@
 
 ## Unreleased
 
-## Fixes
-
-- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
-- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
-
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
@@ -17,6 +12,9 @@
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Fix stacktrace symbolication of fatal app hangs (#5438)
 - Robustness against corrupt launch profile configuration files (#5447)
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
 
 ### Improvements
 
@@ -25,10 +23,6 @@
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 - Convert SentryNSURLRequest to Swift (#5457)
-
-### Fixes
-
-- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
 
 ## 8.52.1
 
