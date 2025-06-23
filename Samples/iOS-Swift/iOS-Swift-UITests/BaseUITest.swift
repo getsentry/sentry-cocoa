@@ -13,6 +13,9 @@ class BaseUITest: XCTestCase {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app.launchEnvironment["--io.sentry.sdk-environment"] = "ui-tests"
+        app.launchArguments.append(contentsOf: [
+            "--io.sentry.wipe-data"
+        ])
         if automaticallyLaunchAndTerminateApp {
             launchApp()
         }
