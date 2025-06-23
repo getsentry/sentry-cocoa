@@ -113,7 +113,6 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
 
       - name: Upload XCFramework
-        if: steps.cache-xcframework.outputs.cache-hit == 'false'
         uses: actions/upload-artifact@v4
         with:
           overwrite: true

@@ -130,7 +130,6 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive
-        if: steps.cache-xcarchive.outputs.cache-hit == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
