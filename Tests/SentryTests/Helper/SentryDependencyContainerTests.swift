@@ -258,7 +258,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         let _ = container.watchdogTerminationContextProcessor
 
         // -- Assert --
-        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createLowPriorityQueueInvocations.first)
+        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createUtilityQueueInvocations.first)
         XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.context-processor")
         XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
 #else

@@ -142,14 +142,14 @@ static SentryTouchTracker *_touchTracker;
     // The asset worker queue is used to work on video and frames data.
     // Use a relative priority of -1 to make it lower than the default background priority.
     _replayAssetWorkerQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.asset-worker"
-                                     relativePriority:-1];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.asset-worker"
+                                 relativePriority:-1];
     // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
     // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
     // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
     _replayProcessingQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.processing"
-                                     relativePriority:-2];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.processing"
+                                 relativePriority:-2];
 
     // The asset worker queue is used to work on video and frames data.
 
