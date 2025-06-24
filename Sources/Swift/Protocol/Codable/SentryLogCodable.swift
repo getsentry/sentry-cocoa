@@ -15,7 +15,7 @@ extension SentryLog: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(sentry_toIso8601String(timestamp), forKey: .timestamp)
+        try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
         try container.encode(level, forKey: .level)
         try container.encode(body, forKey: .body)

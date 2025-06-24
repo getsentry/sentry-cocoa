@@ -40,7 +40,7 @@ final class SentryLogTests: XCTestCase {
     """.utf8)
     
     func testEncode() throws {
-        let data = try JSONEncoder().encode(log)
+        let data = try encodeToJSONData(data: log)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         
         XCTAssertNotNil(json)
@@ -81,7 +81,7 @@ final class SentryLogTests: XCTestCase {
     }
     
     func testRoundTrip() throws {
-        let data = try JSONEncoder().encode(log)
+        let data = try encodeToJSONData(data: log)
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog?)
         
         XCTAssertEqual(decoded.timestamp, log.timestamp)
