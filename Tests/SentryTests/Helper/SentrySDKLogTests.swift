@@ -109,7 +109,7 @@ class SentrySDKLogTests: XCTestCase {
         SentrySDKLogSupport.configure(true, diagnosticLevel: SentryLevel.debug)
         let line = #line + 1
         SentrySDKLog.debug("Debug Log")
-        XCTAssertEqual(["[Sentry] [debug] [timeIntervalSince1970:\(timeIntervalSince1970)] [SentryLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [debug] [timeIntervalSince1970:\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
     }
 
     /// This test only ensures we're not crashing when calling configure and log from multiple threads.
