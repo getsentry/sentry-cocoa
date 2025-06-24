@@ -31,7 +31,7 @@ extension SentryLog: Codable {
         let traceId = SentryId(uuidString: traceIdString)
         let level = try container.decode(SentryLog.Level.self, forKey: .level)
         let body = try container.decode(String.self, forKey: .body)
-        let attributes = try container.decode([String: SentryLogAttribute].self, forKey: .attributes)
+        let attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
         let severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
         
         self.init(

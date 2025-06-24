@@ -6,7 +6,7 @@ final class SentryLogAttributeTests: XCTestCase {
     // MARK: - Encoding Tests
     
     func testEncodeStringAttribute() throws {
-        let attribute = SentryLogAttribute.string("test value")
+        let attribute = SentryLog.Attribute.string("test value")
         
         let data = try JSONEncoder().encode(attribute)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -17,7 +17,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeBooleanAttribute() throws {
-        let attribute = SentryLogAttribute.bool(true)
+        let attribute = SentryLog.Attribute.boolean(true)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -28,7 +28,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeIntegerAttribute() throws {
-        let attribute = SentryLogAttribute.int(42)
+        let attribute = SentryLog.Attribute.integer(42)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -39,7 +39,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeDoubleAttribute() throws {
-        let attribute = SentryLogAttribute.double(3.14159)
+        let attribute = SentryLog.Attribute.double(3.14159)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -49,31 +49,6 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(json?["value"] as! Double, 3.14159, accuracy: 0.00001)
     }
     
-    func testEncodeWithUnknownType_ThrowsError() {
-        let attribute = SentryLogAttribute(value: "test", type: "unknown")
-        
-        XCTAssertThrowsError(try JSONEncoder().encode(attribute)) { error in
-            XCTAssertTrue(error is EncodingError)
-            if case let EncodingError.invalidValue(_, context) = error {
-                XCTAssertTrue(context.debugDescription.contains("Unknown type: unknown"))
-            } else {
-                XCTFail("Expected EncodingError.invalidValue")
-            }
-        }
-    }
-    
-    func testEncodeWithMismatchedTypeAndValue_ThrowsError() {
-        let attribute = SentryLogAttribute(value: 42, type: "string")
-        
-        XCTAssertThrowsError(try JSONEncoder().encode(attribute)) { error in
-            XCTAssertTrue(error is EncodingError)
-            if case let EncodingError.invalidValue(_, context) = error {
-                XCTAssertTrue(context.debugDescription.contains("Unknown type: string"))
-            } else {
-                XCTFail("Expected EncodingError.invalidValue")
-            }
-        }
-    }
     
     // MARK: - Decoding Tests
     
@@ -85,7 +60,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLogAttribute?)
+        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "string")
         XCTAssertEqual(attribute.value as? String, "decoded value")
@@ -99,7 +74,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLogAttribute?)
+        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "boolean")
         XCTAssertEqual(attribute.value as? Bool, false)
@@ -113,7 +88,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLogAttribute?)
+        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "integer")
         XCTAssertEqual(attribute.value as? Int, 12345)
@@ -127,7 +102,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLogAttribute?)
+        let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as! Double, 2.71828, accuracy: 0.00001)
@@ -141,7 +116,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = decodeFromJSONData(jsonData: json) as SentryLogAttribute?
+        let attribute = decodeFromJSONData(jsonData: json) as SentryLog.Attribute?
         
         XCTAssertNil(attribute)
     }
@@ -153,7 +128,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = decodeFromJSONData(jsonData: json) as SentryLogAttribute?
+        let attribute = decodeFromJSONData(jsonData: json) as SentryLog.Attribute?
         
         XCTAssertNil(attribute)
     }
@@ -165,7 +140,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = decodeFromJSONData(jsonData: json) as SentryLogAttribute?
+        let attribute = decodeFromJSONData(jsonData: json) as SentryLog.Attribute?
         
         XCTAssertNil(attribute)
     }
@@ -178,7 +153,7 @@ final class SentryLogAttributeTests: XCTestCase {
         }
         """.utf8)
         
-        let attribute = decodeFromJSONData(jsonData: json) as SentryLogAttribute?
+        let attribute = decodeFromJSONData(jsonData: json) as SentryLog.Attribute?
         
         XCTAssertNil(attribute)
     }
@@ -186,40 +161,40 @@ final class SentryLogAttributeTests: XCTestCase {
     // MARK: - Round-trip Tests
     
     func testRoundTripStringAttribute() throws {
-        let original = SentryLogAttribute.string("round trip test")
+        let original = SentryLog.Attribute.string("round trip test")
         
         let data = try JSONEncoder().encode(original)
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLogAttribute?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
         
         XCTAssertEqual(decoded.type, original.type)
         XCTAssertEqual(decoded.value as? String, original.value as? String)
     }
     
     func testRoundTripBooleanAttribute() throws {
-        let original = SentryLogAttribute.bool(false)
+        let original = SentryLog.Attribute.boolean(false)
         
         let data = try JSONEncoder().encode(original)
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLogAttribute?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
         
         XCTAssertEqual(decoded.type, original.type)
         XCTAssertEqual(decoded.value as? Bool, original.value as? Bool)
     }
     
     func testRoundTripIntegerAttribute() throws {
-        let original = SentryLogAttribute.int(-999)
+        let original = SentryLog.Attribute.integer(-999)
         
         let data = try JSONEncoder().encode(original)
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLogAttribute?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
         
         XCTAssertEqual(decoded.type, original.type)
         XCTAssertEqual(decoded.value as? Int, original.value as? Int)
     }
     
     func testRoundTripDoubleAttribute() throws {
-        let original = SentryLogAttribute.double(-123.456)
+        let original = SentryLog.Attribute.double(-123.456)
         
         let data = try JSONEncoder().encode(original)
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLogAttribute?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
         
         XCTAssertEqual(decoded.type, original.type)
         XCTAssertEqual(decoded.value as! Double, original.value as! Double, accuracy: 0.00001)

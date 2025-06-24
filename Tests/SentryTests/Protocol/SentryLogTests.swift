@@ -12,8 +12,8 @@ final class SentryLogTests: XCTestCase {
         body: "Test log message",
         attributes: [
             "user_id": .string("12345"),
-            "is_active": .bool(true),
-            "count": .int(42),
+            "is_active": .boolean(true),
+            "count": .integer(42),
             "score": .double(3.14159)
         ],
         severityNumber: 21

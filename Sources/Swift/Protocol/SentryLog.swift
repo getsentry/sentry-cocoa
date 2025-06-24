@@ -3,7 +3,7 @@ struct SentryLog {
     var traceId: SentryId
     let level: SentryLog.Level
     let body: String
-    let attributes: [String: SentryLogAttribute]
+    let attributes: [String: SentryLog.Attribute]
     let severityNumber: Int?
     
     /// The traceId is initially an empty default value and is populated during processing;
@@ -13,7 +13,7 @@ struct SentryLog {
         traceId: SentryId? = nil,
         level: SentryLog.Level,
         body: String,
-        attributes: [String: SentryLogAttribute],
+        attributes: [String: SentryLog.Attribute],
         severityNumber: Int? = nil
     ) {
         self.timestamp = timestamp

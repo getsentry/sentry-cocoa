@@ -1,4 +1,4 @@
-extension SentryLogAttribute: Codable {
+extension SentryLog.Attribute: Codable {
     
     private enum CodingKeys: String, CodingKey {
         case value
@@ -10,39 +10,33 @@ extension SentryLogAttribute: Codable {
         
         try container.encode(type, forKey: .type)
         
-        switch (type, value) {
-        case ("string", let stringValue as String):
-            try container.encode(stringValue, forKey: .value)
-        case ("boolean", let booleanValue as Bool):
-            try container.encode(booleanValue, forKey: .value)
-        case ("integer", let integerValue as Int):
-            try container.encode(integerValue, forKey: .value)
-        case ("double", let doubleValue as Double):
-            try container.encode(doubleValue, forKey: .value)
-        default:
-            throw EncodingError.invalidValue(value, .init(codingPath: container.codingPath, debugDescription: "Unknown type: \(type)"))
+        switch self {
+        case .string(let value):
+            try container.encode(value, forKey: .value)
+        case .boolean(let value):
+            try container.encode(value, forKey: .value)
+        case .integer(let value):
+            try container.encode(value, forKey: .value)
+        case .double(let value):
+            try container.encode(value, forKey: .value)
         }
     }
     
-    public convenience init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let type = try container.decode(String.self, forKey: .type)
-        let value: Any
-        
         switch type {
         case "string":
-            value = try container.decode(String.self, forKey: .value)
+            self = .string(try container.decode(String.self, forKey: .value))
         case "boolean":
-            value = try container.decode(Bool.self, forKey: .value)
+            self = .boolean(try container.decode(Bool.self, forKey: .value))
         case "integer":
-            value = try container.decode(Int.self, forKey: .value)
+            self = .integer(try container.decode(Int.self, forKey: .value))
         case "double":
-            value = try container.decode(Double.self, forKey: .value)
+            self = .double(try container.decode(Double.self, forKey: .value))
         default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown type: \(type)")
         }
-        
-        self.init(value: value, type: type)
     }
 }
