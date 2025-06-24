@@ -4,7 +4,7 @@ import XCTest
 class SentryCodableTests: XCTestCase {
 
     func testEncodeToJSONData_EncodesCorrectDateFormat() throws {
-        let date = Date(timeIntervalSince1970: 1234567890)
+        let date = Date(timeIntervalSince1970: 1_234_567_890)
         let jsonData = try encodeToJSONData(data: date)
         let json = String(data: jsonData, encoding: .utf8)
         XCTAssertEqual("\"2009-02-13T23:31:30.000Z\"", json)
@@ -17,7 +17,7 @@ class SentryCodableTests: XCTestCase {
             return
         }
         let date: Date? = decodeFromJSONData(jsonData: jsonData)
-        XCTAssertEqual(date, Date(timeIntervalSince1970: 1234567890))
+        XCTAssertEqual(date, Date(timeIntervalSince1970: 1_234_567_890))
     }
     
     func testDecodeWithEmptyData_ReturnsNil() {

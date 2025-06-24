@@ -49,7 +49,6 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(json?["value"] as! Double, 3.14159, accuracy: 0.00001)
     }
     
-    
     // MARK: - Decoding Tests
     
     func testDecodeStringAttribute() throws {
@@ -91,7 +90,7 @@ final class SentryLogAttributeTests: XCTestCase {
         let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 12345)
+        XCTAssertEqual(attribute.value as? Int, 12_345)
     }
     
     func testDecodeDoubleAttribute() throws {
