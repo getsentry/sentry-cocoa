@@ -8,7 +8,7 @@ final class SentryLogTests: XCTestCase {
     let log = SentryLog(
         timestamp: Date(timeIntervalSince1970: 1234567890),
         traceId: SentryId(uuidString: "550e8400-e29b-41d4-a716-446655440000"),
-        level: SentryLogLevel.info,
+        level: SentryLog.Level.info,
         body: "Test log message",
         attributes: [
             "user_id": .string("12345"),

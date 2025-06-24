@@ -23,13 +23,13 @@ extension SentryLog: Codable {
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
     }
     
-    public convenience init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let timestamp = try container.decode(Date.self, forKey: .timestamp)
         let traceIdString = try container.decode(String.self, forKey: .traceId)
         let traceId = SentryId(uuidString: traceIdString)
-        let level = try container.decode(SentryLogLevel.self, forKey: .level)
+        let level = try container.decode(SentryLog.Level.self, forKey: .level)
         let body = try container.decode(String.self, forKey: .body)
         let attributes = try container.decode([String: SentryLogAttribute].self, forKey: .attributes)
         let severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)

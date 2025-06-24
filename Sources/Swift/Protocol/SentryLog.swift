@@ -1,18 +1,17 @@
-@objcMembers
-public final class SentryLog {
-    public let timestamp: Date
-    public var traceId: SentryId
-    public let level: SentryLogLevel
-    public let body: String
-    public let attributes: [String: SentryLogAttribute]
-    public let severityNumber: Int?
+struct SentryLog {
+    let timestamp: Date
+    var traceId: SentryId
+    let level: SentryLog.Level
+    let body: String
+    let attributes: [String: SentryLogAttribute]
+    let severityNumber: Int?
     
     /// The traceId is initially an empty default value and is populated during processing;
     /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
-    public init(
+    init(
         timestamp: Date,
         traceId: SentryId? = nil,
-        level: SentryLogLevel,
+        level: SentryLog.Level,
         body: String,
         attributes: [String: SentryLogAttribute],
         severityNumber: Int? = nil
