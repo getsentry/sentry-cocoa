@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     error:&error];
 
     if (nil != error) {
-        [SentryLogSwift
+        [SentrySDKLog
             logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
                                                       @"storing the updated envelope failed: %@",
                                error.description]

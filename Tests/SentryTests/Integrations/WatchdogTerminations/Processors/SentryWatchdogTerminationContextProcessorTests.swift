@@ -93,8 +93,8 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
 
         // Define a log mock to assert the execution path
         let logOutput = TestLogOutput()
-        SentryLogSwift.setLogOutput(logOutput)
-        SentryLogSwift.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
         sut.setContext(fixture.context)
@@ -139,8 +139,8 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         // -- Arrange --
         // Define a log mock to assert the execution path
         let logOutput = TestLogOutput()
-        SentryLogSwift.setLogOutput(logOutput)
-        SentryLogSwift.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
         sut.setContext(fixture.invalidContext)

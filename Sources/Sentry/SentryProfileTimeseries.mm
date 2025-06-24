@@ -29,7 +29,7 @@ _sentry_logSlicingFailureWithArray(
         return;
     }
 
-    if (![SentryLogSwift willLogAtLevel:kSentryLevelDebug]) {
+    if (![SentrySDKLog willLogAtLevel:kSentryLevelDebug]) {
         return;
     }
 

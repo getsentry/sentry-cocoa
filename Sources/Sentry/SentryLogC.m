@@ -13,7 +13,7 @@ sendLog(NSInteger level, const char file[], int line, NSString *format, va_list 
 {
     NSString *formattedMessage = [[NSString alloc] initWithFormat:format arguments:args];
 
-    [SentryLogSwift logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",
+    [SentrySDKLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",
                                   [[[NSString stringWithUTF8String:file] lastPathComponent]
                                       stringByDeletingPathExtension],
                                   line, formattedMessage]
@@ -23,27 +23,27 @@ sendLog(NSInteger level, const char file[], int line, NSString *format, va_list 
 bool
 debugEnabled(void)
 {
-    return [SentryLogSwift willLogAtLevel:kSentryLevelDebug];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelDebug];
 }
 bool
 infoEnabled(void)
 {
-    return [SentryLogSwift willLogAtLevel:kSentryLevelInfo];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelInfo];
 }
 bool
 warnEnabled(void)
 {
-    return [SentryLogSwift willLogAtLevel:kSentryLevelWarning];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelWarning];
 }
 bool
 errorEnabled(void)
 {
-    return [SentryLogSwift willLogAtLevel:kSentryLevelError];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelError];
 }
 bool
 fatalEnabled(void)
 {
-    return [SentryLogSwift willLogAtLevel:kSentryLevelFatal];
+    return [SentrySDKLog willLogAtLevel:kSentryLevelFatal];
 }
 
 void

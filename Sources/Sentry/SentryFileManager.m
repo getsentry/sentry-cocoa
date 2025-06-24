@@ -887,7 +887,7 @@ removeAppLaunchProfilingConfigFile(void)
 
 - (nullable SentrySession *)readSession:(NSString *)sessionFilePath
 {
-    [SentryLogSwift
+    [SentrySDKLog
         logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
               andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
