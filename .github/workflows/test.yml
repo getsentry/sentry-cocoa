@@ -183,9 +183,17 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
+      - name: Restore test build cache
+        id: test-build-cache
+        uses: actions/cache@v4
+        with:
+          key: ${{matrix.scheme}}-${{matrix.runs-on}}-${{matrix.platform}}-${{matrix.test-destination-os}}-xcode-${{matrix.xcode}}-${{hashFiles('Tests/**', 'Sentry.xcodeproj/**', 'Tests/Configuration/**', 'Sentry/Configuration/DeploymentTargets.xcconfig')}}
+          path: uikit-check-build
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
+        if: steps.test-build-cache.outputs.cache-hit != 'true'
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
@@ -194,7 +202,8 @@ jobs:
             --command build-for-testing \
             --device "${{matrix.device}}" \
             --configuration TestCI \
-            --scheme ${{matrix.scheme}}
+            --scheme ${{matrix.scheme}} \
+            --derived-data unit-test-build
 
       - name: Run tests
         # We call a script with the platform so the destination
@@ -209,7 +218,8 @@ jobs:
             --command test-without-building \
             --device "${{matrix.device}}" \
             --configuration TestCI \
-            --scheme ${{matrix.scheme}}
+            --scheme ${{matrix.scheme}} \
+            --derived-data unit-test-build
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1

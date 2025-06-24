@@ -106,12 +106,6 @@ jobs:
         run: ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
-      - name: Cache XCFramework
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
-
       - name: Upload XCFramework
         uses: actions/upload-artifact@v4
         with:
