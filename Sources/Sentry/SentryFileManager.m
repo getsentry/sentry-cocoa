@@ -786,11 +786,13 @@ NSString *_Nullable sentryStaticBasePath(void)
     return sentryStaticBasePath;
 }
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void
 removeSentryStaticBasePath(void)
 {
     _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
 }
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #pragma mark - Profiling
 
