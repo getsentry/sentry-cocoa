@@ -240,6 +240,8 @@ jobs:
       validate-spm,
       validate-spm-dynamic,
       swift-build,
+      app-metrics,
+      duplication-tests,
     ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
