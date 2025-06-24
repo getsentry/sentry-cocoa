@@ -14,7 +14,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"

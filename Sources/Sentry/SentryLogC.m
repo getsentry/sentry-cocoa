@@ -3,7 +3,6 @@
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryLogC.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
