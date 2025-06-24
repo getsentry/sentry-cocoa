@@ -308,7 +308,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
-    convenience init(dictionary: [String: Any]) {
+    @_spi(Private) public convenience init(dictionary: [String: Any]) {
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(

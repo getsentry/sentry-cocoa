@@ -1,5 +1,5 @@
 import Foundation
-@testable import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 class TestConstantTests: XCTestCase {
