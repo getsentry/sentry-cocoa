@@ -9,12 +9,12 @@
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
+#import "SentryProfileCollector.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
-#import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchyProvider.h"
 #import <SentryBreadcrumb.h>
@@ -29,10 +29,6 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryTraceProfiler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED || SENTRY_TARGET_REPLAY_SUPPORTED
-#    import "SentrySwift.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED || SENTRY_TARGET_REPLAY_SUPPORTED
 
 @implementation PrivateSentrySDKOnly
 
@@ -222,18 +218,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
                                                                     and:(uint64_t)endSystemTime
                                                                forTrace:(SentryId *)traceId;
 {
-    NSMutableDictionary<NSString *, id> *payload = sentry_collectProfileDataHybridSDK(
-        startSystemTime, endSystemTime, traceId, [SentrySDK currentHub]);
-
-    if (payload != nil) {
-        payload[@"platform"] = SentryPlatformName;
-        payload[@"transaction"] = @{
-            @"active_thread_id" :
-                [NSNumber numberWithLongLong:sentry::profiling::ThreadHandle::current()->tid()]
-        };
-    }
-
-    return payload;
+    return [SentryProfileCollector collectProfileBetween:startSystemTime
+                                                     and:endSystemTime
+                                                forTrace:traceId];
 }
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;
