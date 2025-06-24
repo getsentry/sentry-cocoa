@@ -1,6 +1,5 @@
 #import "SentrySdkInfo.h"
 #import "SentryClient+Private.h"
-#import "SentryExtraPackages.h"
 #import "SentryHub+Private.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
