@@ -17,6 +17,11 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - "Package.swift"
+      - "Sources/**"
+      - "scripts/ci-select-xcode.sh"
+      - Sentry.xcworkspace/**
+      - Sentry.xcodeproj/**
+      - "Package.swift"
       - ".github/workflows/build-xcframework.yml"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
