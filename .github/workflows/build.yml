@@ -92,6 +92,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      # Only watchOS is compiling with SPM so far, the rest of the targets need profiling support which is still a work in progress due to the ObjC++ usage
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
         shell: sh
 
