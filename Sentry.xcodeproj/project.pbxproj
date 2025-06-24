@@ -1034,6 +1034,7 @@
 		F4046F9B2DE4F6C2000B855B /* LoadValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4046F9A2DE4F6C2000B855B /* LoadValidator.swift */; };
 		F443DB272E09BE8C009A9045 /* LoadValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */; };
 		F44858132E03579D0013E63B /* SentryCrashDynamicLinker+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */; };
+		F451FAA62E0B304E0050ACF2 /* LoadValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */; };
 		F452437E2DE60B71003E8F50 /* SentryUseNSExceptionCallstackWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = F452437D2DE60B71003E8F50 /* SentryUseNSExceptionCallstackWrapper.m */; };
 		F45243882DE65968003E8F50 /* ExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = F45243872DE65968003E8F50 /* ExceptionCatcher.m */; };
 		F45243892DE65968003E8F50 /* ExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = F45243872DE65968003E8F50 /* ExceptionCatcher.m */; };
@@ -2329,6 +2330,7 @@
 		F4046F9A2DE4F6C2000B855B /* LoadValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidator.swift; sourceTree = "<group>"; };
 		F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidatorTests.swift; sourceTree = "<group>"; };
 		F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrashDynamicLinker+Test.h"; sourceTree = "<group>"; };
+		F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidator.swift; sourceTree = "<group>"; };
 		F452437D2DE60B71003E8F50 /* SentryUseNSExceptionCallstackWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryUseNSExceptionCallstackWrapper.m; sourceTree = "<group>"; };
 		F45243862DE65968003E8F50 /* ExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExceptionCatcher.h; sourceTree = "<group>"; };
 		F45243872DE65968003E8F50 /* ExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExceptionCatcher.m; sourceTree = "<group>"; };
@@ -4373,6 +4375,7 @@
 			children = (
 				92235CAD2E15549C00865983 /* SentryLogger.swift */,
 				92235CAB2E15369900865983 /* SentryLogBatcher.swift */,
+				F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */,
 				FA90FAFC2E070A3B008CAAE8 /* SentryURLRequestFactory.swift */,
 				FA67DCC02DDBD4C800896B02 /* SentrySDKLog+Configure.swift */,
 				FA3734812E0EEA670091EF24 /* SentryScreenshot.swift */,
@@ -4733,7 +4736,6 @@
 				FA67DCED2DDBD4EA00896B02 /* UIImageHelper.swift */,
 				FA67DCEE2DDBD4EA00896B02 /* UrlSanitized.swift */,
 				FA67DCEF2DDBD4EA00896B02 /* URLSessionTaskHelper.swift */,
-				F4046F9A2DE4F6C2000B855B /* LoadValidator.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -5494,6 +5496,8 @@
 				63AA769E1EB9C57A00D153DE /* SentryError.mm in Sources */,
 				7B8713B026415B22006D6004 /* SentryAppStartTrackingIntegration.m in Sources */,
 				8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */,
+				33C374BB2D103F4D004598F1 /* SentryExtraPackages.m in Sources */,
+				F451FAA62E0B304E0050ACF2 /* LoadValidator.swift in Sources */,
 				D81988C02BEBFFF70020E36C /* SentryReplayRecording.swift in Sources */,
 				7B6C5F8726034395007F7DFF /* SentryWatchdogTerminationLogic.m in Sources */,
 				7BBC827125DFD039005F1ED8 /* SentryInAppLogic.m in Sources */,
@@ -5708,7 +5712,6 @@
 				03F84D3527DD4191008FE43F /* SentryThreadHandle.cpp in Sources */,
 				0A2D8DA9289BC905008720F6 /* SentryViewHierarchyProvider.m in Sources */,
 				D84D2CDD2C2BF7370011AF8A /* SentryReplayEvent.swift in Sources */,
-				F4046F9B2DE4F6C2000B855B /* LoadValidator.swift in Sources */,
 				D8BC28CC2BFF78220054DA4D /* SentryRRWebTouchEvent.swift in Sources */,
 				D452FC592DDB4B1700AFF56F /* SentryWatchdogTerminationBreadcrumbProcessor.m in Sources */,
 				FAE2DAB82E1F317900262307 /* SentryProfilingSwiftHelpers.m in Sources */,
