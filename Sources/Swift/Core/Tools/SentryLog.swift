@@ -39,7 +39,7 @@ typealias SentryLogOutput = ((String) -> Void)
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
         let time = self.dateProvider.date().timeIntervalSince1970
-        logOutput("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
+        logOutput("[Sentry] [\(level)] [\(time)] \(message)")
     }
 
     /**
