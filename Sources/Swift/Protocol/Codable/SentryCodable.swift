@@ -1,18 +1,6 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-func encodeToJSONData<T: Encodable>(data: T) throws -> Data {
-    let jsonEncoder = JSONEncoder()
-    jsonEncoder.dateEncodingStrategy = .custom({ (date, encoder) in
-        let formatter = sentryGetIso8601FormatterWithMillisecondPrecision()
-        let dateString = formatter.string(from: date)
-        
-        var container = encoder.singleValueContainer()
-        try container.encode(dateString)
-    })
-    return try jsonEncoder.encode(data)
-}
-
 func decodeFromJSONData<T: Decodable>(jsonData: Data) -> T? {
     if jsonData.isEmpty {
         return nil
