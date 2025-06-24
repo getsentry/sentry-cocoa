@@ -27,7 +27,7 @@ class SentrySDKLogTests: XCTestCase {
         SentrySDKLog.setOutput(oldOutput)
         SentrySDKLog.setCurrentDateProvider(SentryDefaultCurrentDateProvider())
     }
-
+    
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
