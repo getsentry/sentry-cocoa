@@ -5,14 +5,6 @@ import XCTest
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
     
-    override func setUp() {
-        super.setUp()
-
-        app.launchArguments.append(contentsOf: [
-            "--io.sentry.wipe-data" // make sure there are no previous configuration files or profile files written
-        ])
-    }
-    
     func testAppLaunchesWithTraceProfiler() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
@@ -80,7 +72,7 @@ class ProfilingUITests: BaseUITest {
             goToTransactions()
             startTransaction()
             
-            app.buttons["appHangFullyBlocking"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
+            app.buttons["appHangFullyBlockingThreadSleeping"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
             stopTransaction()
             
             goToProfiling()

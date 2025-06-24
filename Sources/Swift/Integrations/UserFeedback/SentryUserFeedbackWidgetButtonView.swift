@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *)
-class SentryUserFeedbackWidgetButtonView: UIView {
+final class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Measurements
     let svgSize: CGFloat = 16
     

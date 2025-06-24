@@ -21,11 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    SentrySessionTracker *tracker = [[SentrySessionTracker alloc]
-           initWithOptions:options
-        notificationCenter:[SentryDependencyContainer sharedInstance].notificationCenterWrapper];
-    [tracker start];
-    self.tracker = tracker;
+    self.tracker = [SentryDependencyContainer.sharedInstance getSessionTrackerWithOptions:options];
+    [self.tracker start];
 
     return YES;
 }

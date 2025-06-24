@@ -1,14 +1,16 @@
 @_spi(Private) @testable import Sentry
 
-//Exposing internal/test functions from SentryLog
+//Exposing internal/test functions from SentrySDKLog
 extension Sentry.SentrySDKLog {
     static func configureLog(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         SentrySDKLogSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
     }
     
-    static func setLogOutput(_ output: SentryLogOutput) {
+    static func setLogOutput(_ output: TestLogOutput) {
         #if SENTRY_TEST || SENTRY_TEST_CI
-        SentrySDKLog.setOutput(output)
+        SentrySDKLog.setOutput { string in
+            output.log(string)
+        }
         #endif
     }
     
@@ -16,7 +18,7 @@ extension Sentry.SentrySDKLog {
         #if SENTRY_TEST || SENTRY_TEST_CI
         return SentrySDKLog.getOutput()
         #else
-        SentryLogOutput()
+        { print($0) }
         #endif
     }
     

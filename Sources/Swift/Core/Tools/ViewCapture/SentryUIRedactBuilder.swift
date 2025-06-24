@@ -7,7 +7,7 @@ import UIKit
 import WebKit
 #endif
 
-class SentryUIRedactBuilder {
+final class SentryUIRedactBuilder {
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
     ///This is a wrapper which marks it's direct children to be redacted

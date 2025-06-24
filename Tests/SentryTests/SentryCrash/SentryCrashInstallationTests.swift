@@ -39,7 +39,7 @@ class SentryCrashInstallationTests: XCTestCase {
         installation.uninstall()
 
         #if SENTRY_UIKIT_AVAILABLE
-        XCTAssertEqual(5, notificationCenter.removeObserverWithNameInvocationsCount)
+        XCTAssertEqual(5, notificationCenter.removeObserverWithNameInvocations.invocations.count)
         #endif
     }
 
@@ -69,7 +69,7 @@ class SentryCrashInstallationTests: XCTestCase {
                           crashHandlerDataAfterInstall: crashHandlerDataAfterInstall)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssertEqual(55, notificationCenter.removeObserverWithNameInvocationsCount)
+        XCTAssertEqual(55, notificationCenter.removeObserverWithNameInvocations.invocations.count)
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 

@@ -4,7 +4,6 @@
 
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
@@ -27,19 +26,29 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return SentryCrashJSON_OK;
 }
 
+@interface SentryViewHierarchyProvider ()
+
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) id<SentryApplication> sentryUIApplication;
+
+@end
+
 @implementation SentryViewHierarchyProvider
 
-- (instancetype)init
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                         sentryUIApplication:(id<SentryApplication>)sentryUIApplication
 {
     if (self = [super init]) {
         self.reportAccessibilityIdentifier = YES;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
+        self.sentryUIApplication = sentryUIApplication;
     }
     return self;
 }
 
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
-    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
+    NSArray<UIWindow *> *windows = [self.sentryUIApplication windows];
 
     const char *path = [filePath UTF8String];
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
@@ -62,8 +71,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
     SENTRY_LOG_INFO(@"Starting to fetch the view hierarchy from the main thread.");
 
-    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
-        dispatchSyncOnMainQueue:fetchViewHierarchy];
+    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:fetchViewHierarchy];
 
     SENTRY_LOG_INFO(@"Finished fetching the view hierarchy from the main thread.");
 
@@ -73,7 +81,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 - (NSData *)appViewHierarchy
 {
     NSMutableData *result = [[NSMutableData alloc] init];
-    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
+    NSArray<UIWindow *> *windows = [self.sentryUIApplication windows];
 
     if (![self processViewHierarchy:windows
                         addFunction:writeJSONDataToMemory

@@ -26,7 +26,7 @@ class SentryBaseIntegrationTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
-        SentrySDKLog.setLogOutput(oldOutput)
+        SentrySDKLog.setOutput(oldOutput)
     }
 
     func testIntegrationName() {

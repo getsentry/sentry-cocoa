@@ -258,11 +258,81 @@ final class SentryDependencyContainerTests: XCTestCase {
         let _ = container.watchdogTerminationContextProcessor
 
         // -- Assert --
-        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createLowPriorityQueueInvocations.first)
+        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createUtilityQueueInvocations.first)
         XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.context-processor")
         XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
 #else
         throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
 #endif
     }
+
+    func testGetSessionTrackerWithOptions_shouldReturnNewInstancePerCall() throws {
+        // -- Arrange --
+        let options1 = Options()
+        options1.dsn = SentryDependencyContainerTests.dsn
+        options1.sessionTrackingIntervalMillis = 10_000
+        
+        let options2 = Options()
+        options2.dsn = SentryDependencyContainerTests.dsn
+        options2.sessionTrackingIntervalMillis = 5_000
+        
+        SentrySDK.setStart(options1)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker1 = container.getSessionTracker(with: options1)
+        let tracker2 = container.getSessionTracker(with: options2)
+
+        // -- Assert --
+        XCTAssertNotIdentical(tracker1, tracker2)
+    }
+
+    func testGetSessionTrackerWithOptions_shouldUseParameters() throws {
+        // -- Arrange --
+        let options1 = Options()
+        options1.dsn = SentryDependencyContainerTests.dsn
+        options1.sessionTrackingIntervalMillis = 10_000
+        options1.environment = "test1"
+        
+        let options2 = Options()
+        options2.dsn = SentryDependencyContainerTests.dsn
+        options2.sessionTrackingIntervalMillis = 5_000
+        options2.environment = "test2"
+        
+        SentrySDK.setStart(options1)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker1 = container.getSessionTracker(with: options1)
+        let tracker2 = container.getSessionTracker(with: options2)
+
+        // -- Assert --
+        // This assertion relies on internal implementation details of the tracker.
+        // It is best practice not to rely on internal implementation details.
+        // There is no other way to test this, because the options property is private.
+        XCTAssertEqual(Dynamic(tracker1).options.sessionTrackingIntervalMillis, 10_000)
+        XCTAssertEqual(Dynamic(tracker2).options.sessionTrackingIntervalMillis, 5_000)
+        XCTAssertEqual(Dynamic(tracker1).options.environment, "test1")
+        XCTAssertEqual(Dynamic(tracker2).options.environment, "test2")
+    }
+
+    func testGetSessionTrackerWithOptions_shouldUseDependenciesFromContainer() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker = container.getSessionTracker(with: options)
+
+        // -- Assert --
+        // Verify that the tracker uses the dependencies from the container
+        XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
+        XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
+        XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
+    }    
 }
