@@ -9,50 +9,12 @@
 #import "SentryLog.h"
 #import "SentryMessage.h"
 #import "SentryMsgPackSerializer.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTransaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@implementation SentryEnvelopeHeader
-
-// id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(SentryId *_Nullable)eventId
-{
-    self = [self initWithId:eventId traceContext:nil];
-    return self;
-}
-
-- (instancetype)initWithId:(nullable SentryId *)eventId
-              traceContext:(nullable SentryTraceContext *)traceContext
-{
-    SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
-    self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
-    return self;
-}
-
-- (instancetype)initWithId:(nullable SentryId *)eventId
-                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
-              traceContext:(nullable SentryTraceContext *)traceContext
-{
-    if (self = [super init]) {
-        _eventId = eventId;
-        _sdkInfo = sdkInfo;
-        _traceContext = traceContext;
-    }
-
-    return self;
-}
-
-+ (instancetype)empty
-{
-    return [[SentryEnvelopeHeader alloc] initWithId:nil traceContext:nil];
-}
-
-@end
 
 @implementation SentryEnvelopeItem
 
