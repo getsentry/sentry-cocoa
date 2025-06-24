@@ -10,7 +10,6 @@ class LoadValidatorTests: XCTestCase {
     private var mockBinaryImageInfo: SentryBinaryImageInfo!
     private var testOutput: TestLogOutput!
     private var testObjCRuntimeWrapper: SentryTestObjCRuntimeWrapper!
-    private var timeout: TimeInterval = 5.0
     
     // MARK: - Setup and Teardown
     
@@ -44,21 +43,15 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        var validationResult = false
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) { result in
-            validationResult = result
-            expectation.fulfill()
-        }
+        let validationResult = LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertFalse(validationResult, "Validation should skip for system libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper shouldd not be called for a system library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
     }
  
-    #if targetEnvironment(simulator)
+#if targetEnvironment(simulator)
     func testValidateSDKPresenceIn_SimulatorPath_DoesNotValidate() {
         // Arrange
         mockBinaryImageInfo.name = "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/usr/lib/system.dylib"
@@ -68,15 +61,9 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        var validationResult = false
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) { result in
-            validationResult = result
-            expectation.fulfill()
-        }
+        let validationResult = LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertFalse(validationResult, "Validation should skip for simulator libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper shouldd not be called for a simulator library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
@@ -92,13 +79,9 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) {_ in
-            expectation.fulfill()
-        }
+        LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
     }
@@ -115,15 +98,9 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        var validationResult = false
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) { result in
-            validationResult = result
-            expectation.fulfill()
-        }
+        let validationResult = LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertTrue(validationResult, "Validation should skip for app binary")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper shouldd be called for an app binary")
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times in the binary ❌") })
@@ -143,15 +120,9 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        var validationResult = false
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) { result in
-            validationResult = result
-            expectation.fulfill()
-        }
+        let validationResult = LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertTrue(validationResult, "Validation should return true for app")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times in the binary ❌") })
@@ -175,15 +146,9 @@ class LoadValidatorTests: XCTestCase {
         }
         
         // Act
-        var validationResult = false
-        let expectation = XCTestExpectation(description: "Async validation")
-        LoadValidator.validateSDKPresenceIn(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper) { result in
-            validationResult = result
-            expectation.fulfill()
-        }
+        let validationResult = LoadValidator.validateSDKPresenceInSync(mockBinaryImageInfo, objcRuntimeWrapper: testObjCRuntimeWrapper)
         
         // Assert
-        wait(for: [expectation], timeout: timeout)
         XCTAssertFalse(validationResult, "Validation should skip for sentry framework")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should not be called for an app binary")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
