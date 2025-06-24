@@ -34,7 +34,7 @@ typealias SentryLogOutput = ((String) -> Void)
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
-        // We use the timeIntervalSinceReferenceDate because date format is
+        // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
