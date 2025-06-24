@@ -10,12 +10,26 @@ class LoadValidator: NSObject {
     
     @objc
     class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) {
-        LoadValidator.validateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper, resultHandler: nil)
+        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper)
     }
     
-    @objc
-    class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, resultHandler: ((Bool) -> Void)?) {
-        DispatchQueue.global(qos: .background).async {
+    /**
+     * This synchronous version is intended to be used in tests.
+     * It uses a higher QoS and wait for the result
+     */
+    @discardableResult class func validateSDKPresenceInSync(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) -> Bool {
+        var result = false
+        let semaphore = DispatchSemaphore(value: 0)
+        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper, qos: .userInitiated) { duplicateFound in
+            result = duplicateFound
+            semaphore.signal()
+        }
+        semaphore.wait()
+        return result
+    }
+    
+    class private func internalValidateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, qos: DispatchQoS.QoSClass = .background, resultHandler: ((Bool) -> Void)? = nil) {
+        DispatchQueue.global(qos: qos).async {
             var duplicateFound = false
             defer {
                 resultHandler?(duplicateFound)
