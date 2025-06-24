@@ -1,18 +1,19 @@
 #import "SentryBinaryImageCache.h"
+#import "SentryBinaryImageInfo.h"
 #import "SentryCrashBinaryImageCache.h"
 #include "SentryCrashUUIDConversion.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryLog.h"
+#import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
 static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
-
-@implementation SentryBinaryImageInfo
-@end
 
 @interface SentryBinaryImageCache ()
 @property (nonatomic, strong, nullable) NSMutableArray<SentryBinaryImageInfo *> *cache;
@@ -82,6 +83,12 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
         }
 
         [_cache insertObject:newImage atIndex:left];
+    }
+
+    if ([SentrySDK.currentHub getClient].options.debug == YES) {
+        // Only validate if debug is enabled
+        [LoadValidator validateSDKPresenceIn:newImage
+                          objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
     }
 }
 
