@@ -261,6 +261,14 @@ jobs:
           merge-multiple: true
           path: Carthage/
 
+      - name: Archive XCFrameworks for Craft
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.sha}}
+          if-no-files-found: error
+          path: |
+            ${{github.workspace}}/Carthage/*.zip
+
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
       - run: export GITHUB_RUN_ID=${{ github.run_id }}
