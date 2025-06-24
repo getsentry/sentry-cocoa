@@ -13,10 +13,10 @@ sendLog(NSInteger level, const char file[], int line, NSString *format, va_list 
     NSString *formattedMessage = [[NSString alloc] initWithFormat:format arguments:args];
 
     [SentrySDKLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",
-                                  [[[NSString stringWithUTF8String:file] lastPathComponent]
-                                      stringByDeletingPathExtension],
-                                  line, formattedMessage]
-                     andLevel:level];
+                                     [[[NSString stringWithUTF8String:file] lastPathComponent]
+                                         stringByDeletingPathExtension],
+                                     line, formattedMessage]
+                        andLevel:level];
 }
 
 bool
