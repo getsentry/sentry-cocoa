@@ -7,7 +7,8 @@ extension SentryLog {
         case error
         case fatal
         
-        public func toSeverityNumber() -> Int {
+        // Docs: https://develop.sentry.dev/sdk/telemetry/logs/#log-severity-number
+        func toSeverityNumber() -> Int {
             switch self {
             case .trace:
                 return 1
