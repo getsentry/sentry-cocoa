@@ -16,6 +16,7 @@ on:
       - ".github/workflows/build-xcframework.yml"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/release.yml"
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
       - ".github/workflows/ui-tests-common.yml"
