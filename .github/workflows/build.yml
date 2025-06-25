@@ -196,6 +196,8 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/release/') == true
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Get Release workflow run ID
         run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
