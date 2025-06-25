@@ -1,4 +1,4 @@
-name: Upload XCFramework
+name: Upload XCFrameworks
 on:
   push:
     branches:
@@ -18,13 +18,12 @@ jobs:
 # to generate the checksum, but we also need the checksum to update Package.swift.
 #
 # The sequence is:
-# 1. Build the XCFramework in release.yml.
+# 1. Build the XCFrameworks in release.yml.
 # 2. getsentry/action-prepare-release updates Package.swift with the checksum.
-# 3. Upload the XCFramework again here so Craft can find it by commit.
+# 3. Upload the XCFrameworks again here so Craft can find it by commit.
 
-  upload-xcframework:
+  upload-xcframeworks:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/release/') == true
     steps:
       - uses: actions/checkout@v4
       
