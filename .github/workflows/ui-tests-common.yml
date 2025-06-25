@@ -105,7 +105,7 @@ jobs:
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
           path: |
-            ~/Library/Logs/DiagnosticReports/*.ips
+            ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
