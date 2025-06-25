@@ -20,7 +20,7 @@
     }
 
     @objc(dispatchAsyncWithBlock:)
-    func dispatchAsync(_ block: @escaping () -> Void) {
+    public func dispatchAsync(_ block: @escaping () -> Void) {
         internalWrapper.dispatchAsync(block)
     }
     
@@ -29,16 +29,16 @@
     }
     
     @objc(dispatchAsyncOnMainQueue:)
-    func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
+    public func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
         internalWrapper.dispatchAsyncOnMainQueue(block: block)
     }
 
     @objc(dispatchSyncOnMainQueue:)
-    func dispatchSyncOnMainQueue(block: @escaping () -> Void) {
+    public func dispatchSyncOnMainQueue(block: @escaping () -> Void) {
         internalWrapper.dispatchSyncOnMainQueue(block: block)
     }
     
-    func dispatchSyncOnMainQueue(_ block: @escaping () -> Void, timeout: Double) {
+    public func dispatchSyncOnMainQueue(_ block: @escaping () -> Void, timeout: Double) {
         internalWrapper.dispatchSync(onMainQueue: block, timeout: timeout)
     }
 
@@ -50,7 +50,7 @@
         internalWrapper.dispatchCancel(block)
     }
 
-    func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void) {
+    public func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void) {
         internalWrapper.dispatchOnce(predicate, block: block)
     }
     

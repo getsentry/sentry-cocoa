@@ -10,7 +10,7 @@
 
     // MARK: - Context
 
-    func moveCurrentFileToPreviousFile() {
+    public func moveCurrentFileToPreviousFile() {
         SentryLog.debug("Moving context file to previous context file")
         self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
     }
