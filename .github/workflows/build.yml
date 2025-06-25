@@ -196,10 +196,15 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/release/') == true
     steps:
+      - name: Get Release workflow run ID
+        run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
+
       - uses: actions/download-artifact@v4
         with:
           name: xcframeworks.zip
           path: Carthage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@v4
