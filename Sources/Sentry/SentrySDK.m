@@ -398,7 +398,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #if TARGET_OS_OSX
 
-+ (SentryId *)captureCrashOnException:(NSException *)exception
++ (SentryId *)captureCrashOnException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentryUseNSExceptionCallstackWrapper *wrappedException =
         [[SentryUseNSExceptionCallstackWrapper alloc]
@@ -406,7 +406,7 @@ static NSDate *_Nullable startTimestamp = nil;
                               reason:exception.reason
                             userInfo:exception.userInfo
             callStackReturnAddresses:exception.callStackReturnAddresses];
-    return [SentrySDK captureException:wrappedException withScope:SentrySDK.currentHub.scope];
+    return [SentrySDK captureException:wrappedException withScope:scope];
 }
 
 #endif // TARGET_OS_OSX

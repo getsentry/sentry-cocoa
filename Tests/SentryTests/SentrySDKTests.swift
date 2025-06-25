@@ -1006,7 +1006,7 @@ class SentrySDKTests: XCTestCase {
     func testCaptureCrashOnException() {
         givenSdkWithHub()
         
-        SentrySDK.captureCrashOn(exception: fixture.exception)
+        SentrySDK.captureCrashOn(exception: fixture.exception, withScope: fixture.scope)
 
         let client = fixture.client
         XCTAssertEqual(1, client.captureExceptionWithScopeInvocations.count)
