@@ -1,5 +1,5 @@
-@testable import Sentry
-@testable import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 /// This test suite is not intended to test the actual functionality of the dispatch factory,
