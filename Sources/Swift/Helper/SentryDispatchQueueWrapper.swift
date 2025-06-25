@@ -5,7 +5,7 @@
 // to be accessible to Swift without making that header file public
 @objcMembers @_spi(Private) public class SentryDispatchQueueWrapper: NSObject {
     
-    let internalWrapper: _SentryDispatchQueueWrapperInternal
+    private let internalWrapper: _SentryDispatchQueueWrapperInternal
     
     public override init() {
         internalWrapper = _SentryDispatchQueueWrapperInternal()
@@ -18,7 +18,8 @@
     public var queue: DispatchQueue {
         internalWrapper.queue
     }
-    
+
+    @objc(dispatchAsyncWithBlock:)
     func dispatchAsync(_ block: @escaping () -> Void) {
         internalWrapper.dispatchAsync(block)
     }
@@ -30,10 +31,6 @@
     @objc(dispatchAsyncOnMainQueue:)
     func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
         internalWrapper.dispatchAsyncOnMainQueue(block: block)
-    }
-    
-    func dispatchAsyncWithBlock(_ block: @escaping () -> Void) {
-        internalWrapper.dispatchAsync(block)
     }
 
     @objc(dispatchSyncOnMainQueue:)
