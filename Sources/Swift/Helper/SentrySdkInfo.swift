@@ -130,12 +130,13 @@ import Foundation
     // swiftlint:enable cyclomatic_complexity
     
     @objc public func serialize() -> [String: Any] {
-        [
-            "name": self.name,
-            "version": self.version,
-            "integrations": self.integrations,
-            "features": self.features,
-            "packages": self.packages
-        ]
+//        let dictionary: [String: Any] = [
+//            "name": self.name,
+//            "version": self.version,
+//            "integrations": self.integrations,
+//            "features": self.features,
+//            "packages": self.packages
+//        ]
+        return SentrySwiftDictionaryHelper.convert(from: self.name, version: self.version, integrations: self.integrations, features: self.features, packages: self.packages)
     }
 }

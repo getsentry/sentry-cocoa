@@ -8,6 +8,7 @@
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
+#import "SentrySwiftDictionaryHelper.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
