@@ -1,0 +1,48 @@
+name: Upload XCFramework
+on:
+  push:
+    branches:
+      - release/**
+
+jobs:
+# Craft uses the Git commit hash to query GitHub Actions for artifacts
+# uploaded in a workflow run associated with that commit.
+#
+# To support this, we download the XCFramework already built and uploaded
+# in release.yml (triggered via workflow_dispatch), and reupload it here.
+# This associates it with the new commit in the release branch, which is
+# created by getsentry/action-prepare-release in release.yml.
+#
+# This is necessary because Swift Package Manager requires a checksum for
+# XCFrameworks, creating a chicken-and-egg problem: we need the XCFramework
+# to generate the checksum, but we also need the checksum to update Package.swift.
+#
+# The sequence is:
+# 1. Build the XCFramework in release.yml.
+# 2. getsentry/action-prepare-release updates Package.swift with the checksum.
+# 3. Upload the XCFramework again here so Craft can find it by commit.
+
+  upload-xcframework:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/release/') == true
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get Release workflow run ID
+        run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: xcframeworks.zip
+          path: Carthage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.FRAMEWORK_RUN_ID }}
+
+      - name: Archive XCFrameworks for Craft
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframeworks.zip
+          if-no-files-found: error
+          overwrite: true
+          path: |
+            ${{github.workspace}}/Carthage/*.zip
