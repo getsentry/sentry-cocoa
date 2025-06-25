@@ -275,7 +275,9 @@ jobs:
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
-      - run: export GITHUB_RUN_ID=${{ github.run_id }}
+      - run: export GITHUB_RUN_ID="$GITHUB_RUN_ID"
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
         uses: getsentry/action-prepare-release@v1
