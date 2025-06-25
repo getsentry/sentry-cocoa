@@ -163,6 +163,7 @@ jobs:
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error,
     # you only get the compiler error when setting the SENTRY_ASYNC_SAFE_LOG_LEVEL to SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG or lower.
+
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
@@ -189,3 +190,20 @@ jobs:
             --command build \
             --device "iPhone 16" \
             --configuration Debug
+
+  prepare-craft-deliverable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: xcframeworks.zip
+          if-no-files-found: error
+          path: Carthage/
+
+      - name: Archive XCFrameworks for Craft
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframeworks.zip
+          if-no-files-found: error
+          path: |
+            ${{github.workspace}}/Carthage/*.zip
