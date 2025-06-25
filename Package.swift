@@ -11,13 +11,13 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.0/Sentry.xcframework.zip",
-        checksum: "ceb6fdf396ba3cdcaaecc13dce88da7ccdd293bed19cc145c7bc91a3136dba72" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.1/Sentry.xcframework.zip",
+        checksum: "f2c1d1dfaa102edac4c5270bbf0b57977d9ef61985b17a1f277cb72ac6c80302" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.0/Sentry-Dynamic.xcframework.zip",
-        checksum: "d8c9431e8025e0f1307ca5c97924848be5239d978a25793e49d7b427fbca16e4" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.1/Sentry-Dynamic.xcframework.zip",
+        checksum: "8b643291cd90d59672dfcf57be4eef53b6e17c6270d1ffb35903eef523b16bad" //Sentry-Dynamic
     ),
     .target (
         name: "SentrySwiftUI",
