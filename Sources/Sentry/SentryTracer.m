@@ -30,7 +30,6 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

@@ -1,3 +1,4 @@
+@testable import Sentry
 @testable import SentryTestUtils
 import XCTest
 

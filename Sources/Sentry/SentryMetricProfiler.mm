@@ -4,7 +4,6 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"

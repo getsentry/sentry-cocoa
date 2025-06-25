@@ -1,9 +1,9 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
-public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
+@_spi(Private) public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
     private let dispatchAsyncLock = NSLock()
     
