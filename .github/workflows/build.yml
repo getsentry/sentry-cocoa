@@ -17,6 +17,14 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - "Package.swift"
+      - ".github/workflows/build-xcframework.yml"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
+      - ".github/workflows/ui-tests-common.yml"
+      - Samples/macOS-SPM-CommandLine/**
+      - Samples/SPM-Dynamic/**
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -191,7 +199,214 @@ jobs:
             --device "iPhone 16" \
             --configuration Debug
 
+  build-xcframework-variant-slices:
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      macho-type: ${{matrix.variant.macho-type}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
+      release-version: ${{ github.event.inputs.version }}
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            macho-type: mh_dylib
+            id: sentry-swiftui
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
+  assemble-xcframework-variant:
+    needs: build-xcframework-variant-slices
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    secrets: inherit
+    with:
+      name: ${{matrix.variant.name}}
+      suffix: ${{matrix.variant.suffix}}
+      configuration-suffix: ${{matrix.variant.configuration-suffix}}
+      variant-id: ${{matrix.variant.id}}
+      signed: true
+    strategy:
+      matrix:
+        variant:
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+          - name: Sentry
+            macho-type: staticlib
+            id: sentry-static
+          - name: SentrySwiftUI
+            macho-type: mh_dylib
+            id: sentry-swiftui
+          - name: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+
+  validate-xcframework:
+    name: Validate XCFramework
+    runs-on: macos-13
+    needs: assemble-xcframework-variant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-static
+          path: Carthage/
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-swiftui
+          path: Carthage/
+      - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
+      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: make build-xcframework-sample
+
+  # Use github.event.pull_request.head.sha instead of github.sha when available as
+  # the github.sha is be the pre merge commit id for PRs.
+  # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+  validate-spm:
+    name: Validate Swift Package Manager
+    runs-on: macos-13
+    needs: assemble-xcframework-variant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/macOS-SPM-CommandLine
+
+  validate-spm-dynamic:
+    name: Validate Swift Package Manager Dynamic
+    runs-on: macos-13
+    needs: assemble-xcframework-variant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+        working-directory: Samples/SPM-Dynamic
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-13
+    needs: assemble-xcframework-variant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Change path of the framework
+        run: |
+          sed -i '' 's/url.*//g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        shell: bash
+      - run: swift build
+
+  duplication-tests:
+    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    needs: assemble-xcframework-variant
+    with:
+      fastlane_command: duplication_test
+      xcode_version: 16.4
+      macos_version: macos-15
+      needs_xcframework: true
+
+  app-metrics:
+    name: Collect app metrics
+    runs-on: macos-15
+    needs: assemble-xcframework-variant
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 16.3
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - uses: actions/cache@v4
+        id: app-plain-cache
+        with:
+          path: Tests/Perf/test-app-plain.ipa
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
+      - name: Build test app plain
+        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
+        run: bundle exec fastlane build_perf_test_app_plain
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-dynamic
+          path: Carthage/
+      - run: find Carthage -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
+      - name: Build test app with sentry
+        run: bundle exec fastlane build_perf_test_app_sentry
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Collect app metrics
+        uses: getsentry/action-app-sdk-overhead-metrics@v1
+        with:
+          config: Tests/Perf/metrics-test.yml
+          sauce-user: ${{ secrets.SAUCE_USERNAME }}
+          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+
   prepare-craft-deliverable:
+    needs: [
+      ios-swift-release,
+      build-sample,
+      validate-xcframework,
+      validate-spm,
+      validate-spm-dynamic,
+      swift-build,
+      duplication-tests,
+      app-metrics,
+      check-debug-without-UIKit,
+      check-debug-with-UIKit,
+      check-release-without-UIKit,
+      check-release-with-UIKit,
+    ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
