@@ -1,0 +1,237 @@
+name: Flaky Test Detector
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+    inputs:
+      test_runs:
+        description: 'Number of test runs to perform'
+        required: true
+        default: '5'
+        type: string
+      branch:
+        description: 'Branch to test (defaults to current branch)'
+        required: false
+        type: string
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-server:
+    name: Build test server
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.event.pull_request.head.ref || github.ref }}
+      
+      - name: Cache for Test Server
+        id: cache_test_server
+        uses: actions/cache@v4
+        with:
+          path: ./test-server/.build
+          key: test-server-${{ hashFiles('./test-server') }}
+          restore-keys: |
+            test-server-${{ hashFiles('./test-server') }}
+            test-server-
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
+        working-directory: test-server
+        run: >-
+          swift build -c release 2>&1 | tee test-server-build.log
+
+      - name: Copy exec
+        working-directory: test-server
+        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
+
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-server
+          path: |
+            ./test-server/test-server-exec
+
+  flaky-test-detector:
+    name: Flaky Test Detector - iOS 18.2 Xcode 16.2
+    runs-on: macos-15
+    timeout-minutes: 60
+    needs: build-test-server
+    strategy:
+      matrix:
+        # Default to 5 runs, but can be overridden via workflow_dispatch
+        run_number: [1, 2, 3, 4, 5]
+        # For manual runs, we'll use a different approach to handle custom run counts
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.event.pull_request.head.ref || github.ref }}
+      
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-server
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
+      - run: ./test-server-exec &
+
+      - name: Check test-server runs
+        run: curl http://localhost:8080/echo-baggage-header
+
+      - run: ./scripts/ci-select-xcode.sh 16.2
+
+      - name: Install Slather
+        run: gem install slather
+
+      # Build tests once for all runs
+      - name: Build tests
+        id: build_tests
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 18.2 \
+            --ref ${{ github.ref_name }} \
+            --command build-for-testing \
+            --device "iPhone 16" \
+            --configuration TestCI \
+            --scheme Sentry
+
+      - name: Run tests (Run ${{ matrix.run_number }})
+        id: run_tests
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 18.2 \
+            --ref ${{ github.ref_name }} \
+            --command test-without-building \
+            --device "iPhone 16" \
+            --configuration TestCI \
+            --scheme Sentry
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-run-${{ matrix.run_number }}
+          path: |
+            build/reports/junit.xml
+            raw-test-output.log
+
+      - name: Archive logs on failure
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: logs-run-${{ matrix.run_number }}
+          path: |
+            raw-build-output.log
+            raw-build-for-testing-output.log
+            raw-test-output.log
+
+  analyze-flaky-tests:
+    name: Analyze Flaky Tests
+    runs-on: macos-15
+    needs: [build-test-server, flaky-test-detector]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.event.pull_request.head.ref || github.ref }}
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-run-*
+
+      - name: Run flaky test analysis
+        run: python3 scripts/analyze-flaky-tests.py --verbose
+
+      - name: Upload flaky test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: flaky-test-analysis
+          path: |
+            flaky_tests_report.json
+            scripts/analyze-flaky-tests.py
+
+      - name: Comment on PR with results
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync('flaky_tests_report.json', 'utf8'));
+            } catch (e) {
+              console.log('Could not read flaky test report');
+              return;
+            }
+            
+            const { flaky_tests, summary } = report;
+            
+            let comment = `## Flaky Test Analysis Results\n\n`;
+            comment += `**Test Configuration:** iOS 18.2, Xcode 16.2, iPhone 16\n`;
+            comment += `**Total Runs:** ${report.total_runs}\n\n`;
+            
+            if (flaky_tests.length === 0) {
+              comment += `🎉 **No flaky tests found!**\n\n`;
+              comment += `All tests passed consistently across ${report.total_runs} runs.`;
+            } else {
+              comment += `⚠️ **Found ${flaky_tests.length} flaky tests**\n\n`;
+              comment += `**Summary:**\n`;
+              comment += `- Highly flaky (≥50% failure rate): ${summary.highly_flaky_tests}\n`;
+              comment += `- Moderately flaky (20-49% failure rate): ${summary.moderately_flaky_tests}\n`;
+              comment += `- Slightly flaky (<20% failure rate): ${flaky_tests.length - summary.highly_flaky_tests - summary.moderately_flaky_tests}\n\n`;
+              
+              comment += `**Top 10 Most Flaky Tests:**\n`;
+              flaky_tests.slice(0, 10).forEach((test, index) => {
+                comment += `${index + 1}. \`${test.test_name}\` - ${(test.flakiness_rate * 100).toFixed(1)}% failure rate (${test.failed}/${test.total_runs})\n`;
+              });
+              
+              if (flaky_tests.length > 10) {
+                comment += `\n... and ${flaky_tests.length - 10} more flaky tests. See the full report in the artifacts.`;
+              }
+            }
+            
+            // Try to comment on the PR
+            try {
+              let pullRequestNumber;
+              
+              if (context.eventName === 'pull_request') {
+                // For pull_request events, use the PR number directly
+                pullRequestNumber = context.payload.pull_request.number;
+              } else if (context.eventName === 'workflow_dispatch' && context.payload.inputs.branch) {
+                // For workflow_dispatch events, find the PR by branch
+                const { data: pulls } = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  head: context.payload.inputs.branch,
+                  state: 'open'
+                });
+                
+                if (pulls.length > 0) {
+                  pullRequestNumber = pulls[0].number;
+                }
+              }
+              
+              if (pullRequestNumber) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pullRequestNumber,
+                  body: comment
+                });
+              }
+            } catch (e) {
+              console.log('Could not comment on PR:', e.message);
+            } 
