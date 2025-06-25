@@ -42,11 +42,11 @@
         internalWrapper.dispatchSync(onMainQueue: block, timeout: timeout)
     }
 
-    func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
+    func dispatch(after interval: TimeInterval, block: SentryDispatchBlockWrapper) {
         internalWrapper.dispatch(after: interval, block: block)
     }
 
-    func dispatchCancel(_ block: @escaping () -> Void) {
+    func dispatchCancel(_ block: SentryDispatchBlockWrapper) {
         internalWrapper.dispatchCancel(block)
     }
 
@@ -54,7 +54,7 @@
         internalWrapper.dispatchOnce(predicate, block: block)
     }
     
-    func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
+    func createDispatchBlock(_ block: @escaping () -> Void) -> SentryDispatchBlockWrapper? {
         internalWrapper.createDispatchBlock(block)
     }
 }

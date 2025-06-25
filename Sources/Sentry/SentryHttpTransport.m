@@ -367,13 +367,13 @@
     }
 
     __weak SentryHttpTransport *weakSelf = self;
-    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay
-                                block:^{
-                                    if (weakSelf == nil) {
-                                        return;
-                                    }
-                                    [weakSelf sendAllCachedEnvelopes];
-                                }];
+    SentryDispatchBlockWrapper *block = [self.dispatchQueue createDispatchBlock:^{
+        if (weakSelf == nil) {
+            return;
+        }
+        [weakSelf sendAllCachedEnvelopes];
+    }];
+    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay block:block];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
