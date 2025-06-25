@@ -3,7 +3,6 @@
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFormatter.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySample.h"

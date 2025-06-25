@@ -5,7 +5,6 @@
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryException.h>
 #import <SentryHub.h>
 #import <SentryLog.h>

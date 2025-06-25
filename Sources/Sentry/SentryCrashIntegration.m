@@ -6,7 +6,6 @@
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"

@@ -2,12 +2,12 @@
 // public interfaces here
 #import "NSLocale+Sentry.h"
 #import "SentryCrashExceptionApplicationHelper.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
+#import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
