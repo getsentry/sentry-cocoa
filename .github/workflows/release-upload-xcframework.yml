@@ -39,7 +39,8 @@ jobs:
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@v4
         with:
-          name: xcframeworks.zip
+          # Craft uses the git commit hash of the release branch to download the release artifacts.
+          name: ${{ github.sha }}
           if-no-files-found: error
           overwrite: true
           path: |
