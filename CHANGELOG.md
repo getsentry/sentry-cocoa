@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.53.1
+
+### Fixes
+
+- Fix XCFramework version including commit sha on release.
+
 ## 8.53.0
 
 ### Features
