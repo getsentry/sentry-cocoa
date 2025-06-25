@@ -7,7 +7,7 @@ protocol SentryReplayBreadcrumbConverter: NSObjectProtocol {
 }
 
 @objcMembers
-class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+@_spi(Private) public class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
     
     private let supportedNetworkData = Set<String>([
         "status_code",

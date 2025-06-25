@@ -1,5 +1,5 @@
 import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import UIKit

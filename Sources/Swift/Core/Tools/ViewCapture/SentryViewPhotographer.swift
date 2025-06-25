@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 @objcMembers
-class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+@_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()

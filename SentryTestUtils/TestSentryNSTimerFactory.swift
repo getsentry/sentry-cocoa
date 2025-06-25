@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 // We must not subclass NSTimer, see https://developer.apple.com/documentation/foundation/nstimer#1770465.
 // Therefore we return a NSTimer instance here with TimeInterval.infinity.
@@ -40,7 +40,7 @@ public class TestSentryNSTimerFactory: SentryNSTimerFactory {
     
     private var currentDateProvider: SentryCurrentDateProvider
     
-    public init(currentDateProvider: SentryCurrentDateProvider) {
+    @_spi(Private) public init(currentDateProvider: SentryCurrentDateProvider) {
         self.currentDateProvider = currentDateProvider
         super.init()
     }

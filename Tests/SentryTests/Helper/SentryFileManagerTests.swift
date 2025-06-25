@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFileManagerTests: XCTestCase {

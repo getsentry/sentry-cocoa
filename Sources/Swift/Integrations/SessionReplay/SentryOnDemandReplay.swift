@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable type_body_length
 @objcMembers
-class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+@_spi(Private) public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
     private let _outputPath: String
     private var _totalFrames = 0
