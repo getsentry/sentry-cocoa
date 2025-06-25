@@ -36,7 +36,6 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +59,6 @@ jobs:
   build-sample:
     name: Sample ${{ matrix.scheme }}
     runs-on: macos-15
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     strategy:
       fail-fast: false
       matrix:
@@ -101,7 +99,6 @@ jobs:
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-13
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -120,7 +117,6 @@ jobs:
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-13
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -139,7 +135,6 @@ jobs:
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
     runs-on: macos-13
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -158,7 +153,6 @@ jobs:
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
     runs-on: macos-13
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -181,7 +175,6 @@ jobs:
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
 
@@ -208,7 +201,6 @@ jobs:
 
   build-xcframework-variant-slices:
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
@@ -237,7 +229,6 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
     with:
@@ -269,7 +260,6 @@ jobs:
     name: Validate XCFramework
     runs-on: macos-13
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -291,7 +281,6 @@ jobs:
     name: Validate Swift Package Manager
     runs-on: macos-13
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -311,7 +300,6 @@ jobs:
     name: Validate Swift Package Manager Dynamic
     runs-on: macos-13
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -331,7 +319,6 @@ jobs:
     name: Build with Swift
     runs-on: macos-13
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -350,7 +337,6 @@ jobs:
     name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     with:
       fastlane_command: duplication_test
       xcode_version: 16.4
@@ -361,7 +347,6 @@ jobs:
     name: Collect app metrics
     runs-on: macos-15
     needs: assemble-xcframework-variant
-    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -423,12 +408,12 @@ jobs:
       check-release-with-UIKit,
     ]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/release/') == true
+    #if: startsWith(github.ref, 'refs/heads/release/') == true
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: xcframeworks.zip
-          if-no-files-found: error
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
           path: Carthage/
 
       - name: Archive XCFrameworks for Craft
