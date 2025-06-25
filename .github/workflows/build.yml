@@ -90,6 +90,8 @@ jobs:
   build-spm:
     name: Build with SPM
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
       # Only watchOS is compiling with SPM so far, the rest of the targets need profiling support which is still a work in progress due to the ObjC++ usage
