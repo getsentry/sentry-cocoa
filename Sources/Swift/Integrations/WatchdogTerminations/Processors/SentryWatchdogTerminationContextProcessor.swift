@@ -34,7 +34,7 @@ import Foundation
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
-
+    
     public func clear() {
         SentrySDKLog.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()
