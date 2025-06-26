@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [Structured Logging] Add `SentryLog` Models ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
+
 ## 8.53.1
 
 ### Fixes
@@ -16,7 +22,6 @@
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
-- [Structured Logging] Models ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
 
 ### Fixes
 
