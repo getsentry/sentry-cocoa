@@ -1,6 +1,5 @@
 #import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
@@ -9,6 +8,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
+#import "SentrySwift.h"
 
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySpotlightTransport.h"
@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryTransportFactory
 
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
+                                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                                       rateLimits:(id<SentryRateLimits>)rateLimits
 {
@@ -55,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryHttpTransport *httpTransport =
         [[SentryHttpTransport alloc] initWithOptions:options
                              cachedEnvelopeSendDelay:0.1
+                                        dateProvider:dateProvider
                                          fileManager:sentryFileManager
                                       requestManager:requestManager
                                       requestBuilder:requestBuilder

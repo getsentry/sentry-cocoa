@@ -7,7 +7,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
@@ -46,8 +45,8 @@
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUIApplication.h"
+#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
-#import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
@@ -102,6 +101,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     NSArray<id<SentryTransport>> *transports =
         [SentryTransportFactory initTransports:options
+                                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                              sentryFileManager:fileManager
                                     rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
 
@@ -213,6 +213,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
+
+#if TARGET_OS_OSX
+    // When a exception class is SentryUseNSExceptionCallstackWrapper, we should use the thread from
+    // it
+    if ([exception isKindOfClass:[SentryUseNSExceptionCallstackWrapper class]]) {
+        event.threads = [(SentryUseNSExceptionCallstackWrapper *)exception buildThreads];
+    }
+#endif
+
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
@@ -903,9 +912,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
 {
-    SentryEvent *newEvent = event;
+    SentryGlobalEventProcessor *globalEventProcessor
+        = SentryDependencyContainer.sharedInstance.globalEventProcessor;
 
-    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
+    SentryEvent *newEvent = event;
+    for (SentryEventProcessor processor in globalEventProcessor.processors) {
         newEvent = processor(newEvent);
         if (newEvent == nil) {
             SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "

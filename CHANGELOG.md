@@ -5,6 +5,85 @@
 ### Fixes
 
 - Fix race condition when TTFD and app launch profiling are both enabled (#5300)
+## 8.53.1
+
+### Fixes
+
+- Fix XCFramework version including commit sha on release. (#5493)
+
+## 8.53.0
+
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Fix stacktrace symbolication of fatal app hangs (#5438)
+- Robustness against corrupt launch profile configuration files (#5447)
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
+
+### Improvements
+
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- Convert SentryNSURLRequest to Swift (#5457)
+
+## 8.53.0-alpha.0
+
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Fix stacktrace symbolication of fatal app hangs (#5438)
+- Robustness against corrupt launch profile configuration files (#5447)
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
+
+### Improvements
+
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- Convert SentryNSURLRequest to Swift (#5457)
+
+## 8.52.1
+
+### Fixes
+
+- Missing debug meta for non fatal events (#5352)
+
+## 8.52.0
+
+> [!Warning]
+> This version has a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
+
+### Features
+
+- XCFrameworks are now signed (#5271)
+
+### Improvements
+
+- Slightly reduce performance impact by removing unnecessary lock in SentryLog.configure (#5297)
+- Redact React Native text and images by default without the RN SDK (#5302)
+
+### Fixes
+
+- Add missing context for watchdog termination events (#5242)
+- Use timestamp of screenshot for frames (#5342)
+- Use frame rate for cache max size of session replay (#5341)
 
 ## 8.52.0-beta
 
@@ -18,6 +97,9 @@
 - Redact React Native text and images by default without the RN SDK (#5302)
 
 ## 8.51.1
+
+> [!Warning]
+> This version introduces a [known issue](https://github.com/getsentry/sentry-cocoa/issues/5334) where events captured with `captureMessage` or `captureError` will have unsymbolicated stack traces. A fix is incoming and will be released in 8.52.1
 
 ### Fixes
 

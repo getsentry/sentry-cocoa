@@ -126,6 +126,9 @@ class ViewController: NSViewController {
         windowController.showWindow(self)
     }
 
+    @IBAction func startProfile(_ sender: Any) {
+        SentrySDK.startProfiler()
+    }
     @IBAction func stopProfile(_ sender: Any) {
         SentrySDK.stopProfiler()
     }

@@ -15,7 +15,14 @@ on:
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
-      - "scripts/build-xcframework.sh"
+      - "Samples/iOS-Swift/iOS-Swift.yml"
+      - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+      - "Samples/iOS-Swift/iOS-SwiftClilp.xcconfig"
+      - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -33,7 +40,7 @@ jobs:
         with:
           bundler-cache: true
       - run: make init-ci-build
-      - run: make xcode
+      - run: make xcode-ci
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
       - name: Cache iOS-Swift App and dSYM build products
@@ -164,57 +171,3 @@ jobs:
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
             --verbose
-
-  app-metrics:
-    name: Collect app metrics
-    runs-on: macos-15
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - uses: actions/cache@v4
-        id: app-plain-cache
-        with:
-          path: Tests/Perf/test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
-      - name: Build test app plain
-        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: bundle exec fastlane build_perf_test_app_plain
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Build Framework
-        run: ./scripts/build-xcframework.sh iOSOnly
-
-      - name: Archive build log if failed
-        uses: actions/upload-artifact@v4
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-build-xcframework
-          path: |
-            build-xcframework.log
-
-      - name: Build test app with sentry
-        run: bundle exec fastlane build_perf_test_app_sentry
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Collect app metrics
-        uses: getsentry/action-app-sdk-overhead-metrics@v1
-        with:
-          config: Tests/Perf/metrics-test.yml
-          sauce-user: ${{ secrets.SAUCE_USERNAME }}
-          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}

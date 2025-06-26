@@ -1,11 +1,13 @@
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "NSLocale+Sentry.h"
-#import "SentryDispatchQueueWrapper.h"
+#import "SentryCrashExceptionApplicationHelper.h"
+#import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
+#import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
@@ -13,13 +15,16 @@
 #import "SentryDateUtils.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFileIOTracker.h"
+#import "SentryFileManager.h"
 #import "SentryLevelHelper.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
 #import "SentryScreenshot.h"
 #import "SentrySdkInfo.h"
+#import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"

@@ -1,59 +1,63 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryDependencyContainerTests: XCTestCase {
 
     private static let dsn = TestConstants.dsnAsString(username: "SentryDependencyContainerTests")
 
+    override func tearDown() {
+        SentryDependencyContainer.reset()
+    }
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testReset_CallsFramesTrackerStop() throws {
         let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
         framesTracker.start()
         SentryDependencyContainer.reset()
-        
+
         XCTAssertFalse(framesTracker.isRunning)
     }
-    
+
     func testGetANRTrackerV2() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
         XCTAssertTrue(instance is SentryANRTrackerV2)
-        
+
         SentryDependencyContainer.reset()
-        
+
     }
-    
+
     func testGetANRTrackerV1() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
         XCTAssertTrue(instance is SentryANRTrackerV1)
-        
+
         SentryDependencyContainer.reset()
     }
-    
+
     func testGetANRTrackerV2AndThenV1_FirstCalledVersionStaysTheSame() {
         let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
         XCTAssertTrue(instance1 is SentryANRTrackerV2)
-        
+
         let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
         XCTAssertTrue(instance2 is SentryANRTrackerV2)
-        
+
         SentryDependencyContainer.reset()
     }
-    
+
     func testGetANRTrackerV1AndThenV2_FirstCalledVersionStaysTheSame() {
         let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
         XCTAssertTrue(instance1 is SentryANRTrackerV1)
-        
+
         let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
         XCTAssertTrue(instance2 is SentryANRTrackerV1)
-        
+
         SentryDependencyContainer.reset()
     }
-    
+
 #endif
-    
+
     func testGetANRTracker_ReturnsV1() {
-        
+
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
         XCTAssertTrue(instance is SentryANRTrackerV1)
 
@@ -94,11 +98,10 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dateProvider)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().extraContextProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().notificationCenterWrapper)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().extraContextProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().sysctlWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().rateLimits)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().reachability)
@@ -114,6 +117,8 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -129,7 +134,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshot)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchy)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -140,6 +145,12 @@ final class SentryDependencyContainerTests: XCTestCase {
                     }
 #endif // os(iOS) || os(macOS)
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationContextProcessor)
+#endif
+
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
                 }
 
                 expectation.fulfill()
@@ -150,4 +161,178 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         wait(for: [expectation], timeout: 10)
     }
+
+    func testScopeContextStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeContextStore1 = container.scopeContextPersistentStore
+        let scopeContextStore2 = container.scopeContextPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeContextStore1, scopeContextStore2)
+    }
+
+    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
+        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
+
+        // -- Assert --
+        XCTAssertNotIdentical(processor1, processor2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldUseParameters() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
+        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
+
+        // -- Assert --
+        // This assertion relys on internal implementation details of the processor.
+        // It is best practice not to rely on internal implementation details.
+        // There is no other way to test this, because the max breadcrumbs property is private.
+        XCTAssertEqual(Dynamic(processor1).maxBreadcrumbs, 10)
+        XCTAssertEqual(Dynamic(processor2).maxBreadcrumbs, 5)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testSentryWatchdogTerminationContextProcessor_shouldReturnSameInstance() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let processor1 = container.watchdogTerminationContextProcessor
+        let processor2 = container.watchdogTerminationContextProcessor
+
+        // -- Assert --
+        XCTAssertIdentical(processor1, processor2)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testSentryWatchdogTerminationContextProcessor_shouldUseLowPriorityQueue() throws {
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+        let dispatchFactory = TestDispatchFactory()
+        container.dispatchFactory = dispatchFactory
+
+        // -- Act --
+        // Accessing the processor will trigger the creation of a new instance
+        let _ = container.watchdogTerminationContextProcessor
+
+        // -- Assert --
+        let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createUtilityQueueInvocations.first)
+        XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.context-processor")
+        XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
+#else
+        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
+#endif
+    }
+
+    func testGetSessionTrackerWithOptions_shouldReturnNewInstancePerCall() throws {
+        // -- Arrange --
+        let options1 = Options()
+        options1.dsn = SentryDependencyContainerTests.dsn
+        options1.sessionTrackingIntervalMillis = 10_000
+        
+        let options2 = Options()
+        options2.dsn = SentryDependencyContainerTests.dsn
+        options2.sessionTrackingIntervalMillis = 5_000
+        
+        SentrySDK.setStart(options1)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker1 = container.getSessionTracker(with: options1)
+        let tracker2 = container.getSessionTracker(with: options2)
+
+        // -- Assert --
+        XCTAssertNotIdentical(tracker1, tracker2)
+    }
+
+    func testGetSessionTrackerWithOptions_shouldUseParameters() throws {
+        // -- Arrange --
+        let options1 = Options()
+        options1.dsn = SentryDependencyContainerTests.dsn
+        options1.sessionTrackingIntervalMillis = 10_000
+        options1.environment = "test1"
+        
+        let options2 = Options()
+        options2.dsn = SentryDependencyContainerTests.dsn
+        options2.sessionTrackingIntervalMillis = 5_000
+        options2.environment = "test2"
+        
+        SentrySDK.setStart(options1)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker1 = container.getSessionTracker(with: options1)
+        let tracker2 = container.getSessionTracker(with: options2)
+
+        // -- Assert --
+        // This assertion relies on internal implementation details of the tracker.
+        // It is best practice not to rely on internal implementation details.
+        // There is no other way to test this, because the options property is private.
+        XCTAssertEqual(Dynamic(tracker1).options.sessionTrackingIntervalMillis, 10_000)
+        XCTAssertEqual(Dynamic(tracker2).options.sessionTrackingIntervalMillis, 5_000)
+        XCTAssertEqual(Dynamic(tracker1).options.environment, "test1")
+        XCTAssertEqual(Dynamic(tracker2).options.environment, "test2")
+    }
+
+    func testGetSessionTrackerWithOptions_shouldUseDependenciesFromContainer() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let tracker = container.getSessionTracker(with: options)
+
+        // -- Assert --
+        // Verify that the tracker uses the dependencies from the container
+        XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
+        XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
+        XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
+    }    
 }

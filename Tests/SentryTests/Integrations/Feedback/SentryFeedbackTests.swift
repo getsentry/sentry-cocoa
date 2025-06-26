@@ -1,6 +1,7 @@
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
-@testable import Sentry
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {

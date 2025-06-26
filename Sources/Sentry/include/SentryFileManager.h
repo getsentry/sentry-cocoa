@@ -69,6 +69,12 @@ SENTRY_NO_INIT
  */
 - (void)deleteAllEnvelopes;
 
+#pragma mark - Convenience Accessors
+- (NSURL *)getSentryPathAsURL;
+
+#pragma mark - State
+- (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath;
+
 #pragma mark - Session
 - (void)storeCurrentSession:(SentrySession *)session;
 - (SentrySession *_Nullable)readCurrentSession;
@@ -168,9 +174,9 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 SENTRY_EXTERN NSString *_Nullable sentryStaticBasePath(void);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 SENTRY_EXTERN void removeSentryStaticBasePath(void);
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

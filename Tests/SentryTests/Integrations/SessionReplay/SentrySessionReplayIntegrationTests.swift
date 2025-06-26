@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -8,6 +8,10 @@ import XCTest
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
+        init() {
+            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+
         var windowsMock: [UIWindow]? = [UIWindow()]
         var screenName: String?
         
@@ -41,10 +45,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     private var uiApplication = TestSentryUIApplication()
-    
+    private var globalEventProcessor = SentryGlobalEventProcessor()
+
     override func setUp() {
         SentryDependencyContainer.sharedInstance().application = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
     }
     
     override func tearDown() {
@@ -72,14 +78,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 0)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 0)
+        XCTAssertEqual(globalEventProcessor.processors.count, 0)
     }
     
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
+        XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
     
     func testInstallNoSwizzlingNoTouchTracker() {
@@ -102,7 +108,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
+        XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
     }
@@ -113,7 +119,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
+        XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
     }
@@ -122,7 +128,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
         
         XCTAssertEqual(SentrySDK.currentHub().trimmedInstalledIntegrationNames().count, 1)
-        XCTAssertEqual(SentryGlobalEventProcessor.shared().processors.count, 1)
+        XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
     
     func testWaitForNotificationWithNoWindow() throws {
@@ -225,7 +231,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
-        SentryGlobalEventProcessor.shared().reportAll(crash)
+        globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
@@ -253,7 +259,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
-        SentryGlobalEventProcessor.shared().reportAll(crash)
+        globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
@@ -281,7 +287,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
-        SentryGlobalEventProcessor.shared().reportAll(crash)
+        globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
@@ -305,7 +311,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
     }
     
@@ -318,7 +324,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     
         let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuild()
+        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     

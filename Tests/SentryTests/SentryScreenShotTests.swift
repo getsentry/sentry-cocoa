@@ -1,11 +1,11 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryScreenShotTests: XCTestCase {
     private class Fixture {
         
-        let uiApplication = TestSentryUIApplication()
+        let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         var sut: SentryScreenshot {
             return SentryScreenshot()

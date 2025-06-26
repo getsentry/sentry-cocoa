@@ -5,9 +5,9 @@ import UIKit
 
 // swiftlint:disable type_body_length
 @objcMembers
-class SentrySessionReplay: NSObject {
-    private(set) var isFullSession = false
-    private(set) var sessionReplayId: SentryId?
+@_spi(Private) public class SentrySessionReplay: NSObject {
+    public private(set) var isFullSession = false
+    public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -27,14 +27,14 @@ class SentrySessionReplay: NSObject {
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
-    var replayTags: [String: Any]?
+    public var replayTags: [String: Any]?
     
     var isRunning: Bool {
         displayLink.isRunning()
     }
     
-    var screenshotProvider: SentryViewScreenshotProvider
-    var breadcrumbConverter: SentryReplayBreadcrumbConverter
+    public var screenshotProvider: SentryViewScreenshotProvider
+    public var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(
         replayOptions: SentryReplayOptions,
@@ -60,7 +60,7 @@ class SentrySessionReplay: NSObject {
     
     deinit { displayLink.invalidate() }
 
-    func start(rootView: UIView, fullSession: Bool) {
+    public func start(rootView: UIView, fullSession: Bool) {
         SentryLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
         guard !isRunning else { 
             SentryLog.debug("[Session Replay] Session replay is already running, not starting again")
@@ -87,7 +87,7 @@ class SentrySessionReplay: NSObject {
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
-    func pauseSessionMode() {
+    public func pauseSessionMode() {
         SentryLog.debug("[Session Replay] Pausing session mode")
         lock.lock()
         defer { lock.unlock() }
@@ -96,7 +96,7 @@ class SentrySessionReplay: NSObject {
         self.videoSegmentStart = nil
     }
     
-    func pause() {
+    public func pause() {
         SentryLog.debug("[Session Replay] Pausing session")
         lock.lock()
         defer { lock.unlock() }
@@ -108,7 +108,7 @@ class SentrySessionReplay: NSObject {
         isSessionPaused = false
     }
 
-    func resume() {
+    public func resume() {
         SentryLog.debug("[Session Replay] Resuming session")
         lock.lock()
         defer { lock.unlock() }
@@ -131,7 +131,7 @@ class SentrySessionReplay: NSObject {
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
 
-    func captureReplayFor(event: Event) {
+    public func captureReplayFor(event: Event) {
         SentryLog.debug("[Session Replay] Capturing replay for event: \(event)")
         guard isRunning else { 
             SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
@@ -153,8 +153,8 @@ class SentrySessionReplay: NSObject {
     }
 
     @discardableResult
-    func captureReplay() -> Bool {
-        guard isRunning else { 
+    public func captureReplay() -> Bool {
+        guard isRunning else {
             SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
             return false 
         }
@@ -347,19 +347,19 @@ class SentrySessionReplay: NSObject {
         processingScreenshot = true
         lock.unlock()
         
-        let screenName = delegate?.currentScreenNameForSessionReplay()
-
         SentryLog.debug("[Session Replay] Getting screenshot from screenshot provider")
+        let timestamp = dateProvider.date()
+        let screenName = delegate?.currentScreenNameForSessionReplay()
         screenshotProvider.image(view: rootView) { [weak self] screenshot in
-            self?.newImage(image: screenshot, forScreen: screenName)
+            self?.newImage(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
         }
     }
 
-    private func newImage(image: UIImage, forScreen screen: String?) {
+    private func newImage(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
         SentryLog.debug("[Session Replay] New frame available, for screen: \(screen ?? "nil")")
         lock.synchronized {
             processingScreenshot = false
-            replayMaker.addFrameAsync(image: image, forScreen: screen)
+            replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
         }
     }
 }

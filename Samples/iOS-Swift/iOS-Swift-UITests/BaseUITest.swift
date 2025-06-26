@@ -1,3 +1,4 @@
+import SentrySampleUITestShared
 import XCTest
 
 class BaseUITest: XCTestCase {
@@ -12,6 +13,9 @@ class BaseUITest: XCTestCase {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app.launchEnvironment["--io.sentry.sdk-environment"] = "ui-tests"
+        app.launchArguments.append(contentsOf: [
+            "--io.sentry.wipe-data"
+        ])
         if automaticallyLaunchAndTerminateApp {
             launchApp()
         }
@@ -37,7 +41,18 @@ extension BaseUITest {
         for (k, v) in env {
             app.launchEnvironment[k] = v
         }
+
+        // Calling activate() and then launch() effectively launches the app twice, interfering with
+        // local debugging. Only call activate if there isn't a debugger attached, which is a decent
+        // proxy for whether this is running in CI.
+        if !isDebugging() {
+            // App prewarming can sometimes cause simulators to get stuck in UI tests, activating them
+            // before launching clears any prewarming state.
+            app.activate()
+        }
+
         app.launch()
+
         waitForExistenceOfMainScreen()
     }
     

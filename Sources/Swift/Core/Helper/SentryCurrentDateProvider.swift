@@ -5,7 +5,7 @@ import Foundation
  * Mocking the previous private class from `SentryTestUtils` stopped working in Xcode 16.
 */
 @objc
-protocol SentryCurrentDateProvider {
+@_spi(Private) public protocol SentryCurrentDateProvider {
     func date() -> Date
     func timezoneOffset() -> Int
     func systemTime() -> UInt64
@@ -13,12 +13,12 @@ protocol SentryCurrentDateProvider {
 }
 
 @objcMembers
-class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
-    func date() -> Date {
+@_spi(Private) public class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
+    public func date() -> Date {
         return Date()
     }
     
-    func timezoneOffset() -> Int {
+    public func timezoneOffset() -> Int {
         return TimeZone.current.secondsFromGMT()
     }
     
@@ -26,15 +26,15 @@ class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
      * Returns the absolute timestamp, which has no defined reference point or unit
      * as it is platform dependent.
      */
-    func systemTime() -> UInt64 {
+    public func systemTime() -> UInt64 {
         Self.getAbsoluteTime()
     }
     
-    func systemUptime() -> TimeInterval {
+    public func systemUptime() -> TimeInterval {
         ProcessInfo.processInfo.systemUptime
     }
 
-    static func getAbsoluteTime() -> UInt64 {
+    public static func getAbsoluteTime() -> UInt64 {
         clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }
 }

@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentrySpotlightTransportTests: XCTestCase {
@@ -155,7 +155,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
         let expectedData = try XCTUnwrap(SentrySerialization.data(with: envelope)) as NSData
-        return sentry_gzippedWithCompressionLevel(expectedData as Data, -1, nil) ?? Data()
+        return try SentryNSDataUtils.sentry_gzipped(with: expectedData as Data, compressionLevel: -1)
     }
 
 }

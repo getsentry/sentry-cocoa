@@ -1,6 +1,6 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import UIKit
 import XCTest
@@ -16,7 +16,7 @@ class SentryViewPhotographerTests: XCTestCase {
     }
     
     private func sut() -> SentryViewPhotographer {
-        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: RedactOptions(), enableMaskRendererV2: false)
+        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: TestRedactOptions(), enableMaskRendererV2: false)
     }
     
     private func prepare(views: [UIView]) -> UIImage? {

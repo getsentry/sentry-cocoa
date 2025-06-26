@@ -1,4 +1,4 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryInstallationTests: XCTestCase {

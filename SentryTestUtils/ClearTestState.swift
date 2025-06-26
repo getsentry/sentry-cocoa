@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 public func clearTestState() {
     TestCleanup.clearTestState()
@@ -44,7 +44,6 @@ class TestCleanup: NSObject {
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         SentryDependencyContainer.reset()
-        Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
 
         SentryTracer.resetAppStartMeasurementRead()

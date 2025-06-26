@@ -4,7 +4,6 @@
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryFileManager.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>

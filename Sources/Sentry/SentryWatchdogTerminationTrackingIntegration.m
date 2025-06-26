@@ -9,15 +9,15 @@
 #    import <SentryClient+Private.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryHub.h>
+#    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
+#    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
 #    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
@@ -34,8 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
+        SentryNSProcessInfoWrapper *processInfoWrapper
+            = SentryDependencyContainer.sharedInstance.processInfoWrapper;
         self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+            = processInfoWrapper.environment[@"XCTestConfigurationFilePath"];
     }
     return self;
 }
@@ -64,12 +66,15 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
+    SentryScopeContextPersistentStore *scopeContextStore =
+        [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
-                                                                 fileManager:fileManager];
+                                                                 fileManager:fileManager
+                                                           scopeContextStore:scopeContextStore];
 
     [self.tracker start];
 
@@ -81,12 +86,17 @@ NS_ASSUME_NONNULL_BEGIN
     self.appStateManager = appStateManager;
 
     SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [[SentryWatchdogTerminationScopeObserver alloc]
-            initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                       fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+        [SentryDependencyContainer.sharedInstance
+            getWatchdogTerminationScopeObserverWithOptions:options];
 
-    [SentrySDK.currentHub configureScope:^(
-        SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+        // Add the observer to the scope so that it can be notified when the scope changes.
+        [outerScope addObserver:scopeObserver];
+
+        // Sync the current context to the observer to capture context modifications that happened
+        // before installation.
+        [scopeObserver setContext:outerScope.contextDictionary];
+    }];
 
     return YES;
 }

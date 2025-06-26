@@ -1,9 +1,9 @@
 import Foundation
 
-@objcMembers class SentryEnabledFeaturesBuilder: NSObject {
+@objcMembers @_spi(Private) public class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
-    static func getEnabledFeatures(options: Options?) -> [String] {
+    public static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
         }
@@ -65,6 +65,10 @@ import Foundation
         if options.experimental.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
+        if options.experimental.enableUnhandledCPPExceptionsV2 {
+            features.append("unhandledCPPExceptionsV2")
+        }
+
         return features
     }
     // swiftlint:enable cyclomatic_complexity function_body_length

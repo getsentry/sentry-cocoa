@@ -1,5 +1,7 @@
 import Foundation
 
+typealias SentryLogOutput = ((String) -> Void)
+
 /// A note on the thread safety:
 /// The methods configure and log don't use synchronization mechanisms, meaning they aren't strictly speaking thread-safe.
 /// Still, you can use log from multiple threads. The problem is that when you call configure while
@@ -11,7 +13,7 @@ import Foundation
 /// and the thread sanitizer would surface these race conditions. We accept these race conditions for
 /// the log messages in the tests over adding locking for all log messages.
 @objc
-class SentryLog: NSObject {
+@_spi(Private) public class SentryLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -20,7 +22,7 @@ class SentryLog: NSObject {
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    private static var logOutput = SentryLogOutput()
+    private static var logOutput: ((String) -> Void) = { print($0) }
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
@@ -29,15 +31,15 @@ class SentryLog: NSObject {
     }
     
     @objc
-    static func log(message: String, andLevel level: SentryLevel) {
+    public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
-        // We use the timeIntervalSinceReferenceDate because date format is
+        // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
         let time = self.dateProvider.date().timeIntervalSince1970
-        logOutput.log("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
+        logOutput("[Sentry] [\(level)] [\(time)] \(message)")
     }
 
     /**
@@ -45,7 +47,7 @@ class SentryLog: NSObject {
      * @c NO if not.
      */
     @objc
-    static func willLog(atLevel level: SentryLevel) -> Bool {
+    public static func willLog(atLevel level: SentryLevel) -> Bool {
         if level == .none {
             return false
         }
@@ -57,7 +59,7 @@ class SentryLog: NSObject {
  
     #if SENTRY_TEST || SENTRY_TEST_CI
     
-    static func setOutput(_ output: SentryLogOutput) {
+    static func setOutput(_ output: @escaping SentryLogOutput) {
         logOutput = output
     }
     

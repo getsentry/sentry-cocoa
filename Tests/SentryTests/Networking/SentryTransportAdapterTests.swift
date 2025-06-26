@@ -1,5 +1,5 @@
 import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryTransportAdapterTests: XCTestCase {
@@ -86,7 +86,7 @@ class SentryTransportAdapterTests: XCTestCase {
         XCTAssertEqual(self.fixture.transport2.storedEnvelopes.count, 1)
         
         let actual = try XCTUnwrap(fixture.transport1.storedEnvelopes.first)
-        try assertEnvelope(expected: expected, actual: actual)
+        try EnvelopeUtils.assertEnvelope(expected: expected, actual: actual)
     }
     
     private func assertSentEnvelope(expected: SentryEnvelope) throws {
@@ -95,10 +95,12 @@ class SentryTransportAdapterTests: XCTestCase {
         
         let actual = try XCTUnwrap(fixture.transport1.sentEnvelopes.first)
         
-        try assertEnvelope(expected: expected, actual: actual)
+        try EnvelopeUtils.assertEnvelope(expected: expected, actual: actual)
     }
-    
-    private func assertEnvelope(expected: SentryEnvelope, actual: SentryEnvelope) throws {
+}
+
+enum EnvelopeUtils {
+    static func assertEnvelope(expected: SentryEnvelope, actual: SentryEnvelope) throws {
         XCTAssertEqual(expected.header.eventId, actual.header.eventId)
         XCTAssertEqual(expected.header.sdkInfo, actual.header.sdkInfo)
         XCTAssertEqual(expected.items.count, actual.items.count)
@@ -111,16 +113,21 @@ class SentryTransportAdapterTests: XCTestCase {
             }
             
             XCTAssertTrue(containsHeader, "Envelope doesn't contain item with type:\(expectedHeader.type).")
-
+            
+            let jsonExpected = try? JSONSerialization.jsonObject(with: expectedItem.data) as? NSDictionary
             let containsData = actual.items.contains { actualItem in
-                actualItem.data == expectedItem.data
+                // JSON cannot compare the raw Data because the keys are not guaranteed to be in the same order.
+                if let jsonExpected {
+                    if let jsonActual = try? JSONSerialization.jsonObject(with: actualItem.data) as? NSDictionary {
+                        return jsonExpected == jsonActual
+                    }
+                    return false
+                } else {
+                    return actualItem.data == expectedItem.data
+                }
             }
             
             XCTAssertTrue(containsData, "Envelope data with type:\(expectedHeader.type) doesn't match.")
         }
-        
-        let actualSerialized = try XCTUnwrap(SentrySerialization.data(with: actual))
-        XCTAssertEqual(try XCTUnwrap(SentrySerialization.data(with: expected)), actualSerialized)
-    
     }
 }

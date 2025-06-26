@@ -11,7 +11,6 @@
 #    include <mutex>
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -30,7 +29,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
-#        import "SentryDependencyContainer.h"
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
 #    endif // SENTRY_HAS_UIKIT
@@ -81,7 +79,12 @@ void
 _unsafe_cleanUpContinuousProfilerV2()
 {
     if (_gInFlightRootSpans == 0) {
-        SENTRY_TEST_FATAL(@"Attempted to decrement count of root spans to less than zero.");
+        // This log message has been changed from an assertion failing in debug builds and tests to
+        // be less disruptive. This needs to be investigated because spans should not be finished
+        // multiple times.
+        //
+        // See https://github.com/getsentry/sentry-cocoa/pull/5363 for the full context.
+        SENTRY_LOG_ERROR(@"Attemtpted to stop continuous profiler with no root spans in flight.");
     } else {
         _gInFlightRootSpans -= 1;
     }

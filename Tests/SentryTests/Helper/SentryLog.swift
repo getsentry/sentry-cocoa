@@ -1,6 +1,4 @@
-@testable import Sentry
-
-typealias SentryLog = Sentry.SentryLog
+@_spi(Private) @testable import Sentry
 
 //Exposing internal/test functions from SentryLog
 extension Sentry.SentryLog {
@@ -8,9 +6,11 @@ extension Sentry.SentryLog {
         SentryLogSwiftSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
     }
     
-    static func setLogOutput(_ output: SentryLogOutput) {
+    static func setLogOutput(_ output: TestLogOutput) {
         #if SENTRY_TEST || SENTRY_TEST_CI
-        SentryLog.setOutput(output)
+        SentryLog.setOutput { string in
+            output.log(string)
+        }
         #endif
     }
     
@@ -18,7 +18,7 @@ extension Sentry.SentryLog {
         #if SENTRY_TEST || SENTRY_TEST_CI
         return SentryLog.getOutput()
         #else
-        SentryLogOutput()
+        { print($0) }
         #endif
     }
     

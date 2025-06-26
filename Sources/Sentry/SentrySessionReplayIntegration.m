@@ -6,7 +6,6 @@
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
@@ -54,7 +53,6 @@ static SentryTouchTracker *_touchTracker;
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
     SentryNSNotificationCenterWrapper *_notificationCenter;
-    SentryOnDemandReplay *_resumeReplayMaker;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
@@ -117,9 +115,9 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] Setting up default view renderer");
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
-    // We are using the flag for the experimental view renderer also for the experimental mask
-    // renderer, as it would just introduce another option without affecting the SDK user
-    // experience.
+
+    // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
+    // just introduce another option without affecting the SDK user experience.
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                                            redactOptions:replayOptions
                                                     enableMaskRendererV2:enableViewRendererV2];
@@ -143,14 +141,14 @@ static SentryTouchTracker *_touchTracker;
     // The asset worker queue is used to work on video and frames data.
     // Use a relative priority of -1 to make it lower than the default background priority.
     _replayAssetWorkerQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.asset-worker"
-                                     relativePriority:-1];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.asset-worker"
+                                 relativePriority:-1];
     // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
     // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
     // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
     _replayProcessingQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.processing"
-                                     relativePriority:-2];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.processing"
+                                 relativePriority:-2];
 
     // The asset worker queue is used to work on video and frames data.
 
@@ -158,7 +156,7 @@ static SentryTouchTracker *_touchTracker;
     [self cleanUp];
 
     [SentrySDK.currentHub registerSessionListener:self];
-    [SentryGlobalEventProcessor.shared
+    [SentryDependencyContainer.sharedInstance.globalEventProcessor
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
             if (event.isFatalEvent) {
                 [self resumePreviousSessionReplay:event];
@@ -232,10 +230,10 @@ static SentryTouchTracker *_touchTracker;
     SentryOnDemandReplay *resumeReplayMaker =
         [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
                                           processingQueue:_replayProcessingQueue
-                                         assetWorkerQueue:_replayAssetWorkerQueue
-                                             dateProvider:_dateProvider];
+                                         assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
+    resumeReplayMaker.frameRate = _replayOptions.frameRate;
 
     NSDate *beginning = hasCrashInfo
         ? [NSDate dateWithTimeIntervalSinceReferenceDate:crashInfo.lastSegmentEnd]
@@ -380,13 +378,17 @@ static SentryTouchTracker *_touchTracker;
     SentryOnDemandReplay *replayMaker =
         [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
                                          processingQueue:_replayProcessingQueue
-                                        assetWorkerQueue:_replayAssetWorkerQueue
-                                            dateProvider:_dateProvider];
+                                        assetWorkerQueue:_replayAssetWorkerQueue];
     replayMaker.bitRate = replayOptions.replayBitRate;
     replayMaker.videoScale = replayOptions.sizeScale;
-    replayMaker.cacheMaxSize
-        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration + 1
-                                              : replayOptions.errorReplayDuration + 1);
+    replayMaker.frameRate = replayOptions.frameRate;
+
+    // The cache should be at least the amount of frames fitting into the session segment duration
+    // plus one frame to ensure that the last frame is not dropped.
+    NSInteger sessionSegmentDuration
+        = (NSInteger)(shouldReplayFullSession ? replayOptions.sessionSegmentDuration
+                                              : replayOptions.errorReplayDuration);
+    replayMaker.cacheMaxSize = (sessionSegmentDuration * replayOptions.frameRate) + 1;
 
     SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
     self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions

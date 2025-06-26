@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentrySystemEventBreadcrumbsTest: XCTestCase {
@@ -35,9 +35,6 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             return systemEvents
         }
     }
-
-    private lazy var fixture = Fixture()
-    private var sut: SentrySystemEventBreadcrumbs!
     
     private class MyUIDevice: UIDevice {
         private var _batteryLevel: Float
@@ -59,6 +56,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         override var orientation: UIDeviceOrientation {
             return _orientation
         }
+    }
+
+    private var fixture: Fixture!
+    private var sut: SentrySystemEventBreadcrumbs!
+
+    override func setUp() {
+        super.setUp()
+        fixture = Fixture()
     }
 
     override func tearDown() {
@@ -115,8 +120,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         
         sut = fixture.getSut(currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.batteryStateDidChangeNotification, object: currentDevice))
-        
+        fixture.notificationCenterWrapper.post(Notification(name: UIDevice.batteryStateDidChangeNotification, object: currentDevice))
+
         assertBatteryBreadcrumb(charging: false, level: 100)
     }
     
@@ -182,7 +187,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         
         sut = fixture.getSut(currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
+        fixture.notificationCenterWrapper.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         assertPositionOrientationBreadcrumb(position: "portrait")
     }
     
@@ -191,7 +196,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         
         sut = fixture.getSut(currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
+        fixture.notificationCenterWrapper.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         assertPositionOrientationBreadcrumb(position: "landscape")
     }
     
@@ -200,15 +205,15 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         
         sut = fixture.getSut(currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
-        
+        fixture.notificationCenterWrapper.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
+
         XCTAssertEqual(0, fixture.delegate.addCrumbInvocations.count, "there are breadcrumbs")
     }
     
     func testOrientationBreadcrumbForSessionReplay() throws {
         let currentDevice = MyUIDevice()
         sut = fixture.getSut(currentDevice: currentDevice)
-        NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
+        fixture.notificationCenterWrapper.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         
         guard let breadcrumb = fixture.delegate.addCrumbInvocations.first else {
             XCTFail("No orientation breadcrumb")

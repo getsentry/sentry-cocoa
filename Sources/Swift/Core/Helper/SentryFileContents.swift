@@ -1,12 +1,12 @@
 import Foundation
 
 @objcMembers
-class SentryFileContents: NSObject {
+@_spi(Private) public class SentryFileContents: NSObject {
     
-    let path: String
-    let contents: Data
+    public let path: String
+    public let contents: Data
     
-    init(path: String, contents: Data) {
+    public init(path: String, contents: Data) {
         self.path = path
         self.contents = contents
     }
