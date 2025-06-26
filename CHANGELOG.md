@@ -59,7 +59,6 @@
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 - Convert SentryNSURLRequest to Swift (#5457)
-- [Structured Logging] Rename SentryLog to SentrySDKLog ([#5473](https://github.com/getsentry/sentry-cocoa/pull/5473))
 
 ## 8.52.1
 
