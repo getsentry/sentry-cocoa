@@ -3,14 +3,13 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
@@ -786,13 +785,13 @@ NSString *_Nullable sentryStaticBasePath(void)
     return sentryStaticBasePath;
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void
 removeSentryStaticBasePath(void)
 {
     _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #pragma mark - Profiling
 
@@ -893,7 +892,7 @@ removeAppLaunchProfilingConfigFile(void)
 
 - (nullable SentrySession *)readSession:(NSString *)sessionFilePath
 {
-    [SentryLog
+    [SentrySDKLog
         logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
               andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];

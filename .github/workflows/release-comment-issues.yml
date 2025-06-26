@@ -17,7 +17,9 @@ jobs:
     steps:
       - name: Get version
         id: get_version
-        run: echo "version=${{ github.event.inputs.version || github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+        run: echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        env:
+          VERSION: ${{ github.event.inputs.version || github.event.release.tag_name }}
 
       - name: Comment on linked issues that are mentioned in release
         if: |

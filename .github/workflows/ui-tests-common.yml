@@ -71,7 +71,7 @@ jobs:
         if: ${{ inputs.needs_xcframework }}
         uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-sentry-static-uitests
+          name: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
 
       - name: Unzip XCFramework
@@ -98,6 +98,14 @@ jobs:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
           path: |
             fastlane/test_results/**/*.xcresult
+
+      - name: Upload iOS Simulator Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4

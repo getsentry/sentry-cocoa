@@ -107,7 +107,7 @@ For more details on test plans and their capabilities, refer to:
 
 We used to set the log level to debug all tests to investigate flaky tests. For individual tests we then disabled the logs because printing the messages via NSLog uses synchronization and caused specific tests to fail due to timeouts in CI. The debug logs can also be extremely verbose for tests using tight loops and completely spamming the test logs.
 
-Therefore, the default log level is error for tests. If debug logs can help with fixing flaky tests, we should enable these for specific test cases only with `SentryLog.withDebugLogs`.
+Therefore, the default log level is error for tests. If debug logs can help with fixing flaky tests, we should enable these for specific test cases only with `SentrySDKLog.withDebugLogs`.
 
 ### UI Tests
 
@@ -273,3 +273,13 @@ Useful resources:
 - Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
 - [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
 - [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
+
+## Decodable conformances to ObjC types
+
+A few types that are defined in ObjC have Decodable conformances in "Sources/Swift/Protocol/Codable/". This works for xcodebuild where ObjC and Swift are in the same target
+but not for SPM where ObjC and Swift have to be in different targets. This is because Swift does not support adding a protocol conformance to a type in a different module
+than the one the type/protocol is defined in. To work around this Swift code subclasses the ObjC type and adds the conformance to the subclass. It is then decoded as a
+subclass and cast back to the superclass. This is only done for SPM, not xcodebuild, because the Codable conformance is part of the public API and therefore requires a
+major version bump to change.
+
+Future types conforming to Decodable can be written in Swift from the start and therefore have the conformance added directly to the type.

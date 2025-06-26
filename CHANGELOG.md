@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 8.53.1
+
+### Fixes
+
+- Fix XCFramework version including commit sha on release. (#5493)
+
+## 8.53.0
+
+> [!Warning]
+> This version can cause build errors when using one of the XCFrameworks, such as
+> `The value for key CFBundleVersion [8.53.0+f92cfa9b1199c75411a263d2d9bc2df8ea8029cf] in the Info.plist file must be no longer than 18 characters.`
+> Updating to 8.53.1 fixes this problem.
 
 ### Features
 
@@ -11,6 +22,31 @@
 - Fix building with Xcode 26 (#5386)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Improve launch profile configuration management (#5318)
+- Fix stacktrace symbolication of fatal app hangs (#5438)
+- Robustness against corrupt launch profile configuration files (#5447)
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
+
+### Improvements
+
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- Convert SentryNSURLRequest to Swift (#5457)
+
+## 8.53.0-alpha.0
+
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+- [Structured Logging] Models + Preparation ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
+
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
 - Fix stacktrace symbolication of fatal app hangs (#5438)
 - Robustness against corrupt launch profile configuration files (#5447)
 - Fix auto-start for session tracker when SDK is started after app did become active (#5121)

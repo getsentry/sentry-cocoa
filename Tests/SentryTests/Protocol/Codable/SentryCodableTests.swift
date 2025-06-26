@@ -2,7 +2,7 @@
 import XCTest
 
 class SentryCodableTests: XCTestCase {
-
+    
     func testDecodeWithEmptyData_ReturnsNil() {
         XCTAssertNil(decodeFromJSONData(jsonData: Data()) as Geo?)
     }

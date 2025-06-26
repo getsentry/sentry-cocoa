@@ -1,6 +1,6 @@
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryDispatchFactoryTests : XCTestCase

@@ -6,14 +6,13 @@
 #    import "SentryAppStateManager.h"
 #    import "SentryDefines.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySysctl.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInternalNotificationNames.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <UIKit/UIKit.h>

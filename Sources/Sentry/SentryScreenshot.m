@@ -4,7 +4,6 @@
 
 #    import "SentryCompiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 

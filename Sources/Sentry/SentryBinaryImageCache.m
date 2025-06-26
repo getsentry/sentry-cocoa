@@ -3,7 +3,7 @@
 #include "SentryCrashUUIDConversion.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

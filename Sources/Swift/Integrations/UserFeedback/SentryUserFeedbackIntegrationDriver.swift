@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *) @objc
-protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
+@_spi(Private) public protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
     func capture(feedback: SentryFeedback)
 }
 
@@ -14,14 +14,14 @@ protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
  */
 @available(iOS 13.0, *)
 @objcMembers
-class SentryUserFeedbackIntegrationDriver: NSObject {
+@_spi(Private) public class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
     let screenshotProvider: SentryScreenshot
     weak var customButton: UIButton?
 
-    public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
+    @_spi(Private) init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
@@ -99,7 +99,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 // MARK: UIAdaptivePresentationControllerDelegate
 @available(iOS 13.0, *)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
         displayingForm = false
         configuration.onFormClose?()
@@ -134,7 +134,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         assert(valid, "Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
 #endif // DEBUG
         if !valid {
-            SentryLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
+            SentrySDKLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
     }
 

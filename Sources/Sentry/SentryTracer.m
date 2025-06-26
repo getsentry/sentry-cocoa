@@ -7,7 +7,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions+Private.h"
@@ -30,7 +30,6 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
-#import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -87,8 +86,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     NSObject *_dispatchTimeoutLock;
-    dispatch_block_t _idleTimeoutBlock;
-    dispatch_block_t _deadlineTimeoutBlock;
+    SentryDispatchBlockWrapper *_idleTimeoutBlock;
+    SentryDispatchBlockWrapper *_deadlineTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
 
@@ -223,7 +222,7 @@ static BOOL appStartMeasurementRead;
 - (void)startIdleTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    dispatch_block_t newBlock = [_dispatchQueue createDispatchBlock:^{
+    SentryDispatchBlockWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -251,7 +250,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    dispatch_block_t newBlock = [_dispatchQueue createDispatchBlock:^{
+    SentryDispatchBlockWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -298,8 +297,8 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-- (void)dispatchTimeout:(dispatch_block_t)currentBlock
-               newBlock:(dispatch_block_t)newBlock
+- (void)dispatchTimeout:(SentryDispatchBlockWrapper *)currentBlock
+               newBlock:(SentryDispatchBlockWrapper *)newBlock
                interval:(NSTimeInterval)timeInterval
 {
     if (currentBlock != NULL) {

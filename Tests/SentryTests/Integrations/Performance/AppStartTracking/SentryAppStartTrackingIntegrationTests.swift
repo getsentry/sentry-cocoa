@@ -1,5 +1,5 @@
 import _SentryPrivate
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -24,7 +24,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         clearTestState()
     }
     

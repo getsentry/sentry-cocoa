@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 @objcMembers
-class SentryTouchTracker: NSObject {
+@_spi(Private) public class SentryTouchTracker: NSObject {
     
     private struct TouchEvent {
         let x: CGFloat
@@ -40,20 +40,20 @@ class SentryTouchTracker: NSObject {
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
     
-    init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
+    public init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
         self.dateProvider = dateProvider
         self.scale = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
         self.dispatchQueue = dispatchQueue
     }
     
-    convenience init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+    public convenience init(dateProvider: SentryCurrentDateProvider, scale: Float) {
         // SentryTouchTracker has it own dispatch queue instead of using the one
         // from Dependency container to avoid the bottleneck of sharing the same
         // queue with the rest of the SDK.
         self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
     
-    func trackTouchFrom(event: UIEvent) {
+    public func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         
@@ -118,7 +118,7 @@ class SentryTouchTracker: NSObject {
     }
     
     func flushFinishedEvents() {
-        SentryLog.debug("[Session Replay] Flushing finished events")
+        SentrySDKLog.debug("[Session Replay] Flushing finished events")
         dispatchQueue.dispatchSync { [self] in
             trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
         }

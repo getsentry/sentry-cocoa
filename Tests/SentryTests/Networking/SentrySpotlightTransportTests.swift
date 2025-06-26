@@ -1,5 +1,5 @@
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentrySpotlightTransportTests: XCTestCase {
@@ -134,8 +134,8 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         let eventEnvelope = try givenEventEnvelope()
         requestManager.nextError = NSError(domain: "error", code: 47)

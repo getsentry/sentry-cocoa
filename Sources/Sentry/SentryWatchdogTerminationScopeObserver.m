@@ -4,7 +4,7 @@
 
 #    import <SentryBreadcrumb.h>
 #    import <SentryFileManager.h>
-#    import <SentryLog.h>
+#    import <SentryLogC.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 

@@ -1,14 +1,14 @@
 @_spi(Private) @testable import Sentry
 
-//Exposing internal/test functions from SentryLog
-extension Sentry.SentryLog {
+//Exposing internal/test functions from SentrySDKLog
+extension Sentry.SentrySDKLog {
     static func configureLog(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
-        SentryLogSwiftSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
+        SentrySDKLogSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
     }
     
     static func setLogOutput(_ output: TestLogOutput) {
         #if SENTRY_TEST || SENTRY_TEST_CI
-        SentryLog.setOutput { string in
+        SentrySDKLog.setOutput { string in
             output.log(string)
         }
         #endif
@@ -16,7 +16,7 @@ extension Sentry.SentryLog {
     
     static func getLogOutput() -> SentryLogOutput {
         #if SENTRY_TEST || SENTRY_TEST_CI
-        return SentryLog.getOutput()
+        return SentrySDKLog.getOutput()
         #else
         { print($0) }
         #endif
@@ -24,7 +24,7 @@ extension Sentry.SentryLog {
     
     static func setCurrentDateProvider(_ dateProvider: SentryCurrentDateProvider) {
         #if SENTRY_TEST || SENTRY_TEST_CI
-        SentryLog.setDateProvider(dateProvider)
+        SentrySDKLog.setDateProvider(dateProvider)
         #endif
     }
 }
