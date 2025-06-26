@@ -86,8 +86,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #endif // SENTRY_HAS_UIKIT
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     NSObject *_dispatchTimeoutLock;
-    SentryDispatchBlockWrapper *_idleTimeoutBlock;
-    SentryDispatchBlockWrapper *_deadlineTimeoutBlock;
+    dispatch_block_t _idleTimeoutBlock;
+    dispatch_block_t _deadlineTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
 
@@ -219,10 +219,25 @@ static BOOL appStartMeasurementRead;
     return _configuration.idleTimeout > 0;
 }
 
+- (nullable dispatch_block_t)dispatchBlockCreate:(void (^)(void))block
+{
+    if ([_dispatchQueue shouldCreateDispatchBlock]) {
+        return dispatch_block_create(0, block);
+    }
+    return NULL;
+}
+
+- (void)dispatchCancel:(dispatch_block_t)block
+{
+    if ([_dispatchQueue shouldDispatchCancel]) {
+        dispatch_cancel(block);
+    }
+}
+
 - (void)startIdleTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    SentryDispatchBlockWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
+    dispatch_block_t newBlock = [self dispatchBlockCreate:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -242,7 +257,7 @@ static BOOL appStartMeasurementRead;
 {
     @synchronized(_dispatchTimeoutLock) {
         if ([self hasIdleTimeout]) {
-            [_dispatchQueue dispatchCancel:_idleTimeoutBlock];
+            [self dispatchCancel:_idleTimeoutBlock];
         }
     }
 }
@@ -250,7 +265,7 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimeout
 {
     __weak SentryTracer *weakSelf = self;
-    SentryDispatchBlockWrapper *newBlock = [_dispatchQueue createDispatchBlock:^{
+    dispatch_block_t newBlock = [self dispatchBlockCreate:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
@@ -291,18 +306,18 @@ static BOOL appStartMeasurementRead;
 {
     @synchronized(_dispatchTimeoutLock) {
         if (_deadlineTimeoutBlock != NULL) {
-            [_dispatchQueue dispatchCancel:_deadlineTimeoutBlock];
+            [self dispatchCancel:_deadlineTimeoutBlock];
             _deadlineTimeoutBlock = NULL;
         }
     }
 }
 
-- (void)dispatchTimeout:(SentryDispatchBlockWrapper *)currentBlock
-               newBlock:(SentryDispatchBlockWrapper *)newBlock
+- (void)dispatchTimeout:(dispatch_block_t)currentBlock
+               newBlock:(dispatch_block_t)newBlock
                interval:(NSTimeInterval)timeInterval
 {
     if (currentBlock != NULL) {
-        [_dispatchQueue dispatchCancel:currentBlock];
+        [self dispatchCancel:currentBlock];
     }
 
     if (newBlock == NULL) {

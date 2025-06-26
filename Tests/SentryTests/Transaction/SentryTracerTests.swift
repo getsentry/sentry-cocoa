@@ -275,7 +275,7 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNil(weakSut, "sut was not deallocated")
 
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected one cancel invocation for the deadline timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Expected one cancel invocation for the deadline timeout.")
     }
     
     func testDeadlineTimeout_FiresAfterTracerDeallocated() throws {
@@ -351,7 +351,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.finish()
         
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Excpected one cancel invocation for the deadline timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Excpected one cancel invocation for the deadline timeout.")
     }
     
     func testDeadlineTimer_MultipleSpansFinishedInParallel() {
@@ -518,7 +518,7 @@ class SentryTracerTests: XCTestCase {
         sut.startChild(operation: fixture.transactionOperation)
         
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count, "Expected two dispatchAfter invocations one for the idle timeout and one for the deadline timer.")
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected one cancel invocation for the idle timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Expected one cancel invocation for the idle timeout.")
     }
     
     func testIdleTimeoutWithRealDispatchQueue_SpanAdded_IdleTimeoutCancelled() {
@@ -559,18 +559,18 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations)
         
         child.finish()
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count)
 
         // The grandchild is a NoOp span
         let grandChild = child.startChild(operation: fixture.transactionOperation)
-        XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations)
         
         grandChild.finish()
         XCTAssertEqual(4, fixture.dispatchQueue.dispatchAfterInvocations.count)
-        XCTAssertEqual(4, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(4, fixture.dispatchQueue.dispatchCancelInvocations)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -675,7 +675,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations)
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
@@ -1382,7 +1382,7 @@ class SentryTracerTests: XCTestCase {
         
         sut.finishForCrash()
         
-        XCTAssertEqual(0, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected no cancel invocation for the deadline timeout.")
+        XCTAssertEqual(0, fixture.dispatchQueue.dispatchCancelInvocations, "Expected no cancel invocation for the deadline timeout.")
     }
 
     func testFinishForCrash_DoesNotCallFinishCallback() throws {
