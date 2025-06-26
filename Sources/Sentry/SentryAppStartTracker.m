@@ -11,7 +11,6 @@
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>

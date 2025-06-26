@@ -10,14 +10,14 @@ private enum Error: Swift.Error {
     private static let serverVersionString = "7"
     private static let requestTimeout: TimeInterval = 15
     
-    @objc static func envelopeRequest(with dsn: SentryDsn, data: Data) throws -> URLRequest {
+    @objc public static func envelopeRequest(with dsn: SentryDsn, data: Data) throws -> URLRequest {
         let apiURL = dsn.getEnvelopeEndpoint()
         let authHeader = Self.newAuthHeader(url: dsn.url)
         
         return try Self.envelopeRequest(with: apiURL, data: data, authHeader: authHeader)
     }
     
-    @objc static func envelopeRequest(with url: URL, data: Data, authHeader: String?) throws -> URLRequest {
+    @objc public static func envelopeRequest(with url: URL, data: Data, authHeader: String?) throws -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: Self.requestTimeout)
         
         request.httpMethod = "POST"

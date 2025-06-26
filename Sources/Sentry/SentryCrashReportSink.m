@@ -6,7 +6,6 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHub.h"
@@ -14,6 +13,7 @@
 #import "SentrySDK+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 
 static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;

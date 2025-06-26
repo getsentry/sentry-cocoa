@@ -1,7 +1,6 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"

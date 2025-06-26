@@ -273,3 +273,13 @@ Useful resources:
 - Sample GH Repo for [mixed Swift ObjC Framework](https://github.com/danieleggert/mixed-swift-objc-framework)
 - [Swift Forum Discussion](https://forums.swift.org/t/mixing-swift-and-objective-c-in-a-framework-and-private-headers/27787/6)
 - [Apple Docs: Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift#Import-Code-Within-a-Framework-Target)
+
+## Decodable conformances to ObjC types
+
+A few types that are defined in ObjC have Decodable conformances in "Sources/Swift/Protocol/Codable/". This works for xcodebuild where ObjC and Swift are in the same target
+but not for SPM where ObjC and Swift have to be in different targets. This is because Swift does not support adding a protocol conformance to a type in a different module
+than the one the type/protocol is defined in. To work around this Swift code subclasses the ObjC type and adds the conformance to the subclass. It is then decoded as a
+subclass and cast back to the superclass. This is only done for SPM, not xcodebuild, because the Codable conformance is part of the public API and therefore requires a
+major version bump to change.
+
+Future types conforming to Decodable can be written in Swift from the start and therefore have the conformance added directly to the type.

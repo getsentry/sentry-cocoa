@@ -1,11 +1,9 @@
 #import "SentrySdkInfo.h"
 #import "SentryClient+Private.h"
-#import "SentryExtraPackages.h"
 #import "SentryHub+Private.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
-#import "SentrySdkPackage.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN

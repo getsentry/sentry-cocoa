@@ -1,9 +1,9 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
-public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
+@_spi(Private) public final class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
     private let dispatchAsyncLock = NSLock()
     
@@ -49,11 +49,11 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     }
 
     public var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
-    public override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
-        dispatchAfterInvocations.record((interval, block))
+    public override func dispatch(after interval: TimeInterval, block: SentryDispatchBlockWrapper) {
+        dispatchAfterInvocations.record((interval, block.block))
         if blockBeforeMainBlock() {
             if dispatchAfterExecutesBlock {
-                block()
+                block.block()
             }
         }
     }
@@ -63,8 +63,8 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     }
 
     public var dispatchCancelInvocations = Invocations<() -> Void>()
-    public override func dispatchCancel(_ block: @escaping () -> Void) {
-        dispatchCancelInvocations.record(block)
+    public override func dispatchCancel(_ block: SentryDispatchBlockWrapper) {
+        dispatchCancelInvocations.record(block.block)
     }
 
     public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
@@ -72,7 +72,7 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     }
     
     public var createDispatchBlockReturnsNULL = false
-    public override func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
+    public override func createDispatchBlock(_ block: @escaping () -> Void) -> SentryDispatchBlockWrapper? {
         if createDispatchBlockReturnsNULL {
             return nil
         }

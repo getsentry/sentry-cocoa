@@ -1,5 +1,4 @@
 #import "SentrySubClassFinder.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryLogC.h"
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentrySwift.h"

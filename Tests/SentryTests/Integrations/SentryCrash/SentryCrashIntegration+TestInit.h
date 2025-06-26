@@ -1,5 +1,4 @@
 #import "SentryCrashIntegration.h"
-#import "SentryDispatchQueueWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

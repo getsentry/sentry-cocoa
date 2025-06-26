@@ -5,11 +5,11 @@
 #    import "SentryAppStartTracker.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
+#    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 
 @interface SentryAppStartTrackingIntegration ()
 

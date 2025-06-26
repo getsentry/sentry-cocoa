@@ -1,7 +1,7 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
-public class TestCurrentDateProvider: SentryCurrentDateProvider {
+@_spi(Private) public class TestCurrentDateProvider: SentryCurrentDateProvider {
 
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
 

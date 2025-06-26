@@ -2,7 +2,7 @@
 import XCTest
 
 class SentryCodableTests: XCTestCase {
-
+    
     func testEncodeToJSONData_EncodesCorrectDateFormat() throws {
         let date = Date(timeIntervalSince1970: 1_234_567_890)
         let jsonData = try encodeToJSONData(data: date)

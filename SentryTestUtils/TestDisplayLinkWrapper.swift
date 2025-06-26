@@ -26,13 +26,13 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public let slowestSlowFrameDuration: Double
     public let fastestFrozenFrameDuration: Double
     
-    public var dateProvider: TestCurrentDateProvider
+    @_spi(Private) public var dateProvider: TestCurrentDateProvider
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
     public let timeEpsilon = 0.001
     
     public var _isRunning: Bool = false
 
-    public init(dateProvider: TestCurrentDateProvider? = nil) {
+    @_spi(Private) public init(dateProvider: TestCurrentDateProvider? = nil) {
         self.dateProvider = dateProvider ?? TestCurrentDateProvider()
         
         // The test date provider converts the duration from UInt64 to a double back and forth.

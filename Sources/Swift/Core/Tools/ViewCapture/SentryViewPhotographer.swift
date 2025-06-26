@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 @objcMembers
-class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+@_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
@@ -22,7 +22,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
     ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
-    init(
+    public init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
         enableMaskRendererV2: Bool
@@ -33,7 +33,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         super.init()
     }
 
-    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+    public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         let viewSize = view.bounds.size
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
         // The render method is synchronous and must be called on the main thread.
@@ -50,7 +50,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
         }
     }
 
-    func image(view: UIView) -> UIImage {
+    public func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)

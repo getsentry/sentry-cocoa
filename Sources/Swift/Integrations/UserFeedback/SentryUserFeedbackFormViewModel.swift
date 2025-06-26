@@ -12,7 +12,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 @available(iOS 13.0, *)
 @objcMembers
-class SentryUserFeedbackFormViewModel: NSObject {
+@_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
