@@ -6,8 +6,8 @@ import UIKit
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentrySessionReplay: NSObject {
-    private(set) var isFullSession = false
-    private(set) var sessionReplayId: SentryId?
+    public private(set) var isFullSession = false
+    public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -27,14 +27,14 @@ import UIKit
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
-    var replayTags: [String: Any]?
+    public var replayTags: [String: Any]?
     
     var isRunning: Bool {
         displayLink.isRunning()
     }
     
-    var screenshotProvider: SentryViewScreenshotProvider
-    var breadcrumbConverter: SentryReplayBreadcrumbConverter
+    public var screenshotProvider: SentryViewScreenshotProvider
+    public var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(
         replayOptions: SentryReplayOptions,
@@ -60,7 +60,7 @@ import UIKit
     
     deinit { displayLink.invalidate() }
 
-    func start(rootView: UIView, fullSession: Bool) {
+    public func start(rootView: UIView, fullSession: Bool) {
         SentryLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
         guard !isRunning else { 
             SentryLog.debug("[Session Replay] Session replay is already running, not starting again")
@@ -87,7 +87,7 @@ import UIKit
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
 
-    func pauseSessionMode() {
+    public func pauseSessionMode() {
         SentryLog.debug("[Session Replay] Pausing session mode")
         lock.lock()
         defer { lock.unlock() }
@@ -96,7 +96,7 @@ import UIKit
         self.videoSegmentStart = nil
     }
     
-    func pause() {
+    public func pause() {
         SentryLog.debug("[Session Replay] Pausing session")
         lock.lock()
         defer { lock.unlock() }
@@ -108,7 +108,7 @@ import UIKit
         isSessionPaused = false
     }
 
-    func resume() {
+    public func resume() {
         SentryLog.debug("[Session Replay] Resuming session")
         lock.lock()
         defer { lock.unlock() }
@@ -131,7 +131,7 @@ import UIKit
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
     }
 
-    func captureReplayFor(event: Event) {
+    public func captureReplayFor(event: Event) {
         SentryLog.debug("[Session Replay] Capturing replay for event: \(event)")
         guard isRunning else { 
             SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
@@ -153,8 +153,8 @@ import UIKit
     }
 
     @discardableResult
-    func captureReplay() -> Bool {
-        guard isRunning else { 
+    public func captureReplay() -> Bool {
+        guard isRunning else {
             SentryLog.debug("[Session Replay] Session replay is not running, not capturing replay")
             return false 
         }

@@ -10,7 +10,7 @@ enum SentryRRWebEventType: Int {
 }
 
 @objc(SentryRRWebEvent)
-protocol SentryRRWebEventProtocol: SentrySerializable {
+@_spi(Private) public protocol SentryRRWebEventProtocol: SentrySerializable {
 }
 
 @objcMembers
