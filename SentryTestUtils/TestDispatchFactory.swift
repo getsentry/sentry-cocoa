@@ -1,7 +1,8 @@
 import _SentryPrivate
 import Foundation
+@testable import Sentry
 
-public class TestDispatchFactory: SentryDispatchFactory {
+@_spi(Private) public class TestDispatchFactory: SentryDispatchFactory {
     public var vendedSourceHandler: ((TestDispatchSourceWrapper) -> Void)?
     public var vendedQueueHandler: ((TestSentryDispatchQueueWrapper) -> Void)?
 

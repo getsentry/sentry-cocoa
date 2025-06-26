@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
+
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSTimerFactory.h"

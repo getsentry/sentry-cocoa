@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-class SentryWatchdogTerminationContextProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationContextProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeContextStore: SentryScopeContextPersistentStore
@@ -19,7 +19,7 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
         clear()
     }
 
-    func setContext(_ context: [String: [String: Any]]?) {
+    public func setContext(_ context: [String: [String: Any]]?) {
         SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
@@ -34,8 +34,8 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
-
-    func clear() {
+    
+    public func clear() {
         SentrySDKLog.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()
     }

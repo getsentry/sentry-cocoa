@@ -1,5 +1,5 @@
 import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryTransportAdapterTests: XCTestCase {

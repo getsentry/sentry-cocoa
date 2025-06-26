@@ -1,7 +1,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Frame: Decodable {
+// See `develop-docs/README.md` for an explanation of this pattern.
+#if SENTRY_SWIFT_PACKAGE
+final class FrameDecodable: Frame {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias FrameDecodable = Frame
+#endif
+extension FrameDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case symbolAddress = "symbol_addr"
@@ -21,8 +31,14 @@ extension Frame: Decodable {
         case inApp = "in_app"
         case stackStart = "stack_start"
     }
-    
+
+    #if !SENTRY_SWIFT_PACKAGE
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)

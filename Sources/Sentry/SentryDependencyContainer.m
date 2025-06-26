@@ -3,7 +3,6 @@
 #import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"

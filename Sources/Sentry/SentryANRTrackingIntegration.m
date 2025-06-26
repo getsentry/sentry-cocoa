@@ -4,7 +4,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"

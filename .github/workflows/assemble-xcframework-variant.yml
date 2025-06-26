@@ -45,6 +45,12 @@ on:
         type: string
         default: "iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 
+      release-version:
+        description: |-
+          For release workflows, the version to inject into the SDK.
+        required: false
+        type: string
+
 jobs:
   assemble-xcframework-variant:
     name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
@@ -70,11 +76,21 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
+      - name: Get version
+        id: get-version
+        run: |
+          if [ -n "${{ inputs.release-version }}" ]; then
+            echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+          fi
+        shell: sh
+
       - name: Compute cache key
         run: |
           sdks_string=${{inputs.sdks}}
           sdks_string_slugified=${sdks_string//,/_}
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-$sdks_string_slugified-${{inputs.signed}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
+          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-$sdks_string_slugified-${{inputs.signed}}-${{env.VERSION}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
 
       - name: Restore XCFramework cache
         id: cache-xcframework

@@ -4,7 +4,6 @@
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
@@ -141,20 +140,22 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
 + (void)load
 {
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
 
-    // the ui tests want to wipe the data before each test case runs, to remove any launch config
-    // files that might be present before launching the app initially, however we need to make sure
-    // to remove stale versions of the file before it gets used to potentially start a launch
-    // profile that shouldn't have started, so we check here for this
+    // the samples apps may want to wipe the data like before UI test case runs, or manually during
+    // development, to remove any launch config files that might be present before launching the app
+    // initially, however we need to make sure to remove stale versions of the file before it gets
+    // used to potentially start a launch profile that shouldn't have started, so we check here for
+    // this
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.wipe-data"]) {
         removeSentryStaticBasePath();
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+
     sentry_startLaunchProfile();
 }
 

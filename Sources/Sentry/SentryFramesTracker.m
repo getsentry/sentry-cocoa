@@ -5,7 +5,6 @@
 #    import "SentryCompiler.h"
 #    import "SentryDelayedFrame.h"
 #    import "SentryDelayedFramesTracker.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryLogC.h"

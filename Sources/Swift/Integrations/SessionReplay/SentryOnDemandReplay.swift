@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable type_body_length
 @objcMembers
-class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
+@_spi(Private) public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
 
     private let _outputPath: String
     private var _totalFrames = 0
@@ -26,12 +26,12 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         set { _frames = newValue }
     }
     #endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-    var videoScale: Float = 1
-    var bitRate = 20_000
-    var frameRate = 1
-    var cacheMaxSize = UInt.max
+    public var videoScale: Float = 1
+    public var bitRate = 20_000
+    public var frameRate = 1
+    public var cacheMaxSize = UInt.max
     
-    init(
+    public init(
         outputPath: String,
         processingQueue: SentryDispatchQueueWrapper,
         assetWorkerQueue: SentryDispatchQueueWrapper
@@ -42,7 +42,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         self.assetWorkerQueue = assetWorkerQueue
     }
         
-    convenience init(
+    public convenience init(
         withContentFrom outputPath: String,
         processingQueue: SentryDispatchQueueWrapper,
         assetWorkerQueue: SentryDispatchQueueWrapper
@@ -142,7 +142,7 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
         }
     }
 
-    var oldestFrameDate: Date? {
+    public var oldestFrameDate: Date? {
         return _frames.first?.time
     }
 
@@ -156,9 +156,10 @@ class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
             completion(videos)
         }
     }
-
-    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
+    
+    public func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
         SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
+
         // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
         // As this method is already called from the processing queue, we must remove the sync call.
         let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }

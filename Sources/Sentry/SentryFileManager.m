@@ -3,7 +3,6 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
@@ -786,13 +785,13 @@ NSString *_Nullable sentryStaticBasePath(void)
     return sentryStaticBasePath;
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 void
 removeSentryStaticBasePath(void)
 {
     _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #pragma mark - Profiling
 

@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 
 @objcMembers
-class SentryScopeContextPersistentStore: NSObject {
+@_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
     private let fileManager: SentryFileManager
 
     init(fileManager: SentryFileManager) {
@@ -9,13 +9,13 @@ class SentryScopeContextPersistentStore: NSObject {
     }
 
     // MARK: - Context
-
-    func moveCurrentFileToPreviousFile() {
+    
+    public func moveCurrentFileToPreviousFile() {
         SentrySDKLog.debug("Moving context file to previous context file")
         self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
     }
 
-    func readPreviousContextFromDisk() -> [String: [String: Any]]? {
+    public func readPreviousContextFromDisk() -> [String: [String: Any]]? {
         SentrySDKLog.debug("Reading previous context file at path: \(previousContextFileURL.path)")
         do {
             let data = try fileManager.readData(fromPath: previousContextFileURL.path)
