@@ -40,6 +40,7 @@
 
 - Fix building with Xcode 26 (#5386)
 - Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Improve launch profile configuration management (#5318)
 - Fix stacktrace symbolication of fatal app hangs (#5438)
 - Robustness against corrupt launch profile configuration files (#5447)
 - Fix auto-start for session tracker when SDK is started after app did become active (#5121)
