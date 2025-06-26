@@ -67,7 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  */
 + (SentryId *)captureCrashOnException:(NSException *)exception
-    NS_SWIFT_NAME(captureCrashOn(exception:));
+                            withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(captureCrashOn(exception:withScope:));
 
 #endif // TARGET_OS_OSX
 

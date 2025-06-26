@@ -214,14 +214,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event.exceptions = @[ sentryException ];
 
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSException"];
+    mechanism.desc = exception.reason;
+    mechanism.data = sentry_sanitize(exception.userInfo);
+
 #if TARGET_OS_OSX
     // When a exception class is SentryUseNSExceptionCallstackWrapper, we should use the thread from
     // it
     if ([exception isKindOfClass:[SentryUseNSExceptionCallstackWrapper class]]) {
         event.threads = [(SentryUseNSExceptionCallstackWrapper *)exception buildThreads];
+        event.level = kSentryLevelFatal;
+
+        // Only exceptions through `_crashOnExceptions` are guaranteed to be unhandled
+        mechanism.handled = @(NO);
     }
 #endif
-
+    sentryException.mechanism = mechanism;
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
