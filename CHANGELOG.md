@@ -8,6 +8,11 @@
 
 ## 8.53.0
 
+> [!Warning]
+> This version can cause build errors when using one of the XCFrameworks, such as
+> `The value for key CFBundleVersion [8.53.0+f92cfa9b1199c75411a263d2d9bc2df8ea8029cf] in the Info.plist file must be no longer than 18 characters.`
+> Updating to 8.53.1 fixes this problem.
+
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
