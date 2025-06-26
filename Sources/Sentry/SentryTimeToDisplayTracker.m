@@ -4,7 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryMeasurementValue.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"

@@ -13,7 +13,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfileTimeseries.h"

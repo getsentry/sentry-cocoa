@@ -20,23 +20,23 @@ import Foundation
     }
 
     public func setContext(_ context: [String: [String: Any]]?) {
-        SentryLog.debug("Setting context in background queue: \(context ?? [:])")
+        SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
-                SentryLog.debug("Can not set context, reason: reference to context processor is nil")
+                SentrySDKLog.debug("Can not set context, reason: reference to context processor is nil")
                 return
             }
             guard let context = context else {
-                SentryLog.debug("Context is nil, deleting active file.")
+                SentrySDKLog.debug("Context is nil, deleting active file.")
                 strongSelf.scopeContextStore.deleteContextOnDisk()
                 return
             }
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
-
+    
     public func clear() {
-        SentryLog.debug("Deleting context file in persistent store")
+        SentrySDKLog.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()
     }
 }

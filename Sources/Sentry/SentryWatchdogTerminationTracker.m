@@ -7,7 +7,7 @@
 #import <SentryClient+Private.h>
 #import <SentryException.h>
 #import <SentryHub.h>
-#import <SentryLog.h>
+#import <SentryLogC.h>
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
 #import <SentryOptions.h>

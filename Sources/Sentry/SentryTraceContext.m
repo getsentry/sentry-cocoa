@@ -2,7 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
 #import "SentryDsn.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryOptions+Private.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"

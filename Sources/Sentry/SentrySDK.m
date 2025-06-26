@@ -12,7 +12,6 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNSProcessInfoWrapper.h"
@@ -219,7 +218,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    [SentryLogSwiftSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main

@@ -10,7 +10,7 @@
 #import "SentryInstallation.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"

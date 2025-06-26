@@ -42,7 +42,7 @@
 #import "SentryNSNotificationCenterWrapper.h"
 #import <SentryNSDataUtils.h>
 
-#import "SentryLog.h"
+#import "SentryLogC.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>

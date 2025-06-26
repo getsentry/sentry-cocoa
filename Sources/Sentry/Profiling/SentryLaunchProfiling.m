@@ -7,7 +7,7 @@
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
@@ -212,7 +212,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     // quick and dirty way to get debug logging this early in the process run. this will get
     // overwritten once SentrySDK.startWithOptions is called according to the values of
     // SentryOptions.debug and SentryOptions.diagnosticLevel
-    [SentryLogSwiftSupport configure:YES diagnosticLevel:kSentryLevelDebug];
+    [SentrySDKLogSupport configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
     NSDictionary<NSString *, NSNumber *> *launchConfig = sentry_appLaunchProfileConfiguration();

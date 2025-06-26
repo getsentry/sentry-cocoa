@@ -19,7 +19,7 @@
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMessage.h"

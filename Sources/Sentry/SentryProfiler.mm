@@ -9,7 +9,7 @@
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilerState+ObjCpp.h"

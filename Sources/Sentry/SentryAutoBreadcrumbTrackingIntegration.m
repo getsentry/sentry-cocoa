@@ -2,7 +2,7 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySystemEventBreadcrumbs.h"
