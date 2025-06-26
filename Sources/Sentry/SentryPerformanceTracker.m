@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
         else {
             if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                 SENTRY_LOG_DEBUG(
-                    @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
+                    @"[NEW SPAN %@] Cancelling previous UI event span %@ (%@)", name, span.spanDescription, span.spanId.sentrySpanIdString);
                 [span finishWithStatus:kSentrySpanStatusCancelled];
                 bindToScope = YES;
             }
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         SENTRY_LOG_DEBUG(
-            @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
+            @"[NEW SPAN %@] Starting new transaction for %@ with bindToScope: %d previousSpan: %@ (%@)", name, name, bindToScope, span.operation, span.spanId.sentrySpanIdString);
 
         newSpan = [SentrySDK.currentHub
             startTransactionWithContext:context

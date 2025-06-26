@@ -13,6 +13,7 @@ public extension UIViewController {
           }
         }
         if result == nil {
+          print("Could not create transaction observer")
             UIAssert.fail("Transaction was not created")
         }
         return result

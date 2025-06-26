@@ -145,6 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setSpan:(nullable id<SentrySpan>)span
 {
+    SENTRY_LOG_DEBUG(@"Setting span to %@", span);
     @synchronized(_spanLock) {
         _span = span;
 
