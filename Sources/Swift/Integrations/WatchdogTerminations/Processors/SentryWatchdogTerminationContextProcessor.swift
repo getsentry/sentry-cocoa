@@ -19,11 +19,7 @@ import Foundation
         clear()
     }
 
-<<<<<<< HEAD
-    func setContext(_ context: [String: [String: Any]]?) {
-=======
     public func setContext(_ context: [String: [String: Any]]?) {
->>>>>>> main
         SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
@@ -38,7 +34,7 @@ import Foundation
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
-    
+
     public func clear() {
         SentrySDKLog.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()

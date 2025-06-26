@@ -159,7 +159,7 @@ import UIKit
     
     public func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
         SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
-        
+
         // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
         // As this method is already called from the processing queue, we must remove the sync call.
         let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }

@@ -86,7 +86,7 @@ import UIKit
         guard let sessionReplayId = sessionReplayId else { return }
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
-    
+
     public func pauseSessionMode() {
         SentrySDKLog.debug("[Session Replay] Pausing session mode")
         lock.lock()
