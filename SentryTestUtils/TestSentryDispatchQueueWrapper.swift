@@ -49,11 +49,11 @@ import Foundation
     }
 
     public var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
-    public override func dispatch(after interval: TimeInterval, block: SentryDispatchBlockWrapper) {
-        dispatchAfterInvocations.record((interval, block.block))
+    public override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
+        dispatchAfterInvocations.record((interval, block))
         if blockBeforeMainBlock() {
             if dispatchAfterExecutesBlock {
-                block.block()
+                block()
             }
         }
     }
@@ -62,9 +62,10 @@ import Foundation
         dispatchAfterInvocations.invocations.last?.block()
     }
 
-    public var dispatchCancelInvocations = Invocations<() -> Void>()
-    public override func dispatchCancel(_ block: SentryDispatchBlockWrapper) {
-        dispatchCancelInvocations.record(block.block)
+    public var dispatchCancelInvocations = 0
+    public override var shouldDispatchCancel: Bool {
+        dispatchCancelInvocations += 1
+        return false
     }
 
     public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
@@ -72,11 +73,8 @@ import Foundation
     }
     
     public var createDispatchBlockReturnsNULL = false
-    public override func createDispatchBlock(_ block: @escaping () -> Void) -> SentryDispatchBlockWrapper? {
-        if createDispatchBlockReturnsNULL {
-            return nil
-        }
-        return super.createDispatchBlock(block)
+    public override var shouldCreateDispatchBlock: Bool {
+        !createDispatchBlockReturnsNULL
     }
     
 }
