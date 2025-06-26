@@ -2334,10 +2334,6 @@
 		FAEC273E2DF393E000878871 /* NSData+Unzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+Unzip.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		92ECD7412E05AF3C0063EC10 /* Core */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Core; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		63AA75971EB8AEF500D153DE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -2478,7 +2474,6 @@
 		62872B602BA1B84400A4FA7D /* Swift */ = {
 			isa = PBXGroup;
 			children = (
-				92ECD7412E05AF3C0063EC10 /* Core */,
 				62872B612BA1B84C00A4FA7D /* Extensions */,
 			);
 			path = Swift;
@@ -5016,9 +5011,6 @@
 			dependencies = (
 				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
 				D84DAD5C2B1742C1003CF120 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				92ECD7412E05AF3C0063EC10 /* Core */,
 			);
 			name = SentryTests;
 			packageProductDependencies = (
