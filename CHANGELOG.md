@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [Structured Logging] Add `SentryLog` Models ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
+
 ## 8.53.1
 
 ### Fixes
