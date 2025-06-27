@@ -57,6 +57,9 @@
       location = "container:"
       name = "TestSamples">
       <FileRef
+         location = "group:TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj">
       </FileRef>
    </Group>

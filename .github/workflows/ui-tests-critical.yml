@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - ci/swiftui-crash-test
 
   pull_request:
     paths:
@@ -48,4 +49,19 @@ jobs:
             xcode: "16.2"
         command:
           - fastlane_command: ui_critical_tests_ios_swiftui_envelope
-          - fastlane_command: ui_critical_tests_ios_swiftui_crash
+
+  run-swiftui-crash-test:
+    name: Run SwiftUI Crash Test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: ./scripts/ci-select-xcode.sh 16.2
+
+      - name: Boot simulator
+        run: ./scripts/ci-boot-simulator.sh "iPhone 16"
+
+      - name: Run SwiftUI Crash Test
+        run: |
+          cd TestSamples/SwiftUICrashTest
+          ./test-crash-and-relaunch.sh
