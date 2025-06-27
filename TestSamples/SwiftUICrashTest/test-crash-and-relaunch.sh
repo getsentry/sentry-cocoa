@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Launches the SwiftUI Crash Test app and validates that it crashes and relaunches correctly.
 # This test run requires one booted simulator to work. So make sure to boot one simulator before running this script.
 
@@ -13,7 +15,7 @@ echo "This test crashes the app and validates that it can relaunch after a crash
 
 echo "🔨 Building SwiftUI Crash Test app for simulator 🔨"
 
-xcodebuild -workspace Sentry.xcworkspace  -scheme SwiftUICrashTest -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO build
+xcodebuild -workspace Sentry.xcworkspace -scheme SwiftUICrashTest -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO build
 
 echo "Installing app on simulator..."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app

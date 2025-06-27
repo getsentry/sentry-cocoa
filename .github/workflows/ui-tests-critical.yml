@@ -63,5 +63,4 @@ jobs:
 
       - name: Run SwiftUI Crash Test
         run: |
-          cd TestSamples/SwiftUICrashTest
-          ./test-crash-and-relaunch.sh
+          ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh
