@@ -3,24 +3,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDispatchBlockWrapper ()
-
-- (instancetype)initWithBlock:(dispatch_block_t)block;
-
-@end
-
-@implementation SentryDispatchBlockWrapper
-
-- (instancetype)initWithBlock:(dispatch_block_t)block
-{
-    if (self = [super init]) {
-        self.block = block;
-    }
-    return self;
-}
-
-@end
-
 @implementation _SentryDispatchQueueWrapperInternal
 
 - (instancetype)init
@@ -97,34 +79,20 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
 }
 
-- (void)dispatchAfter:(NSTimeInterval)interval block:(SentryDispatchBlockWrapper *)block
+- (void)dispatchAfter:(NSTimeInterval)interval block:(void (^)(void))block
 {
     dispatch_time_t delta = (int64_t)(interval * NSEC_PER_SEC);
     dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
     dispatch_after(when, _queue, ^{
         @autoreleasepool {
-            block.block();
+            block();
         }
     });
-}
-
-- (void)dispatchCancel:(SentryDispatchBlockWrapper *)block
-{
-    dispatch_block_cancel(block.block);
 }
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);
-}
-
-- (nullable SentryDispatchBlockWrapper *)createDispatchBlock:(void (^)(void))block
-{
-    dispatch_block_t dispatch_block = dispatch_block_create(0, block);
-    if (dispatch_block) {
-        return [[SentryDispatchBlockWrapper alloc] initWithBlock:dispatch_block];
-    }
-    return NULL;
 }
 
 @end

@@ -42,19 +42,24 @@
         internalWrapper.dispatchSync(onMainQueue: block, timeout: timeout)
     }
 
-    func dispatch(after interval: TimeInterval, block: SentryDispatchBlockWrapper) {
+    public func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
         internalWrapper.dispatch(after: interval, block: block)
-    }
-
-    func dispatchCancel(_ block: SentryDispatchBlockWrapper) {
-        internalWrapper.dispatchCancel(block)
     }
 
     public func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void) {
         internalWrapper.dispatchOnce(predicate, block: block)
     }
+
+    // The ObjC version of this code wrapped `dispatch_cancel` and `dispatch_block_create`
+    // However dispatch_block is not accessible in Swift. Unit tests rely on stubbing out
+    // the creation and cancelation of dispatch blocks, so these two variables allow
+    // unit tests to still do that, while moving the creation of the `dispatch_block_t`
+    // to the ObjC callers. Once these callers migrate to Swift we can remove this entirely.
+    public var shouldDispatchCancel: Bool {
+        return true
+    }
     
-    func createDispatchBlock(_ block: @escaping () -> Void) -> SentryDispatchBlockWrapper? {
-        internalWrapper.createDispatchBlock(block)
+    public var shouldCreateDispatchBlock: Bool {
+        return true
     }
 }

@@ -728,12 +728,13 @@ class SentrySDKTests: XCTestCase {
     func testReportFullyDisplayed() {
         fixture.options.enableTimeToFullDisplayTracing = true
 
-        SentrySDK.start(options: fixture.options)
-
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
-
         let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
         performanceTracker.currentTTDTracker = testTTDTracker
+
+        // Start SDK after setting up the tracker to ensure we're changing the tracker during it's initialization,
+        // because some initialization logic happens on a BG thread and we would end up in a race condition.
+        SentrySDK.start(options: fixture.options)
 
         SentrySDK.reportFullyDisplayed()
 
