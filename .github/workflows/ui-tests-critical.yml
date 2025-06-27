@@ -58,9 +58,6 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 16.2
 
-      - name: Boot simulator
-        run: ./scripts/ci-boot-simulator.sh "iPhone 16"
-
       - name: Run SwiftUI Crash Test
         run: |
           cd TestSamples/SwiftUICrashTest
