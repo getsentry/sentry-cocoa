@@ -23,15 +23,15 @@ xcodebuild -workspace Sentry.xcworkspace \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify
 
-echo "Installing app on simulator..."
+echo "Installing app on simulator."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
 
-echo "Terminating app if running..."
+echo "Terminating app if running."
 xcrun simctl terminate $DEVICE_ID $BUNDLE_ID 2>/dev/null || true
 
 # Phase 1: Let the app crash
 
-echo "Setting crash flag..."
+echo "Setting crash flag."
 xcrun simctl spawn $DEVICE_ID defaults write $BUNDLE_ID $USER_DEFAULT_KEY -bool true
 
 echo "Launching app with expected crash."
@@ -60,9 +60,8 @@ xcrun simctl spawn $DEVICE_ID defaults delete $BUNDLE_ID $USER_DEFAULT_KEY 2>/de
 echo "Relaunching app after crash."
 xcrun simctl launch $DEVICE_ID $BUNDLE_ID > /dev/null 2>&1
 
+echo "Waiting for 5 seconds to check if the app is still running."
 sleep 5
-
-# Check if app is still running
 
 if xcrun simctl spawn booted launchctl list | grep "$BUNDLE_ID"; then
     echo "✅ App is still running"
@@ -71,8 +70,8 @@ else
     exit 1
 fi
 
-echo "Terminating app..."
+echo "Terminating app."
 xcrun simctl terminate $DEVICE_ID $BUNDLE_ID 2>/dev/null || true
 
-echo "✅ Test completed successfully!" 
+echo "✅ Test completed successfully." 
 exit 0
