@@ -1,5 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+@_spi(Private) @testable import Sentry
+
 class TestSentryScreenshot: SentryScreenshot {
     
     var result: [Data] = []

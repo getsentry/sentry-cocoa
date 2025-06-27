@@ -21,7 +21,7 @@ import UIKit
     let screenshotProvider: SentryScreenshot
     weak var customButton: UIButton?
 
-    @_spi(Private) init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
+    @_spi(Private) public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryScreenshot) {
         self.configuration = configuration
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
