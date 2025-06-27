@@ -25,6 +25,11 @@ class TransactionsViewController: UIViewController {
     }
     
     private func periodicallyDoWork() {
+      // This creates spans on background queues when doing things like reading files
+      // The background spans can interfere with UI tests that assert certain active spans
+      // (using SentryScope.span) because if this span is running the active span does not
+      // get overwritten (bindToScope = 0)
+      guard ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] == nil else { return }
 
         self.timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             self.dispatchQueue.async {
