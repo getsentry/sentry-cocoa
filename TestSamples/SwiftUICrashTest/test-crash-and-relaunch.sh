@@ -12,7 +12,8 @@ echo "This test crashes the app and validates that it can relaunch after a crash
 
 
 echo "🔨 Building SwiftUI Crash Test app for simulator 🔨"
-xcodebuild -project ./TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj -scheme SwiftUICrashTest -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+
+xcodebuild -workspace Sentry.xcworkspace  -scheme SwiftUICrashTest -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO build
 
 echo "Installing app on simulator..."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
