@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Launches the SwiftUI Crash Test app and validates that it crashes and relaunches correctly.
+# This test run requires one booted simulator to work. So make sure to boot one simulator before running this script.
+
 BUNDLE_ID="io.sentry.sentry.SwiftUICrashTest"
 USER_DEFAULT_KEY="crash-on-launch"
 DEVICE_ID="booted"
@@ -9,7 +12,7 @@ echo "This test crashes the app and validates that it can relaunch after a crash
 
 
 echo "🔨 Building SwiftUI Crash Test app for simulator 🔨"
-xcodebuild -project SwiftUICrashTest.xcodeproj -scheme SwiftUICrashTest -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+xcodebuild -project ./TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj -scheme SwiftUICrashTest -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath DerivedData -configuration Debug CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
 
 echo "Installing app on simulator..."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
