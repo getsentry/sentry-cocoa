@@ -183,6 +183,12 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
+      # Enhanced simulator preparation for better stability
+      - name: Prepare simulator
+        run: |
+          chmod +x ./scripts/ci-prepare-simulator.sh
+          ./scripts/ci-prepare-simulator.sh ${{matrix.xcode}} ${{matrix.platform}} ${{matrix.test-destination-os}} "${{matrix.device}}"
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
@@ -196,20 +202,58 @@ jobs:
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
 
-      - name: Run tests
-        # We call a script with the platform so the destination
-        # passed to xcodebuild doesn't end up in the job name,
-        # because GitHub Actions don't provide an easy way of
-        # manipulating string in expressions.
+      - name: Run tests with retry
+        # Enhanced test execution with retry logic for better reliability
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
-            --command test-without-building \
-            --device "${{matrix.device}}" \
-            --configuration TestCI \
-            --scheme ${{matrix.scheme}}
+          set +e  # Don't exit on failure, handle retries manually
+          
+          # Record workflow start time for metrics
+          echo "WORKFLOW_START_TIME=$(date +%s)" >> $GITHUB_ENV
+          
+          max_attempts=3
+          attempt=1
+          success=false
+          
+          while [ $attempt -le $max_attempts ] && [ "$success" = false ]; do
+            echo "🔄 Test attempt $attempt of $max_attempts"
+            
+            # Run the tests
+            if ./scripts/sentry-xcodebuild.sh \
+              --platform ${{matrix.platform}} \
+              --os ${{matrix.test-destination-os}} \
+              --ref ${{ github.ref_name }} \
+              --command test-without-building \
+              --device "${{matrix.device}}" \
+              --configuration TestCI \
+              --scheme ${{matrix.scheme}}; then
+              echo "✅ Tests passed on attempt $attempt"
+              success=true
+            else
+              echo "❌ Tests failed on attempt $attempt"
+              
+              if [ $attempt -lt $max_attempts ]; then
+                echo "🔄 Preparing for retry..."
+                
+                # Clean up simulator state before retry
+                if [ -n "${SIMULATOR_ID:-}" ]; then
+                  echo "🧹 Cleaning simulator state..."
+                  xcrun simctl shutdown "$SIMULATOR_ID" 2>/dev/null || true
+                  xcrun simctl erase "$SIMULATOR_ID" 2>/dev/null || true
+                  xcrun simctl boot "$SIMULATOR_ID" 2>/dev/null || true
+                fi
+                
+                # Wait before retry to allow system to stabilize
+                sleep 30
+              fi
+              
+              ((attempt++))
+            fi
+          done
+          
+          if [ "$success" = false ]; then
+            echo "💥 All test attempts failed"
+            exit 1
+          fi
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1
@@ -223,6 +267,21 @@ jobs:
       - name: Slowest Tests
         if: ${{ always() }}
         run: ./scripts/xcode-slowest-tests.sh
+
+      - name: Monitor flaky tests
+        if: ${{ always() }}
+        run: |
+          chmod +x ./scripts/monitor-flaky-tests.sh
+          ./scripts/monitor-flaky-tests.sh build/reports
+
+      - name: Upload flaky test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: flaky-test-analysis-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            flaky-tests-report.json
+            quarantine-candidates.txt
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v4

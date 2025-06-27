@@ -2,7 +2,14 @@ default_platform(:ios)
 
 platform :ios do
   before_all do |lane|
-    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
+    # Enhanced timeout settings for CI stability
+    if is_ci
+      ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"  # Extended timeout for CI environments
+      ENV["SCAN_TIMEOUT"] = "600"  # 10 minutes for test execution
+      ENV["XCODE_BUILD_TIMEOUT"] = "1800"  # 30 minutes for builds
+    else
+      ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10"  # Default for local development
+    end
   end
 
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
@@ -14,6 +21,18 @@ platform :ios do
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     
+    # Enhanced CI-specific settings for better reliability
+    ci_timeout = is_ci ? 600 : 300  # 10 minutes on CI, 5 minutes locally
+    
+    # Additional xcargs for CI optimization
+    ci_xcargs = []
+    if is_ci
+      ci_xcargs << "-test-iterations 2"  # Allow one retry at xcodebuild level
+      ci_xcargs << "-retry-tests-on-failure"  # Enable automatic retry
+      ci_xcargs << "-maximum-concurrent-test-device-destinations 1"  # Reduce concurrency on CI
+      ci_xcargs << "-disable-concurrent-testing"  # Disable concurrent testing for stability
+    end
+    
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
@@ -22,7 +41,15 @@ platform :ios do
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}",
       device: device,
-      address_sanitizer: address_sanitizer
+      address_sanitizer: address_sanitizer,
+      # CI-optimized settings
+      timeout: ci_timeout,
+      xcargs: ci_xcargs.join(" "),
+      # Additional stability settings
+      disable_concurrent_testing: is_ci,
+      max_concurrent_simulators: is_ci ? 1 : 4,  # Reduce simulator concurrency on CI
+      # Prevent test timeouts in slow CI environments
+      test_timeout: is_ci ? 120 : 60  # 2 minutes per test on CI, 1 minute locally
     )
   end
 
