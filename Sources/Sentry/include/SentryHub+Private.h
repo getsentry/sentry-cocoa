@@ -13,9 +13,15 @@
 @class SentryReplayEvent;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
-@protocol SentrySessionListener;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol SentrySessionListener
+
+- (void)sentrySessionEnded:(SentrySession *)session;
+- (void)sentrySessionStarted:(SentrySession *)session;
+
+@end
 
 @interface SentryHub ()
 

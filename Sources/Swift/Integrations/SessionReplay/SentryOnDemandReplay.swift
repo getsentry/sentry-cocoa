@@ -74,7 +74,7 @@ import UIKit
         }
     }
 
-    @objc func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
+    @objc public func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
         SentrySDKLog.debug("[Session Replay] Adding frame async for screen: \(screen ?? "nil")")
         // Dispatch the frame addition to a background queue to avoid blocking the main queue.
         // This must be on the processing queue to avoid deadlocks.
@@ -125,7 +125,7 @@ import UIKit
         return UIGraphicsGetImageFromCurrentImageContext()
     }
 
-    func releaseFramesUntil(_ date: Date) {
+    public func releaseFramesUntil(_ date: Date) {
         processingQueue.dispatchAsync {
             SentrySDKLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
@@ -146,7 +146,7 @@ import UIKit
         return _frames.first?.time
     }
 
-    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
+    public func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
         // Note: In Swift it is best practice to use `Result<Value, Error>` instead of `(Value?, Error?)`
         //       Due to interoperability with Objective-C and @objc, we can not use Result for the completion callback.
         SentrySDKLog.debug("[Session Replay] Creating video in background with beginning: \(beginning), end: \(end)")

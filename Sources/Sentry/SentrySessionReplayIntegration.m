@@ -32,6 +32,10 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
 static NSString *SENTRY_LAST_REPLAY = @"replay.last";
 
+@interface SentryDisplayLinkWrapper (Replay) <SentryReplayDisplayLinkWrapper>
+
+@end
+
 /**
  * We need to use this from the swizzled block
  * and using an instance property would hold reference

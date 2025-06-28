@@ -4,7 +4,7 @@
 @_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
     private let fileManager: SentryFileManager
 
-    init(fileManager: SentryFileManager) {
+    public init(fileManager: SentryFileManager) {
         self.fileManager = fileManager
     }
 

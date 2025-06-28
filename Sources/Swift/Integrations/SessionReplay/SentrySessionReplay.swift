@@ -3,6 +3,13 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@objc
+@_spi(Private) public protocol SentryReplayDisplayLinkWrapper {
+    func isRunning() -> Bool
+    func invalidate()
+    func link(withTarget: Any, selector: Selector)
+}
+
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentrySessionReplay: NSObject {
@@ -23,7 +30,7 @@ import UIKit
     
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
-    private let displayLink: SentryDisplayLinkWrapper
+    private let displayLink: SentryReplayDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
@@ -36,7 +43,7 @@ import UIKit
     public var screenshotProvider: SentryViewScreenshotProvider
     public var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
-    init(
+    public init(
         replayOptions: SentryReplayOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
@@ -45,7 +52,7 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryDisplayLinkWrapper
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper
     ) {
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider

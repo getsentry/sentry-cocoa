@@ -7,7 +7,7 @@ import Foundation
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeContextStore: SentryScopeContextPersistentStore
 
-    init(
+    public init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
         scopeContextStore: SentryScopeContextPersistentStore
     ) {
