@@ -85,15 +85,11 @@ jobs:
           fi
         shell: sh
 
-      - name: Compute cache key
-        run: |
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
-
       - name: Restore xcarchive cache
         id: cache-xcarchive
         uses: actions/cache@v4
         with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
+          key: ${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Bump version
@@ -121,13 +117,6 @@ jobs:
         run: |
           ditto -c -k -X --rsrc --keepParent ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
         shell: bash
-
-      - name: Cache xcarchive
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive
         uses: actions/upload-artifact@v4
