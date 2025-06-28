@@ -236,10 +236,11 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_swiftui do
+  lane :ui_tests_ios_swiftui do |options|
     run_ui_tests(
       scheme: "iOS-SwiftUI",
-      result_bundle_name: "ui_tests_ios_swiftui"
+      result_bundle_name: "ui_tests_ios_swiftui",
+      device: options[:device]
     )
   end
   
