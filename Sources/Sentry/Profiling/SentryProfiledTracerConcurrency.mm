@@ -7,7 +7,6 @@
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySwift.h"
 #    include <mutex>
 
 #    import "SentryDependencyContainer.h"
