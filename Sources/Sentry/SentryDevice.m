@@ -24,7 +24,6 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-namespace {
 /**
  * @brief Get an iOS hardware model name, or for mac devices, either the hardware model name or CPU
  * architecture of the device, depending on the option provided.
@@ -64,7 +63,7 @@ getHardwareDescription(int type)
         return @"";
     }
 
-    const auto nameNSString = [NSString stringWithUTF8String:name];
+    NSString *nameNSString = [NSString stringWithUTF8String:name];
 
     NSString *argName;
     switch (type) {
@@ -132,7 +131,6 @@ getCPUType(NSNumber *_Nullable subtype)
         return @"arm64_32";
     }
 }
-} // namespace
 
 NSString *
 sentry_getCPUArchitecture(void)
@@ -187,7 +185,7 @@ sentry_getOSVersion(void)
 #elif SENTRY_HAS_UIKIT
     return [UIDevice currentDevice].systemVersion;
 #else
-    const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
     return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
         (long)version.minorVersion, (long)version.patchVersion];
 #endif // SENTRY_HAS_UIKIT
@@ -198,14 +196,14 @@ sentry_getDeviceModel(void)
 {
 #if TARGET_OS_SIMULATOR
     // iPhone/iPad, Watch and TV simulators
-    const auto simulatedDeviceModelName = sentry_getSimulatorDeviceModel();
+    NSString *simulatedDeviceModelName = sentry_getSimulatorDeviceModel();
     SENTRY_LOG_DEBUG(@"Got simulated device model name %@ (running on %@)",
         simulatedDeviceModelName, getHardwareDescription(HW_MODEL));
     return simulatedDeviceModelName;
 #else
 #    if defined(HW_PRODUCT)
     if (@available(iOS 14, macOS 11, *)) {
-        const auto model = getHardwareDescription(HW_PRODUCT);
+        NSString *model = getHardwareDescription(HW_PRODUCT);
         if (model.length > 0) {
             SENTRY_LOG_DEBUG(@"Model name using HW_PRODUCT: %@", model);
             return model;
