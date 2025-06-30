@@ -21,7 +21,6 @@
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
-#import <SentryScreenshot.h>
 #import <SentryUser.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
