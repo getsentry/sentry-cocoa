@@ -27,6 +27,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let contextProcessor: SentryWatchdogTerminationContextProcessor
         let userProcessor: SentryWatchdogTerminationUserProcessor
         let tagsProcessor: SentryWatchdogTerminationTagsProcessor
+        let levelProcessor: SentryWatchdogTerminationLevelProcessor
 
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -51,6 +52,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             tagsProcessor = SentryWatchdogTerminationTagsProcessor(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
+            )
+            levelProcessor = SentryWatchdogTerminationLevelProcessor(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
             )
 
             client = TestClient(options: options)
@@ -87,6 +92,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             let scopeTagsPersistentStore = SentryScopeTagsPersistentStore(
                 fileManager: fileManager
             )
+            let scopeLevelPersistentStore = SentryScopeLevelPersistentStore(
+                fileManager: fileManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
@@ -95,7 +103,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 fileManager: fileManager,
                 scopeContextStore: scopePersistentStore,
                 scopeUserStore: scopeUserPersistentStore,
-                scopeTagsStore: scopeTagsPersistentStore
+                scopeTagsStore: scopeTagsPersistentStore,
+                scopeLevel: scopeLevelPersistentStore
             )
         }
     }
@@ -308,7 +317,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             breadcrumbProcessor: fixture.breadcrumbProcessor,
             contextProcessor: fixture.contextProcessor,
             userProcessor: fixture.userProcessor,
-            tagsProcessor: fixture.tagsProcessor
+            tagsProcessor: fixture.tagsProcessor,
+            levelProcessor: fixture.levelProcessor
         )
 
         for _ in 0..<3 {

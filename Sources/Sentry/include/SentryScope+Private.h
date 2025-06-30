@@ -21,6 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
 /**
+ * SentryLevel of the event
+ */
+@property (atomic) enum SentryLevel levelEnum;
+
+/**
  * The propagation context has a setter, requiring it to be nonatomic
  */
 @property (nonatomic, strong) SentryPropagationContext *propagationContext;

@@ -25,6 +25,7 @@
 @property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 @property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
 @property (nonatomic, strong) SentryScopeTagsPersistentStore *scopeTagsStore;
+@property (nonatomic, strong) SentryScopeLevelPersistentStore *scopeLevelStore;
 
 @end
 
@@ -38,6 +39,7 @@
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
+                scopeLevelStore:(SentryScopeLevelPersistentStore *)scopeLevelStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -48,6 +50,7 @@
         self.scopeContextStore = scopeContextStore;
         self.scopeUserStore = scopeUserStore;
         self.scopeTagsStore = scopeTagsStore;
+        self.scopeLevelStore = scopeLevelStore;
     }
     return self;
 }
@@ -65,6 +68,8 @@
             [self addContextToEvent:event];
             [self addUserToEvent:event];
             [self addTagsToEvent:event];
+            // We intentinally skip reading level from the scope because all watchdog terminations
+            // are fatal
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
@@ -131,13 +136,11 @@
 // TODO: Tests this
 - (void)addUserToEvent:(SentryEvent *)event
 {
-    // Load the previous user from disk
     event.user = [self.scopeUserStore readPreviousUserFromDisk];
 }
 
 - (void)addTagsToEvent:(SentryEvent *)event
 {
-    // Load the previous user from disk
     event.tags = [self.scopeTagsStore readPreviousTagsFromDisk];
 }
 

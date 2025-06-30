@@ -39,11 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;
 
-/**
- * SentryLevel of the event
- */
-@property (atomic) enum SentryLevel levelEnum;
-
 @property (atomic) NSUInteger maxBreadcrumbs;
 @property (atomic) NSUInteger currentBreadcrumbIndex;
 

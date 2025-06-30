@@ -411,6 +411,13 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryScopeTagsPersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
+- (SentryScopeLevelPersistentStore *)
+    scopeLevelPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeLevelPersistentStore,
+        [[SentryScopeLevelPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     // SentryDebugImageProvider is public, so we can't initialize the dependency in
@@ -432,7 +439,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                 getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
                    contextProcessor:self.watchdogTerminationContextProcessor
                       userProcessor:self.watchdogTerminationUserProcessor
-                      tagsProcessor:self.watchdogTerminationTagsProcessor];
+                      tagsProcessor:self.watchdogTerminationTagsProcessor
+                     levelProcessor:self.watchdogTerminationLevelProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -479,6 +487,18 @@ static BOOL isInitialializingDependencyContainer = NO;
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.tags-processor"
                       relativePriority:0]
                           scopeTagsStore:self.scopeTagsPersistentStore])
+}
+
+- (SentryWatchdogTerminationLevelProcessor *)
+    watchdogTerminationLevelProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationLevelProcessor,
+        [[SentryWatchdogTerminationLevelProcessor alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.level-processor"
+                      relativePriority:0]
+                         scopeLevelStore:self.scopeLevelPersistentStore])
 }
 #endif
 

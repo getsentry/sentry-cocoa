@@ -954,7 +954,15 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
+        let levelProcessor = SentryWatchdogTerminationLevelProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor,
+                                                              contextProcessor: contextProcessor,
+                                                              userProcessor: userProcessor,
+                                                              tagsProcessor: tagsProcessor,
+                                                              levelProcessor: levelProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -988,7 +996,15 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
+        let levelProcessor = SentryWatchdogTerminationLevelProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor,
+                                                              contextProcessor: contextProcessor,
+                                                              userProcessor: userProcessor,
+                                                              tagsProcessor: tagsProcessor,
+                                                              levelProcessor: levelProcessor)
         observer.setContext([
             "a": ["b": "c"]
         ])
@@ -1038,7 +1054,15 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
+        let levelProcessor = SentryWatchdogTerminationLevelProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor,
+                                                              contextProcessor: contextProcessor,
+                                                              userProcessor: userProcessor,
+                                                              tagsProcessor: tagsProcessor,
+                                                              levelProcessor: levelProcessor)
         observer.setUser(User(userId: "1234"))
 
         // Wait for the observer to complete
@@ -1085,7 +1109,15 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: scopeTagsStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
+        let levelProcessor = SentryWatchdogTerminationLevelProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor,
+                                                              contextProcessor: contextProcessor,
+                                                              userProcessor: userProcessor,
+                                                              tagsProcessor: tagsProcessor,
+                                                              levelProcessor: levelProcessor)
         observer.setTags(["a": "b"])
 
         // Wait for the observer to complete
@@ -1110,6 +1142,60 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         let value = try XCTUnwrap(result["a"])
         XCTAssertEqual(value, "b")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentLevelFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeContextStore: TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        )
+        let userProcessor = SentryWatchdogTerminationUserProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeUserStore: TestSentryScopeUserPersistentStore(fileManager: fileManager)
+        )
+        let tagsProcessor = SentryWatchdogTerminationTagsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+        )
+        let scopeLevelStore = TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        let levelProcessor = SentryWatchdogTerminationLevelProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: scopeLevelStore
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor,
+                                                              contextProcessor: contextProcessor,
+                                                              userProcessor: userProcessor,
+                                                              tagsProcessor: tagsProcessor,
+                                                              levelProcessor: levelProcessor)
+        observer.setLevel(SentryLevel.debug)
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setLevel completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous user file if it exists
+        scopeLevelStore.deletePreviousLevelOnDisk()
+        // Sanity-check for the pre-condition
+        let previousLevel = scopeLevelStore.readPreviousLevelFromDisk()
+        XCTAssertEqual(previousLevel, SentryLevel.none)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeLevelStore.readPreviousLevelFromDisk())
+        XCTAssertEqual(result, SentryLevel.debug)
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

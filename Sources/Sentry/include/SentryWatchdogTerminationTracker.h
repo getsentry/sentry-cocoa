@@ -7,6 +7,7 @@
 @class SentryWatchdogTerminationLogic;
 @class SentryScopeContextPersistentStore;
 @class SentryScopeTagsPersistentStore;
+@class SentryScopeLevelPersistentStore;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +32,8 @@ SENTRY_NO_INIT
                     fileManager:(SentryFileManager *)fileManager
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
-                 scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore;
+                 scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
+                scopeLevelStore:(SentryScopeLevelPersistentStore *)scopeLevelStore;
 
 - (void)start;
 - (void)stop;

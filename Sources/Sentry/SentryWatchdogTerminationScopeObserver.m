@@ -14,6 +14,7 @@
 @property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationUserProcessor *userProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationTagsProcessor *tagsProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationLevelProcessor *levelProcessor;
 
 @end
 
@@ -24,12 +25,14 @@
                contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor
                   userProcessor:(SentryWatchdogTerminationUserProcessor *)userProcessor
                   tagsProcessor:(SentryWatchdogTerminationTagsProcessor *)tagsProcessor
+                 levelProcessor:(SentryWatchdogTerminationLevelProcessor *)levelProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
         self.contextProcessor = contextProcessor;
         self.userProcessor = userProcessor;
         self.tagsProcessor = tagsProcessor;
+        self.levelProcessor = levelProcessor;
     }
 
     return self;
@@ -43,6 +46,7 @@
     [self.contextProcessor clear];
     [self.userProcessor clear];
     [self.tagsProcessor clear];
+    [self.levelProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -82,7 +86,7 @@
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    [self.levelProcessor setLevel:@(level)];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
