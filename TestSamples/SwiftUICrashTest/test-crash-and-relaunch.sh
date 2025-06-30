@@ -19,6 +19,30 @@ USER_DEFAULT_KEY="crash-on-launch"
 DEVICE_ID="booted"
 SCREENSHOTS_DIR="test-crash-and-relaunch-simulator-screenshots"
 
+usage() {
+    echo "Usage: $0"
+    echo "  -s|--screenshots-dir <dir>      Screenshots directory (default: test-crash-and-relaunch-simulator-screenshots)"
+    echo "  -h|--help                       Show this help message"
+    exit 1
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -s|--screenshots-dir)
+            SCREENSHOTS_DIR="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
+
 # Echo with timestamp
 log() {
     echo "[$(date '+%H:%M:%S')] $1"
