@@ -54,8 +54,7 @@ if let env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                // The application extension flag is required due to https://github.com/getsentry/sentry-cocoa/issues/5371
-                .unsafeFlags(["-enable-library-evolution", "-Xfrontend", "-application-extension"]),
+                .unsafeFlags(["-enable-library-evolution"]),
                 // This flag is used to make some API breaking changes necessary for the framework to compile with SPM.
                 // We can either make more extensive changes to allow it to be backwards compatible, or release them as part of a V9 release.
                 // For now we use this flag so that CI can compile the SPM version.
