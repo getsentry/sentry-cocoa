@@ -5,6 +5,7 @@
 ### Features
 
 - [Structured Logging] Add `SentryLog` Models ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
+
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
