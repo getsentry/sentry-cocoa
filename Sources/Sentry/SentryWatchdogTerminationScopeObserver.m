@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationUserProcessor *userProcessor;
 
 @end
 
@@ -19,11 +20,13 @@
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
+               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor
+                  userProcessor:(SentryWatchdogTerminationUserProcessor *)userProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
         self.contextProcessor = contextProcessor;
+        self.userProcessor = userProcessor;
     }
 
     return self;
@@ -84,7 +87,7 @@
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    // Left blank on purpose
+    [self.userProcessor setUser:user];
 }
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext

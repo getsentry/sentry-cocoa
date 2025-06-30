@@ -397,6 +397,13 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
+- (SentryScopeUserPersistentStore *)
+    scopeUserPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeUserPersistentStore,
+        [[SentryScopeUserPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     // SentryDebugImageProvider is public, so we can't initialize the dependency in
@@ -416,7 +423,8 @@ static BOOL isInitialializingDependencyContainer = NO;
         initWithBreadcrumbProcessor:
             [self
                 getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                   contextProcessor:self.watchdogTerminationContextProcessor];
+                   contextProcessor:self.watchdogTerminationContextProcessor
+                      userProcessor:self.watchdogTerminationUserProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -439,6 +447,18 @@ static BOOL isInitialializingDependencyContainer = NO;
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
                       relativePriority:0]
                        scopeContextStore:self.scopeContextPersistentStore])
+}
+
+- (SentryWatchdogTerminationUserProcessor *)
+    watchdogTerminationUserProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationUserProcessor,
+        [[SentryWatchdogTerminationUserProcessor alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.user-processor"
+                      relativePriority:0]
+                          scopeUserStore:self.scopeUserPersistentStore])
 }
 #endif
 

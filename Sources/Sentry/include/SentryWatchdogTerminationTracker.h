@@ -28,7 +28,8 @@ SENTRY_NO_INIT
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
-              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore;
+              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
+                 scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore;
 
 - (void)start;
 - (void)stop;

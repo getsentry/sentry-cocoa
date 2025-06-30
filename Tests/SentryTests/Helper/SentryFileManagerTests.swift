@@ -854,9 +854,14 @@ class SentryFileManagerTests: XCTestCase {
             withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
             scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
         )
+        let userProcessor = SentryWatchdogTerminationUserProcessor(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeUserStore: SentryScopeUserPersistentStore(fileManager: sut)
+        )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor
         )
 
         for count in 0..<3 {
@@ -884,9 +889,11 @@ class SentryFileManagerTests: XCTestCase {
             withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
             scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
         )
+        let userProcessor: SentryWatchdogTerminationUserProcessor = SentryWatchdogTerminationUserProcessor(withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(), scopeUserStore: SentryScopeUserPersistentStore(fileManager: sut))
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor
         )
 
         for count in 0..<5 {
