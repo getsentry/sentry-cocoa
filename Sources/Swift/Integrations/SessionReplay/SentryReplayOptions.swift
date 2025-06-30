@@ -265,7 +265,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: See  ``SentryReplayOptions.DefaultValues.maximumDuration`` for the default value.
      */
-    var maximumDuration: TimeInterval
+    @_spi(Private) public var maximumDuration: TimeInterval
 
     /**
      * Used by hybrid SDKs to be able to configure SDK info for Session Replay

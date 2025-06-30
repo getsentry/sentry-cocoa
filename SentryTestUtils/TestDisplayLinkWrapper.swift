@@ -1,4 +1,5 @@
 import Foundation
+@_spi(Private) import Sentry
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -17,7 +18,7 @@ public enum FrameRate: UInt64 {
     }
 }
 
-public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
+@_spi(Private) public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper, SentryReplayDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
     public var currentFrameRate: FrameRate = .low

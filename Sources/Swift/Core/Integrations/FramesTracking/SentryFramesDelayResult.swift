@@ -6,7 +6,7 @@ import Foundation
     public let delayDuration: CFTimeInterval
     public let framesContributingToDelayCount: UInt
 
-    init(delayDuration: CFTimeInterval, framesContributingToDelayCount: UInt) {
+    public init(delayDuration: CFTimeInterval, framesContributingToDelayCount: UInt) {
         self.delayDuration = delayDuration
         self.framesContributingToDelayCount = framesContributingToDelayCount
     }

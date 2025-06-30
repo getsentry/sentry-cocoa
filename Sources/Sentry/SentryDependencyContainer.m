@@ -81,6 +81,9 @@
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
+@interface SentryFileManager () <SentryFileManagerProtocol>
+@end
+
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
