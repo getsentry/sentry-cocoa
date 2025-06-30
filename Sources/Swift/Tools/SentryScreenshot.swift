@@ -19,7 +19,7 @@ import UIKit
     
     /// Get a screenshot of every open window in the app.
     /// - Returns: An array of UIImage instances.
-    @discardableResult public func appScreenshotsFromMainThread() -> [UIImage] {
+    public func appScreenshotsFromMainThread() -> [UIImage] {
         var result: [UIImage] = []
         
         let takeScreenShot = { result = self.appScreenshots() }
@@ -84,7 +84,7 @@ import UIKit
         return result
     }
     
-    @discardableResult public func appScreenshotsData() -> [Data] {
+    public func appScreenshotsData() -> [Data] {
         let screenshots = appScreenshots()
         var result: [Data] = []
         result.reserveCapacity(screenshots.count)
