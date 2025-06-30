@@ -21,9 +21,6 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
-      # APPLICATION_EXTENSION_API_ONLY has a side effect of exposing all `@objc` marked entities in `Sentry-Swift.h` (regardless of access level)
-      # This is currently needed for Sentry module to compile. Changing this to NO will break the build.
-      'APPLICATION_EXTENSION_API_ONLY' => 'YES',
       'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include',
       'OTHER_CFLAGS' => '$(inherited) -DAPPLICATION_EXTENSION_API_ONLY_$(APPLICATION_EXTENSION_API_ONLY)'
   }
