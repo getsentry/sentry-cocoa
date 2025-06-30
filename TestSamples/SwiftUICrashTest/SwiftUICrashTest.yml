@@ -21,7 +21,7 @@ targets:
       - SwiftUICrashTest
     configFiles:
       Debug: SwiftUICrashTest.xcconfig
-      Release: SwiftUICrashTest.xcconfig 
+      Release: SwiftUICrashTest.xcconfig
 
 schemes:
   SwiftUICrashTest:
