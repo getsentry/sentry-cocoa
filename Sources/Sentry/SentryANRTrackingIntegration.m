@@ -264,6 +264,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
             event.level = kSentryLevelFatal;
 
             SentryException *exception = event.exceptions.firstObject;
+            exception.mechanism.handled = @(NO);
 
             NSString *exceptionType = exception.type;
             NSString *fatalExceptionType =

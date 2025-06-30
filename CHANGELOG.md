@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Set handled to false for fatal app hangs (#5514)
+
 ## 8.53.1
 
 ### Fixes
