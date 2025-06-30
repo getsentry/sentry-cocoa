@@ -57,6 +57,8 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 16.2
 
+      - run: make xcode-ci
+
       - name: Boot simulator
         run: ./scripts/ci-boot-simulator.sh
 
