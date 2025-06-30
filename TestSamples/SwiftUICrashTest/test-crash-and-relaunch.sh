@@ -3,7 +3,16 @@
 set -euo pipefail
 
 # Launches the SwiftUI Crash Test app and validates that it crashes and relaunches correctly.
-# This test run requires one booted simulator to work. So make sure to boot one simulator before running this script.
+# This test run requires one booted simulator to work. So make sure to boot one simulator before
+# running this script.
+
+# Background:
+# XCTest isn't built for crashing during tests. Instead of using XCTest to press a button and
+# let a test app crash, we now use UserDefaults to tell the test app to crash during launch.
+# We then simply launch the app again via `xcrun simctl launch` and wait to see if it keeps
+# running. This is basically the same as the testCrash of the SwiftUITestSample without using
+#XCTests.
+
 
 BUNDLE_ID="io.sentry.tests.SwiftUICrashTest"
 USER_DEFAULT_KEY="crash-on-launch"
