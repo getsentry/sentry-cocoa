@@ -24,6 +24,7 @@
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 @property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
+@property (nonatomic, strong) SentryScopeTagsPersistentStore *scopeTagsStore;
 
 @end
 
@@ -36,6 +37,7 @@
                     fileManager:(SentryFileManager *)fileManager
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
+                 scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -45,6 +47,7 @@
         self.fileManager = fileManager;
         self.scopeContextStore = scopeContextStore;
         self.scopeUserStore = scopeUserStore;
+        self.scopeTagsStore = scopeTagsStore;
     }
     return self;
 }
@@ -61,6 +64,7 @@
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
             [self addUserToEvent:event];
+            [self addTagsToEvent:event];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
@@ -124,10 +128,17 @@
     event.context = context;
 }
 
+// TODO: Tests this
 - (void)addUserToEvent:(SentryEvent *)event
 {
     // Load the previous user from disk
     event.user = [self.scopeUserStore readPreviousUserFromDisk];
+}
+
+- (void)addTagsToEvent:(SentryEvent *)event
+{
+    // Load the previous user from disk
+    event.tags = [self.scopeTagsStore readPreviousTagsFromDisk];
 }
 
 - (void)stop

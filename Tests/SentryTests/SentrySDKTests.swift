@@ -950,7 +950,11 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeUserStore: TestSentryScopeUserPersistentStore(fileManager: fileManager)
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor)
+        let tagsProcessor = SentryWatchdogTerminationTagsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -980,7 +984,11 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeUserStore: TestSentryScopeUserPersistentStore(fileManager: fileManager)
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor)
+        let tagsProcessor = SentryWatchdogTerminationTagsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
         observer.setContext([
             "a": ["b": "c"]
         ])
@@ -1026,7 +1034,11 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeUserStore: scopeUserStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor)
+        let tagsProcessor = SentryWatchdogTerminationTagsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
         observer.setUser(User(userId: "1234"))
 
         // Wait for the observer to complete
@@ -1050,6 +1062,54 @@ class SentrySDKTests: XCTestCase {
         let result = try XCTUnwrap(scopeUserStore.readPreviousUserFromDisk())
         XCTAssertNotNil(result)
         XCTAssertEqual(result.userId, "1234")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeContextStore: TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        )
+        let userProcessor = SentryWatchdogTerminationUserProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeUserStore: TestSentryScopeUserPersistentStore(fileManager: fileManager)
+        )
+        let scopeTagsStore = TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+        let tagsProcessor = SentryWatchdogTerminationTagsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTagsStore: scopeTagsStore
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor, userProcessor: userProcessor, tagsProcessor: tagsProcessor)
+        observer.setTags(["a": "b"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "set Tags completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous user file if it exists
+        scopeTagsStore.deletePreviousTagsOnDisk()
+        // Sanity-check for the pre-condition
+        let previousUser = scopeTagsStore.readPreviousTagsFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeTagsStore.readPreviousTagsFromDisk())
+        XCTAssertEqual(result.count, 1)
+        let value = try XCTUnwrap(result["a"])
+        XCTAssertEqual(value, "b")
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

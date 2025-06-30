@@ -13,6 +13,7 @@
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationUserProcessor *userProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationTagsProcessor *tagsProcessor;
 
 @end
 
@@ -22,11 +23,13 @@
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
                contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor
                   userProcessor:(SentryWatchdogTerminationUserProcessor *)userProcessor
+                  tagsProcessor:(SentryWatchdogTerminationTagsProcessor *)tagsProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
         self.contextProcessor = contextProcessor;
         self.userProcessor = userProcessor;
+        self.tagsProcessor = tagsProcessor;
     }
 
     return self;
@@ -38,6 +41,8 @@
 {
     [self.breadcrumbProcessor clear];
     [self.contextProcessor clear];
+    [self.userProcessor clear];
+    [self.tagsProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -82,7 +87,7 @@
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    // Left blank on purpose
+    [self.tagsProcessor setTags:tags];
 }
 
 - (void)setUser:(nullable SentryUser *)user

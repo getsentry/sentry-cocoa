@@ -70,6 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
     SentryScopeUserPersistentStore *scopeUserStore =
         [SentryDependencyContainer.sharedInstance scopeUserPersistentStore];
+    SentryScopeTagsPersistentStore *scopeTagsStore =
+        [SentryDependencyContainer.sharedInstance scopeTagsPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
@@ -77,7 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                         dispatchQueueWrapper:dispatchQueueWrapper
                                                                  fileManager:fileManager
                                                            scopeContextStore:scopeContextStore
-                                                              scopeUserStore:scopeUserStore];
+                                                              scopeUserStore:scopeUserStore
+                                                              scopeTagsStore:scopeTagsStore];
 
     [self.tracker start];
 
@@ -100,6 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
         [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setTags:outerScope.tags];
     }];
 
     return YES;
