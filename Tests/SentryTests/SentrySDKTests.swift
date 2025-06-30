@@ -1188,7 +1188,7 @@ class SentrySDKTests: XCTestCase {
         scopeLevelStore.deletePreviousLevelOnDisk()
         // Sanity-check for the pre-condition
         let previousLevel = scopeLevelStore.readPreviousLevelFromDisk()
-        XCTAssertEqual(previousLevel, SentryLevel.none)
+        XCTAssertEqual(previousLevel, SentryLevel.error) // Error is the default level
 
         // -- Act --
         SentrySDK.start(options: options)

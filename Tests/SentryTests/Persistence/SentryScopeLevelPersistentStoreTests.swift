@@ -98,7 +98,7 @@ class SentryScopeLevelPersistentStoreTests: XCTestCase {
         XCTAssertEqual(result, .error)
     }
 
-    func testReadPreviousLevel_whenPreviousLevelUnavailable_shouldReturnNone() throws {
+    func testReadPreviousLevel_whenPreviousLevelUnavailable_shouldReturnError() throws {
         // -- Arrange --
         // Check pre-conditions
         let fm = FileManager.default
@@ -111,7 +111,7 @@ class SentryScopeLevelPersistentStoreTests: XCTestCase {
         let result = sut.readPreviousLevelFromDisk()
 
         // -- Assert --
-        XCTAssertEqual(result, .none)
+        XCTAssertEqual(result, .error)
     }
 
     func testWriteLevelToDisk_whenValidLevelData_shouldWriteToLevelFile() throws {
