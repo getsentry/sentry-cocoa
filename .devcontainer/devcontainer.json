@@ -1,0 +1,32 @@
+{
+  "name": "Swift 5.6",
+  "image": "swift:5.6-focal",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": "false",
+      "username": "vscode",
+      "upgradePackages": "false"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "os-provided",
+      "ppa": "false"
+    }
+  },
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "lldb.library": "/usr/lib/liblldb.so"
+      },
+      "extensions": [
+        "sswg.swift-lang"
+      ]
+    }
+  },
+  "remoteUser": "root"
+} 
