@@ -1,0 +1,24 @@
+name: SwiftUICrashTest
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - SwiftUICrashTest.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  SwiftUICrashTest:
+    type: application
+    platform: auto
+    dependencies:
+      - target: Sentry/Sentry
+    sources:
+      - SwiftUICrashTest
+    configFiles:
+      Debug: SwiftUICrashTest.xcconfig
+      Release: SwiftUICrashTest.xcconfig 

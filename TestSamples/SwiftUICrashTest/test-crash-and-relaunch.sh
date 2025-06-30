@@ -5,7 +5,7 @@ set -euo pipefail
 # Launches the SwiftUI Crash Test app and validates that it crashes and relaunches correctly.
 # This test run requires one booted simulator to work. So make sure to boot one simulator before running this script.
 
-BUNDLE_ID="io.sentry.sentry.SwiftUICrashTest"
+BUNDLE_ID="io.sentry.tests.SwiftUICrashTest"
 USER_DEFAULT_KEY="crash-on-launch"
 DEVICE_ID="booted"
 
