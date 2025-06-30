@@ -157,7 +157,7 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         sut.setUser(fixture.invalidUser)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: fixture.scopeUserStore.userFileURL)
+        let writtenData = try Data(contentsOf: fixture.scopeUserStore.currentFileURL)
         XCTAssertEqual(writtenData, data)
     }
 
@@ -190,14 +190,14 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
-        FileManager.default.createFile(atPath: fixture.scopeUserStore.userFileURL.path, contents: data)
+        FileManager.default.createFile(atPath: fixture.scopeUserStore.currentFileURL.path, contents: data)
     }
 
     fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeUserStore.userFileURL.path), file: file, line: line)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeUserStore.currentFileURL.path), file: file, line: line)
     }
 
     fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeUserStore.userFileURL.path), file: file, line: line)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeUserStore.currentFileURL.path), file: file, line: line)
     }
 }

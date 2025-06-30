@@ -34,25 +34,25 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
 
-        if fm.fileExists(atPath: sut.previousContextFileURL.path) {
-            try fm.removeItem(at: sut.previousContextFileURL)
+        if fm.fileExists(atPath: sut.previousFileURL.path) {
+            try fm.removeItem(at: sut.previousFileURL)
         }
-        if fm.fileExists(atPath: sut.contextFileURL.path) {
-            try fm.removeItem(at: sut.contextFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
         }
-        fm.createFile(atPath: sut.contextFileURL.path, contents: data)
+        fm.createFile(atPath: sut.currentFileURL.path, contents: data)
 
-        XCTAssertTrue(fm.fileExists(atPath: sut.contextFileURL.path))
-        XCTAssertFalse(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         sut.moveCurrentFileToPreviousFile()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
-        let previousContextData = try Data(contentsOf: sut.previousContextFileURL)
+        let previousContextData = try Data(contentsOf: sut.previousFileURL)
         XCTAssertEqual(previousContextData, data)
     }
 
@@ -69,8 +69,8 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
                 }
             }
             """.utf8)
-        try data.write(to: sut.previousContextFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = try XCTUnwrap(sut.readPreviousContextFromDisk())
@@ -92,8 +92,8 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
                 }
             }
             """.utf8)
-        try data.write(to: sut.previousContextFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousContextFromDisk()
@@ -106,8 +106,8 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
-        try data.write(to: sut.previousContextFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousContextFromDisk()
@@ -120,10 +120,10 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         // -- Arrange --
         // Check pre-conditions
         let fm = FileManager.default
-        if fm.fileExists(atPath: sut.previousContextFileURL.path) {
-            try fm.removeItem(at: sut.previousContextFileURL)
+        if fm.fileExists(atPath: sut.previousFileURL.path) {
+            try fm.removeItem(at: sut.previousFileURL)
         }
-        XCTAssertFalse(fm.fileExists(atPath: sut.previousContextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousContextFromDisk()
@@ -141,16 +141,16 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         ]
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.writeContextToDisk(context: context)
 
         // -- Assert --
-        XCTAssertTrue(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
         // Use the SentrySerialization to compare the written data
         // We can assume the utility to serialize the context correctly as it is tested by other tests.
-        let writtenData = try Data(contentsOf: sut.contextFileURL)
+        let writtenData = try Data(contentsOf: sut.currentFileURL)
         let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
 
         XCTAssertEqual(serializedData.count, 2)
@@ -165,18 +165,18 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
             "key": ["nestedKey": Double.infinity],
             "anotherKey": ["anotherNestedKey": "nestedValue"]
         ]
-        if fm.fileExists(atPath: sut.contextFileURL.path) {
-            try fm.removeItem(at: sut.contextFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
         }
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.writeContextToDisk(context: context)
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
     func testWriteContextToDisk_whenNonLiteralsINJSONDictionary_shouldSanitizeAndWriteToContextFile() throws {
@@ -185,12 +185,12 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         let context: [String: [String: Any]] = [
             "key": ["nestedKey": Date(timeIntervalSince1970: 0xF00D)]
         ]
-        if fm.fileExists(atPath: sut.contextFileURL.path) {
-            try fm.removeItem(at: sut.contextFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
         }
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.writeContextToDisk(context: context)
@@ -198,7 +198,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         // -- Assert --
         // Use the SentrySerialization to compare the written data
         // We can assume the utility to serialize the context correctly as it is tested by other tests.
-        let writtenData = try Data(contentsOf: sut.contextFileURL)
+        let writtenData = try Data(contentsOf: sut.currentFileURL)
         let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
 
         XCTAssertEqual(serializedData.count, 1)
@@ -209,48 +209,48 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
     func testDeleteContextFile_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default
-        if !fm.fileExists(atPath: sut.contextFileURL.path) {
-            try "".write(to: sut.contextFileURL, atomically: true, encoding: .utf8)
+        if !fm.fileExists(atPath: sut.currentFileURL.path) {
+            try "".write(to: sut.currentFileURL, atomically: true, encoding: .utf8)
         }
-        XCTAssertTrue(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.deleteContextOnDisk()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
     func testDeleteContextFile_whenNotExists_shouldDoNothing() throws {
         // -- Arrange --
         let fm = FileManager.default
-        if fm.fileExists(atPath: sut.contextFileURL.path) {
-           try fm.removeItem(at: sut.contextFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+           try fm.removeItem(at: sut.currentFileURL)
         }
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.deleteContextOnDisk()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.contextFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testContextFileURL_returnsURLWithCorrectPath() {
+    func testcurrentFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
             .appendingPathComponent("context.state")
 
         // -- Act && Assert --
-        XCTAssertEqual(sut.contextFileURL, expectedUrl)
+        XCTAssertEqual(sut.currentFileURL, expectedUrl)
     }
 
-    func testPreviousContextFileURL_returnsURLWithCorrectPath() {
+    func testpreviousFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
             .appendingPathComponent("previous.context.state")
 
         // -- Act && Assert --
-        XCTAssertEqual(sut.previousContextFileURL, expectedUrl)
+        XCTAssertEqual(sut.previousFileURL, expectedUrl)
     }
 }

@@ -2,47 +2,33 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryScopeUserPersistentStore: NSObject {
-    private let fileManager: SentryFileManager
-
+@_spi(Private) public class SentryScopeUserPersistentStore: SentryScopeBasePersistentStore {
     init(fileManager: SentryFileManager) {
-        self.fileManager = fileManager
+        super.init(fileManager: fileManager, fileName: "user")
     }
 
     // MARK: - User
 
-    public func moveCurrentFileToPreviousFile() {
-        SentryLog.debug("Moving user file to previous user file")
-        self.fileManager.moveState(userFileURL.path, toPreviousState: previousUserFileURL.path)
-    }
-
     public func readPreviousUserFromDisk() -> User? {
-        SentryLog.debug("Reading previous user file at path: \(previousUserFileURL.path)")
-        do {
-            let data = try fileManager.readData(fromPath: previousUserFileURL.path)
-            return decodeUser(from: data)
-        } catch {
-            SentryLog.error("Failed to read previous user file at path: \(previousUserFileURL.path), reason: \(error)")
+        guard let data = super.readPreviousStateFromDisk() else {
             return nil
         }
+        return decodeUser(from: data)
     }
 
     func writeUserToDisk(user: User) {
-        SentryLog.debug("Writing user to disk at path: \(userFileURL.path)")
         guard let data = encode(user: user) else {
             return
         }
-        fileManager.write(data, toPath: userFileURL.path)
+        super.writeStateToDisk(data: data)
     }
-
+    
     func deleteUserOnDisk() {
-        SentryLog.debug("Deleting user file at path: \(userFileURL.path)")
-        fileManager.removeFile(atPath: userFileURL.path)
+        super.deleteStateOnDisk()
     }
 
     func deletePreviousUserOnDisk() {
-        SentryLog.debug("Deleting user file at path: \(userFileURL.path)")
-        fileManager.removeFile(atPath: previousUserFileURL.path)
+        super.deletePreviousStateOnDisk()
     }
 
     // MARK: - Encoding
@@ -66,27 +52,5 @@ import Foundation
         }
         
         return User(dictionary: deserialized)
-    }
-
-    // MARK: - Helpers
-
-    /**
-     * Path to a state file holding the latest user observed from the scope.
-     *
-     * This path is used to keep a persistent copy of the scope user on disk, to be available after
-     * restart of the app.
-     */
-    var userFileURL: URL {
-        return fileManager.getSentryPathAsURL().appendingPathComponent("user.state")
-    }
-
-    /**
-     * Path to the previous state file holding the latest user observed from the scope.
-     *
-     * This file is overwritten at SDK start and kept as a copy of the last user file until the next
-     * SDK start.
-     */
-    var previousUserFileURL: URL {
-        return fileManager.getSentryPathAsURL().appendingPathComponent("previous.user.state")
     }
 }

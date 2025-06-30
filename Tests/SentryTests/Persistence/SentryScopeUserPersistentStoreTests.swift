@@ -34,25 +34,25 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
 
-        if fm.fileExists(atPath: sut.previousUserFileURL.path) {
-            try fm.removeItem(at: sut.previousUserFileURL)
+        if fm.fileExists(atPath: sut.previousFileURL.path) {
+            try fm.removeItem(at: sut.previousFileURL)
         }
-        if fm.fileExists(atPath: sut.userFileURL.path) {
-            try fm.removeItem(at: sut.userFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
         }
-        fm.createFile(atPath: sut.userFileURL.path, contents: data)
+        fm.createFile(atPath: sut.currentFileURL.path, contents: data)
 
-        XCTAssertTrue(fm.fileExists(atPath: sut.userFileURL.path))
-        XCTAssertFalse(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         sut.moveCurrentFileToPreviousFile()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
-        let previousUserData = try Data(contentsOf: sut.previousUserFileURL)
+        let previousUserData = try Data(contentsOf: sut.previousFileURL)
         XCTAssertEqual(previousUserData, data)
     }
 
@@ -67,8 +67,8 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
                 "ip_address": "192.168.1.1"
             }
             """.utf8)
-        try data.write(to: sut.previousUserFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = try XCTUnwrap(sut.readPreviousUserFromDisk())
@@ -87,8 +87,8 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
             {
                 "id": 123,
             """.utf8)
-        try data.write(to: sut.previousUserFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousUserFromDisk()
@@ -101,8 +101,8 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
-        try data.write(to: sut.previousUserFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        try data.write(to: sut.previousFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousUserFromDisk()
@@ -115,10 +115,10 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         // -- Arrange --
         // Check pre-conditions
         let fm = FileManager.default
-        if fm.fileExists(atPath: sut.previousUserFileURL.path) {
-            try fm.removeItem(at: sut.previousUserFileURL)
+        if fm.fileExists(atPath: sut.previousFileURL.path) {
+            try fm.removeItem(at: sut.previousFileURL)
         }
-        XCTAssertFalse(fm.fileExists(atPath: sut.previousUserFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
         let result = sut.readPreviousUserFromDisk()
@@ -136,15 +136,15 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         user.ipAddress = "192.168.1.1"
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.writeUserToDisk(user: user)
 
         // -- Assert --
-        XCTAssertTrue(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
         // Use the SentrySerialization to compare the written data
-        let writtenData = try Data(contentsOf: sut.userFileURL)
+        let writtenData = try Data(contentsOf: sut.currentFileURL)
         let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
 
         XCTAssertEqual(serializedData["id"] as? String, "user123")
@@ -160,65 +160,65 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         // Set an invalid value that can't be serialized
         user.data = ["invalid": Double.infinity]
 
-        if fm.fileExists(atPath: sut.userFileURL.path) {
-            try fm.removeItem(at: sut.userFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
         }
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.writeUserToDisk(user: user)
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
     func testDeleteUserFile_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default
-        if !fm.fileExists(atPath: sut.userFileURL.path) {
-            try "".write(to: sut.userFileURL, atomically: true, encoding: .utf8)
+        if !fm.fileExists(atPath: sut.currentFileURL.path) {
+            try "".write(to: sut.currentFileURL, atomically: true, encoding: .utf8)
         }
-        XCTAssertTrue(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.deleteUserOnDisk()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
     func testDeleteUserFile_whenNotExists_shouldDoNothing() throws {
         // -- Arrange --
         let fm = FileManager.default
-        if fm.fileExists(atPath: sut.userFileURL.path) {
-           try fm.removeItem(at: sut.userFileURL)
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+           try fm.removeItem(at: sut.currentFileURL)
         }
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
         sut.deleteUserOnDisk()
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testUserFileURL_returnsURLWithCorrectPath() {
+    func testcurrentFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
             .appendingPathComponent("user.state")
 
         // -- Act && Assert --
-        XCTAssertEqual(sut.userFileURL, expectedUrl)
+        XCTAssertEqual(sut.currentFileURL, expectedUrl)
     }
 
-    func testPreviousUserFileURL_returnsURLWithCorrectPath() {
+    func testpreviousFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
             .appendingPathComponent("previous.user.state")
 
         // -- Act && Assert --
-        XCTAssertEqual(sut.previousUserFileURL, expectedUrl)
+        XCTAssertEqual(sut.previousFileURL, expectedUrl)
     }
 }
