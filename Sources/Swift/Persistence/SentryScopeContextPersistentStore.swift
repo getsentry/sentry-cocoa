@@ -1,10 +1,19 @@
 @_implementationOnly import _SentryPrivate
 
+@_spi(Private) @objc public protocol SentryFileManagerProtocol {
+  func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
+    func readData(fromPath path: String) throws -> Data
+    @objc(writeData:toPath:)
+    @discardableResult func write(_ data: Data, toPath path: String) -> Bool
+    func removeFile(atPath path: String)
+    func getSentryPathAsURL() -> URL
+}
+
 @objcMembers
 @_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
-    private let fileManager: SentryFileManager
+    private let fileManager: SentryFileManagerProtocol
 
-    public init(fileManager: SentryFileManager) {
+    public init(fileManager: SentryFileManagerProtocol) {
         self.fileManager = fileManager
     }
 
