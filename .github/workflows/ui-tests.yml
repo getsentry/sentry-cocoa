@@ -47,7 +47,7 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
       fastlane_command_extra_arguments: device:"iPhone 16 (18.5)"
