@@ -73,7 +73,9 @@ class SentrySDKTests: XCTestCase {
         userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
         tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
         distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
-        environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper
+        environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
+        extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
+        traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
     ) {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
@@ -96,6 +98,14 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeEnvironmentStore: TestSentryScopeEnvironmentPersistentStore(fileManager: fileManager)
         )
+        let extrasProcessor = SentryWatchdogTerminationExtrasProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeExtrasStore: TestSentryScopeExtrasPersistentStore(fileManager: fileManager)
+        )
+        let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTraceContextStore: TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        )
         
         return (
             breadcrumbProcessor: breadcrumbProcessor,
@@ -103,7 +113,9 @@ class SentrySDKTests: XCTestCase {
             userProcessor: userProcessor,
             tagsProcessor: tagsProcessor,
             distProcessor: distProcessor,
-            environmentProcessor: environmentProcessor
+            environmentProcessor: environmentProcessor,
+            extrasProcessor: extrasProcessor,
+            traceContextProcessor: traceContextProcessor
         )
     }
     
@@ -116,7 +128,9 @@ class SentrySDKTests: XCTestCase {
             userProcessor: processors.userProcessor,
             tagsProcessor: processors.tagsProcessor,
             distProcessor: processors.distProcessor,
-            environmentProcessor: processors.environmentProcessor
+            environmentProcessor: processors.environmentProcessor,
+            extrasProcessor: processors.extrasProcessor,
+            traceContextProcessor: processors.traceContextProcessor
         )
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1189,6 +1203,80 @@ class SentrySDKTests: XCTestCase {
         // -- Assert --
         let result = try XCTUnwrap(scopeEnvironmentStore.readPreviousEnvironmentFromDisk())
         XCTAssertEqual(result, "test-environment")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentExtrasFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the extras store for assertions
+        let scopeExtrasStore = TestSentryScopeExtrasPersistentStore(fileManager: fileManager)
+        observer.setExtras(["extra-key": "extra-value"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setExtras completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the extras processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous extras file if it exists
+        scopeExtrasStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousExtras = scopeExtrasStore.readPreviousExtrasFromDisk()
+        XCTAssertNil(previousExtras)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeExtrasStore.readPreviousExtrasFromDisk())
+        XCTAssertEqual(result.count, 1)
+        let value = try XCTUnwrap(result["extra-key"] as? String)
+        XCTAssertEqual(value, "extra-value")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentTraceContextFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the trace context store for assertions
+        let scopeTraceContextStore = TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        observer.setTraceContext(["trace_id": "abc123", "span_id": "def456"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTraceContext completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the trace context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous trace context file if it exists
+        scopeTraceContextStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousTraceContext = scopeTraceContextStore.readPreviousTraceContextFromDisk()
+        XCTAssertNil(previousTraceContext)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeTraceContextStore.readPreviousTraceContextFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["trace_id"] as? String, "abc123")
+        XCTAssertEqual(result["span_id"] as? String, "def456")
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

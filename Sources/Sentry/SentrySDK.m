@@ -249,7 +249,11 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopeDistPersistentStore moveCurrentFileToPreviousFile];
     [SentryDependencyContainer.sharedInstance
+            .scopeExtrasPersistentStore moveCurrentFileToPreviousFile];
+    [SentryDependencyContainer.sharedInstance
             .scopeEnvironmentPersistentStore moveCurrentFileToPreviousFile];
+    [SentryDependencyContainer.sharedInstance
+            .scopeTraceContextPersistentStore moveCurrentFileToPreviousFile];
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);

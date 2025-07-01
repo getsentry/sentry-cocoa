@@ -10,6 +10,8 @@
 @class SentryWatchdogTerminationTagsProcessorWrapper;
 @class SentryWatchdogTerminationDistProcessorWrapper;
 @class SentryWatchdogTerminationEnvironmentProcessorWrapper;
+@class SentryWatchdogTerminationExtrasProcessorWrapper;
+@class SentryWatchdogTerminationTraceContextProcessorWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +31,10 @@ SENTRY_NO_INIT
                   tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor
                   distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
            environmentProcessor:
-               (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor;
+               (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
+                extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+          traceContextProcessor:
+              (SentryWatchdogTerminationTraceContextProcessorWrapper *)traceContextProcessor;
 
 @end
 

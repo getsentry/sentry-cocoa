@@ -17,6 +17,9 @@
 @property (nonatomic, strong) SentryWatchdogTerminationDistProcessorWrapper *distProcessor;
 @property (nonatomic, strong)
     SentryWatchdogTerminationEnvironmentProcessorWrapper *environmentProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationExtrasProcessorWrapper *extrasProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationTraceContextProcessorWrapper *traceContextProcessor;
 
 @end
 
@@ -30,6 +33,9 @@
                   distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
            environmentProcessor:
                (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
+                extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+          traceContextProcessor:
+              (SentryWatchdogTerminationTraceContextProcessorWrapper *)traceContextProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
@@ -38,6 +44,8 @@
         self.tagsProcessor = tagsProcessor;
         self.distProcessor = distProcessor;
         self.environmentProcessor = environmentProcessor;
+        self.extrasProcessor = extrasProcessor;
+        self.traceContextProcessor = traceContextProcessor;
     }
 
     return self;
@@ -53,6 +61,8 @@
     [self.tagsProcessor clear];
     [self.distProcessor clear];
     [self.environmentProcessor clear];
+    [self.extrasProcessor clear];
+    [self.traceContextProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -82,7 +92,7 @@
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    [self.extrasProcessor setExtras:extras];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
@@ -107,7 +117,7 @@
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    // Left blank on purpose
+    [self.traceContextProcessor setTraceContext:traceContext];
 }
 
 @end
