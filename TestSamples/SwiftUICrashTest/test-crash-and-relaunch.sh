@@ -106,7 +106,7 @@ while true; do
     if is_app_running; then
         log "⏳ App is still running"
     else
-        log "✅ App crashed as expected 🔥"
+        log "✅ App crashed as expected 🔥 🚀 💥"
         break
     fi
 
@@ -147,17 +147,19 @@ while true; do
     elapsed=$((current_time - start_time))
     
     if [ $elapsed -ge 5 ]; then
-        log "Completed waiting for app running for 5 seconds."
+        log "✅ Completed checking if app is still running."
         break
     fi
 done
 
 take_simulator_screenshot "after-crash-check-after-sleep"
 
+log "Checking if app is still running one more time."
+
 if is_app_running; then
-    log "✅ App is still running"
+    log "✅ App is still running."
 else
-    log "❌ App is not running"    
+    log "❌ App is not running."    
     exit 1
 fi
 
