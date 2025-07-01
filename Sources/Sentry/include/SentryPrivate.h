@@ -7,7 +7,6 @@
 #import "SentryRandom.h"
 #import "SentryScope+Private.h"
 #import "SentryTime.h"
-#import "SentryUser+Private.h"
 #import "SentryUserAccess.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 

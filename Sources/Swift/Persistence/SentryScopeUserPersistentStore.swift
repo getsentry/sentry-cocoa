@@ -46,11 +46,12 @@ import Foundation
     }
 
     private func decodeUser(from data: Data) -> User? {
-        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentrySDKLog.error("Failed to deserialize user, reason: data is not valid json")
+        do {
+            let decoder = JSONDecoder()
+            return try decoder.decode(UserDecodable.self, from: data)
+        } catch {
+            SentrySDKLog.error("Failed to decode user, reason: \(error)")
             return nil
         }
-        
-        return User(dictionary: deserialized)
     }
 }
