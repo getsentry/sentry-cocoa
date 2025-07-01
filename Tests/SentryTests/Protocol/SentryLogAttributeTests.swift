@@ -9,44 +9,40 @@ final class SentryLogAttributeTests: XCTestCase {
         let attribute = SentryLog.Attribute.string("test value")
         
         let data = try JSONEncoder().encode(attribute)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertNotNil(json)
-        XCTAssertEqual(json?["type"] as? String, "string")
-        XCTAssertEqual(json?["value"] as? String, "test value")
+        XCTAssertEqual(json["type"] as? String, "string")
+        XCTAssertEqual(json["value"] as? String, "test value")
     }
     
     func testEncodeBooleanAttribute() throws {
         let attribute = SentryLog.Attribute.boolean(true)
         
         let data = try JSONEncoder().encode(attribute)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertNotNil(json)
-        XCTAssertEqual(json?["type"] as? String, "boolean")
-        XCTAssertEqual(json?["value"] as? Bool, true)
+        XCTAssertEqual(json["type"] as? String, "boolean")
+        XCTAssertEqual(json["value"] as? Bool, true)
     }
     
     func testEncodeIntegerAttribute() throws {
         let attribute = SentryLog.Attribute.integer(42)
         
         let data = try JSONEncoder().encode(attribute)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertNotNil(json)
-        XCTAssertEqual(json?["type"] as? String, "integer")
-        XCTAssertEqual(json?["value"] as? Int, 42)
+        XCTAssertEqual(json["type"] as? String, "integer")
+        XCTAssertEqual(json["value"] as? Int, 42)
     }
     
     func testEncodeDoubleAttribute() throws {
         let attribute = SentryLog.Attribute.double(3.14159)
         
         let data = try JSONEncoder().encode(attribute)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertNotNil(json)
-        XCTAssertEqual(json?["type"] as? String, "double")
-        XCTAssertEqual(json?["value"] as! Double, 3.14159, accuracy: 0.00001)
+        XCTAssertEqual(json["type"] as? String, "double")
+        XCTAssertEqual(json["value"] as! Double, 3.14159, accuracy: 0.00001)
     }
     
     // MARK: - Decoding Tests

@@ -41,26 +41,24 @@ final class SentryLogTests: XCTestCase {
     
     func testEncode() throws {
         let data = try encodeToJSONData(data: log)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertNotNil(json)
-        XCTAssertEqual(json?["timestamp"] as? String, "2009-02-13T23:31:30.000Z")
-        XCTAssertEqual(json?["trace_id"] as? String, "550e8400e29b41d4a716446655440000")
-        XCTAssertEqual(json?["level"] as? String, "info")
-        XCTAssertEqual(json?["body"] as? String, "Test log message")
+        XCTAssertEqual(json["timestamp"] as? String, "2009-02-13T23:31:30.000Z")
+        XCTAssertEqual(json["trace_id"] as? String, "550e8400e29b41d4a716446655440000")
+        XCTAssertEqual(json["level"] as? String, "info")
+        XCTAssertEqual(json["body"] as? String, "Test log message")
         
-        let encodedAttributes = json?["attributes"] as? [String: [String: Any]]
-        XCTAssertNotNil(encodedAttributes)
-        XCTAssertEqual(encodedAttributes?["user_id"]?["type"] as? String, "string")
-        XCTAssertEqual(encodedAttributes?["user_id"]?["value"] as? String, "12345")
-        XCTAssertEqual(encodedAttributes?["is_active"]?["type"] as? String, "boolean")
-        XCTAssertEqual(encodedAttributes?["is_active"]?["value"] as? Bool, true)
-        XCTAssertEqual(encodedAttributes?["count"]?["type"] as? String, "integer")
-        XCTAssertEqual(encodedAttributes?["count"]?["value"] as? Int, 42)
-        XCTAssertEqual(encodedAttributes?["score"]?["type"] as? String, "double")
-        XCTAssertEqual(encodedAttributes?["score"]?["value"] as! Double, 3.14159, accuracy: 0.00001)
+        let encodedAttributes = try XCTUnwrap(json["attributes"] as? [String: [String: Any]])
+        XCTAssertEqual(encodedAttributes["user_id"]?["type"] as? String, "string")
+        XCTAssertEqual(encodedAttributes["user_id"]?["value"] as? String, "12345")
+        XCTAssertEqual(encodedAttributes["is_active"]?["type"] as? String, "boolean")
+        XCTAssertEqual(encodedAttributes["is_active"]?["value"] as? Bool, true)
+        XCTAssertEqual(encodedAttributes["count"]?["type"] as? String, "integer")
+        XCTAssertEqual(encodedAttributes["count"]?["value"] as? Int, 42)
+        XCTAssertEqual(encodedAttributes["score"]?["type"] as? String, "double")
+        XCTAssertEqual(encodedAttributes["score"]?["value"] as! Double, 3.14159, accuracy: 0.00001)
         
-        XCTAssertEqual(json?["severity_number"] as? Int, 21)
+        XCTAssertEqual(json["severity_number"] as? Int, 21)
     }
     
     func testDecode() throws {
