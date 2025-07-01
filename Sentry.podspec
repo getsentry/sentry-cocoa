@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
       'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include',
-      'OTHER_CFLAGS' => '$(inherited) -DAPPLICATION_EXTENSION_API_ONLY_$(APPLICATION_EXTENSION_API_ONLY)'
+      'OTHER_CFLAGS' => '$(inherited)'
   }
   s.watchos.pod_target_xcconfig = {
       'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
