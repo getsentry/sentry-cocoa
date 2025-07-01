@@ -16,9 +16,11 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let watchdogTerminationContextProcessor: TestSentryWatchdogTerminationContextProcessor
         let watchdogTerminationUserProcessor: TestSentryWatchdogTerminationUserProcessor
         let watchdogTerminationTagsProcessor: TestSentryWatchdogTerminationTagsProcessor
+        let watchdogTerminationLevelProcessor: TestSentryWatchdogTerminationLevelProcessor
         let watchdogTerminationDistProcessor: TestSentryWatchdogTerminationDistProcessor
         let watchdogTerminationEnvironmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
         let watchdogTerminationExtrasProcessor: TestSentryWatchdogTerminationExtrasProcessor
+        let watchdogTerminationFingerprintProcessor: TestSentryWatchdogTerminationFingerprintProcessor
         let watchdogTerminationTraceContextProcessor: TestSentryWatchdogTerminationTraceContextProcessor
 
         let hub: SentryHub
@@ -82,6 +84,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             )
             container.watchdogTerminationTagsProcessor = watchdogTerminationTagsProcessor
 
+            let scopeLevelPersistentStore = TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+            watchdogTerminationLevelProcessor = TestSentryWatchdogTerminationLevelProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeLevelStore: scopeLevelPersistentStore
+            )
+            container.watchdogTerminationLevelProcessor = watchdogTerminationLevelProcessor
+
             let scopeDistPersistentStore = TestSentryScopeDistPersistentStore(fileManager: fileManager)
             watchdogTerminationDistProcessor = TestSentryWatchdogTerminationDistProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
@@ -102,6 +111,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
                 scopeExtrasStore: scopeExtrasPersistentStore
             )
             container.watchdogTerminationExtrasProcessor = watchdogTerminationExtrasProcessor
+            
+            let scopeFingerprintPersistentStore = TestSentryScopeFingerprintPersistentStore(fileManager: fileManager)
+            watchdogTerminationFingerprintProcessor = TestSentryWatchdogTerminationFingerprintProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeFingerprintStore: scopeFingerprintPersistentStore
+            )
+            container.watchdogTerminationFingerprintProcessor = watchdogTerminationFingerprintProcessor
             
             let scopeTraceContextPersistentStore = TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
             watchdogTerminationTraceContextProcessor = TestSentryWatchdogTerminationTraceContextProcessor(
@@ -333,6 +349,47 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(invocation?["existingTagKey"], "existingTagValue")
     }
 
+    func testInstallWithOptions_shouldStoreLevelInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.count, 1)
+        fixture.scope.setLevel(SentryLevel.warning)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the level to the
+        // level processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.last)
+        XCTAssertEqual(invocation?.uintValue, SentryLevel.warning.rawValue)
+    }
+
+    func testInstallWithOptions_shouldSetCurrentLevelOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.scope.setLevel(SentryLevel.error)
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the level to the
+        // level processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationLevelProcessor.setLevelInvocations.first)
+        XCTAssertEqual(invocation?.uintValue, SentryLevel.error.rawValue)
+    }
+
     func testInstallWithOptions_shouldStoreDistInfo() throws {
         // -- Arrange --
         let sut = fixture.getSut()
@@ -454,6 +511,51 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationExtrasProcessor.setExtrasInvocations.count, 1)
         let invocation = try XCTUnwrap(fixture.watchdogTerminationExtrasProcessor.setExtrasInvocations.first)
         XCTAssertEqual(invocation?["existing-extra-key"] as? String, "existing-extra-value")
+    }
+
+    func testInstallWithOptions_shouldStoreFingerprintInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.count, 1)
+        fixture.scope.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the fingerprint to the
+        // fingerprint processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.last)
+        XCTAssertEqual(invocation?.count, 2)
+        XCTAssertEqual(invocation?[0], "fingerprint1")
+        XCTAssertEqual(invocation?[1], "fingerprint2")
+    }
+
+    func testInstallWithOptions_shouldSetCurrentFingerprintOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.scope.setFingerprint(["existing-fingerprint1", "existing-fingerprint2"])
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the fingerprint to the
+        // fingerprint processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationFingerprintProcessor.setFingerprintInvocations.first)
+        XCTAssertEqual(invocation?.count, 2)
+        XCTAssertEqual(invocation?[0], "existing-fingerprint1")
+        XCTAssertEqual(invocation?[1], "existing-fingerprint2")
     }
 
     func testInstallWithOptions_shouldStoreTraceContextInfo() throws {

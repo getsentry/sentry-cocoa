@@ -7,9 +7,11 @@
 @class SentryWatchdogTerminationLogic;
 @class SentryScopeContextPersistentStore;
 @class SentryScopeTagsPersistentStore;
+@class SentryScopeLevelPersistentStore;
 @class SentryScopeDistPersistentStore;
 @class SentryScopeEnvironmentPersistentStore;
 @class SentryScopeExtrasPersistentStore;
+@class SentryScopeFingerprintPersistentStore;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,9 +37,11 @@ SENTRY_NO_INIT
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
+                scopeLevelStore:(SentryScopeLevelPersistentStore *)scopeLevelStore
                  scopeDistStore:(SentryScopeDistPersistentStore *)scopeDistStore
           scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore
-               scopeExtrasStore:(SentryScopeExtrasPersistentStore *)scopeExtrasStore;
+               scopeExtrasStore:(SentryScopeExtrasPersistentStore *)scopeExtrasStore
+          scopeFingerprintStore:(SentryScopeFingerprintPersistentStore *)scopeFingerprintStore;
 
 - (void)start;
 - (void)stop;

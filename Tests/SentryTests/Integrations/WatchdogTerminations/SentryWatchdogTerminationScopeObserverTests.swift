@@ -10,9 +10,11 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let contextProcessor: TestSentryWatchdogTerminationContextProcessor
         let userProcessor: TestSentryWatchdogTerminationUserProcessor
         let tagsProcessor: TestSentryWatchdogTerminationTagsProcessor
+        let levelProcessor: TestSentryWatchdogTerminationLevelProcessor
         let distProcessor: TestSentryWatchdogTerminationDistProcessor
         let environmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
         let extrasProcessor: TestSentryWatchdogTerminationExtrasProcessor
+        let fingerprintProcessor: TestSentryWatchdogTerminationFingerprintProcessor
         let traceContextProcessor: TestSentryWatchdogTerminationTraceContextProcessor
 
         let breadcrumb: [String: Any] = [
@@ -49,6 +51,10 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
             )
+            levelProcessor = TestSentryWatchdogTerminationLevelProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
+            )
             distProcessor = TestSentryWatchdogTerminationDistProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
@@ -60,6 +66,10 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             extrasProcessor = TestSentryWatchdogTerminationExtrasProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+            )
+            fingerprintProcessor = TestSentryWatchdogTerminationFingerprintProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
             )
             traceContextProcessor = TestSentryWatchdogTerminationTraceContextProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
@@ -73,9 +83,11 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 contextProcessor: contextProcessor,
                 userProcessor: userProcessor,
                 tagsProcessor: tagsProcessor,
+                levelProcessor: levelProcessor,
                 distProcessor: distProcessor,
                 environmentProcessor: environmentProcessor,
                 extrasProcessor: extrasProcessor,
+                fingerprintProcessor: fingerprintProcessor,
                 traceContextProcessor: traceContextProcessor
             )
         }

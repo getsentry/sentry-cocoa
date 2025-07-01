@@ -73,12 +73,16 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryDependencyContainer.sharedInstance scopeUserPersistentStore];
     SentryScopeTagsPersistentStore *scopeTagsStore =
         [SentryDependencyContainer.sharedInstance scopeTagsPersistentStore];
+    SentryScopeLevelPersistentStore *scopeLevelStore =
+        [SentryDependencyContainer.sharedInstance scopeLevelPersistentStore];
     SentryScopeDistPersistentStore *scopeDistStore =
         [SentryDependencyContainer.sharedInstance scopeDistPersistentStore];
     SentryScopeEnvironmentPersistentStore *scopeEnvironmentStore =
         [SentryDependencyContainer.sharedInstance scopeEnvironmentPersistentStore];
     SentryScopeExtrasPersistentStore *scopeExtrasStore =
         [SentryDependencyContainer.sharedInstance scopeExtrasPersistentStore];
+    SentryScopeFingerprintPersistentStore *scopeFingerprintStore =
+        [SentryDependencyContainer.sharedInstance scopeFingerprintPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
@@ -88,9 +92,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                            scopeContextStore:scopeContextStore
                                                               scopeUserStore:scopeUserStore
                                                               scopeTagsStore:scopeTagsStore
+                                                             scopeLevelStore:scopeLevelStore
                                                               scopeDistStore:scopeDistStore
                                                        scopeEnvironmentStore:scopeEnvironmentStore
-                                                            scopeExtrasStore:scopeExtrasStore];
+                                                            scopeExtrasStore:scopeExtrasStore
+                                                       scopeFingerprintStore:scopeFingerprintStore];
 
     [self.tracker start];
 

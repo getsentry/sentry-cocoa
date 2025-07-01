@@ -72,9 +72,11 @@ class SentrySDKTests: XCTestCase {
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
         userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
         tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
+        levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper,
         distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
         environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
         extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
+        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper,
         traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
     ) {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
@@ -90,6 +92,10 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
         )
+        let levelProcessor = SentryWatchdogTerminationLevelProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeLevelStore: TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        )
         let distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeDistStore: TestSentryScopeDistPersistentStore(fileManager: fileManager)
@@ -102,6 +108,10 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeExtrasStore: TestSentryScopeExtrasPersistentStore(fileManager: fileManager)
         )
+        let fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeFingerprintStore: TestSentryScopeFingerprintPersistentStore(fileManager: fileManager)
+        )
         let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTraceContextStore: TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
@@ -112,9 +122,11 @@ class SentrySDKTests: XCTestCase {
             contextProcessor: contextProcessor,
             userProcessor: userProcessor,
             tagsProcessor: tagsProcessor,
+            levelProcessor: levelProcessor,
             distProcessor: distProcessor,
             environmentProcessor: environmentProcessor,
             extrasProcessor: extrasProcessor,
+            fingerprintProcessor: fingerprintProcessor,
             traceContextProcessor: traceContextProcessor
         )
     }
@@ -127,9 +139,11 @@ class SentrySDKTests: XCTestCase {
             contextProcessor: processors.contextProcessor,
             userProcessor: processors.userProcessor,
             tagsProcessor: processors.tagsProcessor,
+            levelProcessor: processors.levelProcessor,
             distProcessor: processors.distProcessor,
             environmentProcessor: processors.environmentProcessor,
             extrasProcessor: processors.extrasProcessor,
+            fingerprintProcessor: processors.fingerprintProcessor,
             traceContextProcessor: processors.traceContextProcessor
         )
     }
@@ -1135,6 +1149,41 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(value, "b")
     }
     
+    func testStartWithOptions_shouldMoveCurrentLevelFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the level store for assertions
+        let scopeLevelStore = TestSentryScopeLevelPersistentStore(fileManager: fileManager)
+        observer.setLevel(SentryLevel.debug)
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setLevel completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous user file if it exists
+        scopeLevelStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousLevel = scopeLevelStore.readPreviousLevelFromDisk()
+        XCTAssertEqual(previousLevel, SentryLevel.error) // Error is the default level
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeLevelStore.readPreviousLevelFromDisk())
+        XCTAssertEqual(result, SentryLevel.debug)
+    }
+    
     func testStartWithOptions_shouldMoveCurrentDistFileToPreviousFile() throws {
         // -- Arrange --
         let options = Options()
@@ -1240,6 +1289,43 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         let value = try XCTUnwrap(result["extra-key"] as? String)
         XCTAssertEqual(value, "extra-value")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentFingerprintFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the fingerprint store for assertions
+        let scopeFingerprintStore = TestSentryScopeFingerprintPersistentStore(fileManager: fileManager)
+        observer.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setFingerprint completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the fingerprint processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous fingerprint file if it exists
+        scopeFingerprintStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousFingerprint = scopeFingerprintStore.readPreviousFingerprintFromDisk()
+        XCTAssertNil(previousFingerprint)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeFingerprintStore.readPreviousFingerprintFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0], "fingerprint1")
+        XCTAssertEqual(result[1], "fingerprint2")
     }
     
     func testStartWithOptions_shouldMoveCurrentTraceContextFileToPreviousFile() throws {

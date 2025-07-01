@@ -14,10 +14,13 @@
 @property (nonatomic, strong) SentryWatchdogTerminationContextProcessorWrapper *contextProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationUserProcessorWrapper *userProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationTagsProcessorWrapper *tagsProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationLevelProcessorWrapper *levelProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationDistProcessorWrapper *distProcessor;
 @property (nonatomic, strong)
     SentryWatchdogTerminationEnvironmentProcessorWrapper *environmentProcessor;
 @property (nonatomic, strong) SentryWatchdogTerminationExtrasProcessorWrapper *extrasProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationFingerprintProcessorWrapper *fingerprintProcessor;
 @property (nonatomic, strong)
     SentryWatchdogTerminationTraceContextProcessorWrapper *traceContextProcessor;
 
@@ -30,10 +33,13 @@
                contextProcessor:(SentryWatchdogTerminationContextProcessorWrapper *)contextProcessor
                   userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor
                   tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor
+                 levelProcessor:(SentryWatchdogTerminationLevelProcessorWrapper *)levelProcessor
                   distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
            environmentProcessor:
                (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
                 extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+           fingerprintProcessor:
+               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor
           traceContextProcessor:
               (SentryWatchdogTerminationTraceContextProcessorWrapper *)traceContextProcessor
 {
@@ -42,9 +48,11 @@
         self.contextProcessor = contextProcessor;
         self.userProcessor = userProcessor;
         self.tagsProcessor = tagsProcessor;
+        self.levelProcessor = levelProcessor;
         self.distProcessor = distProcessor;
         self.environmentProcessor = environmentProcessor;
         self.extrasProcessor = extrasProcessor;
+        self.fingerprintProcessor = fingerprintProcessor;
         self.traceContextProcessor = traceContextProcessor;
     }
 
@@ -59,9 +67,11 @@
     [self.contextProcessor clear];
     [self.userProcessor clear];
     [self.tagsProcessor clear];
+    [self.levelProcessor clear];
     [self.distProcessor clear];
     [self.environmentProcessor clear];
     [self.extrasProcessor clear];
+    [self.fingerprintProcessor clear];
     [self.traceContextProcessor clear];
 }
 
@@ -97,12 +107,12 @@
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    [self.fingerprintProcessor setFingerprint:fingerprint];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    [self.levelProcessor setLevel:@(level)];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags

@@ -25,9 +25,11 @@
 @property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 @property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
 @property (nonatomic, strong) SentryScopeTagsPersistentStore *scopeTagsStore;
+@property (nonatomic, strong) SentryScopeLevelPersistentStore *scopeLevelStore;
 @property (nonatomic, strong) SentryScopeDistPersistentStore *scopeDistStore;
 @property (nonatomic, strong) SentryScopeEnvironmentPersistentStore *scopeEnvironmentStore;
 @property (nonatomic, strong) SentryScopeExtrasPersistentStore *scopeExtrasStore;
+@property (nonatomic, strong) SentryScopeFingerprintPersistentStore *scopeFingerprintStore;
 
 @end
 
@@ -41,9 +43,11 @@
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
+                scopeLevelStore:(SentryScopeLevelPersistentStore *)scopeLevelStore
                  scopeDistStore:(SentryScopeDistPersistentStore *)scopeDistStore
           scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore
                scopeExtrasStore:(SentryScopeExtrasPersistentStore *)scopeExtrasStore
+          scopeFingerprintStore:(SentryScopeFingerprintPersistentStore *)scopeFingerprintStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -54,9 +58,11 @@
         self.scopeContextStore = scopeContextStore;
         self.scopeUserStore = scopeUserStore;
         self.scopeTagsStore = scopeTagsStore;
+        self.scopeLevelStore = scopeLevelStore;
         self.scopeDistStore = scopeDistStore;
         self.scopeEnvironmentStore = scopeEnvironmentStore;
         self.scopeExtrasStore = scopeExtrasStore;
+        self.scopeFingerprintStore = scopeFingerprintStore;
     }
     return self;
 }
@@ -77,6 +83,7 @@
             event.dist = [self.scopeDistStore readPreviousDistFromDisk];
             event.environment = [self.scopeEnvironmentStore readPreviousEnvironmentFromDisk];
             event.extra = [self.scopeExtrasStore readPreviousExtrasFromDisk];
+            event.fingerprint = [self.scopeFingerprintStore readPreviousFingerprintFromDisk];
             // We intentionally skip reading level from the scope because all watchdog terminations
             // are fatal
             // TODO: Itay - Should we add trace context here?
