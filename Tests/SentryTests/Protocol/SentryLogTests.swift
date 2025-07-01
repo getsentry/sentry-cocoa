@@ -6,7 +6,7 @@ final class SentryLogTests: XCTestCase {
     // MARK: - Encoding Tests
     
     private let log = SentryLog(
-        timestamp: Date(timeIntervalSince1970: 1_234_567_890.987_654),
+        timestamp: Date(timeIntervalSince1970: 1_234_567_890.987654),
         traceId: SentryId(uuidString: "550e8400-e29b-41d4-a716-446655440000"),
         level: SentryLog.Level.info,
         body: "Test log message",
@@ -43,7 +43,7 @@ final class SentryLogTests: XCTestCase {
         let data = try encodeToJSONData(data: log)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
-        XCTAssertEqual(json["timestamp"] as? TimeInterval, 1234567890.987654)
+        XCTAssertEqual(json["timestamp"] as? TimeInterval, 1_234_567_890.987654)
         XCTAssertEqual(json["trace_id"] as? String, "550e8400e29b41d4a716446655440000")
         XCTAssertEqual(json["level"] as? String, "info")
         XCTAssertEqual(json["body"] as? String, "Test log message")
@@ -66,7 +66,7 @@ final class SentryLogTests: XCTestCase {
         
         let log = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog?)
         
-        XCTAssertEqual(log.timestamp, Date(timeIntervalSince1970: 1_234_567_890.987_654))
+        XCTAssertEqual(log.timestamp, Date(timeIntervalSince1970: 1_234_567_890.987654))
         XCTAssertEqual(log.traceId.sentryIdString, "550e8400e29b41d4a716446655440000")
         XCTAssertEqual(log.level, .trace)
         XCTAssertEqual(log.body, "Trace message")
