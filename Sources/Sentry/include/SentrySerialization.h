@@ -29,6 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *_Nullable)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
+ * Retrieves the json object from an event envelope item data.
+ */
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data;
+
+/**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'
  * level, see https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */

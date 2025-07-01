@@ -11,7 +11,18 @@
 @interface SentryWatchdogTerminationScopeObserver ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationContextProcessorWrapper *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationUserProcessorWrapper *userProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationTagsProcessorWrapper *tagsProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationLevelProcessorWrapper *levelProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationDistProcessorWrapper *distProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationEnvironmentProcessorWrapper *environmentProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationExtrasProcessorWrapper *extrasProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationFingerprintProcessorWrapper *fingerprintProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationTraceContextProcessorWrapper *traceContextProcessor;
 
 @end
 
@@ -19,11 +30,30 @@
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
+               contextProcessor:(SentryWatchdogTerminationContextProcessorWrapper *)contextProcessor
+                  userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor
+                  tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor
+                 levelProcessor:(SentryWatchdogTerminationLevelProcessorWrapper *)levelProcessor
+                  distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
+           environmentProcessor:
+               (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
+                extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+           fingerprintProcessor:
+               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor
+          traceContextProcessor:
+              (SentryWatchdogTerminationTraceContextProcessorWrapper *)traceContextProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
         self.contextProcessor = contextProcessor;
+        self.userProcessor = userProcessor;
+        self.tagsProcessor = tagsProcessor;
+        self.levelProcessor = levelProcessor;
+        self.distProcessor = distProcessor;
+        self.environmentProcessor = environmentProcessor;
+        self.extrasProcessor = extrasProcessor;
+        self.fingerprintProcessor = fingerprintProcessor;
+        self.traceContextProcessor = traceContextProcessor;
     }
 
     return self;
@@ -35,6 +65,14 @@
 {
     [self.breadcrumbProcessor clear];
     [self.contextProcessor clear];
+    [self.userProcessor clear];
+    [self.tagsProcessor clear];
+    [self.levelProcessor clear];
+    [self.distProcessor clear];
+    [self.environmentProcessor clear];
+    [self.extrasProcessor clear];
+    [self.fingerprintProcessor clear];
+    [self.traceContextProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -54,42 +92,42 @@
 
 - (void)setDist:(nullable NSString *)dist
 {
-    // Left blank on purpose
+    [self.distProcessor setDist:dist];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    // Left blank on purpose
+    [self.environmentProcessor setEnvironment:environment];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    [self.extrasProcessor setExtras:extras];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    [self.fingerprintProcessor setFingerprint:fingerprint];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    [self.levelProcessor setLevel:@(level)];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    // Left blank on purpose
+    [self.tagsProcessor setTags:tags];
 }
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    // Left blank on purpose
+    [self.userProcessor setUser:user];
 }
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    // Left blank on purpose
+    [self.traceContextProcessor setTraceContext:traceContext];
 }
 
 @end

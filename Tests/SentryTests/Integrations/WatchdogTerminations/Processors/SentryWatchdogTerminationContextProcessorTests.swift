@@ -162,7 +162,7 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
         sut.setContext(fixture.invalidContext)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: fixture.scopeContextStore.contextFileURL)
+        let writtenData = try Data(contentsOf: fixture.scopeContextStore.currentFileURL)
         XCTAssertEqual(writtenData, data)
     }
 
@@ -195,14 +195,14 @@ class SentryWatchdogTerminationContextProcessorTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
-        FileManager.default.createFile(atPath: fixture.scopeContextStore.contextFileURL.path, contents: data)
+        FileManager.default.createFile(atPath: fixture.scopeContextStore.currentFileURL.path, contents: data)
     }
 
     fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeContextStore.contextFileURL.path), file: file, line: line)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeContextStore.currentFileURL.path), file: file, line: line)
     }
 
     fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeContextStore.contextFileURL.path), file: file, line: line)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeContextStore.currentFileURL.path), file: file, line: line)
     }
 }

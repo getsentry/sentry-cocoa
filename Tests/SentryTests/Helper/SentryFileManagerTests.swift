@@ -849,15 +849,7 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testReadPreviousBreadcrumbs() throws {
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
-        )
+        let observer = createWatchdogTerminationObserver(fileManager: sut)
 
         for count in 0..<3 {
             let crumb = TestData.crumb
@@ -879,15 +871,7 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
-        )
+        let observer = createWatchdogTerminationObserver(fileManager: sut)
 
         for count in 0..<5 {
             let crumb = TestData.crumb
@@ -1522,3 +1506,87 @@ private extension SentryFileManagerTests {
         }
     }
 }
+
+// MARK: - Helper Fixture for Watchdog Termination Processors
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    private func createWatchdogTerminationProcessors(fileManager: SentryFileManager) -> (
+        breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
+        contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
+        userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
+        tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
+        levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper,
+        distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
+        environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
+        extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
+        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper,
+        traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
+    ) {
+    let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: fileManager)
+    let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
+    )
+    let userProcessor = SentryWatchdogTerminationUserProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeUserStore: SentryScopeUserPersistentStore(fileManager: fileManager)
+    )
+    let tagsProcessor = SentryWatchdogTerminationTagsProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
+    )
+    let levelProcessor = SentryWatchdogTerminationLevelProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
+    )
+    let distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
+    )
+    let environmentProcessor = SentryWatchdogTerminationEnvironmentProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+    )
+    let extrasProcessor = SentryWatchdogTerminationExtrasProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+    )
+            let fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+        )
+        let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        )
+        
+        return (
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor,
+            tagsProcessor: tagsProcessor,
+            levelProcessor: levelProcessor,
+            distProcessor: distProcessor,
+            environmentProcessor: environmentProcessor,
+            extrasProcessor: extrasProcessor,
+            fingerprintProcessor: fingerprintProcessor,
+            traceContextProcessor: traceContextProcessor
+        )
+}
+
+private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
+    let processors = createWatchdogTerminationProcessors(fileManager: fileManager)
+    
+            return SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: processors.breadcrumbProcessor,
+            contextProcessor: processors.contextProcessor,
+            userProcessor: processors.userProcessor,
+            tagsProcessor: processors.tagsProcessor,
+            levelProcessor: processors.levelProcessor,
+            distProcessor: processors.distProcessor,
+            environmentProcessor: processors.environmentProcessor,
+            extrasProcessor: processors.extrasProcessor,
+            fingerprintProcessor: processors.fingerprintProcessor,
+            traceContextProcessor: processors.traceContextProcessor
+        )
+}
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
