@@ -66,7 +66,7 @@ class SentrySDKTests: XCTestCase {
     private var fixture: Fixture!
 
     // MARK: - Helper Fixtures for Watchdog Termination Processors
-    
+#if SENTRY_HAS_UIKIT
     private func createWatchdogTerminationProcessors(fileManager: SentryFileManager, dispatchQueueWrapper: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) -> (
         breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
@@ -147,6 +147,7 @@ class SentrySDKTests: XCTestCase {
             traceContextProcessor: processors.traceContextProcessor
         )
     }
+#endif //SENTRY_HAS_UIKIT
 
     @available(*, deprecated, message: "This is marked deprecated as a workaround (for the workaround deprecating the Fixture.init method) until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
     override func setUp() {
