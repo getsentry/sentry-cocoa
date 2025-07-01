@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public protocol SentryFileManagerProtocol {
-  func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
+    func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
     func readData(fromPath path: String) throws -> Data
     @objc(writeData:toPath:)
     @discardableResult func write(_ data: Data, toPath path: String) -> Bool
@@ -10,47 +10,33 @@
 }
 
 @objcMembers
-@_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
-    private let fileManager: SentryFileManagerProtocol
-
-    public init(fileManager: SentryFileManagerProtocol) {
-        self.fileManager = fileManager
+@_spi(Private) public class SentryScopeContextPersistentStore: SentryScopeBasePersistentStore {
+    init(fileManager: SentryFileManagerProtocol) {
+        super.init(fileManager: fileManager, fileName: "context")
     }
 
     // MARK: - Context
-    
-    public func moveCurrentFileToPreviousFile() {
-        SentrySDKLog.debug("Moving context file to previous context file")
-        self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
-    }
 
     public func readPreviousContextFromDisk() -> [String: [String: Any]]? {
-        SentrySDKLog.debug("Reading previous context file at path: \(previousContextFileURL.path)")
-        do {
-            let data = try fileManager.readData(fromPath: previousContextFileURL.path)
-            return decodeContext(from: data)
-        } catch {
-            SentrySDKLog.error("Failed to read previous context file at path: \(previousContextFileURL.path), reason: \(error)")
+        guard let data = super.readPreviousStateFromDisk() else {
             return nil
         }
+        return decodeContext(from: data)
     }
 
     func writeContextToDisk(context: [String: [String: Any]]) {
-        SentrySDKLog.debug("Writing context to disk at path: \(contextFileURL.path)")
         guard let data = encode(context: context) else {
             return
         }
-        fileManager.write(data, toPath: contextFileURL.path)
+        super.writeStateToDisk(data: data)
     }
 
     func deleteContextOnDisk() {
-        SentrySDKLog.debug("Deleting context file at path: \(contextFileURL.path)")
-        fileManager.removeFile(atPath: contextFileURL.path)
+        super.deleteStateOnDisk()
     }
 
     func deletePreviousContextOnDisk() {
-        SentrySDKLog.debug("Deleting context file at path: \(contextFileURL.path)")
-        fileManager.removeFile(atPath: previousContextFileURL.path)
+        super.deletePreviousStateOnDisk()
     }
 
     // MARK: - Encoding
@@ -98,27 +84,5 @@
         }
 
         return deserialized as? [String: [String: Any]]
-    }
-
-    // MARK: - Helpers
-
-    /**
-     * Path to a state file holding the latest context observed from the scope.
-     *
-     * This path is used to keep a persistent copy of the scope context on disk, to be available after
-     * restart of the app.
-     */
-    var contextFileURL: URL {
-        return fileManager.getSentryPathAsURL().appendingPathComponent("context.state")
-    }
-
-    /**
-     * Path to the previous state file holding the latest context observed from the scope.
-     *
-     * This file is overwritten at SDK start and kept as a copy of the last context file until the next
-     * SDK start.
-     */
-    var previousContextFileURL: URL {
-        return fileManager.getSentryPathAsURL().appendingPathComponent("previous.context.state")
     }
 }

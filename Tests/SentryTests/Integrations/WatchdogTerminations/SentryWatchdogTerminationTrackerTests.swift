@@ -24,7 +24,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
-        let contextProcessor: SentryWatchdogTerminationContextProcessor
+        let contextProcessor: SentryWatchdogTerminationContextProcessorWrapper
+        let userProcessor: SentryWatchdogTerminationUserProcessorWrapper
 
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -38,9 +39,13 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
             let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
-            contextProcessor = SentryWatchdogTerminationContextProcessor(
+            contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeContextStore: scopeContextStore
+            )
+            userProcessor = SentryWatchdogTerminationUserProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeUserStore: SentryScopeUserPersistentStore(fileManager: fileManager)
             )
 
             client = TestClient(options: options)
@@ -71,13 +76,17 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             let scopePersistentStore = SentryScopeContextPersistentStore(
                 fileManager: fileManager
             )
+            let scopeUserPersistentStore = SentryScopeUserPersistentStore(
+                fileManager: fileManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopeContextStore: scopePersistentStore
+                scopeContextStore: scopePersistentStore,
+                scopeUserStore: scopeUserPersistentStore
             )
         }
     }
@@ -288,7 +297,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let breadcrumb = TestData.crumb
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: fixture.breadcrumbProcessor,
-            contextProcessor: fixture.contextProcessor
+            contextProcessor: fixture.contextProcessor,
+            userProcessor: fixture.userProcessor
         )
 
         for _ in 0..<3 {

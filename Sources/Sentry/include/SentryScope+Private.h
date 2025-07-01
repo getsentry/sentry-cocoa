@@ -21,6 +21,26 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
 /**
+ * SentryLevel of the event
+ */
+@property (atomic) enum SentryLevel levelEnum;
+
+/**
+ * Set global extra -> these will be sent with every event
+ */
+@property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
+
+/**
+ * This distribution of the application.
+ */
+@property (atomic, copy) NSString *_Nullable distString;
+
+/**
+ * Set the fingerprint of an event to determine the grouping
+ */
+@property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;
+
+/**
  * The propagation context has a setter, requiring it to be nonatomic
  */
 @property (nonatomic, strong) SentryPropagationContext *propagationContext;
