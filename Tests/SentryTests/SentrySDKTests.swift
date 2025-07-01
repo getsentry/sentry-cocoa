@@ -1019,7 +1019,7 @@ class SentrySDKTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous context file if it exists
-        scopeContextStore.deletePreviousContextOnDisk()
+        scopeContextStore.deletePreviousStateOnDisk()
         // Sanity-check for the pre-condition
         let previousContext = scopeContextStore.readPreviousContextFromDisk()
         XCTAssertNil(previousContext)
@@ -1056,7 +1056,7 @@ class SentrySDKTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous user file if it exists
-        scopeUserStore.deletePreviousUserOnDisk()
+        scopeUserStore.deletePreviousStateOnDisk()
         // Sanity-check for the pre-condition
         let previousUser = scopeUserStore.readPreviousUserFromDisk()
         XCTAssertNil(previousUser)
@@ -1092,7 +1092,7 @@ class SentrySDKTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous user file if it exists
-        scopeTagsStore.deletePreviousTagsOnDisk()
+        scopeTagsStore.deletePreviousStateOnDisk()
         // Sanity-check for the pre-condition
         let previousUser = scopeTagsStore.readPreviousTagsFromDisk()
         XCTAssertNil(previousUser)

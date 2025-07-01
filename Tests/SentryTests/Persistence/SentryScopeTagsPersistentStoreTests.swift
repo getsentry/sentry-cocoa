@@ -191,7 +191,7 @@ class SentryScopeTagsPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteTagsOnDisk()
+        sut.deleteStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
@@ -206,7 +206,7 @@ class SentryScopeTagsPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteTagsOnDisk()
+        sut.deleteStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
@@ -222,7 +222,7 @@ class SentryScopeTagsPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        sut.deletePreviousTagsOnDisk()
+        sut.deletePreviousStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
@@ -237,7 +237,7 @@ class SentryScopeTagsPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        sut.deletePreviousTagsOnDisk()
+        sut.deletePreviousStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
