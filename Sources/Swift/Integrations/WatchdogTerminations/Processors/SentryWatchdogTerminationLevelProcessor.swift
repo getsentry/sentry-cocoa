@@ -2,42 +2,57 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationLevelProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationLevelProcessor: SentryWatchdogTerminationBaseProcessor<NSNumber> {
 
-    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeLevelStore: SentryScopeLevelPersistentStore
 
     init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
         scopeLevelStore: SentryScopeLevelPersistentStore
     ) {
-        self.dispatchQueueWrapper = dispatchQueueWrapper
         self.scopeLevelStore = scopeLevelStore
-
-        super.init()
-
-        clear()
+        super.init(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            store: scopeLevelStore,
+            dataTypeName: "level"
+        )
     }
 
     public func setLevel(_ level: NSNumber?) {
-        SentryLog.debug("Setting level in background queue: \(level?.uintValue ?? 0)")
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let strongSelf = self else {
-                SentryLog.debug("Can not set level, reason: reference to level processor is nil")
-                return
-            }
-            guard let levelRaw = level,
-                  let level = SentryLevel(rawValue: levelRaw.uintValue) else {
-                SentryLog.debug("level is nil, deleting active file.")
-                strongSelf.scopeLevelStore.deleteLevelOnDisk()
-                return
-            }
-            strongSelf.scopeLevelStore.writeLevelToDisk(level: level)
+        // Validate the level before processing
+        let validatedLevel: NSNumber?
+        if let levelRaw = level,
+           SentryLevel(rawValue: levelRaw.uintValue) != nil {
+            validatedLevel = level
+        } else {
+            validatedLevel = nil
         }
+        
+        setData(validatedLevel) { [weak self] level in
+            guard let sentryLevel = SentryLevel(rawValue: level.uintValue) else { return }
+            self?.scopeLevelStore.writeLevelToDisk(level: sentryLevel)
+        }
+    }
+}
+
+// Wrapper to expose the processor to Objective-C
+// This is needed because Objective-C has issues with generic types
+@objcMembers
+public class SentryWatchdogTerminationLevelProcessorWrapper: NSObject {
+    private let processor: SentryWatchdogTerminationLevelProcessor
+    
+    init(
+        withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
+        scopeLevelStore: SentryScopeLevelPersistentStore
+    ) {
+        self.processor = SentryWatchdogTerminationLevelProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, scopeLevelStore: scopeLevelStore)
+    }
+
+    public func setLevel(_ level: NSNumber?) {
+        processor.setLevel(level)
     }
 
     public func clear() {
-        SentryLog.debug("Deleting level file in persistent store")
-        scopeLevelStore.deleteLevelOnDisk()
+        processor.clear()
     }
 }

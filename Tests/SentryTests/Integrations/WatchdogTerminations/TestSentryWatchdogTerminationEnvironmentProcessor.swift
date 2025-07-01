@@ -4,12 +4,12 @@
 // Note: This file should ideally live in SentryTestUtils, but this would lead to circular imports.
 // When refactoring the project structure, consider moving this to SentryTestUtils.
 
-class TestSentryWatchdogTerminationContextProcessor: SentryWatchdogTerminationContextProcessorWrapper {
-    var setContextInvocations = Invocations<[String: [String: Any]]?>()
+class TestSentryWatchdogTerminationEnvironmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper {
+    var setEnvironmentInvocations = Invocations<String?>()
     var clearInvocations = Invocations<Void>()
 
-    override func setContext(_ context: [String: [String: Any]]?) {
-        setContextInvocations.record(context)
+    override func setEnvironment(_ envrionment: String?) {
+        setEnvironmentInvocations.record(envrionment)
     }
 
     override func clear() {

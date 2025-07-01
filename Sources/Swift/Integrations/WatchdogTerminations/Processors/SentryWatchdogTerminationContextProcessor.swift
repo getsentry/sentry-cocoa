@@ -2,41 +2,47 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationContextProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationContextProcessor: SentryWatchdogTerminationBaseProcessor<[String: [String: Any]]> {
 
-    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeContextStore: SentryScopeContextPersistentStore
 
     public init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
         scopeContextStore: SentryScopeContextPersistentStore
     ) {
-        self.dispatchQueueWrapper = dispatchQueueWrapper
         self.scopeContextStore = scopeContextStore
-
-        super.init()
-
-        clear()
+        super.init(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            store: scopeContextStore,
+            dataTypeName: "context"
+        )
     }
 
     public func setContext(_ context: [String: [String: Any]]?) {
-        SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let strongSelf = self else {
-                SentrySDKLog.debug("Can not set context, reason: reference to context processor is nil")
-                return
-            }
-            guard let context = context else {
-                SentrySDKLog.debug("Context is nil, deleting active file.")
-                strongSelf.scopeContextStore.deleteContextOnDisk()
-                return
-            }
-            strongSelf.scopeContextStore.writeContextToDisk(context: context)
+        setData(context) { [weak self] data in
+            self?.scopeContextStore.writeContextToDisk(context: data)
         }
     }
+}
+
+// Wrapper to expose the processor to Objective-C
+// This is needed because Objective-C has issues with generic types
+@objcMembers
+public class SentryWatchdogTerminationContextProcessorWrapper: NSObject {
+    private let processor: SentryWatchdogTerminationContextProcessor
     
+    init(
+        withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
+        scopeContextStore: SentryScopeContextPersistentStore
+    ) {
+        self.processor = SentryWatchdogTerminationContextProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, scopeContextStore: scopeContextStore)
+    }
+
+    public func setContext(_ context: [String: [String: Any]]?) {
+        processor.setContext(context)
+    }
+
     public func clear() {
-        SentrySDKLog.debug("Deleting context file in persistent store")
-        scopeContextStore.deleteContextOnDisk()
+        processor.clear()
     }
 }

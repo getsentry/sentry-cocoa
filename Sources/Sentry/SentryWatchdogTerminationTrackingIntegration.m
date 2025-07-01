@@ -74,6 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryDependencyContainer.sharedInstance scopeTagsPersistentStore];
     SentryScopeLevelPersistentStore *scopeLevelStore =
         [SentryDependencyContainer.sharedInstance scopeLevelPersistentStore];
+    SentryScopeDistPersistentStore *scopeDistStore =
+        [SentryDependencyContainer.sharedInstance scopeDistPersistentStore];
+    SentryScopeEnvironmentPersistentStore *scopeEnvironmentStore =
+        [SentryDependencyContainer.sharedInstance scopeEnvironmentPersistentStore];
+    SentryScopeExtrasPersistentStore *scopeExtrasStore =
+        [SentryDependencyContainer.sharedInstance scopeExtrasPersistentStore];
+    SentryScopeFingerprintPersistentStore *scopeFingerprintStore =
+        [SentryDependencyContainer.sharedInstance scopeFingerprintPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
@@ -83,7 +91,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                            scopeContextStore:scopeContextStore
                                                               scopeUserStore:scopeUserStore
                                                               scopeTagsStore:scopeTagsStore
-                                                             scopeLevelStore:scopeLevelStore];
+                                                             scopeLevelStore:scopeLevelStore
+                                                              scopeDistStore:scopeDistStore
+                                                       scopeEnvironmentStore:scopeEnvironmentStore
+                                                            scopeExtrasStore:scopeExtrasStore
+                                                       scopeFingerprintStore:scopeFingerprintStore];
 
     [self.tracker start];
 
@@ -108,6 +120,10 @@ NS_ASSUME_NONNULL_BEGIN
         [scopeObserver setUser:outerScope.userObject];
         [scopeObserver setTags:outerScope.tags];
         [scopeObserver setLevel:outerScope.levelEnum];
+        [scopeObserver setExtras:outerScope.extraDictionary];
+        [scopeObserver setDist:outerScope.distString];
+        [scopeObserver setFingerprint:outerScope.fingerprintArray];
+        [scopeObserver setEnvironment:outerScope.environmentString];
     }];
 
     return YES;

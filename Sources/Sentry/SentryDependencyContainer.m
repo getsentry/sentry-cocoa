@@ -418,6 +418,34 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryScopeLevelPersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
+- (SentryScopeDistPersistentStore *)
+    scopeDistPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeDistPersistentStore,
+        [[SentryScopeDistPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+- (SentryScopeEnvironmentPersistentStore *)
+    scopeEnvironmentPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeEnvironmentPersistentStore,
+        [[SentryScopeEnvironmentPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+- (SentryScopeExtrasPersistentStore *)
+    scopeExtrasPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeExtrasPersistentStore,
+        [[SentryScopeExtrasPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
+- (SentryScopeFingerprintPersistentStore *)
+    scopeFingerprintPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeFingerprintPersistentStore,
+        [[SentryScopeFingerprintPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     // SentryDebugImageProvider is public, so we can't initialize the dependency in
@@ -440,7 +468,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                    contextProcessor:self.watchdogTerminationContextProcessor
                       userProcessor:self.watchdogTerminationUserProcessor
                       tagsProcessor:self.watchdogTerminationTagsProcessor
-                     levelProcessor:self.watchdogTerminationLevelProcessor];
+                     levelProcessor:self.watchdogTerminationLevelProcessor
+                      distProcessor:self.watchdogTerminationDistProcessor
+               environmentProcessor:self.watchdogTerminationEnvironmentProcessor
+                    extrasProcessor:self.watchdogTerminationExtrasProcessor
+               fingerprintProcessor:self.watchdogTerminationFingerprintProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -453,11 +485,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)
+- (SentryWatchdogTerminationContextProcessorWrapper *)
     watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
-        [[SentryWatchdogTerminationContextProcessor alloc]
+        [[SentryWatchdogTerminationContextProcessorWrapper alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
@@ -465,11 +497,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                        scopeContextStore:self.scopeContextPersistentStore])
 }
 
-- (SentryWatchdogTerminationUserProcessor *)
+- (SentryWatchdogTerminationUserProcessorWrapper *)
     watchdogTerminationUserProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationUserProcessor,
-        [[SentryWatchdogTerminationUserProcessor alloc]
+        [[SentryWatchdogTerminationUserProcessorWrapper alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.user-processor"
@@ -477,11 +509,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                           scopeUserStore:self.scopeUserPersistentStore])
 }
 
-- (SentryWatchdogTerminationTagsProcessor *)
+- (SentryWatchdogTerminationTagsProcessorWrapper *)
     watchdogTerminationTagsProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationTagsProcessor,
-        [[SentryWatchdogTerminationTagsProcessor alloc]
+        [[SentryWatchdogTerminationTagsProcessorWrapper alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.tags-processor"
@@ -489,16 +521,64 @@ static BOOL isInitialializingDependencyContainer = NO;
                           scopeTagsStore:self.scopeTagsPersistentStore])
 }
 
-- (SentryWatchdogTerminationLevelProcessor *)
+- (SentryWatchdogTerminationLevelProcessorWrapper *)
     watchdogTerminationLevelProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_watchdogTerminationLevelProcessor,
-        [[SentryWatchdogTerminationLevelProcessor alloc]
+        [[SentryWatchdogTerminationLevelProcessorWrapper alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.level-processor"
                       relativePriority:0]
                          scopeLevelStore:self.scopeLevelPersistentStore])
+}
+
+- (SentryWatchdogTerminationDistProcessorWrapper *)
+    watchdogTerminationDistProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationDistProcessor,
+        [[SentryWatchdogTerminationDistProcessorWrapper alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.dist-processor"
+                      relativePriority:0]
+                          scopeDistStore:self.scopeDistPersistentStore])
+}
+
+- (SentryWatchdogTerminationEnvironmentProcessorWrapper *)
+    watchdogTerminationEnvironmentProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationEnvironmentProcessor,
+        [[SentryWatchdogTerminationEnvironmentProcessorWrapper alloc]
+            initWithDispatchQueueWrapper:[self.dispatchFactory
+                                             createUtilityQueue:"io.sentry.watchdog-termination-"
+                                                                "tracking.environment-processor"
+                                               relativePriority:0]
+                   scopeEnvironmentStore:self.scopeEnvironmentPersistentStore])
+}
+
+- (SentryWatchdogTerminationExtrasProcessorWrapper *)
+    watchdogTerminationExtrasProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationExtrasProcessor,
+        [[SentryWatchdogTerminationExtrasProcessorWrapper alloc]
+            initWithDispatchQueueWrapper:
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.extras-processor"
+                      relativePriority:0]
+                        scopeExtrasStore:self.scopeExtrasPersistentStore])
+}
+
+- (SentryWatchdogTerminationFingerprintProcessorWrapper *)
+    watchdogTerminationFingerprintProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationFingerprintProcessor,
+        [[SentryWatchdogTerminationFingerprintProcessorWrapper alloc]
+            initWithDispatchQueueWrapper:[self.dispatchFactory
+                                             createUtilityQueue:"io.sentry.watchdog-termination-"
+                                                                "tracking.fingerprint-processor"
+                                               relativePriority:0]
+                   scopeFingerprintStore:self.scopeFingerprintPersistentStore])
 }
 #endif
 

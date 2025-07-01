@@ -2,44 +2,42 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
-    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationUserProcessorTests.self)
+class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationExtrasProcessorTests.self)
 
     private class Fixture {
         let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
-        let scopeUserStore: TestSentryScopeUserPersistentStore!
+        let scopeExtrasStore: TestSentryScopeExtrasPersistentStore!
         let fileManager: TestFileManager!
 
-        let user: User
-        let invalidUser: User
+        let extras: [String: Any] = [
+            "key1": "value1",
+            "key2": 123,
+            "key3": true
+        ]
+        let invalidExtras: [String: Any] = [
+            "invalid": Double.infinity
+        ]
 
         init() throws {
             let options = Options()
-            options.dsn = SentryWatchdogTerminationUserProcessorTests.dsn
+            options.dsn = SentryWatchdogTerminationExtrasProcessorTests.dsn
 
             self.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             self.fileManager = try TestFileManager(options: Options())
-            self.scopeUserStore = TestSentryScopeUserPersistentStore(fileManager: fileManager)
-            
-            self.user = User(userId: "user123")
-            self.user.email = "test@example.com"
-            self.user.username = "testuser"
-            self.user.ipAddress = "192.168.1.1"
-            
-            self.invalidUser = User(userId: "user456")
-            self.invalidUser.data = ["invalid": Double.infinity]
+            self.scopeExtrasStore = TestSentryScopeExtrasPersistentStore(fileManager: fileManager)
         }
 
-        func getSut() -> SentryWatchdogTerminationUserProcessor {
-            SentryWatchdogTerminationUserProcessor(
+        func getSut() -> SentryWatchdogTerminationExtrasProcessor {
+            SentryWatchdogTerminationExtrasProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                scopeUserStore: scopeUserStore
+                scopeExtrasStore: scopeExtrasStore
             )
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationUserProcessor!
+    private var sut: SentryWatchdogTerminationExtrasProcessor!
 
     override func setUpWithError() throws {
         fixture = try Fixture()
@@ -58,7 +56,7 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
 
-    func testInit_fileExistsAtUserPath_shouldDeleteFile() throws {
+    func testInit_fileExistsAtExtrasPath_shouldDeleteFile() throws {
         // -- Arrange --
         assertPersistedFileNotExists()
 
@@ -69,15 +67,15 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
 
-    func testSetUser_whenUserIsValid_shouldDispatchToQueue() {
+    func testSetExtras_whenExtrasIsValid_shouldDispatchToQueue() {
         // -- Act --
-        sut.setUser(fixture.user)
+        sut.setExtras(fixture.extras)
 
         // -- Assert --
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
-    func testSetUser_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+    func testSetExtras_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
         // The processor is dispatching the file operation on a background queue.
         // This tests checks that the dispatch block is not keeping a strong reference to the
         // processor and causes a retain cycle.
@@ -92,7 +90,7 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         SentryLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
-        sut.setUser(fixture.user)
+        sut.setExtras(fixture.extras)
         sut = nil
 
         // Execute the block after the processor is deallocated to have a weak reference
@@ -103,34 +101,34 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         // This assertion is a best-effort check to see if the block was executed, as there is not other
         // mechanism to assert this case
         XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("Can not set user, reason: reference to user processor is nil")
+            line.contains("Can not set extras, reason: reference to extras processor is nil")
         })
     }
 
-    func testSetUser_whenUserIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+    func testSetExtras_whenExtrasIsNilAndActiveFileExists_shouldDeleteActiveFile() {
         // -- Arrange --
         createPersistedFile()
         assertPersistedFileExists()
 
         // -- Act --
-        sut.setUser(nil)
+        sut.setExtras(nil)
 
         // -- Assert --
         assertPersistedFileNotExists()
     }
 
-    func testSetUser_whenUserIsNilAndActiveFileNotExists_shouldNotThrow() {
+    func testSetExtras_whenExtrasIsNilAndActiveFileNotExists_shouldNotThrow() {
         // -- Arrange --
         assertPersistedFileNotExists()
 
         // -- Act --
-        sut.setUser(nil)
+        sut.setExtras(nil)
 
         // -- Assert --
         assertPersistedFileNotExists()
     }
 
-    func testSetUser_whenUserIsInvalidJSON_shouldLogErrorAndNotThrow() {
+    func testSetExtras_whenExtrasIsInvalidJSON_shouldLogErrorAndNotThrow() {
         // -- Arrange --
         // Define a log mock to assert the execution path
         let logOutput = TestLogOutput()
@@ -138,15 +136,15 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         SentryLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
-        sut.setUser(fixture.invalidUser)
+        sut.setExtras(fixture.invalidExtras)
 
         // -- Assert --
         XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("[error]") && line.contains("Failed to serialize user, reason: ")
+            line.contains("[error]") && line.contains("Failed to serialize extras, reason: ")
         })
     }
 
-    func testSetUser_whenUserIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
+    func testSetExtras_whenExtrasIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
         // -- Arrange --
         let data = Data("Old content".utf8)
 
@@ -154,14 +152,14 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         assertPersistedFileExists()
 
         // -- Act --
-        sut.setUser(fixture.invalidUser)
+        sut.setExtras(fixture.invalidExtras)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: fixture.scopeUserStore.currentFileURL)
+        let writtenData = try Data(contentsOf: fixture.scopeExtrasStore.currentFileURL)
         XCTAssertEqual(writtenData, data)
     }
 
-    func testClear_whenUserFileExistsNot_shouldNotThrow() {
+    func testClear_whenExtrasFileExistsNot_shouldNotThrow() {
         // -- Arrange --
         // Assert the preconditions
         assertPersistedFileNotExists()
@@ -173,7 +171,7 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
     
-    func testClear_whenUserFileExists_shouldDeleteFileWithoutError() {
+    func testClear_whenExtrasFileExists_shouldDeleteFileWithoutError() {
         // -- Arrange --
         let data = Data("Old content".utf8)
         createPersistedFile(data: data)
@@ -190,14 +188,14 @@ class SentryWatchdogTerminationUserProcessorTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
-        FileManager.default.createFile(atPath: fixture.scopeUserStore.currentFileURL.path, contents: data)
+        FileManager.default.createFile(atPath: fixture.scopeExtrasStore.currentFileURL.path, contents: data)
     }
 
     fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeUserStore.currentFileURL.path), file: file, line: line)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeExtrasStore.currentFileURL.path), file: file, line: line)
     }
 
     fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeUserStore.currentFileURL.path), file: file, line: line)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeExtrasStore.currentFileURL.path), file: file, line: line)
     }
-}
+} 

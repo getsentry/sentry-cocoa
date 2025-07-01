@@ -26,6 +26,10 @@
 @property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
 @property (nonatomic, strong) SentryScopeTagsPersistentStore *scopeTagsStore;
 @property (nonatomic, strong) SentryScopeLevelPersistentStore *scopeLevelStore;
+@property (nonatomic, strong) SentryScopeDistPersistentStore *scopeDistStore;
+@property (nonatomic, strong) SentryScopeEnvironmentPersistentStore *scopeEnvironmentStore;
+@property (nonatomic, strong) SentryScopeExtrasPersistentStore *scopeExtrasStore;
+@property (nonatomic, strong) SentryScopeFingerprintPersistentStore *scopeFingerprintStore;
 
 @end
 
@@ -40,6 +44,10 @@
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
                 scopeLevelStore:(SentryScopeLevelPersistentStore *)scopeLevelStore
+                 scopeDistStore:(SentryScopeDistPersistentStore *)scopeDistStore
+          scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore
+               scopeExtrasStore:(SentryScopeExtrasPersistentStore *)scopeExtrasStore
+          scopeFingerprintStore:(SentryScopeFingerprintPersistentStore *)scopeFingerprintStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -51,6 +59,10 @@
         self.scopeUserStore = scopeUserStore;
         self.scopeTagsStore = scopeTagsStore;
         self.scopeLevelStore = scopeLevelStore;
+        self.scopeDistStore = scopeDistStore;
+        self.scopeEnvironmentStore = scopeEnvironmentStore;
+        self.scopeExtrasStore = scopeExtrasStore;
+        self.scopeFingerprintStore = scopeFingerprintStore;
     }
     return self;
 }
@@ -66,8 +78,12 @@
 
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
-            [self addUserToEvent:event];
-            [self addTagsToEvent:event];
+            event.user = [self.scopeUserStore readPreviousUserFromDisk];
+            event.tags = [self.scopeTagsStore readPreviousTagsFromDisk];
+            event.dist = [self.scopeDistStore readPreviousDistFromDisk];
+            event.environment = [self.scopeEnvironmentStore readPreviousEnvironmentFromDisk];
+            event.extra = [self.scopeExtrasStore readPreviousExtrasFromDisk];
+            event.fingerprint = [self.scopeFingerprintStore readPreviousFingerprintFromDisk];
             // We intentinally skip reading level from the scope because all watchdog terminations
             // are fatal
 
@@ -131,17 +147,6 @@
     context[@"app"] = appContext;
 
     event.context = context;
-}
-
-// TODO: Tests this
-- (void)addUserToEvent:(SentryEvent *)event
-{
-    event.user = [self.scopeUserStore readPreviousUserFromDisk];
-}
-
-- (void)addTagsToEvent:(SentryEvent *)event
-{
-    event.tags = [self.scopeTagsStore readPreviousTagsFromDisk];
 }
 
 - (void)stop

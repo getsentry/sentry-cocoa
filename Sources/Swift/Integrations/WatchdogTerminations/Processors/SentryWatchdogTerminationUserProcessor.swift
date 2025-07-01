@@ -2,41 +2,47 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationUserProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationUserProcessor: SentryWatchdogTerminationBaseProcessor<User> {
 
-    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeUserStore: SentryScopeUserPersistentStore
 
     init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
         scopeUserStore: SentryScopeUserPersistentStore
     ) {
-        self.dispatchQueueWrapper = dispatchQueueWrapper
         self.scopeUserStore = scopeUserStore
-
-        super.init()
-
-        clear()
+        super.init(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            store: scopeUserStore,
+            dataTypeName: "user"
+        )
     }
 
     public func setUser(_ user: User?) {
-        SentryLog.debug("Setting user in background queue: \(String(describing: user))")
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let strongSelf = self else {
-                SentryLog.debug("Can not set User, reason: reference to User processor is nil")
-                return
-            }
-            guard let user = user else {
-                SentryLog.debug("User is nil, deleting active file.")
-                strongSelf.scopeUserStore.deleteUserOnDisk()
-                return
-            }
-            strongSelf.scopeUserStore.writeUserToDisk(user: user)
+        setData(user) { [weak self] data in
+            self?.scopeUserStore.writeUserToDisk(user: data)
         }
+    }
+}
+
+// Wrapper to expose the processor to Objective-C
+// This is needed because Objective-C has issues with generic types
+@objcMembers
+public class SentryWatchdogTerminationUserProcessorWrapper: NSObject {
+    private let processor: SentryWatchdogTerminationUserProcessor
+    
+    init(
+        withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
+        scopeUserStore: SentryScopeUserPersistentStore
+    ) {
+        self.processor = SentryWatchdogTerminationUserProcessor(withDispatchQueueWrapper: dispatchQueueWrapper, scopeUserStore: scopeUserStore)
+    }
+
+    public func setUser(_ user: User?) {
+        processor.setUser(user)
     }
 
     public func clear() {
-        SentryLog.debug("Deleting user file in persistent store")
-        scopeUserStore.deleteUserOnDisk()
+        processor.clear()
     }
 }

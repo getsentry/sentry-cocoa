@@ -11,6 +11,10 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let userProcessor: TestSentryWatchdogTerminationUserProcessor
         let tagsProcessor: TestSentryWatchdogTerminationTagsProcessor
         let levelProcessor: TestSentryWatchdogTerminationLevelProcessor
+        let distProcessor: TestSentryWatchdogTerminationDistProcessor
+        let environmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
+        let extrasProcessor: TestSentryWatchdogTerminationExtrasProcessor
+        let fingerprintProcessor: TestSentryWatchdogTerminationFingerprintProcessor
 
         let breadcrumb: [String: Any] = [
             "type": "default",
@@ -50,6 +54,22 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
             )
+            distProcessor = TestSentryWatchdogTerminationDistProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
+            )
+            environmentProcessor = TestSentryWatchdogTerminationEnvironmentProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+            )
+            extrasProcessor = TestSentryWatchdogTerminationExtrasProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+            )
+            fingerprintProcessor = TestSentryWatchdogTerminationFingerprintProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+            )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
@@ -58,7 +78,11 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 contextProcessor: contextProcessor,
                 userProcessor: userProcessor,
                 tagsProcessor: tagsProcessor,
-                levelProcessor: levelProcessor
+                levelProcessor: levelProcessor,
+                distProcessor: distProcessor,
+                environmentProcessor: environmentProcessor,
+                extrasProcessor: extrasProcessor,
+                fingerprintProcessor: fingerprintProcessor
             )
         }
     }

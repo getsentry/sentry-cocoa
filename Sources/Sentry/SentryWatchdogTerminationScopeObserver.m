@@ -11,10 +11,16 @@
 @interface SentryWatchdogTerminationScopeObserver ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationUserProcessor *userProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationTagsProcessor *tagsProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationLevelProcessor *levelProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationContextProcessorWrapper *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationUserProcessorWrapper *userProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationTagsProcessorWrapper *tagsProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationLevelProcessorWrapper *levelProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationDistProcessorWrapper *distProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationEnvironmentProcessorWrapper *environmentProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationExtrasProcessorWrapper *extrasProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationFingerprintProcessorWrapper *fingerprintProcessor;
 
 @end
 
@@ -22,10 +28,16 @@
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor
-                  userProcessor:(SentryWatchdogTerminationUserProcessor *)userProcessor
-                  tagsProcessor:(SentryWatchdogTerminationTagsProcessor *)tagsProcessor
-                 levelProcessor:(SentryWatchdogTerminationLevelProcessor *)levelProcessor
+               contextProcessor:(SentryWatchdogTerminationContextProcessorWrapper *)contextProcessor
+                  userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor
+                  tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor
+                 levelProcessor:(SentryWatchdogTerminationLevelProcessorWrapper *)levelProcessor
+                  distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
+           environmentProcessor:
+               (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
+                extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+           fingerprintProcessor:
+               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
@@ -33,6 +45,10 @@
         self.userProcessor = userProcessor;
         self.tagsProcessor = tagsProcessor;
         self.levelProcessor = levelProcessor;
+        self.distProcessor = distProcessor;
+        self.environmentProcessor = environmentProcessor;
+        self.extrasProcessor = extrasProcessor;
+        self.fingerprintProcessor = fingerprintProcessor;
     }
 
     return self;
@@ -47,6 +63,10 @@
     [self.userProcessor clear];
     [self.tagsProcessor clear];
     [self.levelProcessor clear];
+    [self.distProcessor clear];
+    [self.environmentProcessor clear];
+    [self.extrasProcessor clear];
+    [self.fingerprintProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -66,22 +86,22 @@
 
 - (void)setDist:(nullable NSString *)dist
 {
-    // Left blank on purpose
+    [self.distProcessor setDist:dist];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    // Left blank on purpose
+    [self.environmentProcessor setEnvironment:environment];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    [self.extrasProcessor setExtras:extras];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    [self.fingerprintProcessor setFingerprint:fingerprint];
 }
 
 - (void)setLevel:(enum SentryLevel)level

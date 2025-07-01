@@ -5,10 +5,14 @@
 #    import "SentryScopeObserver.h"
 
 @class SentryWatchdogTerminationBreadcrumbProcessor;
-@class SentryWatchdogTerminationContextProcessor;
-@class SentryWatchdogTerminationUserProcessor;
-@class SentryWatchdogTerminationTagsProcessor;
-@class SentryWatchdogTerminationLevelProcessor;
+@class SentryWatchdogTerminationContextProcessorWrapper;
+@class SentryWatchdogTerminationUserProcessorWrapper;
+@class SentryWatchdogTerminationTagsProcessorWrapper;
+@class SentryWatchdogTerminationLevelProcessorWrapper;
+@class SentryWatchdogTerminationDistProcessorWrapper;
+@class SentryWatchdogTerminationEnvironmentProcessorWrapper;
+@class SentryWatchdogTerminationExtrasProcessorWrapper;
+@class SentryWatchdogTerminationFingerprintProcessorWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,10 +27,16 @@ SENTRY_NO_INIT
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor
-                  userProcessor:(SentryWatchdogTerminationUserProcessor *)userProcessor
-                  tagsProcessor:(SentryWatchdogTerminationTagsProcessor *)tagsProcessor
-                 levelProcessor:(SentryWatchdogTerminationLevelProcessor *)levelProcessor;
+               contextProcessor:(SentryWatchdogTerminationContextProcessorWrapper *)contextProcessor
+                  userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor
+                  tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor
+                 levelProcessor:(SentryWatchdogTerminationLevelProcessorWrapper *)levelProcessor
+                  distProcessor:(SentryWatchdogTerminationDistProcessorWrapper *)distProcessor
+           environmentProcessor:
+               (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
+                extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
+           fingerprintProcessor:
+               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor;
 
 @end
 
