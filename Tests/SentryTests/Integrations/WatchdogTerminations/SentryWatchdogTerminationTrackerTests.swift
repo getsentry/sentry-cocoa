@@ -29,6 +29,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper
         let distProcessor: SentryWatchdogTerminationDistProcessorWrapper
         let environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper
+        let extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper
+        let traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
 
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -61,6 +63,14 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             environmentProcessor = SentryWatchdogTerminationEnvironmentProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+            )
+            extrasProcessor = SentryWatchdogTerminationExtrasProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+            )
+            traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
             )
 
             client = TestClient(options: options)
@@ -103,6 +113,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             let scopeEnvironmentPersistentStore = SentryScopeEnvironmentPersistentStore(
                 fileManager: fileManager
             )
+            let scopeExtrasPersistentStore = SentryScopeExtrasPersistentStore(
+                fileManager: fileManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
@@ -113,7 +126,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 scopeUserStore: scopeUserPersistentStore,
                 scopeTagsStore: scopeTagsPersistentStore,
                 scopeDistStore: scopeDistPersistentStore,
-                scopeEnvironmentStore: scopeEnvironmentPersistentStore
+                scopeEnvironmentStore: scopeEnvironmentPersistentStore,
+                scopeExtrasStore: scopeExtrasPersistentStore
             )
         }
     }
@@ -328,7 +342,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             userProcessor: fixture.userProcessor,
             tagsProcessor: fixture.tagsProcessor,
             distProcessor: fixture.distProcessor,
-            environmentProcessor: fixture.environmentProcessor
+            environmentProcessor: fixture.environmentProcessor,
+            extrasProcessor: fixture.extrasProcessor,
+            traceContextProcessor: fixture.traceContextProcessor
         )
 
         for _ in 0..<3 {

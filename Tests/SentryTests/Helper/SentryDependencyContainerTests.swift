@@ -119,6 +119,11 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeUserPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeDistPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeTagsPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeExtrasPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeEnvironmentPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeTraceContextPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
@@ -193,6 +198,86 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertIdentical(scopeUserStore1, scopeUserStore2)
+    }
+    
+    func testScopeDistStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeDistStore1 = container.scopeDistPersistentStore
+        let scopeDistStore2 = container.scopeDistPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeDistStore1, scopeDistStore2)
+    }
+    
+    func testScopeTagsStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeTagsStore1 = container.scopeEnvironmentPersistentStore
+        let scopeTagsStore2 = container.scopeEnvironmentPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeTagsStore1, scopeTagsStore2)
+    }
+    
+    func testScopeEnvironmentStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeEnvironmentStore1 = container.scopeTagsPersistentStore
+        let scopeEnvironmentStore2 = container.scopeTagsPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeEnvironmentStore1, scopeEnvironmentStore2)
+    }
+    
+    func testScopeExtraStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeExtraStore1 = container.scopeExtrasPersistentStore
+        let scopeExtraStore2 = container.scopeExtrasPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeExtraStore1, scopeExtraStore2)
+    }
+    
+    func testScopeTraceContextStore_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let scopeTraceContextStore1 = container.scopeTraceContextPersistentStore
+        let scopeTraceContextStore2 = container.scopeTraceContextPersistentStore
+
+        // -- Assert --
+        XCTAssertIdentical(scopeTraceContextStore1, scopeTraceContextStore2)
     }
 
     func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {

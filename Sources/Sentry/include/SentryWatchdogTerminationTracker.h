@@ -9,6 +9,7 @@
 @class SentryScopeTagsPersistentStore;
 @class SentryScopeDistPersistentStore;
 @class SentryScopeEnvironmentPersistentStore;
+@class SentryScopeExtrasPersistentStore;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,7 +36,8 @@ SENTRY_NO_INIT
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
                  scopeDistStore:(SentryScopeDistPersistentStore *)scopeDistStore
-          scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore;
+          scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore
+               scopeExtrasStore:(SentryScopeExtrasPersistentStore *)scopeExtrasStore;
 
 - (void)start;
 - (void)stop;
