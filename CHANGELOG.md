@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Record user for watchdog termination events ([#5531](https://github.com/getsentry/sentry-cocoa/pull/5531))
+
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
