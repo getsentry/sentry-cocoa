@@ -54,7 +54,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.appStateManager = appStateManager
             appStateManager.start()
 
-            let scopeContextPersistentStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+            let scopeContextPersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
             watchdogTerminationContextProcessor = TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopeContextStore: scopeContextPersistentStore

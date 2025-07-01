@@ -25,7 +25,7 @@ class TestSentryWatchdogTerminationContextProcessorTests: XCTestCase {
             fileManager = try TestFileManager(options: options)
 
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            scopeContextStore = try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
         }
 
         func getSut() -> TestSentryWatchdogTerminationContextProcessor {
