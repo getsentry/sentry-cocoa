@@ -9,6 +9,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
         let contextProcessor: TestSentryWatchdogTerminationContextProcessor
         let userProcessor: TestSentryWatchdogTerminationUserProcessor
+        let tagsProcessor: TestSentryWatchdogTerminationTagsProcessor
 
         let breadcrumb: [String: Any] = [
             "type": "default",
@@ -25,6 +26,10 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             ]
         ]
         let user: User = User(userId: "123")
+        let tags: [String: String] = [
+            "environment": "test",
+            "version": "1.0.0"
+        ]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -40,13 +45,18 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeUserStore: SentryScopeUserPersistentStore(fileManager: fileManager)
             )
+            tagsProcessor = TestSentryWatchdogTerminationTagsProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
+            )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
             return SentryWatchdogTerminationScopeObserver(
                 breadcrumbProcessor: breadcrumbProcessor,
                 contextProcessor: contextProcessor,
-                userProcessor: userProcessor
+                userProcessor: userProcessor,
+                tagsProcessor: tagsProcessor
             )
         }
     }
@@ -76,6 +86,8 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations)
         let userProcessorClearInvocations = fixture.userProcessor.clearInvocations.count
         XCTAssertEqual(fixture.userProcessor.clearInvocations.count, userProcessorClearInvocations)
+        let tagsProcessorClearInvocations = fixture.tagsProcessor.clearInvocations.count
+        XCTAssertEqual(fixture.tagsProcessor.clearInvocations.count, tagsProcessorClearInvocations)
 
         // -- Act --
         sut.clear()
@@ -84,6 +96,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
         XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations + 1)
         XCTAssertEqual(fixture.userProcessor.clearInvocations.count, userProcessorClearInvocations + 1)
+        XCTAssertEqual(fixture.tagsProcessor.clearInvocations.count, tagsProcessorClearInvocations + 1)
     }
 
     func testClear_shouldInvokeClearForContextProcessor() {
@@ -145,7 +158,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: context))
     }
     
-    func testSetContext_whenUserIsNil_shouldCallUserProcessorSetUser() throws {
+    func testSetUser_whenUserIsNil_shouldCallUserProcessorSetUser() throws {
         // -- Act --
         sut.setUser(nil)
 
@@ -155,7 +168,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertNil(invocation)
     }
 
-    func testSetContext_whenUserIsDefined_shouldCallUserProcessorSetUser() throws {
+    func testSetUser_whenUserIsDefined_shouldCallUserProcessorSetUser() throws {
         // -- Arrange --
         let user = fixture.user
 
@@ -167,6 +180,67 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.userProcessor.setUserInvocations.first)
         let invocationUser = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationUser.userId, user.userId)
+    }
+    
+    func testSetTags_whenTagsIsNil_shouldCallTagsProcessorSetTags() throws {
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTags_whenTagsIsDefined_shouldCallTagsProcessorSetTags() throws {
+        // -- Arrange --
+        let tags: [String: String] = [
+            "environment": "production",
+            "version": "1.0.0",
+            "user_type": "premium"
+        ]
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
+        let invocationTags = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationTags.count, 3)
+        XCTAssertEqual(invocationTags["environment"], "production")
+        XCTAssertEqual(invocationTags["version"], "1.0.0")
+        XCTAssertEqual(invocationTags["user_type"], "premium")
+    }
+    
+    func testSetTags_whenTagsIsEmpty_shouldCallTagsProcessorSetTags() throws {
+        // -- Arrange --
+        let tags: [String: String] = [:]
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
+        let invocationTags = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationTags.count, 0)
+    }
+    
+    func testSetTags_whenTagsIsDefinedFromFixture_shouldCallTagsProcessorSetTags() throws {
+        // -- Arrange --
+        let tags = fixture.tags
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
+        let invocationTags = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationTags.count, 2)
+        XCTAssertEqual(invocationTags["environment"], "test")
+        XCTAssertEqual(invocationTags["version"], "1.0.0")
     }
 }
 

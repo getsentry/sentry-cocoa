@@ -215,7 +215,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteContextOnDisk()
+        sut.deleteStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
@@ -230,7 +230,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteContextOnDisk()
+        sut.deleteStateOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))

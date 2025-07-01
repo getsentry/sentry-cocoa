@@ -31,14 +31,6 @@
         super.writeStateToDisk(data: data)
     }
 
-    func deleteContextOnDisk() {
-        super.deleteStateOnDisk()
-    }
-
-    func deletePreviousContextOnDisk() {
-        super.deletePreviousStateOnDisk()
-    }
-
     // MARK: - Encoding
 
     private func encode(context: [String: [String: Any]]) -> Data? {

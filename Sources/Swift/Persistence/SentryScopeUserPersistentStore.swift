@@ -22,14 +22,6 @@ import Foundation
         }
         super.writeStateToDisk(data: data)
     }
-    
-    func deleteUserOnDisk() {
-        super.deleteStateOnDisk()
-    }
-
-    func deletePreviousUserOnDisk() {
-        super.deletePreviousStateOnDisk()
-    }
 
     // MARK: - Encoding
 

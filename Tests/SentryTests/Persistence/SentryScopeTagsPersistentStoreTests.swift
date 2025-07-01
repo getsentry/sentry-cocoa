@@ -2,25 +2,25 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryScopeUserPersistentStoreTests: XCTestCase {
-    private static let dsn = TestConstants.dsnForTestCase(type: SentryScopeUserPersistentStoreTests.self)
+class SentryScopeTagsPersistentStoreTests: XCTestCase {
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryScopeTagsPersistentStoreTests.self)
 
     private class Fixture {
         let fileManager: TestFileManager
 
         init() throws {
             let options = Options()
-            options.dsn = SentryScopeUserPersistentStoreTests.dsn
+            options.dsn = SentryScopeTagsPersistentStoreTests.dsn
             fileManager = try TestFileManager(options: options)
         }
 
-        func getSut() -> SentryScopeUserPersistentStore {
-            return SentryScopeUserPersistentStore(fileManager: fileManager)
+        func getSut() -> SentryScopeTagsPersistentStore {
+            return SentryScopeTagsPersistentStore(fileManager: fileManager)
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryScopeUserPersistentStore!
+    private var sut: SentryScopeTagsPersistentStore!
 
     override func setUpWithError() throws {
         super.setUp()
@@ -29,10 +29,15 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         sut = fixture.getSut()
     }
 
-    func testMoveFileToPreviousFile_whenPreviousUserFileAvailable_shouldMoveFileToPreviousPath() throws {
+    func testMoveFileToPreviousFile_whenPreviousTagsFileAvailable_shouldMoveFileToPreviousPath() throws {
         // -- Arrange --
         let fm = FileManager.default
-        let data = Data("<TEST DATA>".utf8)
+        let data = Data("""
+            {
+                "environment": "production",
+                "version": "1.0.0"
+            }
+            """.utf8)
 
         if fm.fileExists(atPath: sut.previousFileURL.path) {
             try fm.removeItem(at: sut.previousFileURL)
@@ -52,52 +57,52 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
-        let previousUserData = try Data(contentsOf: sut.previousFileURL)
-        XCTAssertEqual(previousUserData, data)
+        let previousTagsData = try Data(contentsOf: sut.previousFileURL)
+        XCTAssertEqual(previousTagsData, data)
     }
 
-    func testReadPreviousUser_whenValidJSONInPreviousUserFile_shouldReturnDecodedData() throws {
+    func testReadPreviousTags_whenValidJSONInPreviousTagsFile_shouldReturnDecodedTags() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("""
             {
-                "id": "user123",
-                "email": "test@example.com",
-                "username": "testuser",
-                "ip_address": "192.168.1.1"
+                "environment": "production",
+                "version": "1.0.0",
+                "user_type": "premium"
             }
             """.utf8)
         try data.write(to: sut.previousFileURL)
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = try XCTUnwrap(sut.readPreviousUserFromDisk())
+        let result = try XCTUnwrap(sut.readPreviousTagsFromDisk())
 
         // -- Assert --
-        XCTAssertEqual(result.userId, "user123")
-        XCTAssertEqual(result.email, "test@example.com")
-        XCTAssertEqual(result.username, "testuser")
-        XCTAssertEqual(result.ipAddress, "192.168.1.1")
+        XCTAssertEqual(result["environment"], "production")
+        XCTAssertEqual(result["version"], "1.0.0")
+        XCTAssertEqual(result["user_type"], "premium")
+        XCTAssertEqual(result.count, 3)
     }
 
-    func testReadPreviousUser_whenInvalidJSONInPreviousUserFile_shouldReturnNil() throws {
+    func testReadPreviousTags_whenInvalidJSONInPreviousTagsFile_shouldReturnNil() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("""
             {
-                "id": 123,
+                "environment": "production",
+                "version": 1.0,
             """.utf8)
         try data.write(to: sut.previousFileURL)
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousUserFromDisk()
+        let result = sut.readPreviousTagsFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testReadPreviousUser_whenInvalidDataInPreviousUserFile_shouldReturnNil() throws {
+    func testReadPreviousTags_whenInvalidDataInPreviousTagsFile_shouldReturnNil() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
@@ -105,13 +110,13 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousUserFromDisk()
+        let result = sut.readPreviousTagsFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testReadPreviousUser_whenPreviousUserUnavailable_shouldReturnNil() throws {
+    func testReadPreviousTags_whenPreviousTagsUnavailable_shouldReturnNil() throws {
         // -- Arrange --
         // Check pre-conditions
         let fm = FileManager.default
@@ -121,64 +126,67 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousUserFromDisk()
+        let result = sut.readPreviousTagsFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testWriteUserToDisk_whenValidUserData_shouldWriteToUserFile() throws {
+    func testWriteTagsToDisk_whenValidTagsData_shouldWriteToTagsFile() throws {
         // -- Arrange --
         let fm = FileManager.default
-        let user = User(userId: "user123")
-        user.email = "test@example.com"
-        user.username = "testuser"
-        user.ipAddress = "192.168.1.1"
+        let tags: [String: String] = [
+            "environment": "production",
+            "version": "1.0.0",
+            "user_type": "premium"
+        ]
 
         // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
-
-        // -- Act --
-        sut.writeUserToDisk(user: user)
-
-        // -- Assert --
-        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
-        // Use the SentrySerialization to compare the written data
-        let writtenData = try Data(contentsOf: sut.currentFileURL)
-        let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
-
-        XCTAssertEqual(serializedData["id"] as? String, "user123")
-        XCTAssertEqual(serializedData["email"] as? String, "test@example.com")
-        XCTAssertEqual(serializedData["username"] as? String, "testuser")
-        XCTAssertEqual(serializedData["ip_address"] as? String, "192.168.1.1")
-    }
-
-    func testWriteUserToDisk_whenInvalidUserData_shouldNotWriteToUserFile() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let user = User(userId: "user123")
-        // Set an invalid value that can't be serialized
-        user.data = ["invalid": Double.infinity]
-
         if fm.fileExists(atPath: sut.currentFileURL.path) {
             try fm.removeItem(at: sut.currentFileURL)
         }
-
-        // Check pre-conditions
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.writeUserToDisk(user: user)
+        sut.writeTagsToDisk(tags: tags)
 
         // -- Assert --
-        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
+        let writtenData = try Data(contentsOf: sut.currentFileURL)
+        let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
+
+        XCTAssertEqual(serializedData["environment"] as? String, "production")
+        XCTAssertEqual(serializedData["version"] as? String, "1.0.0")
+        XCTAssertEqual(serializedData["user_type"] as? String, "premium")
     }
 
-    func testDeleteUserFile_whenExists_shouldDeleteFile() throws {
+    func testWriteTagsToDisk_whenEmptyTags_shouldWriteToTagsFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let tags: [String: String] = [:]
+
+        // Check pre-conditions
+        if fm.fileExists(atPath: sut.currentFileURL.path) {
+            try fm.removeItem(at: sut.currentFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
+
+        // -- Act --
+        sut.writeTagsToDisk(tags: tags)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
+        let writtenData = try Data(contentsOf: sut.currentFileURL)
+        let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
+        XCTAssertTrue(serializedData.isEmpty)
+    }
+
+    func testDeleteTagsFile_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default
         if !fm.fileExists(atPath: sut.currentFileURL.path) {
-            try "".write(to: sut.currentFileURL, atomically: true, encoding: .utf8)
+            let tagsData = try JSONSerialization.data(withJSONObject: ["test": "value"])
+            try tagsData.write(to: sut.currentFileURL)
         }
         XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
@@ -189,7 +197,7 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testDeleteUserFile_whenNotExists_shouldDoNothing() throws {
+    func testDeleteTagsFile_whenNotExists_shouldDoNothing() throws {
         // -- Arrange --
         let fm = FileManager.default
         if fm.fileExists(atPath: sut.currentFileURL.path) {
@@ -204,19 +212,50 @@ class SentryScopeUserPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testcurrentFileURL_returnsURLWithCorrectPath() {
+    func testDeletePreviousTagsFile_whenExists_shouldDeleteFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: sut.previousFileURL.path) {
+            let tagsData = try JSONSerialization.data(withJSONObject: ["test": "value"])
+            try tagsData.write(to: sut.previousFileURL)
+        }
+        XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
+
+        // -- Act --
+        sut.deletePreviousStateOnDisk()
+
+        // -- Assert --
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
+    }
+
+    func testDeletePreviousTagsFile_whenNotExists_shouldDoNothing() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        if fm.fileExists(atPath: sut.previousFileURL.path) {
+           try fm.removeItem(at: sut.previousFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
+
+        // -- Act --
+        sut.deletePreviousStateOnDisk()
+
+        // -- Assert --
+        XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
+    }
+
+    func testCurrentFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
-            .appendingPathComponent("user.state")
+            .appendingPathComponent("tags.state")
 
         // -- Act && Assert --
         XCTAssertEqual(sut.currentFileURL, expectedUrl)
     }
 
-    func testpreviousFileURL_returnsURLWithCorrectPath() {
+    func testPreviousFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
-            .appendingPathComponent("previous.user.state")
+            .appendingPathComponent("previous.tags.state")
 
         // -- Act && Assert --
         XCTAssertEqual(sut.previousFileURL, expectedUrl)

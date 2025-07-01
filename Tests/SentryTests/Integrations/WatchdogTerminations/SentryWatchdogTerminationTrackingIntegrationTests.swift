@@ -15,6 +15,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let processInfoWrapper: TestSentryNSProcessInfoWrapper
         let watchdogTerminationContextProcessor: TestSentryWatchdogTerminationContextProcessor
         let watchdogTerminationUserProcessor: TestSentryWatchdogTerminationUserProcessor
+        let watchdogTerminationTagsProcessor: TestSentryWatchdogTerminationTagsProcessor
 
         let hub: SentryHub
         let scope: Scope
@@ -69,6 +70,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
                 scopeUserStore: scopeUserPersistentStore
             )
             container.watchdogTerminationUserProcessor = watchdogTerminationUserProcessor
+
+            let scopeTagsPersistentStore = TestSentryScopeTagsPersistentStore(fileManager: fileManager)
+            watchdogTerminationTagsProcessor = TestSentryWatchdogTerminationTagsProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeTagsStore: scopeTagsPersistentStore
+            )
+            container.watchdogTerminationTagsProcessor = watchdogTerminationTagsProcessor
 
             let client = TestClient(options: options)
             scope = Scope()
@@ -250,6 +258,47 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationUserProcessor.setUserInvocations.count, 1)
         let invocation = try XCTUnwrap(fixture.watchdogTerminationUserProcessor.setUserInvocations.first)
         XCTAssertEqual(invocation?.userId, "outerUser")
+    }
+
+    func testInstallWithOptions_shouldStoreTagsInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 1)
+        fixture.scope.setTag(value: "tagValue", key: "tagKey")
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the tags to the
+        // tags processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.last)
+        XCTAssertEqual(invocation?["tagKey"], "tagValue")
+    }
+
+    func testInstallWithOptions_shouldSetCurrentTagsOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.scope.setTag(value: "existingTagValue", key: "existingTagKey")
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the tags to the
+        // tags processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.first)
+        XCTAssertEqual(invocation?["existingTagKey"], "existingTagValue")
     }
 
     func testANRDetected_UpdatesAppStateToTrue() throws {
