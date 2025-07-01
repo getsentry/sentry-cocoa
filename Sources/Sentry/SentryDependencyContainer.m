@@ -210,7 +210,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
-- (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;

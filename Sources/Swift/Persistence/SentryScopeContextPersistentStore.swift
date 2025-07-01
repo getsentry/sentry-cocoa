@@ -13,7 +13,9 @@
 @_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
     private let fileManager: SentryFileManagerProtocol
 
-    public init(fileManager: SentryFileManagerProtocol) {
+    public init?(fileManager: SentryFileManagerProtocol?) {
+        guard let fileManager else { return nil }
+
         self.fileManager = fileManager
     }
 

@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
+    "codeCoverage" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:iOS-SwiftUI.xcodeproj",
       "identifier" : "7BB6224826A56C4E00D0E75E",

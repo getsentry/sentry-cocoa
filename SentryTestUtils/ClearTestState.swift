@@ -39,7 +39,7 @@ class TestCleanup: NSObject {
         SentryAppStartTracker.load()
         SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
-        SentryDependencyContainer.sharedInstance().fileManager.clearDiskState()
+        SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
         
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
