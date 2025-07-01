@@ -33,6 +33,16 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper
         let fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper
         let traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
+        
+        let scopeContextStore: SentryScopeContextPersistentStore
+        let scopeUserStore: SentryScopeUserPersistentStore
+        let scopeTagsStore: SentryScopeTagsPersistentStore
+        let scopeLevelStore: SentryScopeLevelPersistentStore
+        let scopeDistStore: SentryScopeDistPersistentStore
+        let scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore
+        let scopeExtrasStore: SentryScopeExtrasPersistentStore
+        let scopeFingerprintStore: SentryScopeFingerprintPersistentStore
+        let scopeTraceContextStore: SentryScopeTraceContextPersistentStore
 
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -45,42 +55,51 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
-            let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            scopeUserStore = SentryScopeUserPersistentStore(fileManager: fileManager)
+            scopeTagsStore = SentryScopeTagsPersistentStore(fileManager: fileManager)
+            scopeLevelStore = SentryScopeLevelPersistentStore(fileManager: fileManager)
+            scopeDistStore = SentryScopeDistPersistentStore(fileManager: fileManager)
+            scopeEnvironmentStore = SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+            scopeExtrasStore = SentryScopeExtrasPersistentStore(fileManager: fileManager)
+            scopeFingerprintStore = SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+            scopeTraceContextStore = SentryScopeTraceContextPersistentStore(fileManager: fileManager)
+
             contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeContextStore: scopeContextStore
             )
             userProcessor = SentryWatchdogTerminationUserProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeUserStore: SentryScopeUserPersistentStore(fileManager: fileManager)
+                scopeUserStore: scopeUserStore
             )
             tagsProcessor = SentryWatchdogTerminationTagsProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
+                scopeTagsStore: scopeTagsStore
             )
             levelProcessor = SentryWatchdogTerminationLevelProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
+                scopeLevelStore: scopeLevelStore
             )
             distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
+                scopeDistStore: scopeDistStore
             )
             environmentProcessor = SentryWatchdogTerminationEnvironmentProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+                scopeEnvironmentStore: scopeEnvironmentStore
             )
             extrasProcessor = SentryWatchdogTerminationExtrasProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+                scopeExtrasStore: scopeExtrasStore
             )
             fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+                scopeFingerprintStore: scopeFingerprintStore
             )
             traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
+                scopeTraceContextStore: scopeTraceContextStore
             )
 
             client = TestClient(options: options)
@@ -108,44 +127,20 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
-            let scopePersistentStore = SentryScopeContextPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeUserPersistentStore = SentryScopeUserPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeTagsPersistentStore = SentryScopeTagsPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeLevelPersistentStore = SentryScopeLevelPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeDistPersistentStore = SentryScopeDistPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeEnvironmentPersistentStore = SentryScopeEnvironmentPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeExtrasPersistentStore = SentryScopeExtrasPersistentStore(
-                fileManager: fileManager
-            )
-            let scopeFingerprintPersistentStore = SentryScopeFingerprintPersistentStore(
-                fileManager: fileManager
-            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopeContextStore: scopePersistentStore,
-                scopeUserStore: scopeUserPersistentStore,
-                scopeTagsStore: scopeTagsPersistentStore,
-                scopeLevel: scopeLevelPersistentStore,
-                scopeDistStore: scopeDistPersistentStore,
-                scopeEnvironmentStore: scopeEnvironmentPersistentStore,
-                scopeExtrasStore: scopeExtrasPersistentStore,
-                scopeFingerprintStore: scopeFingerprintPersistentStore
+                scopeContextStore: scopeContextStore,
+                scopeUserStore: scopeUserStore,
+                scopeTagsStore: scopeTagsStore,
+                scopeLevel: scopeLevelStore,
+                scopeDistStore: scopeDistStore,
+                scopeEnvironmentStore: scopeEnvironmentStore,
+                scopeExtrasStore: scopeExtrasStore,
+                scopeFingerprintStore: scopeFingerprintStore
             )
         }
     }
@@ -381,6 +376,81 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
         let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
         XCTAssertEqual(fatalEvent?.timestamp, breadcrumb.timestamp)
+    }
+    
+    func testAppOOM_WithAllAttributes() throws {
+        sut = fixture.getSut()
+
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: fixture.breadcrumbProcessor,
+            contextProcessor: fixture.contextProcessor,
+            userProcessor: fixture.userProcessor,
+            tagsProcessor: fixture.tagsProcessor,
+            levelProcessor: fixture.levelProcessor,
+            distProcessor: fixture.distProcessor,
+            environmentProcessor: fixture.environmentProcessor,
+            extrasProcessor: fixture.extrasProcessor,
+            fingerprintProcessor: fixture.fingerprintProcessor,
+            traceContextProcessor: fixture.traceContextProcessor
+        )
+
+        // Set all attributes that should be persisted and restored on the event
+        let testUser = TestData.user
+        let testTags = ["tag1": "value1", "tag2": "value2"]
+        let testExtras = ["extra1": "value1", "extra2": 42] as [String: Any]
+        let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
+        let testDist = "test-distribution"
+        let testEnvironment = "test-environment"
+        let testFingerprint = ["fingerprint1", "fingerprint2"]
+
+        sentryWatchdogTerminationScopeObserver.setUser(testUser)
+        sentryWatchdogTerminationScopeObserver.setTags(testTags)
+        sentryWatchdogTerminationScopeObserver.setExtras(testExtras)
+        sentryWatchdogTerminationScopeObserver.setContext(testContext)
+        sentryWatchdogTerminationScopeObserver.setDist(testDist)
+        sentryWatchdogTerminationScopeObserver.setEnvironment(testEnvironment)
+        sentryWatchdogTerminationScopeObserver.setFingerprint(testFingerprint)
+
+        sut.start()
+        goToForeground()
+
+        // Move all data to previous storage
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        fixture.scopeContextStore.moveCurrentFileToPreviousFile()
+        fixture.scopeUserStore.moveCurrentFileToPreviousFile()
+        fixture.scopeTagsStore.moveCurrentFileToPreviousFile()
+        fixture.scopeLevelStore.moveCurrentFileToPreviousFile()
+        fixture.scopeDistStore.moveCurrentFileToPreviousFile()
+        fixture.scopeEnvironmentStore.moveCurrentFileToPreviousFile()
+        fixture.scopeExtrasStore.moveCurrentFileToPreviousFile()
+        fixture.scopeFingerprintStore.moveCurrentFileToPreviousFile()
+        fixture.scopeTraceContextStore.moveCurrentFileToPreviousFile()
+        
+        sut.start()
+
+        let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
+        
+        // Verify all attributes are properly set on the event
+        XCTAssertEqual(fatalEvent?.user?.userId, testUser.userId)
+        XCTAssertEqual(fatalEvent?.user?.email, testUser.email)
+        XCTAssertEqual(fatalEvent?.user?.username, testUser.username)
+        XCTAssertEqual(fatalEvent?.user?.name, testUser.name)
+        
+        XCTAssertEqual(fatalEvent?.tags, testTags)
+        XCTAssertEqual(fatalEvent?.extra as? [String: String], testExtras as? [String: String])
+        XCTAssertEqual(fatalEvent?.dist, testDist)
+        XCTAssertEqual(fatalEvent?.environment, testEnvironment)
+        XCTAssertEqual(fatalEvent?.fingerprint, testFingerprint)
+        
+        // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
+        let eventContext = fatalEvent?.context
+        XCTAssertNotNil(eventContext)
+        XCTAssertEqual(eventContext?["device"] as? [String: String], testContext["device"] as? [String: String])
+        XCTAssertEqual(eventContext?["appData"] as? [String: String], testContext["appData"] as? [String: String])
+        
+        let appContext = eventContext?["app"] as? [String: Any]
+        XCTAssertEqual(appContext?["in_foreground"] as? Bool, true)
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() throws {
