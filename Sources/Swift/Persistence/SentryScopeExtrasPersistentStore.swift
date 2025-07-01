@@ -2,7 +2,7 @@
 
 @objcMembers
 @_spi(Private) public class SentryScopeExtrasPersistentStore: SentryScopeBasePersistentStore {
-    init(fileManager: SentryFileManager) {
+    init(fileManager: SentryFileManagerProtocol) {
         super.init(fileManager: fileManager, fileName: "extras")
     }
 
@@ -37,11 +37,11 @@
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
         guard let sanitizedExtras = sentry_sanitize(extras) else {
-            SentryLog.error("Failed to sanitize extras, reason: extras is not valid json: \(extras)")
+            SentrySDKLog.error("Failed to sanitize extras, reason: extras is not valid json: \(extras)")
             return nil
         }
         guard let data = SentrySerialization.data(withJSONObject: sanitizedExtras) else {
-            SentryLog.error("Failed to serialize extras, reason: extras is not valid json: \(extras)")
+            SentrySDKLog.error("Failed to serialize extras, reason: extras is not valid json: \(extras)")
             return nil
         }
         return data
@@ -49,7 +49,7 @@
 
     private func decodeExtras(from data: Data) -> [String: Any]? {
         guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentryLog.error("Failed to deserialize extras, reason: data is not valid json")
+            SentrySDKLog.error("Failed to deserialize extras, reason: data is not valid json")
             return nil
         }
         

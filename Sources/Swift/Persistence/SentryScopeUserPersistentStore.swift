@@ -3,7 +3,7 @@ import Foundation
 
 @objcMembers
 @_spi(Private) public class SentryScopeUserPersistentStore: SentryScopeBasePersistentStore {
-    init(fileManager: SentryFileManager) {
+    init(fileManager: SentryFileManagerProtocol) {
         super.init(fileManager: fileManager, fileName: "user")
     }
 
@@ -35,11 +35,11 @@ import Foundation
 
     private func encode(user: User) -> Data? {
         guard let sanitizedUser = sentry_sanitize(user.serialize()) else {
-            SentryLog.error("Failed to sanitize user, reason: user is not valid json: \(user)")
+            SentrySDKLog.error("Failed to sanitize user, reason: user is not valid json: \(user)")
             return nil
         }
         guard let data = SentrySerialization.data(withJSONObject: sanitizedUser) else {
-            SentryLog.error("Failed to serialize user, reason: user is not valid json: \(user)")
+            SentrySDKLog.error("Failed to serialize user, reason: user is not valid json: \(user)")
             return nil
         }
         return data
@@ -47,7 +47,7 @@ import Foundation
 
     private func decodeUser(from data: Data) -> User? {
         guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentryLog.error("Failed to deserialize user, reason: data is not valid json")
+            SentrySDKLog.error("Failed to deserialize user, reason: data is not valid json")
             return nil
         }
         

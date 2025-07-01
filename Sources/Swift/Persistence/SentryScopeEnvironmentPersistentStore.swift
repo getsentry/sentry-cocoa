@@ -2,7 +2,7 @@
 
 @objcMembers
 @_spi(Private) public class SentryScopeEnvironmentPersistentStore: SentryScopeBasePersistentStore {
-    init(fileManager: SentryFileManager) {
+    init(fileManager: SentryFileManagerProtocol) {
         super.init(fileManager: fileManager, fileName: "environment")
     }
 

@@ -12,7 +12,7 @@
 @objcMembers
 @_spi(Private) public class SentryScopeContextPersistentStore: SentryScopeBasePersistentStore {
     init(fileManager: SentryFileManagerProtocol) {
-        super.init(fileManager: SentryFileManagerProtocol, fileName: "context")
+        super.init(fileManager: fileManager, fileName: "context")
     }
 
     // MARK: - Context

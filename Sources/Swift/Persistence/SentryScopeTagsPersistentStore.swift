@@ -2,7 +2,7 @@
 
 @objcMembers
 @_spi(Private) public class SentryScopeTagsPersistentStore: SentryScopeBasePersistentStore {
-    init(fileManager: SentryFileManager) {
+    init(fileManager: SentryFileManagerProtocol) {
         super.init(fileManager: fileManager, fileName: "tags")
     }
 
@@ -37,11 +37,11 @@
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
         guard let sanitizedTags = sentry_sanitize(tags) else {
-            SentryLog.error("Failed to sanitize tags, reason: tags is not valid json: \(tags)")
+            SentrySDKLog.error("Failed to sanitize tags, reason: tags is not valid json: \(tags)")
             return nil
         }
         guard let data = SentrySerialization.data(withJSONObject: sanitizedTags) else {
-            SentryLog.error("Failed to serialize tags, reason: tags is not valid json: \(tags)")
+            SentrySDKLog.error("Failed to serialize tags, reason: tags is not valid json: \(tags)")
             return nil
         }
         return data
@@ -49,7 +49,7 @@
 
     private func decodeTags(from data: Data) -> [String: String]? {
         guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentryLog.error("Failed to deserialize tags, reason: data is not valid json")
+            SentrySDKLog.error("Failed to deserialize tags, reason: data is not valid json")
             return nil
         }
 
@@ -69,7 +69,7 @@
         // additional memory (like when mapping values).
         for (key, value) in deserialized {
             guard value is String else {
-                SentryLog.error("Failed to deserialize tags, reason: value for key \(key) is not a valid string")
+                SentrySDKLog.error("Failed to deserialize tags, reason: value for key \(key) is not a valid string")
                 return nil
             }
         }

@@ -2,7 +2,7 @@
 
 @objcMembers
 @_spi(Private) public class SentryScopeFingerprintPersistentStore: SentryScopeBasePersistentStore {
-    init(fileManager: SentryFileManager) {
+    init(fileManager: SentryFileManagerProtocol) {
         super.init(fileManager: fileManager, fileName: "fingerprint")
     }
 
@@ -37,7 +37,7 @@
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
         guard let data = SentrySerialization.data(withJSONObject: fingerprint) else {
-            SentryLog.error("Failed to serialize fingerprint, reason: fingerprint is not valid json: \(fingerprint)")
+            SentrySDKLog.error("Failed to serialize fingerprint, reason: fingerprint is not valid json: \(fingerprint)")
             return nil
         }
         return data
@@ -45,14 +45,14 @@
 
     private func decodeFingerprint(from data: Data) -> [String]? {
         guard let deserialized = SentrySerialization.deserializeArray(fromJsonData: data) else {
-            SentryLog.error("Failed to deserialize fingerprint, reason: data is not valid json")
+            SentrySDKLog.error("Failed to deserialize fingerprint, reason: data is not valid json")
             return nil
         }
         
         // Ensure all elements are strings
         let stringArray = deserialized.compactMap { $0 as? String }
         if stringArray.count != deserialized.count {
-            SentryLog.error("Failed to deserialize fingerprint, reason: not all elements are strings")
+            SentrySDKLog.error("Failed to deserialize fingerprint, reason: not all elements are strings")
             return nil
         }
         

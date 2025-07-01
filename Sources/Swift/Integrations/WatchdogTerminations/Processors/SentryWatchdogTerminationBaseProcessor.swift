@@ -23,15 +23,15 @@ import Foundation
     }
     
     func setData(_ data: T?, writeAction: @escaping (T) -> Void) {
-        SentryLog.debug("Setting \(dataTypeName) in background queue: \(String(describing: data))")
+        SentrySDKLog.debug("Setting \(dataTypeName) in background queue: \(String(describing: data))")
         let name = dataTypeName
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
-                SentryLog.debug("Can not set \(name), reason: reference to \(name) processor is nil")
+                SentrySDKLog.debug("Can not set \(name), reason: reference to \(name) processor is nil")
                 return
             }
             guard let data = data else {
-                SentryLog.debug("\(strongSelf.dataTypeName) is nil, deleting active file.")
+                SentrySDKLog.debug("\(strongSelf.dataTypeName) is nil, deleting active file.")
                 strongSelf.store.deleteStateOnDisk()
                 return
             }
@@ -40,7 +40,7 @@ import Foundation
     }
     
     public func clear() {
-        SentryLog.debug("Deleting \(dataTypeName) file in persistent store")
+        SentrySDKLog.debug("Deleting \(dataTypeName) file in persistent store")
         store.deleteStateOnDisk()
     }
 }

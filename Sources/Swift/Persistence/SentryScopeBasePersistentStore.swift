@@ -3,10 +3,10 @@ import Foundation
 
 @objcMembers
 @_spi(Private) public class SentryScopeBasePersistentStore: NSObject {
-    private let fileManager: SentryFileManager
+    private let fileManager: SentryFileManagerProtocol
     private let fileName: String
 
-    init(fileManager: SentryFileManager, fileName: String) {
+    init(fileManager: SentryFileManagerProtocol, fileName: String) {
         self.fileManager = fileManager
         self.fileName = fileName
     }
@@ -14,32 +14,32 @@ import Foundation
     // MARK: - State Manipulation
 
     public func moveCurrentFileToPreviousFile() {
-        SentryLog.debug("Moving \(fileName) file to previous \(fileName) file")
+        SentrySDKLog.debug("Moving \(fileName) file to previous \(fileName) file")
         self.fileManager.moveState(currentFileURL.path, toPreviousState: previousFileURL.path)
     }
 
     public func readPreviousStateFromDisk() -> Data? {
-        SentryLog.debug("Reading previous \(fileName) file at path: \(previousFileURL.path)")
+        SentrySDKLog.debug("Reading previous \(fileName) file at path: \(previousFileURL.path)")
         do {
             return try fileManager.readData(fromPath: previousFileURL.path)
         } catch {
-            SentryLog.error("Failed to read previous \(fileName) file at path: \(previousFileURL.path), reason: \(error)")
+            SentrySDKLog.error("Failed to read previous \(fileName) file at path: \(previousFileURL.path), reason: \(error)")
             return nil
         }
     }
 
     func writeStateToDisk(data: Data) {
-        SentryLog.debug("Writing \(fileName) to disk at path: \(currentFileURL.path)")
+        SentrySDKLog.debug("Writing \(fileName) to disk at path: \(currentFileURL.path)")
         fileManager.write(data, toPath: currentFileURL.path)
     }
 
     func deleteStateOnDisk() {
-        SentryLog.debug("Deleting \(fileName) file at path: \(currentFileURL.path)")
+        SentrySDKLog.debug("Deleting \(fileName) file at path: \(currentFileURL.path)")
         fileManager.removeFile(atPath: currentFileURL.path)
     }
 
     func deletePreviousStateOnDisk() {
-        SentryLog.debug("Deleting \(fileName) file at path: \(previousFileURL.path)")
+        SentrySDKLog.debug("Deleting \(fileName) file at path: \(previousFileURL.path)")
         fileManager.removeFile(atPath: previousFileURL.path)
     }
 
