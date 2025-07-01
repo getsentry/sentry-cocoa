@@ -1508,7 +1508,7 @@ private extension SentryFileManagerTests {
 }
 
 // MARK: - Helper Fixture for Watchdog Termination Processors
-#if SENTRY_HAS_UIKIT
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func createWatchdogTerminationProcessors(fileManager: SentryFileManager) -> (
         breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
@@ -1589,4 +1589,4 @@ private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -
             traceContextProcessor: processors.traceContextProcessor
         )
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
