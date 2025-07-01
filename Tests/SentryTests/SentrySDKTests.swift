@@ -91,7 +91,7 @@ class SentrySDKTests: XCTestCase {
             breadcrumbProcessor: breadcrumbProcessor,
             contextProcessor: contextProcessor,
             userProcessor: userProcessor,
-            tagsProcessor: tagsProcessor,
+            tagsProcessor: tagsProcessor
         )
     }
     
