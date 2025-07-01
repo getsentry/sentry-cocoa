@@ -52,6 +52,7 @@ jobs:
   run-swiftui-crash-test:
     name: Run SwiftUI Crash Test
     runs-on: macos-15
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
