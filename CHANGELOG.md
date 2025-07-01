@@ -6,6 +6,7 @@
 
 - Record user for watchdog termination events ([#5531](https://github.com/getsentry/sentry-cocoa/pull/5531))
 - Record tags watchdog termination events ([#5533](https://github.com/getsentry/sentry-cocoa/pull/5533))
+- Record dist and environment for watchdog termination events ([#5534](https://github.com/getsentry/sentry-cocoa/pull/5534))
 
 ### Fixes
 
