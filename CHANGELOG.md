@@ -5,6 +5,7 @@
 ### Improvements
 
 - Record user for watchdog termination events ([#5531](https://github.com/getsentry/sentry-cocoa/pull/5531))
+- Record tags watchdog termination events ([#5533](https://github.com/getsentry/sentry-cocoa/pull/5533))
 
 ### Fixes
 
