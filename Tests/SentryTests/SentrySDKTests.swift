@@ -71,7 +71,9 @@ class SentrySDKTests: XCTestCase {
         breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
         userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
-        tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper
+        tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
+        distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
+        environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper
     ) {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
@@ -86,12 +88,22 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeTagsStore: TestSentryScopeTagsPersistentStore(fileManager: fileManager)
         )
+        let distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeDistStore: TestSentryScopeDistPersistentStore(fileManager: fileManager)
+        )
+        let environmentProcessor = SentryWatchdogTerminationEnvironmentProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeEnvironmentStore: TestSentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+        )
         
         return (
             breadcrumbProcessor: breadcrumbProcessor,
             contextProcessor: contextProcessor,
             userProcessor: userProcessor,
-            tagsProcessor: tagsProcessor
+            tagsProcessor: tagsProcessor,
+            distProcessor: distProcessor,
+            environmentProcessor: environmentProcessor
         )
     }
     
@@ -102,7 +114,9 @@ class SentrySDKTests: XCTestCase {
             breadcrumbProcessor: processors.breadcrumbProcessor,
             contextProcessor: processors.contextProcessor,
             userProcessor: processors.userProcessor,
-            tagsProcessor: processors.tagsProcessor
+            tagsProcessor: processors.tagsProcessor,
+            distProcessor: processors.distProcessor,
+            environmentProcessor: processors.environmentProcessor
         )
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1105,6 +1119,76 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         let value = try XCTUnwrap(result["a"])
         XCTAssertEqual(value, "b")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentDistFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the dist store for assertions
+        let scopeDistStore = TestSentryScopeDistPersistentStore(fileManager: fileManager)
+        observer.setDist("test-dist")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setDist completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the dist processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous dist file if it exists
+        scopeDistStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousDist = scopeDistStore.readPreviousDistFromDisk()
+        XCTAssertNil(previousDist)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeDistStore.readPreviousDistFromDisk())
+        XCTAssertEqual(result, "test-dist")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the environment store for assertions
+        let scopeEnvironmentStore = TestSentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+        observer.setEnvironment("test-environment")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setEnvironment completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the environment processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous environment file if it exists
+        scopeEnvironmentStore.deletePreviousStateOnDisk()
+        // Sanity-check for the pre-condition
+        let previousEnvironment = scopeEnvironmentStore.readPreviousEnvironmentFromDisk()
+        XCTAssertNil(previousEnvironment)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeEnvironmentStore.readPreviousEnvironmentFromDisk())
+        XCTAssertEqual(result, "test-environment")
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
