@@ -22,14 +22,6 @@
         super.writeStateToDisk(data: data)
     }
 
-    func deleteTagsOnDisk() {
-        super.deleteStateOnDisk()
-    }
-
-    func deletePreviousTagsOnDisk() {
-        super.deletePreviousStateOnDisk()
-    }
-
     // MARK: - Encoding
 
     private func encode(tags: [String: String]) -> Data? {
