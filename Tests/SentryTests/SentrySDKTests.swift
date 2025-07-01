@@ -941,7 +941,7 @@ class SentrySDKTests: XCTestCase {
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
         let contextProcessor = SentryWatchdogTerminationContextProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeContextStore: scopeContextStore
@@ -967,7 +967,7 @@ class SentrySDKTests: XCTestCase {
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
         let contextProcessor = SentryWatchdogTerminationContextProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeContextStore: scopeContextStore

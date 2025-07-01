@@ -26,7 +26,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
         let contextProcessor: SentryWatchdogTerminationContextProcessor
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             options = Options()
             options.maxBreadcrumbs = 2
@@ -37,7 +37,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
-            let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            let scopeContextStore = try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
             contextProcessor = SentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeContextStore: scopeContextStore
@@ -51,11 +51,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             SentrySDK.setCurrentHub(hub)
         }
         
-        func getSut() -> SentryWatchdogTerminationTracker {
-            return getSut(fileManager: fileManager )
+        func getSut() throws -> SentryWatchdogTerminationTracker {
+            return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationTracker {
+        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
             let appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
@@ -68,9 +68,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
-            let scopePersistentStore = SentryScopeContextPersistentStore(
+            let scopePersistentStore = try XCTUnwrap(SentryScopeContextPersistentStore(
                 fileManager: fileManager
-            )
+            ))
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
@@ -85,11 +85,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     private var fixture: Fixture!
     private var sut: SentryWatchdogTerminationTracker!
     
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         
-        fixture = Fixture()
-        sut = fixture.getSut()
+        fixture = try Fixture()
+        sut = try fixture.getSut()
         SentrySDK.startInvocations = 1
     }
     
@@ -101,8 +101,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         clearTestState()
     }
 
-    func testStart_StoresAppState() {
-        sut = fixture.getSut()
+    func testStart_StoresAppState() throws {
+        sut = try fixture.getSut()
 
         XCTAssertNil(fixture.fileManager.readAppState())
 
@@ -116,8 +116,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
-    func testGoToForeground_SetsIsActive() {
-        sut = fixture.getSut()
+    func testGoToForeground_SetsIsActive() throws {
+        sut = try fixture.getSut()
 
         sut.start()
         
@@ -248,8 +248,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
 
-    func testDifferentBootTime_NoOOM() {
-        sut = fixture.getSut()
+    func testDifferentBootTime_NoOOM() throws {
+        sut = try fixture.getSut()
         sut.start()
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp.addingTimeInterval(1))
 
@@ -260,7 +260,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppWasInForeground_OOM() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         goToForeground()
@@ -283,7 +283,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         let breadcrumb = TestData.crumb
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
@@ -308,7 +308,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         hybridSdkDidBecomeActive()
@@ -319,7 +319,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         goToForeground()
@@ -331,7 +331,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
         
         sut.start()
         hybridSdkDidBecomeActive()
@@ -361,9 +361,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testStop_StopsObserving_NoMoreFileManagerInvocations() {
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
         let fileManager = try! TestFileManager(options: Options())
-        sut = fixture.getSut(fileManager: fileManager)
+        sut = try fixture.getSut(fileManager: fileManager)
 
         sut.start()
         sut.stop()

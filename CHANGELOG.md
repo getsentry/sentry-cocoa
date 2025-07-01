@@ -5,6 +5,7 @@
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
+- Fix crash when SentryFileManger is nil (#5535)
 
 ### Improvements
 
