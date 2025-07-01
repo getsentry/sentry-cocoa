@@ -12,7 +12,7 @@ extension SentryLog: Codable {
         case severityNumber = "severity_number"
     }
     
-    public func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(timestamp, forKey: .timestamp)
@@ -23,7 +23,7 @@ extension SentryLog: Codable {
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
     }
     
-    public init(from decoder: any Decoder) throws {
+    init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let timestamp = try container.decode(Date.self, forKey: .timestamp)
