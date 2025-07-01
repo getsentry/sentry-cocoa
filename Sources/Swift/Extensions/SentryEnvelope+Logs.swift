@@ -6,7 +6,6 @@ extension SentryEnvelope {
     convenience init?(logs: [SentryLog]) {
         guard !logs.isEmpty else { return nil }
         
-        // Create the payload structure expected by Sentry
         let payload = ["items": logs]
         
         do {

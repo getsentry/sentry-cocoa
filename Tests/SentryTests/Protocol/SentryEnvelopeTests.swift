@@ -329,7 +329,6 @@ class SentryEnvelopeTests: XCTestCase {
     }
 
     func testInitWithLogs() throws {
-        // Arrange
         let log1 = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1627846800),
             level: .info,
@@ -344,10 +343,8 @@ class SentryEnvelopeTests: XCTestCase {
         )
         let logs = [log1, log2]
         
-        // Act
         let envelope = SentryEnvelope(logs: logs)
         
-        // Assert
         let unwrappedEnvelope = try XCTUnwrap(envelope)
         XCTAssertNil(unwrappedEnvelope.header.eventId)
         XCTAssertEqual(defaultSdkInfo, unwrappedEnvelope.header.sdkInfo)
