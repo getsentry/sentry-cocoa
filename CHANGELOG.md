@@ -6,6 +6,10 @@
 
 - Set handled to false for fatal app hangs (#5514)
 
+### Improvements
+
+- Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
+
 ## 8.53.1
 
 ### Fixes
