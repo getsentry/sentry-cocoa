@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
-@_spi(Private) public class SentryWatchdogTerminationExtrasProcessor: SentryWatchdogTerminationBaseProcessor<[String: Any]> {
+class SentryWatchdogTerminationExtrasProcessor: SentryWatchdogTerminationBaseProcessor<[String: Any]> {
 
     private let scopeExtrasStore: SentryScopeExtrasPersistentStore
 

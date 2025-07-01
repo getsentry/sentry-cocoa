@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
-@_spi(Private) public class SentryWatchdogTerminationBaseProcessor<T>: NSObject {
+class SentryWatchdogTerminationBaseProcessor<T>: NSObject {
     
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let store: SentryScopeBasePersistentStore

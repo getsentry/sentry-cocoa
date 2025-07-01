@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
-@_spi(Private) public class SentryWatchdogTerminationContextProcessor: SentryWatchdogTerminationBaseProcessor<[String: [String: Any]]> {
+class SentryWatchdogTerminationContextProcessor: SentryWatchdogTerminationBaseProcessor<[String: [String: Any]]> {
 
     private let scopeContextStore: SentryScopeContextPersistentStore
 

@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
-@_spi(Private) public class SentryWatchdogTerminationFingerprintProcessor: SentryWatchdogTerminationBaseProcessor<[String]> {
+class SentryWatchdogTerminationFingerprintProcessor: SentryWatchdogTerminationBaseProcessor<[String]> {
 
     private let scopeFingerprintStore: SentryScopeFingerprintPersistentStore
 
