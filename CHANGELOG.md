@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Add missing user data to watchdog termination events (#5527)
+
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
