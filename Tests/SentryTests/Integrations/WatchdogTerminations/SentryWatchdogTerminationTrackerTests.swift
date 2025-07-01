@@ -27,9 +27,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let contextProcessor: SentryWatchdogTerminationContextProcessorWrapper
         let userProcessor: SentryWatchdogTerminationUserProcessorWrapper
         let tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper
+        let levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper
         let distProcessor: SentryWatchdogTerminationDistProcessorWrapper
         let environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper
         let extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper
+        let fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper
         let traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
 
         init() {
@@ -56,6 +58,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
             )
+            levelProcessor = SentryWatchdogTerminationLevelProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
+            )
             distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
@@ -67,6 +73,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             extrasProcessor = SentryWatchdogTerminationExtrasProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
+            )
+            fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
             )
             traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
@@ -107,6 +117,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             let scopeTagsPersistentStore = SentryScopeTagsPersistentStore(
                 fileManager: fileManager
             )
+            let scopeLevelPersistentStore = SentryScopeLevelPersistentStore(
+                fileManager: fileManager
+            )
             let scopeDistPersistentStore = SentryScopeDistPersistentStore(
                 fileManager: fileManager
             )
@@ -114,6 +127,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 fileManager: fileManager
             )
             let scopeExtrasPersistentStore = SentryScopeExtrasPersistentStore(
+                fileManager: fileManager
+            )
+            let scopeFingerprintPersistentStore = SentryScopeFingerprintPersistentStore(
                 fileManager: fileManager
             )
             return SentryWatchdogTerminationTracker(
@@ -125,9 +141,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 scopeContextStore: scopePersistentStore,
                 scopeUserStore: scopeUserPersistentStore,
                 scopeTagsStore: scopeTagsPersistentStore,
+                scopeLevel: scopeLevelPersistentStore,
                 scopeDistStore: scopeDistPersistentStore,
                 scopeEnvironmentStore: scopeEnvironmentPersistentStore,
-                scopeExtrasStore: scopeExtrasPersistentStore
+                scopeExtrasStore: scopeExtrasPersistentStore,
+                scopeFingerprintStore: scopeFingerprintPersistentStore
             )
         }
     }
@@ -341,9 +359,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             contextProcessor: fixture.contextProcessor,
             userProcessor: fixture.userProcessor,
             tagsProcessor: fixture.tagsProcessor,
+            levelProcessor: fixture.levelProcessor,
             distProcessor: fixture.distProcessor,
             environmentProcessor: fixture.environmentProcessor,
             extrasProcessor: fixture.extrasProcessor,
+            fingerprintProcessor: fixture.fingerprintProcessor,
             traceContextProcessor: fixture.traceContextProcessor
         )
 

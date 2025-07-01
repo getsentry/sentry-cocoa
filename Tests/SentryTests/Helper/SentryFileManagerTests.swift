@@ -1514,9 +1514,11 @@ private extension SentryFileManagerTests {
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
         userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
         tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
+        levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper,
         distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
         environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
         extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
+        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper,
         traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
     ) {
     let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: fileManager)
@@ -1532,6 +1534,10 @@ private extension SentryFileManagerTests {
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
         scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
     )
+    let levelProcessor = SentryWatchdogTerminationLevelProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeLevelStore: SentryScopeLevelPersistentStore(fileManager: fileManager)
+    )
     let distProcessor = SentryWatchdogTerminationDistProcessorWrapper(
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
         scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
@@ -1544,21 +1550,27 @@ private extension SentryFileManagerTests {
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
         scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
     )
-    let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
-        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
-        scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
-    )
-    
-    return (
-        breadcrumbProcessor: breadcrumbProcessor,
-        contextProcessor: contextProcessor,
-        userProcessor: userProcessor,
-        tagsProcessor: tagsProcessor,
-        distProcessor: distProcessor,
-        environmentProcessor: environmentProcessor,
-        extrasProcessor: extrasProcessor,
-        traceContextProcessor: traceContextProcessor
-    )
+            let fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+        )
+        let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        )
+        
+        return (
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor,
+            tagsProcessor: tagsProcessor,
+            levelProcessor: levelProcessor,
+            distProcessor: distProcessor,
+            environmentProcessor: environmentProcessor,
+            extrasProcessor: extrasProcessor,
+            fingerprintProcessor: fingerprintProcessor,
+            traceContextProcessor: traceContextProcessor
+        )
 }
 
 private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
@@ -1569,9 +1581,11 @@ private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -
             contextProcessor: processors.contextProcessor,
             userProcessor: processors.userProcessor,
             tagsProcessor: processors.tagsProcessor,
+            levelProcessor: processors.levelProcessor,
             distProcessor: processors.distProcessor,
             environmentProcessor: processors.environmentProcessor,
             extrasProcessor: processors.extrasProcessor,
+            fingerprintProcessor: processors.fingerprintProcessor,
             traceContextProcessor: processors.traceContextProcessor
         )
 }

@@ -296,6 +296,19 @@ NS_ASSUME_NONNULL_BEGIN
     return eventDictionary;
 }
 
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
+{
+    NSError *error = nil;
+    NSArray *_Nullable eventArray = [NSJSONSerialization JSONObjectWithData:data
+                                                                    options:0
+                                                                      error:&error];
+    if (nil != error) {
+        SENTRY_LOG_ERROR(@"Failed to deserialize json item array: %@", error);
+    }
+
+    return eventArray;
+}
+
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData
 {
     NSError *error = nil;
