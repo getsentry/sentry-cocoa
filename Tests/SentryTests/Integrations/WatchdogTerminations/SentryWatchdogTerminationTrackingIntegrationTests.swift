@@ -21,6 +21,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let watchdogTerminationEnvironmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
         let watchdogTerminationExtrasProcessor: TestSentryWatchdogTerminationExtrasProcessor
         let watchdogTerminationFingerprintProcessor: TestSentryWatchdogTerminationFingerprintProcessor
+        let watchdogTerminationTraceContextProcessor: TestSentryWatchdogTerminationTraceContextProcessor
 
         let hub: SentryHub
         let scope: Scope
@@ -117,6 +118,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
                 scopeFingerprintStore: scopeFingerprintPersistentStore
             )
             container.watchdogTerminationFingerprintProcessor = watchdogTerminationFingerprintProcessor
+            
+            let scopeTraceContextPersistentStore = TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
+            watchdogTerminationTraceContextProcessor = TestSentryWatchdogTerminationTraceContextProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeTraceContextStore: scopeTraceContextPersistentStore
+            )
+            container.watchdogTerminationTraceContextProcessor = watchdogTerminationTraceContextProcessor
 
             let client = TestClient(options: options)
             scope = Scope()
@@ -548,6 +556,51 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(invocation?.count, 2)
         XCTAssertEqual(invocation?[0], "existing-fingerprint1")
         XCTAssertEqual(invocation?[1], "existing-fingerprint2")
+    }
+
+    func testInstallWithOptions_shouldStoreTraceContextInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.count, 1)
+        let propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "1de6272b6def40a995104400e2723644"), spanId: SpanId(value: "bf2625b58c6b42f3"))
+        fixture.scope.propagationContext = propagationContext
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the trace context to the
+        // trace context processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.last)
+        XCTAssertEqual(invocation?["trace_id"] as? String, "1de6272b6def40a995104400e2723644")
+        XCTAssertEqual(invocation?["span_id"] as? String, "bf2625b58c6b42f3")
+    }
+
+    func testInstallWithOptions_shouldSetCurrentTraceContextOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "1de6272b6def40a995104400e2723645"), spanId: SpanId(value: "bf2625b58c6b42f4"))
+        fixture.scope.propagationContext = propagationContext
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the trace context to the
+        // trace context processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationTraceContextProcessor.setTraceContextInvocations.first)
+        XCTAssertEqual(invocation?["trace_id"] as? String, "1de6272b6def40a995104400e2723645")
+        XCTAssertEqual(invocation?["span_id"] as? String, "bf2625b58c6b42f4")
     }
 
     func testANRDetected_UpdatesAppStateToTrue() throws {

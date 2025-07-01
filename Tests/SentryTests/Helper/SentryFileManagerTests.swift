@@ -1509,17 +1509,18 @@ private extension SentryFileManagerTests {
 
 // MARK: - Helper Fixture for Watchdog Termination Processors
 
-private func createWatchdogTerminationProcessors(fileManager: SentryFileManager) -> (
-    breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
-    contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
-    userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
-    tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
-    levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper,
-    distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
-    environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
-    extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
-    fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper
-) {
+    private func createWatchdogTerminationProcessors(fileManager: SentryFileManager) -> (
+        breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
+        contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
+        userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
+        tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper,
+        levelProcessor: SentryWatchdogTerminationLevelProcessorWrapper,
+        distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
+        environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
+        extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
+        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper,
+        traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
+    ) {
     let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: fileManager)
     let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
@@ -1549,36 +1550,42 @@ private func createWatchdogTerminationProcessors(fileManager: SentryFileManager)
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
         scopeExtrasStore: SentryScopeExtrasPersistentStore(fileManager: fileManager)
     )
-    let fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
-        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
-        scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
-    )
-    
-    return (
-        breadcrumbProcessor: breadcrumbProcessor,
-        contextProcessor: contextProcessor,
-        userProcessor: userProcessor,
-        tagsProcessor: tagsProcessor,
-        levelProcessor: levelProcessor,
-        distProcessor: distProcessor,
-        environmentProcessor: environmentProcessor,
-        extrasProcessor: extrasProcessor,
-        fingerprintProcessor: fingerprintProcessor
-    )
+            let fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+        )
+        let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+            withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        )
+        
+        return (
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor,
+            tagsProcessor: tagsProcessor,
+            levelProcessor: levelProcessor,
+            distProcessor: distProcessor,
+            environmentProcessor: environmentProcessor,
+            extrasProcessor: extrasProcessor,
+            fingerprintProcessor: fingerprintProcessor,
+            traceContextProcessor: traceContextProcessor
+        )
 }
 
 private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
     let processors = createWatchdogTerminationProcessors(fileManager: fileManager)
     
-    return SentryWatchdogTerminationScopeObserver(
-        breadcrumbProcessor: processors.breadcrumbProcessor,
-        contextProcessor: processors.contextProcessor,
-        userProcessor: processors.userProcessor,
-        tagsProcessor: processors.tagsProcessor,
-        levelProcessor: processors.levelProcessor,
-        distProcessor: processors.distProcessor,
-        environmentProcessor: processors.environmentProcessor,
-        extrasProcessor: processors.extrasProcessor,
-        fingerprintProcessor: processors.fingerprintProcessor
-    )
+            return SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: processors.breadcrumbProcessor,
+            contextProcessor: processors.contextProcessor,
+            userProcessor: processors.userProcessor,
+            tagsProcessor: processors.tagsProcessor,
+            levelProcessor: processors.levelProcessor,
+            distProcessor: processors.distProcessor,
+            environmentProcessor: processors.environmentProcessor,
+            extrasProcessor: processors.extrasProcessor,
+            fingerprintProcessor: processors.fingerprintProcessor,
+            traceContextProcessor: processors.traceContextProcessor
+        )
 }

@@ -446,6 +446,13 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryScopeFingerprintPersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
+- (SentryScopeTraceContextPersistentStore *)
+    scopeTraceContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_scopeTraceContextPersistentStore,
+        [[SentryScopeTraceContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+}
+
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     // SentryDebugImageProvider is public, so we can't initialize the dependency in
@@ -472,7 +479,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                       distProcessor:self.watchdogTerminationDistProcessor
                environmentProcessor:self.watchdogTerminationEnvironmentProcessor
                     extrasProcessor:self.watchdogTerminationExtrasProcessor
-               fingerprintProcessor:self.watchdogTerminationFingerprintProcessor];
+               fingerprintProcessor:self.watchdogTerminationFingerprintProcessor
+              traceContextProcessor:self.watchdogTerminationTraceContextProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -579,6 +587,18 @@ static BOOL isInitialializingDependencyContainer = NO;
                                                                 "tracking.fingerprint-processor"
                                                relativePriority:0]
                    scopeFingerprintStore:self.scopeFingerprintPersistentStore])
+}
+
+- (SentryWatchdogTerminationTraceContextProcessorWrapper *)
+    watchdogTerminationTraceContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_watchdogTerminationTraceContextProcessor,
+        [[SentryWatchdogTerminationTraceContextProcessorWrapper alloc]
+            initWithDispatchQueueWrapper:[self.dispatchFactory
+                                             createUtilityQueue:"io.sentry.watchdog-termination-"
+                                                                "tracking.trace-context-processor"
+                                               relativePriority:0]
+                  scopeTraceContextStore:self.scopeTraceContextPersistentStore])
 }
 #endif
 

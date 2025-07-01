@@ -84,8 +84,9 @@
             event.environment = [self.scopeEnvironmentStore readPreviousEnvironmentFromDisk];
             event.extra = [self.scopeExtrasStore readPreviousExtrasFromDisk];
             event.fingerprint = [self.scopeFingerprintStore readPreviousFingerprintFromDisk];
-            // We intentinally skip reading level from the scope because all watchdog terminations
+            // We intentionally skip reading level from the scope because all watchdog terminations
             // are fatal
+            // TODO: Itay - Should we add trace context here?
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue

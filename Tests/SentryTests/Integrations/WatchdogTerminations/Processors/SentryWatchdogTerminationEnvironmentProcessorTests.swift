@@ -80,8 +80,8 @@ class SentryWatchdogTerminationEnvironmentProcessorTests: XCTestCase {
 
         // Define a log mock to assert the execution path
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
         sut.setEnvironment(fixture.environment)

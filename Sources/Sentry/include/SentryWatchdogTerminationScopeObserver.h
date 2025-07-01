@@ -13,6 +13,7 @@
 @class SentryWatchdogTerminationEnvironmentProcessorWrapper;
 @class SentryWatchdogTerminationExtrasProcessorWrapper;
 @class SentryWatchdogTerminationFingerprintProcessorWrapper;
+@class SentryWatchdogTerminationTraceContextProcessorWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +37,9 @@ SENTRY_NO_INIT
                (SentryWatchdogTerminationEnvironmentProcessorWrapper *)environmentProcessor
                 extrasProcessor:(SentryWatchdogTerminationExtrasProcessorWrapper *)extrasProcessor
            fingerprintProcessor:
-               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor;
+               (SentryWatchdogTerminationFingerprintProcessorWrapper *)fingerprintProcessor
+          traceContextProcessor:
+              (SentryWatchdogTerminationTraceContextProcessorWrapper *)traceContextProcessor;
 
 @end
 

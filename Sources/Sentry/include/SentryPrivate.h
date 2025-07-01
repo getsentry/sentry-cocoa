@@ -5,6 +5,7 @@
 #import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryRandom.h"
+#import "SentryScope+Private.h"
 #import "SentryTime.h"
 #import "SentryUser+Private.h"
 #import "SentryUserAccess.h"

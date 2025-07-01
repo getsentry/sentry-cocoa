@@ -30,6 +30,7 @@
 @class SentryScopeEnvironmentPersistentStore;
 @class SentryScopeExtrasPersistentStore;
 @class SentryScopeFingerprintPersistentStore;
+@class SentryScopeTraceContextPersistentStore;
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
@@ -61,6 +62,7 @@
 @class SentryWatchdogTerminationEnvironmentProcessorWrapper;
 @class SentryWatchdogTerminationExtrasProcessorWrapper;
 @class SentryWatchdogTerminationFingerprintProcessorWrapper;
+@class SentryWatchdogTerminationTraceContextProcessorWrapper;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -133,6 +135,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryScopeExtrasPersistentStore *scopeExtrasPersistentStore;
 @property (nonatomic, strong)
     SentryScopeFingerprintPersistentStore *scopeFingerprintPersistentStore;
+@property (nonatomic, strong)
+    SentryScopeTraceContextPersistentStore *scopeTraceContextPersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
@@ -180,6 +184,8 @@ SENTRY_NO_INIT
     SentryWatchdogTerminationExtrasProcessorWrapper *watchdogTerminationExtrasProcessor;
 @property (nonatomic, strong)
     SentryWatchdogTerminationFingerprintProcessorWrapper *watchdogTerminationFingerprintProcessor;
+@property (nonatomic, strong)
+    SentryWatchdogTerminationTraceContextProcessorWrapper *watchdogTerminationTraceContextProcessor;
 #endif
 
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;

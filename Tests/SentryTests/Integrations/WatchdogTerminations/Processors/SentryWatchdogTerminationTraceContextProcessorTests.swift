@@ -2,42 +2,42 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
-    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationExtrasProcessorTests.self)
+class SentryWatchdogTerminationTraceContextProcessorTests: XCTestCase {
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationTraceContextProcessorTests.self)
 
     private class Fixture {
         let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
-        let scopeExtrasStore: TestSentryScopeExtrasPersistentStore!
+        let scopeTraceContextStore: TestSentryScopeTraceContextPersistentStore!
         let fileManager: TestFileManager!
 
-        let extras: [String: Any] = [
-            "key1": "value1",
-            "key2": 123,
-            "key3": true
+        let traceContext: [String: Any] = [
+            "trace_id": "abc123",
+            "span_id": "def456",
+            "parent_span_id": "ghi789"
         ]
-        let invalidExtras: [String: Any] = [
+        let invalidTraceContext: [String: Any] = [
             "invalid": Double.infinity
         ]
 
         init() throws {
             let options = Options()
-            options.dsn = SentryWatchdogTerminationExtrasProcessorTests.dsn
+            options.dsn = SentryWatchdogTerminationTraceContextProcessorTests.dsn
 
             self.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             self.fileManager = try TestFileManager(options: Options())
-            self.scopeExtrasStore = TestSentryScopeExtrasPersistentStore(fileManager: fileManager)
+            self.scopeTraceContextStore = TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
         }
 
-        func getSut() -> SentryWatchdogTerminationExtrasProcessor {
-            SentryWatchdogTerminationExtrasProcessor(
+        func getSut() -> SentryWatchdogTerminationTraceContextProcessor {
+            SentryWatchdogTerminationTraceContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                scopeExtrasStore: scopeExtrasStore
+                scopeTraceContextStore: scopeTraceContextStore
             )
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationExtrasProcessor!
+    private var sut: SentryWatchdogTerminationTraceContextProcessor!
 
     override func setUpWithError() throws {
         fixture = try Fixture()
@@ -56,7 +56,7 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
 
-    func testInit_fileExistsAtExtrasPath_shouldDeleteFile() throws {
+    func testInit_fileExistsAtTraceContextPath_shouldDeleteFile() throws {
         // -- Arrange --
         assertPersistedFileNotExists()
 
@@ -67,15 +67,15 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
 
-    func testSetExtras_whenExtrasIsValid_shouldDispatchToQueue() {
+    func testSetTraceContext_whenTraceContextIsValid_shouldDispatchToQueue() {
         // -- Act --
-        sut.setExtras(fixture.extras)
+        sut.setTraceContext(fixture.traceContext)
 
         // -- Assert --
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
-    func testSetExtras_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+    func testSetTraceContext_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
         // The processor is dispatching the file operation on a background queue.
         // This tests checks that the dispatch block is not keeping a strong reference to the
         // processor and causes a retain cycle.
@@ -90,7 +90,7 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
-        sut.setExtras(fixture.extras)
+        sut.setTraceContext(fixture.traceContext)
         sut = nil
 
         // Execute the block after the processor is deallocated to have a weak reference
@@ -101,34 +101,34 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         // This assertion is a best-effort check to see if the block was executed, as there is not other
         // mechanism to assert this case
         XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("Can not set extras, reason: reference to extras processor is nil")
+            line.contains("Can not set traceContext, reason: reference to traceContext processor is nil")
         })
     }
 
-    func testSetExtras_whenExtrasIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+    func testSetTraceContext_whenTraceContextIsNilAndActiveFileExists_shouldDeleteActiveFile() {
         // -- Arrange --
         createPersistedFile()
         assertPersistedFileExists()
 
         // -- Act --
-        sut.setExtras(nil)
+        sut.setTraceContext(nil)
 
         // -- Assert --
         assertPersistedFileNotExists()
     }
 
-    func testSetExtras_whenExtrasIsNilAndActiveFileNotExists_shouldNotThrow() {
+    func testSetTraceContext_whenTraceContextIsNilAndActiveFileNotExists_shouldNotThrow() {
         // -- Arrange --
         assertPersistedFileNotExists()
 
         // -- Act --
-        sut.setExtras(nil)
+        sut.setTraceContext(nil)
 
         // -- Assert --
         assertPersistedFileNotExists()
     }
 
-    func testSetExtras_whenExtrasIsInvalidJSON_shouldLogErrorAndNotThrow() {
+    func testSetTraceContext_whenTraceContextIsInvalidJSON_shouldLogErrorAndNotThrow() {
         // -- Arrange --
         // Define a log mock to assert the execution path
         let logOutput = TestLogOutput()
@@ -136,15 +136,15 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         // -- Act --
-        sut.setExtras(fixture.invalidExtras)
+        sut.setTraceContext(fixture.invalidTraceContext)
 
         // -- Assert --
         XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("[error]") && line.contains("Failed to serialize extras, reason: ")
+            line.contains("[error]") && line.contains("Failed to serialize traceContext, reason: ")
         })
     }
 
-    func testSetExtras_whenExtrasIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
+    func testSetTraceContext_whenTraceContextIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
         // -- Arrange --
         let data = Data("Old content".utf8)
 
@@ -152,14 +152,14 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         assertPersistedFileExists()
 
         // -- Act --
-        sut.setExtras(fixture.invalidExtras)
+        sut.setTraceContext(fixture.invalidTraceContext)
 
         // -- Assert --
-        let writtenData = try Data(contentsOf: fixture.scopeExtrasStore.currentFileURL)
+        let writtenData = try Data(contentsOf: fixture.scopeTraceContextStore.currentFileURL)
         XCTAssertEqual(writtenData, data)
     }
 
-    func testClear_whenExtrasFileExistsNot_shouldNotThrow() {
+    func testClear_whenTraceContextFileExistsNot_shouldNotThrow() {
         // -- Arrange --
         // Assert the preconditions
         assertPersistedFileNotExists()
@@ -171,7 +171,7 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
         assertPersistedFileNotExists()
     }
     
-    func testClear_whenExtrasFileExists_shouldDeleteFileWithoutError() {
+    func testClear_whenTraceContextFileExists_shouldDeleteFileWithoutError() {
         // -- Arrange --
         let data = Data("Old content".utf8)
         createPersistedFile(data: data)
@@ -188,14 +188,14 @@ class SentryWatchdogTerminationExtrasProcessorTests: XCTestCase {
     // MARK: - Assertion Helpers
 
     fileprivate func createPersistedFile(data: Data = Data(), file: StaticString = #file, line: UInt = #line) {
-        FileManager.default.createFile(atPath: fixture.scopeExtrasStore.currentFileURL.path, contents: data)
+        FileManager.default.createFile(atPath: fixture.scopeTraceContextStore.currentFileURL.path, contents: data)
     }
 
     fileprivate func assertPersistedFileExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeExtrasStore.currentFileURL.path), file: file, line: line)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.scopeTraceContextStore.currentFileURL.path), file: file, line: line)
     }
 
     fileprivate func assertPersistedFileNotExists(file: StaticString = #file, line: UInt = #line) {
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeExtrasStore.currentFileURL.path), file: file, line: line)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.scopeTraceContextStore.currentFileURL.path), file: file, line: line)
     }
-} 
+}

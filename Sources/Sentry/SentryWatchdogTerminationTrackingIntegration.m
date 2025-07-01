@@ -12,6 +12,7 @@
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
+#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
@@ -124,6 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
         [scopeObserver setDist:outerScope.distString];
         [scopeObserver setFingerprint:outerScope.fingerprintArray];
         [scopeObserver setEnvironment:outerScope.environmentString];
+        [scopeObserver setTraceContext:[outerScope.propagationContext traceContextForEvent]];
     }];
 
     return YES;

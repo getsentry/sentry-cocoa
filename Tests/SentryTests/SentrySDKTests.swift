@@ -76,7 +76,8 @@ class SentrySDKTests: XCTestCase {
         distProcessor: SentryWatchdogTerminationDistProcessorWrapper,
         environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper,
         extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper,
-        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper
+        fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper,
+        traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
     ) {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
@@ -111,6 +112,10 @@ class SentrySDKTests: XCTestCase {
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopeFingerprintStore: TestSentryScopeFingerprintPersistentStore(fileManager: fileManager)
         )
+        let traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeTraceContextStore: TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        )
         
         return (
             breadcrumbProcessor: breadcrumbProcessor,
@@ -121,7 +126,8 @@ class SentrySDKTests: XCTestCase {
             distProcessor: distProcessor,
             environmentProcessor: environmentProcessor,
             extrasProcessor: extrasProcessor,
-            fingerprintProcessor: fingerprintProcessor
+            fingerprintProcessor: fingerprintProcessor,
+            traceContextProcessor: traceContextProcessor
         )
     }
     
@@ -137,7 +143,8 @@ class SentrySDKTests: XCTestCase {
             distProcessor: processors.distProcessor,
             environmentProcessor: processors.environmentProcessor,
             extrasProcessor: processors.extrasProcessor,
-            fingerprintProcessor: processors.fingerprintProcessor
+            fingerprintProcessor: processors.fingerprintProcessor,
+            traceContextProcessor: processors.traceContextProcessor
         )
     }
 
@@ -1318,6 +1325,43 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result.count, 2)
         XCTAssertEqual(result[0], "fingerprint1")
         XCTAssertEqual(result[1], "fingerprint2")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentTraceContextFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the trace context store for assertions
+        let scopeTraceContextStore = TestSentryScopeTraceContextPersistentStore(fileManager: fileManager)
+        observer.setTraceContext(["trace_id": "abc123", "span_id": "def456"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTraceContext completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the trace context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous trace context file if it exists
+        scopeTraceContextStore.deletePreviousTraceContextOnDisk()
+        // Sanity-check for the pre-condition
+        let previousTraceContext = scopeTraceContextStore.readPreviousTraceContextFromDisk()
+        XCTAssertNil(previousTraceContext)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeTraceContextStore.readPreviousTraceContextFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["trace_id"] as? String, "abc123")
+        XCTAssertEqual(result["span_id"] as? String, "def456")
     }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

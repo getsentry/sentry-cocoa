@@ -32,6 +32,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let environmentProcessor: SentryWatchdogTerminationEnvironmentProcessorWrapper
         let extrasProcessor: SentryWatchdogTerminationExtrasProcessorWrapper
         let fingerprintProcessor: SentryWatchdogTerminationFingerprintProcessorWrapper
+        let traceContextProcessor: SentryWatchdogTerminationTraceContextProcessorWrapper
 
         init() {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -76,6 +77,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             fingerprintProcessor = SentryWatchdogTerminationFingerprintProcessorWrapper(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopeFingerprintStore: SentryScopeFingerprintPersistentStore(fileManager: fileManager)
+            )
+            traceContextProcessor = SentryWatchdogTerminationTraceContextProcessorWrapper(
+                withDispatchQueueWrapper: backgroundQueueWrapper,
+                scopeTraceContextStore: SentryScopeTraceContextPersistentStore(fileManager: fileManager)
             )
 
             client = TestClient(options: options)
@@ -358,7 +363,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             distProcessor: fixture.distProcessor,
             environmentProcessor: fixture.environmentProcessor,
             extrasProcessor: fixture.extrasProcessor,
-            fingerprintProcessor: fixture.fingerprintProcessor
+            fingerprintProcessor: fixture.fingerprintProcessor,
+            traceContextProcessor: fixture.traceContextProcessor
         )
 
         for _ in 0..<3 {
