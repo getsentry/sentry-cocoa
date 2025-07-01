@@ -328,6 +328,64 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
 
+    func testInitWithLogs() throws {
+        // Arrange
+        let log1 = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1627846800),
+            level: .info,
+            body: "This is an info log",
+            attributes: [:]
+        )
+        let log2 = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1627846801),
+            level: .error,
+            body: "This is an error log",
+            attributes: [:]
+        )
+        let logs = [log1, log2]
+        
+        // Act
+        let envelope = SentryEnvelope(logs: logs)
+        
+        // Assert
+        let unwrappedEnvelope = try XCTUnwrap(envelope)
+        XCTAssertNil(unwrappedEnvelope.header.eventId)
+        XCTAssertEqual(defaultSdkInfo, unwrappedEnvelope.header.sdkInfo)
+        
+        XCTAssertEqual(1, unwrappedEnvelope.items.count)
+        let item = try XCTUnwrap(unwrappedEnvelope.items.first)
+        
+        // Verify envelope item header
+        XCTAssertEqual("log", item.header.type)
+        XCTAssertEqual("application/vnd.sentry.items.log+json", item.header.contentType)
+        XCTAssertEqual(2, item.header.itemCount?.intValue)
+        
+        // Verify envelope item data contains the expected JSON structure
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: item.data) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        XCTAssertEqual(2, items.count)
+        
+        // Verify first log
+        let firstLog = items[0]
+        XCTAssertEqual(1627846800, firstLog["timestamp"] as? TimeInterval)
+        XCTAssertEqual("info", firstLog["level"] as? String)
+        XCTAssertEqual("This is an info log", firstLog["body"] as? String)
+        
+        // Verify second log
+        let secondLog = items[1]
+        XCTAssertEqual(1627846801, secondLog["timestamp"] as? TimeInterval)
+        XCTAssertEqual("error", secondLog["level"] as? String)
+        XCTAssertEqual("This is an error log", secondLog["body"] as? String)
+    }
+    
+    func testInitWithEmptyLogs() {
+        // Act
+        let envelope = SentryEnvelope(logs: [])
+        
+        // Assert
+        XCTAssertNil(envelope)
+    }
+
     private func assertEventDoesNotContainContext(_ json: String) {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
