@@ -18,6 +18,7 @@ on:
       - "Samples/iOS-Swift/**"
       - "Samples/iOS-Swift6/**"
       - "Samples/SentrySampleShared/**"
+      - "Samples/Shared/**"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
