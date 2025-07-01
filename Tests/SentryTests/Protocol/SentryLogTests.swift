@@ -56,7 +56,8 @@ final class SentryLogTests: XCTestCase {
         XCTAssertEqual(encodedAttributes["count"]?["type"] as? String, "integer")
         XCTAssertEqual(encodedAttributes["count"]?["value"] as? Int, 42)
         XCTAssertEqual(encodedAttributes["score"]?["type"] as? String, "double")
-        XCTAssertEqual(encodedAttributes["score"]?["value"] as! Double, 3.14159, accuracy: 0.00001)
+        let scoreValue = try XCTUnwrap(encodedAttributes["score"]?["value"] as? Double)
+        XCTAssertEqual(scoreValue, 3.14159, accuracy: 0.00001)
         
         XCTAssertEqual(json["severity_number"] as? Int, 21)
     }
@@ -100,6 +101,7 @@ final class SentryLogTests: XCTestCase {
         XCTAssertEqual(decoded.attributes["count"]?.value as? Int, 42)
         
         XCTAssertEqual(decoded.attributes["score"]?.type, "double")
-        XCTAssertEqual(decoded.attributes["score"]?.value as! Double, 3.14159, accuracy: 0.00001)
+        let decodedScoreValue = try XCTUnwrap(decoded.attributes["score"]?.value as? Double)
+        XCTAssertEqual(decodedScoreValue, 3.14159, accuracy: 0.00001)
     }
 }

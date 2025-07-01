@@ -42,7 +42,8 @@ final class SentryLogAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         XCTAssertEqual(json["type"] as? String, "double")
-        XCTAssertEqual(json["value"] as! Double, 3.14159, accuracy: 0.00001)
+        let doubleValue = try XCTUnwrap(json["value"] as? Double)
+        XCTAssertEqual(doubleValue, 3.14159, accuracy: 0.00001)
     }
     
     // MARK: - Decoding Tests
@@ -100,7 +101,8 @@ final class SentryLogAttributeTests: XCTestCase {
         let attribute = try XCTUnwrap(decodeFromJSONData(jsonData: json) as SentryLog.Attribute?)
         
         XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as! Double, 2.71828, accuracy: 0.00001)
+        let doubleValue = try XCTUnwrap(attribute.value as? Double)
+        XCTAssertEqual(doubleValue, 2.71828, accuracy: 0.00001)
     }
     
     func testDecodeWithUnknownType_ReturnsNil() {
@@ -192,6 +194,8 @@ final class SentryLogAttributeTests: XCTestCase {
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
         
         XCTAssertEqual(decoded.type, original.type)
-        XCTAssertEqual(decoded.value as! Double, original.value as! Double, accuracy: 0.00001)
+        let decodedValue = try XCTUnwrap(decoded.value as? Double)
+        let originalValue = try XCTUnwrap(original.value as? Double)
+        XCTAssertEqual(decodedValue, originalValue, accuracy: 0.00001)
     }
 }
