@@ -7,7 +7,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
-NS_EXTENSION_UNAVAILABLE("Not available in app extensions")
 @interface SentryUserFeedbackIntegration : SentryBaseIntegration
 - (void)showWidget;
 - (void)hideWidget;
