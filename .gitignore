@@ -96,6 +96,7 @@ Samples/visionOS-Swift/visionOS-Swift.xcodeproj
 Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
+TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 
 Sentry.xcframework*
 Sentry-Dynamic.xcframework*

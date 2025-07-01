@@ -182,7 +182,6 @@
 #import "SentryScopeObserver.h"
 #import "SentryScopeSyncC.h"
 #import "SentryScreenFrames.h"
-#import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
