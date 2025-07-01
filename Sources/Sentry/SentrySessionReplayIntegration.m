@@ -428,7 +428,7 @@ static SentryTouchTracker *_touchTracker;
 {
     NSString *sentryPath = [SentryDependencyContainer.sharedInstance.fileManager sentryPath];
     if (!sentryPath) {
-        return NULL;
+        return nil;
     }
     NSURL *dir = [NSURL fileURLWithPath:sentryPath];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];

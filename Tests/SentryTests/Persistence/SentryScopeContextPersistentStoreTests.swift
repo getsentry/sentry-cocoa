@@ -14,7 +14,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
             fileManager = try TestFileManager(options: options)
         }
 
-        func getSut() throws  -> SentryScopeContextPersistentStore {
+        func getSut() throws -> SentryScopeContextPersistentStore {
             return try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
         }
     }
