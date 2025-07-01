@@ -16,7 +16,6 @@ projectReferences:
 fileGroups:
   - ../Shared/Config
   - watchOS-Swift.yml
-  - ../../Plans/watchOS-Swift-WatchKit-App_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
