@@ -10,6 +10,8 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let contextProcessor: TestSentryWatchdogTerminationContextProcessor
         let userProcessor: TestSentryWatchdogTerminationUserProcessor
         let tagsProcessor: TestSentryWatchdogTerminationTagsProcessor
+        let distProcessor: TestSentryWatchdogTerminationDistProcessor
+        let environmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
 
         let breadcrumb: [String: Any] = [
             "type": "default",
@@ -26,10 +28,6 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             ]
         ]
         let user: User = User(userId: "123")
-        let tags: [String: String] = [
-            "environment": "test",
-            "version": "1.0.0"
-        ]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -49,6 +47,14 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
             )
+            distProcessor = TestSentryWatchdogTerminationDistProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeDistStore: SentryScopeDistPersistentStore(fileManager: fileManager)
+            )
+            environmentProcessor = TestSentryWatchdogTerminationEnvironmentProcessor(
+                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                scopeEnvironmentStore: SentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+            )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
@@ -56,7 +62,9 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 breadcrumbProcessor: breadcrumbProcessor,
                 contextProcessor: contextProcessor,
                 userProcessor: userProcessor,
-                tagsProcessor: tagsProcessor
+                tagsProcessor: tagsProcessor,
+                distProcessor: distProcessor,
+                environmentProcessor: environmentProcessor
             )
         }
     }
@@ -158,7 +166,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: context))
     }
     
-    func testSetUser_whenUserIsNil_shouldCallUserProcessorSetUser() throws {
+    func testSetContext_whenUserIsNil_shouldCallUserProcessorSetUser() throws {
         // -- Act --
         sut.setUser(nil)
 
@@ -168,7 +176,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertNil(invocation)
     }
 
-    func testSetUser_whenUserIsDefined_shouldCallUserProcessorSetUser() throws {
+    func testSetContext_whenUserIsDefined_shouldCallUserProcessorSetUser() throws {
         // -- Arrange --
         let user = fixture.user
 
@@ -180,67 +188,6 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.userProcessor.setUserInvocations.first)
         let invocationUser = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationUser.userId, user.userId)
-    }
-    
-    func testSetTags_whenTagsIsNil_shouldCallTagsProcessorSetTags() throws {
-        // -- Act --
-        sut.setTags(nil)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
-        XCTAssertNil(invocation)
-    }
-
-    func testSetTags_whenTagsIsDefined_shouldCallTagsProcessorSetTags() throws {
-        // -- Arrange --
-        let tags: [String: String] = [
-            "environment": "production",
-            "version": "1.0.0",
-            "user_type": "premium"
-        ]
-
-        // -- Act --
-        sut.setTags(tags)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
-        let invocationTags = try XCTUnwrap(invocation)
-        XCTAssertEqual(invocationTags.count, 3)
-        XCTAssertEqual(invocationTags["environment"], "production")
-        XCTAssertEqual(invocationTags["version"], "1.0.0")
-        XCTAssertEqual(invocationTags["user_type"], "premium")
-    }
-    
-    func testSetTags_whenTagsIsEmpty_shouldCallTagsProcessorSetTags() throws {
-        // -- Arrange --
-        let tags: [String: String] = [:]
-
-        // -- Act --
-        sut.setTags(tags)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
-        let invocationTags = try XCTUnwrap(invocation)
-        XCTAssertEqual(invocationTags.count, 0)
-    }
-    
-    func testSetTags_whenTagsIsDefinedFromFixture_shouldCallTagsProcessorSetTags() throws {
-        // -- Arrange --
-        let tags = fixture.tags
-
-        // -- Act --
-        sut.setTags(tags)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.tagsProcessor.setTagsInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.tagsProcessor.setTagsInvocations.first)
-        let invocationTags = try XCTUnwrap(invocation)
-        XCTAssertEqual(invocationTags.count, 2)
-        XCTAssertEqual(invocationTags["environment"], "test")
-        XCTAssertEqual(invocationTags["version"], "1.0.0")
     }
 }
 

@@ -25,6 +25,8 @@
 @property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
 @property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
 @property (nonatomic, strong) SentryScopeTagsPersistentStore *scopeTagsStore;
+@property (nonatomic, strong) SentryScopeDistPersistentStore *scopeDistStore;
+@property (nonatomic, strong) SentryScopeEnvironmentPersistentStore *scopeEnvironmentStore;
 
 @end
 
@@ -38,6 +40,8 @@
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
                  scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
                  scopeTagsStore:(SentryScopeTagsPersistentStore *)scopeTagsStore
+                 scopeDistStore:(SentryScopeDistPersistentStore *)scopeDistStore
+          scopeEnvironmentStore:(SentryScopeEnvironmentPersistentStore *)scopeEnvironmentStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -48,6 +52,8 @@
         self.scopeContextStore = scopeContextStore;
         self.scopeUserStore = scopeUserStore;
         self.scopeTagsStore = scopeTagsStore;
+        self.scopeDistStore = scopeDistStore;
+        self.scopeEnvironmentStore = scopeEnvironmentStore;
     }
     return self;
 }
@@ -65,6 +71,8 @@
             [self addContextToEvent:event];
             event.user = [self.scopeUserStore readPreviousUserFromDisk];
             event.tags = [self.scopeTagsStore readPreviousTagsFromDisk];
+            event.dist = [self.scopeDistStore readPreviousDistFromDisk];
+            event.environment = [self.scopeEnvironmentStore readPreviousEnvironmentFromDisk];
             // We intentionally skip reading level from the scope because all watchdog terminations
             // are fatal
             // TODO: Itay - Should we add trace context here?

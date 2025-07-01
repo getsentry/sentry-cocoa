@@ -119,7 +119,6 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeUserPersistentStore)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeTagsPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
@@ -194,22 +193,6 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertIdentical(scopeUserStore1, scopeUserStore2)
-    }
-
-    func testScopeTagsStore_shouldReturnSameInstance() throws {
-        // -- Arrange --
-        let options = Options()
-        options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDK.setStart(options)
-
-        let container = SentryDependencyContainer.sharedInstance()
-
-        // -- Act --
-        let scopeTagsStore1 = container.scopeTagsPersistentStore
-        let scopeTagsStore2 = container.scopeTagsPersistentStore
-
-        // -- Assert --
-        XCTAssertIdentical(scopeTagsStore1, scopeTagsStore2)
     }
 
     func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {

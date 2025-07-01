@@ -16,6 +16,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let watchdogTerminationContextProcessor: TestSentryWatchdogTerminationContextProcessor
         let watchdogTerminationUserProcessor: TestSentryWatchdogTerminationUserProcessor
         let watchdogTerminationTagsProcessor: TestSentryWatchdogTerminationTagsProcessor
+        let watchdogTerminationDistProcessor: TestSentryWatchdogTerminationDistProcessor
+        let watchdogTerminationEnvironmentProcessor: TestSentryWatchdogTerminationEnvironmentProcessor
 
         let hub: SentryHub
         let scope: Scope
@@ -77,6 +79,20 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
                 scopeTagsStore: scopeTagsPersistentStore
             )
             container.watchdogTerminationTagsProcessor = watchdogTerminationTagsProcessor
+
+            let scopeDistPersistentStore = TestSentryScopeDistPersistentStore(fileManager: fileManager)
+            watchdogTerminationDistProcessor = TestSentryWatchdogTerminationDistProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeDistStore: scopeDistPersistentStore
+            )
+            container.watchdogTerminationDistProcessor = watchdogTerminationDistProcessor
+
+            let scopeEnvironmentPersistentStore = TestSentryScopeEnvironmentPersistentStore(fileManager: fileManager)
+            watchdogTerminationEnvironmentProcessor = TestSentryWatchdogTerminationEnvironmentProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopeEnvironmentStore: scopeEnvironmentPersistentStore
+            )
+            container.watchdogTerminationEnvironmentProcessor = watchdogTerminationEnvironmentProcessor
 
             let client = TestClient(options: options)
             scope = Scope()
@@ -299,6 +315,88 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.count, 1)
         let invocation = try XCTUnwrap(fixture.watchdogTerminationTagsProcessor.setTagsInvocations.first)
         XCTAssertEqual(invocation?["existingTagKey"], "existingTagValue")
+    }
+
+    func testInstallWithOptions_shouldStoreDistInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationDistProcessor.setDistInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationDistProcessor.setDistInvocations.count, 1)
+        fixture.scope.setDist("test-dist")
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the dist to the
+        // dist processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationDistProcessor.setDistInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationDistProcessor.setDistInvocations.last)
+        XCTAssertEqual(invocation, "test-dist")
+    }
+
+    func testInstallWithOptions_shouldSetCurrentDistOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.scope.setDist("existing-dist")
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationDistProcessor.setDistInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the dist to the
+        // dist processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationDistProcessor.setDistInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationDistProcessor.setDistInvocations.first)
+        XCTAssertEqual(invocation, "existing-dist")
+    }
+
+    func testInstallWithOptions_shouldStoreEnvironmentInfo() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+        XCTAssertEqual(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.count, 1)
+        fixture.scope.setEnvironment("test-environment")
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the environment to the
+        // environment processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.count, 2)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.last)
+        XCTAssertEqual(invocation, "test-environment")
+    }
+
+    func testInstallWithOptions_shouldSetCurrentEnvironmentOnScopeObserver() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.scope.setEnvironment("existing-environment")
+
+        // Check pre-condition
+        XCTAssertEqual(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.count, 0)
+
+        // -- Act --
+        sut.install(with: fixture.options)
+
+        // -- Assert --
+        // As the instance of the scope observer is dynamically created by the dependency container,
+        // we extend the tested scope by expecting the scope observer to forward the environment to the
+        // environment processor and assert that it was called.
+        XCTAssertEqual(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.watchdogTerminationEnvironmentProcessor.setEnvironmentInvocations.first)
+        XCTAssertEqual(invocation, "existing-environment")
     }
 
     func testANRDetected_UpdatesAppStateToTrue() throws {
