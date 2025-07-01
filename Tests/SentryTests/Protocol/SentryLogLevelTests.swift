@@ -192,4 +192,42 @@ final class SentryLogLevelTests: XCTestCase {
             XCTAssertEqual(jsonString, expectedString, "Failed for level: \(level)")
         }
     }
+    
+    // MARK: - Severity Number Tests
+    
+    func testSeverityNumberTrace() {
+        let level = SentryLog.Level.trace
+        
+        XCTAssertEqual(level.toSeverityNumber(), 1)
+    }
+    
+    func testSeverityNumberDebug() {
+        let level = SentryLog.Level.debug
+        
+        XCTAssertEqual(level.toSeverityNumber(), 5)
+    }
+    
+    func testSeverityNumberInfo() {
+        let level = SentryLog.Level.info
+        
+        XCTAssertEqual(level.toSeverityNumber(), 9)
+    }
+    
+    func testSeverityNumberWarn() {
+        let level = SentryLog.Level.warn
+        
+        XCTAssertEqual(level.toSeverityNumber(), 13)
+    }
+    
+    func testSeverityNumberError() {
+        let level = SentryLog.Level.error
+        
+        XCTAssertEqual(level.toSeverityNumber(), 17)
+    }
+    
+    func testSeverityNumberFatal() {
+        let level = SentryLog.Level.fatal
+        
+        XCTAssertEqual(level.toSeverityNumber(), 21)
+    }
 }
