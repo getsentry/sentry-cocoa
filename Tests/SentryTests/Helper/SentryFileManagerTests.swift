@@ -1512,7 +1512,8 @@ private extension SentryFileManagerTests {
     private func createWatchdogTerminationProcessors(fileManager: SentryFileManager) -> (
         breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
         contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
-        userProcessor: SentryWatchdogTerminationUserProcessorWrapper
+        userProcessor: SentryWatchdogTerminationUserProcessorWrapper,
+        tagsProcessor: SentryWatchdogTerminationTagsProcessorWrapper
     ) {
     let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: fileManager)
     let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
@@ -1523,11 +1524,16 @@ private extension SentryFileManagerTests {
         withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
         scopeUserStore: SentryScopeUserPersistentStore(fileManager: fileManager)
     )
+    let tagsProcessor = SentryWatchdogTerminationTagsProcessorWrapper(
+        withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
+        scopeTagsStore: SentryScopeTagsPersistentStore(fileManager: fileManager)
+    )
         
     return (
         breadcrumbProcessor: breadcrumbProcessor,
         contextProcessor: contextProcessor,
-        userProcessor: userProcessor
+        userProcessor: userProcessor,
+        tagsProcessor: tagsProcessor
     )
 }
 
@@ -1537,7 +1543,8 @@ private func createWatchdogTerminationObserver(fileManager: SentryFileManager) -
             return SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: processors.breadcrumbProcessor,
             contextProcessor: processors.contextProcessor,
-            userProcessor: processors.userProcessor
+            userProcessor: processors.userProcessor,
+            tagsProcessor: processors.tagsProcessor
         )
 }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

@@ -7,6 +7,7 @@
 @class SentryWatchdogTerminationBreadcrumbProcessor;
 @class SentryWatchdogTerminationContextProcessorWrapper;
 @class SentryWatchdogTerminationUserProcessorWrapper;
+@class SentryWatchdogTerminationTagsProcessorWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,7 +23,8 @@ SENTRY_NO_INIT
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
                contextProcessor:(SentryWatchdogTerminationContextProcessorWrapper *)contextProcessor
-                  userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor;
+                  userProcessor:(SentryWatchdogTerminationUserProcessorWrapper *)userProcessor
+                  tagsProcessor:(SentryWatchdogTerminationTagsProcessorWrapper *)tagsProcessor;
 
 @end
 
