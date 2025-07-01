@@ -2,25 +2,25 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryScopeContextPersistentStoreTests: XCTestCase {
-    private static let dsn = TestConstants.dsnForTestCase(type: SentryScopeContextPersistentStoreTests.self)
+class SentryScopeUserPersistentStoreTests: XCTestCase {
+    private static let dsn = TestConstants.dsnForTestCase(type: SentryScopeUserPersistentStoreTests.self)
 
     private class Fixture {
         let fileManager: TestFileManager
 
         init() throws {
             let options = Options()
-            options.dsn = SentryScopeContextPersistentStoreTests.dsn
+            options.dsn = SentryScopeUserPersistentStoreTests.dsn
             fileManager = try TestFileManager(options: options)
         }
 
-        func getSut() -> SentryScopeContextPersistentStore {
-            return SentryScopeContextPersistentStore(fileManager: fileManager)
+        func getSut() -> SentryScopeUserPersistentStore {
+            return SentryScopeUserPersistentStore(fileManager: fileManager)
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryScopeContextPersistentStore!
+    private var sut: SentryScopeUserPersistentStore!
 
     override func setUpWithError() throws {
         super.setUp()
@@ -29,7 +29,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         sut = fixture.getSut()
     }
 
-    func testMoveFileToPreviousFile_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
+    func testMoveFileToPreviousFile_whenPreviousUserFileAvailable_shouldMoveFileToPreviousPath() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
@@ -52,57 +52,52 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
-        let previousContextData = try Data(contentsOf: sut.previousFileURL)
-        XCTAssertEqual(previousContextData, data)
+        let previousUserData = try Data(contentsOf: sut.previousFileURL)
+        XCTAssertEqual(previousUserData, data)
     }
 
-    func testReadPreviousContext_whenValidJSONInPreviousContextFile_shouldReturnDecodedData() throws {
+    func testReadPreviousUser_whenValidJSONInPreviousUserFile_shouldReturnDecodedData() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("""
             {
-                "key": {
-                    "nestedKey": "value"
-                },
-                "anotherKey": {
-                    "anotherNestedKey": "nestedValue"
-                }
+                "id": "user123",
+                "email": "test@example.com",
+                "username": "testuser",
+                "ip_address": "192.168.1.1"
             }
             """.utf8)
         try data.write(to: sut.previousFileURL)
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = try XCTUnwrap(sut.readPreviousContextFromDisk())
+        let result = try XCTUnwrap(sut.readPreviousUserFromDisk())
 
         // -- Assert --
-        XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result["key"] as? [String: String], ["nestedKey": "value"])
-        XCTAssertEqual(result["anotherKey"] as? [String: String], ["anotherNestedKey": "nestedValue"])
+        XCTAssertEqual(result.userId, "user123")
+        XCTAssertEqual(result.email, "test@example.com")
+        XCTAssertEqual(result.username, "testuser")
+        XCTAssertEqual(result.ipAddress, "192.168.1.1")
     }
 
-    func testReadPreviousContext_whenInvalidJSONInPreviousContextFile_shouldReturnNil() throws {
+    func testReadPreviousUser_whenInvalidJSONInPreviousUserFile_shouldReturnNil() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("""
             {
-                "key": 123,
-                "anotherKey": {
-                    "anotherNestedKey": "nestedValue"
-                }
-            }
+                "id": 123,
             """.utf8)
         try data.write(to: sut.previousFileURL)
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousContextFromDisk()
+        let result = sut.readPreviousUserFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testReadPreviousContext_whenInvalidDataInPreviousContextFile_shouldReturnNil() throws {
+    func testReadPreviousUser_whenInvalidDataInPreviousUserFile_shouldReturnNil() throws {
         // -- Arrange --
         let fm = FileManager.default
         let data = Data("<TEST DATA>".utf8)
@@ -110,13 +105,13 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousContextFromDisk()
+        let result = sut.readPreviousUserFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testReadPreviousContext_whenPreviousContextUnvailable_shouldReturnData() throws {
+    func testReadPreviousUser_whenPreviousUserUnavailable_shouldReturnNil() throws {
         // -- Arrange --
         // Check pre-conditions
         let fm = FileManager.default
@@ -126,45 +121,45 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.previousFileURL.path))
 
         // -- Act --
-        let result = sut.readPreviousContextFromDisk()
+        let result = sut.readPreviousUserFromDisk()
 
         // -- Assert --
         XCTAssertNil(result)
     }
 
-    func testWriteContextToDisk_whenNestedDictionaryJSONData_shouldWriteToContextFile() throws {
+    func testWriteUserToDisk_whenValidUserData_shouldWriteToUserFile() throws {
         // -- Arrange --
         let fm = FileManager.default
-        let context: [String: [String: Any]] = [
-            "key": ["nestedKey": 123],
-            "anotherKey": ["anotherNestedKey": "nestedValue"]
-        ]
+        let user = User(userId: "user123")
+        user.email = "test@example.com"
+        user.username = "testuser"
+        user.ipAddress = "192.168.1.1"
 
         // Check pre-conditions
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.writeContextToDisk(context: context)
+        sut.writeUserToDisk(user: user)
 
         // -- Assert --
         XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
         // Use the SentrySerialization to compare the written data
-        // We can assume the utility to serialize the context correctly as it is tested by other tests.
         let writtenData = try Data(contentsOf: sut.currentFileURL)
         let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
 
-        XCTAssertEqual(serializedData.count, 2)
-        XCTAssertEqual(serializedData["key"] as? [String: Int], ["nestedKey": 123])
-        XCTAssertEqual(serializedData["anotherKey"] as? [String: String], ["anotherNestedKey": "nestedValue"])
+        XCTAssertEqual(serializedData["id"] as? String, "user123")
+        XCTAssertEqual(serializedData["email"] as? String, "test@example.com")
+        XCTAssertEqual(serializedData["username"] as? String, "testuser")
+        XCTAssertEqual(serializedData["ip_address"] as? String, "192.168.1.1")
     }
 
-    func testWriteContextToDisk_whenInvalidJSONDictionary_shouldNotWriteToContextFile() throws {
+    func testWriteUserToDisk_whenInvalidUserData_shouldNotWriteToUserFile() throws {
         // -- Arrange --
         let fm = FileManager.default
-        let context: [String: [String: Any]] = [
-            "key": ["nestedKey": Double.infinity],
-            "anotherKey": ["anotherNestedKey": "nestedValue"]
-        ]
+        let user = User(userId: "user123")
+        // Set an invalid value that can't be serialized
+        user.data = ["invalid": Double.infinity]
+
         if fm.fileExists(atPath: sut.currentFileURL.path) {
             try fm.removeItem(at: sut.currentFileURL)
         }
@@ -173,40 +168,13 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.writeContextToDisk(context: context)
+        sut.writeUserToDisk(user: user)
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testWriteContextToDisk_whenNonLiteralsINJSONDictionary_shouldSanitizeAndWriteToContextFile() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let context: [String: [String: Any]] = [
-            "key": ["nestedKey": Date(timeIntervalSince1970: 0xF00D)]
-        ]
-        if fm.fileExists(atPath: sut.currentFileURL.path) {
-            try fm.removeItem(at: sut.currentFileURL)
-        }
-
-        // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
-
-        // -- Act --
-        sut.writeContextToDisk(context: context)
-
-        // -- Assert --
-        // Use the SentrySerialization to compare the written data
-        // We can assume the utility to serialize the context correctly as it is tested by other tests.
-        let writtenData = try Data(contentsOf: sut.currentFileURL)
-        let serializedData = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
-
-        XCTAssertEqual(serializedData.count, 1)
-        let nestedDict = try XCTUnwrap(serializedData["key"] as? [String: String])
-        XCTAssertEqual(nestedDict["nestedKey"], "1970-01-01T17:04:13.000Z")
-    }
-
-    func testDeleteContextFile_whenExists_shouldDeleteFile() throws {
+    func testDeleteUserFile_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default
         if !fm.fileExists(atPath: sut.currentFileURL.path) {
@@ -215,13 +183,13 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteContextOnDisk()
+        sut.deleteUserOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
     }
 
-    func testDeleteContextFile_whenNotExists_shouldDoNothing() throws {
+    func testDeleteUserFile_whenNotExists_shouldDoNothing() throws {
         // -- Arrange --
         let fm = FileManager.default
         if fm.fileExists(atPath: sut.currentFileURL.path) {
@@ -230,7 +198,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
 
         // -- Act --
-        sut.deleteContextOnDisk()
+        sut.deleteUserOnDisk()
 
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: sut.currentFileURL.path))
@@ -239,7 +207,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
     func testcurrentFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
-            .appendingPathComponent("context.state")
+            .appendingPathComponent("user.state")
 
         // -- Act && Assert --
         XCTAssertEqual(sut.currentFileURL, expectedUrl)
@@ -248,7 +216,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
     func testpreviousFileURL_returnsURLWithCorrectPath() {
         // -- Arrange --
         let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
-            .appendingPathComponent("previous.context.state")
+            .appendingPathComponent("previous.user.state")
 
         // -- Act && Assert --
         XCTAssertEqual(sut.previousFileURL, expectedUrl)

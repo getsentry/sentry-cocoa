@@ -23,6 +23,7 @@
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
+@property (nonatomic, strong) SentryScopeUserPersistentStore *scopeUserStore;
 
 @end
 
@@ -34,6 +35,7 @@
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
               scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
+                 scopeUserStore:(SentryScopeUserPersistentStore *)scopeUserStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -42,6 +44,7 @@
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
         self.scopeContextStore = scopeContextStore;
+        self.scopeUserStore = scopeUserStore;
     }
     return self;
 }
@@ -57,6 +60,10 @@
 
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
+            event.user = [self.scopeUserStore readPreviousUserFromDisk];
+            // We intentionally skip reading level from the scope because all watchdog terminations
+            // are fatal
+            // TODO: Itay - Should we add trace context here?
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue

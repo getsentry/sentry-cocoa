@@ -12,6 +12,7 @@
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
+#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
@@ -68,13 +69,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                 appStateManager:appStateManager];
     SentryScopeContextPersistentStore *scopeContextStore =
         [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
+    SentryScopeUserPersistentStore *scopeUserStore =
+        [SentryDependencyContainer.sharedInstance scopeUserPersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
                                                                  fileManager:fileManager
-                                                           scopeContextStore:scopeContextStore];
+                                                           scopeContextStore:scopeContextStore
+                                                              scopeUserStore:scopeUserStore];
 
     [self.tracker start];
 
@@ -96,6 +100,14 @@ NS_ASSUME_NONNULL_BEGIN
         // Sync the current context to the observer to capture context modifications that happened
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
+        [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setTags:outerScope.tags];
+        [scopeObserver setLevel:outerScope.levelEnum];
+        [scopeObserver setExtras:outerScope.extraDictionary];
+        [scopeObserver setDist:outerScope.distString];
+        [scopeObserver setFingerprint:outerScope.fingerprintArray];
+        [scopeObserver setEnvironment:outerScope.environmentString];
+        [scopeObserver setTraceContext:[outerScope.propagationContext traceContextForEvent]];
     }];
 
     return YES;

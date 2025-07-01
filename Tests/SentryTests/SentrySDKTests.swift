@@ -65,6 +65,41 @@ class SentrySDKTests: XCTestCase {
 
     private var fixture: Fixture!
 
+    // MARK: - Helper Fixtures for Watchdog Termination Processors
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    private func createWatchdogTerminationProcessors(fileManager: SentryFileManager, dispatchQueueWrapper: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) -> (
+        breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor,
+        contextProcessor: SentryWatchdogTerminationContextProcessorWrapper,
+        userProcessor: SentryWatchdogTerminationUserProcessorWrapper
+    ) {
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let contextProcessor = SentryWatchdogTerminationContextProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeContextStore: TestSentryScopeContextPersistentStore(fileManager: fileManager)
+        )
+        let userProcessor = SentryWatchdogTerminationUserProcessorWrapper(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopeUserStore: TestSentryScopeUserPersistentStore(fileManager: fileManager)
+        )
+        
+        return (
+            breadcrumbProcessor: breadcrumbProcessor,
+            contextProcessor: contextProcessor,
+            userProcessor: userProcessor
+        )
+    }
+    
+    private func createWatchdogTerminationObserver(fileManager: SentryFileManager, dispatchQueueWrapper: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()) -> SentryWatchdogTerminationScopeObserver {
+        let processors = createWatchdogTerminationProcessors(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        return SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: processors.breadcrumbProcessor,
+            contextProcessor: processors.contextProcessor,
+            userProcessor: processors.userProcessor
+        )
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
     @available(*, deprecated, message: "This is marked deprecated as a workaround (for the workaround deprecating the Fixture.init method) until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
     override func setUp() {
         super.setUp()
@@ -939,14 +974,8 @@ class SentrySDKTests: XCTestCase {
         options.dsn = SentrySDKTests.dsnAsString
 
         let fileManager = try TestFileManager(options: options)
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -965,14 +994,11 @@ class SentrySDKTests: XCTestCase {
         options.dsn = SentrySDKTests.dsnAsString
 
         let fileManager = try TestFileManager(options: options)
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the context store for assertions
         let scopeContextStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
         observer.setContext([
             "a": ["b": "c"]
         ])
@@ -1000,7 +1026,42 @@ class SentrySDKTests: XCTestCase {
         let value = try XCTUnwrap(result["a"] as? [String: String])
         XCTAssertEqual(value["b"], "c")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentUserFileToPreviousFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
 
+        let fileManager = try TestFileManager(options: options)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer = createWatchdogTerminationObserver(fileManager: fileManager, dispatchQueueWrapper: dispatchQueueWrapper)
+        
+        // Get the user store for assertions
+        let scopeUserStore = TestSentryScopeUserPersistentStore(fileManager: fileManager)
+        observer.setUser(User(userId: "1234"))
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setUser completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous user file if it exists
+        scopeUserStore.deletePreviousUserOnDisk()
+        // Sanity-check for the pre-condition
+        let previousUser = scopeUserStore.readPreviousUserFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopeUserStore.readPreviousUserFromDisk())
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result.userId, "1234")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)
