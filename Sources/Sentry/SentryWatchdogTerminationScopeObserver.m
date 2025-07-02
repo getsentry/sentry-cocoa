@@ -11,7 +11,7 @@
 @interface SentryWatchdogTerminationScopeObserver ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationBreadcrumbProcessor *breadcrumbProcessor;
-@property (nonatomic, strong) SentryWatchdogTerminationContextProcessor *contextProcessor;
+@property (nonatomic, strong) SentryWatchdogTerminationFieldsProcessor *fieldsProcessor;
 
 @end
 
@@ -19,11 +19,11 @@
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-               contextProcessor:(SentryWatchdogTerminationContextProcessor *)contextProcessor;
+                fieldsProcessor:(SentryWatchdogTerminationFieldsProcessor *)fieldsProcessor;
 {
     if (self = [super init]) {
         self.breadcrumbProcessor = breadcrumbProcessor;
-        self.contextProcessor = contextProcessor;
+        self.fieldsProcessor = fieldsProcessor;
     }
 
     return self;
@@ -34,7 +34,7 @@
 - (void)clear
 {
     [self.breadcrumbProcessor clear];
-    [self.contextProcessor clear];
+    [self.fieldsProcessor clear];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
@@ -49,7 +49,7 @@
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self.contextProcessor setContext:context];
+    [self.fieldsProcessor setContext:context];
 }
 
 - (void)setDist:(nullable NSString *)dist
@@ -84,7 +84,7 @@
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    // Left blank on purpose
+    [self.fieldsProcessor setUser:user];
 }
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext

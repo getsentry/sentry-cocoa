@@ -941,12 +941,12 @@ class SentrySDKTests: XCTestCase {
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+        let scopePersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
+        let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
+            scopePersistentStore: scopePersistentStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, fieldsProcessor: fieldsProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -961,18 +961,8 @@ class SentrySDKTests: XCTestCase {
 
     func testStartWithOptions_shouldMoveCurrentContextFileToPreviousFile() throws {
         // -- Arrange --
-        let options = Options()
-        options.dsn = SentrySDKTests.dsnAsString
-
-        let fileManager = try TestFileManager(options: options)
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
         observer.setContext([
             "a": ["b": "c"]
         ])
@@ -986,21 +976,48 @@ class SentrySDKTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous context file if it exists
-        scopeContextStore.deletePreviousContextOnDisk()
+        scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
-        let previousContext = scopeContextStore.readPreviousContextFromDisk()
+        let previousContext = scopePersistentStore.readPreviousContextFromDisk()
         XCTAssertNil(previousContext)
 
         // -- Act --
         SentrySDK.start(options: options)
 
         // -- Assert --
-        let result = try XCTUnwrap(scopeContextStore.readPreviousContextFromDisk())
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousContextFromDisk())
         XCTAssertEqual(result.count, 1)
         let value = try XCTUnwrap(result["a"] as? [String: String])
         XCTAssertEqual(value["b"], "c")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentUserFileToPreviousFile() throws {
+        // -- Arrange --
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
+        observer.setUser(User(userId: "user1234"))
 
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setUser completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous context file if it exists
+        scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = scopePersistentStore.readPreviousUserFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousUserFromDisk())
+        XCTAssertEqual(result.userId, "user1234")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)
@@ -1082,6 +1099,23 @@ private extension SentrySDKTests {
         let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
         testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
+    }
+    
+    func createTestModels() throws -> (Options, TestSentryDispatchQueueWrapper, TestSentryScopeContextPersistentStore, SentryWatchdogTerminationScopeObserver) {
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let fileManager = try TestFileManager(options: options)
+        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let scopePersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
+        let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
+            withDispatchQueueWrapper: dispatchQueueWrapper,
+            scopePersistentStore: scopePersistentStore
+        )
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, fieldsProcessor: fieldsProcessor)
+        
+        return (options, dispatchQueueWrapper, scopePersistentStore, observer)
     }
 }
 

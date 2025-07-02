@@ -5,11 +5,11 @@ import Foundation
 @_spi(Private) public class SentryWatchdogTerminationContextProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let scopeContextStore: SentryScopeContextPersistentStore
+    private let scopeContextStore: SentryScopePersistentStore
 
     public init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
-        scopeContextStore: SentryScopeContextPersistentStore
+        scopeContextStore: SentryScopePersistentStore
     ) {
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.scopeContextStore = scopeContextStore

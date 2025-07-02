@@ -2,42 +2,42 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationContextProcessor.
+// This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationFieldsProcessor.
 //
 // It ensures that the mock works as expected and can be used in tests suites.
 //
 // Note: This file should ideally live in SentryTestUtilsTests, but this would lead to circular imports.
 // When refactoring the project structure, consider moving this to SentryTestUtilsTests.
 
-class TestSentryWatchdogTerminationContextProcessorTests: XCTestCase {
+class TestSentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
 
-    private static let dsn = TestConstants.dsnForTestCase(type: TestSentryWatchdogTerminationContextProcessorTests.self)
+    private static let dsn = TestConstants.dsnForTestCase(type: TestSentryWatchdogTerminationFieldsProcessorTests.self)
 
     private class Fixture {
 
         let dispatchQueueWrapper: SentryDispatchQueueWrapper
         let fileManager: SentryFileManager
-        let scopeContextStore: SentryScopeContextPersistentStore
+        let scopePersistentStore: SentryScopePersistentStore
 
         init() throws {
             let options = Options()
-            options.dsn = TestSentryWatchdogTerminationContextProcessorTests.dsn
+            options.dsn = TestSentryWatchdogTerminationFieldsProcessorTests.dsn
             fileManager = try TestFileManager(options: options)
 
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            scopeContextStore = try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
+            scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
         }
 
-        func getSut() -> TestSentryWatchdogTerminationContextProcessor {
-            return TestSentryWatchdogTerminationContextProcessor(
+        func getSut() -> TestSentryWatchdogTerminationFieldsProcessor {
+            return TestSentryWatchdogTerminationFieldsProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
-                scopeContextStore: scopeContextStore
+                scopePersistentStore: scopePersistentStore
             )
         }
     }
 
     private var fixture: Fixture!
-    private var sut: TestSentryWatchdogTerminationContextProcessor!
+    private var sut: TestSentryWatchdogTerminationFieldsProcessor!
 
     override func setUpWithError() throws {
         super.setUp()
@@ -66,6 +66,28 @@ class TestSentryWatchdogTerminationContextProcessorTests: XCTestCase {
         XCTAssertEqual(sut.setContextInvocations.invocations.element(at: 1) as? [String: [String: String]]?, ["key2": ["value2": "test2"]])
         // Use unwrap because the return type of element(at:) is double-wrapped optional [String: [String: String]]??
         let thirdInvocation = try XCTUnwrap(sut.setContextInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
+    
+    func testSetUser_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setContextInvocations.removeAll()
+        XCTAssertEqual(sut.setContextInvocations.count, 0)
+
+        // -- Act --
+        sut.setUser(User(userId: "user1234"))
+        sut.setUser(User(userId: "anotherUser"))
+        sut.setUser(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setUserInvocations.count, 3)
+        XCTAssertEqual(
+            sut.setUserInvocations.invocations.element(at: 0)??.userId,
+            "user1234"
+        )
+        XCTAssertEqual(sut.setUserInvocations.invocations.element(at: 1)??.userId, "anotherUser")
+        let thirdInvocation = try XCTUnwrap(sut.setUserInvocations.invocations.element(at: 2))
         XCTAssertNil(thirdInvocation)
     }
 

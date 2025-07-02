@@ -390,11 +390,10 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (SentryScopeContextPersistentStore *)
-    scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryScopePersistentStore *)scopePersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
-        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+    SENTRY_LAZY_INIT(_scopePersistentStore,
+        [[SentryScopePersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -416,7 +415,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         initWithBreadcrumbProcessor:
             [self
                 getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                   contextProcessor:self.watchdogTerminationContextProcessor];
+                    fieldsProcessor:self.watchdogTerminationProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -429,16 +428,16 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)
-    watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryWatchdogTerminationFieldsProcessor *)
+    watchdogTerminationProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
-        [[SentryWatchdogTerminationContextProcessor alloc]
+    SENTRY_LAZY_INIT(_watchdogTerminationProcessor,
+        [[SentryWatchdogTerminationFieldsProcessor alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
-                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.fields-processor"
                       relativePriority:0]
-                       scopeContextStore:self.scopeContextPersistentStore])
+                    scopePersistentStore:self.scopePersistentStore])
 }
 #endif
 
