@@ -24,6 +24,8 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
             ]
         ]
         let user: User = User(userId: "123")
+        let dist = "1.0.0"
+        let env = "prod"
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -158,6 +160,54 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.attributesProcessor.setUserInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationContext, user)
+    }
+    
+    func testSetDist_whenDistIsNil_shouldCallAttributesProcessorSetDist() throws {
+        // -- Act --
+        sut.setDist(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setDistInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setDistInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetDist_whenDistIsDefined_shouldCallAttributesProcessorSetDist() throws {
+        // -- Arrange --
+        let dist = fixture.dist
+
+        // -- Act --
+        sut.setDist(dist)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setDistInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setDistInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, dist)
+    }
+    
+    func testSetEnvironment_whenEnvironmentIsNil_shouldCallAttributesProcessorSetEnvironment() throws {
+        // -- Act --
+        sut.setEnvironment(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setEnvironmentInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetEnvironment_whenEnvironmentIsDefined_shouldCallAttributesProcessorSetEnvironment() throws {
+        // -- Arrange --
+        let env = fixture.env
+
+        // -- Act --
+        sut.setEnvironment(env)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setEnvironmentInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, env)
     }
 }
 
