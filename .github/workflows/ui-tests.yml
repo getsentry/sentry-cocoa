@@ -40,7 +40,7 @@ jobs:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: 16.4
       build_with_make: true
-      macos_version: macos-14
+      macos_version: macos-15
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:

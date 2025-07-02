@@ -56,8 +56,7 @@ jobs:
   build-xcframework-variant-slices:
     name: ${{matrix.sdk}}
 
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
-    # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
+    # can't update to macos-15 until the issues requiring us to use Xcode 15.2 are resolved as described below
     runs-on: macos-14
 
     strategy:
