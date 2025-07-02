@@ -66,9 +66,6 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 // We can either make more extensive changes to allow it to be backwards compatible, or release them as part of a V9 release.
                 // For now we use this flag so that CI can compile the SPM version.
                     .define("SENTRY_SWIFT_PACKAGE")
-            ],
-            linkerSettings: [
-                .unsafeFlags(["-Xlinker", "-application_extension"])
             ]),
         .target(
             name: "SentryObjc",
