@@ -61,9 +61,6 @@ jobs:
       - run: make init-ci-build
       - run: make xcode-ci
 
-      - name: Boot simulator
-        run: ./scripts/ci-boot-simulator.sh
-
       - name: Run SwiftUI Crash Test
         run: |
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
