@@ -46,7 +46,6 @@
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
-#    import <SentryScreenshot.h>
 #    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
@@ -80,6 +79,9 @@
 
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
+
+@interface SentryFileManager () <SentryFileManagerProtocol>
+@end
 
 @interface SentryDependencyContainer ()
 
@@ -208,7 +210,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
-- (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;

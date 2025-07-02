@@ -18,6 +18,7 @@ on:
       - "Samples/iOS-Swift/**"
       - "Samples/iOS-Swift6/**"
       - "Samples/SentrySampleShared/**"
+      - "Samples/Shared/**"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
@@ -47,9 +48,10 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
+      fastlane_command_extra_arguments: device:"iPhone 16 (18.5)"
 
   ui-tests-swift:
     name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests

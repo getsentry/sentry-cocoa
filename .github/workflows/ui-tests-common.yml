@@ -56,7 +56,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh ${{ inputs.xcode_version }}
+      - name: Select Xcode version
+        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+        env:
+          XCODE_VERSION: ${{ inputs.xcode_version }}
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
@@ -80,7 +83,15 @@ jobs:
           unzip -o Carthage/Sentry.xcframework.zip -d Carthage/
 
       - name: Run Fastlane
-        run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
+        env:
+          FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
+          FASTLANE_EXTRA_ARGS: ${{ inputs.fastlane_command_extra_arguments }}
+        run: |
+          if [ -n "$FASTLANE_EXTRA_ARGS" ]; then
+            bundle exec fastlane "$FASTLANE_COMMAND" "$FASTLANE_EXTRA_ARGS"
+          else
+            bundle exec fastlane "$FASTLANE_COMMAND"
+          fi
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1

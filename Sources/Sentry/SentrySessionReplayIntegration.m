@@ -32,6 +32,10 @@ static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
 static NSString *SENTRY_LAST_REPLAY = @"replay.last";
 
+@interface SentryDisplayLinkWrapper (Replay) <SentryReplayDisplayLinkWrapper>
+
+@end
+
 /**
  * We need to use this from the swizzled block
  * and using an instance property would hold reference
@@ -420,9 +424,12 @@ static SentryTouchTracker *_touchTracker;
                          options:replayOptions];
 }
 
-- (NSURL *)replayDirectory
+- (nullable NSURL *)replayDirectory
 {
     NSString *sentryPath = [SentryDependencyContainer.sharedInstance.fileManager sentryPath];
+    if (!sentryPath) {
+        return nil;
+    }
     NSURL *dir = [NSURL fileURLWithPath:sentryPath];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }

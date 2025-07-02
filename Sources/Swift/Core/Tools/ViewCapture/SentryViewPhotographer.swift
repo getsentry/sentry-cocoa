@@ -60,22 +60,22 @@ import UIKit
     }
 
     @objc(addIgnoreClasses:)
-    func addIgnoreClasses(classes: [AnyClass]) {
+    public func addIgnoreClasses(classes: [AnyClass]) {
         redactBuilder.addIgnoreClasses(classes)
     }
 
     @objc(addRedactClasses:)
-    func addRedactClasses(classes: [AnyClass]) {
+    public func addRedactClasses(classes: [AnyClass]) {
         redactBuilder.addRedactClasses(classes)
     }
 
     @objc(setIgnoreContainerClass:)
-    func setIgnoreContainerClass(_ containerClass: AnyClass) {
+    public func setIgnoreContainerClass(_ containerClass: AnyClass) {
         redactBuilder.setIgnoreContainerClass(containerClass)
     }
 
     @objc(setRedactContainerClass:)
-    func setRedactContainerClass(_ containerClass: AnyClass) {
+    public func setRedactContainerClass(_ containerClass: AnyClass) {
         redactBuilder.setRedactContainerClass(containerClass)
     }
 

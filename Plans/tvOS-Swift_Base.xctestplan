@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
+    "codeCoverage" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:tvOS-Swift.xcodeproj",
       "identifier" : "7BA61D61247FA32600C130A8",
@@ -21,7 +21,7 @@
     {
       "target" : {
         "containerPath" : "container:tvOS-Swift.xcodeproj",
-        "identifier" : "7B64388526A6C71A000D0F65",
+        "identifier" : "1A9FD4374E53BEB8AC621B3D",
         "name" : "tvOS-Swift-UITests"
       }
     }
