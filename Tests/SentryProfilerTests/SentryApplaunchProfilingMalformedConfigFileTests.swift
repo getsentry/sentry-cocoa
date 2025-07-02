@@ -19,21 +19,16 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let corruptedData = Data("this is not a valid plist file {[}".utf8)
         try corruptedData.write(to: configURL)
 
-        // Verify file exists before the call
         XCTAssertTrue(appLaunchProfileConfigFileExists())
 
-        // Verify that sentry_appLaunchProfileConfiguration returns nil for corrupted file
         XCTAssertNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -49,19 +44,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -77,19 +68,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -105,19 +92,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -133,19 +116,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -161,19 +140,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -189,19 +164,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -217,19 +188,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -240,19 +207,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
-
-        // Verify that the config file was removed (because profilesRate is nil)
+ (because profilesRate is nil)
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
@@ -270,19 +233,15 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // Verify file exists and is readable
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
 
-        // Call _sentry_nondeduplicated_startLaunchProfile
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Verify that profiling didn't start
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
-        // Verify that the config file was removed
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 }
