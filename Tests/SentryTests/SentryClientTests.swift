@@ -41,6 +41,16 @@ class SentryClientTest: XCTestCase {
         
         let feedback = SentryFeedback(message: "A test message", name: "Abe Tester", email: "abe.tester@sentry.io", source: .custom, associatedEventId: SentryId())
         
+        let testLog = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .info,
+            body: "Test log message",
+            attributes: [
+                "user_id": .string("12345"),
+                "is_active": .boolean(true)
+            ]
+        )
+        
         init() throws {
             session = SentrySession(releaseName: "release", distinctId: "some-id")
             session.incrementErrors()
@@ -2126,6 +2136,66 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
     }
 #endif // os(macOS)
+    
+    // MARK: - Capture Logs Tests
+    
+    func testCaptureLog() throws {
+        let sut = fixture.getSut()
+        
+        sut.capture(log: fixture.testLog, with: fixture.scope)
+        
+        XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
+        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
+        
+        // Verify envelope structure
+        XCTAssertEqual(1, envelope.items.count)
+        let item = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual("log", item.header.type)
+        XCTAssertEqual("application/vnd.sentry.items.log+json", item.header.contentType)
+        XCTAssertEqual(1, item.header.itemCount?.intValue)
+        
+        // Verify log payload
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: item.data) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        
+        let logData = try XCTUnwrap(items.first)
+        XCTAssertEqual(1_627_846_800.0, logData["timestamp"] as? TimeInterval)
+        XCTAssertEqual("info", logData["level"] as? String)
+        XCTAssertEqual("Test log message", logData["body"] as? String)
+        
+        // Verify attributes are correctly serialized
+        let attributes = try XCTUnwrap(logData["attributes"] as? [String: [String: Any]])
+        XCTAssertEqual(2, attributes.count)
+        
+        // Verify user_id attribute
+        let userIdAttribute = try XCTUnwrap(attributes["user_id"])
+        XCTAssertEqual("string", userIdAttribute["type"] as? String)
+        XCTAssertEqual("12345", userIdAttribute["value"] as? String)
+        
+        // Verify is_active attribute
+        let isActiveAttribute = try XCTUnwrap(attributes["is_active"])
+        XCTAssertEqual("boolean", isActiveAttribute["type"] as? String)
+        XCTAssertEqual(true, isActiveAttribute["value"] as? Bool)
+    }
+    
+    func testCaptureLogWithDisabledClient() {
+        let sut = fixture.getSutDisabledSdk()
+        
+        sut.capture(log: fixture.testLog, with: fixture.scope)
+        
+        // Should not send envelope when client is disabled
+        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
+    }
+    
+    func testCaptureLogWithNoDsn() {
+        let sut = fixture.getSutWithNoDsn()
+        
+        sut.capture(log: fixture.testLog, with: fixture.scope)
+        
+        // Should not send envelope when no DSN is configured
+        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
+    }
 }
 
 private extension SentryClientTest {

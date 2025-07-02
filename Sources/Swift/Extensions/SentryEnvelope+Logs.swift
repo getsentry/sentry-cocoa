@@ -1,5 +1,4 @@
 import Foundation
-@_implementationOnly import _SentryPrivate
 
 extension SentryEnvelope {
     
@@ -13,7 +12,8 @@ extension SentryEnvelope {
             contentType: "application/vnd.sentry.items.log+json",
             itemCount: NSNumber(value: logs.count)
         )
+        // TODO: Add SDKInfo to header...
         let envelopeItem = SentryEnvelopeItem(header: header, data: data)
         self.init(id: nil, singleItem: envelopeItem)
     }
-} 
+}
