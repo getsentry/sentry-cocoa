@@ -25,7 +25,7 @@ struct ContentView: View {
                     errorMessage = nil // Clear any previous error
                     try writeCorruptedEnvelope()
                 } catch let error as WriteCorruptedEnvelopeError {
-                    errorMessage = error.message
+                    errorMessage = error.description
                 } catch {
                     errorMessage = "Unknown error: \(error)"
                 }
@@ -50,13 +50,25 @@ private func startSDK() {
     SentrySDK.start(options: sentryOptions)
 }
 
-struct WriteCorruptedEnvelopeError: Error {
-    let message: String
+enum WriteCorruptedEnvelopeError: Error {
+  case dsn
+  case write(String)
+}
+
+extension WriteCorruptedEnvelopeError: CustomStringConvertible {
+  var description: String {
+    switch self {
+      case .dsn:
+        return "DSN hash is not available"
+      case .write(let s):
+        return s
+   }
+  }
 }
 
 private func writeCorruptedEnvelope() throws {
     guard let dsnHash = sentryOptions.parsedDsn?.getHash() else {
-        throw WriteCorruptedEnvelopeError(message: "DSN hash is not available")
+        throw WriteCorruptedEnvelopeError.dsn
     }
 
     let envelopeFolder = "\(sentryOptions.cacheDirectoryPath)/io.sentry/\(dsnHash)/envelopes"
@@ -71,7 +83,7 @@ private func writeCorruptedEnvelope() throws {
         try fileManager.createDirectory(atPath: envelopeFolder, withIntermediateDirectories: true)
         try corruptedEnvelopeData.write(to: URL(fileURLWithPath: envelopePath), options: .atomic)
     } catch {
-        throw WriteCorruptedEnvelopeError(message: "Error while writing corrupted envelope to: \(envelopePath) error: \(error)")
+        throw WriteCorruptedEnvelopeError.write("Error while writing corrupted envelope to: \(envelopePath) error: \(error)")
     }
 }
 
