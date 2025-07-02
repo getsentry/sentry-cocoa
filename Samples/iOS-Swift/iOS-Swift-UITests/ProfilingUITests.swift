@@ -199,7 +199,7 @@ extension ProfilingUITests {
         
         setAppLaunchParameters(profileType, lifecycle, shouldProfileNextLaunch)
 
-        launchApp()
+        launchApp(activateBeforeLaunch: false)
         goToProfiling()
 
         let configFileExists = try checkLaunchProfileMarkerFileExistence()
