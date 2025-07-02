@@ -343,7 +343,7 @@ class SentryEnvelopeTests: XCTestCase {
         )
         let logs = [log1, log2]
         
-        let envelope = SentryEnvelope(logs: logs)
+        let envelope = try SentryEnvelope(logs: logs)
         
         let unwrappedEnvelope = try XCTUnwrap(envelope)
         XCTAssertNil(unwrappedEnvelope.header.eventId)
@@ -373,14 +373,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(1627846801, secondLog["timestamp"] as? TimeInterval)
         XCTAssertEqual("error", secondLog["level"] as? String)
         XCTAssertEqual("This is an error log", secondLog["body"] as? String)
-    }
-    
-    func testInitWithEmptyLogs() {
-        // Act
-        let envelope = SentryEnvelope(logs: [])
-        
-        // Assert
-        XCTAssertNil(envelope)
     }
 
     private func assertEventDoesNotContainContext(_ json: String) {

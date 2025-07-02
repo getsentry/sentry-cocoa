@@ -3,25 +3,17 @@ import Foundation
 
 extension SentryEnvelope {
     
-    convenience init?(logs: [SentryLog]) {
-        guard !logs.isEmpty else { return nil }
-        
+    convenience init(logs: [SentryLog]) throws {
         let payload = ["items": logs]
+        let data = try encodeToJSONData(data: payload)
         
-        do {
-            let data = try encodeToJSONData(data: payload)
-            
-            let header = SentryEnvelopeItemHeader(
-                type: "log",
-                length: UInt(data.count),
-                contentType: "application/vnd.sentry.items.log+json",
-                itemCount: NSNumber(value: logs.count)
-            )
-            let item = SentryEnvelopeItem(header: header, data: data)
-            print(item)
-            self.init(id: nil, singleItem: item)
-        } catch {
-            return nil
-        }
+        let header = SentryEnvelopeItemHeader(
+            type: "log",
+            length: UInt(data.count),
+            contentType: "application/vnd.sentry.items.log+json",
+            itemCount: NSNumber(value: logs.count)
+        )
+        let envelopeItem = SentryEnvelopeItem(header: header, data: data)
+        self.init(id: nil, singleItem: envelopeItem)
     }
 } 
