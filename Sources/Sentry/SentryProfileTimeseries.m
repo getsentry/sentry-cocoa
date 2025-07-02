@@ -13,7 +13,6 @@
 #    endif // SENTRY_HAS_UIKIT
 #    import "SentrySwift.h"
 
-namespace {
 /**
  * Print a debug log to help diagnose slicing errors.
  * @param start @c YES if this is an attempt to find the start of the sliced data based on the
@@ -33,10 +32,10 @@ _sentry_logSlicingFailureWithArray(
         return;
     }
 
-    const auto firstSampleAbsoluteTime = array.firstObject.absoluteTimestamp;
-    const auto lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
-    const auto firstSampleRelativeToTransactionStart = firstSampleAbsoluteTime - startSystemTime;
-    const auto lastSampleRelativeToTransactionStart = lastSampleAbsoluteTime - startSystemTime;
+    uint64_t firstSampleAbsoluteTime = array.firstObject.absoluteTimestamp;
+    uint64_t lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
+    uint64_t firstSampleRelativeToTransactionStart = firstSampleAbsoluteTime - startSystemTime;
+    uint64_t lastSampleRelativeToTransactionStart = lastSampleAbsoluteTime - startSystemTime;
     SENTRY_LOG_DEBUG(@"[slice %@] Could not find any%@ sample taken during the transaction "
                      @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
                      @"%llu; first sample relative to transaction start: %lld; last: %lld).",
@@ -44,8 +43,6 @@ _sentry_logSlicingFailureWithArray(
         lastSampleAbsoluteTime, startSystemTime, endSystemTime,
         firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
-
-} // namespace
 
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime)
@@ -56,7 +53,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
 
     SENTRY_LOG_DEBUG(@"Finding relevant samples from %lu total.", (unsigned long)samples.count);
 
-    const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
+    NSUInteger firstIndex = [samples indexOfObjectPassingTest:^BOOL(
         SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         *stop = sample.absoluteTimestamp >= startSystemTime;
         return *stop;
@@ -69,7 +66,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
-    const auto lastIndex =
+    NSUInteger lastIndex =
         [samples indexOfObjectWithOptions:NSEnumerationReverse
                               passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
                                   BOOL *_Nonnull stop) {
@@ -84,8 +81,8 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
         SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
     }
 
-    const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
-    const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
+    NSRange range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
+    NSIndexSet *indices = [NSIndexSet indexSetWithIndexesInRange:range];
     return [samples objectsAtIndexes:indices];
 }
 
@@ -94,11 +91,12 @@ NSArray<SentrySerializedMetricEntry *> *
 sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
     uint64_t endSystemTime, BOOL useMostRecentRecording)
 {
-    auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    NSMutableArray<SentrySerializedMetricEntry *> *slicedGPUEntries =
+        [NSMutableArray<SentrySerializedMetricEntry *> array];
     __block NSNumber *nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
+        unsigned long long timestamp = obj[@"timestamp"].unsignedLongLongValue;
 
         if (!orderedChronologically(startSystemTime, timestamp)) {
             SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
@@ -112,7 +110,7 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
             SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
             return;
         }
-        const auto relativeTimestamp = getDurationNs(startSystemTime, timestamp);
+        uint64_t relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
