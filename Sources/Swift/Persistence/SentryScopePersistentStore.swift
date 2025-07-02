@@ -6,6 +6,8 @@ enum SentryScopeField: UInt, CaseIterable {
     case user
     case dist
     case environment
+    case traceContext
+    case tags
     
     var name: String {
         switch self {
@@ -17,6 +19,10 @@ enum SentryScopeField: UInt, CaseIterable {
             return "dist"
         case .environment:
             return "environment"
+        case .tags:
+            return "tags"
+        case .traceContext:
+            return "trace_context"
         }
     }
 }
@@ -110,6 +116,30 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeEnvironmentToDisk(environment: String) {
         writeFieldToDisk(field: .environment, data: encode(string: environment))
+    }
+    
+    // MARK: - Tags
+    @objc
+    public func readPreviousTagsFromDisk() -> [String: String]? {
+        readFieldFromDisk(field: .tags) { data in
+            decodeTags(from: data)
+        }
+    }
+    
+    func writeTagsToDisk(tags: [String: String]) {
+        writeFieldToDisk(field: .tags, data: encode(tags: tags))
+    }
+    
+    // MARK: - Trace Context
+    @objc
+    public func readPreviousTraceContextFromDisk() -> [String: Any]? {
+        readFieldFromDisk(field: .traceContext) { data in
+            decodeTraceContext(from: data)
+        }
+    }
+    
+    func writeTraceContextToDisk(traceContext: [String: Any]) {
+        writeFieldToDisk(field: .traceContext, data: encode(traceContext: traceContext))
     }
     
     // MARK: - Private Functions
@@ -245,5 +275,77 @@ extension SentryScopePersistentStore {
     
     private func decodeString(from data: Data) -> String? {
         return String(data: data, encoding: .utf8)
+    }
+}
+
+// MARK: - Tags
+extension SentryScopePersistentStore {
+    private func encode(tags: [String: String]) -> Data? {
+        // We need to check if the Tags is a valid JSON object before encoding it.
+        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
+        // The error handler is required due but seems not to be executed.
+        guard let sanitizedTags = sentry_sanitize(tags) else {
+            SentrySDKLog.error("Failed to sanitize tags, reason: tags is not valid json: \(tags)")
+            return nil
+        }
+        guard let data = SentrySerialization.data(withJSONObject: sanitizedTags) else {
+            SentrySDKLog.error("Failed to serialize tags, reason: tags is not valid json: \(tags)")
+            return nil
+        }
+        
+        return data
+    }
+    
+    private func decodeTags(from data: Data) -> [String: String]? {
+        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
+            SentrySDKLog.error("Failed to deserialize tags, reason: data is not valid json")
+            return nil
+        }
+
+        // `SentrySerialization` is a wrapper around `NSJSONSerialization` which returns any type of data (`id`).
+        // It is the casted to a `NSDictionary`, which is then casted to a `[AnyHashable: Any]` in Swift.
+        //
+        // The responsibility of validating and casting the deserialized data from any data to a dictionary is delegated
+        // to the `SentrySerialization` class.
+        //
+        // As this decode Tags method specifically returns a dictionary of strings, we need to ensure that
+        // each value is a string.
+        //
+        // If the deserialized value is not a string, something clearly went wrong and we should discard the data.
+
+        // Iterate through the deserialized dictionary and check if the type is a dictionary.
+        // When all values are strings, we can safely cast it to `[String: String]` without allocating
+        // additional memory (like when mapping values).
+        for (key, value) in deserialized {
+            guard value is String else {
+                SentrySDKLog.error("Failed to deserialize tags, reason: value for key \(key) is not a valid string")
+                return nil
+            }
+        }
+
+        return deserialized as? [String: String]
+    }
+}
+
+// MARK: - Trace Context
+extension SentryScopePersistentStore {
+    private func encode(traceContext: [String: Any]) -> Data? {
+        guard let sanitized = sentry_sanitize(traceContext) else {
+            SentrySDKLog.error("Failed to sanitize traceContext, reason: not valid json: \(traceContext)")
+            return nil
+        }
+        guard let data = SentrySerialization.data(withJSONObject: sanitized) else {
+            SentrySDKLog.error("Failed to serialize traceContext, reason: not valid json: \(traceContext)")
+            return nil
+        }
+        return data
+    }
+    
+    private func decodeTraceContext(from data: Data) -> [String: Any]? {
+        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
+            SentrySDKLog.error("Failed to deserialize traceContext, reason: data is not valid json")
+            return nil
+        }
+        return deserialized as? [String: Any]
     }
 }

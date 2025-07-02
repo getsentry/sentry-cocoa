@@ -1085,6 +1085,67 @@ class SentrySDKTests: XCTestCase {
         let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
         XCTAssertEqual(result, "prod-string")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
+        // -- Arrange --
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
+        observer.setTags(["tag1": "value1", "tag2": "value2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTags completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous tags file if it exists
+        scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousTags = scopePersistentStore.readPreviousTagsFromDisk()
+        XCTAssertNil(previousTags)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousTagsFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["tag1"], "value1")
+        XCTAssertEqual(result["tag2"], "value2")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentTraceContextFileToPreviousFile() throws {
+        // -- Arrange --
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
+        observer.setTraceContext(["trace_id": "1234567890", "span_id": "abcdef", "sampled": "true"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTraceContext completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous trace context file if it exists
+        scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousTraceContext = scopePersistentStore.readPreviousTraceContextFromDisk()
+        XCTAssertNil(previousTraceContext)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousTraceContextFromDisk())
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(result["trace_id"] as? String, "1234567890")
+        XCTAssertEqual(result["span_id"] as? String, "abcdef")
+        XCTAssertEqual(result["sampled"] as? String, "true")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)

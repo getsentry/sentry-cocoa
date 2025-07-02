@@ -40,6 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
 
+/**
+ * Set global tags -> these will be sent with every event
+ */
+@property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
+
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
 - (nullable SentryEvent *)applyToEvent:(SentryEvent *)event

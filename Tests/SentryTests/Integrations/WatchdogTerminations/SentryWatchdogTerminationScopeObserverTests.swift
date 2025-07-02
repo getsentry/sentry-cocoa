@@ -26,6 +26,11 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let user: User = User(userId: "123")
         let dist = "1.0.0"
         let env = "prod"
+        let tags = ["tag1": "value1"]
+        let traceContext: [String: Any] = [
+            "span_id": "1234567890abcdef",
+            "trace_id": "1234567890abcdef"
+        ]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -208,6 +213,54 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationContext, env)
+    }
+    
+    func testSetTags_whenTagsIsNil_shouldCallFieldsProcessorSetTags() throws {
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.fieldsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.fieldsProcessor.setTagsInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTags_whenTagsIsDefined_shouldCallFieldsProcessorSetTags() throws {
+        // -- Arrange --
+        let tags = fixture.tags
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.fieldsProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.fieldsProcessor.setTagsInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, tags)
+    }
+    
+    func testSetTraceContext_whenTraceContextIsNil_shouldCallFieldsProcessorSetTraceContext() throws {
+        // -- Act --
+        sut.setTraceContext(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.fieldsProcessor.setTraceContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.fieldsProcessor.setTraceContextInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTraceContext_whenTraceContextIsDefined_shouldCallFieldsProcessorSetTraceContext() throws {
+        // -- Arrange --
+        let traceContext = fixture.traceContext
+
+        // -- Act --
+        sut.setTraceContext(traceContext)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.fieldsProcessor.setTraceContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.fieldsProcessor.setTraceContextInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: traceContext))
     }
 }
 
