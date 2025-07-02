@@ -51,5 +51,9 @@ Pod::Spec.new do |s|
 
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
+
+      sp.pod_target_xcconfig = {
+          'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES'
+      }
   end
 end
