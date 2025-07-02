@@ -122,6 +122,7 @@
                     uiForm.useSentryUser = YES;
                 };
                 config.configureTheme = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
+                    theme.fontFamily = @"ChalkboardSE-Regular";
                     theme.outlineStyle =
                         [[SentryFormElementOutlineStyle alloc] initWithColor:UIColor.purpleColor
                                                                 cornerRadius:10
