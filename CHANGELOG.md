@@ -11,6 +11,7 @@
 ### Improvements
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
+- Fix crash when capturing events at the same time `bindClient:nil` is called from a different thread (#5523)
 
 ## 8.53.1
 
