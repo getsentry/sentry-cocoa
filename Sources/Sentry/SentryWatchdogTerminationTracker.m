@@ -58,6 +58,8 @@
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
             event.user = [self.scopePersistentStore readPreviousUserFromDisk];
+            event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
+            event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
