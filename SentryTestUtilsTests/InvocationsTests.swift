@@ -205,7 +205,5 @@ final class InvocationsTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(sut.invocations.isEmpty)
-
     }
-
 }
