@@ -215,7 +215,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
- (because profilesRate is nil)
+
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
