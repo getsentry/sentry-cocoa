@@ -1033,6 +1033,62 @@ class SentrySDKTests: XCTestCase {
         let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousUserFromDisk())
         XCTAssertEqual(result.userId, "user1234")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentDistFileToPreviousFile() throws {
+        // -- Arrange --
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
+        observer.setDist("dist-string")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setDist completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous context file if it exists
+        scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = scopePersistentStore.readPreviousDistFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousDistFromDisk())
+        XCTAssertEqual(result, "dist-string")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
+        // -- Arrange --
+        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
+        
+        observer.setEnvironment("prod-string")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setEnvironment completes")
+        dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous context file if it exists
+        scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = scopePersistentStore.readPreviousEnvironmentFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(scopePersistentStore.readPreviousEnvironmentFromDisk())
+        XCTAssertEqual(result, "prod-string")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)

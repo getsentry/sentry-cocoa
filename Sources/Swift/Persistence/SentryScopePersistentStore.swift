@@ -109,7 +109,7 @@ enum SentryScopeField: UInt, CaseIterable {
     }
     
     func writeEnvironmentToDisk(environment: String) {
-        writeFieldToDisk(field: .user, data: encode(string: environment))
+        writeFieldToDisk(field: .environment, data: encode(string: environment))
     }
     
     // MARK: - Private Functions
