@@ -210,7 +210,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
-- (SentryLogger *)logger
+- (SentryLogger *)logger SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_logger, ({
         _logger = [[SentryLogger alloc] initWithHub: SentrySDK.currentHub
@@ -218,7 +218,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     }));
 }
 
-- (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;

@@ -105,7 +105,7 @@ SENTRY_NO_INIT
 
 #pragma mark - Lazy Dependencies
 
-@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;

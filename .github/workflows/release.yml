@@ -228,7 +228,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
-        uses: getsentry/action-app-sdk-overhead-metrics@v1
+        uses: getsentry/action-app-sdk-overhead-metrics@c9eca50e02d180ee07a02952c062b2f3f545f735
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
