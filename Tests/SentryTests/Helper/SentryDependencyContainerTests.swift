@@ -119,6 +119,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().logger)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -334,5 +335,58 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
         XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
         XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
-    }    
+    }
+
+    func testLogger_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let logger1 = container.logger
+        let logger2 = container.logger
+
+        // -- Assert --
+        XCTAssertIdentical(logger1, logger2)
+    }
+
+    func testLogger_shouldUseDependenciesFromContainer() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let logger = container.logger
+
+        // -- Assert --
+        // Verify that the logger uses the hub from the SDK
+        XCTAssertIdentical(logger.dateProvider, container.dateProvider)
+        XCTAssertIdentical(logger.hub, SentrySDK.currentHub())
+    }
+
+    func testLogger_shouldCreateNewInstanceAfterReset() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(options)
+        
+        let container = SentryDependencyContainer.sharedInstance()
+        let logger1 = container.logger
+
+        // -- Act --
+        SentryDependencyContainer.reset()
+        let newContainer = SentryDependencyContainer.sharedInstance()
+        let logger2 = newContainer.logger
+
+        // -- Assert --
+        XCTAssertNotNil(logger1)
+        XCTAssertNotNil(logger2)
+        XCTAssertNotIdentical(logger1, logger2)
+    }
 }

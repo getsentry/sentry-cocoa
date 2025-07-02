@@ -210,6 +210,14 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
+- (SentryLogger *)logger
+{
+    SENTRY_LAZY_INIT(_logger, ({
+        _logger = [[SentryLogger alloc] initWithHub: SentrySDK.currentHub
+                                       dateProvider: self.dateProvider];
+    }));
+}
+
 - (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({

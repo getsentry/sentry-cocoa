@@ -56,4 +56,9 @@ public class TestHub: SentryHub {
         capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
         onReplayCapture?()
     }
+    
+    public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    public override func capture(log: SentryLog) {
+        captureLogInvocations.record((log, self.scope))
+    }
 }

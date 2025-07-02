@@ -111,6 +111,12 @@ static NSDate *_Nullable startTimestamp = nil;
     return replay;
 }
 #endif
+
++ (SentryLogger *)logger
+{
+    return SentryDependencyContainer.sharedInstance.logger;
+}
+
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {

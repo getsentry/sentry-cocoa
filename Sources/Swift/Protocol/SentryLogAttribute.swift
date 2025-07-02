@@ -23,6 +23,36 @@ extension SentryLog {
             }
         }
         
+        // MARK: - Initializers
+        
+        /// Initializes a SentryLog.Attribute from any value, converting it to the appropriate type
+        init(value: Any) {
+            switch value {
+            case let stringValue as String:
+                self = .string(stringValue)
+            case let boolValue as Bool:
+                self = .boolean(boolValue)
+            case let intValue as Int:
+                self = .integer(intValue)
+            case let doubleValue as Double:
+                self = .double(doubleValue)
+            case let floatValue as Float:
+                self = .double(Double(floatValue))
+            case let cgFloatValue as CGFloat:
+                self = .double(Double(cgFloatValue))
+            case let nsNumberValue as NSNumber:
+                // Handle NSNumber - need to check the underlying type
+                if CFNumberIsFloatType(nsNumberValue) {
+                    self = .double(nsNumberValue.doubleValue)
+                } else {
+                    self = .integer(nsNumberValue.intValue)
+                }
+            default:
+                // For any other type, convert to string representation
+                self = .string(String(describing: value))
+            }
+        }
+        
         private enum CodingKeys: String, CodingKey {
             case value
             case type
