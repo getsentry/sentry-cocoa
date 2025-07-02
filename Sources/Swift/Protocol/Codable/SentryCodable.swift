@@ -1,6 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+func encodeToJSONData<T: Encodable>(data: T) throws -> Data {
+    let jsonEncoder = JSONEncoder()
+    jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    return try jsonEncoder.encode(data)
+}
+
 func decodeFromJSONData<T: Decodable>(jsonData: Data) -> T? {
     if jsonData.isEmpty {
         return nil

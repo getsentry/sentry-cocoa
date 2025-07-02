@@ -1,4 +1,5 @@
 import Foundation
+import Sentry
 import SentrySampleShared
 import SwiftUI
 
@@ -34,6 +35,7 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard !initializedSentry else { return }
         SampleAppDebugMenu.shared.display()
+        SentrySDK.feedback.showWidget()
         initializedSentry = true
     }
 }

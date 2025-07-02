@@ -424,9 +424,12 @@ static SentryTouchTracker *_touchTracker;
                          options:replayOptions];
 }
 
-- (NSURL *)replayDirectory
+- (nullable NSURL *)replayDirectory
 {
     NSString *sentryPath = [SentryDependencyContainer.sharedInstance.fileManager sentryPath];
+    if (!sentryPath) {
+        return nil;
+    }
     NSURL *dir = [NSURL fileURLWithPath:sentryPath];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }
