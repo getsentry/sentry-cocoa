@@ -941,7 +941,7 @@ class SentrySDKTests: XCTestCase {
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopePersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
+        let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
         let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopePersistentStore: scopePersistentStore
@@ -1101,14 +1101,14 @@ private extension SentrySDKTests {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
     
-    func createTestModels() throws -> (Options, TestSentryDispatchQueueWrapper, TestSentryScopeContextPersistentStore, SentryWatchdogTerminationScopeObserver) {
+    func createTestModels() throws -> (Options, TestSentryDispatchQueueWrapper, TestSentryScopePersistentStore, SentryWatchdogTerminationScopeObserver) {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopePersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
+        let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
         let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopePersistentStore: scopePersistentStore

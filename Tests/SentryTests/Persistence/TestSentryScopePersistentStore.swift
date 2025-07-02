@@ -1,7 +1,7 @@
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
 
-class TestSentryScopeContextPersistentStore: SentryScopePersistentStore {
+class TestSentryScopePersistentStore: SentryScopePersistentStore {
     let moveAllCurrentStateToPreviousStateInvocations = Invocations<Void>()
     let writeContextToDiskInvocations = Invocations<[String: [String: Any]]>()
     let writeUserToDiskInvocations = Invocations<User>()

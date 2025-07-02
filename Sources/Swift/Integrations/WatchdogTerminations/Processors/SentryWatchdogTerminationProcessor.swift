@@ -2,41 +2,54 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationContextProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationFieldsProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let scopeContextStore: SentryScopePersistentStore
+    private let scopePersistentStore: SentryScopePersistentStore
 
     public init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
-        scopeContextStore: SentryScopePersistentStore
+        scopePersistentStore: SentryScopePersistentStore
     ) {
         self.dispatchQueueWrapper = dispatchQueueWrapper
-        self.scopeContextStore = scopeContextStore
+        self.scopePersistentStore = scopePersistentStore
 
         super.init()
 
         clear()
     }
+    
+    public func clear() {
+        SentrySDKLog.debug("Deleting all stored data in in persistent store")
+        scopePersistentStore.deleteAllCurrentState()
+    }
 
     public func setContext(_ context: [String: [String: Any]]?) {
-        SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let strongSelf = self else {
-                SentrySDKLog.debug("Can not set context, reason: reference to context processor is nil")
-                return
-            }
-            guard let context = context else {
-                SentrySDKLog.debug("Context is nil, deleting active file.")
-                strongSelf.scopeContextStore.deleteContextOnDisk()
-                return
-            }
-            strongSelf.scopeContextStore.writeContextToDisk(context: context)
+        setData(data: context, field: .context) { [weak self] data in
+            self?.scopePersistentStore.writeContextToDisk(context: data)
         }
     }
     
-    public func clear() {
-        SentrySDKLog.debug("Deleting context file in persistent store")
-        scopeContextStore.deleteContextOnDisk()
+    public func setUser(_ user: User?) {
+        setData(data: user, field: .user) { [weak self] data in
+            self?.scopePersistentStore.writeUserToDisk(user: data)
+        }
+    }
+    
+    // MARK: - Private
+    private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
+        SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")
+        dispatchQueueWrapper.dispatchAsync { [weak self] in
+            guard let strongSelf = self else {
+                SentrySDKLog.debug("Can not set \(field.name), reason: reference to processor is nil")
+                return
+            }
+            guard let data = data else {
+                SentrySDKLog.debug("Data is nil, deleting active file.")
+                strongSelf.scopePersistentStore.deleteCurrentFieldOnDisk(field: field)
+                return
+            }
+            save(data)
+        }
     }
 }
