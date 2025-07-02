@@ -63,6 +63,11 @@ take_simulator_screenshot() {
     xcrun simctl io booted screenshot "$screenshot_name" 2>/dev/null || true
 }
 
+# Check if the app is currently running
+is_app_running() {
+    xcrun simctl spawn booted launchctl list | grep "$BUNDLE_ID" >/dev/null 2>&1
+}
+
 log "Removing previous screenshots directory."
 rm -rf "$SCREENSHOTS_DIR"
 
@@ -96,15 +101,19 @@ log "Launching app with expected crash."
 xcrun simctl launch $DEVICE_ID $BUNDLE_ID
 
 # Check every 100ms for 5 seconds if the app is still running.
-for i in {1..50}; do
-    if xcrun simctl listapps $DEVICE_ID | grep "$BUNDLE_ID" | grep -q "Running"; then
-        sleep 0.1
+start_time=$(date +%s)
+while true; do
+    if is_app_running; then
+        log "⏳ App is still running"
     else
-        log "✅ App crashed as expected after $(echo "scale=1; $i * 0.1" | bc) seconds."
+        log "✅ App crashed as expected 🔥 🚀 💥"
         break
     fi
+
+    current_time=$(date +%s)
+    elapsed=$((current_time - start_time))
     
-    if [ "$i" -eq 50 ]; then
+    if [ $elapsed -ge 5 ]; then
         log "❌ App is still running after 5 seconds but it should have crashed instead."
         exit 1
     fi
@@ -118,19 +127,39 @@ log "Removing crash flag..."
 xcrun simctl spawn $DEVICE_ID defaults delete $BUNDLE_ID $USER_DEFAULT_KEY
 
 log "Relaunching app after crash."
-xcrun simctl launch $DEVICE_ID $BUNDLE_ID
+
+# We do this in the background because the command could block indefinitely.
+# Instead, we iterate below to check if the app is running.
+xcrun simctl launch $DEVICE_ID $BUNDLE_ID &
 
 take_simulator_screenshot "after-crash-check"
 
-log "Waiting for 5 seconds to check if the app is still running."
-sleep 5
+# Check for 5 seconds if the app is running.
+start_time=$(date +%s)
+while true; do
+    if is_app_running; then
+        log "⏳ App is still running."
+    else
+        log "❌ App is not running."   
+    fi
+    
+    current_time=$(date +%s)
+    elapsed=$((current_time - start_time))
+    
+    if [ $elapsed -ge 5 ]; then
+        log "✅ Completed checking if app is still running."
+        break
+    fi
+done
 
 take_simulator_screenshot "after-crash-check-after-sleep"
 
-if xcrun simctl spawn booted launchctl list | grep "$BUNDLE_ID"; then
-    log "✅ App is still running"
+log "Checking if app is still running one more time."
+
+if is_app_running; then
+    log "✅ App is still running."
 else
-    log "❌ App is not running"    
+    log "❌ App is not running."    
     exit 1
 fi
 
