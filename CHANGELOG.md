@@ -12,10 +12,6 @@
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
 
-### Improvements
-
-- Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
-
 ## 8.53.1
 
 ### Fixes
