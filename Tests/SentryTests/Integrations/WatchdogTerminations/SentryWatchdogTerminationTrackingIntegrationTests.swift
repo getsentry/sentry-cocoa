@@ -168,15 +168,26 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 1)
+
         fixture.scope.setContext(value: ["key": "value"], key: "foo")
         fixture.scope.setUser(User(userId: "user1234"))
         fixture.scope.setDist("dist-124")
         fixture.scope.setEnvironment("test")
+        fixture.scope.setTags(["tag1": "value1", "tag2": "value2"])
+        fixture.scope.propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -194,6 +205,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 2)
         let envInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.last)
         XCTAssertEqual(envInvocation, "test")
+        XCTAssertEqual(fixture.watchdogTerminationFieldsProcessor.setTagsInvocations.count, 2)
+        let tagsInvocation = try XCTUnwrap(fixture.watchdogTerminationFieldsProcessor.setTagsInvocations.last)
+        XCTAssertEqual(tagsInvocation, ["tag1": "value1", "tag2": "value2"])
+        XCTAssertEqual(fixture.watchdogTerminationFieldsProcessor.setTraceContextInvocations.count, 2)
+        let traceContextInvocation = try XCTUnwrap(fixture.watchdogTerminationFieldsProcessor.setTraceContextInvocations.last)
+        XCTAssertEqual(NSDictionary(dictionary: traceContextInvocation ?? [:]), NSDictionary(dictionary: ["trace_id": "12345678123456781234567812345678", "span_id": "1234567812345678"]))
     }
 
     func testInstallWithOptions_shouldSetCurrentContextOnScopeObserver() throws {
@@ -203,12 +220,16 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         fixture.scope.userObject = User(userId: "user1234")
         fixture.scope.distString = "dist-124"
         fixture.scope.environmentString = "test"
+        fixture.scope.tagDictionary = ["tag1": "value1", "tag2": "value2"]
+        fixture.scope.propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
 
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)

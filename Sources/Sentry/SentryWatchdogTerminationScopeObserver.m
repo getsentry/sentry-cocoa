@@ -79,7 +79,7 @@
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    // Left blank on purpose
+    [self.fieldsProcessor setTags:tags];
 }
 
 - (void)setUser:(nullable SentryUser *)user
@@ -89,7 +89,7 @@
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    // Left blank on purpose
+    [self.fieldsProcessor setTraceContext:traceContext];
 }
 
 @end
