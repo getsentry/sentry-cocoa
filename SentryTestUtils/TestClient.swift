@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import Foundation
 
@@ -143,6 +144,11 @@ public class TestClient: SentryClient {
     public var recordLostEventsWithQauntity = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
     public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
         recordLostEventsWithQauntity.record((category, reason, quantity))
+    }
+    
+    public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    public override func capture(log: SentryLog, scope: Scope) {
+        captureLogInvocations.record((log, scope))
     }
     
     public var flushInvocations = Invocations<TimeInterval>()

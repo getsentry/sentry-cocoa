@@ -1,4 +1,7 @@
-struct SentryLog: Codable {
+import Foundation
+
+@objc
+final class SentryLog: NSObject, Codable {
     let timestamp: Date
     var traceId: SentryId
     let level: SentryLog.Level
@@ -31,27 +34,21 @@ struct SentryLog: Codable {
         self.body = body
         self.attributes = attributes
         self.severityNumber = severityNumber
+        super.init()
     }
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let timestamp = try container.decode(Date.self, forKey: .timestamp)
+        self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         let traceIdString = try container.decode(String.self, forKey: .traceId)
-        let traceId = SentryId(uuidString: traceIdString)
-        let level = try container.decode(SentryLog.Level.self, forKey: .level)
-        let body = try container.decode(String.self, forKey: .body)
-        let attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
-        let severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
+        self.traceId = SentryId(uuidString: traceIdString)
+        self.level = try container.decode(SentryLog.Level.self, forKey: .level)
+        self.body = try container.decode(String.self, forKey: .body)
+        self.attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
+        self.severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
         
-        self.init(
-            timestamp: timestamp,
-            traceId: traceId,
-            level: level,
-            body: body,
-            attributes: attributes,
-            severityNumber: severityNumber
-        )
+        super.init()
     }
     
     func encode(to encoder: any Encoder) throws {

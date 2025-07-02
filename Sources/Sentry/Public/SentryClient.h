@@ -14,6 +14,7 @@
 @class SentryScope;
 @class SentryTransaction;
 @class SentryUserFeedback;
+@class SentryLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -94,6 +95,19 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
+
+/**
+ * Captures a log and sends it to Sentry.
+ * @param log The log to send to Sentry.
+ */
+- (void)captureLog:(SentryLog *)log NS_SWIFT_NAME(capture(log:));
+
+/**
+ * Captures a log and sends it to Sentry.
+ * @param log The log to send to Sentry.
+ * @param scope The scope containing event metadata.
+ */
+- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
 
 /**
  * Captures a manually created user feedback and sends it to Sentry.

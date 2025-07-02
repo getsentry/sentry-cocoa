@@ -556,6 +556,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureLog:(SentryLog *)log
+{
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client captureLog:log withScope:self.scope];
+    }
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];

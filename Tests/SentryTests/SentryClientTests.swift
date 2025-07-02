@@ -2142,7 +2142,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureLog() throws {
         let sut = fixture.getSut()
         
-        sut.capture(log: fixture.testLog, with: fixture.scope)
+        sut.capture(log: fixture.testLog, scope: fixture.scope)
         
         XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
         let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
@@ -2182,7 +2182,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureLogWithDisabledClient() {
         let sut = fixture.getSutDisabledSdk()
         
-        sut.capture(log: fixture.testLog, with: fixture.scope)
+        sut.capture(log: fixture.testLog, scope: fixture.scope)
         
         // Should not send envelope when client is disabled
         XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
@@ -2191,7 +2191,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureLogWithNoDsn() {
         let sut = fixture.getSutWithNoDsn()
         
-        sut.capture(log: fixture.testLog, with: fixture.scope)
+        sut.capture(log: fixture.testLog, scope: fixture.scope)
         
         // Should not send envelope when no DSN is configured
         XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
