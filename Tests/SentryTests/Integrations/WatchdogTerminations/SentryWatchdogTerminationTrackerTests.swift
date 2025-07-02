@@ -318,8 +318,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
         let testUser = TestData.user
         let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
+        let dist = "1.0.0"
+        let env = "development"
         sentryWatchdogTerminationScopeObserver.setUser(testUser)
         sentryWatchdogTerminationScopeObserver.setContext(testContext)
+        sentryWatchdogTerminationScopeObserver.setDist(dist)
+        sentryWatchdogTerminationScopeObserver.setEnvironment(env)
 
         sut.start()
         goToForeground()
@@ -335,6 +339,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(fatalEvent?.user?.email, testUser.email)
         XCTAssertEqual(fatalEvent?.user?.username, testUser.username)
         XCTAssertEqual(fatalEvent?.user?.name, testUser.name)
+        
+        XCTAssertEqual(fatalEvent?.dist, dist)
+        XCTAssertEqual(fatalEvent?.environment, env)
 
         // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
         let eventContext = fatalEvent?.context
