@@ -7,6 +7,8 @@
 class TestSentryWatchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor {
     var setContextInvocations = Invocations<[String: [String: Any]]?>()
     var setUserInvocations = Invocations<User?>()
+    var setDistInvocations = Invocations<String?>()
+    var setEnvironmentInvocations = Invocations<String?>()
     var clearInvocations = Invocations<Void>()
 
     override func setContext(_ context: [String: [String: Any]]?) {
@@ -15,6 +17,14 @@ class TestSentryWatchdogTerminationAttributesProcessor: SentryWatchdogTerminatio
     
     override func setUser(_ user: User?) {
         setUserInvocations.record(user)
+    }
+    
+    override func setDist(_ dist: String?) {
+        setDistInvocations.record(dist)
+    }
+    
+    override func setEnvironment(_ environment: String?) {
+        setEnvironmentInvocations.record(environment)
     }
 
     override func clear() {

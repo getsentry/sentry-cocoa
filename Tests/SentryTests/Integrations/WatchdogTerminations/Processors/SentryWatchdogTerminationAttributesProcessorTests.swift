@@ -42,6 +42,10 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
            user.data = ["invalid_key": Double.infinity]
            return user
        }()
+       
+       let dist: String = "1.0.0"
+       
+       let env: String = "test"
 
        init() throws {
            let options = Options()
@@ -278,6 +282,132 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        let writtenData = try Data(contentsOf: fixture.scopePersistentStore.currentFileURLFor(field: .user))
        XCTAssertEqual(writtenData, data)
    }
+    
+    // MARK: - Dist Tests
+
+    func testSetDist_whenDistIsValid_shouldDispatchToQueue() {
+        // -- Act --
+        sut.setDist(fixture.dist)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+    }
+
+    func testSetDist_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+        // The processor is dispatching the file operation on a background queue.
+        // This tests checks that the dispatch block is not keeping a strong reference to the
+        // processor and causes a retain cycle.
+
+        // -- Arrange --
+        // Configure the mock to not execute the block and only keep a reference to the block
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+        // Define a log mock to assert the execution path
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+        // -- Act --
+        sut.setDist(fixture.dist)
+        sut = nil
+
+        // Execute the block after the processor is deallocated to have a weak reference
+        // in the dispatch block
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+
+        // -- Assert --
+        // This assertion is a best-effort check to see if the block was executed, as there is not other
+        // mechanism to assert this case
+        XCTAssertTrue(logOutput.loggedMessages.contains { line in
+            line.contains("Can not set dist, reason: reference to processor is nil")
+        })
+    }
+
+    func testSetDist_whenDistIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+        // -- Arrange --
+        createPersistedFile(field: .dist)
+        assertPersistedFileExists(field: .dist)
+
+        // -- Act --
+        sut.setDist(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .dist)
+    }
+
+    func testSetDist_whenDistIsNilAndActiveFileNotExists_shouldNotThrow() {
+        // -- Arrange --
+        assertPersistedFileNotExists(field: .dist)
+
+        // -- Act --
+        sut.setDist(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .dist)
+    }
+    
+    // MARK: - Environment Tests
+
+    func testSetEnvironment_whenEnvironmentIsValid_shouldDispatchToQueue() {
+        // -- Act --
+        sut.setEnvironment(fixture.env)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+    }
+
+    func testSetEnvironment_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+        // The processor is dispatching the file operation on a background queue.
+        // This tests checks that the dispatch block is not keeping a strong reference to the
+        // processor and causes a retain cycle.
+
+        // -- Arrange --
+        // Configure the mock to not execute the block and only keep a reference to the block
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+        // Define a log mock to assert the execution path
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+        // -- Act --
+        sut.setEnvironment(fixture.env)
+        sut = nil
+
+        // Execute the block after the processor is deallocated to have a weak reference
+        // in the dispatch block
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+
+        // -- Assert --
+        // This assertion is a best-effort check to see if the block was executed, as there is not other
+        // mechanism to assert this case
+        XCTAssertTrue(logOutput.loggedMessages.contains { line in
+            line.contains("Can not set environment, reason: reference to processor is nil")
+        })
+    }
+
+    func testSetEnvironment_whenEnvironmentIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+        // -- Arrange --
+        createPersistedFile(field: .environment)
+        assertPersistedFileExists(field: .environment)
+
+        // -- Act --
+        sut.setEnvironment(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .environment)
+    }
+
+    func testSetEnvironment_whenEnvironmentIsNilAndActiveFileNotExists_shouldNotThrow() {
+        // -- Arrange --
+        assertPersistedFileNotExists(field: .environment)
+
+        // -- Act --
+        sut.setEnvironment(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .environment)
+    }
 
    // MARK: - Clear Tests
 
@@ -337,12 +467,18 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        // -- Arrange --
        let contextData = Data("Context content".utf8)
        let userData = Data("User content".utf8)
+       let distData = Data("Dist content".utf8)
+       let envData = Data("Environment content".utf8)
        
        createPersistedFile(field: .context, data: contextData)
        createPersistedFile(field: .user, data: userData)
-       
+       createPersistedFile(field: .dist, data: distData)
+       createPersistedFile(field: .environment, data: envData)
+
        assertPersistedFileExists(field: .context)
        assertPersistedFileExists(field: .user)
+       assertPersistedFileExists(field: .dist)
+       assertPersistedFileExists(field: .environment)
 
        // -- Act --
        sut.clear()
@@ -350,6 +486,8 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        // -- Assert --
        assertPersistedFileNotExists(field: .context)
        assertPersistedFileNotExists(field: .user)
+       assertPersistedFileNotExists(field: .dist)
+       assertPersistedFileNotExists(field: .environment)
    }
 
    // MARK: - Assertion Helpers

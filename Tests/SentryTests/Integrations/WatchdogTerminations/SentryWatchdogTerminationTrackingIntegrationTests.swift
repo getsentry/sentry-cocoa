@@ -175,6 +175,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         fixture.scope.setContext(value: ["key": "value"], key: "foo")
         fixture.scope.setUser(User(userId: "user1234"))
+        fixture.scope.setDist("dist-124")
+        fixture.scope.setEnvironment("test")
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -186,6 +188,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 2)
         let userInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.last)
         XCTAssertEqual(userInvocation?.userId, "user1234")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 2)
+        let distInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.last)
+        XCTAssertEqual(distInvocation, "dist-124")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 2)
+        let envInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.last)
+        XCTAssertEqual(envInvocation, "test")
     }
 
     func testInstallWithOptions_shouldSetCurrentContextOnScopeObserver() throws {
@@ -193,10 +201,14 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
         fixture.scope.contextDictionary = ["foo": ["key": "value"]]
         fixture.scope.userObject = User(userId: "user1234")
+        fixture.scope.distString = "dist-124"
+        fixture.scope.environmentString = "test"
 
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)
@@ -211,6 +223,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         let userInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.last)
         XCTAssertEqual(userInvocation?.userId, "user1234")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
+        let distInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.last)
+        XCTAssertEqual(distInvocation, "dist-124")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 1)
+        let envInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.last)
+        XCTAssertEqual(envInvocation, "test")
     }
 
     func testANRDetected_UpdatesAppStateToTrue() throws {

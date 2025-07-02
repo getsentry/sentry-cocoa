@@ -90,6 +90,47 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         let thirdInvocation = try XCTUnwrap(sut.setUserInvocations.invocations.element(at: 2))
         XCTAssertNil(thirdInvocation)
     }
+    
+    func testSetDist_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setDistInvocations.removeAll()
+        XCTAssertEqual(sut.setDistInvocations.count, 0)
+
+        // -- Act --
+        sut.setDist("1.0.0")
+        sut.setDist("2.0.0")
+        sut.setDist(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setDistInvocations.count, 3)
+        XCTAssertEqual(
+            sut.setDistInvocations.invocations.element(at: 0),
+            "1.0.0"
+        )
+        XCTAssertEqual(sut.setDistInvocations.invocations.element(at: 1), "2.0.0")
+        let thirdInvocation = try XCTUnwrap(sut.setDistInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
+    
+    func testSetEnvironment_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setEnvironmentInvocations.removeAll()
+        XCTAssertEqual(sut.setEnvironmentInvocations.count, 0)
+
+        // -- Act --
+        sut.setEnvironment("dev")
+        sut.setEnvironment("prod")
+        sut.setEnvironment(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setEnvironmentInvocations.count, 3)
+        XCTAssertEqual(sut.setEnvironmentInvocations.invocations.element(at: 0), "dev")
+        XCTAssertEqual(sut.setEnvironmentInvocations.invocations.element(at: 1), "prod")
+        let thirdInvocation = try XCTUnwrap(sut.setEnvironmentInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
 
     func testClear_shouldRecordInvocations() throws {
         // -- Arrange --
