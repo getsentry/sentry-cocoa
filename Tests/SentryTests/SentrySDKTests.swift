@@ -1101,6 +1101,7 @@ private extension SentrySDKTests {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func createTestModels() throws -> (Options, TestSentryDispatchQueueWrapper, TestSentryScopePersistentStore, SentryWatchdogTerminationScopeObserver) {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
@@ -1117,6 +1118,7 @@ private extension SentrySDKTests {
         
         return (options, dispatchQueueWrapper, scopePersistentStore, observer)
     }
+#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 /// Tests in this class aren't part of SentrySDKTests because we need would need to undo a bunch of operations
