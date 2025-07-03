@@ -346,38 +346,36 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
-    SentryProfileOptions *profileOptions = nil;
-    if (isContinuousV2) {
-        SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
-        NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
-            [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
-        if (lifecycleValue == nil) {
-            SENTRY_LOG_ERROR(
-                @"Missing expected launch profile config parameter for lifecycle. Will "
-                @"not proceed with launch profile.");
-            _sentry_cleanUpConfigFile();
-            return;
-        }
-
-        profileOptions = [[SentryProfileOptions alloc] init];
-
-        SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
-        if (lifecycle == SentryProfileLifecycleManual) {
-            _sentry_continuousProfilingV2_startManualLaunchProfile(persistedLaunchConfigOptionsDict,
-                profileOptions, decision, shouldWaitForFullDisplay);
-            _sentry_cleanUpConfigFile();
-            return;
-        }
-
-        _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
-            SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
-    } else {
+    if (!isContinuousV2) {
         sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
             initWaitingForFullDisplay:shouldWaitForFullDisplay
                          continuousV1:NO];
         _sentry_cleanUpConfigFile();
         return;
     }
+
+    SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
+    NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
+        [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
+    if (lifecycleValue == nil) {
+        SENTRY_LOG_ERROR(@"Missing expected launch profile config parameter for lifecycle. Will "
+                         @"not proceed with launch profile.");
+        _sentry_cleanUpConfigFile();
+        return;
+    }
+
+    SentryProfileOptions *profileOptions = [[SentryProfileOptions alloc] init];
+
+    SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
+    if (lifecycle == SentryProfileLifecycleManual) {
+        _sentry_continuousProfilingV2_startManualLaunchProfile(
+            persistedLaunchConfigOptionsDict, profileOptions, decision, shouldWaitForFullDisplay);
+        _sentry_cleanUpConfigFile();
+        return;
+    }
+
+    _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
+        SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
     // paths here
