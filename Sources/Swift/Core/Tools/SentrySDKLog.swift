@@ -13,7 +13,7 @@ typealias SentryLogOutput = ((String) -> Void)
 /// and the thread sanitizer would surface these race conditions. We accept these race conditions for
 /// the log messages in the tests over adding locking for all log messages.
 @objc
-@_spi(Private) public class SentryLog: NSObject {
+@_spi(Private) public class SentrySDKLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -34,12 +34,12 @@ typealias SentryLogOutput = ((String) -> Void)
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
         
-        // We use the timeIntervalSinceReferenceDate because date format is
+        // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
         // see: NSPrivacyAccessedAPICategorySystemBootTime.
         let time = self.dateProvider.date().timeIntervalSince1970
-        logOutput("[Sentry] [\(level)] [timeIntervalSince1970:\(time)] \(message)")
+        logOutput("[Sentry] [\(level)] [\(time)] \(message)")
     }
 
     /**
@@ -74,7 +74,7 @@ typealias SentryLogOutput = ((String) -> Void)
     #endif
 }
 
-extension SentryLog {
+extension SentrySDKLog {
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
         guard willLog(atLevel: level) else { return }
         let path = file as NSString

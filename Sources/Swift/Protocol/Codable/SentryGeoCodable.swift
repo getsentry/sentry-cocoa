@@ -1,7 +1,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension Geo: Decodable {
+// See `develop-docs/README.md` for an explanation of this pattern.
+#if SENTRY_SWIFT_PACKAGE
+final class GeoDecodable: Geo {
+    convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+}
+#else
+typealias GeoDecodable = Geo
+#endif
+extension GeoDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
         case city
@@ -9,7 +19,13 @@ extension Geo: Decodable {
         case region
     }
     
+    #if !SENTRY_SWIFT_PACKAGE
     required convenience public init(from decoder: any Decoder) throws {
+        try self.init(decodedFrom: decoder)
+    }
+    #endif
+
+    private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.init()

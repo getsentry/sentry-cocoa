@@ -49,6 +49,8 @@ targets:
   iOS-SwiftUI-UITests:
     type: bundle.ui-testing
     platform: auto
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
     sources:
       - iOS-SwiftUI-UITests
     configFiles:

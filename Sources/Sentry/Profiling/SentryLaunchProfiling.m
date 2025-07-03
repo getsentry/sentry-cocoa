@@ -4,11 +4,10 @@
 
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
@@ -250,7 +249,8 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
 
-    SENTRY_LOG_DEBUG(@"Continuous profiling v2 conditions satisfied, will profile launch.");
+    SENTRY_LOG_DEBUG(
+        @"Continuous profiling v2 manual lifecycle conditions satisfied, will profile launch.");
     return (SentryLaunchProfileConfig) { YES, nil, profileSampleDecision };
 }
 
@@ -261,15 +261,24 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
 
-    if ([options isContinuousProfilingEnabled] && options.enableAppLaunchProfiling) {
-        return (SentryLaunchProfileConfig) { YES, nil, nil };
-    }
-
     if ([options isContinuousProfilingEnabled]) {
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
     }
 
     return sentry_launchShouldHaveTransactionProfiling(options);
+}
+
+/**
+ * We remove the config file after successfully starting a launch profile. the config should
+ * only apply to a single launch. subsequent launches must be configured by subsequent calls to
+ * @c SentrySDK.startWIithOptions ; if that is not called, either deliberately by SDK consumers or
+ * due to a problem before it can run, then we won't reuse the config–in the worst case, the launch
+ * profile itself is the root cause of such a cycle, so this mitigates that and other possibities
+ */
+void
+_sentry_cleanUpConfigFile(void)
+{
+    removeAppLaunchProfilingConfigFile();
 }
 
 #    pragma mark - Exposed for testing
@@ -294,7 +303,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     // quick and dirty way to get debug logging this early in the process run. this will get
     // overwritten once SentrySDK.startWithOptions is called according to the values of
     // SentryOptions.debug and SentryOptions.diagnosticLevel
-    [SentryLogSwiftSupport configure:YES diagnosticLevel:kSentryLevelDebug];
+    [SentrySDKLogSupport configure:YES diagnosticLevel:kSentryLevelDebug];
 #    endif // defined(DEBUG)
 
     NSDictionary<NSString *, NSNumber *> *persistedLaunchConfigOptionsDict
@@ -304,6 +313,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         = _sentry_profileSampleDecision(persistedLaunchConfigOptionsDict);
     if (nil == decision) {
         SENTRY_LOG_DEBUG(@"Couldn't hydrate the persisted sample decision.");
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -332,6 +342,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     if (isContinuousV1) {
         SENTRY_LOG_DEBUG(@"Starting continuous launch profile v1.");
         _sentry_continuousProfilingV1_startLaunchProfile(shouldWaitForFullDisplay);
+        _sentry_cleanUpConfigFile();
         return;
     }
 
@@ -341,9 +352,10 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
             [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
         if (lifecycleValue == nil) {
-            SENTRY_TEST_FATAL(
+            SENTRY_LOG_ERROR(
                 @"Missing expected launch profile config parameter for lifecycle. Will "
                 @"not proceed with launch profile.");
+            _sentry_cleanUpConfigFile();
             return;
         }
 
@@ -353,6 +365,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         if (lifecycle == SentryProfileLifecycleManual) {
             _sentry_continuousProfilingV2_startManualLaunchProfile(persistedLaunchConfigOptionsDict,
                 profileOptions, decision, shouldWaitForFullDisplay);
+            _sentry_cleanUpConfigFile();
             return;
         }
 
@@ -362,11 +375,14 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
             initWaitingForFullDisplay:shouldWaitForFullDisplay
                          continuousV1:NO];
+        _sentry_cleanUpConfigFile();
+        return;
     }
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
     // paths here
     _sentry_startTraceProfiler(persistedLaunchConfigOptionsDict, decision);
+    _sentry_cleanUpConfigFile();
 }
 
 #    pragma mark - Public

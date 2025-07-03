@@ -24,12 +24,14 @@
 @class SentryFileIOTracker;
 @class SentryScopeContextPersistentStore;
 @class SentryOptions;
+@class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
 @protocol SentryRandom;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
+@protocol SentryApplication;
 @protocol SentryDispatchQueueProviderProtocol;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -90,6 +92,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
+@property (nonatomic, strong) id<SentryApplication> application;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
@@ -97,12 +100,11 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
-@property (nonatomic, strong) SentryUIApplication *application;
 #endif // TARGET_OS_IOS
 
 #pragma mark - Lazy Dependencies
 
-@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
@@ -144,6 +146,7 @@ SENTRY_NO_INIT
 #endif
 
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;
+- (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options;
 
 @end
 

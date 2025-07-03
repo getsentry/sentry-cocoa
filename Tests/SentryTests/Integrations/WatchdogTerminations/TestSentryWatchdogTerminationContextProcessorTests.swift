@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationContextProcessor.
@@ -25,7 +25,7 @@ class TestSentryWatchdogTerminationContextProcessorTests: XCTestCase {
             fileManager = try TestFileManager(options: options)
 
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
+            scopeContextStore = try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
         }
 
         func getSut() -> TestSentryWatchdogTerminationContextProcessor {

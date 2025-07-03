@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryScopeContextPersistentStoreTests: XCTestCase {
@@ -14,8 +14,8 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
             fileManager = try TestFileManager(options: options)
         }
 
-        func getSut() -> SentryScopeContextPersistentStore {
-            return SentryScopeContextPersistentStore(fileManager: fileManager)
+        func getSut() throws -> SentryScopeContextPersistentStore {
+            return try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
         }
     }
 
@@ -26,7 +26,7 @@ class SentryScopeContextPersistentStoreTests: XCTestCase {
         super.setUp()
 
         fixture = try Fixture()
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
     }
 
     func testMoveFileToPreviousFile_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {

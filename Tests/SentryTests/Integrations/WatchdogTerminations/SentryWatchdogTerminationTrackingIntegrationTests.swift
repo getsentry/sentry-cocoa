@@ -1,7 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationIntegrationTests: XCTestCase {
@@ -54,7 +54,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.appStateManager = appStateManager
             appStateManager.start()
 
-            let scopeContextPersistentStore = TestSentryScopeContextPersistentStore(fileManager: fileManager)
+            let scopeContextPersistentStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
             watchdogTerminationContextProcessor = TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopeContextStore: scopeContextPersistentStore

@@ -1,6 +1,6 @@
 import _SentryPrivate
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
@@ -10,7 +10,7 @@ class SentryTraceProfilerTests: XCTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
     }
 
     override func setUp() {

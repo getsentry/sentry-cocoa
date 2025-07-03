@@ -1,9 +1,9 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
-public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
+@_spi(Private) public final class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
 
     private let dispatchAsyncLock = NSLock()
     
@@ -62,9 +62,10 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         dispatchAfterInvocations.invocations.last?.block()
     }
 
-    public var dispatchCancelInvocations = Invocations<() -> Void>()
-    public override func dispatchCancel(_ block: @escaping () -> Void) {
-        dispatchCancelInvocations.record(block)
+    public var dispatchCancelInvocations = 0
+    public override var shouldDispatchCancel: Bool {
+        dispatchCancelInvocations += 1
+        return false
     }
 
     public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
@@ -72,11 +73,8 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     }
     
     public var createDispatchBlockReturnsNULL = false
-    public override func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
-        if createDispatchBlockReturnsNULL {
-            return nil
-        }
-        return super.createDispatchBlock(block)
+    public override var shouldCreateDispatchBlock: Bool {
+        !createDispatchBlockReturnsNULL
     }
     
 }

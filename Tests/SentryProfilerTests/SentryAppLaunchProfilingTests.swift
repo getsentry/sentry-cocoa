@@ -1,15 +1,15 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 final class SentryAppLaunchProfilingTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

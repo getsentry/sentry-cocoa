@@ -3,9 +3,8 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryMeasurementValue.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"

@@ -1,33 +1,44 @@
 @_implementationOnly import _SentryPrivate
 
-@objcMembers
-class SentryScopeContextPersistentStore: NSObject {
-    private let fileManager: SentryFileManager
+@_spi(Private) @objc public protocol SentryFileManagerProtocol {
+  func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
+    func readData(fromPath path: String) throws -> Data
+    @objc(writeData:toPath:)
+    @discardableResult func write(_ data: Data, toPath path: String) -> Bool
+    func removeFile(atPath path: String)
+    func getSentryPathAsURL() -> URL
+}
 
-    init(fileManager: SentryFileManager) {
+@objcMembers
+@_spi(Private) public class SentryScopeContextPersistentStore: NSObject {
+    private let fileManager: SentryFileManagerProtocol
+
+    public init?(fileManager: SentryFileManagerProtocol?) {
+        guard let fileManager else { return nil }
+
         self.fileManager = fileManager
     }
 
     // MARK: - Context
-
-    func moveCurrentFileToPreviousFile() {
-        SentryLog.debug("Moving context file to previous context file")
+    
+    public func moveCurrentFileToPreviousFile() {
+        SentrySDKLog.debug("Moving context file to previous context file")
         self.fileManager.moveState(contextFileURL.path, toPreviousState: previousContextFileURL.path)
     }
 
-    func readPreviousContextFromDisk() -> [String: [String: Any]]? {
-        SentryLog.debug("Reading previous context file at path: \(previousContextFileURL.path)")
+    public func readPreviousContextFromDisk() -> [String: [String: Any]]? {
+        SentrySDKLog.debug("Reading previous context file at path: \(previousContextFileURL.path)")
         do {
             let data = try fileManager.readData(fromPath: previousContextFileURL.path)
             return decodeContext(from: data)
         } catch {
-            SentryLog.error("Failed to read previous context file at path: \(previousContextFileURL.path), reason: \(error)")
+            SentrySDKLog.error("Failed to read previous context file at path: \(previousContextFileURL.path), reason: \(error)")
             return nil
         }
     }
 
     func writeContextToDisk(context: [String: [String: Any]]) {
-        SentryLog.debug("Writing context to disk at path: \(contextFileURL.path)")
+        SentrySDKLog.debug("Writing context to disk at path: \(contextFileURL.path)")
         guard let data = encode(context: context) else {
             return
         }
@@ -35,12 +46,12 @@ class SentryScopeContextPersistentStore: NSObject {
     }
 
     func deleteContextOnDisk() {
-        SentryLog.debug("Deleting context file at path: \(contextFileURL.path)")
+        SentrySDKLog.debug("Deleting context file at path: \(contextFileURL.path)")
         fileManager.removeFile(atPath: contextFileURL.path)
     }
 
     func deletePreviousContextOnDisk() {
-        SentryLog.debug("Deleting context file at path: \(contextFileURL.path)")
+        SentrySDKLog.debug("Deleting context file at path: \(contextFileURL.path)")
         fileManager.removeFile(atPath: previousContextFileURL.path)
     }
 
@@ -51,11 +62,11 @@ class SentryScopeContextPersistentStore: NSObject {
         // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
         // The error handler is required due but seems not to be executed.
         guard let sanitizedContext = sentry_sanitize(context) else {
-            SentryLog.error("Failed to sanitize context, reason: context is not valid json: \(context)")
+            SentrySDKLog.error("Failed to sanitize context, reason: context is not valid json: \(context)")
             return nil
         }
         guard let data = SentrySerialization.data(withJSONObject: sanitizedContext) else {
-            SentryLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
+            SentrySDKLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
             return nil
         }
         return data
@@ -63,7 +74,7 @@ class SentryScopeContextPersistentStore: NSObject {
 
     private func decodeContext(from data: Data) -> [String: [String: Any]]? {
         guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentryLog.error("Failed to deserialize context, reason: data is not valid json")
+            SentrySDKLog.error("Failed to deserialize context, reason: data is not valid json")
             return nil
         }
 
@@ -83,7 +94,7 @@ class SentryScopeContextPersistentStore: NSObject {
         // additional memory (like when mapping values).
         for (key, value) in deserialized {
             guard value is [String: Any] else {
-                SentryLog.error("Failed to deserialize context, reason: value for key \(key) is not a valid dictionary")
+                SentrySDKLog.error("Failed to deserialize context, reason: value for key \(key) is not a valid dictionary")
                 return nil
             }
         }

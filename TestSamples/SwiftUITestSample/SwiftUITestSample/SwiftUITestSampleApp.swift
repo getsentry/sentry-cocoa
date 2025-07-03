@@ -28,9 +28,6 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text("Welcome!")
-            Button("Crash") {
-                SentrySDK.crash()
-            }
             Button("Close SDK") {
                 SentrySDK.close()
             }

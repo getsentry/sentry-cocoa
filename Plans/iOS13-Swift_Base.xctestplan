@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
+    "codeCoverage" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:iOS13-Swift.xcodeproj",
       "identifier" : "D8269A38274C095E00BD5BD5",

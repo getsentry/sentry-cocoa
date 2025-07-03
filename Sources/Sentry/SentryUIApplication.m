@@ -1,6 +1,5 @@
 #import "SentryUIApplication.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
@@ -267,6 +266,11 @@
 - (void)didBecomeActive
 {
     self.appState = UIApplicationStateActive;
+}
+
+- (BOOL)isActive
+{
+    return self.appState == UIApplicationStateActive;
 }
 
 @end

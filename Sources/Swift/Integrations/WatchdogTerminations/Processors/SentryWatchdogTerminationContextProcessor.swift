@@ -2,12 +2,12 @@
 import Foundation
 
 @objcMembers
-class SentryWatchdogTerminationContextProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationContextProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopeContextStore: SentryScopeContextPersistentStore
 
-    init(
+    public init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
         scopeContextStore: SentryScopeContextPersistentStore
     ) {
@@ -19,24 +19,24 @@ class SentryWatchdogTerminationContextProcessor: NSObject {
         clear()
     }
 
-    func setContext(_ context: [String: [String: Any]]?) {
-        SentryLog.debug("Setting context in background queue: \(context ?? [:])")
+    public func setContext(_ context: [String: [String: Any]]?) {
+        SentrySDKLog.debug("Setting context in background queue: \(context ?? [:])")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
-                SentryLog.debug("Can not set context, reason: reference to context processor is nil")
+                SentrySDKLog.debug("Can not set context, reason: reference to context processor is nil")
                 return
             }
             guard let context = context else {
-                SentryLog.debug("Context is nil, deleting active file.")
+                SentrySDKLog.debug("Context is nil, deleting active file.")
                 strongSelf.scopeContextStore.deleteContextOnDisk()
                 return
             }
             strongSelf.scopeContextStore.writeContextToDisk(context: context)
         }
     }
-
-    func clear() {
-        SentryLog.debug("Deleting context file in persistent store")
+    
+    public func clear() {
+        SentrySDKLog.debug("Deleting context file in persistent store")
         scopeContextStore.deleteContextOnDisk()
     }
 }

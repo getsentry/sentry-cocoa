@@ -6,7 +6,6 @@
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
@@ -21,7 +20,7 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
-#import <SentryLog.h>
+#import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT

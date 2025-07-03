@@ -41,6 +41,8 @@
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#import "SentryNSApplication.h"
+
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "PrivateSentrySDKOnly.h"
@@ -110,7 +112,6 @@
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryDsn.h"
@@ -141,7 +142,7 @@
 #import "SentryInternalNotificationNames.h"
 #import "SentryInvalidJSONString.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryLogTestHelper.h"
 #import "SentryMeasurementValue.h"
 #import "SentryMechanism.h"
@@ -156,7 +157,6 @@
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
-#import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
@@ -182,7 +182,6 @@
 #import "SentryScopeObserver.h"
 #import "SentryScopeSyncC.h"
 #import "SentryScreenFrames.h"
-#import "SentryScreenshot.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"

@@ -1,5 +1,5 @@
 import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -295,7 +295,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     
     private func assertResetsTimeout(_ firstTransaction: SentryTracer, _ secondTransaction: SentryTracer) {
         XCTAssertTrue(firstTransaction === secondTransaction)
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count, "Expected 3 dispatchAfter invocations. One for the initial timeout, one for the reset and one for the deadline timeout.")
     }
     

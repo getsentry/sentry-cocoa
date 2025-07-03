@@ -9,7 +9,6 @@
 #    import <SentryClient+Private.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
-#    import <SentryDispatchQueueWrapper.h>
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>

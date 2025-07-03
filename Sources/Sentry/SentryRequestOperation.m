@@ -2,7 +2,7 @@
 #import "SentryClient.h"
 #import "SentryError.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"

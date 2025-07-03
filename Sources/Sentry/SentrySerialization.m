@@ -6,7 +6,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"

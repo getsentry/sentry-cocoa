@@ -4,8 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A wrapper around DispatchQueue functions for testability.
+ * This should not be used directly, instead the  Swift version in
+ * SentryDispatchQueueWrapper should be used to ensure compatibility
+ * with Swift code.
  */
-@interface SentryDispatchQueueWrapper : NSObject
+@interface _SentryDispatchQueueWrapperInternal : NSObject
 
 @property (strong, nonatomic) dispatch_queue_t queue;
 
@@ -24,13 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)dispatchSyncOnMainQueue:(void (^)(void))block timeout:(NSTimeInterval)timeout;
 
-- (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block;
-
-- (void)dispatchCancel:(dispatch_block_t)block;
+- (void)dispatchAfter:(NSTimeInterval)interval block:(void (^)(void))block;
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
-
-- (nullable dispatch_block_t)createDispatchBlock:(void (^)(void))block;
 
 @end
 

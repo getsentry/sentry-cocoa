@@ -7,7 +7,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
@@ -20,7 +19,7 @@
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMessage.h"
@@ -102,6 +101,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     NSArray<id<SentryTransport>> *transports =
         [SentryTransportFactory initTransports:options
+                                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                              sentryFileManager:fileManager
                                     rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
 

@@ -59,5 +59,8 @@
       <FileRef
          location = "group:TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
+      </FileRef>
    </Group>
 </Workspace>
