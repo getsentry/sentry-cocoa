@@ -1,6 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+#if CARTHAGE || SWIFT_PACKAGE
+import Sentry._Hybrid
+#endif
+
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
