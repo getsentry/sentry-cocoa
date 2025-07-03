@@ -24,12 +24,12 @@ class SentryLogBatcherTests: XCTestCase {
     
     // MARK: - ProcessLog Tests
     
-    func testProcessLog_WithValidLog_CreatesEnvelopeAndCallsClient() {
+    func testAddLog_WithValidLog_CreatesEnvelopeAndCallsClient() throws {
         // Given
         let log = createTestLog()
         
         // When
-        sut.processLog(log, with: scope)
+        sut.add(log)
         
         // Then
         XCTAssertEqual(testClient.captureEnvelopeInvocations.count, 1)
@@ -42,6 +42,16 @@ class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(envelopeItem.header.contentType, "application/vnd.sentry.items.log+json")
         XCTAssertEqual(envelopeItem.header.itemCount?.intValue, 1)
         XCTAssertGreaterThan(envelopeItem.header.length, 0)
+        
+        // Verify envelope item data contains the expected JSON structure
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
+        
+        let firstLog = items[0]
+        XCTAssertEqual(1_627_846_801, firstLog["timestamp"] as? TimeInterval)
+        XCTAssertEqual("info", firstLog["level"] as? String)
+        XCTAssertEqual("Test log message", firstLog["body"] as? String)
     }
     
     // MARK: - Helper Methods
@@ -52,7 +62,7 @@ class SentryLogBatcherTests: XCTestCase {
         attributes: [String: SentryLog.Attribute] = [:]
     ) -> SentryLog {
         return SentryLog(
-            timestamp: Date(),
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
             level: level,
             body: body,
             attributes: attributes

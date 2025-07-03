@@ -566,7 +566,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentryLogBatcher *logBatcher = self.logBatcher;
     if (logBatcher != nil) {
-        [logBatcher processLog:log with:self.scope];
+        [logBatcher add:log];
     }
 }
 

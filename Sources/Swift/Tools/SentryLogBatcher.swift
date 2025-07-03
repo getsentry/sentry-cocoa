@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
@@ -11,9 +12,23 @@ import Foundation
         super.init()
     }
     
-    @_spi(Private) public func processLog(_ log: SentryLog, with scope: Scope) {
+    @_spi(Private) public func add(_ log: SentryLog) {
+        dispatch(logs: [log])
+    }
+    
+    private func dispatch(logs: [SentryLog]) {
         do {
-            let envelope = try SentryEnvelope(logs: [log])
+            let payload = ["items": logs]
+            let data = try encodeToJSONData(data: payload)
+            
+            let header = SentryEnvelopeItemHeader(
+                type: "log",
+                length: UInt(data.count),
+                contentType: "application/vnd.sentry.items.log+json",
+                itemCount: NSNumber(value: logs.count)
+            )
+            let envelopeItem = SentryEnvelopeItem(header: header, data: data)
+            let envelope = SentryEnvelope(id: nil, singleItem: envelopeItem)
             client.capture(envelope)
         } catch {
             SentrySDKLog.error("Failed to create logs envelope.")
