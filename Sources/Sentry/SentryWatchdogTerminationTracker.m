@@ -58,6 +58,9 @@
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
             event.user = [self.scopePersistentStore readPreviousUserFromDisk];
+            event.extra = [self.scopePersistentStore readPreviousExtrasFromDisk];
+            event.fingerprint = [self.scopePersistentStore readPreviousFingerprintFromDisk];
+            // Termination events always have fatal level, so we are not reading from disk
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue

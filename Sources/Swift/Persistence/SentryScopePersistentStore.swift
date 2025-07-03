@@ -4,6 +4,9 @@
 enum SentryScopeField: UInt, CaseIterable {
     case context
     case user
+    case extras
+    case fingerprint
+    case level
     
     var name: String {
         switch self {
@@ -11,6 +14,12 @@ enum SentryScopeField: UInt, CaseIterable {
             return "context"
         case .user:
             return "user"
+        case .extras:
+            return "extras"
+        case .fingerprint:
+            return "fingerprint"
+        case .level:
+            return "level"
         }
     }
 }
@@ -80,6 +89,42 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeUserToDisk(user: User) {
         writeFieldToDisk(field: .user, data: encode(user: user))
+    }
+    
+    // MARK: - Level
+    @objc
+    public func readPreviousLevelFromDisk() -> SentryLevel {
+        readFieldFromDisk(field: .level) { data in
+            decodeLevel(from: data)
+        } ?? .none
+    }
+    
+    func writeLevelToDisk(level: NSNumber) {
+        writeFieldToDisk(field: .level, data: encode(level: level))
+    }
+    
+    // MARK: - Extras
+    @objc
+    public func readPreviousExtrasFromDisk() -> [String: Any]? {
+        readFieldFromDisk(field: .extras) { data in
+            decodeExtras(from: data)
+        }
+    }
+    
+    func writeExtrasToDisk(extras: [String: Any]) {
+        writeFieldToDisk(field: .extras, data: encode(extras: extras))
+    }
+    
+    // MARK: - Fingerprint
+    @objc
+    public func readPreviousFingerprintFromDisk() -> [String]? {
+        readFieldFromDisk(field: .fingerprint) { data in
+            decodeFingerprint(from: data)
+        }
+    }
+    
+    func writeFingerprintToDisk(fingerprint: [String]) {
+        writeFieldToDisk(field: .fingerprint, data: encode(fingerprint: fingerprint))
     }
     
     // MARK: - Private Functions
@@ -204,5 +249,80 @@ extension SentryScopePersistentStore {
     // Swift compiler can't infer T, even if I try to cast it
     private func decoderAux(_ data: Data) -> UserDecodable? {
         return decodeFromJSONData(jsonData: data)
+    }
+}
+
+// MARK: - Level
+extension SentryScopePersistentStore {
+    private func encode(level: NSNumber) -> Data? {
+        let rawValue = level.uintValue
+        return Data("\(rawValue)".utf8)
+    }
+    
+    private func decodeLevel(from data: Data) -> SentryLevel? {
+        if let stringValue = String(data: data, encoding: .utf8),
+           let intValue = UInt(stringValue),
+            let level = SentryLevel(rawValue: intValue) {
+            return level
+        } else {
+            return nil
+        }
+    }
+}
+
+// MARK: - Extras
+extension SentryScopePersistentStore {
+    private func encode(extras: [String: Any]) -> Data? {
+        // We need to check if the extras is a valid JSON object before encoding it.
+        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
+        // The error handler is required due but seems not to be executed.
+        guard let sanitizedExtras = sentry_sanitize(extras) else {
+            SentrySDKLog.error("Failed to sanitize extras, reason: extras is not valid json: \(extras)")
+            return nil
+        }
+        guard let data = SentrySerialization.data(withJSONObject: sanitizedExtras) else {
+            SentrySDKLog.error("Failed to serialize extras, reason: extras is not valid json: \(extras)")
+            return nil
+        }
+        return data
+    }
+    
+    private func decodeExtras(from data: Data) -> [String: Any]? {
+        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
+            SentrySDKLog.error("Failed to deserialize extras, reason: data is not valid json")
+            return nil
+        }
+
+        return deserialized as? [String: Any]
+    }
+}
+
+// MARK: - Fingerprint
+extension SentryScopePersistentStore {
+    private func encode(fingerprint: [String]) -> Data? {
+        // We need to check if the fingerprint is a valid JSON object before encoding it.
+        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
+        // The error handler is required due but seems not to be executed.
+        guard let data = SentrySerialization.data(withJSONObject: fingerprint) else {
+            SentrySDKLog.error("Failed to serialize fingerprint, reason: fingerprint is not valid json: \(fingerprint)")
+            return nil
+        }
+        return data
+    }
+
+    private func decodeFingerprint(from data: Data) -> [String]? {
+        guard let deserialized = SentrySerialization.deserializeArray(fromJsonData: data) else {
+            SentrySDKLog.error("Failed to deserialize fingerprint, reason: data is not valid json")
+            return nil
+        }
+
+        // Ensure all elements are strings
+        let stringArray = deserialized.compactMap { $0 as? String }
+        if stringArray.count != deserialized.count {
+            SentrySDKLog.error("Failed to deserialize fingerprint, reason: not all elements are strings")
+            return nil
+        }
+
+        return stringArray
     }
 }

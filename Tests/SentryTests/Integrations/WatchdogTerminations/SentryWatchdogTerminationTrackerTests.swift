@@ -317,9 +317,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         )
 
         let testUser = TestData.user
+        let extra = ["key": "value"] as [String: Any]
         let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
         sentryWatchdogTerminationScopeObserver.setUser(testUser)
         sentryWatchdogTerminationScopeObserver.setContext(testContext)
+        sentryWatchdogTerminationScopeObserver.setExtras(extra)
+        sentryWatchdogTerminationScopeObserver.setFingerprint(["fingerprint1", "fingerprint2"])
 
         sut.start()
         goToForeground()
@@ -335,6 +338,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(fatalEvent?.user?.email, testUser.email)
         XCTAssertEqual(fatalEvent?.user?.username, testUser.username)
         XCTAssertEqual(fatalEvent?.user?.name, testUser.name)
+
+        XCTAssertEqual(NSDictionary(dictionary: fatalEvent?.extra ?? [:]), NSDictionary(dictionary: extra))
+        XCTAssertEqual(fatalEvent?.fingerprint, ["fingerprint1", "fingerprint2"])
 
         // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
         let eventContext = fatalEvent?.context

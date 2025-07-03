@@ -97,6 +97,9 @@ NS_ASSUME_NONNULL_BEGIN
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
         [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setExtras:outerScope.extraDictionary];
+        [scopeObserver setLevel:outerScope.levelEnum];
+        [scopeObserver setFingerprint:outerScope.fingerprintArray];
     }];
 
     return YES;

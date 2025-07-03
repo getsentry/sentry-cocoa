@@ -168,13 +168,22 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.count, 1)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
         fixture.scope.setContext(value: ["key": "value"], key: "foo")
         fixture.scope.setUser(User(userId: "user1234"))
+        fixture.scope.setLevel(SentryLevel.fatal)
+        fixture.scope.setExtras(["key": "value"])
+        fixture.scope.setFingerprint(["fingerprint1", "fingerprint2"])
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -186,6 +195,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 2)
         let userInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.last)
         XCTAssertEqual(userInvocation?.userId, "user1234")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.count, 2)
+        let levelInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.last)
+        XCTAssertEqual(levelInvocation?.uintValue, SentryLevel.fatal.rawValue)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.count, 2)
+        let extrasInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.last)
+        XCTAssertEqual(extrasInvocation?["key"] as? String, "value")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 2)
     }
 
     func testInstallWithOptions_shouldSetCurrentContextOnScopeObserver() throws {
@@ -193,10 +209,16 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
         fixture.scope.contextDictionary = ["foo": ["key": "value"]]
         fixture.scope.userObject = User(userId: "user1234")
+        fixture.scope.extraDictionary = ["key": "value"]
+        fixture.scope.fingerprintArray = ["fingerprint1", "fingerprint2"]
+        fixture.scope.levelEnum = SentryLevel.fatal
 
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.count, 0)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)
@@ -211,6 +233,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         let userInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.last)
         XCTAssertEqual(userInvocation?.userId, "user1234")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.count, 1)
+        let levelInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setLevelInvocations.last)
+        XCTAssertEqual(levelInvocation?.uintValue, SentryLevel.fatal.rawValue)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.count, 1)
+        let extrasInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setExtrasInvocations.last)
+        XCTAssertEqual(extrasInvocation?["key"] as? String, "value")
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
     }
 
     func testANRDetected_UpdatesAppStateToTrue() throws {
