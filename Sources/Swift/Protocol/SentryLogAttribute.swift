@@ -1,5 +1,5 @@
 extension SentryLog {
-    public enum Attribute: Codable {
+    @_spi(Private) public enum Attribute: Codable {
         case string(String)
         case boolean(Bool)
         case integer(Int)

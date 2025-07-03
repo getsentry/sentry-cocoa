@@ -6,20 +6,11 @@ public final class SentryLogger: NSObject {
     let hub: SentryHub
     let dateProvider: SentryCurrentDateProvider
     
-    @objc
-    public init(hub: SentryHub) {
-        self.hub = hub
-        self.dateProvider = SentryDefaultCurrentDateProvider()
-        super.init()
-    }
-    
-    #if SENTRY_TEST || SENTRY_TEST_CI
-    init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
+    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
         self.hub = hub
         self.dateProvider = dateProvider
         super.init()
     }
-    #endif
     
     public func trace(_ body: String) {
         captureLog(level: .trace, body: body, attributes: [:])

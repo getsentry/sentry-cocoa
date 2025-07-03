@@ -10,12 +10,12 @@ import Foundation
 @_spi(Private) public class SentryLogBatcher: NSObject {
     private weak var delegate: (SentryLogBatcherDelegate)?
     
-    public init(delegate: SentryLogBatcherDelegate) {
+    @_spi(Private) public init(delegate: SentryLogBatcherDelegate) {
         self.delegate = delegate
         super.init()
     }
     
-    public func processLog(_ log: SentryLog, with scope: Scope) {
+    @_spi(Private) public func processLog(_ log: SentryLog, with scope: Scope) {
         do {
             let envelope = try SentryEnvelope(logs: [log])
             delegate?.send(envelope)

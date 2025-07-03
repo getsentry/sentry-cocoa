@@ -365,9 +365,9 @@ final class SentryDependencyContainerTests: XCTestCase {
         let logger = container.logger
 
         // -- Assert --
-        // Verify that the logger uses the hub from the SDK
-        XCTAssertIdentical(logger.dateProvider, container.dateProvider)
+        // Verify that the logger uses the hub from the SDK and date provider from container
         XCTAssertIdentical(logger.hub, SentrySDK.currentHub())
+        XCTAssertIdentical(logger.dateProvider, container.dateProvider)
     }
 
     func testLogger_shouldCreateNewInstanceAfterReset() throws {

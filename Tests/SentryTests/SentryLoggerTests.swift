@@ -24,11 +24,7 @@ final class SentryLoggerTests: XCTestCase {
         }
         
         func getSut() -> SentryLogger {
-            #if SENTRY_TEST || SENTRY_TEST_CI
             return SentryLogger(hub: hub, dateProvider: dateProvider)
-            #else
-            return SentryLogger(hub: hub)
-            #endif
         }
     }
     

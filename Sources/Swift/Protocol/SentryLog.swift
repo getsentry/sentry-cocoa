@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-public final class SentryLog: NSObject, Codable {
+@_spi(Private) public final class SentryLog: NSObject, Codable {
     let timestamp: Date
     var traceId: SentryId
     let level: SentryLog.Level

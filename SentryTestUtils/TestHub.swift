@@ -57,8 +57,8 @@ public class TestHub: SentryHub {
         onReplayCapture?()
     }
     
-    public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    public override func capture(log: SentryLog) {
+    @_spi(Private) public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    @_spi(Private) public override func capture(log: SentryLog) {
         captureLogInvocations.record((log, self.scope))
     }
 }
