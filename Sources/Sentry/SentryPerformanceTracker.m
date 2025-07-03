@@ -51,7 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
                           operation:(NSString *)operation
                              origin:(NSString *)origin
 {
-    id<SentrySpan> activeSpan = sentry_launchTracer;
+    id<SentrySpan> activeSpan;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    activeSpan = sentry_launchTracer;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     if (activeSpan == nil) {
         @synchronized(self.activeSpanStack) {
             activeSpan = [self.activeSpanStack lastObject];
