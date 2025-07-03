@@ -63,12 +63,14 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
     const auto profilerKey = profiler.profilerId.sentryIdString;
     [_gTracersToProfilers removeObjectForKey:tracerKey];
     _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
-    if ([_gProfilersToTracers[profilerKey] unsignedIntValue] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
-        if ([profiler isRunning]) {
-            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
-        }
+    const auto remainingTracers = [_gProfilersToTracers[profilerKey] unsignedIntValue];
+    if (remainingTracers > 0) {
+        SENTRY_LOG_DEBUG(@"Waiting on %lu tracers to finish.", remainingTracers);
+        return;
     }
+
+    [_gProfilersToTracers removeObjectForKey:profilerKey];
+    [profiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
 /**

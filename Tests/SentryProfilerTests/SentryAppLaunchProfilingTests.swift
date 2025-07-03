@@ -109,11 +109,18 @@ extension SentryAppLaunchProfilingTests {
 
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
-        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        ttd.start(for: tracer)
+
+        // Ensure frames tracker is running (required for TTD tracker)
+        SentryDependencyContainer.sharedInstance().framesTracker = fixture.framesTracker
+
+        // Use sentry_launchTracer directly as the parent tracer since your modifications
+        // make the performance tracker create child spans (not SentryTracer objects)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        XCTAssertTrue(ttd.start(for: try XCTUnwrap(sentry_launchTracer)))
+
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
+        
         fixture.displayLinkWrapper.call()
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
     }
