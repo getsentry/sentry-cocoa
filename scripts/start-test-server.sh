@@ -18,7 +18,7 @@ chmod +x ./test-server-exec
 log "Start the test server in the background"
 ./test-server-exec &
 
-log "⏳ Waiting for 5 seconds that the test server to responds"
+log "⏳ Waiting for 20 seconds that the test server to responds"
 
 start_time=$(date +%s)
 server_started=false
@@ -35,7 +35,7 @@ while true; do
     current_time=$(date +%s)
     elapsed=$((current_time - start_time))
 
-    if [ $elapsed -ge 5 ]; then
+    if [ $elapsed -ge 20 ]; then
         break
     fi
     
@@ -45,6 +45,6 @@ done
 if [ "$server_started" = true ]; then
     log "✅ Test server successfully started and is responding at http://localhost:8080"
 else
-    log "❌ Test server failed to start or is not responding after 5 seconds"
+    log "❌ Test server failed to start or is not responding after 20 seconds"
     exit 1
 fi 
