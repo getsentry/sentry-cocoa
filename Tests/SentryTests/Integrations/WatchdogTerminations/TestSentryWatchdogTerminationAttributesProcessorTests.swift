@@ -2,16 +2,16 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationFieldsProcessor.
+// This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationAttributesProcessor.
 //
 // It ensures that the mock works as expected and can be used in tests suites.
 //
 // Note: This file should ideally live in SentryTestUtilsTests, but this would lead to circular imports.
 // When refactoring the project structure, consider moving this to SentryTestUtilsTests.
 
-class TestSentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
+class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
 
-    private static let dsn = TestConstants.dsnForTestCase(type: TestSentryWatchdogTerminationFieldsProcessorTests.self)
+    private static let dsn = TestConstants.dsnForTestCase(type: TestSentryWatchdogTerminationAttributesProcessorTests.self)
 
     private class Fixture {
 
@@ -21,15 +21,15 @@ class TestSentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
 
         init() throws {
             let options = Options()
-            options.dsn = TestSentryWatchdogTerminationFieldsProcessorTests.dsn
+            options.dsn = TestSentryWatchdogTerminationAttributesProcessorTests.dsn
             fileManager = try TestFileManager(options: options)
 
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
         }
 
-        func getSut() -> TestSentryWatchdogTerminationFieldsProcessor {
-            return TestSentryWatchdogTerminationFieldsProcessor(
+        func getSut() -> TestSentryWatchdogTerminationAttributesProcessor {
+            return TestSentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: scopePersistentStore
             )
@@ -37,7 +37,7 @@ class TestSentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    private var sut: TestSentryWatchdogTerminationFieldsProcessor!
+    private var sut: TestSentryWatchdogTerminationAttributesProcessor!
 
     override func setUpWithError() throws {
         super.setUp()

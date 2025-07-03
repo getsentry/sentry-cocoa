@@ -942,11 +942,11 @@ class SentrySDKTests: XCTestCase {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
-        let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
+        let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopePersistentStore: scopePersistentStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, fieldsProcessor: fieldsProcessor)
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -1110,11 +1110,11 @@ private extension SentrySDKTests {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
-        let fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
+        let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
             scopePersistentStore: scopePersistentStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, fieldsProcessor: fieldsProcessor)
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
         
         return (options, dispatchQueueWrapper, scopePersistentStore, observer)
     }

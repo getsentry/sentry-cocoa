@@ -45,7 +45,7 @@
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
-@class SentryWatchdogTerminationFieldsProcessor;
+@class SentryWatchdogTerminationAttributesProcessor;
 @class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
@@ -142,7 +142,7 @@ SENTRY_NO_INIT
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)
-    SentryWatchdogTerminationFieldsProcessor *watchdogTerminationProcessor;
+    SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif
 
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;

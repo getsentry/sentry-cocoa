@@ -24,7 +24,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
-        let fieldsProcessor: SentryWatchdogTerminationFieldsProcessor
+        let attributesProcessor: SentryWatchdogTerminationAttributesProcessor
         let scopePersistentStore: SentryScopePersistentStore
 
         init() throws {
@@ -39,7 +39,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
             scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
-            fieldsProcessor = SentryWatchdogTerminationFieldsProcessor(
+            attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
                 scopePersistentStore: scopePersistentStore
             )
@@ -289,7 +289,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let breadcrumb = TestData.crumb
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: fixture.breadcrumbProcessor,
-            fieldsProcessor: fixture.fieldsProcessor
+            attributesProcessor: fixture.attributesProcessor
         )
 
         for _ in 0..<3 {
@@ -313,7 +313,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: fixture.breadcrumbProcessor,
-            fieldsProcessor: fixture.fieldsProcessor
+            attributesProcessor: fixture.attributesProcessor
         )
 
         let testUser = TestData.user

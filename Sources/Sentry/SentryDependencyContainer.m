@@ -415,7 +415,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         initWithBreadcrumbProcessor:
             [self
                 getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                    fieldsProcessor:self.watchdogTerminationProcessor];
+                attributesProcessor:self.watchdogTerminationAttributesProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -428,11 +428,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationFieldsProcessor *)
-    watchdogTerminationProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryWatchdogTerminationAttributesProcessor *)
+    watchdogTerminationAttributesProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_watchdogTerminationProcessor,
-        [[SentryWatchdogTerminationFieldsProcessor alloc]
+    SENTRY_LAZY_INIT(_watchdogTerminationAttributesProcessor,
+        [[SentryWatchdogTerminationAttributesProcessor alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.fields-processor"

@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationFieldsProcessor: NSObject {
+@_spi(Private) public class SentryWatchdogTerminationAttributesProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopePersistentStore: SentryScopePersistentStore

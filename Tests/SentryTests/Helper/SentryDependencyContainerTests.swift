@@ -147,7 +147,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationProcessor)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor)
 #endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
@@ -222,7 +222,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
-    func testSentryWatchdogTerminationProcessor_shouldReturnSameInstance() throws {
+    func testSentryWatchdogTerminationAttributesProcessor_shouldReturnSameInstance() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         // -- Arrange --
         let options = Options()
@@ -232,8 +232,8 @@ final class SentryDependencyContainerTests: XCTestCase {
         let container = SentryDependencyContainer.sharedInstance()
 
         // -- Act --
-        let processor1 = container.watchdogTerminationProcessor
-        let processor2 = container.watchdogTerminationProcessor
+        let processor1 = container.watchdogTerminationAttributesProcessor
+        let processor2 = container.watchdogTerminationAttributesProcessor
 
         // -- Assert --
         XCTAssertIdentical(processor1, processor2)
@@ -242,7 +242,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
-    func testSentryWatchdogTerminationProcessor_shouldUseLowPriorityQueue() throws {
+    func testSentryWatchdogTerminationAttributesProcessor_shouldUseLowPriorityQueue() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         // -- Arrange --
         let options = Options()
@@ -255,7 +255,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Act --
         // Accessing the processor will trigger the creation of a new instance
-        let _ = container.watchdogTerminationProcessor
+        let _ = container.watchdogTerminationAttributesProcessor
 
         // -- Assert --
         let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createUtilityQueueInvocations.first)

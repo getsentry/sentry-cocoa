@@ -5,7 +5,7 @@
 #    import "SentryScopeObserver.h"
 
 @class SentryWatchdogTerminationBreadcrumbProcessor;
-@class SentryWatchdogTerminationFieldsProcessor;
+@class SentryWatchdogTerminationAttributesProcessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +20,7 @@ SENTRY_NO_INIT
 
 - (instancetype)
     initWithBreadcrumbProcessor:(SentryWatchdogTerminationBreadcrumbProcessor *)breadcrumbProcessor
-                fieldsProcessor:(SentryWatchdogTerminationFieldsProcessor *)fieldsProcessor;
+            attributesProcessor:(SentryWatchdogTerminationAttributesProcessor *)attributesProcessor;
 
 @end
 

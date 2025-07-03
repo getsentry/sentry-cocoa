@@ -2,8 +2,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
-   private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationFieldsProcessorTests.self)
+class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
+   private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationAttributesProcessorTests.self)
 
    private class Fixture {
        let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
@@ -45,15 +45,15 @@ class SentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
 
        init() throws {
            let options = Options()
-           options.dsn = SentryWatchdogTerminationFieldsProcessorTests.dsn
+           options.dsn = SentryWatchdogTerminationAttributesProcessorTests.dsn
 
            self.dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
            self.fileManager = try TestFileManager(options: Options())
            self.scopePersistentStore = TestSentryScopePersistentStore(fileManager: fileManager)
        }
 
-       func getSut() -> SentryWatchdogTerminationFieldsProcessor {
-           SentryWatchdogTerminationFieldsProcessor(
+       func getSut() -> SentryWatchdogTerminationAttributesProcessor {
+           SentryWatchdogTerminationAttributesProcessor(
                withDispatchQueueWrapper: dispatchQueueWrapper,
                scopePersistentStore: scopePersistentStore
            )
@@ -61,7 +61,7 @@ class SentryWatchdogTerminationFieldsProcessorTests: XCTestCase {
    }
 
    private var fixture: Fixture!
-   private var sut: SentryWatchdogTerminationFieldsProcessor!
+   private var sut: SentryWatchdogTerminationAttributesProcessor!
 
    override func setUpWithError() throws {
        fixture = try Fixture()
