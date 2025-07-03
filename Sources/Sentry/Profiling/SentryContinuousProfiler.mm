@@ -246,6 +246,34 @@ _sentry_unsafe_stopTimerAndCleanup()
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler;
 }
+
++ (void)resetForTesting
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    disableTimer();
+    if (_threadUnsafe_gContinuousCurrentProfiler) {
+        [_threadUnsafe_gContinuousCurrentProfiler
+            stopForReason:SentryProfilerTruncationReasonNormal];
+        _threadUnsafe_gContinuousCurrentProfiler = nil;
+    }
+    _stopCalled = NO;
+#        if SENTRY_HAS_UIKIT
+    if (_observerToken != nil) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:_observerToken];
+        _observerToken = nil;
+    }
+#        endif // SENTRY_HAS_UIKIT
+
+    // Reset the timer factory state to avoid "uninitialized mock timer" errors
+    if ([SentryDependencyContainer.sharedInstance.timerFactory
+            respondsToSelector:@selector(reset)]) {
+        [SentryDependencyContainer.sharedInstance.timerFactory performSelector:@selector(reset)];
+    }
+
+    // Reset the global profile configuration to clear cached sampling decisions
+    sentry_profileConfiguration = nil;
+}
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end

@@ -367,6 +367,7 @@ sentry_resetConcurrencyTracking()
     std::lock_guard<std::mutex> l(_gStateLock);
     [_gTracersToProfilers removeAllObjects];
     [_gProfilersToTracers removeAllObjects];
+    _gInFlightRootSpans = 0;
 }
 
 NSUInteger

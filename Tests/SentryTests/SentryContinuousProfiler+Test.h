@@ -10,6 +10,7 @@
 
 + (void)stopTimerAndCleanup;
 + (nullable SentryProfiler *)profiler;
++ (void)resetForTesting;
 
 @end
 

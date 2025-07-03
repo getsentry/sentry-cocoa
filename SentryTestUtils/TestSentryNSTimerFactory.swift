@@ -93,4 +93,8 @@ public extension TestSentryNSTimerFactory {
     func isTimerInitialized() -> Bool {
         return overrides != nil
     }
+    
+    func reset() {
+        overrides = nil
+    }
 }
