@@ -107,7 +107,8 @@ SENTRY_NO_INIT
  * @param log The log to send to Sentry.
  * @param scope The scope containing event metadata.
  */
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
+- (void)captureLog:(SentryLog *)log
+         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
 
 /**
  * Captures a manually created user feedback and sends it to Sentry.

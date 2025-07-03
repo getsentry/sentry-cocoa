@@ -330,13 +330,13 @@ class SentryEnvelopeTests: XCTestCase {
 
     func testInitWithLogs() throws {
         let log1 = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1627846800),
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
             level: .info,
             body: "This is an info log",
             attributes: [:]
         )
         let log2 = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1627846801),
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
             level: .error,
             body: "This is an error log",
             attributes: [:]
@@ -364,13 +364,13 @@ class SentryEnvelopeTests: XCTestCase {
         
         // Verify first log
         let firstLog = items[0]
-        XCTAssertEqual(1627846800, firstLog["timestamp"] as? TimeInterval)
+        XCTAssertEqual(1_627_846_800, firstLog["timestamp"] as? TimeInterval)
         XCTAssertEqual("info", firstLog["level"] as? String)
         XCTAssertEqual("This is an info log", firstLog["body"] as? String)
         
         // Verify second log
         let secondLog = items[1]
-        XCTAssertEqual(1627846801, secondLog["timestamp"] as? TimeInterval)
+        XCTAssertEqual(1_627_846_801, secondLog["timestamp"] as? TimeInterval)
         XCTAssertEqual("error", secondLog["level"] as? String)
         XCTAssertEqual("This is an error log", secondLog["body"] as? String)
     }

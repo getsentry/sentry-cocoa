@@ -285,7 +285,7 @@ final class SentryLoggerTests: XCTestCase {
     // MARK: - Edge Cases
     
     func testWithVeryLongMessage() {
-        let longMessage = String(repeating: "a", count: 10000)
+        let longMessage = String(repeating: "a", count: 10_000)
         sut.info(longMessage)
         
         let capturedLog = getLastCapturedLog()
