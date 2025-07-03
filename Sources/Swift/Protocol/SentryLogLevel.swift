@@ -1,5 +1,5 @@
 extension SentryLog {
-    enum Level: String, Codable {
+    @_spi(Private) public enum Level: String, Codable {
         case trace
         case debug
         case info
