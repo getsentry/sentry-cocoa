@@ -15,6 +15,7 @@
 - Record user for watchdog termination events (#5558)
 - Add support for dist and environment fields for termination watch (#5560)
 - Record user for watchdog termination events (#5558)
+- Add support for tags and context fields for termination watch (#5561)
 
 ## 8.53.1
 
