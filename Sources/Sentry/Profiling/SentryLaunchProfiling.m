@@ -54,7 +54,7 @@ SentrySamplerDecision *_Nullable _sentry_profileSampleDecision(
 
     NSNumber *profilesRate = launchConfigDict[kSentryLaunchProfileConfigKeyProfilesSampleRate];
     if (profilesRate == nil) {
-        SENTRY_TEST_FATAL(
+        SENTRY_LOG_DEBUG(
             @"Tried to start a profile with no configured sample rate. Will not run profiler.");
         return nil;
     }
