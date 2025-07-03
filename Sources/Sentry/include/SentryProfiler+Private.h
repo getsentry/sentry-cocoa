@@ -29,7 +29,7 @@ typedef struct {
      * unused with continuous profiling. */
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileConfig;
+} SentryLaunchProfileDecision;
 /**
  * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
  * launch's profiling, stop tracer profiling if no automatic performance transaction is running,

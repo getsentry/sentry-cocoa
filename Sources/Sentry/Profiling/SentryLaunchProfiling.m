@@ -161,7 +161,7 @@ _sentry_startTraceProfiler(
                                                              configuration:tracerConfig];
 }
 
-SentryLaunchProfileConfig
+SentryLaunchProfileDecision
 sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
 {
 #    pragma clang diagnostic push
@@ -172,7 +172,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
                          @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d; won't "
                          @"profile launch",
             options.enableAppLaunchProfiling, options.enableTracing);
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
 #    pragma clang diagnostic pop
 
@@ -185,7 +185,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
     if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(
             @"Sampling out the launch trace for transaction profiling; won't profile launch.");
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
 
     SentrySamplerDecision *profilesSamplerDecision
@@ -193,20 +193,20 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
     if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(
             @"Sampling out the launch profile for transaction profiling; won't profile launch.");
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
 
     SENTRY_LOG_DEBUG(@"Will start transaction profile next launch; will profile launch.");
-    return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
+    return (SentryLaunchProfileDecision) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
 
-SentryLaunchProfileConfig
+SentryLaunchProfileDecision
 sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 {
     if (!options.profiling.profileAppStarts) {
         SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled but disabled app start profiling, "
                          @"won't profile launch.");
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
     if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         if (!options.isTracingEnabled) {
@@ -215,7 +215,7 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
             SENTRY_LOG_WARN(
                 @"Tracing must be enabled in order to configure app start profiling with trace "
                 @"lifecycle. See SentryOptions.tracesSampleRate and SentryOptions.tracesSampler.");
-            return (SentryLaunchProfileConfig) { NO, nil, nil };
+            return (SentryLaunchProfileDecision) { NO, nil, nil };
         }
 
         SentryTransactionContext *transactionContext =
@@ -227,7 +227,7 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
         if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(@"Sampling out the launch trace for continuous profile v2 trace "
                              @"lifecycle, won't profile launch.");
-            return (SentryLaunchProfileConfig) { NO, nil, nil };
+            return (SentryLaunchProfileDecision) { NO, nil, nil };
         }
 
         SentrySamplerDecision *profileSamplerDecision
@@ -235,27 +235,27 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
         if (profileSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"Sampling out continuous v2 trace lifecycle profile, won't profile launch.");
-            return (SentryLaunchProfileConfig) { NO, nil, nil };
+            return (SentryLaunchProfileDecision) { NO, nil, nil };
         }
 
         SENTRY_LOG_DEBUG(
             @"Continuous profiling v2 trace lifecycle conditions satisfied, will profile launch.");
-        return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profileSamplerDecision };
+        return (SentryLaunchProfileDecision) { YES, tracesSamplerDecision, profileSamplerDecision };
     }
 
     SentrySamplerDecision *profileSampleDecision
         = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
     if (profileSampleDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(@"Sampling out continuous v2 profile, won't profile launch.");
-        return (SentryLaunchProfileConfig) { NO, nil, nil };
+        return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
 
     SENTRY_LOG_DEBUG(
         @"Continuous profiling v2 manual lifecycle conditions satisfied, will profile launch.");
-    return (SentryLaunchProfileConfig) { YES, nil, profileSampleDecision };
+    return (SentryLaunchProfileDecision) { YES, nil, profileSampleDecision };
 }
 
-SentryLaunchProfileConfig
+SentryLaunchProfileDecision
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
     if ([options isContinuousProfilingV2Enabled]) {
@@ -263,7 +263,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     }
 
     if ([options isContinuousProfilingEnabled]) {
-        return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
+        return (SentryLaunchProfileDecision) { options.enableAppLaunchProfiling, nil, nil };
     }
 
     return sentry_launchShouldHaveTransactionProfiling(options);
@@ -393,7 +393,7 @@ void
 sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        SentryLaunchProfileConfig config = sentry_shouldProfileNextLaunch(options);
+        SentryLaunchProfileDecision config = sentry_shouldProfileNextLaunch(options);
         if (!config.shouldProfile) {
             SENTRY_LOG_DEBUG(@"Removing launch profile config file.");
             removeAppLaunchProfilingConfigFile();
