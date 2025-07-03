@@ -21,7 +21,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
 
-        XCTAssertNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -45,7 +45,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -69,7 +69,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -93,7 +93,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -117,7 +117,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -141,7 +141,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -165,7 +165,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -189,7 +189,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -208,7 +208,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 
@@ -234,7 +234,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
-        XCTAssertNotNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
         _sentry_nondeduplicated_startLaunchProfile()
 

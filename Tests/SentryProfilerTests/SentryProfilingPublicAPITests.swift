@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -40,6 +40,11 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 
     private let fixture = Fixture()
+
+    override class func setUp() {
+        super.setUp()
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+    }
 
     override func setUp() {
         super.setUp()

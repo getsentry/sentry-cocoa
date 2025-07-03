@@ -53,8 +53,8 @@ class TestCleanup: NSObject {
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
         removeAppLaunchProfilingConfigFile()
-        sentry_stopAndDiscardLaunchProfileTracer()
-        
+        sentry_stopAndDiscardLaunchProfileTracer(nil)
+
         if SentryContinuousProfiler.isCurrentlyProfiling() {
             SentryContinuousProfiler.stopTimerAndCleanup()
         }

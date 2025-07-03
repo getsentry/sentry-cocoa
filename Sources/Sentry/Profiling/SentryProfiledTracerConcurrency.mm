@@ -16,6 +16,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
@@ -62,12 +63,14 @@ _unsafe_cleanUpTraceProfiler(SentryProfiler *profiler, NSString *tracerKey)
     const auto profilerKey = profiler.profilerId.sentryIdString;
     [_gTracersToProfilers removeObjectForKey:tracerKey];
     _gProfilersToTracers[profilerKey] = @(_gProfilersToTracers[profilerKey].unsignedIntValue - 1);
-    if ([_gProfilersToTracers[profilerKey] unsignedIntValue] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
-        if ([profiler isRunning]) {
-            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
-        }
+    const auto remainingTracers = [_gProfilersToTracers[profilerKey] unsignedIntValue];
+    if (remainingTracers > 0) {
+        SENTRY_LOG_DEBUG(@"Waiting on %lu tracers to finish.", remainingTracers);
+        return;
     }
+
+    [_gProfilersToTracers removeObjectForKey:profilerKey];
+    [profiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
 /**
@@ -127,7 +130,8 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
-    if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+    if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
+        != kSentrySampleDecisionYes) {
         return nil;
     }
 
@@ -326,12 +330,11 @@ sentry_stopProfilerDueToFinishedTransaction(
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
     SentryHub *hub, SentryTransactionContext *transactionContext)
 {
-    if (configuration.profileOptions != nil) {
+    if (sentry_profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
-        // profile config file and packaged into the tracer configuration in the launch profile
-        // codepath
+        // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
-            configuration.profileOptions, transactionContext);
+            sentry_profileConfiguration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingV2Enabled]) {
         // non launch profile
         if (transactionContext.parentSpanId != nil) {
@@ -364,6 +367,7 @@ sentry_resetConcurrencyTracking()
     std::lock_guard<std::mutex> l(_gStateLock);
     [_gTracersToProfilers removeAllObjects];
     [_gProfilersToTracers removeAllObjects];
+    _gInFlightRootSpans = 0;
 }
 
 NSUInteger
