@@ -13,7 +13,6 @@ import Foundation
     }
     
     @_spi(Private) public func add(_ log: SentryLog) {
-        // TODO: Implement batching...
         dispatch(logs: [log])
     }
     
