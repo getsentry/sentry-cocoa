@@ -111,49 +111,47 @@ sentry_configureContinuousProfiling(SentryOptions *options)
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
+    // get the configuration options from the last time the launch config was written; it may be
+    // different than the new options the SDK was just started with
+    SentryProfileConfiguration *configurationFromLaunch = sentry_profileConfiguration;
+
     sentry_configureContinuousProfiling(options);
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        // get the configuration options from the last time the launch config was written; it may be
-        // different than the new options the SDK was just started with
-        const auto configDict = sentry_persistedLaunchProfileConfigurationOptions();
-        const auto profileIsContinuousV1 =
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
-        const auto profileIsContinuousV2 =
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] boolValue];
-        const auto v2LifecycleValue
-            = configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
-        const auto v2Lifecycle = (SentryProfileLifecycle)
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] intValue];
-        const auto v2LifecycleIsManual = profileIsContinuousV2 && v2LifecycleValue != nil
-            && v2Lifecycle == SentryProfileLifecycleManual;
+        if (configurationFromLaunch.shouldProfileLaunch) {
+            BOOL shouldStopAndTransmitLaunchProfile = YES;
 
-        BOOL shouldStopAndTransmitLaunchProfile = YES;
+            const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;
+            const auto v2LifecycleIsManual = profileIsContinuousV2
+                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleManual;
 
 #    if SENTRY_HAS_UIKIT
-        const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
-            && v2Lifecycle == SentryProfileLifecycleTrace;
-        const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
-        SentryUIViewControllerPerformanceTracker *performanceTracker =
-            [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
-        if (profileIsCorrelatedToTrace && performanceTracker.alwaysWaitForFullDisplay) {
-            SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
-                             @"display reported.");
-            shouldStopAndTransmitLaunchProfile = NO;
-        }
+            const auto v2LifecycleIsTrace = profileIsContinuousV2
+                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleTrace;
+            const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
+            SentryUIViewControllerPerformanceTracker *performanceTracker =
+                [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
+            if (profileIsCorrelatedToTrace && performanceTracker.alwaysWaitForFullDisplay) {
+                SENTRY_LOG_DEBUG(
+                    @"Will wait to stop launch profile correlated to a trace until full "
+                    @"display reported.");
+                shouldStopAndTransmitLaunchProfile = NO;
+            }
 #    endif // SENTRY_HAS_UIKIT
 
-        if (profileIsContinuousV1 || v2LifecycleIsManual) {
-            SENTRY_LOG_DEBUG(
-                @"Continuous manual launch profiles aren't stopped on calls to SentrySDK.start, "
-                @"not stopping profile.");
-            shouldStopAndTransmitLaunchProfile = NO;
-        }
+            if (configurationFromLaunch.isContinuousV1 || v2LifecycleIsManual) {
+                SENTRY_LOG_DEBUG(@"Continuous manual launch profiles aren't stopped on calls to "
+                                 @"SentrySDK.start, "
+                                 @"not stopping profile.");
+                shouldStopAndTransmitLaunchProfile = NO;
+            }
 
-        if (shouldStopAndTransmitLaunchProfile) {
-            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there is no time "
-                             @"to display tracker to stop it.");
-            sentry_stopAndDiscardLaunchProfileTracer(hub);
+            if (shouldStopAndTransmitLaunchProfile) {
+                SENTRY_LOG_DEBUG(
+                    @"Stopping launch profile in SentrySDK.start because there is no time "
+                    @"to display tracker to stop it.");
+                sentry_stopAndDiscardLaunchProfileTracer(hub);
+            }
         }
 
         sentry_configureLaunchProfilingForNextLaunch(options);
