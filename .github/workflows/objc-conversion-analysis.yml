@@ -1,0 +1,58 @@
+name: Objective-C Conversion Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - ".github/workflows/objc-conversion-analysis.yml"
+      - "SwiftConversion/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-objc-conversion:
+    name: Analyze Objective-C to Swift Conversion
+    runs-on: macos-15
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Install Graphviz
+        run: brew install graphviz
+
+      - name: Run Objective-C conversion analyzer
+        working-directory: SwiftConversion
+        run: |
+          ruby objc_conversion_analyzer.rb
+
+      - name: Generate Graphviz DOT file
+        working-directory: SwiftConversion
+        run: |
+          ruby generate_graphviz.rb
+
+      - name: Convert DOT to PNG
+        working-directory: SwiftConversion
+        run: |
+          dot -Tpng objc_dependencies_topo.dot -o objc_dependencies_topo.png
+
+      - name: Upload analysis artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: objc-conversion-analysis
+          path: |
+            SwiftConversion/objc_conversion_analysis.json
+            SwiftConversion/objc_dependencies_topo.dot
+            SwiftConversion/objc_dependencies_topo.png
+          retention-days: 30
