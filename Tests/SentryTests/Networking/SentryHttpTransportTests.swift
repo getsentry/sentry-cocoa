@@ -931,7 +931,20 @@ class SentryHttpTransportTests: XCTestCase {
         }
 
     }
-    
+
+    func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() {
+        let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        givenCachedEvents(amount: 10)
+
+        fixture.requestManager.responseDelay = .infinity
+
+        XCTAssertEqual(sut.flush(0.0), .timedOut, "Flush should time out.")
+
+        fixture.requestManager.responseDelay = 0.0
+
+        XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
+    }
+
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         givenCachedEvents(amount: 30)
 
