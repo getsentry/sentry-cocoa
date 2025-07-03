@@ -42,7 +42,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryLaunchProfileConfiguration.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -670,7 +670,7 @@ static NSDate *_Nullable startTimestamp = nil;
             return;
         }
 
-        if (sentry_launchProfileConfiguration.profilerSessionSampleDecision.decision
+        if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
             != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"The profiling session has been sampled out, no profiling will take place.");

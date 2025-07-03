@@ -10,7 +10,7 @@
 @class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
-@class SentryLaunchProfileConfiguration;
+@class SentryProfileConfiguration;
 @class SentryProfileOptions;
 @class SentryProfilerState;
 @class SentrySamplerDecision;
@@ -37,7 +37,7 @@ typedef struct {
  */
 SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub);
 
-SENTRY_EXTERN SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
+SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 
 SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
 

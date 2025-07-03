@@ -14,9 +14,9 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfileConfiguration.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
@@ -128,7 +128,7 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
-    if (sentry_launchProfileConfiguration.profilerSessionSampleDecision.decision
+    if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
         != kSentrySampleDecisionYes) {
         return nil;
     }
@@ -328,11 +328,11 @@ sentry_stopProfilerDueToFinishedTransaction(
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
     SentryHub *hub, SentryTransactionContext *transactionContext)
 {
-    if (sentry_launchProfileConfiguration.profileOptions != nil) {
+    if (sentry_profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
         // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
-            sentry_launchProfileConfiguration.profileOptions, transactionContext);
+            sentry_profileConfiguration.profileOptions, transactionContext);
     } else if ([hub.getClient.options isContinuousProfilingV2Enabled]) {
         // non launch profile
         if (transactionContext.parentSpanId != nil) {

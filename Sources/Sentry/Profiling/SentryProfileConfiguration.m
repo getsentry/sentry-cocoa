@@ -1,8 +1,8 @@
-#import "SentryLaunchProfileConfiguration.h"
+#import "SentryProfileConfiguration.h"
 #import "SentrySampling.h"
 #import "SentrySwift.h"
 
-@interface SentryLaunchProfileConfiguration ()
+@interface SentryProfileConfiguration ()
 
 @property (assign, nonatomic, readwrite) BOOL isContinuousV1;
 @property (assign, nonatomic, readwrite) BOOL waitForFullDisplay;
@@ -12,7 +12,7 @@
 
 @end
 
-@implementation SentryLaunchProfileConfiguration
+@implementation SentryProfileConfiguration
 
 - (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
                              continuousV1:(BOOL)continuousV1

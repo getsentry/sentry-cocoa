@@ -8,11 +8,11 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfileConfiguration.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
@@ -30,7 +30,11 @@
 
 using namespace sentry::profiling;
 
-SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
+/**
+ * The current configuration the profiler operates under for this session. Set when a launch profile
+ * runs, and then is updated on SDK start.
+ */
+SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 
 namespace {
 
@@ -43,20 +47,20 @@ static const int kSentryProfilerFrequencyHz = 101;
 void
 sentry_reevaluateSessionSampleRate()
 {
-    [sentry_launchProfileConfiguration reevaluateSessionSampleRate];
+    [sentry_profileConfiguration reevaluateSessionSampleRate];
 }
 
 BOOL
 sentry_isLaunchProfileCorrelatedToTraces(void)
 {
-    if (nil == sentry_launchProfileConfiguration) {
+    if (nil == sentry_profileConfiguration) {
         return NO;
     }
 
-    SentryProfileOptions *options = sentry_launchProfileConfiguration.profileOptions;
+    SentryProfileOptions *options = sentry_profileConfiguration.profileOptions;
 
     if (nil == options) {
-        return !sentry_launchProfileConfiguration.isContinuousV1;
+        return !sentry_profileConfiguration.isContinuousV1;
     }
 
     return options.profileAppStarts == true && options.lifecycle == SentryProfileLifecycleTrace;

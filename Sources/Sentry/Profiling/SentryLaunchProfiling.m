@@ -6,10 +6,10 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfileConfiguration.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryRandom.h"
 #    import "SentrySamplerDecision.h"
@@ -77,7 +77,7 @@ _sentry_hydrateV2Options(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
     profileOptions.profileAppStarts = true;
     profileOptions.sessionSampleRate = samplerDecision.sampleRate.floatValue;
 
-    sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
+    sentry_profileConfiguration = [[SentryProfileConfiguration alloc]
         initContinuousProfilingV2WaitingForFullDisplay:shouldWaitForFullDisplay
                                        samplerDecision:samplerDecision
                                         profileOptions:profileOptions];
@@ -86,9 +86,9 @@ _sentry_hydrateV2Options(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
 void
 _sentry_continuousProfilingV1_startLaunchProfile(BOOL shouldWaitForFullDisplay)
 {
-    sentry_launchProfileConfiguration =
-        [[SentryLaunchProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
-                                                               continuousV1:YES];
+    sentry_profileConfiguration =
+        [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
+                                                         continuousV1:YES];
     [SentryContinuousProfiler start];
 }
 
@@ -374,9 +374,9 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
             SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
     } else {
-        sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc]
-            initWaitingForFullDisplay:shouldWaitForFullDisplay
-                         continuousV1:NO];
+        sentry_profileConfiguration =
+            [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
+                                                             continuousV1:NO];
     }
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
@@ -454,7 +454,7 @@ sentry_stopAndTransmitLaunchProfile(SentryHub *hub)
 {
     if (sentry_launchTracer == nil) {
         SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
-        sentry_launchProfileConfiguration = nil;
+        sentry_profileConfiguration = nil;
         return;
     }
 
@@ -467,7 +467,7 @@ sentry_stopAndDiscardLaunchProfileTracer(void)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     [sentry_launchTracer finish];
-    sentry_launchProfileConfiguration = nil;
+    sentry_profileConfiguration = nil;
     sentry_isTracingAppLaunch = NO;
     sentry_launchTracer = nil;
 }
