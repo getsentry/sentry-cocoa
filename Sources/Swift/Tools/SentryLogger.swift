@@ -63,14 +63,13 @@ public final class SentryLogger: NSObject {
     // MARK: - Private
     
     private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
-        let convertedAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        
+        let logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         hub.capture(
             log: SentryLog(
                 timestamp: dateProvider.date(),
                 level: level,
                 body: body,
-                attributes: convertedAttributes
+                attributes: logAttributes
             )
         )
     }
