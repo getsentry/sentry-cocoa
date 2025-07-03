@@ -1,6 +1,9 @@
 #import "SentryProfileConfiguration.h"
-#import "SentrySampling.h"
-#import "SentrySwift.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentrySampling.h"
+#    import "SentrySwift.h"
 
 @interface SentryProfileConfiguration ()
 
@@ -58,3 +61,5 @@
 }
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

@@ -1,5 +1,9 @@
-#import "SentryDefines.h"
-#import <Foundation/Foundation.h>
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryDefines.h"
+#    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,3 +53,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
