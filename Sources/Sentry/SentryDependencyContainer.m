@@ -213,8 +213,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryLogger *)logger SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_logger, ({
-        _logger = [[SentryLogger alloc] initWithHub: SentrySDK.currentHub
-                                       dateProvider: self.dateProvider];
+        [[SentryLogger alloc] initWithHub:SentrySDK.currentHub];
     }));
 }
 

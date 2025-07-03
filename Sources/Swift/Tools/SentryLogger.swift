@@ -1,73 +1,70 @@
 import Foundation
 
 @objc
+@objcMembers
 public final class SentryLogger: NSObject {
     let hub: SentryHub
     let dateProvider: SentryCurrentDateProvider
     
     @objc
+    public init(hub: SentryHub) {
+        self.hub = hub
+        self.dateProvider = SentryDefaultCurrentDateProvider()
+        super.init()
+    }
+    
+    #if SENTRY_TEST || SENTRY_TEST_CI
     init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
         self.hub = hub
         self.dateProvider = dateProvider
         super.init()
     }
+    #endif
     
-    @objc
     public func trace(_ body: String) {
         captureLog(level: .trace, body: body, attributes: [:])
     }
     
-    @objc
     public func trace(_ body: String, attributes: [String: Any]) {
         captureLog(level: .trace, body: body, attributes: attributes)
     }
     
-    @objc
     public func debug(_ body: String) {
         captureLog(level: .debug, body: body, attributes: [:])
     }
     
-    @objc
     public func debug(_ body: String, attributes: [String: Any]) {
         captureLog(level: .debug, body: body, attributes: attributes)
     }
     
-    @objc
     public func info(_ body: String) {
         captureLog(level: .info, body: body, attributes: [:])
     }
     
-    @objc
     public func info(_ body: String, attributes: [String: Any]) {
         captureLog(level: .info, body: body, attributes: attributes)
     }
     
-    @objc
     public func warn(_ body: String) {
         captureLog(level: .warn, body: body, attributes: [:])
     }
     
-    @objc
     public func warn(_ body: String, attributes: [String: Any]) {
         captureLog(level: .warn, body: body, attributes: attributes)
     }
     
-    @objc
     public func error(_ body: String) {
         captureLog(level: .error, body: body, attributes: [:])
     }
     
-    @objc
     public func error(_ body: String, attributes: [String: Any]) {
         captureLog(level: .error, body: body, attributes: attributes)
     }
     
-    @objc
     public func fatal(_ body: String) {
         captureLog(level: .fatal, body: body, attributes: [:])
     }
     
-    @objc
     public func fatal(_ body: String, attributes: [String: Any]) {
         captureLog(level: .fatal, body: body, attributes: attributes)
     }

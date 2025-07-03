@@ -1,23 +1,24 @@
 import Foundation
 
-@objc protocol SentryLogBatcherDelegate {
+@objc
+@_spi(Private) public protocol SentryLogBatcherDelegate {
     func send(_ envelope: SentryEnvelope)
 }
 
-@objc class SentryLogBatcher: NSObject {
-    private let delegate: SentryLogBatcherDelegate
+@objc
+@objcMembers
+@_spi(Private) public class SentryLogBatcher: NSObject {
+    private weak var delegate: (SentryLogBatcherDelegate)?
     
-    @objc
-    init(delegate: SentryLogBatcherDelegate) {
+    public init(delegate: SentryLogBatcherDelegate) {
         self.delegate = delegate
         super.init()
     }
     
-    @objc
-    func processLog(_ log: SentryLog, with scope: Scope) {
+    public func processLog(_ log: SentryLog, with scope: Scope) {
         do {
             let envelope = try SentryEnvelope(logs: [log])
-            delegate.send(envelope)
+            delegate?.send(envelope)
         } catch {
             SentrySDKLog.error("Failed to create logs envelope.")
         }

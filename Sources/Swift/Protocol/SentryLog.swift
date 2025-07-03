@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-final class SentryLog: NSObject, Codable {
+@_spi(Private) public final class SentryLog: NSObject, Codable {
     let timestamp: Date
     var traceId: SentryId
     let level: SentryLog.Level
@@ -37,7 +37,7 @@ final class SentryLog: NSObject, Codable {
         super.init()
     }
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
@@ -51,7 +51,7 @@ final class SentryLog: NSObject, Codable {
         super.init()
     }
     
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(timestamp, forKey: .timestamp)
