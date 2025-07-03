@@ -205,11 +205,11 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 2)
         let envInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.last)
         XCTAssertEqual(envInvocation, "test")
-        XCTAssertEqual(fixture.watchdogTerminationFieldsProcessor.setTagsInvocations.count, 2)
-        let tagsInvocation = try XCTUnwrap(fixture.watchdogTerminationFieldsProcessor.setTagsInvocations.last)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 2)
+        let tagsInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.last)
         XCTAssertEqual(tagsInvocation, ["tag1": "value1", "tag2": "value2"])
-        XCTAssertEqual(fixture.watchdogTerminationFieldsProcessor.setTraceContextInvocations.count, 2)
-        let traceContextInvocation = try XCTUnwrap(fixture.watchdogTerminationFieldsProcessor.setTraceContextInvocations.last)
+        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 2)
+        let traceContextInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.last)
         XCTAssertEqual(NSDictionary(dictionary: traceContextInvocation ?? [:]), NSDictionary(dictionary: ["trace_id": "12345678123456781234567812345678", "span_id": "1234567812345678"]))
     }
 
