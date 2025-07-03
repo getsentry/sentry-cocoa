@@ -136,15 +136,13 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     _isStarted = YES;
 
-    [self.notificationCenter
-        addObserver:self
-           selector:@selector(didBecomeActive)
-               name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(didBecomeActive)
+                                    name:SentryDidBecomeActiveNotification];
 
-    [self.notificationCenter
-        addObserver:self
-           selector:@selector(willResignActive)
-               name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(willResignActive)
+                                    name:SentryWillResignActiveNotification];
 
     [self unpause];
 }
@@ -336,12 +334,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter
-        removeObserver:self
-                  name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
-    [self.notificationCenter
-        removeObserver:self
-                  name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+    [self.notificationCenter removeObserver:self name:SentryDidBecomeActiveNotification];
+    [self.notificationCenter removeObserver:self name:SentryWillResignActiveNotification];
 
     @synchronized(self.listeners) {
         [self.listeners removeAllObjects];

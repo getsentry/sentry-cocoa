@@ -608,7 +608,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    name: CrossPlatformApplication.didBecomeActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -624,7 +624,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
            .post(
                Notification(
-                   name: SentryNSNotificationCenterWrapper.didEnterBackgroundNotificationName,
+                  name: UIApplication.didEnterBackgroundNotification,
                    object: nil,
                    userInfo: nil
                )
@@ -652,7 +652,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+                    name: CrossPlatformApplication.willResignActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -669,7 +669,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    name: CrossPlatformApplication.didBecomeActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -699,7 +699,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.willTerminateNotificationName,
+                    name: CrossPlatformApplication.willTerminateNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -868,10 +868,10 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertEqual(4, notificationNames.count)
         
         XCTAssertEqual([
-            SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+            CrossPlatformApplication.didBecomeActiveNotification,
             NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
-            SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
-            SentryNSNotificationCenterWrapper.willTerminateNotificationName
+            CrossPlatformApplication.willResignActiveNotification,
+            CrossPlatformApplication.willTerminateNotification
         ], notificationNames)
     }
 

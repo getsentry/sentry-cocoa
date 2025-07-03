@@ -1,6 +1,12 @@
 import Foundation
 import Sentry
 
+#if canImport(UIKit)
+public typealias CrossPlatformApplication = UIApplication
+#else
+public typealias CrossPlatformApplication = NSApplication
+#endif
+
 @objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     private enum Observer {
         case observer(WeakReference<NSObject>, Selector, NSNotification.Name)
