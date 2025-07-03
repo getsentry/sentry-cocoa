@@ -146,11 +146,6 @@ public class TestClient: SentryClient {
         recordLostEventsWithQauntity.record((category, reason, quantity))
     }
     
-    @_spi(Private) public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    @_spi(Private) public override func capture(log: SentryLog, scope: Scope) {
-        captureLogInvocations.record((log, scope))
-    }
-    
     public var flushInvocations = Invocations<TimeInterval>()
     public override func flush(timeout: TimeInterval) {
         flushInvocations.record(timeout)

@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
+@property (nonatomic, strong) SentryLogBatcher *logBatcher;
 
 @end
 
@@ -77,6 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
+        _logBatcher = [[SentryLogBatcher alloc] initWithClient:client];
 
         if (_scope) {
             [_crashWrapper enrichScope:_scope];
@@ -558,9 +560,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureLog:(SentryLog *)log
 {
-    SentryClient *client = _client;
-    if (client != nil && client.options.experimental.enableLogs) {
-        [client captureLog:log withScope:self.scope];
+    SentryOptions *options = [[self client] options];
+    if (!options.experimental.enableLogs) {
+        return;
+    }
+    SentryLogBatcher *logBatcher = self.logBatcher;
+    if (logBatcher != nil) {
+        [logBatcher processLog:log with:self.scope];
     }
 }
 

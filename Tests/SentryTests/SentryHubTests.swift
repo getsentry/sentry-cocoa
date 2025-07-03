@@ -1472,15 +1472,14 @@ class SentryHubTests: XCTestCase {
         
         sut.capture(log: log)
         
-        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
-        if let captureArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual(log.timestamp, captureArguments.log.timestamp)
-            XCTAssertEqual(log.level, captureArguments.log.level)
-            XCTAssertEqual(log.body, captureArguments.log.body)
-            XCTAssertEqual(log.attributes.count, captureArguments.log.attributes.count)
-            XCTAssertEqual(log.attributes["user_id"]?.value as? String, captureArguments.log.attributes["user_id"]?.value as? String)
-            XCTAssertEqual(log.attributes["is_active"]?.value as? Bool, captureArguments.log.attributes["is_active"]?.value as? Bool)
-            XCTAssertEqual(sut.scope, captureArguments.scope)
+        // The hub now uses SentryLogBatcher which creates an envelope and calls client.capture(envelope)
+        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
+        
+        if let envelope = fixture.client.captureEnvelopeInvocations.first {
+            // Verify the envelope contains the log data
+            XCTAssertEqual(1, envelope.items.count)
+            let envelopeItem = envelope.items.first!
+            XCTAssertEqual("log", envelopeItem.header.type)
         }
     }
     
@@ -1490,13 +1489,14 @@ class SentryHubTests: XCTestCase {
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_800),
             level: .error,
-            body: "Test log message with nil client",
+            body: "Test log message with disabled logs",
             attributes: [:]
         )
         
         sut.capture(log: log)
         
-        XCTAssertEqual(0, fixture.client.captureLogInvocations.count)
+        // When logs are disabled, no envelope should be captured
+        XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
     
     func testCaptureLogWithClientNil() {
@@ -1512,7 +1512,8 @@ class SentryHubTests: XCTestCase {
         sut.bindClient(nil)
         sut.capture(log: log)
         
-        XCTAssertEqual(0, fixture.client.captureLogInvocations.count)
+        // When client is nil, the logBatcher should not be able to capture envelopes
+        XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
 }
 

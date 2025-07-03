@@ -55,7 +55,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient () <SentryLogBatcherDelegate>
+@interface SentryClient ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -157,7 +157,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
-        self.logBatcher = [[SentryLogBatcher alloc] initWithDelegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -1120,27 +1119,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return processedAttachments;
-}
-
-- (void)captureLog:(SentryLog *)log
-{
-    if (self.options.experimental.enableLogs) {
-        [self.logBatcher processLog:log with:[[SentryScope alloc] init]];
-    }
-}
-
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
-{
-    if (self.options.experimental.enableLogs) {
-        [self.logBatcher processLog:log with:scope];
-    }
-}
-
-// SentryLogBatcherDelegate
-
-- (void)send:(SentryEnvelope *)envelope
-{
-    [self captureEnvelope:envelope];
 }
 
 @end

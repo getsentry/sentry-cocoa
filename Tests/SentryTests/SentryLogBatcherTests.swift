@@ -2,34 +2,39 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryLogBatcherTests: XCTestCase {
+class SentryLogBatcherTests: XCTestCase {
     
-    private var mockDelegate: MockSentryLogBatcherDelegate!
+    private var testClient: TestClient!
     private var sut: SentryLogBatcher!
     private var scope: Scope!
     
     override func setUp() {
         super.setUp()
-        mockDelegate = MockSentryLogBatcherDelegate()
-        sut = SentryLogBatcher(delegate: mockDelegate)
+        testClient = TestClient(options: Options())
+        sut = SentryLogBatcher(client: testClient)
         scope = Scope()
     }
     
     override func tearDown() {
         super.tearDown()
-        mockDelegate = nil
+        testClient = nil
         sut = nil
         scope = nil
     }
     
-    func testProcessLog_WithValidLog_CreatesEnvelopeAndCallsDelegate() throws {
+    // MARK: - ProcessLog Tests
+    
+    func testProcessLog_WithValidLog_CreatesEnvelopeAndCallsClient() {
+        // Given
         let log = createTestLog()
         
+        // When
         sut.processLog(log, with: scope)
         
-        XCTAssertEqual(mockDelegate.sendInvocations.count, 1)
+        // Then
+        XCTAssertEqual(testClient.captureEnvelopeInvocations.count, 1)
         
-        let sentEnvelope = try XCTUnwrap(mockDelegate.sendInvocations.first)
+        let sentEnvelope = testClient.captureEnvelopeInvocations.first!
         XCTAssertEqual(sentEnvelope.items.count, 1)
         
         let envelopeItem = sentEnvelope.items.first!
@@ -52,15 +57,5 @@ final class SentryLogBatcherTests: XCTestCase {
             body: body,
             attributes: attributes
         )
-    }
-}
-
-// MARK: - Mock Delegate
-
-private class MockSentryLogBatcherDelegate: NSObject, SentryLogBatcherDelegate {
-    var sendInvocations = Invocations<SentryEnvelope>()
-    
-    func send(_ envelope: SentryEnvelope) {
-        sendInvocations.record(envelope)
     }
 }
