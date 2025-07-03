@@ -14,6 +14,16 @@
 
 @implementation SentryProfileConfiguration
 
+- (instancetype)initWithProfileOptions:(SentryProfileOptions *)options
+{
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    _profileOptions = options;
+    return self;
+}
+
 - (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
                              continuousV1:(BOOL)continuousV1
 {
@@ -21,8 +31,8 @@
         return nil;
     }
 
-    self.waitForFullDisplay = shouldWaitForFullDisplay;
-    self.isContinuousV1 = continuousV1;
+    _waitForFullDisplay = shouldWaitForFullDisplay;
+    _isContinuousV1 = continuousV1;
     return self;
 }
 
@@ -34,8 +44,8 @@
         return nil;
     }
 
-    self.profileOptions = options;
-    self.profilerSessionSampleDecision = decision;
+    _profileOptions = options;
+    _profilerSessionSampleDecision = decision;
     return self;
 }
 
