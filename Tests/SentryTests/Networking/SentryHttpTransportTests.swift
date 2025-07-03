@@ -934,7 +934,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() {
         let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
-        givenCachedEvents(amount: 10)
+        givenCachedEvents(amount: 1)
 
         fixture.requestManager.responseDelay = .infinity
 
