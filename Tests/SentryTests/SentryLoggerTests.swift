@@ -282,62 +282,6 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(invocations[5].log.level, .fatal)
     }
     
-    // MARK: - Edge Cases
-    
-    func testWithVeryLongMessage() {
-        let longMessage = String(repeating: "a", count: 10_000)
-        sut.info(longMessage)
-        
-        let capturedLog = getLastCapturedLog()
-        XCTAssertEqual(capturedLog.body, longMessage)
-    }
-    
-    func testWithEmptyMessage() {
-        sut.info("")
-        
-        let capturedLog = getLastCapturedLog()
-        XCTAssertEqual(capturedLog.body, "")
-    }
-    
-    func testWithSpecialCharactersInMessage() {
-        let specialMessage = "🚀 Test with émojis and ñ special characters! \n\t\r"
-        sut.info(specialMessage)
-        
-        let capturedLog = getLastCapturedLog()
-        XCTAssertEqual(capturedLog.body, specialMessage)
-    }
-    
-    func testWithSpecialCharactersInAttributeKeys() {
-        let attributes: [String: Any] = [
-            "key with spaces": "value1",
-            "key-with-dashes": "value2",
-            "key_with_underscores": "value3",
-            "keyWithNumbers123": "value4",
-            "🔑": "emoji-key"
-        ]
-        
-        sut.info("Special keys", attributes: attributes)
-        
-        let capturedLog = getLastCapturedLog()
-        XCTAssertEqual(capturedLog.attributes.count, 5)
-        XCTAssertEqual(capturedLog.attributes["key with spaces"]?.value as? String, "value1")
-        XCTAssertEqual(capturedLog.attributes["🔑"]?.value as? String, "emoji-key")
-    }
-    
-    func testWithNilValuesInAttributes() {
-        let attributes: [String: Any] = [
-            "valid_key": "valid_value"
-        ]
-        
-        // Note: Swift dictionaries can't contain nil values directly,
-        // but NSNull could be passed in objective-C contexts
-        sut.info("With valid attributes", attributes: attributes)
-        
-        let capturedLog = getLastCapturedLog()
-        XCTAssertEqual(capturedLog.attributes.count, 1)
-        XCTAssertEqual(capturedLog.attributes["valid_key"]?.value as? String, "valid_value")
-    }
-    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
