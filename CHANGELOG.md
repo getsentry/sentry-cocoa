@@ -5,12 +5,13 @@
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
-- User feedback widget automatically injects into SwiftUI apps correctly (#5223)
+- User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
 
 ### Improvements
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
+- Improve launch profile configuration management (#5318)
 
 ## 8.53.1
 
