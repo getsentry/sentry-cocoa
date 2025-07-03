@@ -466,6 +466,283 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertEqual(sut.previousFileURLFor(field: .environment), expectedUrl)
     }
 
+    // MARK: - Tags Tests
+
+    func testReadPreviousTagsFromDisk_whenValidJSONInPreviousTagsFile_shouldReturnDecodedTags() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let tags = ["key1": "value1", "key2": "value2"]
+        let tagsData = try XCTUnwrap(SentrySerialization.data(withJSONObject: tags))
+        let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
+        try tagsData.write(to: previousTagsFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
+
+        // -- Act --
+        let result = try XCTUnwrap(sut.readPreviousTagsFromDisk())
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["key1"], "value1")
+        XCTAssertEqual(result["key2"], "value2")
+    }
+
+    func testReadPreviousTagsFromDisk_whenInvalidJSONInPreviousTagsFile_shouldReturnNil() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("""
+            {
+                "key1": "value1",
+                "key2": 123
+            }
+            """.utf8)
+        let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
+        try data.write(to: previousTagsFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTagsFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testReadPreviousTagsFromDisk_whenInvalidDataInPreviousTagsFile_shouldReturnNil() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("<TEST DATA>".utf8)
+        let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
+        try data.write(to: previousTagsFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTagsFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testReadPreviousTagsFromDisk_whenPreviousTagsUnavailable_shouldReturnNil() throws {
+        // -- Arrange --
+        // Check pre-conditions
+        let fm = FileManager.default
+        let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
+        if fm.fileExists(atPath: previousTagsFileURL.path) {
+            try fm.removeItem(at: previousTagsFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: previousTagsFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTagsFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testWriteTagsToDisk_whenValidTags_shouldWriteToTagsFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let tags = ["key1": "value1", "key2": "value2"]
+        let tagsFileURL = sut.currentFileURLFor(field: .tags)
+
+        // Check pre-conditions
+        if fm.fileExists(atPath: tagsFileURL.path) {
+            try fm.removeItem(at: tagsFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: tagsFileURL.path))
+
+        // -- Act --
+        sut.writeTagsToDisk(tags: tags)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: tagsFileURL.path))
+        
+        let writtenData = try Data(contentsOf: tagsFileURL)
+        let decodedTags = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData)) as? [String: String]
+        
+        XCTAssertEqual(decodedTags?.count, 2)
+        XCTAssertEqual(decodedTags?["key1"], "value1")
+        XCTAssertEqual(decodedTags?["key2"], "value2")
+    }
+
+    func testWriteTagsToDisk_whenInvalidTags_shouldNotWriteToTagsFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let tags = ["key1": "value1", "key2": "value2"]
+        let tagsFileURL = sut.currentFileURLFor(field: .tags)
+        if fm.fileExists(atPath: tagsFileURL.path) {
+            try fm.removeItem(at: tagsFileURL)
+        }
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: tagsFileURL.path))
+
+        // -- Act --
+        sut.writeTagsToDisk(tags: tags)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: tagsFileURL.path))
+    }
+
+    // MARK: - Trace Context Tests
+
+    func testReadPreviousTraceContextFromDisk_whenValidJSONInPreviousTraceContextFile_shouldReturnDecodedTraceContext() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let traceContext = [
+            "trace_id": "771a43a4192642f0b136d5159a501700",
+            "span_id": "771a43a4192642f0",
+            "op": "test.operation"
+        ]
+        let traceContextData = try XCTUnwrap(SentrySerialization.data(withJSONObject: traceContext))
+        let previousTraceContextFileURL = sut.previousFileURLFor(field: .traceContext)
+        try traceContextData.write(to: previousTraceContextFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTraceContextFileURL.path))
+
+        // -- Act --
+        let result = try XCTUnwrap(sut.readPreviousTraceContextFromDisk())
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(result["trace_id"] as? String, "771a43a4192642f0b136d5159a501700")
+        XCTAssertEqual(result["span_id"] as? String, "771a43a4192642f0")
+        XCTAssertEqual(result["op"] as? String, "test.operation")
+    }
+
+    func testReadPreviousTraceContextFromDisk_whenInvalidJSONInPreviousTraceContextFile_shouldReturnNil() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("a".utf8)
+        let previousTraceContextFileURL = sut.previousFileURLFor(field: .traceContext)
+        try data.write(to: previousTraceContextFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTraceContextFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTraceContextFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testReadPreviousTraceContextFromDisk_whenInvalidDataInPreviousTraceContextFile_shouldReturnNil() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("<TEST DATA>".utf8)
+        let previousTraceContextFileURL = sut.previousFileURLFor(field: .traceContext)
+        try data.write(to: previousTraceContextFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousTraceContextFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTraceContextFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testReadPreviousTraceContextFromDisk_whenPreviousTraceContextUnavailable_shouldReturnNil() throws {
+        // -- Arrange --
+        // Check pre-conditions
+        let fm = FileManager.default
+        let previousTraceContextFileURL = sut.previousFileURLFor(field: .traceContext)
+        if fm.fileExists(atPath: previousTraceContextFileURL.path) {
+            try fm.removeItem(at: previousTraceContextFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: previousTraceContextFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousTraceContextFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testWriteTraceContextToDisk_whenValidTraceContext_shouldWriteToTraceContextFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let traceContext = [
+            "trace_id": "771a43a4192642f0b136d5159a501700",
+            "span_id": "771a43a4192642f0",
+            "op": "test.operation"
+        ]
+        let traceContextFileURL = sut.currentFileURLFor(field: .traceContext)
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: traceContextFileURL.path))
+
+        // -- Act --
+        sut.writeTraceContextToDisk(traceContext: traceContext)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: traceContextFileURL.path))
+        
+        let writtenData = try Data(contentsOf: traceContextFileURL)
+        let decodedTraceContext = try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: writtenData))
+        
+        XCTAssertEqual(decodedTraceContext.count, 3)
+        XCTAssertEqual(decodedTraceContext["trace_id"] as? String, "771a43a4192642f0b136d5159a501700")
+        XCTAssertEqual(decodedTraceContext["span_id"] as? String, "771a43a4192642f0")
+        XCTAssertEqual(decodedTraceContext["op"] as? String, "test.operation")
+    }
+
+    func testWriteTraceContextToDisk_whenInvalidTraceContext_shouldNotWriteToTraceContextFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let traceContext: [String: Any] = [
+            "trace_id": "771a43a4192642f0b136d5159a501700",
+            "span_id": Double.infinity
+        ]
+        let traceContextFileURL = sut.currentFileURLFor(field: .traceContext)
+        if fm.fileExists(atPath: traceContextFileURL.path) {
+            try fm.removeItem(at: traceContextFileURL)
+        }
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: traceContextFileURL.path))
+
+        // -- Act --
+        sut.writeTraceContextToDisk(traceContext: traceContext)
+
+        // -- Assert --
+        XCTAssertFalse(fm.fileExists(atPath: traceContextFileURL.path))
+    }
+
+    // MARK: - File Operation Tests
+
+    func testCurrentFileURLFor_tags_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("tags.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.currentFileURLFor(field: .tags), expectedUrl)
+    }
+
+    func testPreviousFileURLFor_tags_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("previous.tags.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.previousFileURLFor(field: .tags), expectedUrl)
+    }
+
+    func testCurrentFileURLFor_traceContext_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("trace_context.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.currentFileURLFor(field: .traceContext), expectedUrl)
+    }
+
+    func testPreviousFileURLFor_traceContext_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("previous.trace_context.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.previousFileURLFor(field: .traceContext), expectedUrl)
+    }
+
     func testDeleteAllCurrentState_shouldDeleteAllCurrentFiles() throws {
         // -- Arrange --
         let fm = FileManager.default
@@ -473,17 +750,23 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let userFileURL = sut.currentFileURLFor(field: .user)
         let distFileURL = sut.currentFileURLFor(field: .dist)
         let environmentFileURL = sut.currentFileURLFor(field: .environment)
+        let tagsFileURL = sut.currentFileURLFor(field: .tags)
+        let traceContextFileURL = sut.currentFileURLFor(field: .traceContext)
         
         // Create test files
         try "context data".write(to: contextFileURL, atomically: true, encoding: .utf8)
         try "user data".write(to: userFileURL, atomically: true, encoding: .utf8)
         try "dist data".write(to: distFileURL, atomically: true, encoding: .utf8)
         try "environment data".write(to: environmentFileURL, atomically: true, encoding: .utf8)
+        try "tags data".write(to: tagsFileURL, atomically: true, encoding: .utf8)
+        try "trace context data".write(to: traceContextFileURL, atomically: true, encoding: .utf8)
         
         XCTAssertTrue(fm.fileExists(atPath: contextFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: distFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: environmentFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: tagsFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: traceContextFileURL.path))
 
         // -- Act --
         sut.deleteAllCurrentState()
@@ -493,6 +776,8 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: userFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: distFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: environmentFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: tagsFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: traceContextFileURL.path))
     }
 
     func testDeleteAllPreviousState_shouldDeleteAllPreviousFiles() throws {
@@ -502,17 +787,23 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let previousUserFileURL = sut.previousFileURLFor(field: .user)
         let previousDistFileURL = sut.previousFileURLFor(field: .dist)
         let previousEnvironmentFileURL = sut.previousFileURLFor(field: .environment)
+        let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
+        let previousTraceContextFileURL = sut.previousFileURLFor(field: .traceContext)
         
         // Create test files
         try "previous context data".write(to: previousContextFileURL, atomically: true, encoding: .utf8)
         try "previous user data".write(to: previousUserFileURL, atomically: true, encoding: .utf8)
         try "previous dist data".write(to: previousDistFileURL, atomically: true, encoding: .utf8)
         try "previous environment data".write(to: previousEnvironmentFileURL, atomically: true, encoding: .utf8)
+        try "previous tags data".write(to: previousTagsFileURL, atomically: true, encoding: .utf8)
+        try "previous trace context data".write(to: previousTraceContextFileURL, atomically: true, encoding: .utf8)
         
         XCTAssertTrue(fm.fileExists(atPath: previousContextFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousUserFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousDistFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousEnvironmentFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: previousTraceContextFileURL.path))
 
         // -- Act --
         sut.deleteAllPreviousState()
@@ -522,5 +813,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: previousUserFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousDistFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousEnvironmentFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: previousTagsFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: previousTraceContextFileURL.path))
     }
 }
