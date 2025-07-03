@@ -171,12 +171,8 @@ jobs:
       - name: Print hardware info
         run: system_profiler SPHardwareDataType
 
-      - name: Allow test-server to run
-        run: chmod +x ./test-server-exec
-      - run: ./test-server-exec &
-
-      - name: Check test-server runs
-        run: curl http://localhost:8080/echo-baggage-header
+      - name: Start Test Server
+        run: ./scripts/start-test-server.sh
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 

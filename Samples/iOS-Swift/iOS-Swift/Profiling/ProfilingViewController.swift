@@ -75,14 +75,14 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func defineProfilesSampleRateToggled(_ sender: UISwitch) {
         sampleRateField.isEnabled = sender.isOn
-        
+
         var sampleRate = SentrySDKOverrides.Profiling.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: sampleRateField)
     }
 
     @IBAction func defineTracesSampleRateToggled(_ sender: UISwitch) {
         tracesSampleRateField.isEnabled = sender.isOn
-        
+
         var sampleRate = SentrySDKOverrides.Tracing.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: tracesSampleRateField)
     }
@@ -109,7 +109,16 @@ private extension ProfilingViewController {
         let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
         let dir = "\(cachesDirectory)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
-        let count = try! fm.contentsOfDirectory(atPath: dir).count
+
+        let count: Int
+        do {
+            count = try fm.contentsOfDirectory(atPath: dir).count
+        } catch {
+            print("[iOS-Swift] [debug] [ProfilingViewController] error reading directory \(dir): \(error)")
+            profilingUITestDataMarshalingStatus.text = "<error>"
+            return
+        }
+
         //swiftlint:disable empty_count
         guard continuous || count > 0 else {
             //swiftlint:enable empty_count
@@ -118,7 +127,7 @@ private extension ProfilingViewController {
         }
         let fileName = "profile\(continuous ? 0 : count - 1)"
         let fullPath = "\(dir)/\(fileName)"
-        
+
         if fm.fileExists(atPath: fullPath) {
             let url = NSURL.fileURL(withPath: fullPath)
             block(url)
@@ -129,17 +138,17 @@ private extension ProfilingViewController {
             }
             return
         }
-        
+
         block(nil)
     }
-    
+
     func handleContents(file: URL?) {
         guard let file = file else {
             profilingUITestDataMarshalingTextField.text = "<missing>"
             profilingUITestDataMarshalingStatus.text = "❌"
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: file)
             let contents = data.base64EncodedString()

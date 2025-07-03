@@ -10,6 +10,7 @@ class LaunchUITests: XCTestCase {
 
     func testTransactionSpan() {
         let app = newAppSession()
+        app.safelyLaunch()
         
         let transactionName = app.staticTexts["TRANSACTION_NAME"]
         let transactionId = app.staticTexts["TRANSACTION_ID"]
@@ -29,6 +30,7 @@ class LaunchUITests: XCTestCase {
 
     func testNoNewTransactionForSecondCallToBody() {
         let app = newAppSession()
+        app.safelyLaunch()
 
         app.buttons["Form Screen"].tap()
 

@@ -30,18 +30,7 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - SwiftUITestSampleUITestsCrashOnly
       - SwiftUITestSampleUITestsEnvelopeOnly
-    configFiles:
-      Debug: SwiftUITestSampleUITests.xcconfig
-      Release: SwiftUITestSampleUITests.xcconfig
-      Test: SwiftUITestSampleUITests.xcconfig
-      TestCI: SwiftUITestSampleUITests.xcconfig
-  SwiftUITestSampleUITestsCrashOnly:
-    type: bundle.ui-testing
-    platform: auto
-    sources:
-      - SwiftUITestSampleUITestsCrashOnly
     configFiles:
       Debug: SwiftUITestSampleUITests.xcconfig
       Release: SwiftUITestSampleUITests.xcconfig
@@ -58,19 +47,6 @@ targets:
       Test: SwiftUITestSampleUITests.xcconfig
       TestCI: SwiftUITestSampleUITests.xcconfig
 schemes:
-  SwiftUITestSampleCrash:
-    build:
-      targets:
-        SwiftUITestSample: all
-        SwiftUITestSampleUITestsCrashOnly: test
-    test:
-      config: Test
-      testPlans:
-        - path: ../../Plans/SwiftUITestSample_Crash.xctestplan
-      preActions:
-        - script: |
-            echo "Uninstalling app"
-            xcrun simctl uninstall booted io.sentry.tests.SwiftUITestSample
   SwiftUITestSampleEnvelope:
     build:
       targets:
