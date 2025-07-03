@@ -14,7 +14,6 @@
 @class SentryScope;
 @class SentryTransaction;
 @class SentryUserFeedback;
-@class SentryLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
