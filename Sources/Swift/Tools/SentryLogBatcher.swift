@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+import _SentryPrivate
 import Foundation
 
 @objc
