@@ -1,6 +1,5 @@
 import _SentryPrivate
 import Foundation
-@_spi(Private) @testable import Sentry
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
