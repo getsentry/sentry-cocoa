@@ -62,7 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryLogBatcher *logBatcher;
 
 @end
 
