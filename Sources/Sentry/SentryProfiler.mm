@@ -89,11 +89,6 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    if (sentry_launchProfileConfiguration == nil) {
-        sentry_launchProfileConfiguration = [[SentryLaunchProfileConfiguration alloc] init];
-    }
-    sentry_launchProfileConfiguration.profileOptions = options.profiling;
-
     sentry_reevaluateSessionSampleRate();
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "

@@ -147,7 +147,6 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: continuous profiling v1
 extension SentryAppLaunchProfilingTests {
-    // test continuous launch profiling configuration
     func testContinuousLaunchProfileV1Configuration() throws {
         let options = Options()
         options.enableAppLaunchProfiling = true
@@ -159,6 +158,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
+
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
 
