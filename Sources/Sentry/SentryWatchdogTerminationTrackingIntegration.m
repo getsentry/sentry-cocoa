@@ -101,6 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
         [scopeObserver setEnvironment:outerScope.environmentString];
         [scopeObserver setDist:outerScope.distString];
         [scopeObserver setTags:outerScope.tags];
+        [scopeObserver setExtras:outerScope.extraDictionary];
+        [scopeObserver setFingerprint:outerScope.fingerprintArray];
         // We intentionally skip calling `setTraceContext:` since traces are not stored for watchdog
         // termination events
     }];

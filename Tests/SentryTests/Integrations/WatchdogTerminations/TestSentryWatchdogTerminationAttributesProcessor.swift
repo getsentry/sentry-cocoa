@@ -10,6 +10,9 @@ class TestSentryWatchdogTerminationAttributesProcessor: SentryWatchdogTerminatio
     var setDistInvocations = Invocations<String?>()
     var setEnvironmentInvocations = Invocations<String?>()
     var setTagsInvocations = Invocations<[String: String]?>()
+    var setLevelInvocations = Invocations<NSNumber?>()
+    var setExtrasInvocations = Invocations<[String: Any]?>()
+    var setFingerprintInvocations = Invocations<[String]?>()
     var clearInvocations = Invocations<Void>()
 
     override func setContext(_ context: [String: [String: Any]]?) {
@@ -30,6 +33,18 @@ class TestSentryWatchdogTerminationAttributesProcessor: SentryWatchdogTerminatio
     
     override func setTags(_ tags: [String: String]?) {
         setTagsInvocations.record(tags)
+    }
+    
+    override func setLevel(_ level: NSNumber?) {
+        setLevelInvocations.record(level)
+    }
+    
+    override func setExtras(_ extras: [String: Any]?) {
+        setExtrasInvocations.record(extras)
+    }
+    
+    override func setFingerprint(_ fingerprint: [String]?) {
+        setFingerprintInvocations.record(fingerprint)
     }
 
     override func clear() {

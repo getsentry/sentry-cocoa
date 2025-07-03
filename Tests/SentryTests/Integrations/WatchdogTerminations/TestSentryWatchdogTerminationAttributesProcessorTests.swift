@@ -153,6 +153,78 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         let thirdInvocation = try XCTUnwrap(sut.setTagsInvocations.invocations.element(at: 2))
         XCTAssertNil(thirdInvocation)
     }
+    
+    func testSetLevel_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setLevelInvocations.removeAll()
+        XCTAssertEqual(sut.setLevelInvocations.count, 0)
+
+        // -- Act --
+        let level1 = NSNumber(value: SentryLevel.fatal.rawValue)
+        let level2 = NSNumber(value: SentryLevel.error.rawValue)
+        sut.setLevel(level1)
+        sut.setLevel(level2)
+        sut.setLevel(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setLevelInvocations.count, 3)
+        XCTAssertEqual(
+            sut.setLevelInvocations.invocations.element(at: 0),
+            level1
+        )
+        XCTAssertEqual(sut.setLevelInvocations.invocations.element(at: 1), level2)
+        let thirdInvocation = try XCTUnwrap(sut.setLevelInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
+    
+    func testSetExtras_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setExtrasInvocations.removeAll()
+        XCTAssertEqual(sut.setExtrasInvocations.count, 0)
+
+        // -- Act --
+        let extras1: [String: Any] = ["key1": "value1", "key2": 42]
+        let extras2: [String: Any] = ["key3": true, "key4": ["nested": "value"]]
+        sut.setExtras(extras1)
+        sut.setExtras(extras2)
+        sut.setExtras(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setExtrasInvocations.count, 3)
+        XCTAssertEqual(
+            NSDictionary(dictionary: sut.setExtrasInvocations.invocations.element(at: 0) as? [String: Any] ?? [:]),
+            NSDictionary(dictionary: extras1)
+        )
+        XCTAssertEqual(NSDictionary(dictionary: sut.setExtrasInvocations.invocations.element(at: 1) as? [String: Any] ?? [:]), NSDictionary(dictionary: extras2))
+        let thirdInvocation = try XCTUnwrap(sut.setExtrasInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
+    
+    func testSetFingerprint_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setFingerprintInvocations.removeAll()
+        XCTAssertEqual(sut.setFingerprintInvocations.count, 0)
+
+        // -- Act --
+        let fingerprint1 = ["fp1", "fp2"]
+        let fingerprint2 = ["fp3", "fp4", "fp5"]
+        sut.setFingerprint(fingerprint1)
+        sut.setFingerprint(fingerprint2)
+        sut.setFingerprint(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setFingerprintInvocations.count, 3)
+        XCTAssertEqual(
+            sut.setFingerprintInvocations.invocations.element(at: 0),
+            fingerprint1
+        )
+        XCTAssertEqual(sut.setFingerprintInvocations.invocations.element(at: 1), fingerprint2)
+        let thirdInvocation = try XCTUnwrap(sut.setFingerprintInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
 
     func testClear_shouldRecordInvocations() throws {
         // -- Arrange --
