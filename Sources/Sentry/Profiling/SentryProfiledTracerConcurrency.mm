@@ -14,6 +14,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLaunchProfileConfiguration.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiledTracerConcurrency.h"

@@ -10,6 +10,7 @@
 @class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
+@class SentryLaunchProfileConfiguration;
 @class SentryProfileOptions;
 @class SentryProfilerState;
 @class SentrySamplerDecision;
@@ -29,34 +30,6 @@ typedef struct {
     SentrySamplerDecision *_Nullable tracesDecision;
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
-
-/**
- * A data structure to hold in memory the options that were persisted when configuring launch
- * profiling on the previous launch's call to @c SentrySDK.startWith(options:) .
- * @note @c profilerSessionSampleDecision and @c profileOptions will be @c nil for continuous
- * profiling v1 (continuous profiling beta).
- */
-@interface SentryLaunchProfileConfiguration : NSObject
-
-@property (assign, nonatomic, readonly) BOOL isContinuousV1;
-@property (assign, nonatomic, readonly) BOOL waitForFullDisplay;
-@property (strong, nonatomic, nullable, readonly)
-    SentrySamplerDecision *profilerSessionSampleDecision;
-@property (strong, nonatomic, nullable, readonly) SentryProfileOptions *profileOptions;
-
-- (void)reevaluateSessionSampleRate;
-
-SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
-
-- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                             continuousV1:(BOOL)continuousV1;
-
-- (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                                               samplerDecision:(SentrySamplerDecision *)decision
-                                                profileOptions:(SentryProfileOptions *)options;
-
-@end
-
 /**
  * Perform necessary profiler tasks that should take place when the SDK starts: configure the next
  * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
@@ -64,11 +37,9 @@ SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
  */
 SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub);
 
-/**
- * Continuous profiling will respect its own sampling rate, which is computed once for each Sentry
- * session.
- */
 SENTRY_EXTERN SentryLaunchProfileConfiguration *_Nullable sentry_launchProfileConfiguration;
+
+SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
 
 SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
 

@@ -6,6 +6,7 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryFileManager.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLaunchProfileConfiguration.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
