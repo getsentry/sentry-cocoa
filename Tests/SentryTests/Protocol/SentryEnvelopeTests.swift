@@ -327,7 +327,7 @@ class SentryEnvelopeTests: XCTestCase {
             XCTFail("Failed to store attachment.")
         }
     }
-    
+
     private func assertEventDoesNotContainContext(_ json: String) {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
