@@ -232,12 +232,13 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
     sentry_isTracingAppLaunch = NO;
     [self.metricProfiler stop];
-    self.truncationReason = reason;
 
     if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Profiler is not currently running.");
         return;
     }
+
+    self.truncationReason = reason;
 
 #    if SENTRY_HAS_UIKIT
     // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
