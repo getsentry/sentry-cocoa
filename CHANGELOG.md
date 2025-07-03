@@ -7,6 +7,7 @@
 - Set handled to false for fatal app hangs (#5514)
 - User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
+- Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
 
 ### Improvements
 
