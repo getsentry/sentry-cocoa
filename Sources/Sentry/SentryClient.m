@@ -1127,7 +1127,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self.options.experimental.enableLogs) {
         [self.logBatcher processLog:log with:[[SentryScope alloc] init]];
     }
-    
 }
 
 - (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
