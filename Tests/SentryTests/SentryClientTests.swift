@@ -2141,6 +2141,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureLog() throws {
         let sut = fixture.getSut()
+        sut.options.experimental.enableLogs = true
         
         sut.capture(log: fixture.testLog, scope: fixture.scope)
         
@@ -2179,8 +2180,27 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(true, isActiveAttribute["value"] as? Bool)
     }
     
+    func testCaptureLogWithLogsDisabled() {
+        let sut = fixture.getSut()
+        sut.options.experimental.enableLogs = false
+        
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .error,
+            body: "Test log message with nil client",
+            attributes: [:]
+        )
+        
+        sut.capture(log: log)
+        sut.capture(log: log, scope: fixture.scope)
+        
+        // Should not send envelope when logs disabled
+        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
+    }
+    
     func testCaptureLogWithDisabledClient() {
         let sut = fixture.getSutDisabledSdk()
+        sut.options.experimental.enableLogs = true
         
         sut.capture(log: fixture.testLog, scope: fixture.scope)
         
@@ -2190,6 +2210,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureLogWithNoDsn() {
         let sut = fixture.getSutWithNoDsn()
+        sut.options.experimental.enableLogs = true
         
         sut.capture(log: fixture.testLog, scope: fixture.scope)
         

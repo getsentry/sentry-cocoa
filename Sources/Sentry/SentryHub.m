@@ -559,7 +559,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureLog:(SentryLog *)log
 {
     SentryClient *client = _client;
-    if (client != nil) {
+    if (client != nil && client.options.experimental.enableLogs) {
         [client captureLog:log withScope:self.scope];
     }
 }

@@ -1458,6 +1458,8 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureLog() {
+        fixture.options.experimental.enableLogs = true
+        
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_800),
             level: .info,
@@ -1468,7 +1470,7 @@ class SentryHubTests: XCTestCase {
             ]
         )
         
-        fixture.getSut().capture(log: log)
+        sut.capture(log: log)
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         if let captureArguments = fixture.client.captureLogInvocations.first {
@@ -1478,11 +1480,28 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(log.attributes.count, captureArguments.log.attributes.count)
             XCTAssertEqual(log.attributes["user_id"]?.value as? String, captureArguments.log.attributes["user_id"]?.value as? String)
             XCTAssertEqual(log.attributes["is_active"]?.value as? Bool, captureArguments.log.attributes["is_active"]?.value as? Bool)
-            XCTAssertEqual(fixture.scope, captureArguments.scope)
+            XCTAssertEqual(sut.scope, captureArguments.scope)
         }
     }
     
+    func testCaptureLog_WithLogsDisabled() {
+        fixture.options.experimental.enableLogs = false
+        
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .error,
+            body: "Test log message with nil client",
+            attributes: [:]
+        )
+        
+        sut.capture(log: log)
+        
+        XCTAssertEqual(0, fixture.client.captureLogInvocations.count)
+    }
+    
     func testCaptureLogWithClientNil() {
+        fixture.options.experimental.enableLogs = true
+        
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_800),
             level: .error,
