@@ -579,10 +579,6 @@ static BOOL appStartMeasurementRead;
     BOOL discardTransaction = [self finishTracer:kSentrySpanStatusDeadlineExceeded
                                    shouldCleanUp:YES];
     if (discardTransaction) {
-        // !!!: the problem right now is that for
-        // testLaunchTraceProfileStoppedOnInitialDisplayWithoutWaitingForFullDisplay, when
-        // SentryTimeToDisplayTracker calls sentry_stopAndDiscardLaunchProfileTracer, the trace gets
-        // discarded here and we never stop the profiler
         SENTRY_LOG_DEBUG(@"Discarding transaction for trace %@ (profileReferenceId %@)",
             self.traceId.sentryIdString, _profilerReferenceID.sentryIdString);
         return;

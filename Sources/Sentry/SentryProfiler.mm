@@ -20,6 +20,7 @@
 #    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
+#    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
@@ -150,9 +151,9 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         }
 
         if (shouldStopAndTransmitLaunchProfile) {
-            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                             @"be no automatic trace to attach it to.");
-            sentry_stopAndTransmitLaunchProfile(hub);
+            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there is no time "
+                             @"to display tracker to stop it.");
+            sentry_stopAndDiscardLaunchProfileTracer(hub);
         }
 
         sentry_configureLaunchProfilingForNextLaunch(options);

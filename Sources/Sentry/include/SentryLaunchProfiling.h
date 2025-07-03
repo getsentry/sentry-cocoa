@@ -10,6 +10,7 @@
 @class SentryOptions;
 @class SentryTracerConfiguration;
 @class SentryTransactionContext;
+@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,26 +32,22 @@ SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay;
  */
 SENTRY_EXTERN BOOL sentry_isTracingAppLaunch;
 
-/** Try to start a profiled trace for this app launch, if the configuration allows. */
+SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
+
 SENTRY_EXTERN void sentry_startLaunchProfile(void);
 
 /**
- * Stop any profiled trace that may be in flight from the start of the app launch, and transmit the
- * dedicated transaction with the profiling data attached.
+ * Stop a launch tracer in order to stop the associated profiler. Must attach a hub, since there
+ * isn't yet one when we start the launch tracer.
+ * @noteIf the hub is nil, the tracer/profile will be discarded. This normally should always have a
+ * valid hub, but tests may not have one and call this with nil instead.
  */
-SENTRY_EXTERN void sentry_stopAndTransmitLaunchProfile(SentryHub *hub);
+SENTRY_EXTERN void sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub);
 
 /**
- * Stop the tracer that started the launch profiler. Use when the profiler will be attached to an
- * app start transaction and doesn't need to be attached to a dedicated tracer. The tracer managing
- * the profiler will be discarded in this case.
- */
-void sentry_stopAndDiscardLaunchProfileTracer(void);
-
-/**
- * Write a file to disk containing sample rates for profiles and traces. The presence of this file
- * will let the profiler know to start on the app launch, and the sample rates contained will help
- * thread sampling decisions through to SentryHub later when it needs to start a transaction for the
+ * Write a file to disk containing profile configuration options. The presence of this file will let
+ * the profiler know to start on the app launch, and the sample rates contained will help thread
+ * sampling decisions through to SentryHub later when it needs to start a transaction for the
  * profile to be attached to.
  */
 SENTRY_EXTERN void sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options);

@@ -7,11 +7,8 @@
 
 @class SentryOptions;
 @class SentrySamplerDecision;
-@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
-
-SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
 
 /**
  * `sentry_shouldProfileNextLaunch` cannot be exposed to Swift tests because its return type is not

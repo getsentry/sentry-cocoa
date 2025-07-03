@@ -450,22 +450,10 @@ sentry_startLaunchProfile(void)
 }
 
 void
-sentry_stopAndTransmitLaunchProfile(SentryHub *hub)
-{
-    if (sentry_launchTracer == nil) {
-        SENTRY_LOG_DEBUG(@"No launch tracer present to stop.");
-        sentry_profileConfiguration = nil;
-        return;
-    }
-
-    sentry_launchTracer.hub = hub;
-    sentry_stopAndDiscardLaunchProfileTracer();
-}
-
-void
-sentry_stopAndDiscardLaunchProfileTracer(void)
+sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
+    sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
     sentry_profileConfiguration = nil;
     sentry_isTracingAppLaunch = NO;
