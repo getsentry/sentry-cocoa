@@ -48,9 +48,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.trace("Test trace message")
         
         assertLogCaptured(
-            expectedLevel: .trace,
-            expectedBody: "Test trace message",
-            expectedAttributes: [:]
+            .trace,
+            "Test trace message",
+            [:]
         )
     }
     
@@ -65,9 +65,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.trace("Test trace with attributes", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .trace,
-            expectedBody: "Test trace with attributes",
-            expectedAttributes: [
+            .trace,
+            "Test trace with attributes",
+            [
                 "user_id": .string("12345"),
                 "is_debug": .boolean(true),
                 "count": .integer(42),
@@ -82,9 +82,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.debug("Test debug message")
         
         assertLogCaptured(
-            expectedLevel: .debug,
-            expectedBody: "Test debug message",
-            expectedAttributes: [:]
+            .debug,
+            "Test debug message",
+            [:]
         )
     }
     
@@ -97,9 +97,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.debug("Debug networking", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .debug,
-            expectedBody: "Debug networking",
-            expectedAttributes: [
+            .debug,
+            "Debug networking",
+            [
                 "module": .string("networking"),
                 "enabled": .boolean(false)
             ]
@@ -112,9 +112,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.info("Test info message")
         
         assertLogCaptured(
-            expectedLevel: .info,
-            expectedBody: "Test info message",
-            expectedAttributes: [:]
+            .info,
+            "Test info message",
+            [:]
         )
     }
     
@@ -127,9 +127,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.info("Request completed", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .info,
-            expectedBody: "Request completed",
-            expectedAttributes: [
+            .info,
+            "Request completed",
+            [
                 "request_id": .string("req-123"),
                 "duration": .double(1.5)
             ]
@@ -142,9 +142,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.warn("Test warning message")
         
         assertLogCaptured(
-            expectedLevel: .warn,
-            expectedBody: "Test warning message",
-            expectedAttributes: [:]
+            .warn,
+            "Test warning message",
+            [:]
         )
     }
     
@@ -157,9 +157,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.warn("Connection failed", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .warn,
-            expectedBody: "Connection failed",
-            expectedAttributes: [
+            .warn,
+            "Connection failed",
+            [
                 "retry_count": .integer(3),
                 "will_retry": .boolean(true)
             ]
@@ -172,9 +172,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.error("Test error message")
         
         assertLogCaptured(
-            expectedLevel: .error,
-            expectedBody: "Test error message",
-            expectedAttributes: [:]
+            .error,
+            "Test error message",
+            [:]
         )
     }
     
@@ -187,9 +187,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.error("Server error occurred", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .error,
-            expectedBody: "Server error occurred",
-            expectedAttributes: [
+            .error,
+            "Server error occurred",
+            [
                 "error_code": .integer(500),
                 "recoverable": .boolean(false)
             ]
@@ -202,9 +202,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.fatal("Test fatal message")
         
         assertLogCaptured(
-            expectedLevel: .fatal,
-            expectedBody: "Test fatal message",
-            expectedAttributes: [:]
+            .fatal,
+            "Test fatal message",
+            [:]
         )
     }
     
@@ -217,9 +217,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.fatal("Application crashed", attributes: attributes)
         
         assertLogCaptured(
-            expectedLevel: .fatal,
-            expectedBody: "Application crashed",
-            expectedAttributes: [
+            .fatal,
+            "Application crashed",
+            [
                 "exit_code": .integer(-1),
                 "critical": .boolean(true)
             ]
@@ -230,9 +230,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.info("Empty attributes", attributes: [:])
         
         assertLogCaptured(
-            expectedLevel: .info,
-            expectedBody: "Empty attributes",
-            expectedAttributes: [:]
+            .info,
+            "Empty attributes",
+            [:]
         )
     }
     
@@ -285,9 +285,9 @@ final class SentryLoggerTests: XCTestCase {
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
-        expectedLevel: SentryLog.Level,
-        expectedBody: String,
-        expectedAttributes: [String: SentryLog.Attribute],
+        _ expectedLevel: SentryLog.Level,
+        _ expectedBody: String,
+        _ expectedAttributes: [String: SentryLog.Attribute],
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -314,7 +314,6 @@ final class SentryLoggerTests: XCTestCase {
             }
             
             XCTAssertEqual(actualAttribute.type, expectedAttribute.type, "Attribute type mismatch for key: \(key)", file: file, line: line)
-            
             // Compare values based on type
             switch (expectedAttribute, actualAttribute) {
             case let (.string(expected), .string(actual)):
