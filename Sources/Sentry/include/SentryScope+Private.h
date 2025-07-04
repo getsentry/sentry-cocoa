@@ -26,11 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryPropagationContext *propagationContext;
 
 /**
- * Set global extra -> these will be sent with every event
- */
-@property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
-
-/**
  * This distribution of the application.
  */
 @property (atomic, copy) NSString *_Nullable distString;
