@@ -318,9 +318,15 @@ NS_ASSUME_NONNULL_BEGIN
             }
             SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
-            SentryMXFrame *firstUnprocessedSibling =
-                [self getFirstUnprocessedSubFrames:parentFrame.subFrames
-                           processedFrameAddresses:processedFrameAddresses];
+            SentryMXFrame *firstUnprocessedSibling = nil;
+            if (parentFrame != nil && parentFrame.subFrames != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                firstUnprocessedSibling =
+                    [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                               processedFrameAddresses:processedFrameAddresses];
+#    pragma clang diagnostic pop
+            }
 
             BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
             BOOL noChildren = currentFrame.subFrames.count == 0;
@@ -340,9 +346,15 @@ NS_ASSUME_NONNULL_BEGIN
                     }
                 }
             } else {
-                SentryMXFrame *nonProcessedSubFrame =
-                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames
-                               processedFrameAddresses:processedFrameAddresses];
+                SentryMXFrame *nonProcessedSubFrame = nil;
+                if (currentFrame.subFrames != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    nonProcessedSubFrame =
+                        [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                                   processedFrameAddresses:processedFrameAddresses];
+#    pragma clang diagnostic pop
+                }
 
                 // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {
@@ -482,7 +494,12 @@ NS_ASSUME_NONNULL_BEGIN
             [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
 
         for (SentryDebugMeta *debugMeta in callStackDebugMetas) {
-            debugMetas[debugMeta.debugID] = debugMeta;
+            if (debugMeta.debugID != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                debugMetas[debugMeta.debugID] = debugMeta;
+#    pragma clang diagnostic pop
+            }
         }
     }
 
@@ -509,7 +526,12 @@ NS_ASSUME_NONNULL_BEGIN
         uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
         debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
-        debugMetas[debugMeta.debugID] = debugMeta;
+        if (debugMeta.debugID != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            debugMetas[debugMeta.debugID] = debugMeta;
+#    pragma clang diagnostic pop
+        }
     }
 
     return [debugMetas allValues];

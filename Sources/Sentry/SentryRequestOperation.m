@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    SENTRY_LOG_DEBUG(@"Request status: %ld", (long)statusCode);
                                    if ([SentrySDK.currentHub getClient].options.debug == YES) {
                                        SENTRY_LOG_DEBUG(@"Request response: %@",
-                                           [[NSString alloc] initWithData:data
+                                           [[NSString alloc] initWithData:data ?: [NSData data]
                                                                  encoding:NSUTF8StringEncoding]);
                                    }
 

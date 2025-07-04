@@ -31,8 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFrame *lastFrame = self.frames.lastObject;
     SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
 
-    if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
+    if (lastFrame.symbolAddress != nil && beforeLastFrame.symbolAddress != nil
+        && beforeLastFrame.instructionAddress != nil &&
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
         [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
+#pragma clang diagnostic pop
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;

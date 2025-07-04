@@ -58,8 +58,13 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([addresses containsObject:sourceImage.imageAddress]) {
-            [result addObject:sourceImage];
+        if (sourceImage.imageAddress != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            if ([addresses containsObject:sourceImage.imageAddress]) {
+                [result addObject:sourceImage];
+            }
+#pragma clang diagnostic pop
         }
     }
 
@@ -71,7 +76,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryFrame *frame in frames) {
         if (frame.imageAddress) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [set addObject:frame.imageAddress];
+#pragma clang diagnostic pop
         }
     }
 }
@@ -102,7 +110,13 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        if (thread.stacktrace.frames != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [self extractDebugImageAddressFromFrames:thread.stacktrace.frames
+                                             intoSet:imageAddresses];
+#pragma clang diagnostic pop
+        }
     }
 
     return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
@@ -121,7 +135,13 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        if (thread.stacktrace.frames != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [self extractDebugImageAddressFromFrames:thread.stacktrace.frames
+                                             intoSet:imageAddresses];
+#pragma clang diagnostic pop
+        }
     }
 
     return [self getDebugImagesForImageAddressesFromCache:imageAddresses];

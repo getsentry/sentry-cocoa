@@ -66,7 +66,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    SentryTracer *tracer = [SentryTracer getTracer:scope.span];
+    SentryTracer *tracer = nil;
+    if (scope.span != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        tracer = [SentryTracer getTracer:scope.span];
+#pragma clang diagnostic pop
+    }
     if (tracer == nil) {
         return nil;
     } else {
@@ -108,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return [self initWithTraceId:tracer.traceId
-                       publicKey:options.parsedDsn.url.user
+                       publicKey:options.parsedDsn.url.user ?: @""
                      releaseName:options.releaseName
                      environment:options.environment
                      transaction:tracer.transactionContext.name
@@ -125,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
                        replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc] initWithTraceId:traceId
-                                             publicKey:options.parsedDsn.url.user
+                                             publicKey:options.parsedDsn.url.user ?: @""
                                            releaseName:options.releaseName
                                            environment:options.environment
                                            transaction:nil
@@ -138,7 +144,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
-    SentryId *traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];
+    id traceIdValue = dictionary[@"trace_id"];
+    if (![traceIdValue isKindOfClass:[NSString class]]) {
+        return nil;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+    SentryId *traceId = [[SentryId alloc] initWithUUIDString:traceIdValue];
+#pragma clang diagnostic pop
     NSString *publicKey = dictionary[@"public_key"];
     if (traceId == nil || publicKey == nil)
         return nil;

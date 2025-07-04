@@ -13,7 +13,13 @@
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
             [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            [result addObject:sentry_sanitize((NSDictionary *)rawValue)];
+            NSDictionary *sanitized = sentry_sanitize((NSDictionary *)rawValue);
+            if (sanitized != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [result addObject:sanitized];
+#pragma clang diagnostic pop
+            }
         } else if ([rawValue isKindOfClass:NSArray.class]) {
             [result addObject:[SentryArray sanitizeArray:rawValue]];
         } else if ([rawValue isKindOfClass:NSDate.class]) {

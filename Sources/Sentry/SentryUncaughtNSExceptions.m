@@ -44,7 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     crash.uncaughtExceptionHandler(exception);
+#    pragma clang diagnostic pop
 }
 
 @end

@@ -160,7 +160,13 @@ swizzle(
             // If the class does not implement the method
             // we need to find an implementation in one of the superclasses.
             Class superclass = class_getSuperclass(classToSwizzle);
-            imp = method_getImplementation(class_getInstanceMethod(superclass, selector));
+            Method superMethod = class_getInstanceMethod(superclass, selector);
+            if (superMethod != NULL) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                imp = method_getImplementation(superMethod);
+#pragma clang diagnostic pop
+            }
         }
 
         return imp;

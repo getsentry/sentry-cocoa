@@ -65,7 +65,12 @@ sentry_configureContinuousProfiling(SentryOptions *options)
     }
 
     options.profiling = [[SentryProfileOptions alloc] init];
-    options.configureProfiling(options.profiling);
+    if (options.profiling != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        options.configureProfiling(options.profiling);
+#    pragma clang diagnostic pop
+    }
 
     if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
         SENTRY_LOG_WARN(

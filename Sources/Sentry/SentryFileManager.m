@@ -158,7 +158,15 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
 
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
-    self.sentryPath = [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
+    NSString *dsnHash = [options.parsedDsn getHash];
+    if (dsnHash != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        self.sentryPath = [self.basePath stringByAppendingPathComponent:dsnHash];
+#pragma clang diagnostic pop
+    } else {
+        self.sentryPath = [self.basePath stringByAppendingPathComponent:@"unknown"];
+    }
     self.currentSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.current"];
     self.crashedSessionFilePath =
@@ -355,8 +363,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     NSString *timestampString = sentry_toIso8601String(timestamp);
     SENTRY_LOG_DEBUG(@"Persisting lastInForeground: %@", timestampString);
     @synchronized(self.lastInForegroundFilePath) {
-        if (![self writeData:[timestampString dataUsingEncoding:NSUTF8StringEncoding]
-                      toPath:self.lastInForegroundFilePath]) {
+        NSData *timestampData = [timestampString dataUsingEncoding:NSUTF8StringEncoding];
+        if (timestampData == nil
+            || ![self writeData:timestampData toPath:self.lastInForegroundFilePath]) {
             SENTRY_LOG_WARN(@"Failed to store timestamp of last foreground event.");
         }
     }
@@ -535,8 +544,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     NSString *timezoneOffsetString = [NSString stringWithFormat:@"%ld", (long)offset];
     SENTRY_LOG_DEBUG(@"Persisting timezone offset: %@", timezoneOffsetString);
     @synchronized(self.timezoneOffsetFilePath) {
-        if (![self writeData:[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
-                      toPath:self.timezoneOffsetFilePath]) {
+        NSData *timezoneData = [timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding];
+        if (timezoneData == nil
+            || ![self writeData:timezoneData toPath:self.timezoneOffsetFilePath]) {
             SENTRY_LOG_WARN(@"Failed to store timezone offset.");
         }
     }
@@ -684,7 +694,13 @@ NSString *_Nullable sentryStaticCachesPath(void)
 
         // We need to ensure our own scoped directory so that this path is not shared between other
         // apps on the same system.
-        NSString *_Nullable scopedCachesDirectory = sentryGetScopedCachesDirectory(cachesDirectory);
+        NSString *_Nullable scopedCachesDirectory = nil;
+        if (cachesDirectory != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            scopedCachesDirectory = sentryGetScopedCachesDirectory(cachesDirectory);
+#pragma clang diagnostic pop
+        }
         if (!scopedCachesDirectory) {
             SENTRY_LOG_WARN(@"Failed to get scoped static caches directory.");
             return;
@@ -767,7 +783,14 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
         return nil;
     }
 
-    return [cachesDirectory stringByAppendingPathComponent:identifier];
+    if (identifier != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return [cachesDirectory stringByAppendingPathComponent:identifier];
+#pragma clang diagnostic pop
+    } else {
+        return cachesDirectory;
+    }
 }
 
 NSString *_Nullable sentryStaticBasePath(void)
@@ -789,7 +812,13 @@ NSString *_Nullable sentryStaticBasePath(void)
 void
 removeSentryStaticBasePath(void)
 {
-    _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
+    NSString *staticBasePath = sentryStaticBasePath();
+    if (staticBasePath != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        _non_thread_safe_removeFileAtPath(staticBasePath);
+#    pragma clang diagnostic pop
+    }
 }
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
@@ -824,7 +853,8 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
 NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfiguration(void)
 {
     NSURL *url = launchProfileConfigFileURL();
-    if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+    NSString *urlPath = url.path;
+    if (urlPath == nil || ![[NSFileManager defaultManager] fileExistsAtPath:urlPath]) {
         return nil;
     }
 
@@ -858,14 +888,21 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 {
     NSError *error;
     SENTRY_LOG_DEBUG(@"Writing launch profiling config file.");
-    SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
+    NSURL *configFileURL = launchProfileConfigFileURL();
+    SENTRY_CASSERT(configFileURL != nil && [config writeToURL:configFileURL error:&error],
         @"Failed to write launch profile config file: %@.", error);
 }
 
 void
 removeAppLaunchProfilingConfigFile(void)
 {
-    _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
+    NSURL *configFileURL = launchProfileConfigFileURL();
+    if (configFileURL.path != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        _non_thread_safe_removeFileAtPath(configFileURL.path);
+#    pragma clang diagnostic pop
+    }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

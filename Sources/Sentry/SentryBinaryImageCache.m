@@ -62,7 +62,13 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
     newImage.name = imageName;
-    newImage.UUID = [SentryBinaryImageCache convertUUID:image->uuid];
+    NSString *convertedUUID = [SentryBinaryImageCache convertUUID:image->uuid];
+    if (convertedUUID != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        newImage.UUID = convertedUUID;
+#pragma clang diagnostic pop
+    }
     newImage.address = image->address;
     newImage.vmAddress = image->vmAddress;
     newImage.size = image->size;
@@ -160,7 +166,14 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
 {
     @synchronized(self) {
-        return _cache.copy;
+        if (_cache != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            return _cache.copy;
+#pragma clang diagnostic pop
+        } else {
+            return @[];
+        }
     }
 }
 

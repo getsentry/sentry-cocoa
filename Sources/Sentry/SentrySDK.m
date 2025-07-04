@@ -92,7 +92,15 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        return currentHub;
+        if (currentHub != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            return currentHub;
+#pragma clang diagnostic pop
+        } else {
+            // Return a fallback hub if currentHub is nil
+            return [[SentryHub alloc] initWithClient:nil andScope:nil];
+        }
     }
 }
 
@@ -138,7 +146,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryMetricsAPI *)metrics
 {
-    return currentHub.metrics;
+    SentryMetricsAPI *metrics = currentHub.metrics;
+    if (metrics != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return metrics;
+#pragma clang diagnostic pop
+    } else {
+        // Return nil instead of trying to create an instance of a forward-declared class
+        return nil;
+    }
 }
 
 + (BOOL)crashedLastRunCalled
@@ -157,7 +174,12 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
 {
     @synchronized(sentrySDKappStartMeasurementLock) {
-        sentrySDKappStartMeasurement = value;
+        if (value != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            sentrySDKappStartMeasurement = value;
+#pragma clang diagnostic pop
+        }
     }
     if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);

@@ -24,7 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
     if (date == nil)
         return NO;
 
+    if (date == nil) {
+        return NO;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     NSComparisonResult result = [[self.currentDateProvider date] compare:date];
+#pragma clang diagnostic pop
     return result == NSOrderedAscending;
 }
 
@@ -37,7 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
     if (second == nil)
         return first;
 
+    if (second == nil) {
+        return first;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     NSComparisonResult result = [first compare:second];
+#pragma clang diagnostic pop
     if (result == NSOrderedDescending) {
         return first;
     } else {

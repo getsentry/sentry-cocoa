@@ -6134,6 +6134,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
+				);
 			};
 			name = Debug;
 		};
@@ -6141,6 +6147,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
+				);
 			};
 			name = Release;
 		};
@@ -6228,6 +6240,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
+				);
 			};
 			name = TestCI;
 		};
@@ -6279,6 +6297,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
+				);
 			};
 			name = DebugWithoutUIKit;
 		};
@@ -6676,6 +6700,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
+				);
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -6973,6 +7003,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-DCARTHAGE_$(CARTHAGE)",
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+				);
 			};
 			name = Test;
 		};

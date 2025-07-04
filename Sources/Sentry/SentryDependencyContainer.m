@@ -212,31 +212,68 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 - (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_fileManager, ({
-        NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                          error:&error];
-        if (manager == nil) {
-            SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+    // We need to handle this outside the macro due to pragma limitations
+    if (_fileManager == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_fileManager == nil) {
+                NSError *error;
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:options
+                                                                                      error:&error];
+#pragma clang diagnostic pop
+                    if (manager == nil) {
+                        SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+                    }
+                    _fileManager = manager;
+                }
+            }
         }
-        manager;
-    }));
+    }
+    return _fileManager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
-                                          crashWrapper:self.crashWrapper
-                                           fileManager:self.fileManager
-                                  dispatchQueueWrapper:self.dispatchQueueWrapper
-                             notificationCenterWrapper:self.notificationCenterWrapper]);
+    if (_appStateManager == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_appStateManager == nil) {
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    _appStateManager = [[SentryAppStateManager alloc]
+                                  initWithOptions:options
+                                     crashWrapper:self.crashWrapper
+                                      fileManager:self.fileManager
+                             dispatchQueueWrapper:self.dispatchQueueWrapper
+                        notificationCenterWrapper:self.notificationCenterWrapper];
+#pragma clang diagnostic pop
+                }
+            }
+        }
+    }
+    return _appStateManager;
 }
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(
-        _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
+    if (_threadInspector == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_threadInspector == nil) {
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+#pragma clang diagnostic pop
+                }
+            }
+        }
+    }
+    return _threadInspector;
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -393,8 +430,21 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryScopeContextPersistentStore *)
     scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
-        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+    if (_scopeContextPersistentStore == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_scopeContextPersistentStore == nil) {
+                SentryFileManager *fileManager = self.fileManager;
+                if (fileManager != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    _scopeContextPersistentStore =
+                        [[SentryScopeContextPersistentStore alloc] initWithFileManager:fileManager];
+#pragma clang diagnostic pop
+                }
+            }
+        }
+    }
+    return _scopeContextPersistentStore;
 }
 
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

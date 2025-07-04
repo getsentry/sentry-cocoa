@@ -78,8 +78,11 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
 
-        if (_scope) {
+        if (_scope && _crashWrapper) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [_crashWrapper enrichScope:_scope];
+#pragma clang diagnostic pop
         }
     }
 
@@ -109,8 +112,15 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *distinctId =
             [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
-                                                   distinctId:distinctId];
+        if (options.releaseName != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
+                                                       distinctId:distinctId];
+#pragma clang diagnostic pop
+        } else {
+            _session = [[SentrySession alloc] initWithReleaseName:@"unknown" distinctId:distinctId];
+        }
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;
@@ -119,16 +129,25 @@ NS_ASSUME_NONNULL_BEGIN
 
         _session.environment = options.environment;
 
-        [scope applyToSession:_session];
-
-        [self storeCurrentSession:_session];
-        [self captureSession:_session];
+        if (_session != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [scope applyToSession:_session];
+            [self storeCurrentSession:_session];
+            [self captureSession:_session];
+#pragma clang diagnostic pop
+        }
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:_session];
+    if (_session != nil && _sessionListener != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [_sessionListener sentrySessionStarted:_session];
+#pragma clang diagnostic pop
+    }
 }
 
 - (void)endSession
@@ -191,10 +210,20 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Using session's start time %@",
                 session.started);
             timestamp = session.started;
-            [session endSessionAbnormalWithTimestamp:timestamp];
+            if (timestamp != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [session endSessionAbnormalWithTimestamp:timestamp];
+#pragma clang diagnostic pop
+            }
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:timestamp];
+            if (timestamp != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [session endSessionExitedWithTimestamp:timestamp];
+#pragma clang diagnostic pop
+            }
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -207,10 +236,21 @@ NS_ASSUME_NONNULL_BEGIN
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            SENTRY_LOG_DEBUG(
-                @"Capturing session with status: %@", [self createSessionDebugString:session]);
+            NSString *debugString = @"nil";
+            if (session != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                debugString = [self createSessionDebugString:session];
+#pragma clang diagnostic pop
+            }
+            SENTRY_LOG_DEBUG(@"Capturing session with status: %@", debugString);
         }
-        [client captureSession:session];
+        if (session != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [client captureSession:session];
+#pragma clang diagnostic pop
+        }
     }
 }
 
@@ -220,7 +260,12 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_sessionLock) {
         if (_session != nil) {
             [_session incrementErrors];
-            [self storeCurrentSession:_session];
+            if (_session != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [self storeCurrentSession:_session];
+#pragma clang diagnostic pop
+            }
             sessionCopy = [_session copy];
         }
     }
@@ -457,17 +502,26 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentrySamplerDecision *tracesSamplerDecision
-        = sentry_sampleTrace(samplingContext, self.client.options);
+    SentrySamplerDecision *tracesSamplerDecision;
+    if (self.client.options != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        tracesSamplerDecision = sentry_sampleTrace(samplingContext, self.client.options);
+#pragma clang diagnostic pop
+    } else {
+        // Create a default sampler decision when no options are available
+        tracesSamplerDecision = [[SentrySamplerDecision alloc] init];
+        [tracesSamplerDecision setValue:@(kSentrySampleDecisionYes) forKey:@"decision"];
+    }
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision
-                                       sampleRate:tracesSamplerDecision.sampleRate
-                                       sampleRand:tracesSamplerDecision.sampleRand];
+                                       sampleRate:tracesSamplerDecision.sampleRate ?: @(1.0)
+                                       sampleRand:tracesSamplerDecision.sampleRand ?: @(0.0)];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (![self.client.options isContinuousProfilingEnabled]) {
-        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
-            samplingContext, tracesSamplerDecision, self.client.options);
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(samplingContext,
+            tracesSamplerDecision, self.client.options ?: [[SentryOptions alloc] init]);
         configuration.profilesSamplerDecision = profilesSamplerDecision;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
@@ -564,7 +618,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
     if (callback != nil) {
-        crumb = callback(crumb);
+        SentryBreadcrumb *callbackResult = callback(crumb);
+        if (callbackResult != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            crumb = callbackResult;
+#pragma clang diagnostic pop
+        }
     }
     if (crumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
@@ -594,9 +654,22 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:_scope];
+            if (_crashWrapper != nil && _scope != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [_crashWrapper enrichScope:_scope];
+#pragma clang diagnostic pop
+            }
         }
-        return _scope;
+        if (_scope != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            return _scope;
+#pragma clang diagnostic pop
+        } else {
+            // Return a fallback scope if _scope is nil
+            return [[SentryScope alloc] init];
+        }
     }
 }
 
@@ -765,9 +838,23 @@ NS_ASSUME_NONNULL_BEGIN
                 return NO;
             }
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            id levelValue = eventJson[@"level"];
+            SentryLevel level;
+            if ([levelValue isKindOfClass:[NSString class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                level = sentryLevelForString(levelValue);
+#pragma clang diagnostic pop
+            } else {
+                level = kSentryLevelError; // Default level
+            }
             if (level >= kSentryLevelError) {
-                *handled = [self eventContainsOnlyHandledErrors:eventJson];
+                if (eventJson != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    *handled = [self eventContainsOnlyHandledErrors:eventJson];
+#pragma clang diagnostic pop
+                }
                 return YES;
             }
         }
@@ -806,7 +893,15 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                           options:0
                                                             error:nil];
-    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+    NSString *result = [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+    if (result != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return result;
+#pragma clang diagnostic pop
+    } else {
+        return @"Failed to serialize session";
+    }
 }
 
 - (void)flush:(NSTimeInterval)timeout
