@@ -4,6 +4,9 @@
 enum SentryScopeField: UInt, CaseIterable {
     case context
     case user
+    case extras
+    case fingerprint
+    case level
     
     var name: String {
         switch self {
@@ -11,6 +14,12 @@ enum SentryScopeField: UInt, CaseIterable {
             return "context"
         case .user:
             return "user"
+        case .extras:
+            return "extras"
+        case .fingerprint:
+            return "fingerprint"
+        case .level:
+            return "level"
         }
     }
 }
@@ -80,6 +89,42 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeUserToDisk(user: User) {
         writeFieldToDisk(field: .user, data: encode(user: user))
+    }
+    
+    // MARK: - Level
+    @objc
+    public func readPreviousLevelFromDisk() -> SentryLevel {
+        readFieldFromDisk(field: .level) { data in
+            decodeLevel(from: data)
+        } ?? .none
+    }
+    
+    func writeLevelToDisk(level: NSNumber) {
+        writeFieldToDisk(field: .level, data: encode(level: level))
+    }
+    
+    // MARK: - Extras
+    @objc
+    public func readPreviousExtrasFromDisk() -> [String: Any]? {
+        readFieldFromDisk(field: .extras) { data in
+            decodeExtras(from: data)
+        }
+    }
+    
+    func writeExtrasToDisk(extras: [String: Any]) {
+        writeFieldToDisk(field: .extras, data: encode(extras: extras))
+    }
+    
+    // MARK: - Fingerprint
+    @objc
+    public func readPreviousFingerprintFromDisk() -> [String]? {
+        readFieldFromDisk(field: .fingerprint) { data in
+            decodeFingerprint(from: data)
+        }
+    }
+    
+    func writeFingerprintToDisk(fingerprint: [String]) {
+        writeFieldToDisk(field: .fingerprint, data: encode(fingerprint: fingerprint))
     }
     
     // MARK: - Private Functions
