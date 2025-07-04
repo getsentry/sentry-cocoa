@@ -12,6 +12,7 @@
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
 - Improve launch profile configuration management (#5318)
+- Record user for watchdog termination events (#5558)
 
 ## 8.53.1
 
