@@ -53,13 +53,19 @@ NS_ASSUME_NONNULL_BEGIN
                 NSArray<NSString *> *namespaces =
                     [namespacesAsString componentsSeparatedByString:@";"];
                 if (namespacesAsString.length == 0 || [namespaces containsObject:@"custom"]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                     rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
                                               andRateLimitInSeconds:rateLimitInSeconds];
+#pragma clang diagnostic pop
                 }
 
             } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
                                           andRateLimitInSeconds:rateLimitInSeconds];
+#pragma clang diagnostic pop
             }
         }
     }
@@ -78,7 +84,15 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
-    return [numberFormatter numberFromString:string];
+    NSNumber *result = [numberFormatter numberFromString:string];
+    if (result != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return result;
+#pragma clang diagnostic pop
+    } else {
+        return @0; // Default to 0 if parsing fails
+    }
 }
 
 - (NSArray<NSNumber *> *)parseCategories:(NSString *)categoriesAsString
@@ -105,7 +119,15 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSDate *newDate = [self.currentDateProvider.date
         dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
-    return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
+    NSDate *result = [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
+    if (result != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return result;
+#pragma clang diagnostic pop
+    } else {
+        return newDate; // Default to newDate if getMaximumDate returns nil
+    }
 }
 
 @end

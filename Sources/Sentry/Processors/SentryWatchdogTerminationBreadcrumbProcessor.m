@@ -44,7 +44,10 @@
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
     }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     [self storeBreadcrumb:jsonData];
+#pragma clang diagnostic pop
 }
 
 - (void)clear
@@ -103,7 +106,13 @@
         fileSize = [self.fileHandle seekToEndOfFile];
 
         [self.fileHandle writeData:data];
-        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+        NSData *newlineData = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
+        if (newlineData != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [self.fileHandle writeData:newlineData];
+#pragma clang diagnostic pop
+        }
 
         self.breadcrumbCounter += 1;
     } @catch (NSException *exception) {

@@ -260,7 +260,7 @@ sentry_finishAndSaveTransaction(void)
         NSMutableDictionary<NSString *, id> *device;
         if (scope.contextDictionary != nil && scope.contextDictionary[DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[DEVICE_KEY]];
+                initWithDictionary:scope.contextDictionary[DEVICE_KEY] ?: @ {}];
         } else {
             device = [NSMutableDictionary new];
         }

@@ -35,8 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
     serializedData[@"spans"] = serializedSpans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    id contextsDict = serializedData[@"contexts"];
+    if (contextsDict != nil && [contextsDict isKindOfClass:[NSDictionary class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [mutableContext addEntriesFromDictionary:contextsDict];
+#pragma clang diagnostic pop
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -50,13 +54,25 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
-    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
+    NSDictionary *sanitizedTags = sentry_sanitize(self.trace.tags);
+    if (sanitizedTags != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [traceTags addEntriesFromDictionary:sanitizedTags];
+#pragma clang diagnostic pop
+    }
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *tags = [NSMutableDictionary new];
-        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        id tagsValue = serializedData[@"tags"];
+        if (tagsValue != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [tags addEntriesFromDictionary:tagsValue];
+#pragma clang diagnostic pop
+        }
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
     } else {
@@ -69,7 +85,13 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *extra = [NSMutableDictionary new];
-        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        id extraValue = serializedData[@"extra"];
+        if (extraValue != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [extra addEntriesFromDictionary:extraValue];
+#pragma clang diagnostic pop
+        }
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;
     } else {

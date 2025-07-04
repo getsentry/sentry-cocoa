@@ -52,7 +52,13 @@
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"]];
+        id sdkScope = report[@"sentry_sdk_scope"];
+        if ([sdkScope isKindOfClass:[NSDictionary class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [userContextMerged addEntriesFromDictionary:sdkScope];
+#pragma clang diagnostic pop
+        }
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
@@ -110,7 +116,13 @@
             event.timestamp = [NSDate
                 dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
         } else {
-            event.timestamp = sentry_fromIso8601String(self.report[@"report"][@"timestamp"]);
+            id timestamp = self.report[@"report"][@"timestamp"];
+            if ([timestamp isKindOfClass:[NSString class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                event.timestamp = sentry_fromIso8601String(timestamp);
+#pragma clang diagnostic pop
+            }
         }
         event.threads = [self convertThreads];
         event.debugMeta = [self debugMetaForThreads:event.threads];
@@ -119,8 +131,16 @@
         event.dist = self.userContext[@"dist"];
         event.environment = self.userContext[@"environment"];
 
-        NSMutableDictionary *mutableContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
+        id contextData = self.userContext[@"context"];
+        NSMutableDictionary *mutableContext;
+        if ([contextData isKindOfClass:[NSDictionary class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            mutableContext = [[NSMutableDictionary alloc] initWithDictionary:contextData];
+#pragma clang diagnostic pop
+        } else {
+            mutableContext = [[NSMutableDictionary alloc] init];
+        }
         if (self.userContext[@"traceContext"]) {
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
@@ -189,11 +209,17 @@
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
                 initWithLevel:[self sentryLevelFromString:storedCrumb[@"level"]]
-                     category:storedCrumb[@"category"]];
+                     category:storedCrumb[@"category"] ?: @"unknown"];
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
             crumb.origin = storedCrumb[@"origin"];
-            crumb.timestamp = sentry_fromIso8601String(storedCrumb[@"timestamp"]);
+            id timestamp = storedCrumb[@"timestamp"];
+            if ([timestamp isKindOfClass:[NSString class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                crumb.timestamp = sentry_fromIso8601String(timestamp);
+#pragma clang diagnostic pop
+            }
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
         }
@@ -256,7 +282,14 @@
     }
     NSDictionary *threadDictionary = self.threads[threadIndex];
 
-    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
+    id threadId = threadDictionary[@"index"];
+    if (![threadId isKindOfClass:[NSNumber class]]) {
+        threadId = @(0);
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadId];
+#pragma clang diagnostic pop
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
@@ -358,8 +391,13 @@
 
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
-            if (frame.imageAddress && ![imageNames containsObject:frame.imageAddress]) {
-                [imageNames addObject:frame.imageAddress];
+            if (frame.imageAddress) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                if (![imageNames containsObject:frame.imageAddress]) {
+                    [imageNames addObject:frame.imageAddress];
+                }
+#pragma clang diagnostic pop
             }
         }
     }
@@ -400,19 +438,19 @@
                               self.exceptionContext[@"mach"][@"exception"],
                               self.exceptionContext[@"mach"][@"code"],
                               self.exceptionContext[@"mach"][@"subcode"]]
-                     type:self.exceptionContext[@"mach"][@"exception_name"]];
+                     type:self.exceptionContext[@"mach"][@"exception_name"] ?: @"unknown"];
     } else if ([exceptionType isEqualToString:@"signal"]) {
-        exception =
-            [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
-                                                       self.exceptionContext[@"signal"][@"signal"],
-                                                       self.exceptionContext[@"signal"][@"code"]]
-                                              type:self.exceptionContext[@"signal"][@"name"]];
+        exception = [[SentryException alloc]
+            initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
+                              self.exceptionContext[@"signal"][@"signal"],
+                              self.exceptionContext[@"signal"][@"code"]]
+                     type:self.exceptionContext[@"signal"][@"name"] ?: @"unknown"];
     } else if ([exceptionType isEqualToString:@"user"]) {
         NSString *exceptionReason =
             [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
         exception = [[SentryException alloc]
             initWithValue:exceptionReason
-                     type:self.exceptionContext[@"user_reported"][@"name"]];
+                     type:self.exceptionContext[@"user_reported"][@"name"] ?: @"unknown"];
 
         NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {
@@ -454,8 +492,9 @@
         reason = self.exceptionContext[@"reason"];
     }
 
-    return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
-                                             type:self.exceptionContext[@"nsexception"][@"name"]];
+    return [[SentryException alloc]
+        initWithValue:[NSString stringWithFormat:@"%@", reason]
+                 type:self.exceptionContext[@"nsexception"][@"name"] ?: @"unknown"];
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
@@ -473,7 +512,13 @@
             if ([content[@"type"] isEqualToString:@"string"] && nil != content[@"value"]) {
                 // if there are less than 3 slashes it shouldn't be a filepath
                 if ([[content[@"value"] componentsSeparatedByString:@"/"] count] < 3) {
-                    [reasons addObject:content[@"value"]];
+                    id value = content[@"value"];
+                    if (value != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                        [reasons addObject:value];
+#pragma clang diagnostic pop
+                    }
                 }
             }
         }
@@ -498,11 +543,23 @@
 
     for (NSDictionary *binaryImage in libSwiftCoreBinaryImages) {
         if (binaryImage[@"crash_info_message"] != nil) {
-            [crashInfoMessages addObject:binaryImage[@"crash_info_message"]];
+            id crashInfoMessage = binaryImage[@"crash_info_message"];
+            if (crashInfoMessage != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [crashInfoMessages addObject:crashInfoMessage];
+#pragma clang diagnostic pop
+            }
         }
 
         if (binaryImage[@"crash_info_message2"] != nil) {
-            [crashInfoMessages addObject:binaryImage[@"crash_info_message2"]];
+            id crashInfoMessage2 = binaryImage[@"crash_info_message2"];
+            if (crashInfoMessage2 != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [crashInfoMessages addObject:crashInfoMessage2];
+#pragma clang diagnostic pop
+            }
         }
     }
 

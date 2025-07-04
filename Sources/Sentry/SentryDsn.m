@@ -19,10 +19,14 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        _url = [self convertDsnString:dsnString didFailWithError:error];
-        if (_url == nil) {
+        NSURL *convertedURL = [self convertDsnString:dsnString didFailWithError:error];
+        if (convertedURL == nil) {
             return nil;
         }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        _url = convertedURL;
+#pragma clang diagnostic pop
     }
     return self;
 }
@@ -85,7 +89,10 @@ NS_ASSUME_NONNULL_BEGIN
     components.host = url.host;
     components.port = url.port;
     components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     return components.URL;
+#pragma clang diagnostic pop
 }
 
 - (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
@@ -100,9 +107,14 @@ NS_ASSUME_NONNULL_BEGIN
         errorMessage = @"URL scheme of DSN is missing";
         url = nil;
     }
-    if (url != nil && ![allowedSchemes containsObject:url.scheme]) {
-        errorMessage = @"Unrecognized URL scheme in DSN";
-        url = nil;
+    if (url != nil && url.scheme != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        if (![allowedSchemes containsObject:url.scheme]) {
+            errorMessage = @"Unrecognized URL scheme in DSN";
+            url = nil;
+        }
+#pragma clang diagnostic pop
     }
     if (url != nil && (nil == url.host || url.host.length == 0)) {
         errorMessage = @"Host component of DSN is missing";

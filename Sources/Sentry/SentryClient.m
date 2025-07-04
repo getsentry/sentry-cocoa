@@ -209,8 +209,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
-                                                                         type:exception.name];
+    SentryException *sentryException =
+        [[SentryException alloc] initWithValue:exception.reason ?: @"Unknown reason"
+                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
 
@@ -222,7 +223,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 #endif
 
-    [self setUserInfo:exception.userInfo withEvent:event];
+    if (exception.userInfo != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [self setUserInfo:exception.userInfo withEvent:event];
+#pragma clang diagnostic pop
+    }
     return event;
 }
 
@@ -261,25 +267,26 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // underlying error as oldest, with the root as the newest)
     NSMutableArray<NSError *> *errors = [NSMutableArray<NSError *> arrayWithObject:error];
     NSError *underlyingError;
-    if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
-        underlyingError = error.userInfo[NSUnderlyingErrorKey];
-    } else if (error.userInfo[NSUnderlyingErrorKey] != nil) {
+    id underlyingErrorObj = error.userInfo[NSUnderlyingErrorKey];
+    if ([underlyingErrorObj isKindOfClass:[NSError class]]) {
+        underlyingError = underlyingErrorObj;
+    } else if (underlyingErrorObj != nil) {
         SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at key: %@. "
                         @"Class type: %@.",
-            error.userInfo[NSUnderlyingErrorKey], [error.userInfo[NSUnderlyingErrorKey] class]);
+            underlyingErrorObj, [underlyingErrorObj class]);
     }
 
     while (underlyingError != nil) {
         [errors addObject:underlyingError];
 
-        if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
-            underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
+        id nextUnderlyingErrorObj = underlyingError.userInfo[NSUnderlyingErrorKey];
+        if ([nextUnderlyingErrorObj isKindOfClass:[NSError class]]) {
+            underlyingError = nextUnderlyingErrorObj;
         } else {
-            if (underlyingError.userInfo[NSUnderlyingErrorKey] != nil) {
+            if (nextUnderlyingErrorObj != nil) {
                 SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at "
                                 @"key: %@. Class type: %@.",
-                    underlyingError.userInfo[NSUnderlyingErrorKey],
-                    [underlyingError.userInfo[NSUnderlyingErrorKey] class]);
+                    nextUnderlyingErrorObj, [nextUnderlyingErrorObj class]);
             }
             underlyingError = nil;
         }
@@ -296,7 +303,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context using only
     // the root error's userInfo.
-    [self setUserInfo:sentry_sanitize(error.userInfo) withEvent:event];
+    NSDictionary *sanitizedUserInfo = sentry_sanitize(error.userInfo);
+    if (sanitizedUserInfo != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        [self setUserInfo:sanitizedUserInfo withEvent:event];
+#pragma clang diagnostic pop
+    }
 
     return event;
 }
@@ -339,7 +352,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     mechanism.desc = error.description;
 
     NSDictionary<NSString *, id> *userInfo = sentry_sanitize(error.userInfo);
-    mechanism.data = userInfo;
+    if (userInfo != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        mechanism.data = userInfo;
+#pragma clang diagnostic pop
+    }
     exception.mechanism = mechanism;
 
     return exception;
@@ -428,6 +446,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (event.error || event.exceptions.count > 0) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
                                                userSegment:scope.userObject.segment
@@ -492,7 +511,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (event.isFatalEvent && event.context[@"replay"] &&
         [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
         NSDictionary *replay = event.context[@"replay"];
-        scope.replayId = replay[@"replay_id"];
+        id replayId = replay[@"replay_id"];
+        if (replayId != nil) {
+            scope.replayId = replayId;
+        }
     }
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
@@ -553,8 +575,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
-    SentrySdkInfo *sdkInfo = replayEvent.sdk ? [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk]
-                                             : [SentrySdkInfo global];
+    SentrySdkInfo *sdkInfo;
+    if (replayEvent.sdk != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        sdkInfo = [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk];
+#pragma clang diagnostic pop
+    } else {
+        sdkInfo = [SentrySdkInfo global];
+    }
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
                                          sdkInfo:sdkInfo
@@ -605,7 +634,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (scope.replayId == nil ? 0 : 1);
     NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
-    context[@"feedback"] = serializedFeedback;
+    if (serializedFeedback != nil) {
+        context[@"feedback"] = serializedFeedback;
+    }
 
     if (scope.replayId != nil) {
         NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];
@@ -619,9 +650,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           withScope:scope
                              alwaysAttachStacktrace:NO];
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
-    NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
-                                                                     attachments:scope.attachments]
-        arrayByAddingObjectsFromArray:[feedback attachmentsForEnvelope]];
+    NSArray<SentryAttachment *> *processedAttachments =
+        [self processAttachmentsForEvent:preparedEvent attachments:scope.attachments];
+    NSArray<SentryAttachment *> *feedbackAttachments = [feedback attachmentsForEnvelope];
+    NSArray<SentryAttachment *> *attachments = processedAttachments;
+    if (feedbackAttachments != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        attachments = [processedAttachments arrayByAddingObjectsFromArray:feedbackAttachments];
+#pragma clang diagnostic pop
+    }
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -691,10 +729,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeFeedback];
 
     // Transactions and replays have their own sampleRate
-    if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
-        SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
-        [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
-        return nil;
+    if (eventIsNotATransaction && eventIsNotReplay && self.options.sampleRate != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        if ([self isSampled:self.options.sampleRate]) {
+            SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
+            [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
+            return nil;
+        }
+#pragma clang diagnostic pop
     }
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
@@ -733,8 +776,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta =
-                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+            if (event.threads != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                event.debugMeta =
+                    [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+#pragma clang diagnostic pop
+            } else {
+                event.debugMeta = @[];
+            }
         }
     }
 
@@ -761,7 +811,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Crash events are from a previous run. Applying the current scope would potentially apply
     // current data.
     if (!isFatalEvent) {
-        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+        SentryEvent *appliedEvent = [scope applyToEvent:event
+                                          maxBreadcrumb:self.options.maxBreadcrumbs];
+        if (appliedEvent != nil) {
+            event = appliedEvent;
+        }
     }
 
     if (!eventIsNotReplay) {
@@ -814,7 +868,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         currentSpanCount = 0;
     }
 
-    event = [self callEventProcessors:event];
+    SentryEvent *processedEvent = [self callEventProcessors:event];
+    if (processedEvent != nil) {
+        event = processedEvent;
+    }
     if (event == nil) {
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
         if (eventIsATransaction) {
@@ -849,7 +906,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event != nil && nil != self.options.beforeSend) {
-        event = self.options.beforeSend(event);
+        SentryEvent *beforeSendEvent = self.options.beforeSend(event);
+        if (beforeSendEvent != nil) {
+            event = beforeSendEvent;
+        }
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
             if (eventIsATransaction) {
@@ -1010,13 +1070,25 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
-                      [device addEntriesFromDictionary:extraContext[@"device"]];
+                      id deviceContext = extraContext[@"device"];
+                      if ([deviceContext isKindOfClass:[NSDictionary class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                          [device addEntriesFromDictionary:deviceContext];
+#pragma clang diagnostic pop
+                      }
                   }];
 
     [self modifyContext:event
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
-                      [app addEntriesFromDictionary:extraContext[@"app"]];
+                      id appContext = extraContext[@"app"];
+                      if ([appContext isKindOfClass:[NSDictionary class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                          [app addEntriesFromDictionary:appContext];
+#pragma clang diagnostic pop
+                      }
                   }];
 }
 
@@ -1070,10 +1142,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
+    NSMutableDictionary *context =
+        [[NSMutableDictionary alloc] initWithDictionary:event.context ?: @{}];
     NSMutableDictionary *dict = event.context[key] == nil
         ? [[NSMutableDictionary alloc] init]
-        : [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+        : [[NSMutableDictionary alloc] initWithDictionary:context[key] ?: @{}];
     block(dict);
     context[key] = dict;
     event.context = context;

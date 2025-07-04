@@ -82,7 +82,16 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
                                              withSampleRand:context.transactionContext.sampleRand];
     }
 
-    return _sentry_calcSampleFromNumericalRate(options.tracesSampleRate);
+    if (options.tracesSampleRate != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return _sentry_calcSampleFromNumericalRate(options.tracesSampleRate);
+#pragma clang diagnostic pop
+    } else {
+        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
+                                                 forSampleRate:nil
+                                                withSampleRand:nil];
+    }
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -116,7 +125,16 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
         return _sentry_calcSample(callbackRate);
     }
 
-    return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
+    if (options.profilesSampleRate != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
+#    pragma clang diagnostic pop
+    } else {
+        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
+                                                 forSampleRate:nil
+                                                withSampleRand:nil];
+    }
 }
 
 SentrySamplerDecision *

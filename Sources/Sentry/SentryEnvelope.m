@@ -176,8 +176,13 @@ NS_ASSUME_NONNULL_BEGIN
 
         NSError *error = nil;
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSDictionary<NSFileAttributeKey, id> *attr =
-            [fileManager attributesOfItemAtPath:attachment.path error:&error];
+        NSDictionary<NSFileAttributeKey, id> *attr = nil;
+        if (attachment.path != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            attr = [fileManager attributesOfItemAtPath:attachment.path error:&error];
+#pragma clang diagnostic pop
+        }
 
         if (nil != error) {
             SENTRY_LOG_ERROR(@"Couldn't check file size of attachment with path: %@. Error: %@",
@@ -199,13 +204,31 @@ NS_ASSUME_NONNULL_BEGIN
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.base64-attachment-data"]) {
-            data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
-                base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
+            if (attachment.path != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                NSData *fileData = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+#    pragma clang diagnostic pop
+                if (fileData != nil) {
+                    data = [[fileData base64EncodedStringWithOptions:0]
+                        dataUsingEncoding:NSUTF8StringEncoding];
+                }
+            }
         } else {
-            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+            if (attachment.path != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+#    pragma clang diagnostic pop
+            }
         }
 #else
-        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+        if (attachment.path != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+#    pragma clang diagnostic pop
+        }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 

@@ -165,12 +165,13 @@ sentry_serializedTraceProfileData(
     };
 
     const auto isEmulated = sentry_isSimulatorBuild();
+    NSString *deviceModel = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     payload[@"device"] = @{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+        @"model" : deviceModel ?: @"Unknown"
     };
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
@@ -347,7 +348,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
                                                 length:JSONData.length];
     header.platform = @"cocoa";
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+#    pragma clang diagnostic pop
 
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
 }
@@ -379,7 +383,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     payload[@"transaction"] = @ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
+        @"name" : transaction.transaction ?: @"<unknown>",
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
@@ -396,7 +400,10 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+#    pragma clang diagnostic pop
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(

@@ -310,15 +310,23 @@ sentry_stopProfilerDueToFinishedTransaction(
     [dispatchQueue dispatchAsyncWithBlock:^{
         const auto profilingData = [profiler.state copyProfilingData];
 
-        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-            hub, profiler, profilingData, transaction, startTimestamp);
+        const auto profileEnvelopeItem = profiler && profilingData
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            ? sentry_traceProfileEnvelopeItem(
+                  hub, profiler, profilingData, transaction, startTimestamp)
+#    pragma clang diagnostic pop
+            : nil;
 
         if (!profileEnvelopeItem) {
             [hub captureTransaction:transaction withScope:hub.scope];
         } else {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [hub captureTransaction:transaction
                               withScope:hub.scope
                 additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+#    pragma clang diagnostic pop
         }
     }];
 }

@@ -102,7 +102,14 @@ NS_ASSUME_NONNULL_BEGIN
             if ([item isKindOfClass:[NSDictionary class]] &&
                 [item[@"name"] isKindOfClass:[NSString class]] &&
                 [item[@"version"] isKindOfClass:[NSString class]]) {
-                [packages addObject:@{ @"name" : item[@"name"], @"version" : item[@"version"] }];
+                id itemName = item[@"name"];
+                id itemVersion = item[@"version"];
+                if (itemName != nil && itemVersion != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                    [packages addObject:@{ @"name" : itemName, @"version" : itemVersion }];
+#pragma clang diagnostic pop
+                }
             }
         }
     }

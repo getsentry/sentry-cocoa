@@ -23,8 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    if (self.unit != nil) {
+    if (self.unit != nil && self.unit.unit != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return @{ @"value" : _value, @"unit" : _unit.unit };
+#pragma clang diagnostic pop
     } else {
         return @{ @"value" : _value };
     }

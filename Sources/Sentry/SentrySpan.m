@@ -179,9 +179,17 @@ NS_ASSUME_NONNULL_BEGIN
         return [SentryNoOpSpan shared];
     }
 
-    return [self.tracer startChildWithParentId:self.spanId
-                                     operation:operation
-                                   description:description];
+    if (self.tracer != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+        return [self.tracer startChildWithParentId:self.spanId
+                                         operation:operation
+                                       description:description];
+#pragma clang diagnostic pop
+    } else {
+        // Return a no-op span if tracer is nil
+        return [SentryNoOpSpan shared];
+    }
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key

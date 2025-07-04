@@ -64,9 +64,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       items:allowedEnvelopeItems];
 
     NSError *requestError = nil;
+    if (self.apiURL == nil) {
+        SENTRY_LOG_ERROR(@"apiURL is nil, cannot create envelope request");
+        return;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
                                                                    url:self.apiURL
                                                       didFailWithError:&requestError];
+#pragma clang diagnostic pop
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

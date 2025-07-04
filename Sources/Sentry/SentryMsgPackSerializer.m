@@ -75,14 +75,24 @@
 
 - (NSInputStream *)asInputStream
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     return [[NSInputStream alloc] initWithURL:self];
+#pragma clang diagnostic pop
 }
 
 - (NSInteger)streamSize
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
+    if (self.path == nil) {
+        SENTRY_LOG_DEBUG(@"URL path is nil - URL: %@", self);
+        return -1;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     NSDictionary *attributes = [fileManager attributesOfItemAtPath:self.path error:&error];
+#pragma clang diagnostic pop
     if (attributes == nil) {
         SENTRY_LOG_DEBUG(@"Could not read file attributes - File: %@ - %@", self, error);
         return -1;

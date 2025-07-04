@@ -302,7 +302,12 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_extraDictionary) {
-        [_extraDictionary addEntriesFromDictionary:extras];
+        if (extras != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [_extraDictionary addEntriesFromDictionary:extras];
+#pragma clang diagnostic pop
+        }
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
@@ -345,7 +350,12 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_tagDictionary) {
-        [_tagDictionary addEntriesFromDictionary:tags];
+        if (tags != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [_tagDictionary addEntriesFromDictionary:tags];
+#pragma clang diagnostic pop
+        }
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
@@ -394,7 +404,10 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_fingerprintArray) {
         [_fingerprintArray removeAllObjects];
         if (fingerprint != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [_fingerprintArray addObjectsFromArray:fingerprint];
+#pragma clang diagnostic pop
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
@@ -417,7 +430,12 @@ NS_ASSUME_NONNULL_BEGIN
     SEL setCurrentScreen = @selector(setCurrentScreen:);
     for (id<SentryScopeObserver> observer in self.observers) {
         if ([observer respondsToSelector:setCurrentScreen]) {
-            [observer setCurrentScreen:currentScreen];
+            if (currentScreen != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+                [observer setCurrentScreen:currentScreen];
+#pragma clang diagnostic pop
+            }
         }
     }
 }
@@ -557,7 +575,12 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newTags = [NSMutableDictionary new];
         [newTags addEntriesFromDictionary:[self tags]];
-        [newTags addEntriesFromDictionary:event.tags];
+        if (event.tags != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [newTags addEntriesFromDictionary:event.tags];
+#pragma clang diagnostic pop
+        }
         event.tags = newTags;
     }
 
@@ -566,7 +589,12 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newExtra = [NSMutableDictionary new];
         [newExtra addEntriesFromDictionary:[self extras]];
-        [newExtra addEntriesFromDictionary:event.extra];
+        if (event.extra != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            [newExtra addEntriesFromDictionary:event.extra];
+#pragma clang diagnostic pop
+        }
         event.extra = newExtra;
     }
 
@@ -624,7 +652,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
+#pragma clang diagnostic pop
     }
 
     newContext[@"trace"] = [self buildTraceContext:span];
@@ -641,7 +672,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
-        return [span serialize];
+        NSDictionary *serialized = [span serialize];
+        if (serialized != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+            return serialized;
+#pragma clang diagnostic pop
+        } else {
+            return @{};
+        }
     } else {
         return [self.propagationContext traceContextForEvent];
     }
