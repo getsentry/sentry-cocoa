@@ -7006,8 +7006,8 @@
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-DCARTHAGE_$(CARTHAGE)",
-					"-Wnullable-to-nonnull-conversion",
-					"-Wnullability-completeness",
+					"-Werror=nullable-to-nonnull-conversion",
+					"-Werror=nullability-completeness",
 				);
 			};
 			name = Test;
