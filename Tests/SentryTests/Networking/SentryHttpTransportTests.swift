@@ -337,7 +337,18 @@ class SentryHttpTransportTests: XCTestCase {
         // second envelope the response contains a rate limit.
         // Now 2 envelopes are still to be sent, but they get discarded cause of the
         // active rate limit.
-        givenFirstRateLimitGetsActiveWithSecondResponse()
+
+        // First rate limit gets active with the second response.
+        var i = -1
+        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
+            i += 1
+            if i == 0 {
+                return HTTPURLResponse()
+            } else {
+                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
+            }
+        }
+
         sendEvent()
 
         XCTAssertEqual(5, fixture.requestManager.requests.count)
@@ -1047,18 +1058,6 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
                 sut.recordLostEvent(event.category, reason: event.reason)
-            }
-        }
-    }
-
-    private func givenFirstRateLimitGetsActiveWithSecondResponse() {
-        var i = -1
-        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
-            i += 1
-            if i == 0 {
-                return HTTPURLResponse()
-            } else {
-                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
             }
         }
     }
