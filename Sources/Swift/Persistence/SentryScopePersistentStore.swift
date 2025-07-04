@@ -15,15 +15,6 @@ enum SentryScopeField: UInt, CaseIterable {
     }
 }
 
-@_spi(Private) @objc public protocol SentryFileManagerProtocol {
-    func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
-    func readData(fromPath path: String) throws -> Data
-    @objc(writeData:toPath:)
-    @discardableResult func write(_ data: Data, toPath path: String) -> Bool
-    func removeFile(atPath path: String)
-    func getSentryPathAsURL() -> URL
-}
-
 @objc
 @_spi(Private) public class SentryScopePersistentStore: NSObject {
     private let fileManager: SentryFileManagerProtocol
@@ -199,11 +190,7 @@ extension SentryScopePersistentStore {
 // MARK: - User
 extension SentryScopePersistentStore {
     private func encode(user: User) -> Data? {
-        guard let sanitizedUser = sentry_sanitize(user.serialize()) else {
-            SentrySDKLog.error("Failed to sanitize user, reason: user is not valid json: \(user)")
-            return nil
-        }
-        guard let data = SentrySerialization.data(withJSONObject: sanitizedUser) else {
+        guard let data = SentrySerialization.data(withJSONObject: user.serialize()) else {
             SentrySDKLog.error("Failed to serialize user, reason: user is not valid json: \(user)")
             return nil
         }
@@ -211,12 +198,11 @@ extension SentryScopePersistentStore {
     }
     
     private func decodeUser(from data: Data) -> User? {
-        do {
-            let decoder = JSONDecoder()
-            return try decoder.decode(UserDecodable.self, from: data)
-        } catch {
-            SentrySDKLog.error("Failed to decode user, reason: \(error)")
-            return nil
-        }
+        return decoderAux(data)
+    }
+    
+    // Swift compiler can't infer T, even if I try to cast it
+    private func decoderAux(_ data: Data) -> UserDecodable? {
+        return decodeFromJSONData(jsonData: data)
     }
 }

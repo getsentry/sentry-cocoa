@@ -45,7 +45,7 @@ import Foundation
                 return
             }
             guard let data = data else {
-                SentrySDKLog.debug("Data is nil, deleting active file.")
+                SentrySDKLog.debug("Data for \(field.name) is nil, deleting active file.")
                 strongSelf.scopePersistentStore.deleteCurrentFieldOnDisk(field: field)
                 return
             }
