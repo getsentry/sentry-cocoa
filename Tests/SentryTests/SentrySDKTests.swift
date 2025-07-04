@@ -1036,57 +1036,53 @@ class SentrySDKTests: XCTestCase {
     
     func testStartWithOptions_shouldMoveCurrentDistFileToPreviousFile() throws {
         // -- Arrange --
-        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
-        
-        observer.setDist("dist-string")
+        fixture.observer.setDist("dist-string")
 
         // Wait for the observer to complete
         let expectation = XCTestExpectation(description: "setDist completes")
-        dispatchQueueWrapper.dispatchAsync {
+        fixture.dispatchQueueWrapper.dispatchAsync {
             // Dispatching a block on the same queue will be run after the context processor.
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous context file if it exists
-        scopePersistentStore.deleteAllPreviousState()
+        fixture.scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
-        let previousUser = scopePersistentStore.readPreviousDistFromDisk()
+        let previousUser = fixture.scopePersistentStore.readPreviousDistFromDisk()
         XCTAssertNil(previousUser)
 
         // -- Act --
-        SentrySDK.start(options: options)
+        SentrySDK.start(options: fixture.options)
 
         // -- Assert --
-        let result = try XCTUnwrap(scopePersistentStore.readPreviousDistFromDisk())
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousDistFromDisk())
         XCTAssertEqual(result, "dist-string")
     }
     
     func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
         // -- Arrange --
-        let (options, dispatchQueueWrapper, scopePersistentStore, observer) = try createTestModels()
-        
-        observer.setEnvironment("prod-string")
+        fixture.observer.setEnvironment("prod-string")
 
         // Wait for the observer to complete
         let expectation = XCTestExpectation(description: "setEnvironment completes")
-        dispatchQueueWrapper.dispatchAsync {
+        fixture.dispatchQueueWrapper.dispatchAsync {
             // Dispatching a block on the same queue will be run after the context processor.
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous context file if it exists
-        scopePersistentStore.deleteAllPreviousState()
+        fixture.scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
-        let previousUser = scopePersistentStore.readPreviousEnvironmentFromDisk()
+        let previousUser = fixture.scopePersistentStore.readPreviousEnvironmentFromDisk()
         XCTAssertNil(previousUser)
 
         // -- Act --
-        SentrySDK.start(options: options)
+        SentrySDK.start(options: fixture.options)
 
         // -- Assert --
-        let result = try XCTUnwrap(scopePersistentStore.readPreviousEnvironmentFromDisk())
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
         XCTAssertEqual(result, "prod-string")
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
