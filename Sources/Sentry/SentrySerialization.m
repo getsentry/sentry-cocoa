@@ -313,14 +313,16 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
 {
     NSError *error = nil;
-    NSArray *_Nullable eventArray = [NSJSONSerialization JSONObjectWithData:data
-                                                                    options:0
-                                                                      error:&error];
+    id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (nil != error) {
         SENTRY_LOG_ERROR(@"Failed to deserialize json item array: %@", error);
+        return nil;
     }
-
-    return eventArray;
+    if (![json isKindOfClass:[NSArray class]]) {
+        SENTRY_LOG_ERROR(@"Deserialized json is not an NSArray.");
+        return nil;
+    }
+    return (NSArray *)json;
 }
 
 @end
