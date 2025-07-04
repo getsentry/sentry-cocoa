@@ -36,6 +36,18 @@ import Foundation
         }
     }
     
+    public func setDist(_ dist: String?) {
+        setData(data: dist, field: .dist) { [weak self] data in
+            self?.scopePersistentStore.writeDistToDisk(dist: data)
+        }
+    }
+    
+    public func setEnvironment(_ environment: String?) {
+        setData(data: environment, field: .environment) { [weak self] data in
+            self?.scopePersistentStore.writeEnvironmentToDisk(environment: data)
+        }
+    }
+    
     // MARK: - Private
     private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
         SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")

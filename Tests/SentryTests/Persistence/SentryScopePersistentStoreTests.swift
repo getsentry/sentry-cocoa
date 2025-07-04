@@ -29,6 +29,8 @@ class SentryScopePersistentStoreTests: XCTestCase {
         sut = try fixture.getSut()
     }
 
+    // MARK: - Context Tests
+
     func testMoveAllCurrentStateToPreviousState_whenPreviousContextFileAvailable_shouldMoveFileToPreviousPath() throws {
         // -- Arrange --
         let fm = FileManager.default
@@ -215,6 +217,169 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertEqual(nestedDict["nestedKey"], "1970-01-01T17:04:13.000Z")
     }
 
+    // MARK: - User Tests
+
+    func testReadPreviousUserFromDisk_whenValidJSONInPreviousUserFile_shouldReturnDecodedUser() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let user = User(userId: "test-user")
+        user.email = "test@example.com"
+        user.username = "testuser"
+        
+        let userData = try XCTUnwrap(SentrySerialization.data(withJSONObject: user.serialize()))
+        let previousUserFileURL = sut.previousFileURLFor(field: .user)
+        try userData.write(to: previousUserFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousUserFileURL.path))
+
+        // -- Act --
+        let result = try XCTUnwrap(sut.readPreviousUserFromDisk())
+
+        // -- Assert --
+        XCTAssertEqual(result.userId, "test-user")
+        XCTAssertEqual(result.email, "test@example.com")
+        XCTAssertEqual(result.username, "testuser")
+    }
+
+    func testWriteUserToDisk_whenValidUser_shouldWriteToUserFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let user = User(userId: "test-user")
+        user.email = "test@example.com"
+        user.username = "testuser"
+        
+        let userFileURL = sut.currentFileURLFor(field: .user)
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: userFileURL.path))
+
+        // -- Act --
+        sut.writeUserToDisk(user: user)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
+        
+        let writtenData = try Data(contentsOf: userFileURL)
+        let decodedUser = try JSONDecoder().decode(User.self, from: writtenData)
+        
+        XCTAssertEqual(decodedUser.userId, "test-user")
+        XCTAssertEqual(decodedUser.email, "test@example.com")
+        XCTAssertEqual(decodedUser.username, "testuser")
+    }
+
+    // MARK: - Dist Tests
+
+    func testReadPreviousDistFromDisk_whenValidStringInPreviousDistFile_shouldReturnDecodedString() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let dist = "1.0.0"
+        let distData = Data(dist.utf8)
+        let previousDistFileURL = sut.previousFileURLFor(field: .dist)
+        try distData.write(to: previousDistFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousDistFileURL.path))
+
+        // -- Act --
+        let result = try XCTUnwrap(sut.readPreviousDistFromDisk())
+
+        // -- Assert --
+        XCTAssertEqual(result, "1.0.0")
+    }
+
+    func testReadPreviousDistFromDisk_whenPreviousDistUnavailable_shouldReturnNil() throws {
+        // -- Arrange --
+        // Check pre-conditions
+        let fm = FileManager.default
+        let previousDistFileURL = sut.previousFileURLFor(field: .dist)
+        if fm.fileExists(atPath: previousDistFileURL.path) {
+            try fm.removeItem(at: previousDistFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: previousDistFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousDistFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testWriteDistToDisk_whenValidString_shouldWriteToDistFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let dist = "2.1.0"
+        let distFileURL = sut.currentFileURLFor(field: .dist)
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: distFileURL.path))
+
+        // -- Act --
+        sut.writeDistToDisk(dist: dist)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: distFileURL.path))
+        
+        let writtenData = try Data(contentsOf: distFileURL)
+        let decodedDist = String(data: writtenData, encoding: .utf8)
+        
+        XCTAssertEqual(decodedDist, "2.1.0")
+    }
+
+    // MARK: - Environment Tests
+
+    func testReadPreviousEnvironmentFromDisk_whenValidStringInPreviousEnvironmentFile_shouldReturnDecodedString() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let environment = "production"
+        let environmentData = Data(environment.utf8)
+        let previousEnvironmentFileURL = sut.previousFileURLFor(field: .environment)
+        try environmentData.write(to: previousEnvironmentFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousEnvironmentFileURL.path))
+
+        // -- Act --
+        let result = try XCTUnwrap(sut.readPreviousEnvironmentFromDisk())
+
+        // -- Assert --
+        XCTAssertEqual(result, "production")
+    }
+
+    func testReadPreviousEnvironmentFromDisk_whenPreviousEnvironmentUnavailable_shouldReturnNil() throws {
+        // -- Arrange --
+        // Check pre-conditions
+        let fm = FileManager.default
+        let previousEnvironmentFileURL = sut.previousFileURLFor(field: .environment)
+        if fm.fileExists(atPath: previousEnvironmentFileURL.path) {
+            try fm.removeItem(at: previousEnvironmentFileURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: previousEnvironmentFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousEnvironmentFromDisk()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testWriteEnvironmentToDisk_whenValidString_shouldWriteToEnvironmentFile() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let environment = "staging"
+        let environmentFileURL = sut.currentFileURLFor(field: .environment)
+
+        // Check pre-conditions
+        XCTAssertFalse(fm.fileExists(atPath: environmentFileURL.path))
+
+        // -- Act --
+        sut.writeEnvironmentToDisk(environment: environment)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: environmentFileURL.path))
+        
+        let writtenData = try Data(contentsOf: environmentFileURL)
+        let decodedEnvironment = String(data: writtenData, encoding: .utf8)
+        
+        XCTAssertEqual(decodedEnvironment, "staging")
+    }
+
+    // MARK: - File Operation Tests
+
     func testDeleteCurrentFieldOnDisk_whenExists_shouldDeleteFile() throws {
         // -- Arrange --
         let fm = FileManager.default
@@ -265,51 +430,40 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertEqual(sut.previousFileURLFor(field: .context), expectedUrl)
     }
 
-    func testReadPreviousUserFromDisk_whenValidJSONInPreviousUserFile_shouldReturnDecodedUser() throws {
+    func testCurrentFileURLFor_dist_returnsURLWithCorrectPath() {
         // -- Arrange --
-        let fm = FileManager.default
-        let user = User(userId: "test-user")
-        user.email = "test@example.com"
-        user.username = "testuser"
-        
-        let userData = try XCTUnwrap(SentrySerialization.data(withJSONObject: user.serialize()))
-        let previousUserFileURL = sut.previousFileURLFor(field: .user)
-        try userData.write(to: previousUserFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: previousUserFileURL.path))
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("dist.state")
 
-        // -- Act --
-        let result = try XCTUnwrap(sut.readPreviousUserFromDisk())
-
-        // -- Assert --
-        XCTAssertEqual(result.userId, "test-user")
-        XCTAssertEqual(result.email, "test@example.com")
-        XCTAssertEqual(result.username, "testuser")
+        // -- Act && Assert --
+        XCTAssertEqual(sut.currentFileURLFor(field: .dist), expectedUrl)
     }
 
-    func testWriteUserToDisk_whenValidUser_shouldWriteToUserFile() throws {
+    func testPreviousFileURLFor_dist_returnsURLWithCorrectPath() {
         // -- Arrange --
-        let fm = FileManager.default
-        let user = User(userId: "test-user")
-        user.email = "test@example.com"
-        user.username = "testuser"
-        
-        let userFileURL = sut.currentFileURLFor(field: .user)
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("previous.dist.state")
 
-        // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: userFileURL.path))
+        // -- Act && Assert --
+        XCTAssertEqual(sut.previousFileURLFor(field: .dist), expectedUrl)
+    }
 
-        // -- Act --
-        sut.writeUserToDisk(user: user)
+    func testCurrentFileURLFor_environment_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("environment.state")
 
-        // -- Assert --
-        XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
-        
-        let writtenData = try Data(contentsOf: userFileURL)
-        let decodedUser = try JSONDecoder().decode(User.self, from: writtenData)
-        
-        XCTAssertEqual(decodedUser.userId, "test-user")
-        XCTAssertEqual(decodedUser.email, "test@example.com")
-        XCTAssertEqual(decodedUser.username, "testuser")
+        // -- Act && Assert --
+        XCTAssertEqual(sut.currentFileURLFor(field: .environment), expectedUrl)
+    }
+
+    func testPreviousFileURLFor_environment_returnsURLWithCorrectPath() {
+        // -- Arrange --
+        let expectedUrl = URL(fileURLWithPath: fixture.fileManager.sentryPath)
+            .appendingPathComponent("previous.environment.state")
+
+        // -- Act && Assert --
+        XCTAssertEqual(sut.previousFileURLFor(field: .environment), expectedUrl)
     }
 
     func testDeleteAllCurrentState_shouldDeleteAllCurrentFiles() throws {
@@ -317,13 +471,19 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let fm = FileManager.default
         let contextFileURL = sut.currentFileURLFor(field: .context)
         let userFileURL = sut.currentFileURLFor(field: .user)
+        let distFileURL = sut.currentFileURLFor(field: .dist)
+        let environmentFileURL = sut.currentFileURLFor(field: .environment)
         
         // Create test files
         try "context data".write(to: contextFileURL, atomically: true, encoding: .utf8)
         try "user data".write(to: userFileURL, atomically: true, encoding: .utf8)
+        try "dist data".write(to: distFileURL, atomically: true, encoding: .utf8)
+        try "environment data".write(to: environmentFileURL, atomically: true, encoding: .utf8)
         
         XCTAssertTrue(fm.fileExists(atPath: contextFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: distFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: environmentFileURL.path))
 
         // -- Act --
         sut.deleteAllCurrentState()
@@ -331,6 +491,8 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: contextFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: userFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: distFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: environmentFileURL.path))
     }
 
     func testDeleteAllPreviousState_shouldDeleteAllPreviousFiles() throws {
@@ -338,13 +500,19 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let fm = FileManager.default
         let previousContextFileURL = sut.previousFileURLFor(field: .context)
         let previousUserFileURL = sut.previousFileURLFor(field: .user)
+        let previousDistFileURL = sut.previousFileURLFor(field: .dist)
+        let previousEnvironmentFileURL = sut.previousFileURLFor(field: .environment)
         
         // Create test files
         try "previous context data".write(to: previousContextFileURL, atomically: true, encoding: .utf8)
         try "previous user data".write(to: previousUserFileURL, atomically: true, encoding: .utf8)
+        try "previous dist data".write(to: previousDistFileURL, atomically: true, encoding: .utf8)
+        try "previous environment data".write(to: previousEnvironmentFileURL, atomically: true, encoding: .utf8)
         
         XCTAssertTrue(fm.fileExists(atPath: previousContextFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousUserFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: previousDistFileURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: previousEnvironmentFileURL.path))
 
         // -- Act --
         sut.deleteAllPreviousState()
@@ -352,5 +520,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(fm.fileExists(atPath: previousContextFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousUserFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: previousDistFileURL.path))
+        XCTAssertFalse(fm.fileExists(atPath: previousEnvironmentFileURL.path))
     }
 }

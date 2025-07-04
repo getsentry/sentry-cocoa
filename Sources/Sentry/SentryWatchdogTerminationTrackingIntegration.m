@@ -97,6 +97,8 @@ NS_ASSUME_NONNULL_BEGIN
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
         [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setEnvironment:outerScope.environmentString];
+        [scopeObserver setDist:outerScope.distString];
     }];
 
     return YES;

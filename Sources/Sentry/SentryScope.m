@@ -30,11 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
- * This distribution of the application.
- */
-@property (atomic, copy) NSString *_Nullable distString;
-
-/**
  * Set the fingerprint of an event to determine the grouping
  */
 @property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;

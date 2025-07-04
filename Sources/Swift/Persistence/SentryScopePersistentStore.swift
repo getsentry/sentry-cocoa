@@ -4,6 +4,8 @@
 enum SentryScopeField: UInt, CaseIterable {
     case context
     case user
+    case dist
+    case environment
     
     var name: String {
         switch self {
@@ -11,6 +13,10 @@ enum SentryScopeField: UInt, CaseIterable {
             return "context"
         case .user:
             return "user"
+        case .dist:
+            return "dist"
+        case .environment:
+            return "environment"
         }
     }
 }
@@ -80,6 +86,30 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeUserToDisk(user: User) {
         writeFieldToDisk(field: .user, data: encode(user: user))
+    }
+    
+    // MARK: - Dist
+    @objc
+    public func readPreviousDistFromDisk() -> String? {
+        readFieldFromDisk(field: .dist) { data in
+            decodeString(from: data)
+        }
+    }
+    
+    func writeDistToDisk(dist: String) {
+        writeFieldToDisk(field: .dist, data: encode(string: dist))
+    }
+    
+    // MARK: - User
+    @objc
+    public func readPreviousEnvironmentFromDisk() -> String? {
+        readFieldFromDisk(field: .environment) { data in
+            decodeString(from: data)
+        }
+    }
+    
+    func writeEnvironmentToDisk(environment: String) {
+        writeFieldToDisk(field: .environment, data: encode(string: environment))
     }
     
     // MARK: - Private Functions
