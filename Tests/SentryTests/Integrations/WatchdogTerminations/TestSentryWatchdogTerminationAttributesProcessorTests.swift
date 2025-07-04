@@ -72,8 +72,8 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
     func testSetUser_shouldRecordInvocations() throws {
         // -- Arrange --
         // Clean the invocations to ensure a clean state
-        sut.setContextInvocations.removeAll()
-        XCTAssertEqual(sut.setContextInvocations.count, 0)
+        sut.setUserInvocations.removeAll()
+        XCTAssertEqual(sut.setUserInvocations.count, 0)
 
         // -- Act --
         sut.setUser(User(userId: "user1234"))
