@@ -61,7 +61,6 @@
             event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
             event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
             event.tags = [self.scopePersistentStore readPreviousTagsFromDisk];
-            // TODO: See where to store trace context
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
