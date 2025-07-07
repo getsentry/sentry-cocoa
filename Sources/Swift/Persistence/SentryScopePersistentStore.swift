@@ -267,17 +267,6 @@ extension SentryScopePersistentStore {
     }
 }
 
-// MARK: - Strings
-extension SentryScopePersistentStore {
-    private func encode(string: String) -> Data? {
-        return string.data(using: .utf8)
-    }
-    
-    private func decodeString(from data: Data) -> String? {
-        return String(data: data, encoding: .utf8)
-    }
-}
-
 // MARK: - Tags
 extension SentryScopePersistentStore {
     private func encode(tags: [String: String]) -> Data? {
