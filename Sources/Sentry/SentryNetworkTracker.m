@@ -130,9 +130,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
 {
-    return sessionTask.currentRequest != nil &&
-        [self isTargetMatch:sessionTask.currentRequest.URL
-                withTargets:SentrySDK.options.tracePropagationTargets];
+    if (sessionTask.currentRequest == nil || sessionTask.currentRequest.URL == nil) {
+        return NO;
+    }
+    NSArray *targets = SentrySDK.options.tracePropagationTargets;
+    if (targets == nil) {
+        return NO;
+    }
+    return [self isTargetMatch:(NSURL *_Nonnull)sessionTask.currentRequest.URL withTargets:targets];
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
@@ -159,8 +164,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
-        return;
+    if (apiUrl != nil && url.host != nil && apiUrl.host != nil && apiUrl.path != nil) {
+        if ([url.host isEqualToString:(NSString *_Nonnull)apiUrl.host] &&
+            [url.path containsString:(NSString *_Nonnull)apiUrl.path]) {
+            return;
+        }
     }
 
     // Register request start date in the sessionTask to use for breadcrumb
@@ -215,7 +223,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
+        SentryBaggage *_Nullable baggage = nil;
+        if (span != nil) {
+            SentryTracer *tracer = [SentryTracer getTracer:(id<SentrySpan> _Nonnull)span];
+            if (tracer != nil) {
+                baggage = [[tracer traceContext] toBaggage];
+            }
+        }
         [self addBaggageHeader:baggage traceHeader:[netSpan toTraceHeader] toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
@@ -232,11 +246,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    SentryTraceContext *traceContext =
-        [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SentrySDK.currentHub.client.options
-                                        userSegment:SentrySDK.currentHub.scope.userObject.segment
-                                           replayId:SentrySDK.currentHub.scope.replayId];
+    SentryHub *currentHub = SentrySDK.currentHub;
+    SentryClient *_Nullable client = currentHub.client;
+    SentryTraceContext *traceContext = [[SentryTraceContext alloc]
+        initWithTraceId:propagationContext.traceId
+                options:(SentryOptions *_Nonnull)
+                            client.options // TODO: remove the force cast to non-null
+            userSegment:currentHub.scope.userObject.segment
+               replayId:currentHub.scope.replayId];
 #pragma clang diagnostic pop
 
     [self addBaggageHeader:[traceContext toBaggage]
@@ -256,8 +273,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSDictionary *originalBaggage = [SentryBaggageSerialization
-            decode:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
+        NSString *baggageValue
+            = sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER];
+        NSDictionary *originalBaggage = [SentryBaggageSerialization decode:baggageValue];
 
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
@@ -324,8 +342,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
-        return;
+    if (apiUrl != nil && url.host != nil && apiUrl.host != nil && apiUrl.path != nil) {
+        if ([url.host isEqualToString:(NSString *_Nonnull)apiUrl.host] &&
+            [url.path containsString:(NSString *_Nonnull)apiUrl.path]) {
+            return;
+        }
     }
 
     id<SentrySpan> netSpan;
@@ -391,7 +412,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
+    NSArray *failedRequestTargets = SentrySDK.options.failedRequestTargets;
+    if (failedRequestTargets == nil || myRequest.URL == nil) {
+        SENTRY_LOG_DEBUG(@"Request url or targets are nil, not capturing HTTP Client errors.");
+        return;
+    }
+    if (![self isTargetMatch:(NSURL *_Nonnull)myRequest.URL withTargets:failedRequestTargets]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -424,7 +450,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:[[sessionTask currentRequest] URL]];
+    NSURL *requestURL = [[sessionTask currentRequest] URL];
+    if (requestURL == nil) {
+        // Use a fallback URL if the request URL is nil
+        requestURL = [NSURL URLWithString:@"unknown"];
+    }
+    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:requestURL];
 
     request.url = url.sanitizedUrl;
     request.method = myRequest.HTTPMethod;
@@ -433,7 +464,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     if (nil != myRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
-        request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
+        if (headers != nil) {
+            request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
+        }
     }
 
     event.exceptions = @[ sentryException ];
@@ -500,7 +533,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:sessionTask.currentRequest.URL];
+    NSURL *requestURL = sessionTask.currentRequest.URL;
+    if (requestURL == nil) {
+        // Use a fallback URL if the request URL is nil
+        requestURL = [NSURL URLWithString:@"unknown"];
+    }
+    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:requestURL];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
@@ -519,8 +557,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
 
         if (self.isGraphQLOperationTrackingEnabled) {
-            breadcrumbData[@"graphql_operation_name"] =
+            NSString *operationName =
                 [URLSessionTaskHelper getGraphQLOperationNameFrom:sessionTask];
+            if (operationName != nil) {
+                breadcrumbData[@"graphql_operation_name"] = operationName;
+            }
         }
     }
 

@@ -78,7 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
-    return [numberFormatter numberFromString:string];
+    NSNumber *_Nullable result = [numberFormatter numberFromString:string];
+    if (result != nil) {
+        return (NSNumber *_Nonnull)result;
+    } else {
+        return @0; // Default to 0 if parsing fails
+    }
 }
 
 - (NSArray<NSNumber *> *)parseCategories:(NSString *)categoriesAsString
@@ -100,12 +105,17 @@ NS_ASSUME_NONNULL_BEGIN
     return categories;
 }
 
-- (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit
+- (NSDate *)getLongerRateLimit:(nullable NSDate *)existingRateLimit
          andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
 {
     NSDate *newDate = [self.currentDateProvider.date
         dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
-    return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
+    NSDate *_Nullable result = [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
+    if (result != nil) {
+        return (NSDate *_Nonnull)result;
+    } else {
+        return newDate; // Default to newDate if getMaximumDate returns nil
+    }
 }
 
 @end

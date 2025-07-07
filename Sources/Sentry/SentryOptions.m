@@ -209,9 +209,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
-        self.cacheDirectoryPath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
+        NSArray<NSString *> *cachePaths
+            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        if (cachePaths.count > 0 && cachePaths.firstObject != nil) {
+            self.cacheDirectoryPath = (NSString *_Nonnull)cachePaths.firstObject;
+        } else {
+            self.cacheDirectoryPath = @""; // Default to empty string if no cache path found
+        }
 
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
@@ -297,9 +301,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"debug"] block:^(BOOL value) { self->_debug = value; }];
 
-    if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
+    id diagnosticLevelValue = options[@"diagnosticLevel"];
+    if ([diagnosticLevelValue isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-            if ([nameForSentryLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
+            if ([nameForSentryLevel(level) isEqualToString:diagnosticLevelValue]) {
                 self.diagnosticLevel = level;
                 break;
             }
@@ -323,7 +328,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"environment"] isKindOfClass:[NSString class]]) {
-        self.environment = options[@"environment"];
+        self.environment = (NSString *_Nonnull)options[@"environment"];
     }
 
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
@@ -361,7 +366,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
-        self.cacheDirectoryPath = options[@"cacheDirectoryPath"];
+        self.cacheDirectoryPath = (NSString *_Nonnull)options[@"cacheDirectoryPath"];
     }
 
     if ([self isBlock:options[@"beforeSend"]]) {
@@ -440,7 +445,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
 
     if ([self isBlock:options[@"initialScope"]]) {
-        self.initialScope = options[@"initialScope"];
+        self.initialScope = (SentryScope *_Nonnull(^_Nonnull)(
+            SentryScope *_Nonnull __strong))options[@"initialScope"];
     }
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
@@ -475,8 +481,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
-        self.sessionReplay =
-            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+        self.sessionReplay = [[SentryReplayOptions alloc]
+            initWithDictionary:(NSDictionary *_Nonnull)options[@"sessionReplay"]];
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -514,7 +520,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
-        _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
+        NSArray *_Nullable inAppExcludesArray = options[@"inAppExcludes"];
+        if (inAppExcludesArray != nil) {
+            _inAppExcludes =
+                [(NSArray *_Nonnull)inAppExcludesArray filteredArrayUsingPredicate:isNSString];
+        }
     }
 
     if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
@@ -529,8 +539,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 
     if ([options[@"swizzleClassNameExcludes"] isKindOfClass:[NSSet class]]) {
-        _swizzleClassNameExcludes =
-            [options[@"swizzleClassNameExcludes"] filteredSetUsingPredicate:isNSString];
+        NSSet *_Nullable swizzleExcludesSet = options[@"swizzleClassNameExcludes"];
+        if (swizzleExcludesSet != nil) {
+            _swizzleClassNameExcludes =
+                [(NSSet *_Nonnull)swizzleExcludesSet filteredSetUsingPredicate:isNSString];
+        }
     }
 
     [self setBool:options[@"enableCoreDataTracing"]
@@ -559,15 +572,15 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
-        self.tracePropagationTargets = options[@"tracePropagationTargets"];
+        self.tracePropagationTargets = (NSArray *_Nonnull)options[@"tracePropagationTargets"];
     }
 
     if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
-        self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
+        self.failedRequestStatusCodes = (NSArray *_Nonnull)options[@"failedRequestStatusCodes"];
     }
 
     if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
-        self.failedRequestTargets = options[@"failedRequestTargets"];
+        self.failedRequestTargets = (NSArray *_Nonnull)options[@"failedRequestTargets"];
     }
 
 #if SENTRY_HAS_METRIC_KIT
@@ -583,7 +596,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableSpotlight = value; }];
 
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
-        self.spotlightUrl = options[@"spotlightUrl"];
+        self.spotlightUrl = (NSString *_Nonnull)options[@"spotlightUrl"];
     }
 
     if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
@@ -842,7 +855,8 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
 {
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
-    configureUserFeedback(self.userFeedbackConfiguration);
+    configureUserFeedback(
+        (SentryUserFeedbackConfiguration *_Nonnull)self.userFeedbackConfiguration);
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

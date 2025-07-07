@@ -58,8 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([addresses containsObject:sourceImage.imageAddress]) {
-            [result addObject:sourceImage];
+        if (sourceImage.imageAddress != nil) {
+            if ([addresses containsObject:(NSString *_Nonnull)sourceImage.imageAddress]) {
+                [result addObject:sourceImage];
+            }
         }
     }
 
@@ -71,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryFrame *frame in frames) {
         if (frame.imageAddress) {
-            [set addObject:frame.imageAddress];
+            [set addObject:(NSString *_Nonnull)frame.imageAddress];
         }
     }
 }
@@ -102,7 +104,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        if (thread.stacktrace.frames != nil) {
+            [self extractDebugImageAddressFromFrames:(NSArray<SentryFrame *> *_Nonnull)
+                                                         thread.stacktrace.frames
+                                             intoSet:imageAddresses];
+        }
     }
 
     return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
@@ -121,7 +127,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        if (thread.stacktrace.frames != nil) {
+            [self extractDebugImageAddressFromFrames:(NSArray<SentryFrame *> *_Nonnull)
+                                                         thread.stacktrace.frames
+                                             intoSet:imageAddresses];
+        }
     }
 
     return [self getDebugImagesForImageAddressesFromCache:imageAddresses];

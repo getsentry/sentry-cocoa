@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     [envelopeData appendData:header];
 
     for (int i = 0; i < envelope.items.count; ++i) {
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:(NSData *_Nonnull)[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
         [envelopeData appendData:itemHeader];
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:(NSData *_Nonnull)[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
         [envelopeData appendData:envelope.items[i].data];
     }
 
@@ -110,21 +110,25 @@ NS_ASSUME_NONNULL_BEGIN
             }
 
             SentrySdkInfo *sdkInfo = nil;
-            if (nil != headerDictionary[@"sdk"]) {
-                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary[@"sdk"]];
+            id _Nullable sdkObject = headerDictionary[@"sdk"];
+            if (nil != sdkObject && [sdkObject isKindOfClass:[NSDictionary class]]) {
+                sdkInfo = [[SentrySdkInfo alloc] initWithDict:(NSDictionary *_Nonnull)sdkObject];
             }
 
             SentryTraceContext *traceContext = nil;
-            if (nil != headerDictionary[@"trace"]) {
-                traceContext = [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
+            id _Nullable traceObject = headerDictionary[@"trace"];
+            if (nil != traceObject && [traceObject isKindOfClass:[NSDictionary class]]) {
+                traceContext =
+                    [[SentryTraceContext alloc] initWithDict:(NSDictionary *_Nonnull)traceObject];
             }
 
             envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
                                                               sdkInfo:sdkInfo
                                                          traceContext:traceContext];
 
-            if (headerDictionary[@"sent_at"] != nil) {
-                envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
+            id _Nullable sentAtObject = headerDictionary[@"sent_at"];
+            if (sentAtObject != nil && [sentAtObject isKindOfClass:[NSString class]]) {
+                envelopeHeader.sentAt = sentry_fromIso8601String((NSString *_Nonnull)sentAtObject);
             }
 
             break;
@@ -185,20 +189,24 @@ NS_ASSUME_NONNULL_BEGIN
             NSNumber *itemCount = [headerDictionary valueForKey:@"item_count"];
 
             SentryEnvelopeItemHeader *itemHeader;
-            if (nil != filename) {
+            if (filename != nil && type != nil) {
                 itemHeader = [[SentryEnvelopeAttachmentHeader alloc]
-                      initWithType:type
+                      initWithType:(NSString *_Nonnull)type
                             length:bodyLength
                           filename:filename
                        contentType:contentType
                     attachmentType:typeForSentryAttachmentName(attachmentType)];
-            } else if (nil != itemCount) {
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
+            } else if (itemCount != nil && type != nil) {
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:(NSString *_Nonnull)type
                                                                      length:bodyLength
                                                                 contentType:contentType
                                                                   itemCount:itemCount];
+            } else if (type != nil) {
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:(NSString *_Nonnull)type
+                                                                     length:bodyLength];
             } else {
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
+                SENTRY_LOG_ERROR(@"Envelope item type is required but is nil.");
+                return nil;
             }
 
             if (endOfEnvelope == i) {
@@ -262,10 +270,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
 {
     NSMutableData *recording = [NSMutableData data];
-    [recording appendData:[SentrySerialization
-                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
-    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+    NSData *_Nullable headerData =
+        [SentrySerialization dataWithJSONObject:[replayRecording headerForReplayRecording]];
+    if (headerData != nil) {
+        [recording appendData:(NSData *_Nonnull)headerData];
+    }
+    [recording appendData:(NSData *_Nonnull)[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    NSData *_Nullable serializedData =
+        [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
+    if (serializedData != nil) {
+        [recording appendData:(NSData *_Nonnull)serializedData];
+    }
     return recording;
 }
 
@@ -307,7 +322,12 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentryLevelError;
     }
 
-    return sentryLevelForString(eventDictionary[@"level"]);
+    id _Nullable levelObject = eventDictionary[@"level"];
+    if (levelObject != nil && [levelObject isKindOfClass:[NSString class]]) {
+        return sentryLevelForString((NSString *_Nonnull)levelObject);
+    } else {
+        return kSentryLevelInfo; // Default level if not specified or invalid
+    }
 }
 
 @end

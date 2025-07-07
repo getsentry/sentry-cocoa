@@ -101,14 +101,16 @@
         // If the start time of the tracer changes, which is the case for app start transactions, we
         // also need to adapt the start time of our spans.
         self.initialDisplaySpan.startTimestamp = _tracer.startTimestamp;
-        [self addTimeToDisplayMeasurement:self.initialDisplaySpan name:@"time_to_initial_display"];
+        [self addTimeToDisplayMeasurement:(SentrySpan *_Nonnull)self.initialDisplaySpan
+                                     name:@"time_to_initial_display"];
 
         if (self.fullDisplaySpan == nil) {
             return;
         }
+        SentrySpan *_Nonnull fullDisplaySpan = (SentrySpan *_Nonnull)self.fullDisplaySpan;
 
         self.fullDisplaySpan.startTimestamp = _tracer.startTimestamp;
-        [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
+        [self addTimeToDisplayMeasurement:fullDisplaySpan name:@"time_to_full_display"];
 
         if (self.fullDisplaySpan.status != kSentrySpanStatusDeadlineExceeded) {
             return;
@@ -117,7 +119,7 @@
         self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
         self.fullDisplaySpan.spanDescription = [NSString
             stringWithFormat:@"%@ - Deadline Exceeded", self.fullDisplaySpan.spanDescription];
-        [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
+        [self addTimeToDisplayMeasurement:fullDisplaySpan name:@"time_to_full_display"];
     }];
 
     return YES;
@@ -198,9 +200,14 @@
     }
 }
 
-- (void)addTimeToDisplayMeasurement:(SentrySpan *)span name:(NSString *)name
+- (void)addTimeToDisplayMeasurement:(SentrySpan *_Nonnull)span name:(NSString *_Nonnull)name
 {
-    NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:span.startTimestamp] * 1000;
+    NSDate *_Nullable startTimestamp = span.startTimestamp;
+    if (startTimestamp == nil) {
+        // TODO: Handle this case
+    }
+    NSTimeInterval duration =
+        [span.timestamp timeIntervalSinceDate:(NSDate *_Nonnull)startTimestamp] * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];
 }
 

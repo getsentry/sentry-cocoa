@@ -340,9 +340,13 @@
     rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
-                                                                   dsn:self.options.parsedDsn
-                                                      didFailWithError:&requestError];
+    NSURLRequest *request = nil;
+    if (self.options.parsedDsn != nil) {
+        request =
+            [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
+                                                   dsn:(SentryDsn *_Nonnull)self.options.parsedDsn
+                                      didFailWithError:&requestError];
+    }
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {
@@ -360,7 +364,7 @@
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
-        [self.fileManager removeFileAtPath:envelopePath];
+        [self.fileManager removeFileAtPath:(NSString *_Nonnull)envelopePath];
     }
     @synchronized(self) {
         self.isSending = NO;
@@ -400,7 +404,7 @@
                 return;
             }
 
-            [weakSelf.rateLimits update:response];
+            [weakSelf.rateLimits update:(NSHTTPURLResponse *_Nonnull)response];
 
             if (response.statusCode == 200) {
                 SENTRY_LOG_DEBUG(@"Envelope sent successfully!");

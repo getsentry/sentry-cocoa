@@ -31,8 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFrame *lastFrame = self.frames.lastObject;
     SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
 
-    if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
-        [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
+    if (lastFrame.symbolAddress != nil && beforeLastFrame.symbolAddress != nil
+        && beforeLastFrame.instructionAddress != nil &&
+        [lastFrame.symbolAddress isEqualToString:(NSString *_Nonnull)beforeLastFrame.symbolAddress]
+        && [self.registers[@"lr"]
+            isEqualToString:(NSString *_Nonnull)beforeLastFrame.instructionAddress]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;

@@ -71,14 +71,21 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
-    const auto envelope = sentry_continuousProfileChunkEnvelope(
-        profiler.profilerId, profilerState, metricProfilerState
+    if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
+        const auto envelope
+            = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profiler.profilerId,
+                (NSDictionary<NSString *, id> *_Nonnull)profilerState,
+                (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
+                    metricProfilerState
 #    if SENTRY_HAS_UIKIT
-        ,
-        screenFrameData
+                ,
+                screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-    );
-    [SentrySDK captureEnvelope:envelope];
+            );
+        if (envelope != nil) {
+            [SentrySDK captureEnvelope:(SentryEnvelope *_Nonnull)envelope];
+        }
+    }
 }
 
 void

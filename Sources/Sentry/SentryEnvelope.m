@@ -176,8 +176,11 @@ NS_ASSUME_NONNULL_BEGIN
 
         NSError *error = nil;
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSDictionary<NSFileAttributeKey, id> *attr =
-            [fileManager attributesOfItemAtPath:attachment.path error:&error];
+        NSDictionary<NSFileAttributeKey, id> *attr = nil;
+        if (attachment.path != nil) {
+            attr = [fileManager attributesOfItemAtPath:(NSString *_Nonnull)attachment.path
+                                                 error:&error];
+        }
 
         if (nil != error) {
             SENTRY_LOG_ERROR(@"Couldn't check file size of attachment with path: %@. Error: %@",
@@ -199,13 +202,25 @@ NS_ASSUME_NONNULL_BEGIN
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.base64-attachment-data"]) {
-            data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
-                base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
+            if (attachment.path != nil) {
+                NSData *fileData = [[NSFileManager defaultManager]
+                    contentsAtPath:(NSString *_Nonnull)attachment.path];
+                if (fileData != nil) {
+                    data = [[fileData base64EncodedStringWithOptions:0]
+                        dataUsingEncoding:NSUTF8StringEncoding];
+                }
+            }
         } else {
-            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+            if (attachment.path != nil) {
+                data = [[NSFileManager defaultManager]
+                    contentsAtPath:(NSString *_Nonnull)attachment.path];
+            }
         }
 #else
-        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+        if (attachment.path != nil) {
+            data =
+                [[NSFileManager defaultManager] contentsAtPath:(NSString *_Nonnull)attachment.path];
+        }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 

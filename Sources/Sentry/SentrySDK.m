@@ -92,7 +92,12 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        return currentHub;
+        if (currentHub != nil) {
+            return (SentryHub *_Nonnull)currentHub;
+        } else {
+            // Return a fallback hub if currentHub is nil
+            return [[SentryHub alloc] initWithClient:nil andScope:nil];
+        }
     }
 }
 
@@ -138,7 +143,13 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryMetricsAPI *)metrics
 {
-    return currentHub.metrics;
+    SentryMetricsAPI *_Nullable metrics = currentHub.metrics;
+    if (metrics != nil) {
+        return (SentryMetricsAPI *_Nonnull)metrics;
+    } else {
+        // Return nil instead of trying to create an instance of a forward-declared class
+        return nil;
+    }
 }
 
 + (BOOL)crashedLastRunCalled
@@ -157,7 +168,9 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
 {
     @synchronized(sentrySDKappStartMeasurementLock) {
-        sentrySDKappStartMeasurement = value;
+        if (value != nil) {
+            sentrySDKappStartMeasurement = (SentryAppStartMeasurement *_Nonnull)value;
+        }
     }
     if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);

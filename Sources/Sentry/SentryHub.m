@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
         _errorsBeforeSession = 0;
 
         if (_scope) {
-            [_crashWrapper enrichScope:_scope];
+            [(SentryCrashWrapper *_Nonnull)_crashWrapper enrichScope:(SentryScope *_Nonnull)_scope];
         }
     }
 
@@ -109,8 +109,13 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *distinctId =
             [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
-                                                   distinctId:distinctId];
+        if (options.releaseName != nil) {
+            _session =
+                [[SentrySession alloc] initWithReleaseName:(NSString *_Nonnull)options.releaseName
+                                                distinctId:distinctId];
+        } else {
+            _session = [[SentrySession alloc] initWithReleaseName:@"unknown" distinctId:distinctId];
+        }
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;
@@ -119,16 +124,20 @@ NS_ASSUME_NONNULL_BEGIN
 
         _session.environment = options.environment;
 
-        [scope applyToSession:_session];
-
-        [self storeCurrentSession:_session];
-        [self captureSession:_session];
+        if (_session != nil) {
+            SentrySession *_Nonnull session = (SentrySession *_Nonnull)_session;
+            [scope applyToSession:session];
+            [self storeCurrentSession:session];
+            [self captureSession:session];
+        }
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:_session];
+    if (_session != nil && _sessionListener != nil) {
+        [_sessionListener sentrySessionStarted:(SentrySession *_Nonnull)_session];
+    }
 }
 
 - (void)endSession
@@ -191,10 +200,14 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Using session's start time %@",
                 session.started);
             timestamp = session.started;
-            [session endSessionAbnormalWithTimestamp:timestamp];
+            if (timestamp != nil) {
+                [session endSessionAbnormalWithTimestamp:(NSDate *_Nonnull)timestamp];
+            }
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:timestamp];
+            if (timestamp != nil) {
+                [session endSessionExitedWithTimestamp:(NSDate *_Nonnull)timestamp];
+            }
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -207,10 +220,15 @@ NS_ASSUME_NONNULL_BEGIN
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            SENTRY_LOG_DEBUG(
-                @"Capturing session with status: %@", [self createSessionDebugString:session]);
+            NSString *debugString = @"nil";
+            if (session != nil) {
+                debugString = [self createSessionDebugString:(SentrySession *_Nonnull)session];
+            }
+            SENTRY_LOG_DEBUG(@"Capturing session with status: %@", debugString);
         }
-        [client captureSession:session];
+        if (session != nil) {
+            [client captureSession:(SentrySession *_Nonnull)session];
+        }
     }
 }
 
@@ -220,7 +238,9 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_sessionLock) {
         if (_session != nil) {
             [_session incrementErrors];
-            [self storeCurrentSession:_session];
+            if (_session != nil) {
+                [self storeCurrentSession:(SentrySession *_Nonnull)_session];
+            }
             sessionCopy = [_session copy];
         }
     }
@@ -457,17 +477,24 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentrySamplerDecision *tracesSamplerDecision
-        = sentry_sampleTrace(samplingContext, self.client.options);
+    SentrySamplerDecision *tracesSamplerDecision;
+    if (self.client.options != nil) {
+        tracesSamplerDecision
+            = sentry_sampleTrace(samplingContext, (SentryOptions *_Nonnull)self.client.options);
+    } else {
+        // Create a default sampler decision when no options are available
+        tracesSamplerDecision = [[SentrySamplerDecision alloc] init];
+        [tracesSamplerDecision setValue:@(kSentrySampleDecisionYes) forKey:@"decision"];
+    }
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision
-                                       sampleRate:tracesSamplerDecision.sampleRate
-                                       sampleRand:tracesSamplerDecision.sampleRand];
+                                       sampleRate:tracesSamplerDecision.sampleRate ?: @(1.0)
+                                       sampleRand:tracesSamplerDecision.sampleRand ?: @(0.0)];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (![self.client.options isContinuousProfilingEnabled]) {
-        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
-            samplingContext, tracesSamplerDecision, self.client.options);
+        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(samplingContext,
+            tracesSamplerDecision, self.client.options ?: [[SentryOptions alloc] init]);
         configuration.profilesSamplerDecision = profilesSamplerDecision;
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
@@ -564,7 +591,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
     if (callback != nil) {
-        crumb = callback(crumb);
+        SentryBreadcrumb *callbackResult = callback(crumb);
+        if (callbackResult != nil) {
+            crumb = callbackResult;
+        }
     }
     if (crumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
@@ -594,9 +624,15 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:_scope];
+            if (_crashWrapper != nil && _scope != nil) {
+                [_crashWrapper enrichScope:(SentryScope *_Nonnull)_scope];
+            }
         }
-        return _scope;
+        if (_scope != nil) {
+            return (SentryScope *_Nonnull)_scope;
+        }
+        // Return a fallback scope if _scope is nil
+        return [[SentryScope alloc] init];
     }
 }
 
@@ -765,9 +801,18 @@ NS_ASSUME_NONNULL_BEGIN
                 return NO;
             }
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            id levelValue = eventJson[@"level"];
+            SentryLevel level;
+            if ([levelValue isKindOfClass:[NSString class]]) {
+                level = sentryLevelForString(levelValue);
+            } else {
+                level = kSentryLevelError; // Default level
+            }
             if (level >= kSentryLevelError) {
-                *handled = [self eventContainsOnlyHandledErrors:eventJson];
+                if (eventJson != nil) {
+                    *handled =
+                        [self eventContainsOnlyHandledErrors:(NSDictionary *_Nonnull)eventJson];
+                }
                 return YES;
             }
         }
@@ -806,7 +851,12 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                           options:0
                                                             error:nil];
-    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+    NSString *result = [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+    if (result != nil) {
+        return result;
+    } else {
+        return @"Failed to serialize session";
+    }
 }
 
 - (void)flush:(NSTimeInterval)timeout

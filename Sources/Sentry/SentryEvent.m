@@ -200,12 +200,12 @@ NS_ASSUME_NONNULL_BEGIN
     ];
 
     SentryException *exception = self.exceptions[0];
-    if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
-        return YES;
-    } else {
-        return NO;
+    if (exception.mechanism != nil && exception.mechanism.type != nil) {
+        if ([metricKitMechanisms containsObject:(NSString *_Nonnull)exception.mechanism.type]) {
+            return YES;
+        }
     }
+    return NO;
 }
 
 #endif // SENTRY_HAS_METRIC_KIT
@@ -214,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return self.exceptions.count == 1 &&
         [SentryAppHangTypeMapper
-            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type];
+            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type ?: @"unknown"];
 }
 
 @end

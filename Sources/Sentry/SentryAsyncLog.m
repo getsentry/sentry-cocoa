@@ -14,8 +14,14 @@ NS_ASSUME_NONNULL_BEGIN
         [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
 
     NSError *error;
-    if (!createDirectoryIfNotExists(sentryStaticCachesPath(), &error)) {
-        SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
+    NSString *cachesPath = sentryStaticCachesPath();
+    if (cachesPath != nil) {
+        if (!createDirectoryIfNotExists((NSString *_Nonnull)cachesPath, &error)) {
+            SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
+            return;
+        }
+    } else {
+        SENTRY_LOG_ERROR(@"Failed to get caches path for async log file");
         return;
     }
 

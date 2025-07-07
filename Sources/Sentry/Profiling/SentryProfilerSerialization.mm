@@ -169,9 +169,12 @@ sentry_serializedTraceProfileData(
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
-        @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+        @"manufacturer" : @"Apple"
     };
+    NSString *deviceModel = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    if (deviceModel != nil) {
+        payload[@"device"][@"model"] = deviceModel;
+    }
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
@@ -326,11 +329,12 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
-    if (JSONData == nil) {
+    const auto nullableJSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (nullableJSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+    const auto JSONData = (NSData *_Nonnull)nullableJSONData;
 
     SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
 
@@ -379,16 +383,19 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     payload[@"transaction"] = @ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
+    if (transaction.transaction != nil) {
+        payload[@"transaction"][@"name"] = transaction.transaction;
+    }
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
-    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
-    if (JSONData == nil) {
+    const auto nullableJSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (nullableJSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+    const auto JSONData = (NSData *_Nonnull)nullableJSONData;
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentry_writeProfileFile(JSONData, false /*continuous*/);

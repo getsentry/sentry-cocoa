@@ -67,7 +67,7 @@ NS_SWIFT_NAME(User)
 
 - (BOOL)isEqual:(id _Nullable)other;
 
-- (BOOL)isEqualToUser:(SentryUser *)user;
+- (BOOL)isEqualToUser:(SentryUser *_Nullable)user;
 
 - (NSUInteger)hash;
 

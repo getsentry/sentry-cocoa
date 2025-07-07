@@ -319,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
             SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
             SentryMXFrame *firstUnprocessedSibling =
-                [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                [self getFirstUnprocessedSubFrames:parentFrame.subFrames ?: @[]
                            processedFrameAddresses:processedFrameAddresses];
 
             BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
@@ -341,7 +341,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =
-                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames ?: @[]
                                processedFrameAddresses:processedFrameAddresses];
 
                 // Keep adding sub frames
@@ -482,7 +482,9 @@ NS_ASSUME_NONNULL_BEGIN
             [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
 
         for (SentryDebugMeta *debugMeta in callStackDebugMetas) {
-            debugMetas[debugMeta.debugID] = debugMeta;
+            if (debugMeta.debugID != nil) {
+                debugMetas[(NSString *_Nonnull)debugMeta.debugID] = debugMeta;
+            }
         }
     }
 
@@ -509,7 +511,9 @@ NS_ASSUME_NONNULL_BEGIN
         uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
         debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
-        debugMetas[debugMeta.debugID] = debugMeta;
+        if (debugMeta.debugID != nil) {
+            debugMetas[(NSString *_Nonnull)debugMeta.debugID] = debugMeta;
+        }
     }
 
     return [debugMetas allValues];

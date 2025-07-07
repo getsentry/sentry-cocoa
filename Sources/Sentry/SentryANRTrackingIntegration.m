@@ -59,7 +59,14 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
-    self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    SentryFileManager *_Nullable fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    if (fileManager == nil) {
+        SENTRY_LOG_FATAL(
+            @"SentryFileManager is nil. Make sure to set it in SentryOptions.fileManager.");
+        return NO;
+    }
+    self.fileManager = (SentryFileManager *_Nonnull)fileManager;
+
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     self.debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
@@ -154,7 +161,10 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // recover the debug images. The client would also attach the debug images when directly
     // capturing the app hang event. Still, we attach them already now to ensure all app hang events
     // have debug images cause it's easy to mess this up in the future.
-    event.debugMeta = [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+    if (event.threads != nil) {
+        event.debugMeta = [self.debugImageProvider
+            getDebugImagesFromCacheForThreads:(NSArray<SentryThread *> *_Nonnull)event.threads];
+    }
 
 #if SENTRY_HAS_UIKIT
     // We only measure app hang duration for V2.

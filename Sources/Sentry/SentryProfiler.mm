@@ -65,7 +65,9 @@ sentry_configureContinuousProfiling(SentryOptions *options)
     }
 
     options.profiling = [[SentryProfileOptions alloc] init];
-    options.configureProfiling(options.profiling);
+    if (options.profiling != nil) {
+        options.configureProfiling((SentryProfileOptions *_Nonnull)options.profiling);
+    }
 
     if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
         SENTRY_LOG_WARN(

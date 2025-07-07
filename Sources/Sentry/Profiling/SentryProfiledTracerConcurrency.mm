@@ -298,11 +298,13 @@ sentry_stopProfilerDueToFinishedTransaction(
     [SentryTraceProfiler recordMetrics];
     transaction.endSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 
-    const auto profiler = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
-    if (!profiler) {
+    const auto nullableProfiler
+        = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
+    if (!nullableProfiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
     }
+    const auto profiler = (SentryProfiler *_Nonnull)nullableProfiler;
 
     // This code can run on the main thread, and the profile serialization can take a couple of
     // milliseconds. Therefore, we move this to a background thread to avoid potentially
@@ -310,15 +312,17 @@ sentry_stopProfilerDueToFinishedTransaction(
     [dispatchQueue dispatchAsyncWithBlock:^{
         const auto profilingData = [profiler.state copyProfilingData];
 
-        const auto profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-            hub, profiler, profilingData, transaction, startTimestamp);
+        const auto profileEnvelopeItem = profilingData
+            ? sentry_traceProfileEnvelopeItem(
+                  hub, profiler, profilingData, transaction, startTimestamp)
+            : nil;
 
         if (!profileEnvelopeItem) {
             [hub captureTransaction:transaction withScope:hub.scope];
         } else {
             [hub captureTransaction:transaction
                               withScope:hub.scope
-                additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+                additionalEnvelopeItems:@[ (SentryEnvelopeItem *_Nonnull)profileEnvelopeItem ]];
         }
     }];
 }

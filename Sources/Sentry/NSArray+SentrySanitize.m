@@ -13,7 +13,10 @@
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
             [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            [result addObject:sentry_sanitize((NSDictionary *)rawValue)];
+            NSDictionary *_Nullable sanitized = sentry_sanitize((NSDictionary *)rawValue);
+            if (sanitized != nil) {
+                [result addObject:(NSDictionary *_Nonnull)sanitized];
+            }
         } else if ([rawValue isKindOfClass:NSArray.class]) {
             [result addObject:[SentryArray sanitizeArray:rawValue]];
         } else if ([rawValue isKindOfClass:NSDate.class]) {

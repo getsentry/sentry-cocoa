@@ -212,31 +212,68 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 - (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_fileManager, ({
-        NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                          error:&error];
-        if (manager == nil) {
-            SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+    // We need to handle this outside the macro due to pragma limitations
+    if (_fileManager == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_fileManager == nil) {
+                NSError *error;
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+                    SentryFileManager *_Nullable manager =
+                        [[SentryFileManager alloc] initWithOptions:options error:&error];
+                    if (manager == nil) {
+                        SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
+                    }
+                    _fileManager = manager;
+                }
+            }
         }
-        manager;
-    }));
+    }
+    return _fileManager;
 }
 
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
-                                          crashWrapper:self.crashWrapper
-                                           fileManager:self.fileManager
-                                  dispatchQueueWrapper:self.dispatchQueueWrapper
-                             notificationCenterWrapper:self.notificationCenterWrapper]);
+    SentryFileManager *_Nullable nullableFileManager = self.fileManager;
+    if (nullableFileManager == nil) {
+        SENTRY_LOG_ERROR(
+            @"SentryDependencyContainer.appStateManager only works with a file manager. Ensure "
+            @"you're using the right configuration of Sentry that links the file manager.");
+        return nil;
+    }
+    SentryFileManager *_Nonnull fileManager = (SentryFileManager *_Nonnull)nullableFileManager;
+
+    if (_appStateManager == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_appStateManager == nil) {
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+                    _appStateManager = [[SentryAppStateManager alloc]
+                                  initWithOptions:options
+                                     crashWrapper:self.crashWrapper
+                                      fileManager:fileManager
+                             dispatchQueueWrapper:self.dispatchQueueWrapper
+                        notificationCenterWrapper:self.notificationCenterWrapper];
+                }
+            }
+        }
+    }
+    return _appStateManager;
 }
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(
-        _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
+    if (_threadInspector == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_threadInspector == nil) {
+                SentryOptions *options = SentrySDK.options;
+                if (options != nil) {
+                    _threadInspector = [[SentryThreadInspector alloc] initWithOptions:options];
+                }
+            }
+        }
+    }
+    return _threadInspector;
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -390,11 +427,21 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (SentryScopeContextPersistentStore *)
+- (nullable SentryScopeContextPersistentStore *)
     scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
-        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+    if (_scopeContextPersistentStore == nil) {
+        @synchronized(sentryDependencyContainerDependenciesLock) {
+            if (_scopeContextPersistentStore == nil) {
+                SentryFileManager *fileManager = self.fileManager;
+                if (fileManager != nil) {
+                    _scopeContextPersistentStore =
+                        [[SentryScopeContextPersistentStore alloc] initWithFileManager:fileManager];
+                }
+            }
+        }
+    }
+    return _scopeContextPersistentStore;
 }
 
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -407,38 +454,77 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+- (nullable SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
     (SentryOptions *)options
 {
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
+    SentryWatchdogTerminationBreadcrumbProcessor *_Nullable nullableBreadcrumbProcessor =
+        [self getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs];
+    if (nullableBreadcrumbProcessor == nil) {
+        SENTRY_LOG_ERROR(
+            @"SentryDependencyContainer.getWatchdogTerminationScopeObserverWithOptions only works "
+            @"with a breadcrumb processor.");
+        return nil;
+    }
+    SentryWatchdogTerminationBreadcrumbProcessor *_Nonnull breadcrumbProcessor
+        = (SentryWatchdogTerminationBreadcrumbProcessor *_Nonnull)nullableBreadcrumbProcessor;
+
+    SentryWatchdogTerminationContextProcessor *_Nullable nullableWatchdogTerminationContextProcessor
+        = self.watchdogTerminationContextProcessor;
+    if (nullableWatchdogTerminationContextProcessor == nil) {
+        SENTRY_LOG_ERROR(
+            @"SentryDependencyContainer.getWatchdogTerminationScopeObserverWithOptions only works "
+            @"with a context processor.");
+        return nil;
+    }
+    SentryWatchdogTerminationContextProcessor *_Nonnull watchdogTerminationContextProcessor
+        = (SentryWatchdogTerminationContextProcessor *_Nonnull)
+            nullableWatchdogTerminationContextProcessor;
+
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:
-            [self
-                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                   contextProcessor:self.watchdogTerminationContextProcessor];
+        initWithBreadcrumbProcessor:breadcrumbProcessor
+                   contextProcessor:watchdogTerminationContextProcessor];
 }
 
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
+- (nullable SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     // This method is only a factory, therefore do not keep a reference.
     // The processor will be created each time it is needed.
+    SentryFileManager *_Nullable fileManager = self.fileManager;
+    if (fileManager == nil) {
+        SENTRY_LOG_ERROR(@"SentryDependencyContainer."
+                         @"getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs "
+                         @"only works with a file manager.");
+        return nil;
+    }
     return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
         initWithMaxBreadcrumbs:maxBreadcrumbs
-                   fileManager:self.fileManager];
+                   fileManager:(SentryFileManager *_Nonnull)fileManager];
 }
 
 - (SentryWatchdogTerminationContextProcessor *)
     watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
+    SentryScopeContextPersistentStore *_Nullable nullableScopeContextPersistentStore
+        = self.scopeContextPersistentStore;
+    if (nullableScopeContextPersistentStore == nil) {
+        SENTRY_LOG_ERROR(
+            @"SentryDependencyContainer.watchdogTerminationContextProcessor only works with a "
+            @"scope context persistent store.");
+        return nil;
+    }
+    SentryScopeContextPersistentStore *_Nonnull scopeContextPersistentStore
+        = (SentryScopeContextPersistentStore *_Nonnull)nullableScopeContextPersistentStore;
+
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
                     createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
                       relativePriority:0]
-                       scopeContextStore:self.scopeContextPersistentStore])
+                       scopeContextStore:scopeContextPersistentStore])
 }
 #endif
 

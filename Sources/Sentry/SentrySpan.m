@@ -179,9 +179,14 @@ NS_ASSUME_NONNULL_BEGIN
         return [SentryNoOpSpan shared];
     }
 
-    return [self.tracer startChildWithParentId:self.spanId
-                                     operation:operation
-                                   description:description];
+    if (self.tracer != nil) {
+        return [((SentryTracer *_Nonnull)self.tracer) startChildWithParentId:self.spanId
+                                                                   operation:operation
+                                                                 description:description];
+    } else {
+        // Return a no-op span if tracer is nil
+        return [SentryNoOpSpan shared];
+    }
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key

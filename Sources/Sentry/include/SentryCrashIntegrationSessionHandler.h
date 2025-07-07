@@ -6,13 +6,17 @@
 @class SentryWatchdogTerminationLogic;
 #endif // SENTRY_HAS_UIKIT
 
+@protocol SentryCurrentDateProvider;
+
 @interface SentryCrashIntegrationSessionHandler : NSObject
 
 #if SENTRY_HAS_UIKIT
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+                 currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
             watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic;
 #else
-- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper;
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+                 currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 #endif // SENTRY_HAS_UIKIT
 
 /**

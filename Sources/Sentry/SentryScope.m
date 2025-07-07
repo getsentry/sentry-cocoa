@@ -302,7 +302,10 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_extraDictionary) {
-        [_extraDictionary addEntriesFromDictionary:extras];
+        if (extras != nil) {
+            [_extraDictionary
+                addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)extras];
+        }
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
@@ -345,7 +348,10 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_tagDictionary) {
-        [_tagDictionary addEntriesFromDictionary:tags];
+        if (tags != nil) {
+            [_tagDictionary
+                addEntriesFromDictionary:(NSDictionary<NSString *, NSString *> *_Nonnull)tags];
+        }
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
@@ -394,7 +400,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_fingerprintArray) {
         [_fingerprintArray removeAllObjects];
         if (fingerprint != nil) {
-            [_fingerprintArray addObjectsFromArray:fingerprint];
+            [_fingerprintArray addObjectsFromArray:(NSArray<NSString *> *_Nonnull)fingerprint];
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
@@ -417,7 +423,9 @@ NS_ASSUME_NONNULL_BEGIN
     SEL setCurrentScreen = @selector(setCurrentScreen:);
     for (id<SentryScopeObserver> observer in self.observers) {
         if ([observer respondsToSelector:setCurrentScreen]) {
-            [observer setCurrentScreen:currentScreen];
+            if (currentScreen != nil) {
+                [observer setCurrentScreen:(NSString *_Nonnull)currentScreen];
+            }
         }
     }
 }
@@ -557,7 +565,9 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newTags = [NSMutableDictionary new];
         [newTags addEntriesFromDictionary:[self tags]];
-        [newTags addEntriesFromDictionary:event.tags];
+        if (event.tags != nil) {
+            [newTags addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.tags];
+        }
         event.tags = newTags;
     }
 
@@ -566,7 +576,9 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newExtra = [NSMutableDictionary new];
         [newExtra addEntriesFromDictionary:[self extras]];
-        [newExtra addEntriesFromDictionary:event.extra];
+        if (event.extra != nil) {
+            [newExtra addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.extra];
+        }
         event.extra = newExtra;
     }
 
@@ -624,7 +636,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
-        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
+        [SentryDictionary
+            mergeEntriesFromDictionary:(NSDictionary<NSString *, NSDictionary<NSString *, id> *>
+                                               *_Nonnull)event.context
+                        intoDictionary:newContext];
     }
 
     newContext[@"trace"] = [self buildTraceContext:span];
@@ -641,7 +656,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
-        return [span serialize];
+        NSDictionary *_Nullable serialized = [span serialize];
+        if (serialized != nil) {
+            return (NSDictionary *_Nonnull)serialized;
+        } else {
+            return @{};
+        }
     } else {
         return [self.propagationContext traceContextForEvent];
     }

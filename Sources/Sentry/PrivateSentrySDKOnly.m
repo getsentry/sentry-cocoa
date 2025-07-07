@@ -296,7 +296,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 #endif // SENTRY_HAS_UIKIT
 
-+ (NSData *)captureViewHierarchy
++ (nullable NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
     return [SentryDependencyContainer.sharedInstance.viewHierarchyProvider appViewHierarchy];

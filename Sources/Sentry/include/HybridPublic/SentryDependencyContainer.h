@@ -105,11 +105,12 @@ SENTRY_NO_INIT
 #pragma mark - Lazy Dependencies
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong, nullable) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
-@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextPersistentStore;
+@property (nonatomic, strong, nullable)
+    SentryScopeContextPersistentStore *scopeContextPersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
@@ -137,11 +138,11 @@ SENTRY_NO_INIT
 #endif // SENTRY_HAS_METRIC_KIT
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
+- (nullable SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
     (SentryOptions *)options;
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
+- (nullable SentryWatchdogTerminationBreadcrumbProcessor *)
     getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
-@property (nonatomic, strong)
+@property (nonatomic, strong, nullable)
     SentryWatchdogTerminationContextProcessor *watchdogTerminationContextProcessor;
 #endif
 

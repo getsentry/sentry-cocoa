@@ -63,7 +63,7 @@ NS_SWIFT_NAME(Breadcrumb)
 
 - (BOOL)isEqual:(id _Nullable)other;
 
-- (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb;
+- (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *_Nullable)breadcrumb;
 
 - (NSUInteger)hash;
 
