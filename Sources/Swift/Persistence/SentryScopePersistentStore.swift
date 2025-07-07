@@ -198,11 +198,11 @@ extension SentryScopePersistentStore {
     }
     
     private func decodeUser(from data: Data) -> User? {
-        return decoderAux(data)
+        return decoderUserHelper(data)
     }
     
     // Swift compiler can't infer T, even if I try to cast it
-    private func decoderAux(_ data: Data) -> UserDecodable? {
+    private func decoderUserHelper(_ data: Data) -> UserDecodable? {
         return decodeFromJSONData(jsonData: data)
     }
 }
