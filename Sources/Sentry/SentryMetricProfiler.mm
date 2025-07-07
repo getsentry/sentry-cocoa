@@ -4,11 +4,10 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentrySwift.h"
 #    import "SentrySystemWrapper.h"

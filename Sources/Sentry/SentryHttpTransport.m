@@ -5,7 +5,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
@@ -14,8 +13,7 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
-#import "SentryLog.h"
-#import "SentryNSURLRequest.h"
+#import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
@@ -369,13 +367,13 @@
     }
 
     __weak SentryHttpTransport *weakSelf = self;
-    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay
-                                block:^{
-                                    if (weakSelf == nil) {
-                                        return;
-                                    }
-                                    [weakSelf sendAllCachedEnvelopes];
-                                }];
+    dispatch_block_t block = ^{
+        if (weakSelf == nil) {
+            return;
+        }
+        [weakSelf sendAllCachedEnvelopes];
+    };
+    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay block:block];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope

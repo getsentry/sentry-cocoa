@@ -6,13 +6,12 @@
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
-#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
@@ -32,6 +31,10 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *SENTRY_REPLAY_FOLDER = @"replay";
 static NSString *SENTRY_CURRENT_REPLAY = @"replay.current";
 static NSString *SENTRY_LAST_REPLAY = @"replay.last";
+
+@interface SentryDisplayLinkWrapper (Replay) <SentryReplayDisplayLinkWrapper>
+
+@end
 
 /**
  * We need to use this from the swizzled block
@@ -142,14 +145,14 @@ static SentryTouchTracker *_touchTracker;
     // The asset worker queue is used to work on video and frames data.
     // Use a relative priority of -1 to make it lower than the default background priority.
     _replayAssetWorkerQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.asset-worker"
-                                     relativePriority:-1];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.asset-worker"
+                                 relativePriority:-1];
     // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
     // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
     // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
     _replayProcessingQueue =
-        [dispatchQueueProvider createLowPriorityQueue:"io.sentry.session-replay.processing"
-                                     relativePriority:-2];
+        [dispatchQueueProvider createUtilityQueue:"io.sentry.session-replay.processing"
+                                 relativePriority:-2];
 
     // The asset worker queue is used to work on video and frames data.
 
@@ -421,9 +424,12 @@ static SentryTouchTracker *_touchTracker;
                          options:replayOptions];
 }
 
-- (NSURL *)replayDirectory
+- (nullable NSURL *)replayDirectory
 {
     NSString *sentryPath = [SentryDependencyContainer.sharedInstance.fileManager sentryPath];
+    if (!sentryPath) {
+        return nil;
+    }
     NSURL *dir = [NSURL fileURLWithPath:sentryPath];
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }

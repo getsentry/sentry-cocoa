@@ -1,5 +1,5 @@
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
@@ -522,9 +522,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Assert
         try assertFatalEventWithScope { event, _ in
             XCTAssertEqual(event?.level, SentryLevel.fatal)
-            
+
             let ex = try XCTUnwrap(event?.exceptions?.first)
-            
+            XCTAssertEqual(ex.mechanism?.handled, false)
+
             XCTAssertEqual(ex.type, "Fatal App Hang Non Fully Blocked")
             XCTAssertEqual(ex.value, "The user or the OS watchdog terminated your app while it blocked the main thread for at least 4500 ms.")
             
@@ -559,6 +560,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(event?.level, SentryLevel.fatal)
 
             let ex = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(ex.mechanism?.handled, false)
 
             XCTAssertEqual(ex.type, "Fatal App Hang Non Fully Blocked")
             XCTAssertEqual(ex.value, "The user or the OS watchdog terminated your app while it blocked the main thread for at least 4500 ms.")

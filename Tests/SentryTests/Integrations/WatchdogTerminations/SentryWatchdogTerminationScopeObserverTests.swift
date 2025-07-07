@@ -1,7 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
@@ -30,9 +30,9 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 maxBreadcrumbs: 10,
                 fileManager: fileManager
             )
-            contextProcessor = TestSentryWatchdogTerminationContextProcessor(
+            contextProcessor = try TestSentryWatchdogTerminationContextProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
+                scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
             )
         }
 

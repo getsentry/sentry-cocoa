@@ -4,7 +4,7 @@
 
 #    import "SentryHub+Private.h"
 #    import "SentryInternalCDefines.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplayIntegration+Private.h"

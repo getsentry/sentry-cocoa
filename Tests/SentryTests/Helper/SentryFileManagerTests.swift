@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFileManagerTests: XCTestCase {
@@ -177,8 +177,8 @@ class SentryFileManagerTests: XCTestCase {
     
     func testDeleteOldEnvelopes_LogsIgnoreDSStoreFiles() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         let dsStoreFile = "\(sut.basePath)/.DS_Store"
         
@@ -198,8 +198,8 @@ class SentryFileManagerTests: XCTestCase {
     
     func testDeleteOldEnvelopes_LogsDebugForTextFiles() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         let sut = fixture.getSut()
         
@@ -221,8 +221,8 @@ class SentryFileManagerTests: XCTestCase {
     
     func testGetEnvelopesPath_ForNonExistentPath_LogsWarning() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         let sut = fixture.getSut()
         
@@ -302,7 +302,7 @@ class SentryFileManagerTests: XCTestCase {
     
     func testDeleteFileNotExists() {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
         sut.removeFile(atPath: "x")
         XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
@@ -642,8 +642,8 @@ class SentryFileManagerTests: XCTestCase {
     
     func testGetAllEnvelopesWhenNoEnvelopesPath_LogsInfoMessage() {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         sut.deleteAllFolders()
         sut.getAllEnvelopes()
@@ -850,9 +850,9 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+        let contextProcessor = try SentryWatchdogTerminationContextProcessor(
             withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+            scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: sut))
         )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
@@ -880,9 +880,9 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+        let contextProcessor = try SentryWatchdogTerminationContextProcessor(
             withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-            scopeContextStore: SentryScopeContextPersistentStore(fileManager: sut)
+            scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: sut))
         )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
@@ -1044,8 +1044,8 @@ class SentryFileManagerTests: XCTestCase {
     func testCreateDirectoryIfNotExists_successful_shouldNotLogError() throws {
         // -- Arrange -
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         let path = fixture.getValidDirectoryPath()
         var error: NSError?
@@ -1059,8 +1059,8 @@ class SentryFileManagerTests: XCTestCase {
     func testCreateDirectoryIfNotExists_pathTooLogError_shouldLogError() throws {
         // -- Arrange -
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         let path = fixture.getTooLongPath()
         var error: NSError?
@@ -1076,8 +1076,8 @@ class SentryFileManagerTests: XCTestCase {
     func testCreateDirectoryIfNotExists_otherError_shouldNotLogError() throws {
         // -- Arrange -
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
 
         let path = fixture.getInvalidPath()
         var error: NSError?
@@ -1121,7 +1121,7 @@ class SentryFileManagerTests: XCTestCase {
         let data = Data("<TEST DATA>".utf8)
 
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
 
         // Check pre-conditions
         let fm = FileManager.default

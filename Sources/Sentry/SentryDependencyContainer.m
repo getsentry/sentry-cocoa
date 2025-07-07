@@ -3,13 +3,12 @@
 #import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
@@ -47,7 +46,6 @@
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIApplication.h"
-#    import <SentryScreenshot.h>
 #    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
@@ -81,6 +79,9 @@
 
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
+
+@interface SentryFileManager () <SentryFileManagerProtocol>
+@end
 
 @interface SentryDependencyContainer ()
 
@@ -209,7 +210,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
-- (SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;
@@ -434,9 +435,9 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:
-                [self.dispatchFactory createLowPriorityQueue:
-                        "io.sentry.watchdog-termination-tracking.context-processor"
-                                            relativePriority:0]
+                [self.dispatchFactory
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
+                      relativePriority:0]
                        scopeContextStore:self.scopeContextPersistentStore])
 }
 #endif

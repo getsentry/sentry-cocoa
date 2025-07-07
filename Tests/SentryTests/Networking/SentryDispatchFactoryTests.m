@@ -1,6 +1,6 @@
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryDispatchSourceWrapper.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryDispatchFactoryTests : XCTestCase
@@ -43,7 +43,7 @@
 }
 
 - (void)
-    testCreateLowPriorityQueueWithNameAndRelativePriority_shouldReturnQueueWithNameAndRelativePrioritySet
+    testCreateUtilityQueueWithNameAndRelativePriority_shouldReturnQueueWithNameAndRelativePrioritySet
 {
     // Note: We are not testing the functionality of the queue itself, just the creation of it,
     // making sure the factory sets the name and attributes correctly.
@@ -53,8 +53,8 @@
     int relativePriority = -5;
 
     // -- Act --
-    SentryDispatchQueueWrapper *wrappedQueue = [self.sut createLowPriorityQueue:queueName
-                                                               relativePriority:relativePriority];
+    SentryDispatchQueueWrapper *wrappedQueue = [self.sut createUtilityQueue:queueName
+                                                           relativePriority:relativePriority];
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);

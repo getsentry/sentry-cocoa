@@ -1,9 +1,9 @@
-#import "SentryDispatchQueueWrapper.h"
+#import "_SentryDispatchQueueWrapperInternal.h"
 #import "SentryThreadWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryDispatchQueueWrapper
+@implementation _SentryDispatchQueueWrapperInternal
 
 - (instancetype)init
 {
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
 }
 
-- (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block
+- (void)dispatchAfter:(NSTimeInterval)interval block:(void (^)(void))block
 {
     dispatch_time_t delta = (int64_t)(interval * NSEC_PER_SEC);
     dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
@@ -90,19 +90,9 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-- (void)dispatchCancel:(dispatch_block_t)block
-{
-    dispatch_block_cancel(block);
-}
-
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);
-}
-
-- (nullable dispatch_block_t)createDispatchBlock:(void (^)(void))block
-{
-    return dispatch_block_create(0, block);
 }
 
 @end

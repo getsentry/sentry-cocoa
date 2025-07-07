@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 

@@ -1,4 +1,4 @@
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryReachability.h"
 #import <XCTest/XCTest.h>
 

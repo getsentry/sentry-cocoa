@@ -4,7 +4,7 @@
 
 #    import "SentryEvent+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySample.h"
 #    import "SentryTransaction.h"
 #    if SENTRY_HAS_UIKIT
@@ -29,7 +29,7 @@ _sentry_logSlicingFailureWithArray(
         return;
     }
 
-    if (![SentryLog willLogAtLevel:kSentryLevelDebug]) {
+    if (![SentrySDKLog willLogAtLevel:kSentryLevelDebug]) {
         return;
     }
 

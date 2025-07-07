@@ -11,12 +11,12 @@ class SentryHttpTransportTests: XCTestCase {
         let event: Event
         let eventEnvelope: SentryEnvelope
         let attachmentEnvelopeItem: SentryEnvelopeItem
-        let eventWithAttachmentRequest: SentryNSURLRequest
+        let eventWithAttachmentRequest: URLRequest
         let eventWithSessionEnvelope: SentryEnvelope
-        let eventWithSessionRequest: SentryNSURLRequest
+        let eventWithSessionRequest: URLRequest
         let session: SentrySession
         let sessionEnvelope: SentryEnvelope
-        let sessionRequest: SentryNSURLRequest
+        let sessionRequest: URLRequest
         let currentDateProvider: TestCurrentDateProvider
         let fileManager: SentryFileManager
         let options: Options
@@ -39,15 +39,15 @@ class SentryHttpTransportTests: XCTestCase {
         let userFeedback: UserFeedback = TestData.userFeedback
         let feedback: SentryFeedback = TestData.feedback
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:].")
-        lazy var userFeedbackRequest: SentryNSURLRequest = {
+        lazy var userFeedbackRequest: URLRequest = {
             let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
-            userFeedbackEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            userFeedbackEnvelope.header.sentAt = currentDateProvider.date()
             return buildRequest(userFeedbackEnvelope)
         }()
         
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
-        let clientReportRequest: SentryNSURLRequest
+        let clientReportRequest: URLRequest
         
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
@@ -55,6 +55,8 @@ class SentryHttpTransportTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().reachability = reachability
             
             currentDateProvider = TestCurrentDateProvider()
+
+            // Event uses the current date provider of the dependency container. Therefore, we need to set it here.
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
 
             event = Event()
@@ -64,17 +66,17 @@ class SentryHttpTransportTests: XCTestCase {
             
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
-            eventEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            eventEnvelope.header.sentAt = currentDateProvider.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
             
             session = SentrySession(releaseName: "2.0.1", distinctId: "some-id")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
-            sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            sessionEnvelope.header.sentAt = currentDateProvider.date()
             sessionRequest = buildRequest(sessionEnvelope)
 
             let items = [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)]
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
-            eventWithSessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            eventWithSessionEnvelope.header.sentAt = currentDateProvider.date()
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
             options = Options()
@@ -102,7 +104,7 @@ class SentryHttpTransportTests: XCTestCase {
                 SentryEnvelopeItem(clientReport: clientReport)
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
-            clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            clientReportEnvelope.header.sentAt = currentDateProvider.date()
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
         
@@ -153,9 +155,9 @@ class SentryHttpTransportTests: XCTestCase {
         try TestConstants.dsn(username: "SentryHttpTransportTests")
     }
 
-    private class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
+    private class func buildRequest(_ envelope: SentryEnvelope) -> URLRequest {
         let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
-        return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
+        return try! SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
     }
 
     private var fixture: Fixture!
@@ -261,7 +263,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
-        envelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        envelope.header.sentAt = fixture.currentDateProvider.date()
         let request = SentryHttpTransportTests.buildRequest(envelope)
 
         let actualData = try XCTUnwrap(request.httpBody)
@@ -335,7 +337,18 @@ class SentryHttpTransportTests: XCTestCase {
         // second envelope the response contains a rate limit.
         // Now 2 envelopes are still to be sent, but they get discarded cause of the
         // active rate limit.
-        givenFirstRateLimitGetsActiveWithSecondResponse()
+
+        // First rate limit gets active with the second response.
+        var i = -1
+        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
+            i += 1
+            if i == 0 {
+                return HTTPURLResponse()
+            } else {
+                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
+            }
+        }
+
         sendEvent()
 
         XCTAssertEqual(5, fixture.requestManager.requests.count)
@@ -478,9 +491,9 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
-        sessionEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        sessionEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
-        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
+        let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
             XCTAssertEqual(sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody, "Envelope with only session item should be sent.")
@@ -569,7 +582,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
-        clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
         givenRateLimitResponse(forCategory: "error")
@@ -596,7 +609,7 @@ class SentryHttpTransportTests: XCTestCase {
         let transactionEnvelope = fixture.getTransactionEnvelope()
         
         let clientReportEnvelope = SentryEnvelope(id: transactionEnvelope.header.eventId, items: clientReportEnvelopeItems)
-        clientReportEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
         givenRateLimitResponse(forCategory: "transaction")
@@ -1045,18 +1058,6 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
                 sut.recordLostEvent(event.category, reason: event.reason)
-            }
-        }
-    }
-
-    private func givenFirstRateLimitGetsActiveWithSecondResponse() {
-        var i = -1
-        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
-            i += 1
-            if i == 0 {
-                return HTTPURLResponse()
-            } else {
-                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
             }
         }
     }

@@ -8,7 +8,7 @@
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>

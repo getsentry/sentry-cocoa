@@ -108,12 +108,6 @@ run-test-server-sync:
 
 .PHONY: run-test-server run-test-server-sync
 
-test-alamofire:
-	./scripts/test-alamofire.sh
-
-test-homekit:
-	./scripts/test-homekit.sh
-
 test-ui-critical:
 	./scripts/test-ui-critical.sh
 
@@ -188,3 +182,4 @@ xcode-ci:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
+	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml

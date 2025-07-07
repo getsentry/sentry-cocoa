@@ -1,4 +1,5 @@
-import SentryTestUtils
+@_spi(Private) import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -40,7 +41,7 @@ class SentryScreenShotTests: XCTestCase {
         let expect = expectation(description: "Screenshot")
         let queue = DispatchQueue(label: "TestQueue")
         let _ = queue.async {
-            self.fixture.sut.appScreenshotsFromMainThread()
+            _ = self.fixture.sut.appScreenshotsFromMainThread()
             expect.fulfill()
         }
         wait(for: [expect], timeout: 1)
@@ -64,7 +65,7 @@ class SentryScreenShotTests: XCTestCase {
         
         fixture.uiApplication.windows = [firstWindow, secondWindow]
         
-        self.fixture.sut.appScreenshotsData()
+        _ = self.fixture.sut.appScreenshotsData()
         
         XCTAssertTrue(drawFirstWindow)
         XCTAssertTrue(drawSecondWindow)

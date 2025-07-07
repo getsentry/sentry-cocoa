@@ -4,12 +4,11 @@
 #import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -265,6 +264,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
             event.level = kSentryLevelFatal;
 
             SentryException *exception = event.exceptions.firstObject;
+            exception.mechanism.handled = @(NO);
 
             NSString *exceptionType = exception.type;
             NSString *fatalExceptionType =

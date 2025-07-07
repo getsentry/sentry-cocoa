@@ -4,7 +4,7 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryHub.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"

@@ -1,3 +1,4 @@
+import SentrySampleUITestShared
 import XCTest
 
 class LaunchUITests: XCTestCase {
@@ -8,8 +9,8 @@ class LaunchUITests: XCTestCase {
     }
 
     func testTransactionSpan() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = newAppSession()
+        app.safelyLaunch()
         
         let transactionName = app.staticTexts["TRANSACTION_NAME"]
         let transactionId = app.staticTexts["TRANSACTION_ID"]
@@ -28,8 +29,8 @@ class LaunchUITests: XCTestCase {
     }
 
     func testNoNewTransactionForSecondCallToBody() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = newAppSession()
+        app.safelyLaunch()
 
         app.buttons["Form Screen"].tap()
 
@@ -40,10 +41,32 @@ class LaunchUITests: XCTestCase {
     }
     
     func testTTID_TTFD() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = newAppSession()
+        app.safelyLaunch()
         app.buttons["Show TTD"].tap()
         
         XCTAssertEqual(app.staticTexts["TTDInfo"].label, "TTID and TTFD found")
     }
+  
+  func newAppSession() -> XCUIApplication {
+      let app = XCUIApplication()
+      app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
+      app.launchArguments.append("--disable-spotlight")
+      return app
+  }
+}
+
+extension XCUIApplication {
+  public func safelyLaunch() {
+    // Calling activate() and then launch() effectively launches the app twice, interfering with
+    // local debugging. Only call activate if there isn't a debugger attached, which is a decent
+    // proxy for whether this is running in CI.
+    if !isDebugging() {
+      // App prewarming can sometimes cause simulators to get stuck in UI tests, activating them
+      // before launching clears any prewarming state.
+      activate()
+    }
+    
+    launch()
+  }
 }
