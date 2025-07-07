@@ -43,12 +43,8 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     // thats why the URL parameter is a empty url that points nowhere.
     // AFNetwork uses nil as parameter, but according to documentation this a nonnull parameter,
     // and when bridged to swift, the nil parameters causes an exception.
-    NSURL *emptyURL = [NSURL URLWithString:@""];
-    if (emptyURL == nil) {
-        // Fallback to a known valid URL if the empty string fails
-        emptyURL = [NSURL URLWithString:@"https://example.com"];
-    }
-    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:emptyURL];
+    NSURLSessionDataTask *localDataTask =
+        [session dataTaskWithURL:(NSURL *_Nonnull)[NSURL URLWithString:@""]];
 
     Class currentClass = [localDataTask class];
     NSMutableArray *result = [[NSMutableArray alloc] init];
@@ -57,15 +53,10 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 
     while (class_getInstanceMethod(currentClass, setStateSelector)) {
         Class superClass = [currentClass superclass];
-        Method currentMethod = class_getInstanceMethod(currentClass, setStateSelector);
-        Method superMethod = class_getInstanceMethod(superClass, setStateSelector);
-
-        if (currentMethod == NULL || superMethod == NULL) {
-            break;
-        }
-
-        IMP classResumeIMP = method_getImplementation(currentMethod);
-        IMP superclassResumeIMP = method_getImplementation(superMethod);
+        IMP classResumeIMP = method_getImplementation(
+            (Method _Nonnull)class_getInstanceMethod(currentClass, setStateSelector));
+        IMP superclassResumeIMP = method_getImplementation(
+            (Method _Nonnull)class_getInstanceMethod(superClass, setStateSelector));
         if (classResumeIMP != superclassResumeIMP) {
             [result addObject:currentClass];
         }

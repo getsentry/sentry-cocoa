@@ -202,13 +202,12 @@
 
 - (void)addTimeToDisplayMeasurement:(SentrySpan *_Nonnull)span name:(NSString *_Nonnull)name
 {
-    if (span.startTimestamp == nil) {
-        SENTRY_LOG_WARN(@"Span %@ has no start timestamp. Not adding time to display measurement.",
-            span.spanId);
-        return;
+    NSDate *_Nullable startTimestamp = span.startTimestamp;
+    if (startTimestamp == nil) {
+        // TODO: Handle this case
     }
     NSTimeInterval duration =
-        [span.timestamp timeIntervalSinceDate:(NSDate *_Nonnull)span.startTimestamp] * 1000;
+        [span.timestamp timeIntervalSinceDate:(NSDate *_Nonnull)startTimestamp] * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];
 }
 

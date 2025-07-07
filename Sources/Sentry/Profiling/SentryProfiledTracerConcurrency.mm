@@ -312,7 +312,7 @@ sentry_stopProfilerDueToFinishedTransaction(
     [dispatchQueue dispatchAsyncWithBlock:^{
         const auto profilingData = [profiler.state copyProfilingData];
 
-        const auto profileEnvelopeItem = profiler && profilingData
+        const auto profileEnvelopeItem = profilingData
             ? sentry_traceProfileEnvelopeItem(
                   hub, profiler, profilingData, transaction, startTimestamp)
             : nil;

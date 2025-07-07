@@ -170,9 +170,6 @@
                 // the top view controller.
                 break;
             }
-            if (topVC.presentedViewController == nil) {
-                continue;
-            }
 
             [result replaceObjectAtIndex:index
                               withObject:(UIViewController *_Nonnull)topVC.presentedViewController];

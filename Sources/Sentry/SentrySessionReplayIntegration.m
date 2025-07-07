@@ -208,13 +208,13 @@ static SentryTouchTracker *_touchTracker;
     SentryId *replayId = jsonObject[@"replayId"]
         ? [[SentryId alloc] initWithUUIDString:(NSString *_Nonnull)jsonObject[@"replayId"]]
         : [[SentryId alloc] init];
-    id replayFilePath = jsonObject[@"path"];
-    if (replayFilePath == nil) {
+    id _Nullable replayFilePath = jsonObject[@"path"];
+    if (replayFilePath == nil || ![replayFilePath isKindOfClass:NSString.class]) {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] No replay file path found in last replay info, not resuming");
         return;
     }
-    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:replayFilePath];
+    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:(NSString *_Nonnull)replayFilePath];
 
     SentryCrashReplay crashInfo = { 0 };
     bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo,

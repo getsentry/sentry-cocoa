@@ -124,11 +124,8 @@
     [context.persistentStoreCoordinator.persistentStores enumerateObjectsUsingBlock:^(
         __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         [systems addObject:obj.type];
-        if (obj.URL != nil) {
-            NSString *_Nullable urlPath = obj.URL.path;
-            if (urlPath != nil) {
-                [names addObject:(NSString *_Nonnull)urlPath];
-            }
+        if (obj.URL != nil && obj.URL.path != nil) {
+            [names addObject:(NSString *_Nonnull)obj.URL.path];
         } else {
             [names addObject:@"(null)"];
         }
@@ -207,10 +204,8 @@
 
     if (request.predicate) {
         NSString *predicateDesc = @"(null)";
-        if (request.predicate != nil) {
-            predicateDesc =
-                [predicateDescriptor predicateDescription:(NSPredicate *_Nonnull)request.predicate];
-        }
+        predicateDesc =
+            [predicateDescriptor predicateDescription:(NSPredicate *_Nonnull)request.predicate];
         [result appendFormat:@" WHERE %@", predicateDesc];
     }
 

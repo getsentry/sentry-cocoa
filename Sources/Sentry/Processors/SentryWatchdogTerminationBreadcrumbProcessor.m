@@ -103,10 +103,8 @@
         fileSize = [self.fileHandle seekToEndOfFile];
 
         [self.fileHandle writeData:data];
-        NSData *_Nullable newlineData = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-        if (newlineData != nil) {
-            [self.fileHandle writeData:(NSData *_Nonnull)newlineData];
-        }
+        [self.fileHandle
+            writeData:(NSData *_Nonnull)[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
         self.breadcrumbCounter += 1;
     } @catch (NSException *exception) {

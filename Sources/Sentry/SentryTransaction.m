@@ -35,9 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
     serializedData[@"spans"] = serializedSpans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    id contextsDict = serializedData[@"contexts"];
+    id _Nullable contextsDict = serializedData[@"contexts"];
     if (contextsDict != nil && [contextsDict isKindOfClass:[NSDictionary class]]) {
-        [mutableContext addEntriesFromDictionary:contextsDict];
+        [mutableContext addEntriesFromDictionary:(NSDictionary *_Nonnull)contextsDict];
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -60,9 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *tags = [NSMutableDictionary new];
-        id tagsValue = serializedData[@"tags"];
+        id _Nullable tagsValue = serializedData[@"tags"];
         if (tagsValue != nil) {
-            [tags addEntriesFromDictionary:tagsValue];
+            [tags addEntriesFromDictionary:(NSDictionary *_Nonnull)tagsValue];
         }
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
@@ -76,9 +76,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *extra = [NSMutableDictionary new];
-        id extraValue = serializedData[@"extra"];
+        id _Nullable extraValue = serializedData[@"extra"];
         if (extraValue != nil) {
-            [extra addEntriesFromDictionary:extraValue];
+            [extra addEntriesFromDictionary:(NSDictionary *_Nonnull)extraValue];
         }
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;

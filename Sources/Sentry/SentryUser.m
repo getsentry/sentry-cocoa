@@ -118,10 +118,10 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    return [self isEqualToUser:(SentryUser *_Nonnull)other];
+    return [self isEqualToUser:other];
 }
 
-- (BOOL)isEqualToUser:(SentryUser *)user
+- (BOOL)isEqualToUser:(SentryUser *_Nullable)user
 {
     if (self == user) {
         return YES;

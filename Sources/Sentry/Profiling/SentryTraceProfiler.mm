@@ -36,10 +36,8 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 
         if ([_threadUnsafe_gTraceProfiler isRunning]) {
             SENTRY_LOG_DEBUG(@"A trace profiler is already running.");
-            if (_threadUnsafe_gTraceProfiler != nil) {
-                sentry_trackTransactionProfilerForTrace(
-                    (SentryProfiler *_Nonnull)_threadUnsafe_gTraceProfiler, traceId);
-            }
+            sentry_trackTransactionProfilerForTrace(
+                (SentryProfiler *_Nonnull)_threadUnsafe_gTraceProfiler, traceId);
             // record a new metric sample for every concurrent span start
             [_threadUnsafe_gTraceProfiler.metricProfiler recordMetrics];
             return YES;
@@ -53,10 +51,8 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
         }
 
         _threadUnsafe_gTraceProfiler.profilerId = [[SentryId alloc] init];
-        if (_threadUnsafe_gTraceProfiler != nil) {
-            sentry_trackTransactionProfilerForTrace(
-                (SentryProfiler *_Nonnull)_threadUnsafe_gTraceProfiler, traceId);
-        }
+        sentry_trackTransactionProfilerForTrace(
+            (SentryProfiler *_Nonnull)_threadUnsafe_gTraceProfiler, traceId);
     }
 
     [self scheduleTimeoutTimer];

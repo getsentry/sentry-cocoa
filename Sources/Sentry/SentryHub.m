@@ -78,8 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
 
-        if (_scope && _crashWrapper) {
-            [_crashWrapper enrichScope:(SentryScope *_Nonnull)_scope];
+        if (_scope) {
+            [(SentryCrashWrapper *_Nonnull)_crashWrapper enrichScope:(SentryScope *_Nonnull)_scope];
         }
     }
 

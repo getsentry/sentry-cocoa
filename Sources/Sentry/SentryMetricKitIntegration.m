@@ -318,12 +318,9 @@ NS_ASSUME_NONNULL_BEGIN
             }
             SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
-            SentryMXFrame *firstUnprocessedSibling = nil;
-            if (parentFrame != nil && parentFrame.subFrames != nil) {
-                firstUnprocessedSibling =
-                    [self getFirstUnprocessedSubFrames:parentFrame.subFrames ?: @[]
-                               processedFrameAddresses:processedFrameAddresses];
-            }
+            SentryMXFrame *firstUnprocessedSibling =
+                [self getFirstUnprocessedSubFrames:parentFrame.subFrames ?: @[]
+                           processedFrameAddresses:processedFrameAddresses];
 
             BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
             BOOL noChildren = currentFrame.subFrames.count == 0;
@@ -343,12 +340,9 @@ NS_ASSUME_NONNULL_BEGIN
                     }
                 }
             } else {
-                SentryMXFrame *nonProcessedSubFrame = nil;
-                if (currentFrame.subFrames != nil) {
-                    nonProcessedSubFrame =
-                        [self getFirstUnprocessedSubFrames:currentFrame.subFrames ?: @[]
-                                   processedFrameAddresses:processedFrameAddresses];
-                }
+                SentryMXFrame *nonProcessedSubFrame =
+                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames ?: @[]
+                               processedFrameAddresses:processedFrameAddresses];
 
                 // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {

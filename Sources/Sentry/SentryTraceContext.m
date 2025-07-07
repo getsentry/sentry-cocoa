@@ -66,15 +66,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    SentryTracer *tracer = nil;
-    if (scope.span != nil) {
-        tracer = [SentryTracer getTracer:(id<SentrySpan> _Nonnull)scope.span];
+    if (scope == nil) {
+        return nil;
     }
+    SentryTracer *_Nullable tracer = [SentryTracer getTracer:(id<SentrySpan> _Nonnull)scope.span];
     if (tracer == nil) {
         return nil;
-    } else {
-        return [self initWithTracer:tracer scope:scope options:options];
     }
+    return [self initWithTracer:(SentryTracer *_Nonnull)tracer scope:scope options:options];
 }
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer

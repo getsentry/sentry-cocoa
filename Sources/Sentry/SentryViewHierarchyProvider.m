@@ -64,7 +64,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 - (nullable NSData *)appViewHierarchyFromMainThread
 {
-    __block NSData *result;
+    __block NSData *_Nullable result;
 
     void (^fetchViewHierarchy)(void) = ^{ result = [self appViewHierarchy]; };
 
