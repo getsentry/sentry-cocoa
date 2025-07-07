@@ -62,7 +62,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 dispatchQueueWrapper: self.dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                notificationCenterWrapper: NotificationCenter.default
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,

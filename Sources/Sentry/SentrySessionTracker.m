@@ -29,7 +29,7 @@
 
 @property (nonatomic, strong) id<SentryApplication> application;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
 
 @end
 
@@ -38,7 +38,7 @@
 - (instancetype)initWithOptions:(SentryOptions *)options
                     application:(id<SentryApplication>)application
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
+             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
 {
     if (self = [super init]) {
         self.options = options;
@@ -74,18 +74,22 @@
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(didBecomeActive)
-                                    name:SentryDidBecomeActiveNotification];
+                                    name:SentryDidBecomeActiveNotification
+                                  object:nil];
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(didBecomeActive)
-                                    name:SentryHybridSdkDidBecomeActiveNotificationName];
+                                    name:SentryHybridSdkDidBecomeActiveNotificationName
+                                  object:nil];
     [self.notificationCenter addObserver:self
                                 selector:@selector(willResignActive)
-                                    name:SentryWillResignActiveNotification];
+                                    name:SentryWillResignActiveNotification
+                                  object:nil];
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(willTerminate)
-                                    name:SentryWillTerminateNotification];
+                                    name:SentryWillTerminateNotification
+                                  object:nil];
 
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
@@ -114,11 +118,14 @@
 #if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter removeObserver:self name:SentryDidBecomeActiveNotification];
+    [self.notificationCenter removeObserver:self name:SentryDidBecomeActiveNotification object:nil];
     [self.notificationCenter removeObserver:self
-                                       name:SentryHybridSdkDidBecomeActiveNotificationName];
-    [self.notificationCenter removeObserver:self name:SentryWillResignActiveNotification];
-    [self.notificationCenter removeObserver:self name:SentryWillTerminateNotification];
+                                       name:SentryHybridSdkDidBecomeActiveNotificationName
+                                     object:nil];
+    [self.notificationCenter removeObserver:self
+                                       name:SentryWillResignActiveNotification
+                                     object:nil];
+    [self.notificationCenter removeObserver:self name:SentryWillTerminateNotification object:nil];
 #endif
 }
 
@@ -128,7 +135,7 @@
 
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter removeObserver:self];
+    [self.notificationCenter removeObserver:self name:nil object:nil];
 }
 
 /**

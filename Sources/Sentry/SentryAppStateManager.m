@@ -21,7 +21,7 @@
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
 
 @end
@@ -32,7 +32,7 @@
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+      notificationCenterWrapper:(id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -52,19 +52,23 @@
     if (self.startCount == 0) {
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:SentryDidBecomeActiveNotification];
+                                               name:SentryDidBecomeActiveNotification
+                                             object:nil];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:SentryHybridSdkDidBecomeActiveNotificationName];
+                                               name:SentryHybridSdkDidBecomeActiveNotificationName
+                                             object:nil];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(willResignActive)
-                                               name:SentryWillResignActiveNotification];
+                                               name:SentryWillResignActiveNotification
+                                             object:nil];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(willTerminate)
-                                               name:SentryWillTerminateNotification];
+                                               name:SentryWillTerminateNotification
+                                             object:nil];
 
         [self storeCurrentAppState];
     }
@@ -96,16 +100,22 @@
     if (self.startCount == 0) {
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-        [self.notificationCenterWrapper removeObserver:self name:SentryDidBecomeActiveNotification];
+        [self.notificationCenterWrapper removeObserver:self
+                                                  name:SentryDidBecomeActiveNotification
+                                                object:nil];
 
         [self.notificationCenterWrapper
             removeObserver:self
-                      name:SentryHybridSdkDidBecomeActiveNotificationName];
+                      name:SentryHybridSdkDidBecomeActiveNotificationName
+                    object:nil];
 
         [self.notificationCenterWrapper removeObserver:self
-                                                  name:SentryWillResignActiveNotification];
+                                                  name:SentryWillResignActiveNotification
+                                                object:nil];
 
-        [self.notificationCenterWrapper removeObserver:self name:SentryWillTerminateNotification];
+        [self.notificationCenterWrapper removeObserver:self
+                                                  name:SentryWillTerminateNotification
+                                                object:nil];
     }
 }
 
@@ -113,7 +123,7 @@
 {
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenterWrapper removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self name:nil object:nil];
 }
 
 /**

@@ -56,7 +56,7 @@ static SentryTouchTracker *_touchTracker;
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
-    SentryNSNotificationCenterWrapper *_notificationCenter;
+    id<SentryNSNotificationCenterWrapper> _notificationCenter;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
     id<SentryReplayBreadcrumbConverter> _currentBreadcrumbConverter;
@@ -335,7 +335,8 @@ static SentryTouchTracker *_touchTracker;
         // Wait for a scene to be available to started the replay
         [_notificationCenter addObserver:self
                                 selector:@selector(newSceneActivate)
-                                    name:UISceneDidActivateNotification];
+                                    name:UISceneDidActivateNotification
+                                  object:nil];
     }
 }
 
@@ -345,7 +346,8 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
-                      name:UISceneDidActivateNotification];
+                      name:UISceneDidActivateNotification
+                    object:nil];
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     }
 }

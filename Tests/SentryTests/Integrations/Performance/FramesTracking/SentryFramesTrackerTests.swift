@@ -62,7 +62,7 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         sut.start()
         
-        XCTAssertEqual(self.fixture.notificationCenter.addObserverInvocations.invocations.count, 2)
+        XCTAssertEqual(self.fixture.notificationCenter.addObserverWithObjectInvocations.invocations.count, 2)
     }
     
     func testIsNotRunning_WhenStopped() {
@@ -79,7 +79,7 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.stop()
         sut.stop()
         
-        XCTAssertEqual(self.fixture.notificationCenter.removeObserverWithNameInvocations.invocations.count, 2)
+        XCTAssertEqual(self.fixture.notificationCenter.removeObserverWithNameAndObjectInvocations.invocations.count, 2)
     }
     
     func testKeepFrames_WhenStopped() throws {

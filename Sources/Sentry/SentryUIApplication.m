@@ -10,7 +10,7 @@
 @interface SentryUIApplication ()
 
 @property (nonatomic, assign) UIApplicationState appState;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
@@ -18,7 +18,7 @@
 @implementation SentryUIApplication
 
 - (instancetype)initWithNotificationCenterWrapper:
-                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                    (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
                              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
@@ -27,11 +27,13 @@
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didEnterBackground)
-                                               name:UIApplicationDidEnterBackgroundNotification];
+                                               name:UIApplicationDidEnterBackgroundNotification
+                                             object:nil];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:UIApplicationDidBecomeActiveNotification];
+                                               name:UIApplicationDidBecomeActiveNotification
+                                             object:nil];
 
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
@@ -44,7 +46,7 @@
 
 - (void)dealloc
 {
-    [self.notificationCenterWrapper removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self name:nil object:nil];
 }
 
 - (UIApplication *)sharedApplication

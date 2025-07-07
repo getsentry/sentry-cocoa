@@ -132,7 +132,9 @@ _sentry_unsafe_stopTimerAndCleanup()
                      queue:nil
                 usingBlock:^(NSNotification *_Nonnull notification) {
                     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-                        removeObserver:_observerToken];
+                        removeObserver:_observerToken
+                                  name:nil
+                                object:nil];
                     [self stopTimerAndCleanup];
                 }];
 #    endif // SENTRY_HAS_UIKIT
@@ -225,7 +227,9 @@ _sentry_unsafe_stopTimerAndCleanup()
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            removeObserver:_observerToken];
+            removeObserver:_observerToken
+                      name:nil
+                    object:nil];
     }
 #    endif // SENTRY_HAS_UIKIT
 

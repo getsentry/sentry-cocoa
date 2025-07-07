@@ -34,7 +34,7 @@ static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
 @property (nonatomic) uint64_t currentFrameRate;
@@ -66,7 +66,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
                               dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                        notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter
+                        notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
                  keepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
 {
     if (self = [super init]) {
@@ -138,11 +138,13 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(didBecomeActive)
-                                    name:SentryDidBecomeActiveNotification];
+                                    name:SentryDidBecomeActiveNotification
+                                  object:nil];
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(willResignActive)
-                                    name:SentryWillResignActiveNotification];
+                                    name:SentryWillResignActiveNotification
+                                  object:nil];
 
     [self unpause];
 }
@@ -334,8 +336,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter removeObserver:self name:SentryDidBecomeActiveNotification];
-    [self.notificationCenter removeObserver:self name:SentryWillResignActiveNotification];
+    [self.notificationCenter removeObserver:self name:SentryDidBecomeActiveNotification object:nil];
+    [self.notificationCenter removeObserver:self
+                                       name:SentryWillResignActiveNotification
+                                     object:nil];
 
     @synchronized(self.listeners) {
         [self.listeners removeAllObjects];
