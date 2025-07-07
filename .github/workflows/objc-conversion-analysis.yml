@@ -42,7 +42,7 @@ jobs:
         run: |
           ruby generate_graphviz.rb
 
-      - name: Convert DOT to PNG
+      - name: Convert DOT to SVG
         working-directory: SwiftConversion
         run: |
           dot -Tsvg objc_dependencies_topo.dot -o objc_dependencies_topo.svg
@@ -54,5 +54,5 @@ jobs:
           path: |
             SwiftConversion/objc_conversion_analysis.json
             SwiftConversion/objc_dependencies_topo.dot
-            SwiftConversion/objc_dependencies_topo.png
+            SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
