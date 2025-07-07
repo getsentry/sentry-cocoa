@@ -54,12 +54,12 @@
 
 - (void)setDist:(nullable NSString *)dist
 {
-    // Left blank on purpose
+    [self.attributesProcessor setDist:dist];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    // Left blank on purpose
+    [self.attributesProcessor setEnvironment:environment];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
