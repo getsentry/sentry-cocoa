@@ -7,6 +7,7 @@
 - Set handled to false for fatal app hangs (#5514)
 - User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
+- Fix crash when capturing events at the same time `bindClient:` is called from a different thread (#5523)
 
 ### Improvements
 
@@ -14,7 +15,6 @@
 - Improve launch profile configuration management (#5318)
 - Record user for watchdog termination events (#5558)
 - Add support for dist and environment fields for termination watch (#5560)
-- Fix crash when capturing events at the same time `bindClient:nil` is called from a different thread (#5523)
 
 ## 8.53.1
 
