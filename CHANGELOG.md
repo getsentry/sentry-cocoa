@@ -7,6 +7,7 @@
 - Set handled to false for fatal app hangs (#5514)
 - User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
+- Fix crash when capturing events at the same time `bindClient:` is called from a different thread (#5523)
 
 ### Improvements
 
