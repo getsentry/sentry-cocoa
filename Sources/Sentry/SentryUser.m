@@ -118,10 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-    return [self isEqualToUser:other];
-#pragma clang diagnostic pop
+    return [self isEqualToUser:(SentryUser *_Nonnull)other];
 }
 
 - (BOOL)isEqualToUser:(SentryUser *)user

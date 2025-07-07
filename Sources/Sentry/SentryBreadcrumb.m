@@ -60,10 +60,8 @@
 
     [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     if (self.timestamp != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [serializedData setValue:sentry_toIso8601String(self.timestamp) forKey:@"timestamp"];
-#pragma clang diagnostic pop
+        [serializedData setValue:sentry_toIso8601String((NSDate *_Nonnull)self.timestamp)
+                          forKey:@"timestamp"];
     }
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
@@ -81,15 +79,12 @@
         return NO;
 
     if ([other isKindOfClass:[SentryBreadcrumb class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return [self isEqualToBreadcrumb:other];
-#pragma clang diagnostic pop
     }
     return NO;
 }
 
-- (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb
+- (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *_Nullable)breadcrumb
 {
     if (self == breadcrumb)
         return YES;
@@ -98,52 +93,37 @@
     if (self.level != breadcrumb.level)
         return NO;
     if (self.category != breadcrumb.category
-        && ![self.category isEqualToString:breadcrumb.category])
+        && ![self.category isEqualToString:(NSString *_Nonnull)breadcrumb.category])
         return NO;
     if (self.timestamp != breadcrumb.timestamp && breadcrumb.timestamp != nil
         && self.timestamp != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (![self.timestamp isEqualToDate:breadcrumb.timestamp]) {
+        if (![self.timestamp isEqualToDate:(NSDate *_Nonnull)breadcrumb.timestamp]) {
             return NO;
         }
-#pragma clang diagnostic pop
     } else if (self.timestamp != breadcrumb.timestamp)
         return NO;
     if (self.type != breadcrumb.type && breadcrumb.type != nil && self.type != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (![self.type isEqualToString:breadcrumb.type]) {
+        if (![self.type isEqualToString:(NSString *_Nonnull)breadcrumb.type]) {
             return NO;
         }
-#pragma clang diagnostic pop
     } else if (self.type != breadcrumb.type)
         return NO;
     if (self.origin != breadcrumb.origin && breadcrumb.origin != nil && self.origin != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (![self.origin isEqualToString:breadcrumb.origin]) {
+        if (![self.origin isEqualToString:(NSString *_Nonnull)breadcrumb.origin]) {
             return NO;
         }
-#pragma clang diagnostic pop
     } else if (self.origin != breadcrumb.origin)
         return NO;
     if (self.message != breadcrumb.message && breadcrumb.message != nil && self.message != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (![self.message isEqualToString:breadcrumb.message]) {
+        if (![self.message isEqualToString:(NSString *_Nonnull)breadcrumb.message]) {
             return NO;
         }
-#pragma clang diagnostic pop
     } else if (self.message != breadcrumb.message)
         return NO;
     if (self.data != breadcrumb.data && breadcrumb.data != nil && self.data != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (![self.data isEqualToDictionary:breadcrumb.data]) {
+        if (![self.data isEqualToDictionary:(NSDictionary *_Nonnull)breadcrumb.data]) {
             return NO;
         }
-#pragma clang diagnostic pop
     } else if (self.data != breadcrumb.data)
         return NO;
     return YES;

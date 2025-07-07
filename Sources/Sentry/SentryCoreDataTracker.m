@@ -125,12 +125,9 @@
         __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         [systems addObject:obj.type];
         if (obj.URL != nil) {
-            NSString *urlPath = obj.URL.path;
+            NSString *_Nullable urlPath = obj.URL.path;
             if (urlPath != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                [names addObject:urlPath];
-#pragma clang diagnostic pop
+                [names addObject:(NSString *_Nonnull)urlPath];
             }
         } else {
             [names addObject:@"(null)"];
@@ -211,10 +208,8 @@
     if (request.predicate) {
         NSString *predicateDesc = @"(null)";
         if (request.predicate != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            predicateDesc = [predicateDescriptor predicateDescription:request.predicate];
-#pragma clang diagnostic pop
+            predicateDesc =
+                [predicateDescriptor predicateDescription:(NSPredicate *_Nonnull)request.predicate];
         }
         [result appendFormat:@" WHERE %@", predicateDesc];
     }

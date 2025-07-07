@@ -62,10 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSMutableDictionary *tags = [NSMutableDictionary new];
         id tagsValue = serializedData[@"tags"];
         if (tagsValue != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [tags addEntriesFromDictionary:tagsValue];
-#pragma clang diagnostic pop
         }
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
@@ -81,10 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSMutableDictionary *extra = [NSMutableDictionary new];
         id extraValue = serializedData[@"extra"];
         if (extraValue != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [extra addEntriesFromDictionary:extraValue];
-#pragma clang diagnostic pop
         }
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;

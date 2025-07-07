@@ -54,10 +54,7 @@
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
         id sdkScope = report[@"sentry_sdk_scope"];
         if ([sdkScope isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [userContextMerged addEntriesFromDictionary:sdkScope];
-#pragma clang diagnostic pop
         }
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
@@ -118,10 +115,7 @@
         } else {
             id timestamp = self.report[@"report"][@"timestamp"];
             if ([timestamp isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 event.timestamp = sentry_fromIso8601String(timestamp);
-#pragma clang diagnostic pop
             }
         }
         event.threads = [self convertThreads];
@@ -134,10 +128,7 @@
         id contextData = self.userContext[@"context"];
         NSMutableDictionary *mutableContext;
         if ([contextData isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             mutableContext = [[NSMutableDictionary alloc] initWithDictionary:contextData];
-#pragma clang diagnostic pop
         } else {
             mutableContext = [[NSMutableDictionary alloc] init];
         }
@@ -215,10 +206,7 @@
             crumb.origin = storedCrumb[@"origin"];
             id timestamp = storedCrumb[@"timestamp"];
             if ([timestamp isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 crumb.timestamp = sentry_fromIso8601String(timestamp);
-#pragma clang diagnostic pop
             }
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
@@ -286,10 +274,8 @@
     if (![threadId isKindOfClass:[NSNumber class]]) {
         threadId = @(0);
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadId];
-#pragma clang diagnostic pop
+
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
@@ -392,12 +378,10 @@
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
             if (frame.imageAddress) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                if (![imageNames containsObject:frame.imageAddress]) {
-                    [imageNames addObject:frame.imageAddress];
+                NSString *_Nonnull frameImageAddress = (NSString *_Nonnull)frame.imageAddress;
+                if (![imageNames containsObject:frameImageAddress]) {
+                    [imageNames addObject:frameImageAddress];
                 }
-#pragma clang diagnostic pop
             }
         }
     }
@@ -514,10 +498,7 @@
                 if ([[content[@"value"] componentsSeparatedByString:@"/"] count] < 3) {
                     id value = content[@"value"];
                     if (value != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                         [reasons addObject:value];
-#pragma clang diagnostic pop
                     }
                 }
             }
@@ -545,20 +526,14 @@
         if (binaryImage[@"crash_info_message"] != nil) {
             id crashInfoMessage = binaryImage[@"crash_info_message"];
             if (crashInfoMessage != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 [crashInfoMessages addObject:crashInfoMessage];
-#pragma clang diagnostic pop
             }
         }
 
         if (binaryImage[@"crash_info_message2"] != nil) {
             id crashInfoMessage2 = binaryImage[@"crash_info_message2"];
             if (crashInfoMessage2 != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 [crashInfoMessages addObject:crashInfoMessage2];
-#pragma clang diagnostic pop
             }
         }
     }

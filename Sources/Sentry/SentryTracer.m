@@ -711,12 +711,9 @@ static BOOL appStartMeasurementRead;
     @synchronized(_children) {
         for (id<SentrySpan> childSpan in _children) {
             if (childSpan.timestamp != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
+                if ([oldest compare:(NSDate *_Nonnull)childSpan.timestamp] == NSOrderedAscending) {
                     oldest = childSpan.timestamp;
                 }
-#pragma clang diagnostic pop
             }
         }
     }
@@ -758,25 +755,16 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
 
-    NSMutableArray *framesOfAllSpans = [NSMutableArray array];
-    if ([(SentrySpan *)self frames]) {
-        NSArray<SentryFrame *> *selfFrames = [(SentrySpan *)self frames];
-        if (selfFrames != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            [framesOfAllSpans addObjectsFromArray:selfFrames];
-#pragma clang diagnostic pop
-        }
+    NSMutableArray<SentryFrame *> *framesOfAllSpans = [NSMutableArray array];
+    NSArray<SentryFrame *> *_Nullable selfFrames = [(SentrySpan *)self frames];
+    if (selfFrames != nil) {
+        [framesOfAllSpans addObjectsFromArray:(NSArray<SentryFrame *> *_Nonnull)selfFrames];
     }
 
     for (SentrySpan *span in spans) {
-        if (span.frames) {
-            if (span.frames != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                [framesOfAllSpans addObjectsFromArray:span.frames];
-#pragma clang diagnostic pop
-            }
+        NSArray<SentryFrame *> *_Nullable spanFrames = [(SentrySpan *)span frames];
+        if (spanFrames) {
+            [framesOfAllSpans addObjectsFromArray:(NSArray<SentryFrame *> *_Nonnull)spanFrames];
         }
     }
 

@@ -33,11 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (lastFrame.symbolAddress != nil && beforeLastFrame.symbolAddress != nil
         && beforeLastFrame.instructionAddress != nil &&
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
-        [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
-#pragma clang diagnostic pop
+        [lastFrame.symbolAddress isEqualToString:(NSString *_Nonnull)beforeLastFrame.symbolAddress]
+        && [self.registers[@"lr"]
+            isEqualToString:(NSString *_Nonnull)beforeLastFrame.instructionAddress]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;

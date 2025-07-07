@@ -47,15 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if ([other isKindOfClass:[SentryGeo class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return [self isEqualToGeo:other];
-#pragma clang diagnostic pop
     }
     return NO;
 }
 
-- (BOOL)isEqualToGeo:(SentryGeo *)geo
+- (BOOL)isEqualToGeo:(SentryGeo *_Nullable)geo
 {
     if (self == geo) {
         return YES;

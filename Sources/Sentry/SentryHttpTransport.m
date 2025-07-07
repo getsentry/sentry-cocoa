@@ -404,12 +404,7 @@
                 return;
             }
 
-            if (response != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                [weakSelf.rateLimits update:response];
-#pragma clang diagnostic pop
-            }
+            [weakSelf.rateLimits update:(NSHTTPURLResponse *_Nonnull)response];
 
             if (response.statusCode == 200) {
                 SENTRY_LOG_DEBUG(@"Envelope sent successfully!");

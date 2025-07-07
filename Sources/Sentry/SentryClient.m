@@ -437,7 +437,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (event.error || event.exceptions.count > 0) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
                                                userSegment:scope.userObject.segment
@@ -568,10 +567,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // the same SDK should be used for the envelope header.
     SentrySdkInfo *sdkInfo;
     if (replayEvent.sdk != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        sdkInfo = [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk];
-#pragma clang diagnostic pop
+        sdkInfo = [[SentrySdkInfo alloc] initWithDict:(NSDictionary *_Nonnull)replayEvent.sdk];
     } else {
         sdkInfo = [SentrySdkInfo global];
     }
@@ -646,10 +642,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSArray<SentryAttachment *> *feedbackAttachments = [feedback attachmentsForEnvelope];
     NSArray<SentryAttachment *> *attachments = processedAttachments;
     if (feedbackAttachments != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         attachments = [processedAttachments arrayByAddingObjectsFromArray:feedbackAttachments];
-#pragma clang diagnostic pop
     }
 
     [self.transportAdapter sendEvent:preparedEvent
@@ -721,14 +714,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Transactions and replays have their own sampleRate
     if (eventIsNotATransaction && eventIsNotReplay && self.options.sampleRate != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if ([self isSampled:self.options.sampleRate]) {
+        if ([self isSampled:(NSNumber *_Nonnull)self.options.sampleRate]) {
             SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
             [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
             return nil;
         }
-#pragma clang diagnostic pop
     }
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
@@ -768,11 +758,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
             if (event.threads != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                event.debugMeta =
-                    [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
-#pragma clang diagnostic pop
+                event.debugMeta = [self.debugImageProvider
+                    getDebugImagesFromCacheForThreads:(NSArray<SentryThread *> *_Nonnull)
+                                                          event.threads];
             } else {
                 event.debugMeta = @[];
             }

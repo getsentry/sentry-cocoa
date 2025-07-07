@@ -596,10 +596,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableSpotlight = value; }];
 
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.spotlightUrl = options[@"spotlightUrl"];
-#pragma clang diagnostic pop
+        self.spotlightUrl = (NSString *_Nonnull)options[@"spotlightUrl"];
     }
 
     if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {

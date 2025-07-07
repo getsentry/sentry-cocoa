@@ -178,10 +178,8 @@ NS_ASSUME_NONNULL_BEGIN
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSDictionary<NSFileAttributeKey, id> *attr = nil;
         if (attachment.path != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            attr = [fileManager attributesOfItemAtPath:attachment.path error:&error];
-#pragma clang diagnostic pop
+            attr = [fileManager attributesOfItemAtPath:(NSString *_Nonnull)attachment.path
+                                                 error:&error];
         }
 
         if (nil != error) {

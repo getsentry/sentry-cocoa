@@ -59,12 +59,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
         if (sourceImage.imageAddress != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            if ([addresses containsObject:sourceImage.imageAddress]) {
+            if ([addresses containsObject:(NSString *_Nonnull)sourceImage.imageAddress]) {
                 [result addObject:sourceImage];
             }
-#pragma clang diagnostic pop
         }
     }
 
@@ -76,10 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryFrame *frame in frames) {
         if (frame.imageAddress) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            [set addObject:frame.imageAddress];
-#pragma clang diagnostic pop
+            [set addObject:(NSString *_Nonnull)frame.imageAddress];
         }
     }
 }
@@ -111,11 +105,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (SentryThread *thread in threads) {
         if (thread.stacktrace.frames != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            [self extractDebugImageAddressFromFrames:thread.stacktrace.frames
+            [self extractDebugImageAddressFromFrames:(NSArray<SentryFrame *> *_Nonnull)
+                                                         thread.stacktrace.frames
                                              intoSet:imageAddresses];
-#pragma clang diagnostic pop
         }
     }
 
@@ -136,11 +128,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (SentryThread *thread in threads) {
         if (thread.stacktrace.frames != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            [self extractDebugImageAddressFromFrames:thread.stacktrace.frames
+            [self extractDebugImageAddressFromFrames:(NSArray<SentryFrame *> *_Nonnull)
+                                                         thread.stacktrace.frames
                                              intoSet:imageAddresses];
-#pragma clang diagnostic pop
         }
     }
 

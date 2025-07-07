@@ -59,13 +59,14 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
-    SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
-    if (fileManager != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.fileManager = fileManager;
-#pragma clang diagnostic pop
+    SentryFileManager *_Nullable fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    if (fileManager == nil) {
+        SENTRY_LOG_FATAL(
+            @"SentryFileManager is nil. Make sure to set it in SentryOptions.fileManager.");
+        return NO;
     }
+    self.fileManager = (SentryFileManager *_Nonnull)fileManager;
+
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     self.debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
@@ -161,10 +162,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // capturing the app hang event. Still, we attach them already now to ensure all app hang events
     // have debug images cause it's easy to mess this up in the future.
     if (event.threads != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        event.debugMeta = [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
-#pragma clang diagnostic pop
+        event.debugMeta = [self.debugImageProvider
+            getDebugImagesFromCacheForThreads:(NSArray<SentryThread *> *_Nonnull)event.threads];
     }
 
 #if SENTRY_HAS_UIKIT
