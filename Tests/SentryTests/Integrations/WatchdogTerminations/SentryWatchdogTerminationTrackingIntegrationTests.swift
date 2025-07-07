@@ -180,14 +180,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 1)
-        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 1)
 
         fixture.scope.setContext(value: ["key": "value"], key: "foo")
         fixture.scope.setUser(User(userId: "user1234"))
         fixture.scope.setDist("dist-124")
         fixture.scope.setEnvironment("test")
         fixture.scope.setTags(["tag1": "value1", "tag2": "value2"])
-        fixture.scope.propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -208,9 +206,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 2)
         let tagsInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.last)
         XCTAssertEqual(tagsInvocation, ["tag1": "value1", "tag2": "value2"])
-        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 2)
-        let traceContextInvocation = try XCTUnwrap(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.last)
-        XCTAssertEqual(NSDictionary(dictionary: traceContextInvocation ?? [:]), NSDictionary(dictionary: ["trace_id": "12345678123456781234567812345678", "span_id": "1234567812345678"]))
     }
 
     func testInstallWithOptions_shouldSetCurrentContextOnScopeObserver() throws {
