@@ -108,12 +108,6 @@ run-test-server-sync:
 
 .PHONY: run-test-server run-test-server-sync
 
-test-alamofire:
-	./scripts/test-alamofire.sh
-
-test-homekit:
-	./scripts/test-homekit.sh
-
 test-ui-critical:
 	./scripts/test-ui-critical.sh
 
