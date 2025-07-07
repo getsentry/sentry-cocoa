@@ -8,8 +8,8 @@ class SentryNSNotificationCenterWrapperTests: XCTestCase {
     private var didBecomeActiveExpectation: XCTestExpectation!
     private var willResignActiveExpectation: XCTestExpectation!
     
-    private let didBecomeActiveNotification = SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName
-    private let willResignActiveNotification = SentryNSNotificationCenterWrapper.willResignActiveNotificationName
+    private let didBecomeActiveNotification = CrossPlatformApplication.didBecomeActiveNotification
+    private let willResignActiveNotification = CrossPlatformApplication.willResignActiveNotification
     
     override func setUp() {
         super.setUp()
