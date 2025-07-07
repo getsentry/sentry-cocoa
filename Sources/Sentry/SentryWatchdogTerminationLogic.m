@@ -50,7 +50,8 @@
 
     // If the release name is different we assume it's an upgrade
     if (currentAppState.releaseName != nil && previousAppState.releaseName != nil
-        && ![currentAppState.releaseName isEqualToString:previousAppState.releaseName]) {
+        && ![currentAppState.releaseName
+            isEqualToString:(NSString *_Nonnull)previousAppState.releaseName]) {
         return NO;
     }
 

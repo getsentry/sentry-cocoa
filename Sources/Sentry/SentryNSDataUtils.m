@@ -63,10 +63,7 @@ NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
     if (data == nil) {
         return nil;
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-    NSMutableData *mutable = [NSMutableData dataWithData:data];
-#pragma clang diagnostic pop
+    NSMutableData *mutable = [NSMutableData dataWithData:(NSData *_Nonnull)data];
     [mutable appendBytes:"\0" length:1];
     return mutable;
 }

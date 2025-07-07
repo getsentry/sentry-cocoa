@@ -221,8 +221,12 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
                 if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                    if (touch.view == nil) {
+                        SENTRY_LOG_DEBUG(@"Touch view is nil for action: %@", action);
+                        continue;
+                    }
                     data = [SentryBreadcrumbTracker
-                                extractDataFromView:touch.view
+                                extractDataFromView:(UIView *_Nonnull)touch.view
                         withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
                 }
             }
@@ -316,12 +320,13 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
     if (controller.presentingViewController != nil) {
         info[@"presentingViewController"] =
-            [SwiftDescriptor getViewControllerClassName:controller.presentingViewController];
+            [SwiftDescriptor getViewControllerClassName:(UIViewController *_Nonnull)
+                                                            controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] =
-            [SwiftDescriptor getViewControllerClassName:controller.parentViewController];
+        info[@"parentViewController"] = [SwiftDescriptor
+            getViewControllerClassName:(UIViewController *_Nonnull)controller.parentViewController];
     }
 
     if (controller.view.window != nil) {

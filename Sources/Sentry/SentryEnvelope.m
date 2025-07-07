@@ -205,10 +205,8 @@ NS_ASSUME_NONNULL_BEGIN
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.base64-attachment-data"]) {
             if (attachment.path != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                NSData *fileData = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
-#    pragma clang diagnostic pop
+                NSData *fileData = [[NSFileManager defaultManager]
+                    contentsAtPath:(NSString *_Nonnull)attachment.path];
                 if (fileData != nil) {
                     data = [[fileData base64EncodedStringWithOptions:0]
                         dataUsingEncoding:NSUTF8StringEncoding];
@@ -216,18 +214,14 @@ NS_ASSUME_NONNULL_BEGIN
             }
         } else {
             if (attachment.path != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
-#    pragma clang diagnostic pop
+                data = [[NSFileManager defaultManager]
+                    contentsAtPath:(NSString *_Nonnull)attachment.path];
             }
         }
 #else
         if (attachment.path != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
-#    pragma clang diagnostic pop
+            data =
+                [[NSFileManager defaultManager] contentsAtPath:(NSString *_Nonnull)attachment.path];
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }

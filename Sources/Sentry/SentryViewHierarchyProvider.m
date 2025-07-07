@@ -62,7 +62,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)appViewHierarchyFromMainThread
+- (nullable NSData *)appViewHierarchyFromMainThread
 {
     __block NSData *result;
 
@@ -77,7 +77,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)appViewHierarchy
+- (nullable NSData *)appViewHierarchy
 {
     NSMutableData *result = [[NSMutableData alloc] init];
     NSArray<UIWindow *> *windows = [self.sentryUIApplication windows];

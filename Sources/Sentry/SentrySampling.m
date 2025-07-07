@@ -126,10 +126,7 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
     }
 
     if (options.profilesSampleRate != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
-#    pragma clang diagnostic pop
+        return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.profilesSampleRate);
     } else {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                  forSampleRate:nil

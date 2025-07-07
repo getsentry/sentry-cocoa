@@ -95,7 +95,7 @@
             id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
 
             if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
-                [result addObject:appDelegate.window];
+                [result addObject:(UIWindow *_Nonnull)appDelegate.window];
             }
 
             windows = [result allObjects];
@@ -170,8 +170,12 @@
                 // the top view controller.
                 break;
             }
+            if (topVC.presentedViewController == nil) {
+                continue;
+            }
 
-            [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
+            [result replaceObjectAtIndex:index
+                              withObject:(UIViewController *_Nonnull)topVC.presentedViewController];
 
             continue;
         }
@@ -225,7 +229,8 @@
 {
     if ([containerVC isKindOfClass:UINavigationController.class]) {
         if ([(UINavigationController *)containerVC topViewController]) {
-            return @[ [(UINavigationController *)containerVC topViewController] ];
+            return @[ (UIViewController *_Nonnull)[(
+                UINavigationController *)containerVC topViewController] ];
         }
         return nil;
     }
@@ -233,7 +238,8 @@
         UITabBarController *tbController = (UITabBarController *)containerVC;
         NSInteger selectedIndex = tbController.selectedIndex;
         if (tbController.viewControllers.count > selectedIndex) {
-            return @[ [tbController.viewControllers objectAtIndex:selectedIndex] ];
+            return @[ (UIViewController *_Nonnull)[tbController.viewControllers
+                objectAtIndex:selectedIndex] ];
         } else {
             return nil;
         }
@@ -247,7 +253,7 @@
     if ([containerVC isKindOfClass:UIPageViewController.class]) {
         UIPageViewController *pageVC = (UIPageViewController *)containerVC;
         if (pageVC.viewControllers.count > 0) {
-            return @[ [[pageVC viewControllers] objectAtIndex:0] ];
+            return @[ (UIViewController *_Nonnull)[[pageVC viewControllers] objectAtIndex:0] ];
         }
     }
     return nil;

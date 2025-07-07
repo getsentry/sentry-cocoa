@@ -495,8 +495,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
-        self.sessionReplay =
-            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+        self.sessionReplay = [[SentryReplayOptions alloc]
+            initWithDictionary:(NSDictionary *_Nonnull)options[@"sessionReplay"]];
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -885,7 +885,8 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
 {
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
-    configureUserFeedback(self.userFeedbackConfiguration);
+    configureUserFeedback(
+        (SentryUserFeedbackConfiguration *_Nonnull)self.userFeedbackConfiguration);
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

@@ -422,14 +422,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-- (SentryAppState *_Nullable)readAppState
+- (nullable SentryAppState *)readAppState
 {
     @synchronized(self.appStateFilePath) {
         return [self readAppStateFrom:self.appStateFilePath];
     }
 }
 
-- (SentryAppState *_Nullable)readPreviousAppState
+- (nullable SentryAppState *)readPreviousAppState
 {
     @synchronized(self.previousAppStateFilePath) {
         return [self readAppStateFrom:self.previousAppStateFilePath];
@@ -812,12 +812,9 @@ NSString *_Nullable sentryStaticBasePath(void)
 void
 removeSentryStaticBasePath(void)
 {
-    NSString *staticBasePath = sentryStaticBasePath();
+    NSString *_Nullable staticBasePath = sentryStaticBasePath();
     if (staticBasePath != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        _non_thread_safe_removeFileAtPath(staticBasePath);
-#    pragma clang diagnostic pop
+        _non_thread_safe_removeFileAtPath((NSString *_Nonnull)staticBasePath);
     }
 }
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
@@ -898,10 +895,7 @@ removeAppLaunchProfilingConfigFile(void)
 {
     NSURL *configFileURL = launchProfileConfigFileURL();
     if (configFileURL.path != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        _non_thread_safe_removeFileAtPath(configFileURL.path);
-#    pragma clang diagnostic pop
+        _non_thread_safe_removeFileAtPath((NSString *_Nonnull)configFileURL.path);
     }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

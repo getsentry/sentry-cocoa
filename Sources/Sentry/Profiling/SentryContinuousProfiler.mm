@@ -72,21 +72,18 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 #    endif // SENTRY_HAS_UIKIT
 
     if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        const auto envelope = sentry_continuousProfileChunkEnvelope(
-            profiler.profilerId, profilerState, metricProfilerState
+        const auto envelope
+            = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profiler.profilerId,
+                (NSDictionary<NSString *, id> *_Nonnull)profilerState,
+                (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
+                    metricProfilerState
 #    if SENTRY_HAS_UIKIT
-            ,
-            screenFrameData
+                ,
+                screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-        );
-#    pragma clang diagnostic pop
+            );
         if (envelope != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            [SentrySDK captureEnvelope:envelope];
-#    pragma clang diagnostic pop
+            [SentrySDK captureEnvelope:(SentryEnvelope *_Nonnull)envelope];
         }
     }
 }

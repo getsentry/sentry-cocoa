@@ -171,7 +171,7 @@
         if (self.tracker.activeSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Started new transaction with id %@ to track view controller %@.",
                 spanId.sentrySpanIdString, name);
-            [self.tracker pushActiveSpan:spanId];
+            [self.tracker pushActiveSpan:(SentrySpanId *_Nonnull)spanId];
         } else {
             SENTRY_LOG_DEBUG(@"Started child span with id %@ to track view controller %@.",
                 spanId.sentrySpanIdString, name);
@@ -179,7 +179,7 @@
     }
 
     spanId = [self getSpanIdForViewController:controller];
-    SentrySpan *_Nullable vcSpan = [self.tracker getSpan:spanId];
+    id<SentrySpan> _Nullable vcSpan = [self.tracker getSpan:(SentrySpanId *_Nonnull)spanId];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
         // Since TTID and TTFD are meant to the whole screen
@@ -261,7 +261,7 @@
             @"Tracking UIViewController.viewWillAppear for controller: %@", controller);
         SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (spanId == nil || ![self.tracker isSpanAlive:(SentrySpanId *_Nonnull)spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(
@@ -279,7 +279,7 @@
                                              inBlock:callbackToOrigin];
         };
 
-        [self.tracker activateSpan:spanId duringBlock:duringBlock];
+        [self.tracker activateSpan:(SentrySpanId *_Nonnull)spanId duringBlock:duringBlock];
         [self reportInitialDisplayForController:controller];
     };
 
@@ -332,7 +332,7 @@
     void (^limitOverrideBlock)(void) = ^{
         SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (spanId == nil || ![self.tracker isSpanAlive:(SentrySpanId *_Nonnull)spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.%@ because there is no active span.",
@@ -349,8 +349,8 @@
                                              inBlock:callbackToOrigin];
         };
 
-        [self.tracker activateSpan:spanId duringBlock:duringBlock];
-        id<SentrySpan> vcSpan = [self.tracker getSpan:spanId];
+        [self.tracker activateSpan:(SentrySpanId *_Nonnull)spanId duringBlock:duringBlock];
+        id<SentrySpan> vcSpan = [self.tracker getSpan:(SentrySpanId *_Nonnull)spanId];
         // If the current controller span has no parent,
         // it means it is the root transaction and need to be pop from the queue.
         if (vcSpan.parentSpanId == nil) {
@@ -361,7 +361,7 @@
         // If we are still tracking this UIViewController finish the transaction
         // and remove associated span id.
         SENTRY_LOG_DEBUG(@"Finishing span for view controller: %@", controller);
-        [self.tracker finishSpan:spanId withStatus:status];
+        [self.tracker finishSpan:(SentrySpanId *_Nonnull)spanId withStatus:status];
         [self setSpanIdForViewController:controller spanId:nil];
     };
 
@@ -379,7 +379,7 @@
     void (^limitOverrideBlock)(void) = ^{
         SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (spanId == nil || ![self.tracker isSpanAlive:(SentrySpanId *_Nonnull)spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewWillLayoutSubviews because there "
@@ -403,7 +403,7 @@
 
             [self setLayoutSubviewSpanID:controller spanId:layoutSubViewId];
         };
-        [self.tracker activateSpan:spanId duringBlock:duringBlock];
+        [self.tracker activateSpan:(SentrySpanId *_Nonnull)spanId duringBlock:duringBlock];
 
         // According to the Apple docs
         // (https://developer.apple.com/documentation/uikit/uiviewcontroller/1621510-viewwillappear),
@@ -429,7 +429,7 @@
     void (^limitOverrideBlock)(void) = ^{
         SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (spanId == nil || ![self.tracker isSpanAlive:(SentrySpanId *_Nonnull)spanId]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewDidLayoutSubviews because there "
@@ -458,7 +458,7 @@
             [self setLayoutSubviewSpanID:controller spanId:nil];
         };
 
-        [self.tracker activateSpan:spanId duringBlock:duringBlock];
+        [self.tracker activateSpan:(SentrySpanId *_Nonnull)spanId duringBlock:duringBlock];
     };
 
     [self limitOverride:@"viewDidLayoutSubviews"

@@ -145,7 +145,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [hub configureScope:^(SentryScope *scope) {
         if (scope.currentScreen != nil) {
-            self->viewNames = @[ scope.currentScreen ];
+            self->viewNames = @[ (NSString *)scope.currentScreen ];
         }
     }];
 
@@ -179,10 +179,8 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (hub != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
-#    pragma clang diagnostic pop
+        _profilerReferenceID = sentry_startProfilerForTrace(
+            configuration, (SentryHub *_Nonnull)hub, transactionContext);
     }
     _isProfiling = _profilerReferenceID != nil;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -850,7 +848,13 @@ static BOOL appStartMeasurementRead;
     NSDate *appStartEndTimestamp =
         [appStartTimestamp dateByAddingTimeInterval:measurement.duration];
 
-    NSTimeInterval difference = [appStartEndTimestamp timeIntervalSinceDate:self.startTimestamp];
+    NSDate *_Nullable spanStartTimestamp = self.startTimestamp;
+    if (spanStartTimestamp == nil) {
+        SENTRY_LOG_DEBUG(@"Span start timestamp is nil, not returning app start measurements.");
+        return nil;
+    }
+    NSTimeInterval difference =
+        [appStartEndTimestamp timeIntervalSinceDate:(NSDate *_Nonnull)spanStartTimestamp];
 
     // Don't attach app start measurements if too much time elapsed between the end of the app start
     // sequence and the start of the transaction. This makes transactions too long.
@@ -885,7 +889,7 @@ static BOOL appStartMeasurementRead;
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             NSMutableDictionary *context =
-                [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
+                [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{}];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
             [SentryDictionary mergeEntriesFromDictionary:appContext intoDictionary:context];
             [transaction setContext:context];

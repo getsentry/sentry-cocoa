@@ -13,12 +13,9 @@
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
             [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            NSDictionary *sanitized = sentry_sanitize((NSDictionary *)rawValue);
+            NSDictionary *_Nullable sanitized = sentry_sanitize((NSDictionary *)rawValue);
             if (sanitized != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                [result addObject:sanitized];
-#pragma clang diagnostic pop
+                [result addObject:(NSDictionary *_Nonnull)sanitized];
             }
         } else if ([rawValue isKindOfClass:NSArray.class]) {
             [result addObject:[SentryArray sanitizeArray:rawValue]];

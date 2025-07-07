@@ -13,6 +13,7 @@
 @interface SentryCrashIntegrationSessionHandler ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
 #endif // SENTRY_HAS_UIKIT
@@ -23,13 +24,16 @@
 
 #if SENTRY_HAS_UIKIT
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+                 currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
             watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
 #else
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+                 currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 #endif // SENTRY_HAS_UIKIT
 {
     self = [self init];
     self.crashWrapper = crashWrapper;
+    self.currentDateProvider = currentDateProvider;
 #if SENTRY_HAS_UIKIT
     self.watchdogTerminationLogic = watchdogTerminationLogic;
 #endif // SENTRY_HAS_UIKIT
@@ -80,8 +84,12 @@
                 @"App hang event deleted between check and read. Cannot end current session.");
             return;
         }
-
-        [session endSessionAbnormalWithTimestamp:appHangEvent.timestamp];
+        if (appHangEvent.timestamp != nil) {
+            [session endSessionAbnormalWithTimestamp:(NSDate *_Nonnull)appHangEvent.timestamp];
+        } else {
+            SENTRY_LOG_DEBUG(@"App hang event timestamp is nil. Using current date.");
+            [session endSessionAbnormalWithTimestamp:self.currentDateProvider.date];
+        }
         [fileManager storeAbnormalSession:session];
         [fileManager deleteCurrentSession];
     }

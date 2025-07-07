@@ -327,11 +327,12 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
-    if (JSONData == nil) {
+    const auto nullableJSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (nullableJSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+    const auto JSONData = (NSData *_Nonnull)nullableJSONData;
 
     SENTRY_LOG_DEBUG(@"Transmitting continuous profile chunk.");
 
@@ -348,10 +349,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
                                                 length:JSONData.length];
     header.platform = @"cocoa";
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     const auto envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-#    pragma clang diagnostic pop
 
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
 }
@@ -388,11 +386,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     };
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
-    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
-    if (JSONData == nil) {
+    const auto nullableJSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (nullableJSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
+    const auto JSONData = (NSData *_Nonnull)nullableJSONData;
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentry_writeProfileFile(JSONData, false /*continuous*/);
@@ -400,10 +399,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-#    pragma clang diagnostic pop
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(

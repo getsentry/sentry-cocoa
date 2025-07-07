@@ -66,15 +66,14 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
     // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
     // which is unacceptable for a transaction name. Ideally, we should somehow shorten
     // the long name.
-
-    NSString *targetClass = NSStringFromClass([target class]);
-    if ([targetClass containsString:@"SwiftUI"]) {
+    NSString *targetClassName = NSStringFromClass([(id)target class]);
+    if ([targetClassName containsString:@"SwiftUI"]) {
         SENTRY_LOG_DEBUG(@"Won't record transaction for SwiftUI target event.");
         return;
     }
 
-    NSString *actionName = [self getTransactionName:action target:targetClass];
-    NSString *operation = [self getOperation:sender];
+    NSString *actionName = [self getTransactionName:action target:targetClassName];
+    NSString *operation = [self getOperation:(id _Nonnull)sender];
 
     NSString *accessibilityIdentifier = nil;
     if (_reportAccessibilityIdentifier && [[sender class] isSubclassOfClass:[UIView class]]) {

@@ -28,16 +28,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                                  options:0
                                    error:nil];
     });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
-    if (symbolNSStr == nil) {
+    const auto nullableSymbolNSStr = [NSString stringWithUTF8String:symbol];
+    if (nullableSymbolNSStr == nil) {
         return @"<unknown>";
     }
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+    const auto symbolNSStr = (NSString *_Nonnull)nullableSymbolNSStr;
     const auto match = [regex firstMatchInString:symbolNSStr
                                          options:0
                                            range:NSMakeRange(0, [symbolNSStr length])];
-#    pragma clang diagnostic pop
     if (match == nil) {
         return symbolNSStr;
     }
@@ -150,10 +148,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
                 [state.frames addObject:frame];
             } else {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                [stack addObject:frameIndex];
-#    pragma clang diagnostic pop
+                [stack addObject:(NSNumber *_Nonnull)frameIndex];
             }
         }
 #    if defined(DEBUG)
@@ -169,10 +164,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto stackKey = [stack componentsJoinedByString:@"|"];
         const auto stackIndex = state.stackIndexLookup[stackKey];
         if (stackIndex) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            sample.stackIndex = stackIndex;
-#    pragma clang diagnostic pop
+            sample.stackIndex = (NSNumber *_Nonnull)stackIndex;
         } else {
             const auto nextStackIndex = @(state.stacks.count);
             sample.stackIndex = nextStackIndex;

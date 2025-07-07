@@ -206,9 +206,15 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryId *replayId = jsonObject[@"replayId"]
-        ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
+        ? [[SentryId alloc] initWithUUIDString:(NSString *_Nonnull)jsonObject[@"replayId"]]
         : [[SentryId alloc] init];
-    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:jsonObject[@"path"]];
+    id replayFilePath = jsonObject[@"path"];
+    if (replayFilePath == nil) {
+        SENTRY_LOG_DEBUG(
+            @"[Session Replay] No replay file path found in last replay info, not resuming");
+        return;
+    }
+    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:replayFilePath];
 
     SentryCrashReplay crashInfo = { 0 };
     bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo,
@@ -232,7 +238,7 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryOnDemandReplay *resumeReplayMaker =
-        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
+        [[SentryOnDemandReplay alloc] initWithContentFrom:(NSString *_Nonnull)lastReplayURL.path
                                           processingQueue:_replayProcessingQueue
                                          assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
@@ -370,9 +376,10 @@ static SentryTouchTracker *_touchTracker;
     NSURL *docs = [self replayDirectory];
     NSString *currentSession = [NSUUID UUID].UUIDString;
     docs = [docs URLByAppendingPathComponent:currentSession];
+    NSString *docsPath = (NSString *_Nonnull)docs.path;
 
-    if (![NSFileManager.defaultManager fileExistsAtPath:docs.path]) {
-        SENTRY_LOG_DEBUG(@"[Session Replay] Creating directory at path: %@", docs.path);
+    if (![NSFileManager.defaultManager fileExistsAtPath:docsPath]) {
+        SENTRY_LOG_DEBUG(@"[Session Replay] Creating directory at path: %@", docsPath);
         [NSFileManager.defaultManager createDirectoryAtURL:docs
                                withIntermediateDirectories:YES
                                                 attributes:nil
@@ -380,7 +387,7 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryOnDemandReplay *replayMaker =
-        [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
+        [[SentryOnDemandReplay alloc] initWithOutputPath:docsPath
                                          processingQueue:_replayProcessingQueue
                                         assetWorkerQueue:_replayAssetWorkerQueue];
     replayMaker.bitRate = replayOptions.replayBitRate;
@@ -405,9 +412,15 @@ static SentryTouchTracker *_touchTracker;
                                                                    delegate:self
                                                          displayLinkWrapper:displayLinkWrapper];
 
-    [self.sessionReplay
-        startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
-              fullSession:shouldReplayFullSession];
+    UIView *_Nullable nullableRootView
+        = SentryDependencyContainer.sharedInstance.application.windows.firstObject;
+    if (nullableRootView == nil) {
+        SENTRY_LOG_WARN(@"[Session Replay] No UIWindow available to display preview");
+        return;
+    }
+    UIView *_Nonnull rootView = (UIView *_Nonnull)nullableRootView;
+
+    [self.sessionReplay startWithRootView:rootView fullSession:shouldReplayFullSession];
 
     [_notificationCenter addObserver:self
                             selector:@selector(pause)
@@ -418,10 +431,14 @@ static SentryTouchTracker *_touchTracker;
                             selector:@selector(resume)
                                 name:UIApplicationDidBecomeActiveNotification
                               object:nil];
-
-    [self saveCurrentSessionInfo:self.sessionReplay.sessionReplayId
-                            path:docs.path
-                         options:replayOptions];
+    if (self.sessionReplay.sessionReplayId != nil) {
+        [self saveCurrentSessionInfo:(SentryId *_Nonnull)self.sessionReplay.sessionReplayId
+                                path:docsPath
+                             options:replayOptions];
+    } else {
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Could not save current session info, no sessionId available");
+    }
 }
 
 - (nullable NSURL *)replayDirectory
@@ -470,7 +487,7 @@ static SentryTouchTracker *_touchTracker;
     NSURL *last = [path URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
 
     NSError *error;
-    if ([fileManager fileExistsAtPath:last.path]) {
+    if ([fileManager fileExistsAtPath:(NSString *_Nonnull)last.path]) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Removing last replay file at path: %@", last);
         if ([NSFileManager.defaultManager removeItemAtURL:last error:&error] == NO) {
             SENTRY_LOG_ERROR(
@@ -482,7 +499,7 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] No last replay file to remove at path: %@", last);
     }
 
-    if ([fileManager fileExistsAtPath:current.path]) {
+    if ([fileManager fileExistsAtPath:(NSString *_Nonnull)current.path]) {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] Moving current replay file at path: %@ to: %@", current, last);
         if ([fileManager moveItemAtURL:current toURL:last error:&error] == NO) {
@@ -505,7 +522,7 @@ static SentryTouchTracker *_touchTracker;
     SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     // Mapping replay folder here and not in dispatched queue to prevent a race condition between
     // listing files and creating a new replay session.
-    NSArray *replayFiles = [fileManager allFilesInFolder:replayDir.path];
+    NSArray *replayFiles = [fileManager allFilesInFolder:(NSString *_Nonnull)replayDir.path];
     if (replayFiles.count == 0) {
         SENTRY_LOG_DEBUG(@"[Session Replay] No replay files to clean up");
         return;
@@ -603,12 +620,14 @@ static SentryTouchTracker *_touchTracker;
     SENTRY_LOG_DEBUG(@"[Session Replay] Configuring replay");
     if (breadcrumbConverter) {
         _currentBreadcrumbConverter = breadcrumbConverter;
-        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+        self.sessionReplay.breadcrumbConverter
+            = (id<SentryReplayBreadcrumbConverter> _Nonnull)breadcrumbConverter;
     }
 
     if (screenshotProvider) {
         _currentScreenshotProvider = screenshotProvider;
-        self.sessionReplay.screenshotProvider = screenshotProvider;
+        self.sessionReplay.screenshotProvider
+            = (id<SentryViewScreenshotProvider> _Nonnull)screenshotProvider;
     }
 }
 

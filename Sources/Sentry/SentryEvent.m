@@ -201,12 +201,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryException *exception = self.exceptions[0];
     if (exception.mechanism != nil && exception.mechanism.type != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if ([metricKitMechanisms containsObject:exception.mechanism.type]) {
+        if ([metricKitMechanisms containsObject:(NSString *_Nonnull)exception.mechanism.type]) {
             return YES;
         }
-#    pragma clang diagnostic pop
     }
     return NO;
 }

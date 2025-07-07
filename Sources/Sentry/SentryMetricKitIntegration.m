@@ -320,12 +320,9 @@ NS_ASSUME_NONNULL_BEGIN
 
             SentryMXFrame *firstUnprocessedSibling = nil;
             if (parentFrame != nil && parentFrame.subFrames != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 firstUnprocessedSibling =
-                    [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                    [self getFirstUnprocessedSubFrames:parentFrame.subFrames ?: @[]
                                processedFrameAddresses:processedFrameAddresses];
-#    pragma clang diagnostic pop
             }
 
             BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
@@ -348,12 +345,9 @@ NS_ASSUME_NONNULL_BEGIN
             } else {
                 SentryMXFrame *nonProcessedSubFrame = nil;
                 if (currentFrame.subFrames != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                     nonProcessedSubFrame =
-                        [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                        [self getFirstUnprocessedSubFrames:currentFrame.subFrames ?: @[]
                                    processedFrameAddresses:processedFrameAddresses];
-#    pragma clang diagnostic pop
                 }
 
                 // Keep adding sub frames
@@ -495,10 +489,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         for (SentryDebugMeta *debugMeta in callStackDebugMetas) {
             if (debugMeta.debugID != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                debugMetas[debugMeta.debugID] = debugMeta;
-#    pragma clang diagnostic pop
+                debugMetas[(NSString *_Nonnull)debugMeta.debugID] = debugMeta;
             }
         }
     }
@@ -527,10 +518,7 @@ NS_ASSUME_NONNULL_BEGIN
         debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         if (debugMeta.debugID != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            debugMetas[debugMeta.debugID] = debugMeta;
-#    pragma clang diagnostic pop
+            debugMetas[(NSString *_Nonnull)debugMeta.debugID] = debugMeta;
         }
     }
 
