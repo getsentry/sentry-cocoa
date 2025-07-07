@@ -861,7 +861,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         try "extras data".write(to: extrasFileURL, atomically: true, encoding: .utf8)
         try "fingerprint data".write(to: fingerprintFileURL, atomically: true, encoding: .utf8)
         
-        
         XCTAssertTrue(fm.fileExists(atPath: contextFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: distFileURL.path))
