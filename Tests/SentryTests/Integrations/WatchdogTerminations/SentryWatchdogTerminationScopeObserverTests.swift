@@ -7,7 +7,7 @@ import XCTest
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     private class Fixture {
         let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
-        let contextProcessor: TestSentryWatchdogTerminationContextProcessor
+        let attributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
 
         let breadcrumb: [String: Any] = [
             "type": "default",
@@ -23,6 +23,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 "app.name": "ExampleApp"
             ]
         ]
+        let user: User = User(userId: "123")
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -30,16 +31,16 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 maxBreadcrumbs: 10,
                 fileManager: fileManager
             )
-            contextProcessor = try TestSentryWatchdogTerminationContextProcessor(
+            attributesProcessor = try TestSentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
+                scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
             )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
             return SentryWatchdogTerminationScopeObserver(
                 breadcrumbProcessor: breadcrumbProcessor,
-                contextProcessor: contextProcessor
+                attributesProcessor: attributesProcessor
             )
         }
     }
@@ -65,18 +66,18 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
         // The context process is calling clear in the initializer on purpose.
         // Therefore we compare the later count with the current count.
-        let contextProcessorClearInvocations = fixture.contextProcessor.clearInvocations.count
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations)
+        let attributesProcessorClearInvocations = fixture.attributesProcessor.clearInvocations.count
+        XCTAssertEqual(fixture.attributesProcessor.clearInvocations.count, attributesProcessorClearInvocations)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations + 1)
+        XCTAssertEqual(fixture.attributesProcessor.clearInvocations.count, attributesProcessorClearInvocations + 1)
     }
 
-    func testClear_shouldInvokeClearForContextProcessor() {
+    func testClear_shouldInvokeClearForAttributesProcessor() {
         // -- Act --
         sut.clear()
 
@@ -110,17 +111,17 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(fixture.breadcrumbProcessor.clearBreadcrumbsInvocations.count, 1)
     }
 
-    func testSetContext_whenContextIsNil_shouldCallContextProcessorSetContext() throws {
+    func testSetContext_whenContextIsNil_shouldCallAttributesProcessorSetContext() throws {
         // -- Act --
         sut.setContext(nil)
 
         // -- Assert --
-        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        XCTAssertEqual(fixture.attributesProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setContextInvocations.first)
         XCTAssertNil(invocation)
     }
 
-    func testSetContext_whenContextIsDefined_shouldCallContextProcessorSetContext() throws {
+    func testSetContext_whenContextIsDefined_shouldCallAttributesProcessorSetContext() throws {
         // -- Arrange --
         let context = fixture.context
 
@@ -128,11 +129,35 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         sut.setContext(context)
 
         // -- Assert --
-        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        XCTAssertEqual(fixture.attributesProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setContextInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         // Use NSDictionary to erase the type information and compare the dictionaries
         XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: context))
+    }
+    
+    func testSetUser_whenUserIsNil_shouldCallAttributesProcessorSetUser() throws {
+        // -- Act --
+        sut.setUser(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setUserInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setUserInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetUser_whenUserIsDefined_shouldCallAttributesProcessorSetUser() throws {
+        // -- Arrange --
+        let user = fixture.user
+
+        // -- Act --
+        sut.setUser(user)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setUserInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setUserInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, user)
     }
 }
 
