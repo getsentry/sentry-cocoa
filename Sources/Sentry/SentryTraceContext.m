@@ -68,10 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryTracer *tracer = nil;
     if (scope.span != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        tracer = [SentryTracer getTracer:scope.span];
-#pragma clang diagnostic pop
+        tracer = [SentryTracer getTracer:(id<SentrySpan> _Nonnull)scope.span];
     }
     if (tracer == nil) {
         return nil;
@@ -144,14 +141,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
-    id traceIdValue = dictionary[@"trace_id"];
+    id _Nullable traceIdValue = dictionary[@"trace_id"];
     if (![traceIdValue isKindOfClass:[NSString class]]) {
         return nil;
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-    SentryId *traceId = [[SentryId alloc] initWithUUIDString:traceIdValue];
-#pragma clang diagnostic pop
+    SentryId *traceId = [[SentryId alloc] initWithUUIDString:(id _Nonnull)traceIdValue];
     NSString *publicKey = dictionary[@"public_key"];
     if (traceId == nil || publicKey == nil)
         return nil;

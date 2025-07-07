@@ -37,10 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     // parsing as double/seconds failed, try to parse as date
     NSDate *retryAfterDate = nil;
     if (retryAfterHeader != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        retryAfterDate = [self.httpDateParser dateFromString:retryAfterHeader];
-#pragma clang diagnostic pop
+        retryAfterDate = [self.httpDateParser dateFromString:(NSString *_Nonnull)retryAfterHeader];
     }
 
     return retryAfterDate;

@@ -212,10 +212,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         NSArray<NSString *> *cachePaths
             = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         if (cachePaths.count > 0 && cachePaths.firstObject != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            self.cacheDirectoryPath = cachePaths.firstObject;
-#pragma clang diagnostic pop
+            self.cacheDirectoryPath = (NSString *_Nonnull)cachePaths.firstObject;
         } else {
             self.cacheDirectoryPath = @""; // Default to empty string if no cache path found
         }
@@ -307,13 +304,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     id diagnosticLevelValue = options[@"diagnosticLevel"];
     if ([diagnosticLevelValue isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             if ([nameForSentryLevel(level) isEqualToString:diagnosticLevelValue]) {
                 self.diagnosticLevel = level;
                 break;
             }
-#pragma clang diagnostic pop
         }
     }
 
@@ -334,10 +328,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"environment"] isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.environment = options[@"environment"];
-#pragma clang diagnostic pop
+        self.environment = (NSString *_Nonnull)options[@"environment"];
     }
 
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
@@ -375,10 +366,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.cacheDirectoryPath = options[@"cacheDirectoryPath"];
-#pragma clang diagnostic pop
+        self.cacheDirectoryPath = (NSString *_Nonnull)options[@"cacheDirectoryPath"];
     }
 
     if ([self isBlock:options[@"beforeSend"]]) {
@@ -457,10 +445,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
 
     if ([self isBlock:options[@"initialScope"]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.initialScope = options[@"initialScope"];
-#pragma clang diagnostic pop
+        self.initialScope = (SentryScope *_Nonnull(^_Nonnull)(
+            SentryScope *_Nonnull __strong))options[@"initialScope"];
     }
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
@@ -534,12 +520,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
-        NSArray *inAppExcludesArray = options[@"inAppExcludes"];
+        NSArray *_Nullable inAppExcludesArray = options[@"inAppExcludes"];
         if (inAppExcludesArray != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            _inAppExcludes = [inAppExcludesArray filteredArrayUsingPredicate:isNSString];
-#pragma clang diagnostic pop
+            _inAppExcludes =
+                [(NSArray *_Nonnull)inAppExcludesArray filteredArrayUsingPredicate:isNSString];
         }
     }
 
@@ -555,12 +539,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 
     if ([options[@"swizzleClassNameExcludes"] isKindOfClass:[NSSet class]]) {
-        NSSet *swizzleExcludesSet = options[@"swizzleClassNameExcludes"];
+        NSSet *_Nullable swizzleExcludesSet = options[@"swizzleClassNameExcludes"];
         if (swizzleExcludesSet != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            _swizzleClassNameExcludes = [swizzleExcludesSet filteredSetUsingPredicate:isNSString];
-#pragma clang diagnostic pop
+            _swizzleClassNameExcludes =
+                [(NSSet *_Nonnull)swizzleExcludesSet filteredSetUsingPredicate:isNSString];
         }
     }
 
@@ -590,24 +572,15 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.tracePropagationTargets = options[@"tracePropagationTargets"];
-#pragma clang diagnostic pop
+        self.tracePropagationTargets = (NSArray *_Nonnull)options[@"tracePropagationTargets"];
     }
 
     if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
-#pragma clang diagnostic pop
+        self.failedRequestStatusCodes = (NSArray *_Nonnull)options[@"failedRequestStatusCodes"];
     }
 
     if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        self.failedRequestTargets = options[@"failedRequestTargets"];
-#pragma clang diagnostic pop
+        self.failedRequestTargets = (NSArray *_Nonnull)options[@"failedRequestTargets"];
     }
 
 #if SENTRY_HAS_METRIC_KIT

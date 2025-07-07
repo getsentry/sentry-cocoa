@@ -162,10 +162,7 @@ swizzle(
             Class superclass = class_getSuperclass(classToSwizzle);
             Method superMethod = class_getInstanceMethod(superclass, selector);
             if (superMethod != NULL) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 imp = method_getImplementation(superMethod);
-#pragma clang diagnostic pop
             }
         }
 

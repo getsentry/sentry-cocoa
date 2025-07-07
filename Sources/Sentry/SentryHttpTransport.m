@@ -342,12 +342,10 @@
     NSError *requestError = nil;
     NSURLRequest *request = nil;
     if (self.options.parsedDsn != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
-                                                         dsn:self.options.parsedDsn
-                                            didFailWithError:&requestError];
-#pragma clang diagnostic pop
+        request =
+            [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
+                                                   dsn:(SentryDsn *_Nonnull)self.options.parsedDsn
+                                      didFailWithError:&requestError];
     }
 
     if (nil == request || nil != requestError) {
@@ -366,10 +364,7 @@
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [self.fileManager removeFileAtPath:envelopePath];
-#pragma clang diagnostic pop
+        [self.fileManager removeFileAtPath:(NSString *_Nonnull)envelopePath];
     }
     @synchronized(self) {
         self.isSending = NO;

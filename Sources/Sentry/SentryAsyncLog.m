@@ -16,13 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
     NSError *error;
     NSString *cachesPath = sentryStaticCachesPath();
     if (cachesPath != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        if (!createDirectoryIfNotExists(cachesPath, &error)) {
+        if (!createDirectoryIfNotExists((NSString *_Nonnull)cachesPath, &error)) {
             SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
             return;
         }
-#pragma clang diagnostic pop
     } else {
         SENTRY_LOG_ERROR(@"Failed to get caches path for async log file");
         return;

@@ -53,19 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
                 NSArray<NSString *> *namespaces =
                     [namespacesAsString componentsSeparatedByString:@";"];
                 if (namespacesAsString.length == 0 || [namespaces containsObject:@"custom"]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                     rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
                                               andRateLimitInSeconds:rateLimitInSeconds];
-#pragma clang diagnostic pop
                 }
 
             } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
                                           andRateLimitInSeconds:rateLimitInSeconds];
-#pragma clang diagnostic pop
             }
         }
     }
@@ -84,12 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
-    NSNumber *result = [numberFormatter numberFromString:string];
+    NSNumber *_Nullable result = [numberFormatter numberFromString:string];
     if (result != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        return result;
-#pragma clang diagnostic pop
+        return (NSNumber *_Nonnull)result;
     } else {
         return @0; // Default to 0 if parsing fails
     }
@@ -114,17 +105,14 @@ NS_ASSUME_NONNULL_BEGIN
     return categories;
 }
 
-- (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit
+- (NSDate *)getLongerRateLimit:(nullable NSDate *)existingRateLimit
          andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
 {
     NSDate *newDate = [self.currentDateProvider.date
         dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
-    NSDate *result = [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
+    NSDate *_Nullable result = [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
     if (result != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        return result;
-#pragma clang diagnostic pop
+        return (NSDate *_Nonnull)result;
     } else {
         return newDate; // Default to newDate if getMaximumDate returns nil
     }

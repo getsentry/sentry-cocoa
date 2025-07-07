@@ -63,10 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             NSDate *limitDate = limits[categoryAsNumber];
             if (limitDate != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 [self updateRateLimit:category withDate:limitDate];
-#pragma clang diagnostic pop
             }
         }
     } else if (response.statusCode == 429) {

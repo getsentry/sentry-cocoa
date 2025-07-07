@@ -37,10 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
     id contextsDict = serializedData[@"contexts"];
     if (contextsDict != nil && [contextsDict isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         [mutableContext addEntriesFromDictionary:contextsDict];
-#pragma clang diagnostic pop
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -54,12 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
-    NSDictionary *sanitizedTags = sentry_sanitize(self.trace.tags);
+    NSDictionary *_Nullable sanitizedTags = sentry_sanitize(self.trace.tags);
     if (sanitizedTags != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [traceTags addEntriesFromDictionary:sanitizedTags];
-#pragma clang diagnostic pop
+        [traceTags addEntriesFromDictionary:(NSDictionary *_Nonnull)sanitizedTags];
     }
 
     // Adding tags from Trace to serializedData dictionary

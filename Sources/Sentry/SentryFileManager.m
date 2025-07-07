@@ -160,10 +160,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
     NSString *dsnHash = [options.parsedDsn getHash];
     if (dsnHash != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         self.sentryPath = [self.basePath stringByAppendingPathComponent:dsnHash];
-#pragma clang diagnostic pop
     } else {
         self.sentryPath = [self.basePath stringByAppendingPathComponent:@"unknown"];
     }
@@ -696,10 +693,8 @@ NSString *_Nullable sentryStaticCachesPath(void)
         // apps on the same system.
         NSString *_Nullable scopedCachesDirectory = nil;
         if (cachesDirectory != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-            scopedCachesDirectory = sentryGetScopedCachesDirectory(cachesDirectory);
-#pragma clang diagnostic pop
+            scopedCachesDirectory
+                = sentryGetScopedCachesDirectory((NSString *_Nonnull)cachesDirectory);
         }
         if (!scopedCachesDirectory) {
             SENTRY_LOG_WARN(@"Failed to get scoped static caches directory.");
@@ -784,10 +779,7 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
     }
 
     if (identifier != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        return [cachesDirectory stringByAppendingPathComponent:identifier];
-#pragma clang diagnostic pop
+        return [cachesDirectory stringByAppendingPathComponent:(NSString *_Nonnull)identifier];
     } else {
         return cachesDirectory;
     }

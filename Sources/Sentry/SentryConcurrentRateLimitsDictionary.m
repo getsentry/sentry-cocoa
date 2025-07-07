@@ -24,13 +24,10 @@
     }
 }
 
-- (NSDate *)getRateLimitForCategory:(SentryDataCategory)category
+- (nullable NSDate *)getRateLimitForCategory:(SentryDataCategory)category
 {
     @synchronized(self.rateLimits) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return self.rateLimits[@(category)];
-#pragma clang diagnostic pop
     }
 }
 

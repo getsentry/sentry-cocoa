@@ -64,10 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (int i = 0; i < envelope.items.count; ++i) {
         NSData *newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
         if (newlineData != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [envelopeData appendData:newlineData];
-#pragma clang diagnostic pop
         }
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
@@ -79,10 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
         [envelopeData appendData:itemHeader];
         NSData *secondNewlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
         if (secondNewlineData != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
             [envelopeData appendData:secondNewlineData];
-#pragma clang diagnostic pop
         }
         [envelopeData appendData:envelope.items[i].data];
     }
@@ -124,19 +118,13 @@ NS_ASSUME_NONNULL_BEGIN
             SentrySdkInfo *sdkInfo = nil;
             id sdkObject = headerDictionary[@"sdk"];
             if (nil != sdkObject && [sdkObject isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 sdkInfo = [[SentrySdkInfo alloc] initWithDict:sdkObject];
-#pragma clang diagnostic pop
             }
 
             SentryTraceContext *traceContext = nil;
             id traceObject = headerDictionary[@"trace"];
             if (nil != traceObject && [traceObject isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 traceContext = [[SentryTraceContext alloc] initWithDict:traceObject];
-#pragma clang diagnostic pop
             }
 
             envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
@@ -145,10 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             id sentAtObject = headerDictionary[@"sent_at"];
             if (sentAtObject != nil && [sentAtObject isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 envelopeHeader.sentAt = sentry_fromIso8601String(sentAtObject);
-#pragma clang diagnostic pop
             }
 
             break;
@@ -210,28 +195,20 @@ NS_ASSUME_NONNULL_BEGIN
 
             SentryEnvelopeItemHeader *itemHeader;
             if (nil != filename && type != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                 itemHeader = [[SentryEnvelopeAttachmentHeader alloc]
-                      initWithType:type
+                      initWithType:(NSString *_Nonnull)type
                             length:bodyLength
                           filename:filename
                        contentType:contentType
                     attachmentType:typeForSentryAttachmentName(attachmentType)];
-#pragma clang diagnostic pop
             } else if (nil != itemCount && type != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:(NSString *_Nonnull)type
                                                                      length:bodyLength
                                                                 contentType:contentType
                                                                   itemCount:itemCount];
-#pragma clang diagnostic pop
             } else if (type != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
-#pragma clang diagnostic pop
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:(NSString *_Nonnull)type
+                                                                     length:bodyLength];
             } else {
                 SENTRY_LOG_ERROR(@"Envelope item type is required but is nil.");
                 return nil;
@@ -298,27 +275,19 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
 {
     NSMutableData *recording = [NSMutableData data];
-    NSData *headerData =
+    NSData *_Nullable headerData =
         [SentrySerialization dataWithJSONObject:[replayRecording headerForReplayRecording]];
     if (headerData != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [recording appendData:headerData];
-#pragma clang diagnostic pop
+        [recording appendData:(NSData *_Nonnull)headerData];
     }
-    NSData *newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *_Nullable newlineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
     if (newlineData != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [recording appendData:newlineData];
-#pragma clang diagnostic pop
+        [recording appendData:(NSData *_Nonnull)newlineData];
     }
-    NSData *serializedData = [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
+    NSData *_Nullable serializedData =
+        [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
     if (serializedData != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [recording appendData:serializedData];
-#pragma clang diagnostic pop
+        [recording appendData:(NSData *_Nonnull)serializedData];
     }
     return recording;
 }
@@ -363,10 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     id levelObject = eventDictionary[@"level"];
     if (levelObject != nil && [levelObject isKindOfClass:[NSString class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         return sentryLevelForString(levelObject);
-#pragma clang diagnostic pop
     } else {
         return kSentryLevelInfo; // Default level if not specified or invalid
     }

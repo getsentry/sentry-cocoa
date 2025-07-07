@@ -19,14 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        NSURL *convertedURL = [self convertDsnString:dsnString didFailWithError:error];
+        NSURL *_Nullable convertedURL = [self convertDsnString:dsnString didFailWithError:error];
         if (convertedURL == nil) {
             return nil;
         }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        _url = convertedURL;
-#pragma clang diagnostic pop
+        _url = (NSURL *_Nonnull)convertedURL;
     }
     return self;
 }

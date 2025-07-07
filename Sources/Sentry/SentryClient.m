@@ -224,10 +224,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 #endif
 
     if (exception.userInfo != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [self setUserInfo:exception.userInfo withEvent:event];
-#pragma clang diagnostic pop
+        [self setUserInfo:(NSDictionary *_Nonnull)exception.userInfo withEvent:event];
     }
     return event;
 }
@@ -303,12 +300,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context using only
     // the root error's userInfo.
-    NSDictionary *sanitizedUserInfo = sentry_sanitize(error.userInfo);
+    NSDictionary *_Nullable sanitizedUserInfo = sentry_sanitize(error.userInfo);
     if (sanitizedUserInfo != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-        [self setUserInfo:sanitizedUserInfo withEvent:event];
-#pragma clang diagnostic pop
+        [self setUserInfo:(NSDictionary *_Nonnull)sanitizedUserInfo withEvent:event];
     }
 
     return event;
@@ -351,12 +345,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // use a simple enum.
     mechanism.desc = error.description;
 
-    NSDictionary<NSString *, id> *userInfo = sentry_sanitize(error.userInfo);
+    NSDictionary<NSString *, id> *_Nullable userInfo = sentry_sanitize(error.userInfo);
     if (userInfo != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         mechanism.data = userInfo;
-#pragma clang diagnostic pop
     }
     exception.mechanism = mechanism;
 
@@ -1072,10 +1063,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   block:^(NSMutableDictionary *device) {
                       id deviceContext = extraContext[@"device"];
                       if ([deviceContext isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                           [device addEntriesFromDictionary:deviceContext];
-#pragma clang diagnostic pop
                       }
                   }];
 
@@ -1084,10 +1072,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   block:^(NSMutableDictionary *app) {
                       id appContext = extraContext[@"app"];
                       if ([appContext isKindOfClass:[NSDictionary class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
                           [app addEntriesFromDictionary:appContext];
-#pragma clang diagnostic pop
                       }
                   }];
 }
