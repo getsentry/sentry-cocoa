@@ -32,6 +32,8 @@ public struct SentrySDKWrapper {
     }
 
     func configureSentryOptions(options: Options) {
+        options.dist = "124"
+        options.environment = "testflight"
         options.dsn = dsn
         options.beforeSend = {
             guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
