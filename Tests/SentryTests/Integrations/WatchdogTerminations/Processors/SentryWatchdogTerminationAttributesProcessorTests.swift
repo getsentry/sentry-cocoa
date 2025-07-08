@@ -504,77 +504,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         // -- Assert --
         assertPersistedFileNotExists(field: .tags)
     }
-   // MARK: - Level Tests
-
-   func testSetLevel_whenLevelIsValid_shouldDispatchToQueue() {
-       // -- Act --
-       sut.setLevel(fixture.level)
-
-       // -- Assert --
-       XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
-   }
-
-   func testSetLevel_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
-       // The processor is dispatching the file operation on a background queue.
-       // This tests checks that the dispatch block is not keeping a strong reference to the
-       // processor and causes a retain cycle.
-
-       // -- Arrange --
-       // Configure the mock to not execute the block and only keep a reference to the block
-       fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
-
-       // Define a log mock to assert the execution path
-       let logOutput = TestLogOutput()
-       SentrySDKLog.setLogOutput(logOutput)
-       SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
-
-       // -- Act --
-       sut.setLevel(fixture.level)
-       sut = nil
-
-       // Execute the block after the processor is deallocated to have a weak reference
-       // in the dispatch block
-       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
-
-       // -- Assert --
-       // This assertion is a best-effort check to see if the block was executed, as there is not other
-       // mechanism to assert this case
-       XCTAssertTrue(logOutput.loggedMessages.contains { line in
-           line.contains("Can not set level, reason: reference to processor is nil")
-       })
-   }
-
-   func testSetLevel_whenLevelIsNilAndActiveFileExists_shouldDeleteActiveFile() {
-       // -- Arrange --
-       createPersistedFile(field: .level)
-       assertPersistedFileExists(field: .level)
-
-       // -- Act --
-       sut.setLevel(nil)
-
-       // -- Assert --
-       assertPersistedFileNotExists(field: .level)
-   }
-
-   func testSetLevel_whenLevelIsNilAndActiveFileNotExists_shouldNotThrow() {
-       // -- Arrange --
-       assertPersistedFileNotExists(field: .level)
-
-       // -- Act --
-       sut.setLevel(nil)
-
-       // -- Assert --
-       assertPersistedFileNotExists(field: .level)
-   }
-
-   func testSetLevel_whenLevelIsValid_shouldWriteToDisk() {
-       // -- Act --
-       sut.setLevel(fixture.level)
-
-       // -- Assert --
-       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
-       assertPersistedFileExists(field: .level)
-   }
 
    // MARK: - Extras Tests
 
@@ -890,7 +819,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        let distData = Data("Dist content".utf8)
        let envData = Data("Environment content".utf8)
        let tagsData = Data("Tags content".utf8)
-       let levelData = Data("Level content".utf8)
        let extrasData = Data("Extras content".utf8)
        let fingerprintData = Data("Fingerprint content".utf8)
        
@@ -899,7 +827,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        createPersistedFile(field: .dist, data: distData)
        createPersistedFile(field: .environment, data: envData)
        createPersistedFile(field: .tags, data: tagsData)
-       createPersistedFile(field: .level, data: levelData)
        createPersistedFile(field: .extras, data: extrasData)
        createPersistedFile(field: .fingerprint, data: fingerprintData)
 
@@ -908,7 +835,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileExists(field: .dist)
        assertPersistedFileExists(field: .environment)
        assertPersistedFileExists(field: .tags)
-       assertPersistedFileExists(field: .level)
        assertPersistedFileExists(field: .extras)
        assertPersistedFileExists(field: .fingerprint)
 
@@ -921,7 +847,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .dist)
        assertPersistedFileNotExists(field: .environment)
        assertPersistedFileNotExists(field: .tags)
-       assertPersistedFileNotExists(field: .level)
        assertPersistedFileNotExists(field: .extras)
        assertPersistedFileNotExists(field: .fingerprint)
    }

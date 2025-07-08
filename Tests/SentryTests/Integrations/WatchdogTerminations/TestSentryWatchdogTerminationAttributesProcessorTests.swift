@@ -154,30 +154,6 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         XCTAssertNil(thirdInvocation)
     }
     
-    func testSetLevel_shouldRecordInvocations() throws {
-        // -- Arrange --
-        // Clean the invocations to ensure a clean state
-        sut.setLevelInvocations.removeAll()
-        XCTAssertEqual(sut.setLevelInvocations.count, 0)
-
-        // -- Act --
-        let level1 = NSNumber(value: SentryLevel.fatal.rawValue)
-        let level2 = NSNumber(value: SentryLevel.error.rawValue)
-        sut.setLevel(level1)
-        sut.setLevel(level2)
-        sut.setLevel(nil)
-
-        // -- Assert --
-        XCTAssertEqual(sut.setLevelInvocations.count, 3)
-        XCTAssertEqual(
-            sut.setLevelInvocations.invocations.element(at: 0),
-            level1
-        )
-        XCTAssertEqual(sut.setLevelInvocations.invocations.element(at: 1), level2)
-        let thirdInvocation = try XCTUnwrap(sut.setLevelInvocations.invocations.element(at: 2))
-        XCTAssertNil(thirdInvocation)
-    }
-    
     func testSetExtras_shouldRecordInvocations() throws {
         // -- Arrange --
         // Clean the invocations to ensure a clean state

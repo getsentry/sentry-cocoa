@@ -322,7 +322,6 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dist = "1.0.0"
         let env = "development"
         let tags = ["tag1": "value1", "tag2": "value2"]
-        let traceContext = ["trace_id": "1234567890", "span_id": "1234567890"]
         sentryWatchdogTerminationScopeObserver.setUser(testUser)
         sentryWatchdogTerminationScopeObserver.setContext(testContext)
         sentryWatchdogTerminationScopeObserver.setDist(dist)

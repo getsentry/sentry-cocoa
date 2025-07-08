@@ -1139,31 +1139,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result[0], "fingerprint1")
         XCTAssertEqual(result[1], "fingerprint2")
     }
-
-    func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
-        // -- Arrange --
-        fixture.observer.setEnvironment("prod-string")
-
-        // Wait for the observer to complete
-        let expectation = XCTestExpectation(description: "setEnvironment completes")
-        fixture.dispatchQueueWrapper.dispatchAsync {
-            // Dispatching a block on the same queue will be run after the context processor.
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        // Delete the previous context file if it exists
-        fixture.scopePersistentStore.deleteAllPreviousState()
-        // Sanity-check for the pre-condition
-        let previousUser = fixture.scopePersistentStore.readPreviousEnvironmentFromDisk()
-        XCTAssertNil(previousUser)
-
-        // -- Act --
-        SentrySDK.start(options: fixture.options)
-
-        // -- Assert --
-        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
-        XCTAssertEqual(result, "prod-string")
-    }
     
     func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
         // -- Arrange --

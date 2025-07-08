@@ -521,74 +521,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertNil(result)
     }
 
-    // MARK: - Level Tests
-
-    func testReadPreviousLevelFromDisk_whenValidDataInPreviousLevelFile_shouldReturnDecodedLevel() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let levelData = Data("\(SentryLevel.fatal.rawValue)".utf8)
-        let previousLevelFileURL = sut.previousFileURLFor(field: .level)
-        try levelData.write(to: previousLevelFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: previousLevelFileURL.path))
-
-        // -- Act --
-        let result = sut.readPreviousLevelFromDisk()
-
-        // -- Assert --
-        XCTAssertEqual(result, .fatal)
-    }
-
-    func testReadPreviousLevelFromDisk_whenInvalidDataInPreviousLevelFile_shouldReturnNoneLevel() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let levelData = Data("invalid".utf8)
-        let previousLevelFileURL = sut.previousFileURLFor(field: .level)
-        try levelData.write(to: previousLevelFileURL)
-        XCTAssertTrue(fm.fileExists(atPath: previousLevelFileURL.path))
-
-        // -- Act --
-        let result = sut.readPreviousLevelFromDisk()
-
-        // -- Assert --
-        XCTAssertEqual(result, .none)
-    }
-
-    func testReadPreviousLevelFromDisk_whenPreviousLevelFileUnavailable_shouldReturnNoneLevel() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let previousLevelFileURL = sut.previousFileURLFor(field: .level)
-        if fm.fileExists(atPath: previousLevelFileURL.path) {
-            try fm.removeItem(at: previousLevelFileURL)
-        }
-        XCTAssertFalse(fm.fileExists(atPath: previousLevelFileURL.path))
-
-        // -- Act --
-        let result = sut.readPreviousLevelFromDisk()
-
-        // -- Assert --
-        XCTAssertEqual(result, .none)
-    }
-
-    func testWriteLevelToDisk_whenValidLevel_shouldWriteToLevelFile() throws {
-        // -- Arrange --
-        let fm = FileManager.default
-        let level = NSNumber(value: SentryLevel.fatal.rawValue)
-        let levelFileURL = sut.currentFileURLFor(field: .level)
-
-        // Check pre-conditions
-        XCTAssertFalse(fm.fileExists(atPath: levelFileURL.path))
-
-        // -- Act --
-        sut.writeLevelToDisk(level: level)
-
-        // -- Assert --
-        XCTAssertTrue(fm.fileExists(atPath: levelFileURL.path))
-        
-        let writtenData = try Data(contentsOf: levelFileURL)
-        let writtenString = String(data: writtenData, encoding: .utf8)
-        XCTAssertEqual(writtenString, "\(SentryLevel.fatal.rawValue)")
-    }
-
     // MARK: - Extras Tests
 
     func testReadPreviousExtrasFromDisk_whenValidJSONInPreviousExtrasFile_shouldReturnDecodedData() throws {
@@ -847,7 +779,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let distFileURL = sut.currentFileURLFor(field: .dist)
         let environmentFileURL = sut.currentFileURLFor(field: .environment)
         let tagsFileURL = sut.currentFileURLFor(field: .tags)
-        let levelFileURL = sut.currentFileURLFor(field: .level)
         let extrasFileURL = sut.currentFileURLFor(field: .extras)
         let fingerprintFileURL = sut.currentFileURLFor(field: .fingerprint)
         
@@ -857,7 +788,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         try "dist data".write(to: distFileURL, atomically: true, encoding: .utf8)
         try "environment data".write(to: environmentFileURL, atomically: true, encoding: .utf8)
         try "tags data".write(to: tagsFileURL, atomically: true, encoding: .utf8)
-        try "level data".write(to: levelFileURL, atomically: true, encoding: .utf8)
         try "extras data".write(to: extrasFileURL, atomically: true, encoding: .utf8)
         try "fingerprint data".write(to: fingerprintFileURL, atomically: true, encoding: .utf8)
         
@@ -866,7 +796,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: distFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: environmentFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: tagsFileURL.path))
-        XCTAssertTrue(fm.fileExists(atPath: levelFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: extrasFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: fingerprintFileURL.path))
 
@@ -879,7 +808,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: distFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: environmentFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: tagsFileURL.path))
-        XCTAssertFalse(fm.fileExists(atPath: levelFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: extrasFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: fingerprintFileURL.path))
     }
@@ -892,7 +820,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         let previousDistFileURL = sut.previousFileURLFor(field: .dist)
         let previousEnvironmentFileURL = sut.previousFileURLFor(field: .environment)
         let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
-        let previousLevelFileURL = sut.previousFileURLFor(field: .level)
         let previousExtrasFileURL = sut.previousFileURLFor(field: .extras)
         let previousFingerprintFileURL = sut.previousFileURLFor(field: .fingerprint)
         
@@ -902,7 +829,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         try "previous dist data".write(to: previousDistFileURL, atomically: true, encoding: .utf8)
         try "previous environment data".write(to: previousEnvironmentFileURL, atomically: true, encoding: .utf8)
         try "previous tags data".write(to: previousTagsFileURL, atomically: true, encoding: .utf8)
-        try "previous level data".write(to: previousLevelFileURL, atomically: true, encoding: .utf8)
         try "previous extras data".write(to: previousExtrasFileURL, atomically: true, encoding: .utf8)
         try "previous fingerprint data".write(to: previousFingerprintFileURL, atomically: true, encoding: .utf8)
         
@@ -911,7 +837,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: previousDistFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousEnvironmentFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
-        XCTAssertTrue(fm.fileExists(atPath: previousLevelFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousExtrasFileURL.path))
         XCTAssertTrue(fm.fileExists(atPath: previousFingerprintFileURL.path))
 
@@ -924,7 +849,6 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertFalse(fm.fileExists(atPath: previousDistFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousEnvironmentFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousTagsFileURL.path))
-        XCTAssertFalse(fm.fileExists(atPath: previousLevelFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousExtrasFileURL.path))
         XCTAssertFalse(fm.fileExists(atPath: previousFingerprintFileURL.path))
     }
