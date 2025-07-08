@@ -81,6 +81,7 @@
 
         options.experimental.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
+        options.experimental.enableUnhandledCPPExceptionsV2 = true;
 
         options.initialScope = ^(SentryScope *scope) {
             [scope setTagValue:@"" forKey:@""];
