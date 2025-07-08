@@ -2,14 +2,7 @@
 
 extension SentryScopePersistentStore {
     func encode(tags: [String: String]) -> Data? {
-        // We need to check if the Tags is a valid JSON object before encoding it.
-        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
-        // The error handler is required due but seems not to be executed.
-        guard let sanitizedTags = sentry_sanitize(tags) else {
-            SentrySDKLog.error("Failed to sanitize tags, reason: tags is not valid json: \(tags)")
-            return nil
-        }
-        guard let data = SentrySerialization.data(withJSONObject: sanitizedTags) else {
+        guard let data = SentrySerialization.data(withJSONObject: tags) else {
             SentrySDKLog.error("Failed to serialize tags, reason: tags is not valid json: \(tags)")
             return nil
         }
