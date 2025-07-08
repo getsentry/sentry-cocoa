@@ -98,6 +98,10 @@ To make a header public follow these steps:
 - Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 - Set the target membership to public.
 
+## Converting to Swift
+
+Converting internal ObjC classes to Swift needs to be done following a partial order. The scripts in `SwiftConversion` generate this ordering and can be used to guide ObjC to Swift conversions.
+
 ## Configuring certificates and provisioning profiles locally
 
 You can run samples in a real device without changing certificates and provisioning profiles if you are a Sentry employee with access to Sentry profiles repository and 1Password account.

@@ -117,7 +117,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextPersistentStore)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().logger)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
@@ -148,7 +148,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationContextProcessor)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor)
 #endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
@@ -172,11 +172,11 @@ final class SentryDependencyContainerTests: XCTestCase {
         let container = SentryDependencyContainer.sharedInstance()
 
         // -- Act --
-        let scopeContextStore1 = container.scopeContextPersistentStore
-        let scopeContextStore2 = container.scopeContextPersistentStore
+        let scopePersistentStore1 = container.scopePersistentStore
+        let scopePersistentStore2 = container.scopePersistentStore
 
         // -- Assert --
-        XCTAssertIdentical(scopeContextStore1, scopeContextStore2)
+        XCTAssertIdentical(scopePersistentStore1, scopePersistentStore2)
     }
 
     func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {
@@ -223,7 +223,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
-    func testSentryWatchdogTerminationContextProcessor_shouldReturnSameInstance() throws {
+    func testSentryWatchdogTerminationAttributesProcessor_shouldReturnSameInstance() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         // -- Arrange --
         let options = Options()
@@ -233,8 +233,8 @@ final class SentryDependencyContainerTests: XCTestCase {
         let container = SentryDependencyContainer.sharedInstance()
 
         // -- Act --
-        let processor1 = container.watchdogTerminationContextProcessor
-        let processor2 = container.watchdogTerminationContextProcessor
+        let processor1 = container.watchdogTerminationAttributesProcessor
+        let processor2 = container.watchdogTerminationAttributesProcessor
 
         // -- Assert --
         XCTAssertIdentical(processor1, processor2)
@@ -243,7 +243,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
-    func testSentryWatchdogTerminationContextProcessor_shouldUseLowPriorityQueue() throws {
+    func testSentryWatchdogTerminationAttributesProcessor_shouldUseLowPriorityQueue() throws {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         // -- Arrange --
         let options = Options()
@@ -256,11 +256,11 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Act --
         // Accessing the processor will trigger the creation of a new instance
-        let _ = container.watchdogTerminationContextProcessor
+        let _ = container.watchdogTerminationAttributesProcessor
 
         // -- Assert --
         let dispatchFactoryInvocation = try XCTUnwrap(dispatchFactory.createUtilityQueueInvocations.first)
-        XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.context-processor")
+        XCTAssertEqual(dispatchFactoryInvocation.name, "io.sentry.watchdog-termination-tracking.fields-processor")
         XCTAssertEqual(dispatchFactoryInvocation.relativePriority, 0)
 #else
         throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")

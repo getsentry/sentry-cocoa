@@ -22,7 +22,7 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryScopeContextPersistentStore *scopeContextStore;
+@property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 
 @end
 
@@ -33,7 +33,7 @@
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
-              scopeContextStore:(SentryScopeContextPersistentStore *)scopeContextStore
+           scopePersistentStore:(SentryScopePersistentStore *)scopePersistentStore
 {
     if (self = [super init]) {
         self.options = options;
@@ -41,7 +41,7 @@
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
-        self.scopeContextStore = scopeContextStore;
+        self.scopePersistentStore = scopePersistentStore;
     }
     return self;
 }
@@ -57,6 +57,9 @@
 
             [self addBreadcrumbsToEvent:event];
             [self addContextToEvent:event];
+            event.user = [self.scopePersistentStore readPreviousUserFromDisk];
+            event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
+            event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
@@ -105,7 +108,7 @@
 {
     // Load the previous context from disk, or create an empty one if it doesn't exist
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *previousContext =
-        [self.scopeContextStore readPreviousContextFromDisk];
+        [self.scopePersistentStore readPreviousContextFromDisk];
     NSMutableDictionary *context =
         [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @{}];
 
