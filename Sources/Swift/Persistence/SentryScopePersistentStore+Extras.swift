@@ -20,6 +20,7 @@ extension SentryScopePersistentStore {
         }
 
         guard let extras = deserialized as? [String: Any] else {
+            // It should never fail here since all Dictionary JSON have strings as keys
             SentrySDKLog.error("Failed to deserialize extras, reason: data is not a dictionary: \(deserialized)")
             return nil
         }
