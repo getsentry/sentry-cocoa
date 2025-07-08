@@ -2,7 +2,11 @@
 
 extension SentryScopePersistentStore {
     func encode(extras: [String: Any]) -> Data? {
-        guard let data = SentrySerialization.data(withJSONObject: extras) else {
+        guard let sanitizedExtras = sentry_sanitize(extras) else {
+            SentrySDKLog.error("Failed to sanitize extras, reason: extras is not valid json: \(extras)")
+            return nil
+        }
+        guard let data = SentrySerialization.data(withJSONObject: sanitizedExtras) else {
             SentrySDKLog.error("Failed to serialize extras, reason: extras is not valid json: \(extras)")
             return nil
         }
