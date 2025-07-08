@@ -319,7 +319,8 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
     if (![json isKindOfClass:[NSArray class]]) {
-        SENTRY_LOG_ERROR(@"Deserialized json is not an NSArray.");
+        SENTRY_LOG_ERROR(
+            @"Deserialized json is not an NSArray, found %@", NSStringFromClass([json class]));
         return nil;
     }
     return (NSArray *)json;
