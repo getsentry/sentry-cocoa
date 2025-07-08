@@ -66,15 +66,15 @@ extension XCUIApplication {
         // proxy for whether this is running in CI.
         if !isDebugging() {
             // activate() appears to drop launch args and environment variables, so save them beforehand and reset them before subsequent calls to launch()
-            let launchArguments = app.launchArguments
-            let launchEnvironment = app.launchEnvironment
+            let launchArguments = self.launchArguments
+            let launchEnvironment = self.launchEnvironment
 
             // App prewarming can sometimes cause simulators to get stuck in UI tests, activating them
             // before launching clears any prewarming state.
             activate()
 
-            app.launchArguments = launchArguments
-            app.launchEnvironment = launchEnvironment
+            self.launchArguments = launchArguments
+            self.launchEnvironment = launchEnvironment
         }
 
         launch()
