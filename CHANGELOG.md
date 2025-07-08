@@ -48,7 +48,6 @@
 - Converted SentryUserFeedback from Objective-C to Swift (#5377)
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
-- Fix building with Xcode 26 (#5386)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
 - Convert SentryNSURLRequest to Swift (#5457)
 
