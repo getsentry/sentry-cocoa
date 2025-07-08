@@ -90,6 +90,8 @@
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
     // Nothing to do here, Trace Context is not persisted for watchdog termination events
+    // On regular events, we have the current trace in memory, but there isn't time to persist one
+    // in watchdog termination events
 }
 
 @end
