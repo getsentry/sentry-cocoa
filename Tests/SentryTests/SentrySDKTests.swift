@@ -1059,31 +1059,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(result, "dist-string")
     }
 
-    func testStartWithOptions_shouldMoveCurrentLevelFileToPreviousFile() throws {
-        // -- Arrange --
-        fixture.observer.setLevel(SentryLevel.error)
-
-        // Wait for the observer to complete
-        let expectation = XCTestExpectation(description: "setLevel completes")
-        fixture.dispatchQueueWrapper.dispatchAsync {
-            // Dispatching a block on the same queue will be run after the context processor.
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        // Delete the previous level file if it exists
-        fixture.scopePersistentStore.deleteAllPreviousState()
-        // Sanity-check for the pre-condition
-        let previousLevel = fixture.scopePersistentStore.readPreviousLevelFromDisk()
-        XCTAssertEqual(previousLevel, SentryLevel.none)
-
-        // -- Act --
-        SentrySDK.start(options: fixture.options)
-
-        // -- Assert --
-        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousLevelFromDisk())
-        XCTAssertEqual(result, SentryLevel.error)
-    }
-
     func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
         // -- Arrange --
         fixture.observer.setEnvironment("prod-string")

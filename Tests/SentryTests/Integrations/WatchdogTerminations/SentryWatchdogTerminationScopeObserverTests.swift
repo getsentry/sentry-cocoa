@@ -241,20 +241,6 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(invocationContext, tags)
     }
     
-    func testSetLevel_whenLevelIsDefined_shouldCallAttributesProcessorSetLevel() throws {
-        // -- Arrange --
-        let level = fixture.level
-
-        // -- Act --
-        sut.setLevel(level)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.attributesProcessor.setLevelInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.attributesProcessor.setLevelInvocations.first)
-        let invocationLevel = try XCTUnwrap(invocation)
-        XCTAssertEqual(invocationLevel.uintValue, level.rawValue)
-    }
-    
     func testSetExtras_whenExtrasIsNil_shouldCallAttributesProcessorSetExtras() throws {
         // -- Act --
         sut.setExtras(nil)

@@ -74,7 +74,7 @@
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    [self.attributesProcessor setLevel:@(level)];
+    // Nothing to do here, watchdog termination events are always Fatal
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags

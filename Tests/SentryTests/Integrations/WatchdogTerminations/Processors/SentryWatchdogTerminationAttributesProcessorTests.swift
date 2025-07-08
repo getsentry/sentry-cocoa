@@ -831,6 +831,58 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .tags)
    }
 
+   func testClear_whenExtrasFileExistsNot_shouldNotThrow() {
+       // -- Arrange --
+       // Assert the preconditions
+       assertPersistedFileNotExists(field: .extras)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+   
+   func testClear_whenExtrasFileExists_shouldDeleteFileWithoutError() {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+       createPersistedFile(field: .extras, data: data)
+       // Assert the preconditions
+       assertPersistedFileExists(field: .extras)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+
+   func testClear_whenFingerprintFileExistsNot_shouldNotThrow() {
+       // -- Arrange --
+       // Assert the preconditions
+       assertPersistedFileNotExists(field: .fingerprint)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+   
+   func testClear_whenFingerprintFileExists_shouldDeleteFileWithoutError() {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+       createPersistedFile(field: .fingerprint, data: data)
+       // Assert the preconditions
+       assertPersistedFileExists(field: .fingerprint)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+
    func testClear_whenAllFilesExist_shouldDeleteAllFiles() {
        // -- Arrange --
        let contextData = Data("Context content".utf8)

@@ -15,6 +15,11 @@ extension SentryScopePersistentStore {
             return nil
         }
 
-        return deserialized as? [String: Any]
+        guard let extras = deserialized as? [String: Any] else {
+            SentrySDKLog.error("Failed to deserialize extras, reason: data is not a dictionary: \(deserialized)")
+            return nil
+        }
+
+        return extras
     }
 }
