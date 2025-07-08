@@ -1,7 +1,6 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import Sentry;
-#import <Sentry/SentryOptions+Private.h>
 
 @import SentrySampleShared;
 
