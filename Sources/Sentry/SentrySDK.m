@@ -442,10 +442,12 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub storeEnvelope:envelope];
 }
 
+#if !SDK_V9
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
+#endif // !SDK_V9
 
 + (void)captureFeedback:(SentryFeedback *)feedback
 {

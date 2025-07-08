@@ -160,7 +160,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelDebug,
     kSentryLogLevelVerbose
 };
-#endif
+#endif // !SDK_V9
 
 /**
  * Sentry level.

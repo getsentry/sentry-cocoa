@@ -25465,10 +25465,12 @@
             "declKind": "Func",
             "usr": "c:objc(cs)SentryDsn(im)getStoreEndpoint",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "getStoreEndpoint",
             "declAttributes": [
               "DiscardableResult",
+              "Available",
               "ObjC",
               "Dynamic"
             ],
