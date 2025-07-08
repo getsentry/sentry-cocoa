@@ -48,6 +48,12 @@ import Foundation
         }
     }
     
+    public func setTags(_ tags: [String: String]?) {
+        setData(data: tags, field: .tags) { [weak self] data in
+            self?.scopePersistentStore.writeTagsToDisk(tags: data)
+        }
+    }
+    
     // MARK: - Private
     private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
         SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")
