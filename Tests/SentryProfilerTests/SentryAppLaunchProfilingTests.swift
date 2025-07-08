@@ -631,8 +631,29 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: configuration changes between launches (no TTFD combinations, see iOS-only tests)
 extension SentryAppLaunchProfilingTests {
-    func test_lastLaunch_traceBased_currentLaunch_continuousV1() {
+    func test_lastLaunch_traceBased_currentLaunch_continuousV1() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 1,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: 0
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
 
+        // new options simulating current launch configuration
+        fixture.options.tracesSampleRate = 1
+        fixture.options.profilesSampleRate = nil
+
+        // Act
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert
+        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func test_lastLaunch_traceBased_currentLaunch_continuousV2() {
