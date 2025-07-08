@@ -153,28 +153,6 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         let thirdInvocation = try XCTUnwrap(sut.setTagsInvocations.invocations.element(at: 2))
         XCTAssertNil(thirdInvocation)
     }
-    
-    func testSetTraceContext_shouldRecordInvocations() throws {
-        // -- Arrange --
-        // Clean the invocations to ensure a clean state
-        sut.setTraceContextInvocations.removeAll()
-        XCTAssertEqual(sut.setTraceContextInvocations.count, 0)
-
-        // -- Act --
-        sut.setTraceContext(["trace_id": "1234567890", "span_id": "abcdef"])
-        sut.setTraceContext(["trace_id": "0987654321", "span_id": "fedcba", "sampled": "true"])
-        sut.setTraceContext(nil)
-
-        // -- Assert --
-        XCTAssertEqual(sut.setTraceContextInvocations.count, 3)
-        XCTAssertEqual(
-            sut.setTraceContextInvocations.invocations.element(at: 0) as? [String: String],
-            ["trace_id": "1234567890", "span_id": "abcdef"]
-        )
-        XCTAssertEqual(sut.setTraceContextInvocations.invocations.element(at: 1) as? [String: String], ["trace_id": "0987654321", "span_id": "fedcba", "sampled": "true"])
-        let thirdInvocation = try XCTUnwrap(sut.setTraceContextInvocations.invocations.element(at: 2))
-        XCTAssertNil(thirdInvocation)
-    }
 
     func testClear_shouldRecordInvocations() throws {
         // -- Arrange --

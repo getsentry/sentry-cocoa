@@ -490,100 +490,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         // -- Assert --
         assertPersistedFileNotExists(field: .tags)
     }
-    
-    // MARK: - Trace Context Tests
-
-    func testSetTraceContext_whenTraceContextIsValid_shouldDispatchToQueue() {
-        // -- Act --
-        sut.setTraceContext(fixture.traceContext)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
-    }
-
-    func testSetTraceContext_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
-        // The processor is dispatching the file operation on a background queue.
-        // This tests checks that the dispatch block is not keeping a strong reference to the
-        // processor and causes a retain cycle.
-
-        // -- Arrange --
-        // Configure the mock to not execute the block and only keep a reference to the block
-        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
-
-        // Define a log mock to assert the execution path
-        let logOutput = TestLogOutput()
-        SentrySDKLog.setLogOutput(logOutput)
-        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
-
-        // -- Act --
-        sut.setTraceContext(fixture.traceContext)
-        sut = nil
-
-        // Execute the block after the processor is deallocated to have a weak reference
-        // in the dispatch block
-        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
-
-        // -- Assert --
-        // This assertion is a best-effort check to see if the block was executed, as there is not other
-        // mechanism to assert this case
-        XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("Can not set trace_context, reason: reference to processor is nil")
-        })
-    }
-
-    func testSetTraceContext_whenTraceContextIsNilAndActiveFileExists_shouldDeleteActiveFile() {
-        // -- Arrange --
-        createPersistedFile(field: .traceContext)
-        assertPersistedFileExists(field: .traceContext)
-
-        // -- Act --
-        sut.setTraceContext(nil)
-
-        // -- Assert --
-        assertPersistedFileNotExists(field: .traceContext)
-    }
-
-    func testSetTraceContext_whenTraceContextIsNilAndActiveFileNotExists_shouldNotThrow() {
-        // -- Arrange --
-        assertPersistedFileNotExists(field: .traceContext)
-
-        // -- Act --
-        sut.setTraceContext(nil)
-
-        // -- Assert --
-        assertPersistedFileNotExists(field: .traceContext)
-    }
-
-    func testSetTraceContext_whenTraceContextIsInvalidJSON_shouldLogErrorAndNotThrow() {
-        // -- Arrange --
-        // Define a log mock to assert the execution path
-        let logOutput = TestLogOutput()
-        SentrySDKLog.setLogOutput(logOutput)
-        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
-
-        // -- Act --
-        sut.setTraceContext(fixture.invalidTraceContext)
-
-        // -- Assert --
-        XCTAssertTrue(logOutput.loggedMessages.contains { line in
-            line.contains("[error]") && line.contains("Failed to serialize traceContext, reason: ")
-        })
-    }
-
-    func testSetTraceContext_whenTraceContextIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
-        // -- Arrange --
-        let data = Data("Old content".utf8)
-
-        createPersistedFile(field: .traceContext, data: data)
-        assertPersistedFileExists(field: .traceContext)
-
-        // -- Act --
-        sut.setTraceContext(fixture.invalidTraceContext)
-
-        // -- Assert --
-        let writtenData = try Data(contentsOf: fixture.scopePersistentStore.currentFileURLFor(field: .traceContext))
-        XCTAssertEqual(writtenData, data)
-    }
 
    // MARK: - Clear Tests
 
@@ -665,32 +571,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .tags)
    }
 
-   func testClear_whenTraceContextFileExistsNot_shouldNotThrow() {
-       // -- Arrange --
-       // Assert the preconditions
-       assertPersistedFileNotExists(field: .traceContext)
-
-       // -- Act --
-       sut.clear()
-
-       // -- Assert --
-       assertPersistedFileNotExists(field: .traceContext)
-   }
-   
-   func testClear_whenTraceContextFileExists_shouldDeleteFileWithoutError() {
-       // -- Arrange --
-       let data = Data("Old content".utf8)
-       createPersistedFile(field: .traceContext, data: data)
-       // Assert the preconditions
-       assertPersistedFileExists(field: .traceContext)
-
-       // -- Act --
-       sut.clear()
-
-       // -- Assert --
-       assertPersistedFileNotExists(field: .traceContext)
-   }
-
    func testClear_whenAllFilesExist_shouldDeleteAllFiles() {
        // -- Arrange --
        let contextData = Data("Context content".utf8)
@@ -698,21 +578,18 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        let distData = Data("Dist content".utf8)
        let envData = Data("Environment content".utf8)
        let tagsData = Data("Tags content".utf8)
-       let traceContextData = Data("Trace Context content".utf8)
        
        createPersistedFile(field: .context, data: contextData)
        createPersistedFile(field: .user, data: userData)
        createPersistedFile(field: .dist, data: distData)
        createPersistedFile(field: .environment, data: envData)
        createPersistedFile(field: .tags, data: tagsData)
-       createPersistedFile(field: .traceContext, data: traceContextData)
 
        assertPersistedFileExists(field: .context)
        assertPersistedFileExists(field: .user)
        assertPersistedFileExists(field: .dist)
        assertPersistedFileExists(field: .environment)
        assertPersistedFileExists(field: .tags)
-       assertPersistedFileExists(field: .traceContext)
 
        // -- Act --
        sut.clear()
@@ -723,7 +600,6 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .dist)
        assertPersistedFileNotExists(field: .environment)
        assertPersistedFileNotExists(field: .tags)
-       assertPersistedFileNotExists(field: .traceContext)
    }
 
    // MARK: - Assertion Helpers

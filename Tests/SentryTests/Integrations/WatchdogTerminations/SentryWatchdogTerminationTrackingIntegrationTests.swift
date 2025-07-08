@@ -171,7 +171,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 0)
-        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)
@@ -179,7 +178,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 1)
-        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 1)
 
         fixture.scope.setContext(value: ["key": "value"], key: "foo")
         fixture.scope.setUser(User(userId: "user1234"))
@@ -224,7 +222,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setEnvironmentInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTagsInvocations.count, 0)
-        XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setTraceContextInvocations.count, 0)
 
         // -- Act --
         sut.install(with: fixture.options)

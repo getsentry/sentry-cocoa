@@ -89,7 +89,7 @@
 
 - (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext
 {
-    [self.attributesProcessor setTraceContext:traceContext];
+    // Nothing to do here, Trace Context is not persisted for watchdog termination events
 }
 
 @end

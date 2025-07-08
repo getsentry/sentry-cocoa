@@ -6,7 +6,6 @@ enum SentryScopeField: UInt, CaseIterable {
     case user
     case dist
     case environment
-    case traceContext
     case tags
     
     var name: String {
@@ -21,8 +20,6 @@ enum SentryScopeField: UInt, CaseIterable {
             return "environment"
         case .tags:
             return "tags"
-        case .traceContext:
-            return "trace_context"
         }
     }
 }
@@ -128,18 +125,6 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeTagsToDisk(tags: [String: String]) {
         writeFieldToDisk(field: .tags, data: encode(tags: tags))
-    }
-    
-    // MARK: - Trace Context
-    @objc
-    public func readPreviousTraceContextFromDisk() -> [String: Any]? {
-        readFieldFromDisk(field: .traceContext) { data in
-            decodeTraceContext(from: data)
-        }
-    }
-    
-    func writeTraceContextToDisk(traceContext: [String: Any]) {
-        writeFieldToDisk(field: .traceContext, data: encode(traceContext: traceContext))
     }
     
     // MARK: - Private Functions

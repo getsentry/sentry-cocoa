@@ -238,30 +238,6 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocationContext = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationContext, tags)
     }
-    
-    func testSetTraceContext_whenTraceContextIsNil_shouldCallAttributesProcessorSetTraceContext() throws {
-        // -- Act --
-        sut.setTraceContext(nil)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.attributesProcessor.setTraceContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTraceContextInvocations.first)
-        XCTAssertNil(invocation)
-    }
-
-    func testSetTraceContext_whenTraceContextIsDefined_shouldCallAttributesProcessorSetTraceContext() throws {
-        // -- Arrange --
-        let traceContext = fixture.traceContext
-
-        // -- Act --
-        sut.setTraceContext(traceContext)
-
-        // -- Assert --
-        XCTAssertEqual(fixture.attributesProcessor.setTraceContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTraceContextInvocations.first)
-        let invocationContext = try XCTUnwrap(invocation)
-        XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: traceContext))
-    }
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
