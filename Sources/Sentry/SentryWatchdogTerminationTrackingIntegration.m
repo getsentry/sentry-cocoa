@@ -66,15 +66,15 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
-    SentryScopeContextPersistentStore *scopeContextStore =
-        [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
+    SentryScopePersistentStore *scopeStore =
+        [SentryDependencyContainer.sharedInstance scopePersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
                                                                  fileManager:fileManager
-                                                           scopeContextStore:scopeContextStore];
+                                                        scopePersistentStore:scopeStore];
 
     [self.tracker start];
 
@@ -96,6 +96,9 @@ NS_ASSUME_NONNULL_BEGIN
         // Sync the current context to the observer to capture context modifications that happened
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
+        [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setEnvironment:outerScope.environmentString];
+        [scopeObserver setDist:outerScope.distString];
     }];
 
     return YES;
