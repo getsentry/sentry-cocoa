@@ -154,6 +154,7 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)clear;
 
+#if !SDK_V9
 /**
  * Mutates the current transaction atomically.
  * @param callback the SentrySpanCallback.
@@ -163,6 +164,7 @@ NS_SWIFT_NAME(Scope)
         "This method was used to create an atomic block that could be used to mutate the current "
         "span. It is not atomic anymore and due to issues with memory safety in `NSBlock` it is "
         "now considered unsafe and deprecated. Use `span` instead.");
+#endif // !SDK_V9
 
 /**
  * Returns the current span.
