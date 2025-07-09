@@ -118,9 +118,10 @@ static NSDate *_Nullable startTimestamp = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         SentryLogBatcher *batcher = [[SentryLogBatcher alloc] initWithClient:currentHub.client];
-        logger = [[SentryLogger alloc] initWithHub:currentHub
-                                      dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                                           batcher:batcher];
+        logger =
+            [[SentryLogger alloc] initWithHub:currentHub
+                                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                                      batcher:batcher];
     });
     return logger;
 }

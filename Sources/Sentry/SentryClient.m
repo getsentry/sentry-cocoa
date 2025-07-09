@@ -1120,15 +1120,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return processedAttachments;
 }
 
-- (void)captureLogsData:(nonnull NSData *)data {
-    SentryEnvelopeItemHeader *header = [[SentryEnvelopeItemHeader alloc] 
-                                        initWithType:@"log"
-                                              length:data.length
-                                         contentType:@"application/vnd.sentry.items.log+json"];
-    
+- (void)captureLogsData:(nonnull NSData *)data
+{
+    SentryEnvelopeItemHeader *header =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeLog
+                                                length:data.length
+                                           contentType:@"application/vnd.sentry.items.log+json"];
+
     SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:data];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty] 
-                                                          singleItem:envelopeItem];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                           singleItem:envelopeItem];
     [self captureEnvelope:envelope];
 }
 

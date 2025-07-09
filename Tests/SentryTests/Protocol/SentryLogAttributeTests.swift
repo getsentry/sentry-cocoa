@@ -267,10 +267,6 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
     }
     
-
-    
-
-    
     func testInitializer_NSStringValue() {
         let attribute = SentryLog.Attribute(value: NSString("nsstring test"))
         XCTAssertEqual(attribute.type, "string")
