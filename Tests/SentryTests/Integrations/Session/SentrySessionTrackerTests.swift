@@ -428,24 +428,24 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionsSent(count: 2)
     }
     
-    func testStart_AddsObservers() {
+    func testStart_AddsObservers() throws {
         // -- Act --
         startSutInAppDelegate()
 
         // -- Assert --
-        let invocations = fixture.notificationCenter.addObserverInvocations
-        let notificationNames = invocations.invocations.map { $0.name }
+        let invocations = fixture.notificationCenter.addObserverWithObjectInvocations
+        let notificationNames = try invocations.invocations.map { try XCTUnwrap($0.name) }
         
         assertNotificationNames(notificationNames)
     }
     
-    func testStop_RemovesObservers() {
+    func testStop_RemovesObservers() throws {
         // -- Act --
         stopSut()
 
         // -- Assert --
-        let invocations = fixture.notificationCenter.removeObserverWithNameInvocations
-        let notificationNames = invocations.invocations.map { $0 }
+        let invocations = fixture.notificationCenter.removeObserverWithNameAndObjectInvocations
+        let notificationNames = try invocations.invocations.map { try XCTUnwrap($0.name) }
         
         assertNotificationNames(notificationNames)
     }

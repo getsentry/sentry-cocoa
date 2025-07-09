@@ -23,7 +23,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
-#        import "SentryNSNotificationCenterWrapper.h"
 #        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
@@ -182,7 +181,8 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             addObserver:self
                selector:@selector(backgroundAbort)
-                   name:UIApplicationWillResignActiveNotification];
+                   name:UIApplicationWillResignActiveNotification
+                 object:nil];
     }
 #    endif // SENTRY_HAS_UIKIT
 
