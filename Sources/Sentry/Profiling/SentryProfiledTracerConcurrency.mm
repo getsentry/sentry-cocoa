@@ -218,14 +218,16 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
-        @"Structures should have already been initialized by the time they are being queried");
+    if (_gTracersToProfilers == nil || _gProfilersToTracers == nil) {
+        SENTRY_LOG_ERROR(
+            @"Structures should have already been initialized by the time they are being queried");
+    }
 
     const auto tracerKey = internalTraceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
-    if (!SENTRY_CASSERT_RETURN(profiler != nil,
-            @"Expected a profiler to be associated with tracer id %@.", tracerKey)) {
+    if (profiler == nil) {
+        SENTRY_LOG_ERROR(@"Expected a profiler to be associated with tracer id %@.", tracerKey);
         return nil;
     }
 
@@ -255,6 +257,14 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
+    if (sentry_profileConfiguration.isProfilingThisLaunch
+        && sentry_profileConfiguration.profileOptions != nil
+        && sentry_profileConfiguration.profileOptions.lifecycle == SentryProfileLifecycleTrace) {
+        SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
+        sentry_stopTrackingRootSpanForContinuousProfilerV2();
+        return;
+    }
+
     if (isProfiling && [hub.getClient.options isContinuousProfilingV2Enabled] &&
         [hub.getClient.options isProfilingCorrelatedToTraces]) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
