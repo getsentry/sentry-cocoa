@@ -3,8 +3,8 @@ import Foundation
 @objc
 @objcMembers
 public final class SentryLogger: NSObject {
-    let hub: SentryHub
-    let dateProvider: SentryCurrentDateProvider
+    private let hub: SentryHub
+    private let dateProvider: SentryCurrentDateProvider
     
     @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
         self.hub = hub
