@@ -1,5 +1,5 @@
 extension SentryLog {
-    @_spi(Private) public enum Attribute: Codable {
+    enum Attribute: Codable {
         case string(String)
         case boolean(Bool)
         case integer(Int)
@@ -54,7 +54,7 @@ extension SentryLog {
             case type
         }
         
-        public init(from decoder: any Decoder) throws {
+        init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
             let type = try container.decode(String.self, forKey: .type)
@@ -72,7 +72,7 @@ extension SentryLog {
             }
         }
         
-        public func encode(to encoder: any Encoder) throws {
+        func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             try container.encode(type, forKey: .type)

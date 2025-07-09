@@ -1,5 +1,3 @@
-import Foundation
-
 struct SentryLog: Codable {
     let timestamp: Date
     var traceId: SentryId
@@ -35,7 +33,7 @@ struct SentryLog: Codable {
         self.severityNumber = severityNumber
     }
     
-    public init(from decoder: any Decoder) throws {
+    init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
@@ -47,7 +45,7 @@ struct SentryLog: Codable {
         self.severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
     }
     
-    public func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(timestamp, forKey: .timestamp)
