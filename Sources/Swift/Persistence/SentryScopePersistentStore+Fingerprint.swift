@@ -2,14 +2,7 @@
 
 extension SentryScopePersistentStore {
     func encode(fingerprint: [String]) -> Data? {
-        // We need to check if the fingerprint is a valid JSON object before encoding it.
-        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
-        // The error handler is required due but seems not to be executed.
-        guard let data = SentrySerialization.data(withJSONObject: fingerprint) else {
-            SentrySDKLog.error("Failed to serialize fingerprint, reason: fingerprint is not valid json: \(fingerprint)")
-            return nil
-        }
-        return data
+        return encode(fingerprint, "fingerprint", false)
     }
 
     func decodeFingerprint(from data: Data) -> [String]? {
