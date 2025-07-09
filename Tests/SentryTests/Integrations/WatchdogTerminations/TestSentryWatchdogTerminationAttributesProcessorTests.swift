@@ -132,6 +132,28 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         XCTAssertNil(thirdInvocation)
     }
 
+    func testSetTags_shouldRecordInvocations() throws {
+        // -- Arrange --
+        // Clean the invocations to ensure a clean state
+        sut.setTagsInvocations.removeAll()
+        XCTAssertEqual(sut.setTagsInvocations.count, 0)
+
+        // -- Act --
+        sut.setTags(["tag1": "value1"])
+        sut.setTags(["tag2": "value2", "tag3": "value3"])
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.setTagsInvocations.count, 3)
+        XCTAssertEqual(
+            sut.setTagsInvocations.invocations.element(at: 0),
+            ["tag1": "value1"]
+        )
+        XCTAssertEqual(sut.setTagsInvocations.invocations.element(at: 1), ["tag2": "value2", "tag3": "value3"])
+        let thirdInvocation = try XCTUnwrap(sut.setTagsInvocations.invocations.element(at: 2))
+        XCTAssertNil(thirdInvocation)
+    }
+
     func testClear_shouldRecordInvocations() throws {
         // -- Arrange --
         // Clean the invocations to ensure a clean state

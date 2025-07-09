@@ -1085,6 +1085,34 @@ class SentrySDKTests: XCTestCase {
         let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
         XCTAssertEqual(result, "prod-string")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setTags(["tag1": "value1", "tag2": "value2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTags completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous tags file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousTags = fixture.scopePersistentStore.readPreviousTagsFromDisk()
+        XCTAssertNil(previousTags)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousTagsFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["tag1"], "value1")
+        XCTAssertEqual(result["tag2"], "value2")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)

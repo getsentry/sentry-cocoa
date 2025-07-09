@@ -12,6 +12,7 @@
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
+#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
@@ -99,6 +100,9 @@ NS_ASSUME_NONNULL_BEGIN
         [scopeObserver setUser:outerScope.userObject];
         [scopeObserver setEnvironment:outerScope.environmentString];
         [scopeObserver setDist:outerScope.distString];
+        [scopeObserver setTags:outerScope.tags];
+        // We intentionally skip calling `setTraceContext:` since traces are not stored for watchdog
+        // termination events
     }];
 
     return YES;

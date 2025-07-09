@@ -8,8 +8,8 @@
     XCTAssert([parentString containsString:childString], @"Expected %@ to contain %@",             \
         parentString, childString)
 #define SENTRY_ASSERT_PREFIX(reportedVersion, ...)                                                 \
-    const auto acceptableVersions = @[ __VA_ARGS__ ];                                              \
-    auto foundPrefix = NO;                                                                         \
+    NSArray<NSString *> *acceptableVersions = @[ __VA_ARGS__ ];                                    \
+    BOOL foundPrefix = NO;                                                                         \
     for (NSString * prefix in acceptableVersions) {                                                \
         if ([osVersion hasPrefix:prefix]) {                                                        \
             foundPrefix = YES;                                                                     \
@@ -32,7 +32,7 @@
 
 - (void)testCPUArchitecture
 {
-    const auto arch = sentry_getCPUArchitecture();
+    NSString *arch = sentry_getCPUArchitecture();
 #if TARGET_OS_OSX
 #    if TARGET_CPU_X86_64
     // I observed this branch still being taken when running unit tests for macOS in Xcode 13.4.1 on
@@ -86,7 +86,7 @@
 
 - (void)testOSVersion
 {
-    const auto osVersion = sentry_getOSVersion();
+    NSString *osVersion = sentry_getOSVersion();
     XCTAssertNotEqual(osVersion.length, 0U);
 #if TARGET_OS_OSX
     SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.");
@@ -103,7 +103,7 @@
 
 - (void)testOSName
 {
-    const auto osName = sentry_getOSName();
+    NSString *osName = sentry_getOSName();
 #if TARGET_OS_OSX
     SENTRY_ASSERT_EQUAL(osName, @"macOS");
 #elif TARGET_OS_MACCATALYST
@@ -132,7 +132,7 @@
 
 - (void)testDeviceModel
 {
-    const auto modelName = sentry_getDeviceModel();
+    NSString *modelName = sentry_getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
     NSString *VMware = @"VMware";
@@ -183,7 +183,7 @@
 #if !TARGET_OS_SIMULATOR
     XCTSkip(@"Should only run on simulators.");
 #else
-    const auto modelName = sentry_getSimulatorDeviceModel();
+    NSString *modelName = sentry_getSimulatorDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #    if TARGET_OS_IOS
     // We must test this branch in iOS-Swift-UITests since it must run on device, which SentryTests

@@ -20,11 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryScope ()
 
 /**
- * Set global tags -> these will be sent with every event
- */
-@property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
-
-/**
  * Set global extra -> these will be sent with every event
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;

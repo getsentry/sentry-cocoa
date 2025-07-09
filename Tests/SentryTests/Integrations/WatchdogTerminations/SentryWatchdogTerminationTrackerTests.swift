@@ -320,10 +320,14 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
         let dist = "1.0.0"
         let env = "development"
+        let tags = ["tag1": "value1", "tag2": "value2"]
+        let traceContext = ["trace_id": "1234567890", "span_id": "1234567890"]
         sentryWatchdogTerminationScopeObserver.setUser(testUser)
         sentryWatchdogTerminationScopeObserver.setContext(testContext)
         sentryWatchdogTerminationScopeObserver.setDist(dist)
         sentryWatchdogTerminationScopeObserver.setEnvironment(env)
+        sentryWatchdogTerminationScopeObserver.setTags(tags)
+        sentryWatchdogTerminationScopeObserver.setTraceContext(traceContext)
 
         sut.start()
         goToForeground()
@@ -342,6 +346,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         XCTAssertEqual(fatalEvent?.dist, dist)
         XCTAssertEqual(fatalEvent?.environment, env)
+        XCTAssertEqual(fatalEvent?.tags, tags)
 
         // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
         let eventContext = fatalEvent?.context

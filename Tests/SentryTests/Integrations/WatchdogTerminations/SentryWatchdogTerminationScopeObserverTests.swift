@@ -26,6 +26,11 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let user: User = User(userId: "123")
         let dist = "1.0.0"
         let env = "prod"
+        let tags = ["tag1": "value1"]
+        let traceContext: [String: Any] = [
+            "span_id": "1234567890abcdef",
+            "trace_id": "1234567890abcdef"
+        ]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -208,6 +213,30 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationContext, env)
+    }
+    
+    func testSetTags_whenTagsIsNil_shouldCallAttributesProcessorSetTags() throws {
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTags_whenTagsIsDefined_shouldCallAttributesProcessorSetTags() throws {
+        // -- Arrange --
+        let tags = fixture.tags
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, tags)
     }
 }
 

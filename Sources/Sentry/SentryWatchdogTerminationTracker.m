@@ -60,6 +60,7 @@
             event.user = [self.scopePersistentStore readPreviousUserFromDisk];
             event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
             event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
+            event.tags = [self.scopePersistentStore readPreviousTagsFromDisk];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
