@@ -23,7 +23,7 @@ SENTRY_NO_INIT
 
 @property (assign, nonatomic, readonly) BOOL isContinuousV1;
 @property (assign, nonatomic, readonly) BOOL waitForFullDisplay;
-@property (assign, nonatomic, readonly) BOOL shouldProfileLaunch;
+@property (assign, nonatomic, readonly) BOOL isProfilingThisLaunch;
 
 /**
  * Continuous profiling will respect its own sampling rate, which is computed once for each Sentry

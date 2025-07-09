@@ -117,7 +117,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     sentry_configureContinuousProfiling(options);
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        if (configurationFromLaunch.shouldProfileLaunch) {
+        if (configurationFromLaunch.isProfilingThisLaunch) {
             BOOL shouldStopAndTransmitLaunchProfile = YES;
 
             const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;

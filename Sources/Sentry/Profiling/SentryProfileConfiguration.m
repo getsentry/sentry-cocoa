@@ -36,7 +36,7 @@
 
     _waitForFullDisplay = shouldWaitForFullDisplay;
     _isContinuousV1 = continuousV1;
-    _shouldProfileLaunch = YES;
+    _isProfilingThisLaunch = YES;
     return self;
 }
 
@@ -50,7 +50,7 @@
 
     _profileOptions = options;
     _profilerSessionSampleDecision = decision;
-    _shouldProfileLaunch = YES;
+    _isProfilingThisLaunch = YES;
     return self;
 }
 

@@ -152,6 +152,11 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -212,6 +217,11 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
 
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
@@ -342,6 +352,11 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
 
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
