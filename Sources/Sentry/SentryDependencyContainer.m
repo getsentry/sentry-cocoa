@@ -21,9 +21,8 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
-#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDebugImageProvider.h>
+#import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryGlobalEventProcessor.h>
