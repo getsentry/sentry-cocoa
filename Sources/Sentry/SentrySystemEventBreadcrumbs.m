@@ -56,9 +56,6 @@
     [self.notificationCenterWrapper removeObserver:self
                                               name:UIDeviceOrientationDidChangeNotification
                                             object:nil];
-    [self.notificationCenterWrapper removeObserver:self
-                                              name:UIDeviceOrientationDidChangeNotification
-                                            object:nil];
 }
 
 - (void)dealloc
