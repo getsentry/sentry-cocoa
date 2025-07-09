@@ -12,7 +12,6 @@
 #    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentryRateLimits.h"

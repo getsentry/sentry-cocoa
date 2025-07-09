@@ -4,7 +4,6 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT

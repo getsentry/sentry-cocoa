@@ -1,6 +1,5 @@
 #import "SentryUIApplication.h"
 #import "SentryLogC.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT

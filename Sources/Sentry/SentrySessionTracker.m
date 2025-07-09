@@ -6,7 +6,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLogC.h"
-#import "SentryNSNotificationCenterWrapper.h"
+#import "SentryNotificationNames.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"

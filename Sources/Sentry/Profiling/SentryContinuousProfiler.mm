@@ -5,7 +5,6 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"

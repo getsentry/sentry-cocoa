@@ -25,7 +25,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"

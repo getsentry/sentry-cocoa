@@ -23,7 +23,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
-#        import "SentryNSNotificationCenterWrapper.h"
 #        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT

@@ -39,7 +39,6 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInternalCDefines.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySwift.h"
 #import <SentryNSDataUtils.h>
 

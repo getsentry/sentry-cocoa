@@ -1,17 +1,16 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryDependencyContainer.h"
+#import "SentryNotificationNames.h"
 #import "SentrySysctl.h"
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
 #import <SentryFileManager.h>
-#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
 #import <SentrySwift.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryInternalNotificationNames.h>
-#    import <SentryNSNotificationCenterWrapper.h>
 #    import <UIKit/UIKit.h>
 #endif
 

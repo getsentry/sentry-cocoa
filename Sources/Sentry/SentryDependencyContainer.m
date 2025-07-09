@@ -29,7 +29,6 @@
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
-#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
