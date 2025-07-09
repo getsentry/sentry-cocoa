@@ -1,7 +1,6 @@
 import Foundation
 
-@objc
-@_spi(Private) public final class SentryLog: NSObject, Codable {
+struct SentryLog: Codable {
     let timestamp: Date
     var traceId: SentryId
     let level: SentryLog.Level
@@ -34,7 +33,6 @@ import Foundation
         self.body = body
         self.attributes = attributes
         self.severityNumber = severityNumber
-        super.init()
     }
     
     public init(from decoder: any Decoder) throws {
@@ -47,8 +45,6 @@ import Foundation
         self.body = try container.decode(String.self, forKey: .body)
         self.attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
         self.severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
-        
-        super.init()
     }
     
     public func encode(to encoder: any Encoder) throws {

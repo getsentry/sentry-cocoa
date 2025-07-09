@@ -5,10 +5,12 @@ import Foundation
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
+    private let batcher: SentryLogBatcher
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
+    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher) {
         self.hub = hub
         self.dateProvider = dateProvider
+        self.batcher = batcher
         super.init()
     }
     
@@ -64,13 +66,12 @@ public final class SentryLogger: NSObject {
     
     private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
         let logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        hub.capture(
-            log: SentryLog(
-                timestamp: dateProvider.date(),
-                level: level,
-                body: body,
-                attributes: logAttributes
-            )
+        let log = SentryLog(
+            timestamp: dateProvider.date(),
+            level: level,
+            body: body,
+            attributes: logAttributes
         )
+        batcher.add(log)
     }
 }

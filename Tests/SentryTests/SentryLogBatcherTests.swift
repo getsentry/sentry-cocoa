@@ -4,13 +4,18 @@ import XCTest
 
 class SentryLogBatcherTests: XCTestCase {
     
+    private var options: Options!
     private var testClient: TestClient!
     private var sut: SentryLogBatcher!
     private var scope: Scope!
     
     override func setUp() {
         super.setUp()
-        testClient = TestClient(options: Options())
+        
+        options = Options()
+        options.experimental.enableLogs = true
+        
+        testClient = TestClient(options: options)
         sut = SentryLogBatcher(client: testClient)
         scope = Scope()
     }
@@ -24,7 +29,7 @@ class SentryLogBatcherTests: XCTestCase {
     
     // MARK: - ProcessLog Tests
     
-    func testAddLog_WithValidLog_CreatesEnvelopeAndCallsClient() throws {
+    func testAddLog_WithValidLog_CallsCaptureLogsData() throws {
         // Given
         let log = createTestLog()
         
@@ -32,19 +37,12 @@ class SentryLogBatcherTests: XCTestCase {
         sut.add(log)
         
         // Then
-        XCTAssertEqual(testClient.captureEnvelopeInvocations.count, 1)
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
-        let sentEnvelope = testClient.captureEnvelopeInvocations.first!
-        XCTAssertEqual(sentEnvelope.items.count, 1)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
         
-        let envelopeItem = sentEnvelope.items.first!
-        XCTAssertEqual(envelopeItem.header.type, "log")
-        XCTAssertEqual(envelopeItem.header.contentType, "application/vnd.sentry.items.log+json")
-        XCTAssertEqual(envelopeItem.header.itemCount?.intValue, 1)
-        XCTAssertGreaterThan(envelopeItem.header.length, 0)
-        
-        // Verify envelope item data contains the expected JSON structure
-        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
+        // Verify the data contains the expected JSON structure
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(1, items.count)
         

@@ -1456,65 +1456,6 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(expected, span.sampled)
     }
-    
-    func testCaptureLog() {
-        fixture.options.experimental.enableLogs = true
-        
-        let log = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
-            level: .info,
-            body: "Test log message from hub",
-            attributes: [
-                "user_id": .string("12345"),
-                "is_active": .boolean(true)
-            ]
-        )
-        
-        sut.capture(log: log)
-        
-        // The hub now uses SentryLogBatcher which creates an envelope and calls client.capture(envelope)
-        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
-        
-        if let envelope = fixture.client.captureEnvelopeInvocations.first {
-            // Verify the envelope contains the log data
-            XCTAssertEqual(1, envelope.items.count)
-            let envelopeItem = envelope.items.first!
-            XCTAssertEqual("log", envelopeItem.header.type)
-        }
-    }
-    
-    func testCaptureLog_WithLogsDisabled() {
-        fixture.options.experimental.enableLogs = false
-        
-        let log = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
-            level: .error,
-            body: "Test log message with disabled logs",
-            attributes: [:]
-        )
-        
-        sut.capture(log: log)
-        
-        // When logs are disabled, no envelope should be captured
-        XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
-    }
-    
-    func testCaptureLogWithClientNil() {
-        fixture.options.experimental.enableLogs = true
-        
-        let log = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
-            level: .error,
-            body: "Test log message with nil client",
-            attributes: [:]
-        )
-        
-        sut.bindClient(nil)
-        sut.capture(log: log)
-        
-        // When client is nil, the logBatcher should not be able to capture envelopes
-        XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
-    }
 }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

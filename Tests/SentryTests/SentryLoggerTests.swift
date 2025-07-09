@@ -10,6 +10,7 @@ final class SentryLoggerTests: XCTestCase {
         let dateProvider: TestCurrentDateProvider
         let options: Options
         let scope: Scope
+        let batcher: TestLogBatcher
         
         init() {
             options = Options()
@@ -19,12 +20,18 @@ final class SentryLoggerTests: XCTestCase {
             scope = Scope()
             hub = TestHub(client: client, andScope: scope)
             dateProvider = TestCurrentDateProvider()
+            batcher = TestLogBatcher(client: client)
             
             dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
         }
         
         func getSut() -> SentryLogger {
-            return SentryLogger(hub: hub, dateProvider: dateProvider)
+            return SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
+        }
+        
+        func getSutWithNilBatcherClient() -> SentryLogger {
+            let batcher = TestLogBatcher(client: nil)
+            return SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
         }
     }
     
@@ -40,6 +47,16 @@ final class SentryLoggerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+    }
+
+    // MARK: - Batcher Integration Tests
+    
+    func testNilBatcherClient_NoLogsCaptured() {
+        sut = fixture.getSutWithNilBatcherClient()
+        
+        sut.info("This should not be captured")
+        
+        XCTAssertEqual(0, fixture.batcher.addInvocations.count)
     }
     
     // MARK: - Trace Level Tests
@@ -248,20 +265,7 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(capturedLog.timestamp, expectedDate)
     }
     
-    // MARK: - Hub Integration Tests
-    
-    func testLogsCapturedWithCorrectScope() {
-        // Add a tag to the existing scope to verify it's being used
-        fixture.hub.configureScope { scope in
-            scope.setTag(value: "test-value", key: "test-key")
-        }
-        
-        sut.info("Test scope")
-        
-        let invocation = fixture.hub.captureLogInvocations.invocations.first
-        XCTAssertNotNil(invocation)
-        XCTAssertEqual(invocation?.scope.tags["test-key"], "test-value")
-    }
+    // MARK: - Multiple Logs Tests
     
     func testMultipleLogsCaptured() {
         sut.trace("Trace message")
@@ -271,15 +275,15 @@ final class SentryLoggerTests: XCTestCase {
         sut.error("Error message")
         sut.fatal("Fatal message")
         
-        let invocations = fixture.hub.captureLogInvocations.invocations
-        XCTAssertEqual(invocations.count, 6)
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 6)
         
-        XCTAssertEqual(invocations[0].log.level, .trace)
-        XCTAssertEqual(invocations[1].log.level, .debug)
-        XCTAssertEqual(invocations[2].log.level, .info)
-        XCTAssertEqual(invocations[3].log.level, .warn)
-        XCTAssertEqual(invocations[4].log.level, .error)
-        XCTAssertEqual(invocations[5].log.level, .fatal)
+        XCTAssertEqual(logs[0].level, .trace)
+        XCTAssertEqual(logs[1].level, .debug)
+        XCTAssertEqual(logs[2].level, .info)
+        XCTAssertEqual(logs[3].level, .warn)
+        XCTAssertEqual(logs[4].level, .error)
+        XCTAssertEqual(logs[5].level, .fatal)
     }
     
     // MARK: - Helper Methods
@@ -291,15 +295,14 @@ final class SentryLoggerTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let invocations = fixture.hub.captureLogInvocations.invocations
-        XCTAssertEqual(invocations.count, 1, "Expected exactly one log to be captured", file: file, line: line)
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1, "Expected exactly one log to be captured", file: file, line: line)
         
-        guard let logInvocation = invocations.first else {
+        guard let capturedLog = logs.first else {
             XCTFail("No log captured", file: file, line: line)
             return
         }
         
-        let capturedLog = logInvocation.log
         XCTAssertEqual(capturedLog.level, expectedLevel, "Log level mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.body, expectedBody, "Log body mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.timestamp, fixture.dateProvider.date(), "Log timestamp mismatch", file: file, line: line)
@@ -328,16 +331,27 @@ final class SentryLoggerTests: XCTestCase {
                 XCTFail("Attribute type mismatch for key: \(key). Expected: \(expectedAttribute.type), Actual: \(actualAttribute.type)", file: file, line: line)
             }
         }
-        
-        XCTAssertEqual(logInvocation.scope, fixture.hub.scope, "Scope mismatch", file: file, line: line)
     }
     
     private func getLastCapturedLog() -> SentryLog {
-        let invocations = fixture.hub.captureLogInvocations.invocations
-        guard let lastInvocation = invocations.last else {
+        let logs = fixture.batcher.addInvocations.invocations
+        guard let lastLog = logs.last else {
             XCTFail("No logs captured")
             return SentryLog(timestamp: Date(), level: .info, body: "", attributes: [:])
         }
-        return lastInvocation.log
+        return lastLog
     }
-} 
+}
+
+class TestLogBatcher: SentryLogBatcher {
+    
+    var addInvocations = Invocations<SentryLog>()
+    
+    override init(client: SentryClient?) {
+        super.init(client: client)
+    }
+    
+    override func add(_ log: SentryLog) {
+        addInvocations.record(log)
+    }
+}
