@@ -36,13 +36,13 @@ struct SentryLog: Codable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.timestamp = try container.decode(Date.self, forKey: .timestamp)
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
         let traceIdString = try container.decode(String.self, forKey: .traceId)
-        self.traceId = SentryId(uuidString: traceIdString)
-        self.level = try container.decode(SentryLog.Level.self, forKey: .level)
-        self.body = try container.decode(String.self, forKey: .body)
-        self.attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
-        self.severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
+        traceId = SentryId(uuidString: traceIdString)
+        level = try container.decode(SentryLog.Level.self, forKey: .level)
+        body = try container.decode(String.self, forKey: .body)
+        attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
+        severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
     }
     
     func encode(to encoder: any Encoder) throws {
