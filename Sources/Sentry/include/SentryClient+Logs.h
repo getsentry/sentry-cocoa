@@ -72,6 +72,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
+/**
+ * Helper to capture encoded logs, as SentryEnvelope can't be used in the Swift SDK.
+ */
+- (void)captureLogsData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END
