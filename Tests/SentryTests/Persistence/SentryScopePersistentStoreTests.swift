@@ -730,6 +730,21 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(result)
     }
+    
+    func testReadPreviousFingerprintFromDisk_whenNonStringElementsInPreviousFingerprintFile_shouldReturnStringOnly() throws {
+        // -- Arrange --
+        let fm = FileManager.default
+        let data = Data("[\"a\", 1]".utf8)
+        let previousFingerprintFileURL = sut.previousFileURLFor(field: .fingerprint)
+        try data.write(to: previousFingerprintFileURL)
+        XCTAssertTrue(fm.fileExists(atPath: previousFingerprintFileURL.path))
+
+        // -- Act --
+        let result = sut.readPreviousFingerprintFromDisk()
+
+        // -- Assert --
+        XCTAssertEqual(result, ["a"])
+    }
 
     func testReadPreviousFingerprintFromDisk_whenPreviousFingerprintFileUnavailable_shouldReturnNil() throws {
         // -- Arrange --

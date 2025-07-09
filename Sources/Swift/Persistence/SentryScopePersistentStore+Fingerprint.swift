@@ -11,13 +11,11 @@ extension SentryScopePersistentStore {
             return nil
         }
 
-        // Ensure all elements are strings
-        let stringArray = deserialized.compactMap { $0 as? String }
-        if stringArray.count != deserialized.count {
-            SentrySDKLog.error("Failed to deserialize fingerprint, reason: not all elements are strings")
-            return nil
+        if let stringArray = deserialized as? [String] {
+            return stringArray
         }
-
-        return stringArray
+        
+        SentrySDKLog.warning("Non string found in fingerprint array, returning only string elements")
+        return deserialized.compactMap { $0 as? String }
     }
 }
