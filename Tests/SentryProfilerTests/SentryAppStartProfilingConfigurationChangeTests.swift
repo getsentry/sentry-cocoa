@@ -72,6 +72,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
+        fixture.options.tracesSampleRate = 1
 
         // Act: simulate app launch
         _sentry_nondeduplicated_startLaunchProfile()
@@ -139,6 +140,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             $0.sessionSampleRate = 1
             $0.profileAppStarts = true
         }
+        fixture.options.tracesSampleRate = 1
 
         // Act: simulate app launch
         _sentry_nondeduplicated_startLaunchProfile()
@@ -467,31 +469,34 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         let configURL = launchProfileConfigFileURL()
         try (configDict as NSDictionary).write(to: configURL)
 
-        // new options simulating current launch configuration
-        fixture.options.tracesSampleRate = 1
-        fixture.options.profilesSampleRate = nil
+        // new options simulating current launch configuration (continuous V1)
+        fixture.options.profilesSampleRate = nil  // Enables continuous profiling V1
         fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
         _sentry_nondeduplicated_startLaunchProfile()
 
-        // Assert correct type of profile started
+        // Assert correct type of profile started (trace-based from launch config)
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
-        // Assert profiler not stopped
+        // Assert profiler not stopped initially (waiting for TTFD due to launch config)
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
 
-        // Act: simulate TTFD
+        // Act: simulate TTFD using launch tracer (not a new transaction)
+        // Since the launch profiler is trace-based, we use the existing launch tracer
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        
+        // Use the launch tracer for TTFD simulation
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        ttd.start(for: tracer)
+        ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
         fixture.displayLinkWrapper.call()
@@ -540,9 +545,12 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        
+        // Use the launch tracer for TTFD simulation
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        ttd.start(for: tracer)
+        ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
         fixture.displayLinkWrapper.call()
@@ -590,9 +598,9 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        ttd.start(for: tracer)
+        ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
         fixture.displayLinkWrapper.call()
@@ -637,9 +645,9 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        ttd.start(for: tracer)
+        ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
         ttd.reportFullyDisplayed()
         fixture.displayLinkWrapper.call()
