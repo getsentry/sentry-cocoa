@@ -61,6 +61,9 @@
             event.dist = [self.scopePersistentStore readPreviousDistFromDisk];
             event.environment = [self.scopePersistentStore readPreviousEnvironmentFromDisk];
             event.tags = [self.scopePersistentStore readPreviousTagsFromDisk];
+            event.extra = [self.scopePersistentStore readPreviousExtrasFromDisk];
+            event.fingerprint = [self.scopePersistentStore readPreviousFingerprintFromDisk];
+            // Termination events always have fatal level, so we are not reading from disk
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue

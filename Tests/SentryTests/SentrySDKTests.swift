@@ -1045,7 +1045,6 @@ class SentrySDKTests: XCTestCase {
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
-
         // Delete the previous context file if it exists
         fixture.scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
@@ -1059,7 +1058,7 @@ class SentrySDKTests: XCTestCase {
         let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousDistFromDisk())
         XCTAssertEqual(result, "dist-string")
     }
-    
+
     func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
         // -- Arrange --
         fixture.observer.setEnvironment("prod-string")
@@ -1071,7 +1070,6 @@ class SentrySDKTests: XCTestCase {
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
-
         // Delete the previous context file if it exists
         fixture.scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
@@ -1084,6 +1082,62 @@ class SentrySDKTests: XCTestCase {
         // -- Assert --
         let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
         XCTAssertEqual(result, "prod-string")
+    }
+
+    func testStartWithOptions_shouldMoveCurrentExtraFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setExtras(["extra1": "value1", "extra2": "value2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setExtras completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        // Delete the previous context file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        
+        // Sanity-check for the pre-condition
+        let previousExtras = fixture.scopePersistentStore.readPreviousExtrasFromDisk()
+        XCTAssertNil(previousExtras)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousExtrasFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["extra1"] as? String, "value1")
+        XCTAssertEqual(result["extra2"] as? String, "value2")
+    }
+
+    func testStartWithOptions_shouldMoveCurrentFingerprintFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setFingerprint completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous fingerprint file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousFingerprint = fixture.scopePersistentStore.readPreviousFingerprintFromDisk()
+        XCTAssertNil(previousFingerprint)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousFingerprintFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0], "fingerprint1")
+        XCTAssertEqual(result[1], "fingerprint2")
     }
     
     func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
