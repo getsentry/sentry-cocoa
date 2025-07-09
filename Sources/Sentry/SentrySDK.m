@@ -114,7 +114,11 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (SentryLogger *)logger
 {
-    return SentryDependencyContainer.sharedInstance.logger;
+    static SentryLogger *logger;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ logger = [[SentryLogger alloc] initWithHub:currentHub
+                                                               dateProvider:SentryDependencyContainer.sharedInstance.dateProvider]; });
+    return logger;
 }
 
 /** Internal, only needed for testing. */

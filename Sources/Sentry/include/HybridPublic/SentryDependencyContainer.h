@@ -26,7 +26,6 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
-@class SentryLogger;
 
 @protocol SentryANRTracker;
 @protocol SentryRandom;
@@ -112,7 +111,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryLogger *logger;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
 #if SENTRY_HAS_UIKIT
