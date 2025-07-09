@@ -2,6 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
     private var fixture: Fixture!
