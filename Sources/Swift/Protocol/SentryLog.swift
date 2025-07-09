@@ -6,7 +6,7 @@ import Foundation
     var traceId: SentryId
     let level: SentryLog.Level
     let body: String
-    let attributes: [String: SentryLog.Attribute]
+    var attributes: [String: SentryLog.Attribute]
     let severityNumber: Int?
     
     private enum CodingKeys: String, CodingKey {
@@ -60,5 +60,10 @@ import Foundation
         try container.encode(body, forKey: .body)
         try container.encode(attributes, forKey: .attributes)
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
+    }
+    
+    @objc
+    public func addAttribute(_ name: String, value: Any) {
+        attributes[name] = SentryLog.Attribute(value: value)
     }
 }

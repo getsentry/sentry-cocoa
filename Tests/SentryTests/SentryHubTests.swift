@@ -1499,6 +1499,48 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
     
+    func testCaptureLog_AddsDefaultAttributes() {
+        fixture.options.experimental.enableLogs = true
+        fixture.options.environment = "test-environment"
+        fixture.options.releaseName = "1.0.0"
+        
+        let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        sut.scope.span = span
+        
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .info,
+            body: "Test log message",
+            attributes: [:]
+        )
+        
+        sut.capture(log: log)
+        
+        // Verify default attributes were added to the log
+        XCTAssertEqual(log.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
+        XCTAssertEqual(log.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
+        XCTAssertEqual(log.attributes["sentry.environment"]?.value as? String, "test-environment")
+        XCTAssertEqual(log.attributes["sentry.release"]?.value as? String, "1.0.0")
+        XCTAssertEqual(log.attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+    }
+    
+    func testCaptureLog_DoesNotAddNilDefaultAttributes() {
+        fixture.options.experimental.enableLogs = true
+        fixture.options.releaseName = nil
+        
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .info,
+            body: "Test log message",
+            attributes: [:]
+        )
+        
+        sut.capture(log: log)
+        
+        XCTAssertNil(log.attributes["sentry.release"])
+        XCTAssertNil(log.attributes["sentry.trace.parent_span_id"])
+    }
+    
     func testCaptureLogWithClientNil() {
         fixture.options.experimental.enableLogs = true
         

@@ -11,6 +11,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
+#import "SentryMeta.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
@@ -564,6 +565,22 @@ NS_ASSUME_NONNULL_BEGIN
     if (!options.experimental.enableLogs) {
         return;
     }
+
+    // Default Attributes
+
+    [log addAttribute:@"sentry.sdk.name" value:SentryMeta.sdkName];
+    [log addAttribute:@"sentry.sdk.version" value:SentryMeta.versionString];
+    [log addAttribute:@"sentry.environment" value:options.environment];
+
+    if (options.releaseName != nil) {
+        [log addAttribute:@"sentry.release" value:options.releaseName];
+    }
+
+    if (self.scope.span != nil) {
+        [log addAttribute:@"sentry.trace.parent_span_id"
+                    value:self.scope.span.spanId.sentrySpanIdString];
+    }
+
     SentryLogBatcher *logBatcher = self.logBatcher;
     if (logBatcher != nil) {
         [logBatcher add:log];
