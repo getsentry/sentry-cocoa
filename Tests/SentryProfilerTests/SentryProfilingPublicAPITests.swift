@@ -63,6 +63,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 }
 
 // MARK: transaction profiling
+@available(*, deprecated, message: "Transaction profiling is deprecated")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
         // Arrange
@@ -98,6 +99,7 @@ extension SentryProfilingPublicAPITests {
 }
 
 // MARK: continuous profiling v1
+@available(*, deprecated, message: "Continuous profiling v1 is deprecated")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingEnabled() {
         // Arrange
@@ -203,6 +205,7 @@ extension SentryProfilingPublicAPITests {
 }
 
 // MARK: continuous profiling v2
+@available(*, deprecated, message: "This is only deprecated because profilesSampleRate is deprecated. Once that is removed this attribute can be removed.")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Enabled() {
         // Arrange

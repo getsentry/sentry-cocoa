@@ -19649,9 +19649,11 @@
             "declKind": "Var",
             "usr": "c:objc(cs)SentryOptions(py)enableAppLaunchProfiling",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "enableAppLaunchProfiling",
             "declAttributes": [
+              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -19671,10 +19673,12 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)enableAppLaunchProfiling",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "enableAppLaunchProfiling",
                 "declAttributes": [
                   "DiscardableResult",
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -19707,9 +19711,11 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)setEnableAppLaunchProfiling:",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "setEnableAppLaunchProfiling:",
                 "declAttributes": [
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -19740,9 +19746,11 @@
             "declKind": "Var",
             "usr": "c:objc(cs)SentryOptions(py)profilesSampleRate",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "profilesSampleRate",
             "declAttributes": [
+              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -19770,10 +19778,12 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)profilesSampleRate",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "profilesSampleRate",
                 "declAttributes": [
                   "DiscardableResult",
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -19814,9 +19824,11 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)setProfilesSampleRate:",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "setProfilesSampleRate:",
                 "declAttributes": [
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -19868,9 +19880,11 @@
             "declKind": "Var",
             "usr": "c:objc(cs)SentryOptions(py)profilesSampler",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "profilesSampler",
             "declAttributes": [
+              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -19919,10 +19933,12 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)profilesSampler",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "profilesSampler",
                 "declAttributes": [
                   "DiscardableResult",
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -19984,9 +20000,11 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)setProfilesSampler:",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "setProfilesSampler:",
                 "declAttributes": [
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -20009,9 +20027,11 @@
             "declKind": "Var",
             "usr": "c:objc(cs)SentryOptions(py)isProfilingEnabled",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "isProfilingEnabled",
             "declAttributes": [
+              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -20031,10 +20051,12 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)isProfilingEnabled",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "isProfilingEnabled",
                 "declAttributes": [
                   "DiscardableResult",
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],

@@ -153,7 +153,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
+#    pragma clang diagnostic pop
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -538,12 +541,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = options[@"profilesSampleRate"];
+#    pragma clang diagnostic pop
     }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([self isBlock:options[@"profilesSampler"]]) {
         self.profilesSampler = options[@"profilesSampler"];
     }
+#    pragma clang diagnostic pop
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
