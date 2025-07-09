@@ -2,12 +2,12 @@ import Foundation
 
 @objc
 @_spi(Private) public final class SentryLog: NSObject, Codable {
-    let timestamp: Date
-    var traceId: SentryId
-    let level: SentryLog.Level
-    let body: String
-    var attributes: [String: SentryLog.Attribute]
-    let severityNumber: Int?
+    public let timestamp: Date
+    @objc public var traceId: SentryId
+    public let level: SentryLog.Level
+    public let body: String
+    public private(set) var attributes: [String: SentryLog.Attribute]
+    public let severityNumber: Int?
     
     private enum CodingKeys: String, CodingKey {
         case timestamp

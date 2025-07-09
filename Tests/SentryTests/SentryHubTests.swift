@@ -1557,6 +1557,30 @@ class SentryHubTests: XCTestCase {
         // When client is nil, the logBatcher should not be able to capture envelopes
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
+    
+    func testCaptureLog_SetsTraceIdFromPropagationContext() {
+        fixture.options.experimental.enableLogs = true
+        
+        let expectedTraceId = SentryId()
+        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        
+        sut.scope.propagationContext = propagationContext
+        
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_800),
+            level: .info,
+            body: "Test log message with trace ID",
+            attributes: [:]
+        )
+        
+        sut.capture(log: log)
+        
+        // Verify that the log's trace ID matches the one from the propagation context
+        XCTAssertEqual(log.traceId, expectedTraceId)
+        
+        // Also verify the envelope was captured
+        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
+    }
 }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

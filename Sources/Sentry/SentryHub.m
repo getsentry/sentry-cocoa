@@ -16,6 +16,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySampling.h"
@@ -564,6 +565,11 @@ NS_ASSUME_NONNULL_BEGIN
     SentryOptions *options = [[self client] options];
     if (!options.experimental.enableLogs) {
         return;
+    }
+
+    SentryPropagationContext *propagationContext = self.scope.propagationContext;
+    if (propagationContext != nil) {
+        log.traceId = propagationContext.traceId;
     }
 
     // Default Attributes
