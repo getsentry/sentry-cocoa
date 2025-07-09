@@ -51,4 +51,17 @@ extension Options {
         _swiftExperimentalOptions as! SentryExperimentalOptions
       // swiftlint:enable force_cast
     }
+  
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+  @objc
+  open var sessionReplay: SentryReplayOptions {
+    get {
+      // We know the type so it's fine to force cast.
+      // swiftlint:disable force_cast
+      _swiftReplayOptions as! SentryReplayOptions
+      // swiftlint:enable force_cast
+    }
+    set { _swiftReplayOptions = newValue }
+  }
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 }
