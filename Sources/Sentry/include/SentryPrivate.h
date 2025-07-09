@@ -17,7 +17,6 @@
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDisplayLinkWrapper.h"
-#import "SentryEnvelope+Private.h"
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryLevelHelper.h"
