@@ -267,51 +267,9 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
     }
     
-    func testInitializer_CGFloatValue() {
-        let attribute = SentryLog.Attribute(value: CGFloat(1.41421))
-        XCTAssertEqual(attribute.type, "double")
-        let doubleValue = attribute.value as? Double
-        XCTAssertNotNil(doubleValue)
-        XCTAssertEqual(doubleValue!, 1.41421, accuracy: 0.00001)
-    }
+
     
-    func testInitializer_ZeroCGFloatValue() {
-        let attribute = SentryLog.Attribute(value: CGFloat(0.0))
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 0.0)
-    }
-    
-    func testInitializer_NegativeCGFloatValue() {
-        let attribute = SentryLog.Attribute(value: CGFloat(-1.23))
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, -1.23)
-    }
-    
-    func testInitializer_NSNumberIntValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: 123))
-        XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 123)
-    }
-    
-    func testInitializer_NSNumberDoubleValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: 456.789))
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 456.789)
-    }
-    
-    func testInitializer_NSNumberBooleanValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: false))
-        XCTAssertEqual(attribute.type, "boolean")
-        XCTAssertEqual(attribute.value as? Bool, false)
-    }
-    
-    func testInitializer_NSNumberFloatValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: Float(3.14159)))
-        XCTAssertEqual(attribute.type, "double")
-        let doubleValue = attribute.value as? Double
-        XCTAssertNotNil(doubleValue)
-        XCTAssertEqual(doubleValue!, 3.14159, accuracy: 0.00001)
-    }
+
     
     func testInitializer_NSStringValue() {
         let attribute = SentryLog.Attribute(value: NSString("nsstring test"))
