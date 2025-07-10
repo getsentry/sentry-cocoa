@@ -873,6 +873,36 @@ class SentrySDKTests: XCTestCase {
 
         XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
     }
+    
+    func testLogger_ReturnsSameInstanceOnMultipleCalls() {
+        givenSdkWithHub()
+        
+        let logger1 = SentrySDK.logger
+        let logger2 = SentrySDK.logger
+        
+        XCTAssertIdentical(logger1, logger2)
+    }
+
+    func testClose_ResetsLogger() {
+        givenSdkWithHub()
+        
+        // Get logger instance
+        let logger1 = SentrySDK.logger
+        XCTAssertNotNil(logger1)
+        
+        // Close SDK
+        SentrySDK.close()
+        
+        // Start SDK again
+        givenSdkWithHub()
+        
+        // Get logger instance again
+        let logger2 = SentrySDK.logger
+        XCTAssertNotNil(logger2)
+        
+        // Should be a different instance
+        XCTAssertNotIdentical(logger1, logger2)
+    }
 
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in

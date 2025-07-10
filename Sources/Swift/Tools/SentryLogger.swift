@@ -11,7 +11,7 @@ import Foundation
 /// - `Float` (converted to `Double`)
 /// - Other types (converted to string)
 ///
-/// - Note: Sentry Logs is currently in Beta. See the [Sentry Logs documentation](https://docs.sentry.io/product/explore/logs/).
+/// - Note: Sentry Logs is currently in Beta. See the [Sentry Logs Documentation](https://docs.sentry.io/product/explore/logs/).
 /// - Warning: This API is experimental and subject to change without notice.
 ///
 /// ## Usage
