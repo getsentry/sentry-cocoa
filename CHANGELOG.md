@@ -1,5 +1,11 @@
 # Changelog
 
+# Unreleased
+
+### Improvements
+
+- Extract video processing to a new class (#5604)
+
 ## 8.53.2
 
 ### Fixes
