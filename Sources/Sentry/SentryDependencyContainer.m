@@ -85,6 +85,22 @@
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 
+@property (nonatomic, strong) SentryDependencyScope *scope;
+
+@property (nonatomic, strong) RunLoopObserverObjcBridge *observer;
+
+@end
+
+@interface SentryDebugImageProviderWorkaround: NSObject <DebugImageCache>
+
+@end
+
+@implementation SentryDebugImageProviderWorkaround
+
+- (NSArray<SentryDebugMeta *> * _Nonnull)getDebugImagesFromCacheFor:(NSArray<SentryThread *> * _Nullable)threads { 
+    return [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCacheForThreads:threads];
+}
+
 @end
 
 @implementation SentryDependencyContainer
@@ -163,7 +179,9 @@ static BOOL isInitialializingDependencyContainer = NO;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
+        _scope = [[SentryDependencyScope alloc] initWithOptions:SentrySDK.options debugImageCache:[[SentryDebugImageProviderWorkaround alloc] init]];
+        _observer = [[RunLoopObserverObjcBridge alloc] initWithDependencies:_scope];
+        _dateProvider = _scope.dateProvider;
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
