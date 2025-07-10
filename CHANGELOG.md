@@ -23,9 +23,6 @@
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
 - Improve launch profile configuration management (#5318)
-- Record user for watchdog termination events (#5558)
-- Add support for dist and environment fields for termination watch (#5560)
-- Improve launch profile configuration management (#5318)
 - Deprecate getStoreEndpoint (#5591)
 
 ## 8.53.1
