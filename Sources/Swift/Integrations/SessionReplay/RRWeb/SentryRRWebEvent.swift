@@ -17,7 +17,8 @@ enum SentryRRWebEventType: Int {
 @_spi(Private) public class SentryRRWebEvent: NSObject, SentryRRWebEventProtocol {
     let type: SentryRRWebEventType
     let timestamp: Date
-    let data: [String: Any]?
+    // Visible only for the RN SDK
+    @_spi(Private) public let data: [String: Any]?
     
     init(type: SentryRRWebEventType, timestamp: Date, data: [String: Any]?) {
         self.type = type
