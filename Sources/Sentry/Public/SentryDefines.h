@@ -150,6 +150,7 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
     "See `SentryScope.useSpan` for reasoning of deprecation."));
 
+#if !SDK_V9
 /**
  * Log level.
  */
@@ -159,6 +160,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelDebug,
     kSentryLogLevelVerbose
 };
+#endif // !SDK_V9
 
 /**
  * Sentry level.

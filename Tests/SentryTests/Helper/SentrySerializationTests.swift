@@ -593,6 +593,43 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(unserialized)
     }
     
+    func testDeserializeArrayFromJsonData_WithValidArray_ReturnsArray() throws {
+        let jsonArray = ["item1", "item2", "item3"]
+        let jsonData = try XCTUnwrap(JSONSerialization.data(withJSONObject: jsonArray))
+        
+        let result = SentrySerialization.deserializeArray(fromJsonData: jsonData)
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result as? [String], jsonArray)
+    }
+    
+    func testDeserializeArrayFromJsonData_WithEmptyArray_ReturnsEmptyArray() throws {
+        let jsonArray: [String] = []
+        let jsonData = try XCTUnwrap(JSONSerialization.data(withJSONObject: jsonArray))
+        
+        let result = SentrySerialization.deserializeArray(fromJsonData: jsonData)
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.count, 0)
+    }
+    
+    func testDeserializeArrayFromJsonData_WithInvalidJSON_ReturnsNil() {
+        let invalidJsonData = Data("invalid json".utf8)
+        
+        let result = SentrySerialization.deserializeArray(fromJsonData: invalidJsonData)
+        
+        XCTAssertNil(result)
+    }
+    
+    func testDeserializeArrayFromJsonData_WithDictionary_ReturnsNil() throws {
+        let jsonDict = ["key": "value"]
+        let jsonData = try XCTUnwrap(JSONSerialization.data(withJSONObject: jsonDict))
+        
+        let result = SentrySerialization.deserializeArray(fromJsonData: jsonData)
+        
+        XCTAssertNil(result)
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {

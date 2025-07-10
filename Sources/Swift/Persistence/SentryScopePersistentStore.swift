@@ -6,6 +6,9 @@ enum SentryScopeField: UInt, CaseIterable {
     case user
     case dist
     case environment
+    case tags
+    case extras
+    case fingerprint
     
     var name: String {
         switch self {
@@ -17,6 +20,12 @@ enum SentryScopeField: UInt, CaseIterable {
             return "dist"
         case .environment:
             return "environment"
+        case .tags:
+            return "tags"
+        case .extras:
+            return "extras"
+        case .fingerprint:
+            return "fingerprint"
         }
     }
 }
@@ -112,6 +121,42 @@ enum SentryScopeField: UInt, CaseIterable {
         writeFieldToDisk(field: .environment, data: encode(string: environment))
     }
     
+    // MARK: - Tags
+    @objc
+    public func readPreviousTagsFromDisk() -> [String: String]? {
+        readFieldFromDisk(field: .tags) { data in
+            decodeTags(from: data)
+        }
+    }
+    
+    func writeTagsToDisk(tags: [String: String]) {
+        writeFieldToDisk(field: .tags, data: encode(tags: tags))
+    }
+    
+    // MARK: - Extras
+    @objc
+    public func readPreviousExtrasFromDisk() -> [String: Any]? {
+        readFieldFromDisk(field: .extras) { data in
+            decodeExtras(from: data)
+        }
+    }
+    
+    func writeExtrasToDisk(extras: [String: Any]) {
+        writeFieldToDisk(field: .extras, data: encode(extras: extras))
+    }
+    
+    // MARK: - Fingerprint
+    @objc
+    public func readPreviousFingerprintFromDisk() -> [String]? {
+        readFieldFromDisk(field: .fingerprint) { data in
+            decodeFingerprint(from: data)
+        }
+    }
+    
+    func writeFingerprintToDisk(fingerprint: [String]) {
+        writeFieldToDisk(field: .fingerprint, data: encode(fingerprint: fingerprint))
+    }
+    
     // MARK: - Private Functions
     
     private func moveCurrentFileToPreviousFile(field: SentryScopeField) {
@@ -166,73 +211,5 @@ enum SentryScopeField: UInt, CaseIterable {
      */
     func previousFileURLFor(field: SentryScopeField) -> URL {
         return fileManager.getSentryPathAsURL().appendingPathComponent("previous.\(field.name).state")
-    }
-}
-
-// MARK: - Context
-extension SentryScopePersistentStore {
-    private func encode(context: [String: [String: Any]]) -> Data? {
-        // We need to check if the context is a valid JSON object before encoding it.
-        // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
-        // The error handler is required due but seems not to be executed.
-        guard let sanitizedContext = sentry_sanitize(context) else {
-            SentrySDKLog.error("Failed to sanitize context, reason: context is not valid json: \(context)")
-            return nil
-        }
-        guard let data = SentrySerialization.data(withJSONObject: sanitizedContext) else {
-            SentrySDKLog.error("Failed to serialize context, reason: context is not valid json: \(context)")
-            return nil
-        }
-        return data
-    }
-    
-    private func decodeContext(from data: Data) -> [String: [String: Any]]? {
-        guard let deserialized = SentrySerialization.deserializeDictionary(fromJsonData: data) else {
-            SentrySDKLog.error("Failed to deserialize context, reason: data is not valid json")
-            return nil
-        }
-        
-        // `SentrySerialization` is a wrapper around `NSJSONSerialization` which returns any type of data (`id`).
-        // It is the casted to a `NSDictionary`, which is then casted to a `[AnyHashable: Any]` in Swift.
-        //
-        // The responsibility of validating and casting the deserialized data from any data to a dictionary is delegated
-        // to the `SentrySerialization` class.
-        //
-        // As this decode context method specifically returns a dictionary of dictionaries, we need to ensure that
-        // each value is a dictionary of type `[String: Any]`.
-        //
-        // If the deserialized value is not a dictionary, something clearly went wrong and we should discard the data.
-        
-        // Iterate through the deserialized dictionary and check if the type is a dictionary.
-        // When all values are dictionaries, we can safely cast it to `[String: [String: Any]]` without allocating
-        // additional memory (like when mapping values).
-        for (key, value) in deserialized {
-            guard value is [String: Any] else {
-                SentrySDKLog.error("Failed to deserialize context, reason: value for key \(key) is not a valid dictionary")
-                return nil
-            }
-        }
-        
-        return deserialized as? [String: [String: Any]]
-    }
-}
-
-// MARK: - User
-extension SentryScopePersistentStore {
-    private func encode(user: User) -> Data? {
-        guard let data = SentrySerialization.data(withJSONObject: user.serialize()) else {
-            SentrySDKLog.error("Failed to serialize user, reason: user is not valid json: \(user)")
-            return nil
-        }
-        return data
-    }
-    
-    private func decodeUser(from data: Data) -> User? {
-        return decoderUserHelper(data)
-    }
-    
-    // Swift compiler can't infer T, even if I try to cast it
-    private func decoderUserHelper(_ data: Data) -> UserDecodable? {
-        return decodeFromJSONData(jsonData: data)
     }
 }
