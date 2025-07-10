@@ -905,18 +905,15 @@ class SentrySDKTests: XCTestCase {
     }
 
     func testLogger_WithLogsEnabled_CapturesLog() {
+        fixture.client.options.experimental.enableLogs = true
         givenSdkWithHub()
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.experimental.enableLogs = true
-        }
         
         SentrySDK.logger.error("foo")
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
-        // Setup hub without client
+        fixture.client.options.experimental.enableLogs = true
         let hubWithoutClient = SentryHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hubWithoutClient)
         
@@ -925,10 +922,8 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.experimental.enableLogs = false
-        }
+        fixture.client.options.experimental.enableLogs = false
+        givenSdkWithHub()
         
         SentrySDK.logger.error("foo")
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
