@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.53.2
 
 ### Fixes
 
@@ -8,6 +8,10 @@
 - User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
 - Fix crash when capturing events at the same time `bindClient:` is called from a different thread (#5523)
+- Record user for watchdog termination events (#5558)
+- Add support for dist and environment fields for termination watch (#5560)
+- Add support for tags and context fields for termination watch (#5561)
+- Add support for extras, fingerprint, and level watchdog termination events (#5569)
 
 ### Improvements
 
@@ -15,6 +19,8 @@
 - Improve launch profile configuration management (#5318, #5417)
 - Record user for watchdog termination events (#5558)
 - Add support for dist and environment fields for termination watch (#5560)
+- Improve launch profile configuration management (#5318)
+- Deprecate getStoreEndpoint (#5591)
 
 ## 8.53.1
 

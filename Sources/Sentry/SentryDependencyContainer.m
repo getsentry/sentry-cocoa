@@ -29,7 +29,6 @@
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
-#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
@@ -167,7 +166,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
 
-        _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
         _application = [[SentryUIApplication alloc]

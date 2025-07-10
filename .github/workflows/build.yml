@@ -98,6 +98,13 @@ jobs:
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
         shell: sh
 
+  build-v9:
+    name: Build SDK v9
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os latest --device "iPhone 16" --command build --configuration DebugV9
+
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-13

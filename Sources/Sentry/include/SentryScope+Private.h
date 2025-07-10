@@ -30,6 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, copy) NSString *_Nullable distString;
 
+/**
+ * Set global extra -> these will be sent with every event
+ */
+@property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
+
+/**
+ * Set the fingerprint of an event to determine the grouping
+ */
+@property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;
+
+/**
+ * SentryLevel of the event
+ */
+@property (atomic) enum SentryLevel levelEnum;
+
 @property (nonatomic, nullable, copy) NSString *currentScreen;
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
@@ -39,6 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
+
+/**
+ * Set global tags -> these will be sent with every event
+ */
+@property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 

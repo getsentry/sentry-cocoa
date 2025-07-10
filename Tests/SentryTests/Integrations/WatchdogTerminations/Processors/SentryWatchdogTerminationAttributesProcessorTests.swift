@@ -47,6 +47,39 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        
        let env: String = "test"
 
+       let tags: [String: String] = [
+           "tag1": "value1",
+           "tag2": "value2",
+           "environment": "test"
+       ]
+       
+       let traceContext: [String: Any] = [
+           "trace_id": "771a43a4192642f0b136d5159a501700",
+           "span_id": "6c0f0fea4c4c4c4c",
+           "sampled": "true",
+           "transaction": "test-transaction"
+       ]
+       
+       let invalidTraceContext: [String: Any] = [
+           "trace_id": "771a43a4192642f0b136d5159a501700",
+           "span_id": "6c0f0fea4c4c4c4c",
+           "invalid_key": Double.infinity
+       ]
+       let level: NSNumber = NSNumber(value: SentryLevel.fatal.rawValue)
+       let invalidLevel: NSNumber = NSNumber(value: 999) // Invalid level value
+       
+       let extras: [String: Any] = [
+           "extra_key": "extra_value",
+           "numeric_key": 42,
+           "bool_key": true,
+           "array_key": ["item1", "item2"]
+       ]
+       let invalidExtras: [String: Any] = [
+           "invalid_key": Double.infinity
+       ]
+       
+       let fingerprint: [String] = ["fingerprint1", "fingerprint2", "fingerprint3"]
+
        init() throws {
            let options = Options()
            options.dsn = SentryWatchdogTerminationAttributesProcessorTests.dsn
@@ -409,6 +442,244 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         assertPersistedFileNotExists(field: .environment)
     }
 
+    // MARK: - Tags Tests
+
+    func testSetTags_whenTagsAreValid_shouldDispatchToQueue() {
+        // -- Act --
+        sut.setTags(fixture.tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+    }
+
+    func testSetTags_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+        // The processor is dispatching the file operation on a background queue.
+        // This tests checks that the dispatch block is not keeping a strong reference to the
+        // processor and causes a retain cycle.
+
+        // -- Arrange --
+        // Configure the mock to not execute the block and only keep a reference to the block
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+        // Define a log mock to assert the execution path
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+        // -- Act --
+        sut.setTags(fixture.tags)
+        sut = nil
+
+        // Execute the block after the processor is deallocated to have a weak reference
+        // in the dispatch block
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+
+        // -- Assert --
+        // This assertion is a best-effort check to see if the block was executed, as there is not other
+        // mechanism to assert this case
+        XCTAssertTrue(logOutput.loggedMessages.contains { line in
+            line.contains("Can not set tags, reason: reference to processor is nil")
+        })
+    }
+
+    func testSetTags_whenTagsAreNilAndActiveFileExists_shouldDeleteActiveFile() {
+        // -- Arrange --
+        createPersistedFile(field: .tags)
+        assertPersistedFileExists(field: .tags)
+
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .tags)
+    }
+
+    func testSetTags_whenTagsAreNilAndActiveFileNotExists_shouldNotThrow() {
+        // -- Arrange --
+        assertPersistedFileNotExists(field: .tags)
+
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .tags)
+    }
+
+   // MARK: - Extras Tests
+
+   func testSetExtras_whenExtrasIsValid_shouldDispatchToQueue() {
+       // -- Act --
+       sut.setExtras(fixture.extras)
+
+       // -- Assert --
+       XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+   }
+
+   func testSetExtras_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+       // The processor is dispatching the file operation on a background queue.
+       // This tests checks that the dispatch block is not keeping a strong reference to the
+       // processor and causes a retain cycle.
+
+       // -- Arrange --
+       // Configure the mock to not execute the block and only keep a reference to the block
+       fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+       // Define a log mock to assert the execution path
+       let logOutput = TestLogOutput()
+       SentrySDKLog.setLogOutput(logOutput)
+       SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+       // -- Act --
+       sut.setExtras(fixture.extras)
+       sut = nil
+
+       // Execute the block after the processor is deallocated to have a weak reference
+       // in the dispatch block
+       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+
+       // -- Assert --
+       // This assertion is a best-effort check to see if the block was executed, as there is not other
+       // mechanism to assert this case
+       XCTAssertTrue(logOutput.loggedMessages.contains { line in
+           line.contains("Can not set extras, reason: reference to processor is nil")
+       })
+   }
+
+   func testSetExtras_whenExtrasIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+       // -- Arrange --
+       createPersistedFile(field: .extras)
+       assertPersistedFileExists(field: .extras)
+
+       // -- Act --
+       sut.setExtras(nil)
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+
+   func testSetExtras_whenExtrasIsNilAndActiveFileNotExists_shouldNotThrow() {
+       // -- Arrange --
+       assertPersistedFileNotExists(field: .extras)
+
+       // -- Act --
+       sut.setExtras(nil)
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+
+   func testSetExtras_whenExtrasIsInvalidJSON_shouldLogErrorAndNotThrow() {
+       // -- Arrange --
+       // Define a log mock to assert the execution path
+       let logOutput = TestLogOutput()
+       SentrySDKLog.setLogOutput(logOutput)
+       SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+       // -- Act --
+       sut.setExtras(fixture.invalidExtras)
+
+       // -- Assert --
+       XCTAssertTrue(logOutput.loggedMessages.contains { line in
+           line.contains("[error]") && line.contains("Failed to serialize extras, reason: ")
+       })
+   }
+
+   func testSetExtras_whenExtrasIsInvalidJSON_shouldNotOverwriteExistingFile() throws {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+
+       createPersistedFile(field: .extras, data: data)
+       assertPersistedFileExists(field: .extras)
+
+       // -- Act --
+       sut.setExtras(fixture.invalidExtras)
+
+       // -- Assert --
+       let writtenData = try Data(contentsOf: fixture.scopePersistentStore.currentFileURLFor(field: .extras))
+       XCTAssertEqual(writtenData, data)
+   }
+
+   func testSetExtras_whenExtrasIsValid_shouldWriteToDisk() {
+       // -- Act --
+       sut.setExtras(fixture.extras)
+
+       // -- Assert --
+       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+       assertPersistedFileExists(field: .extras)
+   }
+
+   // MARK: - Fingerprint Tests
+
+   func testSetFingerprint_whenFingerprintIsValid_shouldDispatchToQueue() {
+       // -- Act --
+       sut.setFingerprint(fixture.fingerprint)
+
+       // -- Assert --
+       XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+   }
+
+   func testSetFingerprint_whenProcessorIsDeallocatedWhileDispatching_shouldNotCauseRetainCycle() {
+       // The processor is dispatching the file operation on a background queue.
+       // This tests checks that the dispatch block is not keeping a strong reference to the
+       // processor and causes a retain cycle.
+
+       // -- Arrange --
+       // Configure the mock to not execute the block and only keep a reference to the block
+       fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+       // Define a log mock to assert the execution path
+       let logOutput = TestLogOutput()
+       SentrySDKLog.setLogOutput(logOutput)
+       SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+       // -- Act --
+       sut.setFingerprint(fixture.fingerprint)
+       sut = nil
+
+       // Execute the block after the processor is deallocated to have a weak reference
+       // in the dispatch block
+       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+
+       // -- Assert --
+       // This assertion is a best-effort check to see if the block was executed, as there is not other
+       // mechanism to assert this case
+       XCTAssertTrue(logOutput.loggedMessages.contains { line in
+           line.contains("Can not set fingerprint, reason: reference to processor is nil")
+       })
+   }
+
+   func testSetFingerprint_whenFingerprintIsNilAndActiveFileExists_shouldDeleteActiveFile() {
+       // -- Arrange --
+       createPersistedFile(field: .fingerprint)
+       assertPersistedFileExists(field: .fingerprint)
+
+       // -- Act --
+       sut.setFingerprint(nil)
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+
+   func testSetFingerprint_whenFingerprintIsNilAndActiveFileNotExists_shouldNotThrow() {
+       // -- Arrange --
+       assertPersistedFileNotExists(field: .fingerprint)
+
+       // -- Act --
+       sut.setFingerprint(nil)
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+
+   func testSetFingerprint_whenFingerprintIsValid_shouldWriteToDisk() {
+       // -- Act --
+       sut.setFingerprint(fixture.fingerprint)
+
+       // -- Assert --
+       fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+       assertPersistedFileExists(field: .fingerprint)
+   }
+
    // MARK: - Clear Tests
 
    func testClear_whenContextFileExistsNot_shouldNotThrow() {
@@ -463,22 +734,109 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .user)
    }
 
-   func testClear_whenBothFilesExist_shouldDeleteBothFiles() {
+   func testClear_whenTagsFileExistsNot_shouldNotThrow() {
+       // -- Arrange --
+       // Assert the preconditions
+       assertPersistedFileNotExists(field: .tags)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .tags)
+   }
+   
+   func testClear_whenTagsFileExists_shouldDeleteFileWithoutError() {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+       createPersistedFile(field: .tags, data: data)
+       // Assert the preconditions
+       assertPersistedFileExists(field: .tags)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .tags)
+   }
+
+   func testClear_whenExtrasFileExistsNot_shouldNotThrow() {
+       // -- Arrange --
+       // Assert the preconditions
+       assertPersistedFileNotExists(field: .extras)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+   
+   func testClear_whenExtrasFileExists_shouldDeleteFileWithoutError() {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+       createPersistedFile(field: .extras, data: data)
+       // Assert the preconditions
+       assertPersistedFileExists(field: .extras)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .extras)
+   }
+
+   func testClear_whenFingerprintFileExistsNot_shouldNotThrow() {
+       // -- Arrange --
+       // Assert the preconditions
+       assertPersistedFileNotExists(field: .fingerprint)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+   
+   func testClear_whenFingerprintFileExists_shouldDeleteFileWithoutError() {
+       // -- Arrange --
+       let data = Data("Old content".utf8)
+       createPersistedFile(field: .fingerprint, data: data)
+       // Assert the preconditions
+       assertPersistedFileExists(field: .fingerprint)
+
+       // -- Act --
+       sut.clear()
+
+       // -- Assert --
+       assertPersistedFileNotExists(field: .fingerprint)
+   }
+
+   func testClear_whenAllFilesExist_shouldDeleteAllFiles() {
        // -- Arrange --
        let contextData = Data("Context content".utf8)
        let userData = Data("User content".utf8)
        let distData = Data("Dist content".utf8)
        let envData = Data("Environment content".utf8)
+       let tagsData = Data("Tags content".utf8)
+       let extrasData = Data("Extras content".utf8)
+       let fingerprintData = Data("Fingerprint content".utf8)
        
        createPersistedFile(field: .context, data: contextData)
        createPersistedFile(field: .user, data: userData)
        createPersistedFile(field: .dist, data: distData)
        createPersistedFile(field: .environment, data: envData)
+       createPersistedFile(field: .tags, data: tagsData)
+       createPersistedFile(field: .extras, data: extrasData)
+       createPersistedFile(field: .fingerprint, data: fingerprintData)
 
        assertPersistedFileExists(field: .context)
        assertPersistedFileExists(field: .user)
        assertPersistedFileExists(field: .dist)
        assertPersistedFileExists(field: .environment)
+       assertPersistedFileExists(field: .tags)
+       assertPersistedFileExists(field: .extras)
+       assertPersistedFileExists(field: .fingerprint)
 
        // -- Act --
        sut.clear()
@@ -488,6 +846,9 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
        assertPersistedFileNotExists(field: .user)
        assertPersistedFileNotExists(field: .dist)
        assertPersistedFileNotExists(field: .environment)
+       assertPersistedFileNotExists(field: .tags)
+       assertPersistedFileNotExists(field: .extras)
+       assertPersistedFileNotExists(field: .fingerprint)
    }
 
    // MARK: - Assertion Helpers

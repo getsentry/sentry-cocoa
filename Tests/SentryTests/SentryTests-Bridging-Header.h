@@ -154,7 +154,6 @@
 #import "SentryNSDictionarySanitize+Tests.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNSURLRequestBuilder.h"

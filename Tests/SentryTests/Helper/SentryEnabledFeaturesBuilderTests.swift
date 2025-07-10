@@ -1,6 +1,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+@available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
 final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
     func testDefaultFeatures() throws {

@@ -28,6 +28,7 @@ final class SentryAppStartProfilingConfigurationTests: XCTestCase {
     }
 }
 
+@available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
 extension SentryAppStartProfilingConfigurationTests {
     func testValidCombinations() {
         for config in SentryAppStartProfilingConfigurationTests.validConfigurations {
@@ -61,6 +62,7 @@ extension SentryAppStartProfilingConfigurationTests {
 }
 
 private extension SentryAppStartProfilingConfigurationTests {
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func performTest(expectedOptions: LaunchProfileOptions, shouldProfileLaunch: Bool) {
         let actualOptions = Options()
         actualOptions.enableAppLaunchProfiling = expectedOptions.enableAppLaunchProfiling
