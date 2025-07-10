@@ -117,7 +117,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         
         func createTestUIImage() -> UIImage {
             let size = CGSize(width: 200, height: 100)
-            let format = UIGraphicsImageRendererFormat.default()
+            let format = UIGraphicsImageRendererFormat()
             format.scale = 1.0 // avoid scaling
 
             let renderer = UIGraphicsImageRenderer(size: size, format: format)
