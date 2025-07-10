@@ -52,6 +52,26 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
     }
 
+    // Create a test AVAssetWriter that doesn't execute completion immediately
+    private class DelayedTestAVAssetWriter: TestAVAssetWriter {
+        var completionHandler: (() -> Void)?
+        var shouldExecuteCompletionImmediately = false
+        
+        override func finishWriting(completionHandler: @escaping () -> Void) {
+            finishWritingCalled = true
+            if shouldExecuteCompletionImmediately {
+                completionHandler()
+            } else {
+                self.completionHandler = completionHandler
+            }
+        }
+        
+        func executeCompletion() {
+            completionHandler?()
+            completionHandler = nil
+        }
+    }
+
     private class TestAVAssetWriterInput: AVAssetWriterInput {
         var isReadyForMoreMediaDataOverride = true
         var requestMediaDataWhenReadyCalled = false
@@ -378,6 +398,59 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             XCTAssertTrue(error is SentryOnDemandReplayError)
         default:
             XCTFail("Expected failure result")
+        }
+    }
+
+    func testFinishVideo_WhenSelfIsDeallocated_ShouldReturnNilVideoInfo() {
+        let delayedVideoWriter = try! DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4)
+        delayedVideoWriter.statusOverride = .completed
+        
+        // Create a weak reference to track deallocation
+        weak var weakSut: SentryVideoFrameProcessor?
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+        
+        // Create the processor in a scope that will be deallocated
+        autoreleasepool {
+            let sut = SentryVideoFrameProcessor(
+                videoFrames: fixture.videoFrames,
+                videoWriter: delayedVideoWriter,
+                currentPixelBuffer: fixture.currentPixelBuffer,
+                outputFileURL: fixture.outputFileURL,
+                videoHeight: fixture.videoHeight,
+                videoWidth: fixture.videoWidth,
+                frameRate: fixture.frameRate,
+                initialFrameIndex: 0,
+                initialImageSize: fixture.initialImageSize
+            )
+            weakSut = sut
+            
+            // Start finishVideo but don't wait for completion
+            sut.finishVideo(frameIndex: 5, onCompletion: { result in
+                completionInvocations.record(result)
+            })
+            
+            // The sut should be deallocated when this scope ends
+        }
+        
+        // Verify the instance was deallocated
+        XCTAssertNil(weakSut, "SUT should be deallocated")
+        
+        // Now execute the completion handler after deallocation
+        delayedVideoWriter.executeCompletion()
+        
+        // Verify the completion was called with nil video info
+        XCTAssertEqual(completionInvocations.count, 1)
+        
+        let result = completionInvocations.invocations.first
+        XCTAssertNotNil(result)
+        
+        switch result {
+        case .success(let videoResult):
+            XCTAssertNotNil(videoResult)
+            XCTAssertEqual(videoResult.finalFrameIndex, 5)
+            XCTAssertNil(videoResult.info, "Video info should be nil when self is deallocated")
+        default:
+            XCTFail("Expected success result with nil info")
         }
     }
 
