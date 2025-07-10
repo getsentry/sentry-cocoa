@@ -28,7 +28,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         var errorOverride: Error?
         var cancelWritingCalled = false
         var finishWritingCalled = false
-        var markAsFinishedCalled = false
+        var trackedInputs: [AVAssetWriterInput] = []
 
         override var status: AVAssetWriter.Status {
             return statusOverride
@@ -48,7 +48,11 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
 
         override var inputs: [AVAssetWriterInput] {
-            return []
+            return trackedInputs
+        }
+        
+        override func add(_ input: AVAssetWriterInput) {
+            trackedInputs.append(input)
         }
     }
 
@@ -77,6 +81,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         var requestMediaDataWhenReadyCalled = false
         var requestMediaDataWhenReadyQueue: DispatchQueue?
         var requestMediaDataWhenReadyBlock: (() -> Void)?
+        var markAsFinishedInvocations = Invocations<Void>()
 
         override var isReadyForMoreMediaData: Bool {
             return isReadyForMoreMediaDataOverride
@@ -89,7 +94,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
 
         override func markAsFinished() {
-            // No-op for testing
+            markAsFinishedInvocations.record(Void())
         }
     }
 
@@ -207,12 +212,14 @@ class SentryVideoFrameProcessorTests: XCTestCase {
     func testProcessFrames_WhenVideoWriterNotWriting_ShouldCancelWriting() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.videoWriter.statusOverride = .failed
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.cancelWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -229,6 +236,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
     func testProcessFrames_WhenNoMoreFrames_ShouldFinishVideo() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Process all frames
@@ -240,11 +248,13 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
     }
 
     func testProcessFrames_WhenImageSizeChanges_ShouldFinishVideo() {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
         let sutWithDifferentSize = SentryVideoFrameProcessor(
             videoFrames: fixture.videoFrames,
@@ -261,12 +271,14 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         sutWithDifferentSize.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
     }
 
     func testProcessFrames_WhenPixelBufferAppendFails_ShouldCancelWriting() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.currentPixelBuffer.appendShouldReturn = false
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
@@ -274,6 +286,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.cancelWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -319,6 +332,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     func testFinishVideo_WhenWriterCompleted_ShouldReturnVideoInfo() {
         let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.videoWriter.statusOverride = .completed
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
@@ -333,6 +348,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             completionInvocations.record(result)
         })
 
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -356,6 +372,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     func testFinishVideo_WhenWriterCancelled_ShouldReturnNilVideoInfo() {
         let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.videoWriter.statusOverride = .cancelled
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
@@ -363,6 +381,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             completionInvocations.record(result)
         })
 
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -380,6 +399,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     func testFinishVideo_WhenWriterFailed_ShouldReturnError() {
         let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.videoWriter.statusOverride = .failed
         fixture.videoWriter.errorOverride = SentryOnDemandReplayError.errorRenderingVideo
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
@@ -388,6 +409,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             completionInvocations.record(result)
         })
 
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -404,6 +426,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
     func testFinishVideo_WhenSelfIsDeallocated_ShouldReturnNilVideoInfo() {
         let delayedVideoWriter = try! DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4)
         delayedVideoWriter.statusOverride = .completed
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        delayedVideoWriter.add(videoWriterInput)
         
         // Create a weak reference to track deallocation
         weak var weakSut: SentryVideoFrameProcessor?
@@ -439,6 +463,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         delayedVideoWriter.executeCompletion()
         
         // Verify the completion was called with nil video info
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
         
         let result = completionInvocations.invocations.first
@@ -456,6 +481,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     func testFinishVideo_WhenOutputFileDoesNotExist_ShouldReturnError() {
         let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         fixture.videoWriter.statusOverride = .completed
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
@@ -469,6 +496,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             completionInvocations.record(result)
         })
 
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
 
         let result = completionInvocations.invocations.first
@@ -556,9 +584,11 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         )
 
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
         XCTAssertEqual(sut.frameIndex, 0)
     }
@@ -566,6 +596,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
     func testProcessFrames_WithLargeFrameIndex_ShouldFinishImmediately() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Set frame index beyond available frames
@@ -574,6 +605,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
         XCTAssertEqual(sut.frameIndex, 10)
     }
