@@ -54,6 +54,18 @@ import Foundation
         }
     }
     
+    public func setExtras(_ extras: [String: Any]?) {
+        setData(data: extras, field: .extras) { [weak self] data in
+            self?.scopePersistentStore.writeExtrasToDisk(extras: data)
+        }
+    }
+    
+    public func setFingerprint(_ fingerprint: [String]?) {
+        setData(data: fingerprint, field: .fingerprint) { [weak self] data in
+            self?.scopePersistentStore.writeFingerprintToDisk(fingerprint: data)
+        }
+    }
+    
     // MARK: - Private
     private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
         SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")

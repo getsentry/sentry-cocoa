@@ -7,6 +7,8 @@ enum SentryScopeField: UInt, CaseIterable {
     case dist
     case environment
     case tags
+    case extras
+    case fingerprint
     
     var name: String {
         switch self {
@@ -20,6 +22,10 @@ enum SentryScopeField: UInt, CaseIterable {
             return "environment"
         case .tags:
             return "tags"
+        case .extras:
+            return "extras"
+        case .fingerprint:
+            return "fingerprint"
         }
     }
 }
@@ -125,6 +131,30 @@ enum SentryScopeField: UInt, CaseIterable {
     
     func writeTagsToDisk(tags: [String: String]) {
         writeFieldToDisk(field: .tags, data: encode(tags: tags))
+    }
+    
+    // MARK: - Extras
+    @objc
+    public func readPreviousExtrasFromDisk() -> [String: Any]? {
+        readFieldFromDisk(field: .extras) { data in
+            decodeExtras(from: data)
+        }
+    }
+    
+    func writeExtrasToDisk(extras: [String: Any]) {
+        writeFieldToDisk(field: .extras, data: encode(extras: extras))
+    }
+    
+    // MARK: - Fingerprint
+    @objc
+    public func readPreviousFingerprintFromDisk() -> [String]? {
+        readFieldFromDisk(field: .fingerprint) { data in
+            decodeFingerprint(from: data)
+        }
+    }
+    
+    func writeFingerprintToDisk(fingerprint: [String]) {
+        writeFieldToDisk(field: .fingerprint, data: encode(fingerprint: fingerprint))
     }
     
     // MARK: - Private Functions

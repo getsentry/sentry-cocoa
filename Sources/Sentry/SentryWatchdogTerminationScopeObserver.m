@@ -64,17 +64,17 @@
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    // Left blank on purpose
+    [self.attributesProcessor setExtras:extras];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    // Left blank on purpose
+    [self.attributesProcessor setFingerprint:fingerprint];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-    // Left blank on purpose
+    // Nothing to do here, watchdog termination events are always Fatal
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags

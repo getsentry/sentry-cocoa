@@ -4,6 +4,7 @@ import _SentryPrivate
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+@available(*, deprecated, message: "This is only marked deprecated because SentryProfileTestFixture is marked as deprecated.")
 class SentryTraceProfilerTests: XCTestCase {
 
     private var fixture: SentryProfileTestFixture!
@@ -360,6 +361,7 @@ class SentryTraceProfilerTests: XCTestCase {
 #endif // !os(macOS)
 }
 
+@available(*, deprecated, message: "This is only marked deprecated because SentryProfileTestFixture is marked as deprecated.")
 private extension SentryTraceProfilerTests {
     func getLatestProfileData() throws -> Data {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEventWithScopeInvocations.last)

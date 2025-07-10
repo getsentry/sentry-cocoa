@@ -25,7 +25,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
@@ -105,7 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
                     addObserver:self
                        selector:@selector(linkProfiler)
-                           name:kSentryNotificationContinuousProfileStarted];
+                           name:kSentryNotificationContinuousProfileStarted
+                         object:nil];
             }
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -137,7 +137,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (_isContinuousProfiling) {
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
-                      name:kSentryNotificationContinuousProfileStarted];
+                      name:kSentryNotificationContinuousProfileStarted
+                    object:nil];
     }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

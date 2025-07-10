@@ -2,6 +2,7 @@
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+@available(*, deprecated, message: "App launch profiling is deprecated in favor of continuous profiling.")
 final class SentryAppLaunchProfilingTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -17,6 +18,7 @@ final class SentryAppLaunchProfilingTests: XCTestCase {
 }
 
 // MARK: transaction based profiling
+@available(*, deprecated, message: "App launch profiling is deprecated in favor of continuous profiling.")
 extension SentryAppLaunchProfilingTests {
     // test that the launch trace instance is nil after stopping the launch
     // profiler
@@ -95,6 +97,7 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: transaction based profiling iOS-only
 #if !os(macOS)
+@available(*, deprecated, message: "App launch profiling is deprecated in favor of continuous profiling.")
 extension SentryAppLaunchProfilingTests {
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profile is stopped
     func testLaunchTraceProfileStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
@@ -145,6 +148,7 @@ extension SentryAppLaunchProfilingTests {
 #endif // !os(macOS)
 
 // MARK: continuous profiling v1
+@available(*, deprecated, message: "Continuos profiling V1 is deprecated.")
 extension SentryAppLaunchProfilingTests {
     // test continuous launch profiling configuration
     func testContinuousLaunchProfileV1Configuration() throws {
@@ -205,6 +209,7 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: continuous profiling v1 iOS-only
 #if !os(macOS)
+@available(*, deprecated, message: "Continuos profiling V1 is deprecated.")
 extension SentryAppLaunchProfilingTests {
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profiler continues running
     func testLaunchContinuousProfileV1NotStoppedOnFullyDisplayed() throws {
@@ -250,6 +255,7 @@ extension SentryAppLaunchProfilingTests {
 #endif // !os(macOS)
 
 // MARK: continuous profiling v2
+@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
@@ -488,6 +494,7 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: continuous profiling v2 iOS-only
 #if !os(macOS)
+@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange

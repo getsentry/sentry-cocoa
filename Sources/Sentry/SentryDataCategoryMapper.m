@@ -11,7 +11,9 @@ NSString *const kSentryDataCategoryNameError = @"error";
 NSString *const kSentryDataCategoryNameSession = @"session";
 NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
+#if !SDK_V9
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
+#endif // !SSDK_v9
 NSString *const kSentryDataCategoryNameProfile = @"profile";
 NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
@@ -93,9 +95,11 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameAttachment]) {
         return kSentryDataCategoryAttachment;
     }
+#if !SDK_V9
     if ([value isEqualToString:kSentryDataCategoryNameUserFeedback]) {
         return kSentryDataCategoryUserFeedback;
     }
+#endif // !SDK_V9
     if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
         return kSentryDataCategoryProfile;
     }
@@ -138,8 +142,10 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameTransaction;
     case kSentryDataCategoryAttachment:
         return kSentryDataCategoryNameAttachment;
+#if !SDK_V9
     case kSentryDataCategoryUserFeedback:
         return kSentryDataCategoryNameUserFeedback;
+#endif // !SDK_V9
     case kSentryDataCategoryProfile:
         return kSentryDataCategoryNameProfile;
     case kSentryDataCategoryProfileChunk:

@@ -5,6 +5,7 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
     
@@ -206,6 +207,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
 }
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 private extension SentryContinuousProfilerTests {
     func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")

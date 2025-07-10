@@ -108,15 +108,18 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
                                                  forSampleRate:@1.0
                                                 withSampleRand:@1.0];
     }
-#    pragma clang diagnostic pop
 
     NSNumber *callbackRate = _sentry_samplerCallbackRate(
         options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
+#    pragma clang diagnostic pop
     if (callbackRate != nil) {
         return _sentry_calcSample(callbackRate);
     }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
+#    pragma clang diagnostic pop
 }
 
 SentrySamplerDecision *
