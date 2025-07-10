@@ -197,16 +197,16 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     // MARK: - Process Frames Tests
 
-    func testProcessFrames_WhenInputIsReady_ShouldProcessAvailableFrame() {
+    func testProcessFrames_WhenInputIsReady_ShouldProcessAvailableFrames() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         videoWriterInput.isReadyForMoreMediaDataOverride = true
 
         sut.processFrames(videoWriterInput: videoWriterInput) { _ in }
 
-        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 1)
-        XCTAssertEqual(sut.frameIndex, 1)
-        XCTAssertEqual(sut.usedFrames.count, 1)
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 3)
+        XCTAssertEqual(sut.frameIndex, 3)
+        XCTAssertEqual(sut.usedFrames.count, 3)
     }
 
     func testProcessFrames_WhenVideoWriterNotWriting_ShouldCancelWriting() {
@@ -240,11 +240,6 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Process all frames
-        for _ in 0..<sut.videoFrames.count {
-            sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
-        }
-
-        // Process again - should finish video
         sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
