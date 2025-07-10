@@ -245,7 +245,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             videoWidth: fixture.videoWidth,
             frameRate: fixture.frameRate,
             initialFrameIndex: 0,
-            initialImageSize: CGSize(width: 300, height: 150), // Any other size works
+            initialImageSize: CGSize(width: 300, height: 150) // Any other size works
         )
         
         sutWithDifferentSize.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
