@@ -5,6 +5,15 @@
 ### Fixes
 
 - Launch profiling now respects original configured options if they change on the next launch (#5417)
+# Unreleased
+
+### Improvements
+
+- Extract video processing to a new class (#5604)
+
+### Fixes
+
+- Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
 
 ## 8.53.2
 

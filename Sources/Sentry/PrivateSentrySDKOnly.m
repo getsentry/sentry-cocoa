@@ -2,6 +2,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
@@ -52,6 +53,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySerialization envelopeWithData:data];
 }
 
+#if !SDK_V9
 + (NSArray<SentryDebugMeta *> *)getDebugImages
 {
     // maintains previous behavior for the same method call by also trying to gather crash info
@@ -60,12 +62,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[SentryDependencyContainer sharedInstance].debugImageProvider
         getDebugImagesCrashed:isCrash];
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
+#endif // !SDK_V9
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
