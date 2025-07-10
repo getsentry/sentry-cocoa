@@ -49,6 +49,7 @@ class SentryVideoFrameProcessor {
         SentrySDKLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
         guard videoWriter.status == .writing else {
             SentrySDKLog.error("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+            videoWriter.inputs.forEach { $0.markAsFinished() }
             videoWriter.cancelWriting()
             return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
         }
@@ -80,6 +81,7 @@ class SentryVideoFrameProcessor {
         ).timeValue
         guard currentPixelBuffer.append(image: image, presentationTime: presentTime) else {
             SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
+            videoWriter.inputs.forEach { $0.markAsFinished() }
             videoWriter.cancelWriting()
             return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
         }
