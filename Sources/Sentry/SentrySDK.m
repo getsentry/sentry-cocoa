@@ -119,20 +119,16 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     @synchronized(currentLoggerLock) {
         if (currentLogger == nil) {
-            SentryClient *client = currentHub.client;
-            if (nil != client && client.options.experimental.enableLogs) {
-                SentryLogBatcher *batcher =
-                    [[SentryLogBatcher alloc] initWithClient:currentHub.client];
-                currentLogger = [[SentryLogger alloc]
-                     initWithHub:currentHub
-                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                         batcher:batcher];
+            SentryLogBatcher *batcher;
+            if (nil != currentHub.client && currentHub.client.options.experimental.enableLogs) {
+                batcher = [[SentryLogBatcher alloc] initWithClient:currentHub.client];
             } else {
-                currentLogger = [[SentryLogger alloc]
-                     initWithHub:currentHub
-                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                         batcher:nil];
+                batcher = nil;
             }
+            currentLogger = [[SentryLogger alloc]
+                 initWithHub:currentHub
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                     batcher:batcher];
         }
         return currentLogger;
     }
