@@ -66,7 +66,8 @@ class SentryVideoFrameProcessor {
                 frameIndex += 1
             }
             guard let image = UIImage(contentsOfFile: frame.imagePath) else {
-                return
+                // Continue with the next frame
+                continue
             }
             
             SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
