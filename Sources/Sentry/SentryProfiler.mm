@@ -92,6 +92,11 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
+    // if a launch profiler was started, sentry_profileConfiguration will have been set at that time
+    // with the hydrated options that were persisted from the previous SDK start, which are used to
+    // help determine when/how to stop the launch profile. otherwise, there won't yet be a
+    // SentryProfileConfiguration instance, so we'll instantiate one which will be used to access
+    // the profile session sample rate henceforth
     if (sentry_profileConfiguration == nil) {
         sentry_profileConfiguration =
             [[SentryProfileConfiguration alloc] initWithProfileOptions:options.profiling];
@@ -229,7 +234,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     [self.metricProfiler stop];
 
     if (![self isRunning]) {
-        SENTRY_LOG_WARN(@"Profiler is not currently running.");
+        SENTRY_LOG_DEBUG(@"Profiler is not currently running.");
         return;
     }
 

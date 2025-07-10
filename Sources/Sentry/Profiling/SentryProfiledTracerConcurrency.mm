@@ -220,6 +220,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     if (_gTracersToProfilers == nil || _gProfilersToTracers == nil) {
         SENTRY_LOG_ERROR(
             @"Structures should have already been initialized by the time they are being queried");
+        return nil;
     }
 
     const auto tracerKey = internalTraceId.sentryIdString;
@@ -256,7 +257,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    if (sentry_profileConfiguration.isProfilingThisLaunch
+    if (sentry_profileConfiguration != nil && sentry_profileConfiguration.isProfilingThisLaunch
         && sentry_profileConfiguration.profileOptions != nil
         && sentry_profileConfiguration.profileOptions.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");

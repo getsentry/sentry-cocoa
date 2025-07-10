@@ -321,6 +321,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
             boolValue];
     if (isContinuousV1 && isContinuousV2) {
         SENTRY_LOG_WARN(@"Launch profile misconfiguration detected.");
+        _sentry_cleanUpConfigFile();
         return;
     }
 

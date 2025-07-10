@@ -6,13 +6,8 @@
 #    import "SentrySwift.h"
 
 @interface SentryProfileConfiguration ()
-
-@property (assign, nonatomic, readwrite) BOOL isContinuousV1;
-@property (assign, nonatomic, readwrite) BOOL waitForFullDisplay;
 @property (strong, nonatomic, nullable, readwrite)
     SentrySamplerDecision *profilerSessionSampleDecision;
-@property (strong, nonatomic, nullable, readwrite) SentryProfileOptions *profileOptions;
-
 @end
 
 @implementation SentryProfileConfiguration
