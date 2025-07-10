@@ -38,9 +38,9 @@ jobs:
         target: ["ios_objc", "tvos_swift"]
     with:
       fastlane_command: ui_tests_${{matrix.target}}
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
-      macos_version: macos-14
+      macos_version: macos-15
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
@@ -82,6 +82,6 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15

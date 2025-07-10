@@ -12,7 +12,7 @@
 set -euo pipefail
 
 # Parse named arguments
-XCODE_VERSION="16.2" # Default value
+XCODE_VERSION="16.4" # Default value
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -38,7 +38,7 @@ case "$XCODE_VERSION" in
     "15.4")
         SIMULATOR="iPhone 15"
         ;;
-    "16.2")
+    "16.4")
         SIMULATOR="iPhone 16"
         ;;
     *)

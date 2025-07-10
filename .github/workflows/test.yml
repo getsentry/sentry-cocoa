@@ -98,7 +98,7 @@ jobs:
           # iOS 18
           - runs-on: macos-15
             platform: "iOS"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "18.2"
             device: "iPhone 16"
             scheme: "Sentry"
@@ -117,7 +117,7 @@ jobs:
           # macOS 15
           - runs-on: macos-15
             platform: "macOS"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
@@ -132,7 +132,7 @@ jobs:
 
           - runs-on: macos-15
             platform: "Catalyst"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
@@ -158,7 +158,7 @@ jobs:
           # tvOS 18
           - runs-on: macos-15
             platform: "tvOS"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "18.1"
             scheme: "Sentry"
 
