@@ -904,6 +904,36 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotIdentical(logger1, logger2)
     }
 
+    func testLogger_WithLogsEnabled_CapturesLog() {
+        givenSdkWithHub()
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.experimental.enableLogs = true
+        }
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+
+    func testLogger_WithNoClient_DoesNotCaptureLog() {
+        // Setup hub without client
+        let hubWithoutClient = SentryHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hubWithoutClient)
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
+    func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.experimental.enableLogs = false
+        }
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -1225,7 +1255,7 @@ private extension SentrySDKTests {
         SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
         SentrySDK.setStart(fixture.options)
     }
-
+    
     func assertIntegrationsInstalled(integrations: [String]) {
         XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations().count)
         integrations.forEach { integration in

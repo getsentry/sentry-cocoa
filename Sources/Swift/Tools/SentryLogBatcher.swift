@@ -5,9 +5,9 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
     
-    private let client: SentryClient?
+    private let client: SentryClient
     
-    @_spi(Private) public init(client: SentryClient?) {
+    @_spi(Private) public init(client: SentryClient) {
         self.client = client
         super.init()
     }
@@ -17,9 +17,6 @@ import Foundation
     }
     
     private func dispatch(logs: [SentryLog]) {
-        guard let client, client.options.experimental.enableLogs else {
-            return
-        }
         do {
             let payload = ["items": logs]
             let data = try encodeToJSONData(data: payload)

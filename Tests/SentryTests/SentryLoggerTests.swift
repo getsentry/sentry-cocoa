@@ -28,11 +28,6 @@ final class SentryLoggerTests: XCTestCase {
         func getSut() -> SentryLogger {
             return SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
         }
-        
-        func getSutWithNilBatcherClient() -> SentryLogger {
-            let batcher = TestLogBatcher(client: nil)
-            return SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
-        }
     }
     
     private var fixture: Fixture!
@@ -47,16 +42,6 @@ final class SentryLoggerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-    }
-
-    // MARK: - Batcher Integration Tests
-    
-    func testNilBatcherClient_NoLogsCaptured() {
-        sut = fixture.getSutWithNilBatcherClient()
-        
-        sut.info("This should not be captured")
-        
-        XCTAssertEqual(0, fixture.batcher.addInvocations.count)
     }
     
     // MARK: - Trace Level Tests
@@ -347,7 +332,7 @@ class TestLogBatcher: SentryLogBatcher {
     
     var addInvocations = Invocations<SentryLog>()
     
-    override init(client: SentryClient?) {
+    override init(client: SentryClient) {
         super.init(client: client)
     }
     

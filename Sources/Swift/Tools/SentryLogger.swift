@@ -25,9 +25,9 @@ import Foundation
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
-    private let batcher: SentryLogBatcher
+    private let batcher: SentryLogBatcher?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher) {
+    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
         self.hub = hub
         self.dateProvider = dateProvider
         self.batcher = batcher
@@ -97,6 +97,9 @@ public final class SentryLogger: NSObject {
     // MARK: - Private
     
     private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
+        guard let batcher else {
+            return
+        }
         let logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         let log = SentryLog(
             timestamp: dateProvider.date(),
