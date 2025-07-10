@@ -385,7 +385,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 // MARK: configuration changes between launches (iOS-only)
 #if !os(macOS)
 extension SentryAppStartProfilingConfigurationChangeTests {
-    // starting with trace-based
+    // starting with trace-based no TTFD
     func test_lastLaunch_traceBased_noTTFD_currentLaunch_continuousV1_withTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
@@ -489,6 +489,11 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
     }
 
+    func test_lastLaunch_traceBased_noTTFD_currentLaunch_traceBased_withTTFD() throws {
+
+    }
+
+    // starting with trace-based with TTFD
     func test_lastLaunch_traceBased_withTTFD_currentLaunch_continuousV1_noTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
@@ -527,7 +532,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         
         // Use the launch tracer for TTFD simulation
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
-        
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
@@ -802,6 +806,10 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
+    func test_lastLaunch_continuousV1_noTTFD_currentLaunch_traceBased_withTTFD() throws {
+
+    }
+
     // starting with continuous v1 with TTFD
     func test_lastLaunch_continuousV1_withTTFD_currentLaunch_continuousV1_noTTFD() throws {
         // Arrange
@@ -948,8 +956,8 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    // starting with continuous v2 no TTFD
-    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_continuousV1_withTTFD() throws {
+    // starting with continuous v2 manual lifecycle no TTFD
+    func test_lastLaunch_continuousV2_manualLifecycle_noTTFD_currentLaunch_continuousV1_withTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -976,12 +984,17 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_continuousV2_traceLifecycle_withTTFD() throws {
+    func test_lastLaunch_continuousV2_manualLifecycle_noTTFD_currentLaunch_continuousV2_traceLifecycle_withTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -1013,12 +1026,178 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_continuousV2_manualLifecycle_withTTFD() throws {
+    func test_lastLaunch_continuousV2_manualLifecycle_noTTFD_currentLaunch_continuousV2_manualLifecycle_withTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .manual
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
+        fixture.options.enableTimeToFullDisplayTracing = true
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_manualLifecycle_noTTFD_currentLaunch_traceBased_withTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.tracesSampleRate = 1
+        fixture.options.profilesSampleRate = 1
+        fixture.options.enableTimeToFullDisplayTracing = true
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate stopping the continuous profiler
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    // starting with continuous v2 trace lifecycle no TTFD
+    func test_lastLaunch_continuousV2_traceLifecycle_noTTFD_currentLaunch_continuousV1_withTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.profilesSampleRate = nil
+        fixture.options.enableTimeToFullDisplayTracing = true
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate elapsed time to finish UI profile chunk
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_traceLifecycle_noTTFD_currentLaunch_continuousV2_traceLifecycle_withTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
+        fixture.options.tracesSampleRate = 1
+        fixture.options.enableTimeToFullDisplayTracing = true
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate elapsed time to finish UI profile chunk
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_traceLifecycle_noTTFD_currentLaunch_continuousV2_manualLifecycle_withTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -1051,19 +1230,25 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate elapsed time to finish UI profile chunk
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_noTTFD_currentLaunch_traceBased() throws {
+    func test_lastLaunch_continuousV2_traceLifecycle_noTTFD_currentLaunch_traceBased_withTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
             kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
         let configURL = launchProfileConfigFileURL()
@@ -1072,6 +1257,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // new options simulating current launch configuration
         fixture.options.tracesSampleRate = 1
         fixture.options.profilesSampleRate = 1
+        fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
         _sentry_nondeduplicated_startLaunchProfile()
@@ -1083,13 +1269,17 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate elapsed time to finish UI profile chunk
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    // starting with continuous v2 with TTFD
-    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV1_noTTFD() throws {
+    // starting with continuous v2 manual lifecycle with TTFD
+    func test_lastLaunch_continuousV2_manualLifecycle_withTTFD_currentLaunch_continuousV1_noTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -1114,46 +1304,19 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil)) 
+
+        // Act: simulate elapsed time to finish UI profile chunk
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
 
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV1_withTTFD() throws {
-        // Arrange
-        // persisted configuration simulating previous launch
-        let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
-        ]
-        let configURL = launchProfileConfigFileURL()
-        try (configDict as NSDictionary).write(to: configURL)
-
-        // new options simulating current launch configuration
-        fixture.options.profilesSampleRate = nil
-        fixture.options.enableTimeToFullDisplayTracing = true
-
-        // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
-
-        // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
-
-        // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
-
-        // Assert profiler stopped
-        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV2_traceLifecycle_noTTFD() throws {
+    func test_lastLaunch_continuousV2_manualLifecycle_withTTFD_currentLaunch_continuousV2_traceLifecycle_noTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -1185,12 +1348,189 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate elapsed time to finish UI profile chunk
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_continuousV2_manualLifecycle_noTTFD() throws {
+    func test_lastLaunch_continuousV2_manualLifecycle_withTTFD_currentLaunch_continuousV2_manualLifecycle_noTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .manual
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
+        fixture.options.enableTimeToFullDisplayTracing = false
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate elapsed time to finish UI profile chunk
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_manualLifecycle_withTTFD_currentLaunch_traceBased_noTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.tracesSampleRate = 1
+        fixture.options.profilesSampleRate = 1
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate elapsed time to finish UI profile chunk
+        SentrySDK.stopProfiler()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    // starting with continuous v2 trace lifecycle with TTFD
+    func test_lastLaunch_continuousV2_traceLifecycle_withTTFD_currentLaunch_continuousV1_noTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.profilesSampleRate = nil
+        fixture.options.enableTimeToFullDisplayTracing = false
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        
+        // Act: simulate TTFD stoppage
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: launchTracer)
+        ttd.reportInitialDisplay()
+        ttd.reportFullyDisplayed()
+        fixture.displayLinkWrapper.call()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_traceLifecycle_withTTFD_currentLaunch_continuousV2_traceLifecycle_noTTFD() throws {
+        // Arrange
+        // persisted configuration simulating previous launch
+        let configDict: [String: Any] = [
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+        ]
+        let configURL = launchProfileConfigFileURL()
+        try (configDict as NSDictionary).write(to: configURL)
+
+        // new options simulating current launch configuration
+        fixture.options.configureProfiling = {
+            $0.lifecycle = .trace
+            $0.sessionSampleRate = 1
+            $0.profileAppStarts = true
+        }
+        fixture.options.tracesSampleRate = 1
+        fixture.options.enableTimeToFullDisplayTracing = false
+
+        // Act: simulate app launch
+        _sentry_nondeduplicated_startLaunchProfile()
+
+        // Assert correct type of profile started
+        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+
+        // Act: simulate SDK start
+        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        
+        // Act: simulate TTFD stoppage
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: launchTracer)
+        ttd.reportInitialDisplay()
+        ttd.reportFullyDisplayed()
+        fixture.displayLinkWrapper.call()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
+        // Assert profiler stopped
+        XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func test_lastLaunch_continuousV2_traceLifecycle_withTTFD_currentLaunch_continuousV2_manualLifecycle_noTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
@@ -1223,19 +1563,31 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
+        // Act: simulate TTFD stoppage
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: launchTracer)
+        ttd.reportInitialDisplay()
+        ttd.reportFullyDisplayed()
+        fixture.displayLinkWrapper.call()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
+
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-    func test_lastLaunch_continuousV2_withTTFD_currentLaunch_traceBased() throws {
+    func test_lastLaunch_continuousV2_traceLifecycle_withTTFD_currentLaunch_traceBased_noTTFD() throws {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
             kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
         let configURL = launchProfileConfigFileURL()
@@ -1254,6 +1606,16 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate SDK start
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+
+        // Act: simulate TTFD stoppage
+        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        ttd.start(for: launchTracer)
+        ttd.reportInitialDisplay()
+        ttd.reportFullyDisplayed()
+        fixture.displayLinkWrapper.call()
+        fixture.currentDateProvider.advance(by: 60)
+        try fixture.timeoutTimerFactory.check()
 
         // Assert profiler stopped
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
