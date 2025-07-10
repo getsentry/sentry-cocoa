@@ -454,6 +454,35 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
     }
 
+    func testFinishVideo_WhenOutputFileDoesNotExist_ShouldReturnError() {
+        let sut = fixture.getSut()
+        fixture.videoWriter.statusOverride = .completed
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+
+        // Ensure the output file doesn't exist
+        try? FileManager.default.removeItem(at: fixture.outputFileURL)
+
+        // Add some used frames
+        sut.usedFrames = fixture.videoFrames
+
+        sut.finishVideo(frameIndex: 3, onCompletion: { result in
+            completionInvocations.record(result)
+        })
+
+        XCTAssertEqual(completionInvocations.count, 1)
+
+        let result = completionInvocations.invocations.first
+        XCTAssertNotNil(result)
+
+        switch result {
+        case .failure(let error):
+            // The error should be related to file system operations
+            XCTAssertTrue(error is SentryOnDemandReplayError || error.localizedDescription.contains("file"))
+        default:
+            XCTFail("Expected failure result when output file doesn't exist")
+        }
+    }
+
     // MARK: - Get Video Info Tests
 
     func testGetVideoInfo_WithValidFile_ShouldReturnVideoInfo() throws {
