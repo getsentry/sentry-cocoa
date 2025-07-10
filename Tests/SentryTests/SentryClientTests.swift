@@ -2096,7 +2096,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureLogsData() throws {
         let sut = fixture.getSut()
-        let logData = try XCTUnwrap("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".data(using: .utf8))
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
         
         sut.captureLogsData(logData)
         
@@ -2119,9 +2119,9 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(logData, item.data)
     }
     
-    func testCaptureLogsData_WithDisabledClient() throws {
+    func testCaptureLogsData_WithDisabledClient() {
         let sut = fixture.getSutDisabledSdk()
-        let logData = try XCTUnwrap("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".data(using: .utf8))
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
         
         sut.captureLogsData(logData)
         
