@@ -46,15 +46,22 @@ class SentryVideoFrameProcessor {
     }
 
     func processFrames(videoWriterInput: AVAssetWriterInput, onCompletion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
+        let completionBlock: (Result<SentryRenderVideoResult, Error>) -> Void = { [weak self] result in
+            guard self?.isFinished == false else {
+                return
+            }
+            self?.isFinished = true
+            onCompletion(result)
+        }
         SentrySDKLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
         guard videoWriter.status == .writing else {
             SentrySDKLog.error("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
             videoWriter.cancelWriting()
-            return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+            return completionBlock(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
         }
         guard frameIndex < videoFrames.count else {
             SentrySDKLog.debug("[Session Replay] No more frames available to process, finishing the video")
-            return finishVideo(frameIndex: self.frameIndex, onCompletion: onCompletion)
+            return finishVideo(frameIndex: self.frameIndex, onCompletion: completionBlock)
         }
 
         let frame = videoFrames[frameIndex]
@@ -70,7 +77,7 @@ class SentryVideoFrameProcessor {
         SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
         guard lastImageSize == image.size else {
             SentrySDKLog.debug("[Session Replay] Image size has changed, finishing video")
-            return finishVideo(frameIndex: self.frameIndex, onCompletion: onCompletion)
+            return finishVideo(frameIndex: self.frameIndex, onCompletion: completionBlock)
         }
         lastImageSize = image.size
 
@@ -81,7 +88,7 @@ class SentryVideoFrameProcessor {
         guard currentPixelBuffer.append(image: image, presentationTime: presentTime) else {
             SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
             videoWriter.cancelWriting()
-            return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+            return completionBlock(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
         }
         usedFrames.append(frame)
     }

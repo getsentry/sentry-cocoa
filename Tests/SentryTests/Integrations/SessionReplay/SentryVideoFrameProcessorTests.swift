@@ -243,6 +243,26 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertEqual(completionInvocations.count, 1)
     }
 
+    func testProcessFrames_DoesNotExecuteCallbackMultipleTimes() {
+        let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+
+        // Process all frames
+        for _ in 0..<sut.videoFrames.count {
+            sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+        }
+        // Process again - should finish video
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+
+        // Process again - should not execute callback
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+
+        XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
+        XCTAssertEqual(completionInvocations.count, 1)
+    }
+
     func testProcessFrames_WhenImageSizeChanges_ShouldFinishVideo() {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
