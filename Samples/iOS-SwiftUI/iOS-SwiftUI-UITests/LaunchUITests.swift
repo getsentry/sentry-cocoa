@@ -53,7 +53,7 @@ class LaunchUITests: XCTestCase {
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
         app.launchArguments.append(contentsOf: [
             "--disable-spotlight",
-            "--io.sentry.disable-app-start-profiling,"
+            "--io.sentry.disable-app-start-profiling"
         ])
         return app
     }
