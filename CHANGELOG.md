@@ -6,6 +6,10 @@
 
 - Extract video processing to a new class (#5604)
 
+### Fixes
+
+- Ensure completion callback is invoked only once in SentryVideoFrameProcessor (#5607)
+
 ## 8.53.2
 
 ### Fixes
