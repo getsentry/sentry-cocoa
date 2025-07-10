@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash on Replay video generation (#5592)
+
 ## 8.53.2
 
 ### Fixes
