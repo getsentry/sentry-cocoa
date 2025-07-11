@@ -27,6 +27,7 @@ import Foundation
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
+    // Nil in the case where the Hub's client is nil or logs are disabled through options.
     private let batcher: SentryLogBatcher?
     
     @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
