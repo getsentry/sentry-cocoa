@@ -139,6 +139,8 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case manualLifecycle            = "--io.sentry.profiling.profile-lifecycle-manual"
         case sessionSampleRate          = "--io.sentry.profiling.profile-session-sample-rate"
         case disableUIProfiling         = "--io.sentry.profiling.disable-ui-profiling"
+        case slowLoadMethod             = "--io.sentry.profiling.slow-load-method"
+        case immediateStop              = "--io.sentry.profiling.continuous-profiler-immediate-stop"
     }
     case profiling = "Profiling"
 }
@@ -237,7 +239,7 @@ extension SentrySDKOverrides.Profiling {
     public var overrideType: OverrideType {
         switch self {
         case .sampleRate, .samplerValue, .sessionSampleRate: return .float
-        case .disableAppStartProfiling, .manualLifecycle, .disableUIProfiling: return .boolean
+        case .disableAppStartProfiling, .manualLifecycle, .disableUIProfiling, .slowLoadMethod, .immediateStop: return .boolean
         }
     }
 }
@@ -303,7 +305,7 @@ extension SentrySDKOverrides.Special {
 extension SentrySDKOverrides.Profiling {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .sampleRate, .samplerValue, .sessionSampleRate, .manualLifecycle: return true
+        case .sampleRate, .samplerValue, .sessionSampleRate, .manualLifecycle, .slowLoadMethod, .immediateStop: return true
         case .disableAppStartProfiling, .disableUIProfiling: return false
         }
     }

@@ -33,6 +33,7 @@ schemeTemplates:
         "--io.sentry.profiling.profile-lifecycle-manual": false
         "--io.sentry.profiling.slow-load-method": false
         "--io.sentry.profiling.disable-app-start-profiling": false
+        "--io.sentry.profiling.continuous-profiler-immediate-stop": false
 
         # performance
         "--io.sentry.performance.disable-app-hang-tracking-v2": false
