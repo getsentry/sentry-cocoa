@@ -12,24 +12,28 @@
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions+Private.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySampling.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScreenFrames.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
+#    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
-#        import "SentryUIViewControllerPerformanceTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 using namespace sentry::profiling;
 
-SentrySamplerDecision *_Nullable sentry_profilerSessionSampleDecision;
+/**
+ * The current configuration the profiler operates under for this session. Set when a launch profile
+ * runs, and then is updated on SDK start.
+ */
+SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 
 namespace {
 
@@ -40,9 +44,25 @@ static const int kSentryProfilerFrequencyHz = 101;
 #    pragma mark - Public
 
 void
-sentry_reevaluateSessionSampleRate(float sessionSampleRate)
+sentry_reevaluateSessionSampleRate()
 {
-    sentry_profilerSessionSampleDecision = sentry_sampleProfileSession(sessionSampleRate);
+    [sentry_profileConfiguration reevaluateSessionSampleRate];
+}
+
+BOOL
+sentry_isLaunchProfileCorrelatedToTraces(void)
+{
+    if (nil == sentry_profileConfiguration) {
+        return NO;
+    }
+
+    SentryProfileOptions *options = sentry_profileConfiguration.profileOptions;
+
+    if (nil == options) {
+        return !sentry_profileConfiguration.isContinuousV1;
+    }
+
+    return options.profileAppStarts == true && options.lifecycle == SentryProfileLifecycleTrace;
 }
 
 void
@@ -72,7 +92,17 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    sentry_reevaluateSessionSampleRate(options.profiling.sessionSampleRate);
+    // if a launch profiler was started, sentry_profileConfiguration will have been set at that time
+    // with the hydrated options that were persisted from the previous SDK start, which are used to
+    // help determine when/how to stop the launch profile. otherwise, there won't yet be a
+    // SentryProfileConfiguration instance, so we'll instantiate one which will be used to access
+    // the profile session sample rate henceforth
+    if (sentry_profileConfiguration == nil) {
+        sentry_profileConfiguration =
+            [[SentryProfileConfiguration alloc] initWithProfileOptions:options.profiling];
+    }
+
+    sentry_reevaluateSessionSampleRate();
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
                      @"%.2f\n  profileAppStarts: %@\n}",
@@ -84,52 +114,48 @@ sentry_configureContinuousProfiling(SentryOptions *options)
 void
 sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
+    // get the configuration options from the last time the launch config was written; it may be
+    // different than the new options the SDK was just started with
+    SentryProfileConfiguration *configurationFromLaunch = sentry_profileConfiguration;
+
     sentry_configureContinuousProfiling(options);
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        // get the configuration options from the last time the launch config was written; it may be
-        // different than the new options the SDK was just started with
-        const auto configDict = sentry_appLaunchProfileConfiguration();
-        const auto profileIsContinuousV1 =
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
-        const auto profileIsContinuousV2 =
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] boolValue];
-        const auto v2LifecycleValue
-            = configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
-        const auto v2Lifecycle = (SentryProfileLifecycle)
-            [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] intValue];
-        const auto v2LifecycleIsManual = profileIsContinuousV2 && v2LifecycleValue != nil
-            && v2Lifecycle == SentryProfileLifecycleManual;
+        if (configurationFromLaunch.isProfilingThisLaunch) {
+            BOOL shouldStopAndTransmitLaunchProfile = YES;
 
-        BOOL shouldStopAndTransmitLaunchProfile = YES;
+            const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;
+            const auto v2LifecycleIsManual = profileIsContinuousV2
+                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleManual;
 
 #    if SENTRY_HAS_UIKIT
-        const auto v2LifecycleIsTrace = profileIsContinuousV2 && v2LifecycleValue != nil
-            && v2Lifecycle == SentryProfileLifecycleTrace;
-        const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
-        SentryUIViewControllerPerformanceTracker *performanceTracker =
-            [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
-        if (profileIsCorrelatedToTrace && performanceTracker.alwaysWaitForFullDisplay) {
-            SENTRY_LOG_DEBUG(@"Will wait to stop launch profile correlated to a trace until full "
-                             @"display reported.");
-            shouldStopAndTransmitLaunchProfile = NO;
-        }
+            const auto v2LifecycleIsTrace = profileIsContinuousV2
+                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleTrace;
+            const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
+            if (profileIsCorrelatedToTrace && configurationFromLaunch.waitForFullDisplay) {
+                SENTRY_LOG_DEBUG(
+                    @"Will wait to stop launch profile correlated to a trace until full "
+                    @"display reported.");
+                shouldStopAndTransmitLaunchProfile = NO;
+            }
 #    endif // SENTRY_HAS_UIKIT
 
-        if (profileIsContinuousV1 || v2LifecycleIsManual) {
-            SENTRY_LOG_DEBUG(
-                @"Continuous manual launch profiles aren't stopped on calls to SentrySDK.start, "
-                @"not stopping profile.");
-            shouldStopAndTransmitLaunchProfile = NO;
+            if (configurationFromLaunch.isContinuousV1 || v2LifecycleIsManual) {
+                SENTRY_LOG_DEBUG(@"Continuous manual launch profiles aren't stopped on calls to "
+                                 @"SentrySDK.start, "
+                                 @"not stopping profile.");
+                shouldStopAndTransmitLaunchProfile = NO;
+            }
+
+            if (shouldStopAndTransmitLaunchProfile) {
+                SENTRY_LOG_DEBUG(
+                    @"Stopping launch profile in SentrySDK.start because there is no time "
+                    @"to display tracker to stop it.");
+                sentry_stopAndDiscardLaunchProfileTracer(hub);
+            }
         }
 
-        if (shouldStopAndTransmitLaunchProfile) {
-            SENTRY_LOG_DEBUG(@"Stopping launch profile in SentrySDK.start because there will "
-                             @"be no automatic trace to attach it to.");
-            sentry_stopAndTransmitLaunchProfile(hub);
-        }
-
-        sentry_configureLaunchProfiling(options);
+        sentry_configureLaunchProfilingForNextLaunch(options);
     }];
 }
 
@@ -206,12 +232,13 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 {
     sentry_isTracingAppLaunch = NO;
     [self.metricProfiler stop];
-    self.truncationReason = reason;
 
     if (![self isRunning]) {
-        SENTRY_LOG_WARN(@"Profiler is not currently running.");
+        SENTRY_LOG_DEBUG(@"Profiler is not currently running.");
         return;
     }
+
+    self.truncationReason = reason;
 
 #    if SENTRY_HAS_UIKIT
     // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the

@@ -1,6 +1,6 @@
 # Changelog
 
-# Unreleased
+## Unreleased
 
 ### Improvements
 
@@ -10,6 +10,8 @@
 ### Fixes
 
 - Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
+
+- Launch profiling now respects original configured options if they change on the next launch (#5417)
 
 ## 8.53.2
 

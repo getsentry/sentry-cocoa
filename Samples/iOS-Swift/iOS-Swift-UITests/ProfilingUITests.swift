@@ -147,7 +147,8 @@ extension ProfilingUITests {
             "--disable-swizzling",
             "--disable-auto-performance-tracing",
             "--disable-uiviewcontroller-tracing",
-            
+            "--disable-time-to-full-display-tracing",
+
             // sets a marker function to run in a load command that the launch profile should detect
             "--io.sentry.slow-load-method",
             
@@ -169,6 +170,7 @@ extension ProfilingUITests {
         case .continuous:
             app.launchArguments.append("--io.sentry.disable-ui-profiling")
         case .trace:
+            app.launchArguments.append("--io.sentry.disable-ui-profiling")
             app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1"
         }
         

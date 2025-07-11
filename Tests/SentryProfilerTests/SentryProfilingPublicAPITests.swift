@@ -41,6 +41,11 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
     private let fixture = Fixture()
 
+    override class func setUp() {
+        super.setUp()
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+    }
+
     override func setUp() {
         super.setUp()
         SentryDependencyContainer.sharedInstance().timerFactory = fixture.timerFactory

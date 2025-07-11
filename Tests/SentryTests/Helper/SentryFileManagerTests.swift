@@ -1167,7 +1167,7 @@ extension SentryFileManagerTests {
             profilesSampleRate: expectedProfilesSampleRate,
             profilesSampleRand: expectedProfilesSampleRand
         )
-        let config = sentry_appLaunchProfileConfiguration()
+        let config = sentry_persistedLaunchProfileConfigurationOptions()
 
         // -- Assert --
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
@@ -1183,7 +1183,7 @@ extension SentryFileManagerTests {
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
     func testsentry_appLaunchProfileConfiguration_noConfigurationExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        XCTAssertNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNil(sentry_persistedLaunchProfileConfigurationOptions())
     }
     
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {
