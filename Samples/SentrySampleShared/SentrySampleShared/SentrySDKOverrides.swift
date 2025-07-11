@@ -46,96 +46,99 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
 
     public enum Special: String, SentrySDKOverride {
-        case wipeDataOnLaunch = "--io.sentry.wipe-data"
+        case wipeDataOnLaunch  = "--io.sentry.wipe-data"
         case disableEverything = "--io.sentry.disable-everything"
-        case skipSDKInit = "--skip-sentry-init"
-        case disableDebugMode = "--io.sentry.disable-debug-mode"
+        case skipSDKInit       = "--io.sentry.skip-sentry-init"
+        case disableDebugMode  = "--io.sentry.disable-debug-mode"
+        case dsn               = "--io.sentry.dsn"
     }
     case special = "Special"
 
     public enum Feedback: String, SentrySDKOverride {
-        case allDefaults = "--io.sentry.feedback.all-defaults"
-        case disableAutoInject = "--io.sentry.feedback.no-auto-inject-widget"
-        case noWidgetText = "--io.sentry.feedback.no-widget-text"
-        case noWidgetIcon = "--io.sentry.feedback.no-widget-icon"
-        case noUserInjection = "--io.sentry.feedback.dont-use-sentry-user"
-        case requireEmail = "--io.sentry.feedback.require-email"
-        case requireName = "--io.sentry.feedback.require-name"
-        case noAnimations = "--io.sentry.feedback.no-animations"
-        case injectScreenshot = "--io.sentry.feedback.inject-screenshot"
-        case useCustomFeedbackButton = "--io.sentry.feedback.use-custom-feedback-button"
-        case noScreenshots = "--io.sentry.feedback.no-screenshots"
-        case noShakeGesture = "--io.sentry.feedback.no-shake-gesture"
+        case allDefaults                = "--io.sentry.feedback.all-defaults"
+        case disableAutoInject          = "--io.sentry.feedback.no-auto-inject-widget"
+        case noWidgetText               = "--io.sentry.feedback.no-widget-text"
+        case noWidgetIcon               = "--io.sentry.feedback.no-widget-icon"
+        case noUserInjection            = "--io.sentry.feedback.dont-use-sentry-user"
+        case requireEmail               = "--io.sentry.feedback.require-email"
+        case requireName                = "--io.sentry.feedback.require-name"
+        case noAnimations               = "--io.sentry.feedback.no-animations"
+        case injectScreenshot           = "--io.sentry.feedback.inject-screenshot"
+        case useCustomFeedbackButton    = "--io.sentry.feedback.use-custom-feedback-button"
+        case noScreenshots              = "--io.sentry.feedback.no-screenshots"
+        case noShakeGesture             = "--io.sentry.feedback.no-shake-gesture"
     }
     case feedback = "Feedback"
 
     public enum Performance: String, SentrySDKOverride {
-        case disableTimeToFullDisplayTracing = "--disable-time-to-full-display-tracing"
-        case disablePerformanceV2 = "--disable-performance-v2"
-        case disableAppHangTrackingV2 = "--disable-app-hang-tracking-v2"
-        case disableSessionTracking = "--disable-automatic-session-tracking"
-        case disableFileIOTracing = "--disable-file-io-tracing"
-        case disableUIVCTracing = "--disable-uiviewcontroller-tracing"
-        case disableNetworkTracing = "--disable-network-tracking"
-        case disableCoreDataTracing = "--disable-core-data-tracing"
-        case disableANRTracking = "--disable-anr-tracking"
-        case disableWatchdogTracking = "--disable-watchdog-tracking"
-        case disableUITracing = "--disable-ui-tracing"
-        case disablePrewarmedAppStartTracing = "--disable-prewarmed-app-start-tracing"
-        case disablePerformanceTracing = "--disable-auto-performance-tracing"
-        case sessionTrackingIntervalMillis = "--io.sentry.sessionTrackingIntervalMillis"
+        case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
+        case disablePerformanceV2               = "--io.sentry.performance.disable-performance-v2"
+        case disableAppHangTrackingV2           = "--io.sentry.performance.disable-app-hang-tracking-v2"
+        case disableSessionTracking             = "--io.sentry.performance.disable-automatic-session-tracking"
+        case disableFileIOTracing               = "--io.sentry.performance.disable-file-io-tracing"
+        case disableUIVCTracing                 = "--io.sentry.performance.disable-uiviewcontroller-tracing"
+        case disableNetworkTracing              = "--io.sentry.performance.disable-network-tracking"
+        case disableCoreDataTracing             = "--io.sentry.performance.disable-core-data-tracing"
+        case disableANRTracking                 = "--io.sentry.performance.disable-anr-tracking"
+        case disableWatchdogTracking            = "--io.sentry.performance.disable-watchdog-tracking"
+        case disableUITracing                   = "--io.sentry.performance.disable-ui-tracing"
+        case disablePrewarmedAppStartTracing    = "--io.sentry.performance.disable-prewarmed-app-start-tracing"
+        case disablePerformanceTracing          = "--io.sentry.performance.disable-auto-performance-tracing"
+        case sessionTrackingIntervalMillis      = "--io.sentry.performance.sessionTrackingIntervalMillis"
     }
     case performance = "Performance"
 
     public enum SessionReplay: String, SentrySDKOverride {
-        case disableSessionReplay = "--disable-session-replay"
-        case disableViewRendererV2 = "--io.sentry.session-replay.disableViewRendereV2"
-        case enableFastViewRendering = "--io.sentry.session-replay.enableFastViewRendering"
-        case sampleRate = "--io.sentry.sessionReplaySampleRate"
-        case onErrorSampleRate = "--io.sentry.sessionReplayOnErrorSampleRate"
-        case quality = "--io.sentry.sessionReplayQuality"
-        case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
-        case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
+        case disableSessionReplay      = "--io.sentry.session-replay.disable-session-replay"
+        case disableViewRendererV2     = "--io.sentry.session-replay.disableViewRendereV2"
+        case enableFastViewRendering   = "--io.sentry.session-replay.enableFastViewRendering"
+        case sampleRate                = "--io.sentry.session-replay.sessionReplaySampleRate"
+        case onErrorSampleRate         = "--io.sentry.session-replay.sessionReplayOnErrorSampleRate"
+        case quality                   = "--io.sentry.session-replay.sessionReplayQuality"
+        case disableMaskAllText        = "--io.sentry.session-replay.disable-mask-all-text"
+        case disableMaskAllImages      = "--io.sentry.session-replay.disable-mask-all-images"
     }
     case sessionReplay = "Session Replay"
 
     public enum Other: String, SentrySDKOverride {
-        case disableAttachScreenshot = "--disable-attach-screenshot"
-        case disableAttachViewHierarchy = "--disable-attach-view-hierarchy"
-        case rejectAllEvents = "--reject-all-events"
-        case rejectAllSpans = "--reject-all-spans"
-        case rejectScreenshots = "--reject-screenshots-in-before-capture-screenshot"
-        case rejectViewHierarchy = "--reject-view-hierarchy-in-before-capture-view-hierarchy"
-        case disableMetricKit = "--disable-metrickit-integration"
-        case disableMetricKitRawPayloads = "--disable-metrickit-raw-payloads"
-        case disableBreadcrumbs = "--disable-automatic-breadcrumbs"
-        case disableNetworkBreadcrumbs = "--disable-network-breadcrumbs"
-        case disableSwizzling = "--disable-swizzling"
-        case disableCrashHandling = "--disable-crash-handler"
-        case disableSpotlight = "--disable-spotlight"
-        case disableFileManagerSwizzling = "--disable-filemanager-swizzling"
-        case username = "--io.sentry.user.username"
-        case userFullName = "--io.sentry.user.name"
-        case userEmail = "--io.sentry.user.email"
-        case userID = "--io.sentry.user.id"
-        case environment = "--io.sentry.sdk-environment"
+        case disableAttachScreenshot        = "--io.sentry.other.disable-attach-screenshot"
+        case disableAttachViewHierarchy     = "--io.sentry.other.disable-attach-view-hierarchy"
+        case rejectAllEvents                = "--io.sentry.other.reject-all-events"
+        case rejectAllSpans                 = "--io.sentry.other.reject-all-spans"
+        case rejectScreenshots              = "--io.sentry.other.reject-screenshots-in-before-capture-screenshot"
+        case rejectViewHierarchy            = "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy"
+        case disableMetricKit               = "--io.sentry.other.disable-metrickit-integration"
+        case disableMetricKitRawPayloads    = "--io.sentry.other.disable-metrickit-raw-payloads"
+        case disableBreadcrumbs             = "--io.sentry.other.disable-automatic-breadcrumbs"
+        case disableNetworkBreadcrumbs      = "--io.sentry.other.disable-network-breadcrumbs"
+        case disableSwizzling               = "--io.sentry.other.disable-swizzling"
+        case disableCrashHandling           = "--io.sentry.other.disable-crash-handler"
+        case disableSpotlight               = "--io.sentry.other.disable-spotlight"
+        case disableFileManagerSwizzling    = "--io.sentry.other.disable-filemanager-swizzling"
+        case base64AttachmentData           = "--io.sentry.other.base64-attachment-data"
+        case disableHttpTransport           = "--io.sentry.other.disable-http-transport"
+        case username                       = "--io.sentry.scope.user.username"
+        case userFullName                   = "--io.sentry.scope.user.name"
+        case userEmail                      = "--io.sentry.scope.user.email"
+        case userID                         = "--io.sentry.scope.user.id"
+        case environment                    = "--io.sentry.scope.sdk-environment"
     }
     case other = "Other"
 
     public enum Tracing: String, SentrySDKOverride {
-        case sampleRate = "--io.sentry.tracesSampleRate"
-        case samplerValue = "--io.sentry.tracesSamplerValue"
-        case disableTracing = "--io.sentry.disable-tracing"
+        case sampleRate      = "--io.sentry.tracing.tracesSampleRate"
+        case samplerValue    = "--io.sentry.tracing.tracesSamplerValue"
+        case disableTracing  = "--io.sentry.tracing.disable-tracing"
     }
     case tracing = "Tracing"
 
     public enum Profiling: String, SentrySDKOverride {
-        case sampleRate = "--io.sentry.profilesSampleRate"
-        case samplerValue = "--io.sentry.profilesSamplerValue"
-        case disableAppStartProfiling = "--io.sentry.disable-app-start-profiling"
-        case manualLifecycle = "--io.sentry.profile-lifecycle-manual"
-        case sessionSampleRate = "--io.sentry.profile-session-sample-rate"
-        case disableUIProfiling = "--io.sentry.disable-ui-profiling"
+        case sampleRate                 = "--io.sentry.profiling.profilesSampleRate"
+        case samplerValue               = "--io.sentry.profiling.profilesSamplerValue"
+        case disableAppStartProfiling   = "--io.sentry.profiling.disable-app-start-profiling"
+        case manualLifecycle            = "--io.sentry.profiling.profile-lifecycle-manual"
+        case sessionSampleRate          = "--io.sentry.profiling.profile-session-sample-rate"
+        case disableUIProfiling         = "--io.sentry.profiling.disable-ui-profiling"
     }
     case profiling = "Profiling"
 }
@@ -251,7 +254,7 @@ extension SentrySDKOverrides.Tracing {
 extension SentrySDKOverrides.Other {
     public var overrideType: OverrideType {
         switch self {
-        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .rejectAllEvents: return .boolean
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .rejectAllEvents, .base64AttachmentData, .disableHttpTransport: return .boolean
         case .username, .userFullName, .userEmail, .userID, .environment: return .string
         }
     }
@@ -288,6 +291,7 @@ extension SentrySDKOverrides.Special {
     public var overrideType: OverrideType {
         switch self {
         case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode: return .boolean
+        case .dsn: return .string
         }
     }
 }
@@ -317,8 +321,8 @@ extension SentrySDKOverrides.Tracing {
 extension SentrySDKOverrides.Other {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .rejectAllEvents, .username, .userFullName, .userEmail, .userID, .environment: return true
-        case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling: return false
+        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .rejectAllEvents, .username, .userFullName, .userEmail, .userID, .environment, .base64AttachmentData: return true
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableHttpTransport: return false
         }
     }
 }
@@ -352,7 +356,7 @@ extension SentrySDKOverrides.Feedback {
 extension SentrySDKOverrides.Special {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode: return true
+        case .wipeDataOnLaunch, .disableEverything, .skipSDKInit, .disableDebugMode, .dsn: return true
         }
     }
 }
