@@ -30,7 +30,9 @@ NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand = @"traces.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand = @"profiles.sample_rand";
+#    if !SDK_V9
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling = @"continuous-profiling";
+#    endif // !SDK_V9
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2
     = @"continuous-profiling-v2-enabled";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle
@@ -161,11 +163,12 @@ _sentry_startTraceProfiler(
                                                              configuration:tracerConfig];
 }
 
+#    if !SDK_V9
 SentryLaunchProfileDecision
 sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Specified options configuration doesn't enable launch profiling: "
@@ -174,7 +177,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
             options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileDecision) { NO, nil, nil };
     }
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 
     SentryTransactionContext *transactionContext =
         [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
@@ -199,6 +202,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
     SENTRY_LOG_DEBUG(@"Will start transaction profile next launch; will profile launch.");
     return (SentryLaunchProfileDecision) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
+#    endif // !SDK_V9
 
 SentryLaunchProfileDecision
 sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
@@ -261,15 +265,19 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     if ([options isContinuousProfilingV2Enabled]) {
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
+#    if SDK_V9
+    return (SentryLaunchProfileDecision) { NO, nil, nil };
+#    else
 
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options isContinuousProfilingEnabled]) {
         return (SentryLaunchProfileDecision) { options.enableAppLaunchProfiling, nil, nil };
     }
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 
     return sentry_launchShouldHaveTransactionProfiling(options);
+#    endif // SDK_V9
 }
 
 /**
@@ -313,17 +321,21 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     NSDictionary<NSString *, NSNumber *> *persistedLaunchConfigOptionsDict
         = sentry_persistedLaunchProfileConfigurationOptions();
 
-    BOOL isContinuousV1 =
-        [persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyContinuousProfiling]
-            boolValue];
     BOOL isContinuousV2 =
         [persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]
+            boolValue];
+#    if !SDK_V9
+    BOOL isContinuousV1 =
+        [persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyContinuousProfiling]
             boolValue];
     if (isContinuousV1 && isContinuousV2) {
         SENTRY_LOG_WARN(@"Launch profile misconfiguration detected.");
         _sentry_cleanUpConfigFile();
         return;
     }
+#    else
+    BOOL isContinuousV1 = false;
+#    endif // !SDK_V9
 
     SentrySamplerDecision *decision
         = _sentry_profileSampleDecision(persistedLaunchConfigOptionsDict);
@@ -408,7 +420,9 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
             @(options.enableTimeToFullDisplayTracing);
+#    if !SDK_V9
         if ([options isContinuousProfilingEnabled]) {
+#    endif // !SDK_V9
             if ([options isContinuousProfilingV2Enabled]) {
                 SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
                 configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
@@ -425,9 +439,12 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
                 configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand]
                     = config.profilesDecision.sampleRand;
             } else {
+#    if !SDK_V9
                 SENTRY_LOG_DEBUG(@"Configuring continuous launch profile.");
                 configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] = @YES;
+#    endif // !SDK_V9
             }
+#    if !SDK_V9
         } else {
             SENTRY_LOG_DEBUG(@"Configuring trace launch profile.");
             configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
@@ -439,6 +456,7 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
             configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand]
                 = config.profilesDecision.sampleRand;
         }
+#    endif // !SDK_V9
         writeAppLaunchProfilingConfigFile(configDict);
     }];
 }

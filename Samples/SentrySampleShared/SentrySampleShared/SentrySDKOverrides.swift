@@ -133,8 +133,10 @@ public enum SentrySDKOverrides: String, CaseIterable {
     case tracing = "Tracing"
 
     public enum Profiling: String, SentrySDKOverride {
+      #if !SDK_V9
         case sampleRate                 = "--io.sentry.profiling.profilesSampleRate"
         case samplerValue               = "--io.sentry.profiling.profilesSamplerValue"
+     #endif // !SDK_V9
         case disableAppStartProfiling   = "--io.sentry.profiling.disable-app-start-profiling"
         case manualLifecycle            = "--io.sentry.profiling.profile-lifecycle-manual"
         case sessionSampleRate          = "--io.sentry.profiling.profile-session-sample-rate"
@@ -238,7 +240,11 @@ private extension SentrySDKOverride {
 extension SentrySDKOverrides.Profiling {
     public var overrideType: OverrideType {
         switch self {
+          #if SDK_V9
+        case .sessionSampleRate: return .float
+          #else
         case .sampleRate, .samplerValue, .sessionSampleRate: return .float
+          #endif // !SDK_V9
         case .disableAppStartProfiling, .manualLifecycle, .disableUIProfiling, .slowLoadMethod, .immediateStop: return .boolean
         }
     }
@@ -305,7 +311,11 @@ extension SentrySDKOverrides.Special {
 extension SentrySDKOverrides.Profiling {
     public var ignoresDisableEverything: Bool {
         switch self {
+          #if SDK_V9
+        case .sessionSampleRate, .manualLifecycle, .slowLoadMethod, .immediateStop: return true
+          #else
         case .sampleRate, .samplerValue, .sessionSampleRate, .manualLifecycle, .slowLoadMethod, .immediateStop: return true
+          #endif // SDK_V9
         case .disableAppStartProfiling, .disableUIProfiling: return false
         }
     }
