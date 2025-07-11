@@ -1,6 +1,10 @@
 # Changelog
 
-# Unreleased
+## Unreleased
+
+### Features
+
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532)
 
 ### Improvements
 

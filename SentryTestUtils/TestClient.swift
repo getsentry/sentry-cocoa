@@ -149,4 +149,9 @@ public class TestClient: SentryClient {
     public override func flush(timeout: TimeInterval) {
         flushInvocations.record(timeout)
     }
+    
+    public var captureLogsDataInvocations = Invocations<Data>()
+    public override func captureLogsData(_ data: Data) {
+        captureLogsDataInvocations.record(data)
+    }
 }
