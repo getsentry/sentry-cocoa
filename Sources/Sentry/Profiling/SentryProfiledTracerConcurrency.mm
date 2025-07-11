@@ -178,9 +178,12 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
             internalTraceId.sentryIdString);
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
+#    if !SDK_V9
         if ([hub.getClient.options isContinuousProfilingEnabled]) {
+#    endif // !SDK_V9
             SENTRY_TEST_FATAL(@"Tracers are not tracked with continuous profiling V1.");
             return;
+#    if !SDK_V9
         }
 
         if (_gTracersToProfilers == nil) {
@@ -197,7 +200,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
 
         _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
-#    if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
         if (_gProfilersToTracers == nil) {
             SENTRY_TEST_FATAL(@"Profiler to tracer structure should have already been "
                               @"initialized by the time they are being queried");
@@ -205,7 +208,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
         if (_gProfilersToTracers.count == 0) {
             [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
         }
-#    endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
+#    endif // !SDK_V9
     }
 }
 
@@ -342,8 +346,13 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     } else {
         BOOL profileShouldBeSampled
             = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
+#    if !SDK_V9
         BOOL isContinuousProfiling = [hub.client.options isContinuousProfilingEnabled];
         BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
+#    else
+        BOOL shouldStartNormalTraceProfile = profileShouldBeSampled;
+#    endif // !SDK_V9
+
         if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
             SentryId *internalID = [[SentryId alloc] init];
             if ([SentryTraceProfiler startWithTracer:internalID]) {

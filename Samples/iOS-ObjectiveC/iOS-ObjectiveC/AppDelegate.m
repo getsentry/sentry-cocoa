@@ -51,6 +51,7 @@
             };
         }
 
+#if !SDK_V9
         if (env[@"--io.sentry.profiling.profilesSampleRate"] != nil) {
             options.profilesSampleRate =
                 @([env[@"--io.sentry.profiling.profilesSampleRate"] floatValue]);
@@ -67,6 +68,7 @@
         if (![args containsObject:@"--io.sentry.profiling.disable-app-start-profiling"]) {
             options.enableAppLaunchProfiling = YES;
         }
+#endif // !SDK_V9
 
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];

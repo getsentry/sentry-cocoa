@@ -680,6 +680,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)startProfiler
 {
     SentryOptions *options = currentHub.client.options;
+#    if !SDK_V9
     if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
@@ -689,6 +690,7 @@ static NSDate *_Nullable startTimestamp = nil;
             @"relies on deprecated options and will change in a future version.");
         return;
     }
+#    endif // !SDK_V9
 
     if (options.profiling != nil) {
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
@@ -716,6 +718,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)stopProfiler
 {
     SentryOptions *options = currentHub.client.options;
+#    if !SDK_V9
     if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
@@ -725,6 +728,7 @@ static NSDate *_Nullable startTimestamp = nil;
             @"relies on deprecated options and will change in a future version.");
         return;
     }
+#    endif // !SDK_V9
 
     if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(

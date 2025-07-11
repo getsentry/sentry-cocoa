@@ -48,6 +48,7 @@ sentry_reevaluateSessionSampleRate(float sessionSampleRate)
 void
 sentry_configureContinuousProfiling(SentryOptions *options)
 {
+#    if !SDK_V9
     if (![options isContinuousProfilingEnabled]) {
         if (options.configureProfiling != nil) {
             SENTRY_LOG_WARN(@"In order to configure SentryProfileOptions you must remove "
@@ -56,6 +57,7 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         }
         return;
     }
+#    endif // !SDK_V9
 
     if (options.configureProfiling == nil) {
         SENTRY_LOG_DEBUG(@"Continuous profiling V2 configuration not set by SDK consumer, nothing "
@@ -90,8 +92,10 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         // get the configuration options from the last time the launch config was written; it may be
         // different than the new options the SDK was just started with
         const auto configDict = sentry_appLaunchProfileConfiguration();
+#    if !SDK_V9
         const auto profileIsContinuousV1 =
             [configDict[kSentryLaunchProfileConfigKeyContinuousProfiling] boolValue];
+#    endif // !SDK_V9
         const auto profileIsContinuousV2 =
             [configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] boolValue];
         const auto v2LifecycleValue
@@ -116,7 +120,11 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         }
 #    endif // SENTRY_HAS_UIKIT
 
+#    if !SDK_V9
         if (profileIsContinuousV1 || v2LifecycleIsManual) {
+#    else
+        if (v2LifecycleIsManual) {
+#    endif // !SDK_V9
             SENTRY_LOG_DEBUG(
                 @"Continuous manual launch profiles aren't stopped on calls to SentrySDK.start, "
                 @"not stopping profile.");

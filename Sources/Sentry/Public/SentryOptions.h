@@ -530,6 +530,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
 
+#    if !SDK_V9
 /**
  * @warning This is an experimental feature and may still have bugs.
  * Set to @c YES to run the profiler as early as possible in an app launch, before you would
@@ -620,6 +621,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
     "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
     "version of the SDK");
+#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
