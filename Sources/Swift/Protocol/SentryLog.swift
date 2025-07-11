@@ -56,8 +56,7 @@ struct SentryLog: Codable {
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
     }
     
-    @objc
-    public mutating func addAttribute(_ name: String, value: Any) {
+    mutating func addAttribute(_ name: String, value: Any) {
         attributes[name] = SentryLog.Attribute(value: value)
     }
 }

@@ -108,7 +108,7 @@ final class SentryLogTests: XCTestCase {
     // MARK: - addAttribute Tests
     
     func testAddAttribute_AddsNewAttributes() {
-        let log = SentryLog(
+        var log = SentryLog(
             timestamp: Date(),
             level: .info,
             body: "Test message",
