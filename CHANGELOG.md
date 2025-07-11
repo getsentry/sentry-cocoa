@@ -3,6 +3,15 @@
 ## Unreleased
 
 - Add support for capturing structured logs via `SentrySDK.logger` (#5532)
+# Unreleased
+
+### Improvements
+
+- Extract video processing to a new class (#5604)
+
+### Fixes
+
+- Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
 
 ## 8.53.2
 
