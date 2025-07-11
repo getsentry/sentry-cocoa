@@ -464,13 +464,13 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRate:tracesSamplerDecision.sampleRate
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
     if (![self.client.options isContinuousProfilingEnabled]) {
         SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
             samplingContext, tracesSamplerDecision, self.client.options);
         configuration.profilesSamplerDecision = profilesSamplerDecision;
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
