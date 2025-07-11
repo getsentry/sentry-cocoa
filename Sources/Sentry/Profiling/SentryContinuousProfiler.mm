@@ -61,8 +61,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
 
-    // Capture the metric profiler reference for background serialization
-    const auto metricProfiler = profiler.metricProfiler;
+    const auto metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
+    [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
@@ -76,11 +76,9 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        const auto metricProfilerState = [metricProfiler serializeContinuousProfileMetrics];
-        [metricProfiler clear];
-
+        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
         const auto envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, metricProfilerState
+            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
 #    if SENTRY_HAS_UIKIT
                 ,
                 screenFrameData
