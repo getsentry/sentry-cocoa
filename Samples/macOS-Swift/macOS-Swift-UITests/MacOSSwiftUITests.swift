@@ -1,3 +1,4 @@
+import SentrySampleShared
 import XCTest
 
 final class MacOSSwiftUITests: XCTestCase {
@@ -57,21 +58,21 @@ private extension MacOSSwiftUITests {
     ) throws {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
-            "--io.sentry.other.disable-swizzling",
-            "--io.sentry.performance.disable-auto-performance-tracing",
-            "--io.sentry.performance.disable-uiviewcontroller-tracing",
+            SentrySDKOverrides.Other.disableSwizzling.rawValue,
+            SentrySDKOverrides.Performance.disablePerformanceTracing.rawValue,
+            SentrySDKOverrides.Performance.disableUIVCTracing.rawValue,
 
             // sets a marker function to run in a load command that the launch profile should detect
-            "--io.sentry.profiling.slow-load-method",
+            SentrySDKOverrides.Profiling.slowLoadMethod.rawValue,
 
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-            "--io.sentry.continuous-profiler-immediate-stop"
+            SentrySDKOverrides.Profiling.immediateStop.rawValue
         ])
 
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
 
         if !shouldProfileNextLaunch {
-            app.launchArguments.append("--io.sentry.profiling.disable-app-start-profiling")
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue)
         }
 
         app.launch()
