@@ -46,6 +46,9 @@ class SentryVideoFrameProcessor {
     }
 
     func processFrames(videoWriterInput: AVAssetWriterInput, onCompletion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
+        // Use the recommended loop pattern for AVAssetWriterInput
+        // See https://developer.apple.com/documentation/avfoundation/avassetwriterinput/requestmediadatawhenready(on:using:)#Discussion
+        // This could lead to an infinite loop if we don't make sure to mark the input as finished when the video is finished either by the end of the frames or by an error.
         while videoWriterInput.isReadyForMoreMediaData {
             SentrySDKLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
             guard videoWriter.status == .writing else {
