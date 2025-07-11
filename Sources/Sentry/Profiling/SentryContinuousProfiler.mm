@@ -61,7 +61,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
 
-    const auto metricProfilerState = [profiler.metricProfiler serializeContinuousProfileMetrics];
+    const auto metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
@@ -70,14 +70,22 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
-    const auto envelope = sentry_continuousProfileChunkEnvelope(
-        profiler.profilerId, profilerState, metricProfilerState
+    // Capture profiler ID on main thread since we need it for the background work
+    const auto profilerID = profiler.profilerId;
+
+    // Move the serialization work to a background queue to avoid potentially
+    // blocking the main thread. The serialization can take several milliseconds.
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
+        const auto envelope
+            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
 #    if SENTRY_HAS_UIKIT
-        ,
-        screenFrameData
+                ,
+                screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-    );
-    [SentrySDK captureEnvelope:envelope];
+            );
+        [SentrySDK captureEnvelope:envelope];
+    }];
 }
 
 void
