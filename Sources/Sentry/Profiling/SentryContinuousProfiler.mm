@@ -76,7 +76,6 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        // Perform metric serialization on background queue, then clear
         const auto metricProfilerState = [metricProfiler serializeContinuousProfileMetrics];
         [metricProfiler clear];
 
