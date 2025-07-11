@@ -41,9 +41,11 @@ import Foundation
         }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if !SDK_V9
         if options.enableAppHangTrackingV2 {
             features.append("appHangTrackingV2")
         }
+        #endif // !SDK_V9
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         if options.enablePersistingTracesWhenCrashing {
