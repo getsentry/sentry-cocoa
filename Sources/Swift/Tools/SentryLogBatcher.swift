@@ -1,10 +1,6 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if CARTHAGE || SWIFT_PACKAGE
-import Sentry._Hybrid
-#endif
-
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
@@ -16,7 +12,7 @@ import Sentry._Hybrid
         super.init()
     }
     
-    @_spi(Private) public func add(_ log: SentryLog) {
+    func add(_ log: SentryLog) {
         dispatch(logs: [log])
     }
     
@@ -25,15 +21,7 @@ import Sentry._Hybrid
             let payload = ["items": logs]
             let data = try encodeToJSONData(data: payload)
             
-            let header = SentryEnvelopeItemHeader(
-                type: "log",
-                length: UInt(data.count),
-                contentType: "application/vnd.sentry.items.log+json",
-                itemCount: NSNumber(value: logs.count)
-            )
-            let envelopeItem = SentryEnvelopeItem(header: header, data: data)
-            let envelope = SentryEnvelope(id: nil, singleItem: envelopeItem)
-            client.capture(envelope)
+            client.captureLogsData(data)
         } catch {
             SentrySDKLog.error("Failed to create logs envelope.")
         }

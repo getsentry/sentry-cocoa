@@ -45,7 +45,6 @@
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryLogC.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNetworkTracker.h"

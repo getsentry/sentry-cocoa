@@ -13,7 +13,6 @@
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
 @class SentryFileManager;
-@class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
@@ -26,7 +25,6 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
-@class SentryLogger;
 
 @protocol SentryANRTracker;
 @protocol SentryRandom;
@@ -34,6 +32,7 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryDispatchQueueProviderProtocol;
+@protocol SentryNSNotificationCenterWrapper;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -88,7 +87,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
@@ -112,7 +111,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryLogger *logger;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
 #if SENTRY_HAS_UIKIT

@@ -1,5 +1,5 @@
 extension SentryLog {
-    @_spi(Private) public enum Attribute: Codable {
+    enum Attribute: Codable {
         case string(String)
         case boolean(Bool)
         case integer(Int)
@@ -25,7 +25,12 @@ extension SentryLog {
         
         // MARK: - Initializers
         
-        /// Initializes a SentryLog.Attribute from any value, converting it to the appropriate type
+        /// Initializes a SentryLog.Attribute from any value, converting it to the appropriate type.
+        /// 
+        /// Supported types: String, Bool, Int, Double, and Float (converted to Double).
+        /// Other types (including Date, NSNumber, CGFloat, etc.) are converted to string representation.
+        /// 
+        /// See: https://develop.sentry.dev/sdk/telemetry/logs/#appendix-b-otel_log-envelope-item-payload
         init(value: Any) {
             switch value {
             case let stringValue as String:
@@ -38,15 +43,6 @@ extension SentryLog {
                 self = .double(doubleValue)
             case let floatValue as Float:
                 self = .double(Double(floatValue))
-            case let cgFloatValue as CGFloat:
-                self = .double(Double(cgFloatValue))
-            case let nsNumberValue as NSNumber:
-                // Handle NSNumber - need to check the underlying type
-                if CFNumberIsFloatType(nsNumberValue) {
-                    self = .double(nsNumberValue.doubleValue)
-                } else {
-                    self = .integer(nsNumberValue.intValue)
-                }
             default:
                 // For any other type, convert to string representation
                 self = .string(String(describing: value))
@@ -58,7 +54,7 @@ extension SentryLog {
             case type
         }
         
-        public init(from decoder: any Decoder) throws {
+        init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
             let type = try container.decode(String.self, forKey: .type)
@@ -76,7 +72,7 @@ extension SentryLog {
             }
         }
         
-        public func encode(to encoder: any Encoder) throws {
+        func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             try container.encode(type, forKey: .type)

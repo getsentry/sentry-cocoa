@@ -14,14 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
                              replayRecording:(SentryReplayRecording *)replayRecording
                                        video:(NSURL *)videoURL;
 
-- (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header data:(NSData *)data;
-
-@end
-
-@interface SentryEnvelope ()
-
-- (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item;
-
 @end
 
 NS_ASSUME_NONNULL_END

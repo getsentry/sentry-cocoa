@@ -47,6 +47,8 @@
     XCTAssertNil(options);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testDsnUrl
 {
     NSError *error = nil;
@@ -65,6 +67,7 @@
         [[dsn2 getStoreEndpoint] absoluteString], @"https://sentry.io/foo/bar/baz/api/1/store/");
     XCTAssertNil(error);
 }
+#pragma clang diagnostic pop
 
 - (void)testGetEnvelopeUrl
 {
@@ -85,6 +88,8 @@
     XCTAssertNil(error);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testGetStoreDsnCachesResult
 {
     SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@getsentry.net/1"
@@ -94,6 +99,7 @@
     // Assert same reference
     XCTAssertTrue([dsn getStoreEndpoint] == [dsn getStoreEndpoint]);
 }
+#pragma clang diagnostic pop
 
 - (void)testInitWithInvalidString
 {

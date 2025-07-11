@@ -575,6 +575,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
+#if !SDK_V9
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     if ([self isDisabled]) {
@@ -589,6 +590,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self.transportAdapter sendUserFeedback:userFeedback];
 }
+#endif // !SDK_V9
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
@@ -1118,6 +1120,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return processedAttachments;
+}
+
+- (void)captureLogsData:(NSData *)data
+{
+    SentryEnvelopeItemHeader *header =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeLog
+                                                length:data.length
+                                           contentType:@"application/vnd.sentry.items.log+json"];
+
+    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:data];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                           singleItem:envelopeItem];
+    [self captureEnvelope:envelope];
 }
 
 @end

@@ -45,7 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
-@property (nonatomic, strong) SentryLogBatcher *logBatcher;
 
 @end
 
@@ -80,7 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
-        _logBatcher = [[SentryLogBatcher alloc] initWithClient:client];
 
         if (_scope) {
             [_crashWrapper enrichScope:_scope];
@@ -544,6 +542,7 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+#if !SDK_V9
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     SentryClient *client = self.client;
@@ -551,6 +550,7 @@ NS_ASSUME_NONNULL_BEGIN
         [client captureUserFeedback:userFeedback];
     }
 }
+#endif // !SDK_V9
 
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
@@ -560,6 +560,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+<<<<<<< HEAD
 - (void)captureLog:(SentryLog *)log
 {
     SentryOptions *options = [[self client] options];
@@ -593,6 +594,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+=======
+>>>>>>> feat/structured-logs-send-via-envelopes
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];

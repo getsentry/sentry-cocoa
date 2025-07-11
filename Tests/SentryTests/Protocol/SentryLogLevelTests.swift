@@ -1,4 +1,4 @@
-@_spi(Private) @testable import Sentry
+@testable import Sentry
 import XCTest
 
 final class SentryLogLevelTests: XCTestCase {

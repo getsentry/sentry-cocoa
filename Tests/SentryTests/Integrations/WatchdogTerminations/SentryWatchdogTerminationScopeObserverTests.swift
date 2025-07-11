@@ -26,6 +26,13 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let user: User = User(userId: "123")
         let dist = "1.0.0"
         let env = "prod"
+        let tags = ["tag1": "value1"]
+        let extras: [String: Any] = [
+            "extra_key": "extra_value",
+            "numeric_key": 42,
+            "bool_key": true
+        ]
+        let fingerprint: [String] = ["fingerprint1", "fingerprint2", "fingerprint3"]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -208,6 +215,79 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         XCTAssertEqual(invocationContext, env)
+    }
+
+    func testSetTags_whenTagsIsNil_shouldCallAttributesProcessorSetTags() throws {
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTags_whenTagsIsDefined_shouldCallAttributesProcessorSetTags() throws {
+        // -- Arrange --
+        let tags = fixture.tags
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, tags)
+    }
+    
+    func testSetExtras_whenExtrasIsNil_shouldCallAttributesProcessorSetExtras() throws {
+        // -- Act --
+        sut.setExtras(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setExtrasInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setExtrasInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetExtras_whenExtrasIsDefined_shouldCallAttributesProcessorSetExtras() throws {
+        // -- Arrange --
+        let extras = fixture.extras
+
+        // -- Act --
+        sut.setExtras(extras)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setExtrasInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setExtrasInvocations.first)
+        let invocationExtras = try XCTUnwrap(invocation)
+        // Use NSDictionary to erase the type information and compare the dictionaries
+        XCTAssertEqual(NSDictionary(dictionary: invocationExtras), NSDictionary(dictionary: extras))
+    }
+    
+    func testSetFingerprint_whenFingerprintIsNil_shouldCallAttributesProcessorSetFingerprint() throws {
+        // -- Act --
+        sut.setFingerprint(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setFingerprintInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setFingerprintInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetFingerprint_whenFingerprintIsDefined_shouldCallAttributesProcessorSetFingerprint() throws {
+        // -- Arrange --
+        let fingerprint = fixture.fingerprint
+
+        // -- Act --
+        sut.setFingerprint(fingerprint)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setFingerprintInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setFingerprintInvocations.first)
+        let invocationFingerprint = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationFingerprint, fingerprint)
     }
 }
 

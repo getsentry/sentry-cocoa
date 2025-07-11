@@ -22,8 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray<NSString *> *features =
         [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+#pragma clang diagnostic pop
 
     NSMutableArray<NSString *> *integrations =
         [SentrySDK.currentHub trimmedInstalledIntegrationNames];

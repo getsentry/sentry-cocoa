@@ -310,6 +310,22 @@ NS_ASSUME_NONNULL_BEGIN
     return sentryLevelForString(eventDictionary[@"level"]);
 }
 
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
+{
+    NSError *error = nil;
+    id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (nil != error) {
+        SENTRY_LOG_ERROR(@"Failed to deserialize json item array: %@", error);
+        return nil;
+    }
+    if (![json isKindOfClass:[NSArray class]]) {
+        SENTRY_LOG_ERROR(
+            @"Deserialized json is not an NSArray, found %@", NSStringFromClass([json class]));
+        return nil;
+    }
+    return (NSArray *)json;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

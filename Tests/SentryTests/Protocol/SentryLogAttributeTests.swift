@@ -1,4 +1,4 @@
-@_spi(Private) @testable import Sentry
+@testable import Sentry
 import XCTest
 
 final class SentryLogAttributeTests: XCTestCase {
@@ -207,6 +207,12 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(attribute.value as? String, "test string")
     }
     
+    func testInitializer_EmptyStringValue() {
+        let attribute = SentryLog.Attribute(value: "")
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "")
+    }
+    
     func testInitializer_BooleanValue() {
         let trueAttribute = SentryLog.Attribute(value: true)
         XCTAssertEqual(trueAttribute.type, "boolean")
@@ -223,10 +229,34 @@ final class SentryLogAttributeTests: XCTestCase {
         XCTAssertEqual(attribute.value as? Int, 42)
     }
     
+    func testInitializer_ZeroIntegerValue() {
+        let attribute = SentryLog.Attribute(value: 0)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 0)
+    }
+    
+    func testInitializer_NegativeIntegerValue() {
+        let attribute = SentryLog.Attribute(value: -42)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, -42)
+    }
+    
     func testInitializer_DoubleValue() {
         let attribute = SentryLog.Attribute(value: 3.14159)
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as? Double, 3.14159)
+    }
+    
+    func testInitializer_ZeroDoubleValue() {
+        let attribute = SentryLog.Attribute(value: 0.0)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 0.0)
+    }
+    
+    func testInitializer_NegativeDoubleValue() {
+        let attribute = SentryLog.Attribute(value: -3.14)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, -3.14)
     }
     
     func testInitializer_FloatValue() {
@@ -235,40 +265,6 @@ final class SentryLogAttributeTests: XCTestCase {
         let doubleValue = attribute.value as? Double
         XCTAssertNotNil(doubleValue)
         XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
-    }
-    
-    func testInitializer_CGFloatValue() {
-        let attribute = SentryLog.Attribute(value: CGFloat(1.41421))
-        XCTAssertEqual(attribute.type, "double")
-        let doubleValue = attribute.value as? Double
-        XCTAssertNotNil(doubleValue)
-        XCTAssertEqual(doubleValue!, 1.41421, accuracy: 0.00001)
-    }
-    
-    func testInitializer_NSNumberIntValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: 123))
-        XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 123)
-    }
-    
-    func testInitializer_NSNumberDoubleValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: 456.789))
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 456.789)
-    }
-    
-    func testInitializer_NSNumberBooleanValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: false))
-        XCTAssertEqual(attribute.type, "boolean")
-        XCTAssertEqual(attribute.value as? Bool, false)
-    }
-    
-    func testInitializer_NSNumberFloatValue() {
-        let attribute = SentryLog.Attribute(value: NSNumber(value: Float(3.14159)))
-        XCTAssertEqual(attribute.type, "double")
-        let doubleValue = attribute.value as? Double
-        XCTAssertNotNil(doubleValue)
-        XCTAssertEqual(doubleValue!, 3.14159, accuracy: 0.00001)
     }
     
     func testInitializer_NSStringValue() {
@@ -294,35 +290,5 @@ final class SentryLogAttributeTests: XCTestCase {
         let attribute = SentryLog.Attribute(value: ["key": "value"])
         XCTAssertEqual(attribute.type, "string")
         XCTAssertTrue((attribute.value as? String)?.contains("key") == true)
-    }
-    
-    func testInitializer_EdgeCases() {
-        let zeroInt = SentryLog.Attribute(value: 0)
-        XCTAssertEqual(zeroInt.type, "integer")
-        XCTAssertEqual(zeroInt.value as? Int, 0)
-        
-        let zeroDouble = SentryLog.Attribute(value: 0.0)
-        XCTAssertEqual(zeroDouble.type, "double")
-        XCTAssertEqual(zeroDouble.value as? Double, 0.0)
-        
-        let negativeInt = SentryLog.Attribute(value: -42)
-        XCTAssertEqual(negativeInt.type, "integer")
-        XCTAssertEqual(negativeInt.value as? Int, -42)
-        
-        let negativeDouble = SentryLog.Attribute(value: -3.14)
-        XCTAssertEqual(negativeDouble.type, "double")
-        XCTAssertEqual(negativeDouble.value as? Double, -3.14)
-        
-        let zeroCGFloat = SentryLog.Attribute(value: CGFloat(0.0))
-        XCTAssertEqual(zeroCGFloat.type, "double")
-        XCTAssertEqual(zeroCGFloat.value as? Double, 0.0)
-        
-        let negativeCGFloat = SentryLog.Attribute(value: CGFloat(-1.23))
-        XCTAssertEqual(negativeCGFloat.type, "double")
-        XCTAssertEqual(negativeCGFloat.value as? Double, -1.23)
-        
-        let emptyString = SentryLog.Attribute(value: "")
-        XCTAssertEqual(emptyString.type, "string")
-        XCTAssertEqual(emptyString.value as? String, "")
     }
 }
