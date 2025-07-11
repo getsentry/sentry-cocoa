@@ -373,15 +373,6 @@ NS_SWIFT_NAME(Options)
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-
-/**
- * Settings to configure the session replay.
- */
-@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
-
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
  * @c enableSwizzling are enabled.
@@ -793,9 +784,15 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nonatomic, copy) NSString *spotlightUrl;
 
-// Do not use this directly, instead use the non-underscored `experimental` property that is
+// Do not use these directly, instead use the non-underscored properties that are
 // defined through a Swift extension.
 @property (nonatomic, readonly) NSObject *_swiftExperimentalOptions;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+
+@property (nonatomic, strong) NSObject *_swiftReplayOptions;
+
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

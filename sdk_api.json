@@ -18110,89 +18110,6 @@
           },
           {
             "kind": "Var",
-            "name": "sessionReplay",
-            "printedName": "sessionReplay",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryReplayOptions",
-                "printedName": "Sentry.SentryReplayOptions",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:objc(cs)SentryOptions(py)sessionReplay",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "sessionReplay",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryReplayOptions",
-                    "printedName": "Sentry.SentryReplayOptions",
-                    "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryOptions(im)sessionReplay",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "sessionReplay",
-                "declAttributes": [
-                  "DiscardableResult",
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryReplayOptions",
-                    "printedName": "Sentry.SentryReplayOptions",
-                    "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryOptions(im)setSessionReplay:",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "setSessionReplay:",
-                "declAttributes": [
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "set"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
             "name": "enableNetworkTracking",
             "printedName": "enableNetworkTracking",
             "children": [
@@ -21713,6 +21630,89 @@
           },
           {
             "kind": "Var",
+            "name": "_swiftReplayOptions",
+            "printedName": "_swiftReplayOptions",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSObject",
+                "printedName": "ObjectiveC.NSObject",
+                "usr": "c:objc(cs)NSObject"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)_swiftReplayOptions",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "_swiftReplayOptions",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSObject",
+                    "printedName": "ObjectiveC.NSObject",
+                    "usr": "c:objc(cs)NSObject"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)_swiftReplayOptions",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "_swiftReplayOptions",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSObject",
+                    "printedName": "ObjectiveC.NSObject",
+                    "usr": "c:objc(cs)NSObject"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)set_swiftReplayOptions:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "set_swiftReplayOptions:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "configureUserFeedback",
             "printedName": "configureUserFeedback",
             "children": [
@@ -21973,6 +21973,85 @@
                 ],
                 "isFromExtension": true,
                 "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "sessionReplay",
+            "printedName": "sessionReplay",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryReplayOptions",
+                "printedName": "Sentry.SentryReplayOptions",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@CM@Sentry@@objc(cs)SentryOptions(py)sessionReplay",
+            "mangledName": "$sSo13SentryOptionsC0A0E13sessionReplayAC0adB0Cvp",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryReplayOptions",
+                    "printedName": "Sentry.SentryReplayOptions",
+                    "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@CM@Sentry@@objc(cs)SentryOptions(im)sessionReplay",
+                "mangledName": "$sSo13SentryOptionsC0A0E13sessionReplayAC0adB0Cvg",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryReplayOptions",
+                    "printedName": "Sentry.SentryReplayOptions",
+                    "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@CM@Sentry@@objc(cs)SentryOptions(im)setSessionReplay:",
+                "mangledName": "$sSo13SentryOptionsC0A0E13sessionReplayAC0adB0Cvs",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setSessionReplay:",
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "set"
               }
             ]
           }
