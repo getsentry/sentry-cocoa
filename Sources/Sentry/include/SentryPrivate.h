@@ -29,6 +29,6 @@
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentryThreadInspector.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
-#import "SentryThreadInspector.h"

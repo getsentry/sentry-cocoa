@@ -85,21 +85,13 @@
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 
-@property (nonatomic, strong) SentryDependencyScope *scope;
+@end
 
-@property (nonatomic, strong) RunLoopObserverObjcBridge *observer;
+@interface SentryDebugImageProvider () <DebugImageCache>
 
 @end
 
-@interface SentryDebugImageProviderWorkaround: NSObject <DebugImageCache>
-
-@end
-
-@implementation SentryDebugImageProviderWorkaround
-
-- (NSArray<SentryDebugMeta *> * _Nonnull)getDebugImagesFromCacheFor:(NSArray<SentryThread *> * _Nullable)threads { 
-    return [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCacheForThreads:threads];
-}
+@interface SentryThreadInspector () <ThreadInspector>
 
 @end
 
@@ -179,9 +171,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _scope = [[SentryDependencyScope alloc] initWithOptions:SentrySDK.options debugImageCache:[[SentryDebugImageProviderWorkaround alloc] init]];
-        _observer = [[RunLoopObserverObjcBridge alloc] initWithDependencies:_scope];
-        _dateProvider = _scope.dateProvider;
+        _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
@@ -266,6 +256,14 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
     SENTRY_LAZY_INIT(_crashReporter,
         [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+}
+
+- (RunLoopObserverObjcBridge *)observer SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_observer,
+        [[RunLoopObserverObjcBridge alloc] initWithDateProvider:self.dateProvider
+                                                threadInspector:self.threadInspector
+                                                debugImageCache:self.debugImageProvider]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout

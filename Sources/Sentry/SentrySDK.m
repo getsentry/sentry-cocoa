@@ -240,6 +240,7 @@ static NSDate *_Nullable startTimestamp = nil;
         NSLog(@"[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.");
         return;
     }
+    [SentryDependencyContainer.sharedInstance.observer start];
 
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
