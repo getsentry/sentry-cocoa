@@ -5,6 +5,7 @@
 ### Improvements
 
 - Extract video processing to a new class (#5604)
+- Improve video generation using apple recommended loop (#5612)
 
 ### Fixes
 
