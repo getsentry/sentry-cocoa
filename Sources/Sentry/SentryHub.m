@@ -560,42 +560,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-<<<<<<< HEAD
-- (void)captureLog:(SentryLog *)log
-{
-    SentryOptions *options = [[self client] options];
-    if (!options.experimental.enableLogs) {
-        return;
-    }
-
-    SentryPropagationContext *propagationContext = self.scope.propagationContext;
-    if (propagationContext != nil) {
-        log.traceId = propagationContext.traceId;
-    }
-
-    // Default Attributes
-
-    [log addAttribute:@"sentry.sdk.name" value:SentryMeta.sdkName];
-    [log addAttribute:@"sentry.sdk.version" value:SentryMeta.versionString];
-    [log addAttribute:@"sentry.environment" value:options.environment];
-
-    if (options.releaseName != nil) {
-        [log addAttribute:@"sentry.release" value:options.releaseName];
-    }
-
-    if (self.scope.span != nil) {
-        [log addAttribute:@"sentry.trace.parent_span_id"
-                    value:self.scope.span.spanId.sentrySpanIdString];
-    }
-
-    SentryLogBatcher *logBatcher = self.logBatcher;
-    if (logBatcher != nil) {
-        [logBatcher add:log];
-    }
-}
-
-=======
->>>>>>> feat/structured-logs-send-via-envelopes
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];
