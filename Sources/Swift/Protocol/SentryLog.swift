@@ -3,7 +3,7 @@ struct SentryLog: Codable {
     var traceId: SentryId
     let level: SentryLog.Level
     let body: String
-    let attributes: [String: SentryLog.Attribute]
+    var attributes: [String: SentryLog.Attribute]
     let severityNumber: Int?
     
     private enum CodingKeys: String, CodingKey {
@@ -54,5 +54,9 @@ struct SentryLog: Codable {
         try container.encode(body, forKey: .body)
         try container.encode(attributes, forKey: .attributes)
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
+    }
+    
+    mutating func addAttribute(_ name: String, value: Any) {
+        attributes[name] = SentryLog.Attribute(value: value)
     }
 }
