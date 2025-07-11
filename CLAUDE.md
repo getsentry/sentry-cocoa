@@ -24,6 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Helpful Commands
 
+- format code: `make format`
 - run static analysis: `make analyze`
 - run unit tests: `make run-test-server && make test`
 - run important UI tests: `make test-ui-critical`
