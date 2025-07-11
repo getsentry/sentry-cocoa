@@ -2,8 +2,9 @@
 
 ## Unreleased
 
+### Features
+
 - Add support for capturing structured logs via `SentrySDK.logger` (#5532)
-# Unreleased
 
 ### Improvements
 
