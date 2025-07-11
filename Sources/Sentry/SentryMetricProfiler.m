@@ -210,9 +210,9 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 {
     NSMutableDictionary *copy = [NSMutableDictionary dictionary];
     @synchronized(self) {
-        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = _memoryFootprint;
-        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = _cpuUsage;
-        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = _cpuEnergyUsage;
+        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
+        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
+        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
     }
     return copy;
 }
