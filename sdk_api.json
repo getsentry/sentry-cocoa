@@ -15347,8 +15347,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Event",
-                        "printedName": "Sentry.Event",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Event)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryEvent"
                       }
                     ]
@@ -15398,8 +15406,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -15463,8 +15479,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -15517,8 +15541,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Span",
-                        "printedName": "any Sentry.Span",
+                        "name": "Paren",
+                        "printedName": "(any Sentry.Span)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Span",
+                            "printedName": "any Sentry.Span",
+                            "usr": "c:objc(pl)SentrySpan"
+                          }
+                        ],
                         "usr": "c:objc(pl)SentrySpan"
                       }
                     ]
@@ -15568,8 +15600,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Span",
-                            "printedName": "any Sentry.Span",
+                            "name": "Paren",
+                            "printedName": "(any Sentry.Span)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Span",
+                                "printedName": "any Sentry.Span",
+                                "usr": "c:objc(pl)SentrySpan"
+                              }
+                            ],
                             "usr": "c:objc(pl)SentrySpan"
                           }
                         ]
@@ -15633,8 +15673,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Span",
-                            "printedName": "any Sentry.Span",
+                            "name": "Paren",
+                            "printedName": "(any Sentry.Span)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Span",
+                                "printedName": "any Sentry.Span",
+                                "usr": "c:objc(pl)SentrySpan"
+                              }
+                            ],
                             "usr": "c:objc(pl)SentrySpan"
                           }
                         ]
@@ -15687,8 +15735,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Breadcrumb",
-                        "printedName": "Sentry.Breadcrumb",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Breadcrumb)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Breadcrumb",
+                            "printedName": "Sentry.Breadcrumb",
+                            "usr": "c:objc(cs)SentryBreadcrumb"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryBreadcrumb"
                       }
                     ]
@@ -15738,8 +15794,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Breadcrumb",
-                            "printedName": "Sentry.Breadcrumb",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Breadcrumb)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryBreadcrumb"
                           }
                         ]
@@ -15803,8 +15867,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Breadcrumb",
-                            "printedName": "Sentry.Breadcrumb",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Breadcrumb)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryBreadcrumb"
                           }
                         ]
@@ -15849,8 +15921,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Event",
-                        "printedName": "Sentry.Event",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Event)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryEvent"
                       }
                     ]
@@ -15892,8 +15972,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -15949,8 +16037,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -15995,8 +16091,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Event",
-                        "printedName": "Sentry.Event",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Event)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryEvent"
                       }
                     ]
@@ -16038,8 +16142,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -16095,8 +16207,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -16147,8 +16267,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Event",
-                        "printedName": "Sentry.Event",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Event)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryEvent"
                       }
                     ]
@@ -16196,8 +16324,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -16259,8 +16395,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Event",
-                            "printedName": "Sentry.Event",
+                            "name": "Paren",
+                            "printedName": "(Sentry.Event)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentryEvent"
                           }
                         ]
@@ -17402,8 +17546,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -17437,8 +17589,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Scope",
-                        "printedName": "Sentry.Scope",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Scope)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Scope",
+                            "printedName": "Sentry.Scope",
+                            "usr": "c:objc(cs)SentryScope"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryScope"
                       }
                     ]
@@ -17486,8 +17646,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Scope",
-                        "printedName": "Sentry.Scope",
+                        "name": "Paren",
+                        "printedName": "(Sentry.Scope)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Scope",
+                            "printedName": "Sentry.Scope",
+                            "usr": "c:objc(cs)SentryScope"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentryScope"
                       }
                     ]
@@ -18584,8 +18752,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SamplingContext",
-                        "printedName": "Sentry.SamplingContext",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SamplingContext)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SamplingContext",
+                            "printedName": "Sentry.SamplingContext",
+                            "usr": "c:objc(cs)SentrySamplingContext"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentrySamplingContext"
                       }
                     ]
@@ -18635,8 +18811,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SamplingContext",
-                            "printedName": "Sentry.SamplingContext",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SamplingContext)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SamplingContext",
+                                "printedName": "Sentry.SamplingContext",
+                                "usr": "c:objc(cs)SentrySamplingContext"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentrySamplingContext"
                           }
                         ]
@@ -18700,8 +18884,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SamplingContext",
-                            "printedName": "Sentry.SamplingContext",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SamplingContext)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SamplingContext",
+                                "printedName": "Sentry.SamplingContext",
+                                "usr": "c:objc(cs)SentrySamplingContext"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentrySamplingContext"
                           }
                         ]
@@ -19483,8 +19675,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryProfileOptions",
-                            "printedName": "Sentry.SentryProfileOptions",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryProfileOptions)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryProfileOptions",
+                                "printedName": "Sentry.SentryProfileOptions",
+                                "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
                           }
                         ]
@@ -19539,8 +19739,16 @@
                               },
                               {
                                 "kind": "TypeNominal",
-                                "name": "SentryProfileOptions",
-                                "printedName": "Sentry.SentryProfileOptions",
+                                "name": "Paren",
+                                "printedName": "(Sentry.SentryProfileOptions)",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "SentryProfileOptions",
+                                    "printedName": "Sentry.SentryProfileOptions",
+                                    "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
+                                  }
+                                ],
                                 "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
                               }
                             ]
@@ -19609,8 +19817,16 @@
                               },
                               {
                                 "kind": "TypeNominal",
-                                "name": "SentryProfileOptions",
-                                "printedName": "Sentry.SentryProfileOptions",
+                                "name": "Paren",
+                                "printedName": "(Sentry.SentryProfileOptions)",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "SentryProfileOptions",
+                                    "printedName": "Sentry.SentryProfileOptions",
+                                    "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
+                                  }
+                                ],
                                 "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
                               }
                             ]
@@ -19867,8 +20083,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SamplingContext",
-                        "printedName": "Sentry.SamplingContext",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SamplingContext)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SamplingContext",
+                            "printedName": "Sentry.SamplingContext",
+                            "usr": "c:objc(cs)SentrySamplingContext"
+                          }
+                        ],
                         "usr": "c:objc(cs)SentrySamplingContext"
                       }
                     ]
@@ -19920,8 +20144,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SamplingContext",
-                            "printedName": "Sentry.SamplingContext",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SamplingContext)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SamplingContext",
+                                "printedName": "Sentry.SamplingContext",
+                                "usr": "c:objc(cs)SentrySamplingContext"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentrySamplingContext"
                           }
                         ]
@@ -19987,8 +20219,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SamplingContext",
-                            "printedName": "Sentry.SamplingContext",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SamplingContext)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SamplingContext",
+                                "printedName": "Sentry.SamplingContext",
+                                "usr": "c:objc(cs)SentrySamplingContext"
+                              }
+                            ],
                             "usr": "c:objc(cs)SentrySamplingContext"
                           }
                         ]
@@ -21745,8 +21985,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                           }
                         ]
@@ -21803,8 +22051,16 @@
                               },
                               {
                                 "kind": "TypeNominal",
-                                "name": "SentryUserFeedbackConfiguration",
-                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "name": "Paren",
+                                "printedName": "(Sentry.SentryUserFeedbackConfiguration)",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "SentryUserFeedbackConfiguration",
+                                    "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                    "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                                  }
+                                ],
                                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ]
@@ -21875,8 +22131,16 @@
                               },
                               {
                                 "kind": "TypeNominal",
-                                "name": "SentryUserFeedbackConfiguration",
-                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "name": "Paren",
+                                "printedName": "(Sentry.SentryUserFeedbackConfiguration)",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "SentryUserFeedbackConfiguration",
+                                    "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                    "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                                  }
+                                ],
                                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ]
@@ -23680,14 +23944,22 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Optional",
-                        "printedName": "(any Sentry.Span)?",
+                        "name": "Paren",
+                        "printedName": "((any Sentry.Span)?)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "Span",
-                            "printedName": "any Sentry.Span",
-                            "usr": "c:objc(pl)SentrySpan"
+                            "name": "Optional",
+                            "printedName": "(any Sentry.Span)?",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Span",
+                                "printedName": "any Sentry.Span",
+                                "usr": "c:objc(pl)SentrySpan"
+                              }
+                            ],
+                            "usr": "s:Sq"
                           }
                         ],
                         "usr": "s:Sq"
@@ -23902,14 +24174,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryANRType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryANRType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryANRType",
-                        "printedName": "Sentry.SentryANRType",
-                        "usr": "c:@M@Sentry@E@SentryANRType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryANRType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryANRType",
+                            "printedName": "Sentry.SentryANRType",
+                            "usr": "c:@M@Sentry@E@SentryANRType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -23941,14 +24220,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryANRType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryANRType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryANRType",
-                        "printedName": "Sentry.SentryANRType",
-                        "usr": "c:@M@Sentry@E@SentryANRType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryANRType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryANRType",
+                            "printedName": "Sentry.SentryANRType",
+                            "usr": "c:@M@Sentry@E@SentryANRType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -23980,14 +24266,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryANRType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryANRType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryANRType",
-                        "printedName": "Sentry.SentryANRType",
-                        "usr": "c:@M@Sentry@E@SentryANRType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryANRType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryANRType",
+                            "printedName": "Sentry.SentryANRType",
+                            "usr": "c:@M@Sentry@E@SentryANRType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -24019,14 +24312,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryANRType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryANRType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryANRType",
-                        "printedName": "Sentry.SentryANRType",
-                        "usr": "c:@M@Sentry@E@SentryANRType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryANRType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryANRType",
+                            "printedName": "Sentry.SentryANRType",
+                            "usr": "c:@M@Sentry@E@SentryANRType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -24058,14 +24358,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryANRType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryANRType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryANRType",
-                        "printedName": "Sentry.SentryANRType",
-                        "usr": "c:@M@Sentry@E@SentryANRType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryANRType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryANRType",
+                            "printedName": "Sentry.SentryANRType",
+                            "usr": "c:@M@Sentry@E@SentryANRType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -24185,8 +24492,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Breadcrumb",
-                "printedName": "Sentry.Breadcrumb",
+                "name": "Paren",
+                "printedName": "(Sentry.Breadcrumb)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Breadcrumb",
+                    "printedName": "Sentry.Breadcrumb",
+                    "usr": "c:objc(cs)SentryBreadcrumb"
+                  }
+                ],
                 "usr": "c:objc(cs)SentryBreadcrumb"
               }
             ]
@@ -24214,8 +24529,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
+                "name": "Paren",
+                "printedName": "(Sentry.Event)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:objc(cs)SentryEvent"
+                  }
+                ],
                 "usr": "c:objc(cs)SentryEvent"
               }
             ]
@@ -24243,8 +24566,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
+                "name": "Paren",
+                "printedName": "(Sentry.Event)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:objc(cs)SentryEvent"
+                  }
+                ],
                 "usr": "c:objc(cs)SentryEvent"
               }
             ]
@@ -24280,8 +24611,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
+                "name": "Paren",
+                "printedName": "(Sentry.Event)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:objc(cs)SentryEvent"
+                  }
+                ],
                 "usr": "c:objc(cs)SentryEvent"
               }
             ]
@@ -24317,8 +24656,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Span",
-                "printedName": "any Sentry.Span",
+                "name": "Paren",
+                "printedName": "(any Sentry.Span)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:objc(pl)SentrySpan"
+                  }
+                ],
                 "usr": "c:objc(pl)SentrySpan"
               }
             ]
@@ -26379,14 +26726,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26418,14 +26772,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26457,14 +26818,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26496,14 +26864,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26535,14 +26910,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26574,14 +26956,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26613,14 +27002,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26652,14 +27048,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26691,14 +27094,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26730,14 +27140,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -26769,14 +27186,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryError.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryError.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryError",
-                        "printedName": "Sentry.SentryError",
-                        "usr": "c:@E@SentryError"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryError",
+                            "printedName": "Sentry.SentryError",
+                            "usr": "c:@E@SentryError"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -27168,14 +27592,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryFeedbackSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryFeedbackSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryFeedbackSource",
-                        "printedName": "Sentry.SentryFeedbackSource",
-                        "usr": "c:@M@Sentry@E@SentryFeedbackSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryFeedbackSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryFeedbackSource",
+                            "printedName": "Sentry.SentryFeedbackSource",
+                            "usr": "c:@M@Sentry@E@SentryFeedbackSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -27207,14 +27638,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryFeedbackSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryFeedbackSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryFeedbackSource",
-                        "printedName": "Sentry.SentryFeedbackSource",
-                        "usr": "c:@M@Sentry@E@SentryFeedbackSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryFeedbackSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryFeedbackSource",
+                            "printedName": "Sentry.SentryFeedbackSource",
+                            "usr": "c:@M@Sentry@E@SentryFeedbackSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -28076,8 +28514,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -28828,14 +29274,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLogLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLogLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLogLevel",
-                        "printedName": "Sentry.SentryLogLevel",
-                        "usr": "c:@E@SentryLogLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLogLevel",
+                            "printedName": "Sentry.SentryLogLevel",
+                            "usr": "c:@E@SentryLogLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -28867,14 +29320,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLogLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLogLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLogLevel",
-                        "printedName": "Sentry.SentryLogLevel",
-                        "usr": "c:@E@SentryLogLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLogLevel",
+                            "printedName": "Sentry.SentryLogLevel",
+                            "usr": "c:@E@SentryLogLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -28906,14 +29366,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLogLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLogLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLogLevel",
-                        "printedName": "Sentry.SentryLogLevel",
-                        "usr": "c:@E@SentryLogLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLogLevel",
+                            "printedName": "Sentry.SentryLogLevel",
+                            "usr": "c:@E@SentryLogLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -28945,14 +29412,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLogLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLogLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLogLevel",
-                        "printedName": "Sentry.SentryLogLevel",
-                        "usr": "c:@E@SentryLogLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLogLevel",
+                            "printedName": "Sentry.SentryLogLevel",
+                            "usr": "c:@E@SentryLogLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -29824,8 +30298,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
+                "name": "Paren",
+                "printedName": "(Sentry.Event)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:objc(cs)SentryEvent"
+                  }
+                ],
                 "usr": "c:objc(cs)SentryEvent"
               }
             ]
@@ -29948,14 +30430,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryProfileLifecycle.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryProfileLifecycle.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryProfileLifecycle",
-                        "printedName": "Sentry.SentryProfileLifecycle",
-                        "usr": "c:@M@Sentry@E@SentryProfileLifecycle"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryProfileLifecycle.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryProfileLifecycle",
+                            "printedName": "Sentry.SentryProfileLifecycle",
+                            "usr": "c:@M@Sentry@E@SentryProfileLifecycle"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -29987,14 +30476,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryProfileLifecycle.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryProfileLifecycle.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryProfileLifecycle",
-                        "printedName": "Sentry.SentryProfileLifecycle",
-                        "usr": "c:@M@Sentry@E@SentryProfileLifecycle"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryProfileLifecycle.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryProfileLifecycle",
+                            "printedName": "Sentry.SentryProfileLifecycle",
+                            "usr": "c:@M@Sentry@E@SentryProfileLifecycle"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -30112,8 +30608,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryProfileOptions",
-                "printedName": "Sentry.SentryProfileOptions",
+                "name": "Paren",
+                "printedName": "(Sentry.SentryProfileOptions)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryProfileOptions",
+                    "printedName": "Sentry.SentryProfileOptions",
+                    "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
+                  }
+                ],
                 "usr": "c:@M@Sentry@objc(cs)SentryProfileOptions"
               }
             ]
@@ -30618,14 +31122,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryReplayQuality.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryReplayQuality.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryReplayQuality",
-                        "printedName": "Sentry.SentryReplayQuality",
-                        "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryReplayQuality.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryReplayQuality",
+                            "printedName": "Sentry.SentryReplayQuality",
+                            "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -30657,14 +31168,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryReplayQuality.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryReplayQuality.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryReplayQuality",
-                        "printedName": "Sentry.SentryReplayQuality",
-                        "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryReplayQuality.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryReplayQuality",
+                            "printedName": "Sentry.SentryReplayQuality",
+                            "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -30696,14 +31214,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryReplayQuality.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryReplayQuality.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryReplayQuality",
-                        "printedName": "Sentry.SentryReplayQuality",
-                        "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryReplayQuality.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryReplayQuality",
+                            "printedName": "Sentry.SentryReplayQuality",
+                            "usr": "c:@M@Sentry@E@SentryReplayQuality"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -30910,14 +31435,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryReplayType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryReplayType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryReplayType",
-                        "printedName": "Sentry.SentryReplayType",
-                        "usr": "c:@M@Sentry@E@SentryReplayType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryReplayType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryReplayType",
+                            "printedName": "Sentry.SentryReplayType",
+                            "usr": "c:@M@Sentry@E@SentryReplayType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -30949,14 +31481,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryReplayType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryReplayType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryReplayType",
-                        "printedName": "Sentry.SentryReplayType",
-                        "usr": "c:@M@Sentry@E@SentryReplayType"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryReplayType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryReplayType",
+                            "printedName": "Sentry.SentryReplayType",
+                            "usr": "c:@M@Sentry@E@SentryReplayType"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -32011,14 +32550,22 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Swift.Error)?",
+                "name": "Paren",
+                "printedName": "((any Swift.Error)?)",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Error",
-                    "printedName": "any Swift.Error",
-                    "usr": "s:s5ErrorP"
+                    "name": "Optional",
+                    "printedName": "(any Swift.Error)?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Error",
+                        "printedName": "any Swift.Error",
+                        "usr": "s:s5ErrorP"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "usr": "s:Sq"
@@ -32266,6 +32813,56 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "logger",
+            "printedName": "logger",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogger",
+                "printedName": "Sentry.SentryLogger",
+                "usr": "c:@M@Sentry@objc(cs)SentryLogger"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentrySDK(cpy)logger",
+            "moduleName": "Sentry",
+            "static": true,
+            "isOpen": true,
+            "objc_name": "logger",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLogger",
+                    "printedName": "Sentry.SentryLogger",
+                    "usr": "c:@M@Sentry@objc(cs)SentryLogger"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentrySDK(cm)logger",
+                "moduleName": "Sentry",
+                "static": true,
+                "isOpen": true,
+                "objc_name": "logger",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "start",
             "printedName": "start(options:)",
@@ -32337,8 +32934,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Options",
-                    "printedName": "Sentry.Options",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Options)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Options",
+                        "printedName": "Sentry.Options",
+                        "usr": "c:objc(cs)SentryOptions"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryOptions"
                   }
                 ]
@@ -32460,8 +33065,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -32838,8 +33451,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -32962,8 +33583,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -33086,8 +33715,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -33306,8 +33943,16 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
+                    "name": "Paren",
+                    "printedName": "(Sentry.Scope)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Scope",
+                        "printedName": "Sentry.Scope",
+                        "usr": "c:objc(cs)SentryScope"
+                      }
+                    ],
                     "usr": "c:objc(cs)SentryScope"
                   }
                 ]
@@ -33968,14 +34613,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySampleDecision.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySampleDecision.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySampleDecision",
-                        "printedName": "Sentry.SentrySampleDecision",
-                        "usr": "c:@E@SentrySampleDecision"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySampleDecision.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySampleDecision",
+                            "printedName": "Sentry.SentrySampleDecision",
+                            "usr": "c:@E@SentrySampleDecision"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34007,14 +34659,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySampleDecision.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySampleDecision.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySampleDecision",
-                        "printedName": "Sentry.SentrySampleDecision",
-                        "usr": "c:@E@SentrySampleDecision"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySampleDecision.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySampleDecision",
+                            "printedName": "Sentry.SentrySampleDecision",
+                            "usr": "c:@E@SentrySampleDecision"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34046,14 +34705,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySampleDecision.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySampleDecision.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySampleDecision",
-                        "printedName": "Sentry.SentrySampleDecision",
-                        "usr": "c:@E@SentrySampleDecision"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySampleDecision.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySampleDecision",
+                            "printedName": "Sentry.SentrySampleDecision",
+                            "usr": "c:@E@SentrySampleDecision"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34306,14 +34972,22 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Sentry.Span)?",
+                "name": "Paren",
+                "printedName": "((any Sentry.Span)?)",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Span",
-                    "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
+                    "name": "Optional",
+                    "printedName": "(any Sentry.Span)?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Span",
+                        "printedName": "any Sentry.Span",
+                        "usr": "c:objc(pl)SentrySpan"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "usr": "s:Sq"
@@ -34438,14 +35112,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34477,14 +35158,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34516,14 +35204,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34555,14 +35250,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34594,14 +35296,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34633,14 +35342,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34672,14 +35388,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34711,14 +35434,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34750,14 +35480,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34789,14 +35526,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34828,14 +35572,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34867,14 +35618,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34906,14 +35664,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34945,14 +35710,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -34984,14 +35756,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -35023,14 +35802,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -35062,14 +35848,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -35101,14 +35894,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentrySpanStatus.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentrySpanStatus.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentrySpanStatus",
-                        "printedName": "Sentry.SentrySpanStatus",
-                        "usr": "c:@E@SentrySpanStatus"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentrySpanStatus.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentrySpanStatus",
+                            "printedName": "Sentry.SentrySpanStatus",
+                            "usr": "c:@E@SentrySpanStatus"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -36674,8 +37474,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SamplingContext",
-                "printedName": "Sentry.SamplingContext",
+                "name": "Paren",
+                "printedName": "(Sentry.SamplingContext)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SamplingContext",
+                    "printedName": "Sentry.SamplingContext",
+                    "usr": "c:objc(cs)SentrySamplingContext"
+                  }
+                ],
                 "usr": "c:objc(cs)SentrySamplingContext"
               }
             ]
@@ -36709,8 +37517,16 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                "name": "Paren",
+                "printedName": "(Sentry.SentryUserFeedbackConfiguration)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryUserFeedbackConfiguration",
+                    "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                    "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                  }
+                ],
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
               }
             ]
@@ -42690,22 +43506,6 @@
         "moduleName": "Sentry"
       },
       {
-        "kind": "TypeAlias",
-        "name": "char8_t",
-        "printedName": "char8_t",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "UInt8",
-            "printedName": "Swift.UInt8",
-            "usr": "s:s5UInt8V"
-          }
-        ],
-        "declKind": "TypeAlias",
-        "usr": "c:@T@char8_t",
-        "moduleName": "Sentry"
-      },
-      {
         "kind": "Var",
         "name": "defaultMaxBreadcrumbs",
         "printedName": "defaultMaxBreadcrumbs",
@@ -43556,14 +44356,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryFeedbackSource",
-                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryFeedbackSource",
+                                "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -43596,14 +44403,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryFeedbackSource",
-                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryFeedbackSource",
+                                "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -44557,6 +45371,522 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SentryLogger",
+        "printedName": "SentryLogger",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "trace",
+            "printedName": "trace(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)trace:",
+            "mangledName": "$s6Sentry0A6LoggerC5traceyySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "trace",
+            "printedName": "trace(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)trace:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC5trace_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "debug",
+            "printedName": "debug(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)debug:",
+            "mangledName": "$s6Sentry0A6LoggerC5debugyySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "debug",
+            "printedName": "debug(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)debug:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC5debug_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "info",
+            "printedName": "info(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)info:",
+            "mangledName": "$s6Sentry0A6LoggerC4infoyySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "info",
+            "printedName": "info(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)info:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC4info_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "warn",
+            "printedName": "warn(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:",
+            "mangledName": "$s6Sentry0A6LoggerC4warnyySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "warn",
+            "printedName": "warn(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC4warn_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "error",
+            "printedName": "error(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)error:",
+            "mangledName": "$s6Sentry0A6LoggerC5erroryySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "error",
+            "printedName": "error(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)error:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC5error_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "fatal",
+            "printedName": "fatal(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)fatal:",
+            "mangledName": "$s6Sentry0A6LoggerC5fatalyySSF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "fatal",
+            "printedName": "fatal(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)fatal:attributes:",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal_10attributesySS_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@Sentry@objc(cs)SentryLogger",
+        "mangledName": "$s6Sentry0A6LoggerC",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Final",
+          "ObjCMembers",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SentryReplayOptions",
         "printedName": "SentryReplayOptions",
         "children": [
@@ -45192,14 +46522,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryReplayOptions.SentryReplayQuality.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryReplayQuality",
-                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
-                            "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryReplayQuality",
+                                "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
+                                "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -45232,14 +46569,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryReplayOptions.SentryReplayQuality.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryReplayQuality",
-                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
-                            "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryReplayQuality",
+                                "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
+                                "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -45272,14 +46616,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryReplayOptions.SentryReplayQuality.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryReplayQuality",
-                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
-                            "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryReplayQuality",
+                                "printedName": "Sentry.SentryReplayOptions.SentryReplayQuality",
+                                "usr": "s:6Sentry0A13ReplayOptionsC0aB7QualityO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -46801,8 +48152,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "((Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -46818,8 +48169,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackWidgetConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackWidgetConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
+                          }
+                        ],
                         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
                       }
                     ]
@@ -46851,8 +48210,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -46868,8 +48227,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackWidgetConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackWidgetConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
                           }
                         ]
@@ -46905,8 +48272,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackWidgetConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -46922,8 +48289,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackWidgetConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackWidgetConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackWidgetConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
                           }
                         ]
@@ -47200,8 +48575,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "((Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -47217,8 +48592,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackFormConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryUserFeedbackFormConfiguration)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackFormConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
+                          }
+                        ],
                         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
                       }
                     ]
@@ -47250,8 +48633,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47267,8 +48650,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackFormConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackFormConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackFormConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
                           }
                         ]
@@ -47304,8 +48695,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackFormConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47321,8 +48712,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackFormConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackFormConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackFormConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackFormConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration"
                           }
                         ]
@@ -47492,8 +48891,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "(() -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -47541,8 +48940,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "() -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(() -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47594,8 +48993,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "() -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(() -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47644,8 +49043,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "(() -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -47693,8 +49092,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "() -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(() -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47746,8 +49145,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "() -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(() -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47796,8 +49195,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "([Swift.String : Any]) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "(([Swift.String : Any]) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -47813,19 +49212,27 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Dictionary",
-                        "printedName": "[Swift.String : Any]",
+                        "name": "Paren",
+                        "printedName": "([Swift.String : Any])",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "ProtocolComposition",
-                            "printedName": "Any"
+                            "name": "Dictionary",
+                            "printedName": "[Swift.String : Any]",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "String",
+                                "printedName": "Swift.String",
+                                "usr": "s:SS"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "Any"
+                              }
+                            ],
+                            "usr": "s:SD"
                           }
                         ],
                         "usr": "s:SD"
@@ -47859,8 +49266,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "([Swift.String : Any]) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(([Swift.String : Any]) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47876,19 +49283,27 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
+                            "name": "Paren",
+                            "printedName": "([Swift.String : Any])",
                             "children": [
                               {
                                 "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
+                                "name": "Dictionary",
+                                "printedName": "[Swift.String : Any]",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "String",
+                                    "printedName": "Swift.String",
+                                    "usr": "s:SS"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "Any"
+                                  }
+                                ],
+                                "usr": "s:SD"
                               }
                             ],
                             "usr": "s:SD"
@@ -47926,8 +49341,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "([Swift.String : Any]) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "(([Swift.String : Any]) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -47943,19 +49358,27 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Dictionary",
-                            "printedName": "[Swift.String : Any]",
+                            "name": "Paren",
+                            "printedName": "([Swift.String : Any])",
                             "children": [
                               {
                                 "kind": "TypeNominal",
-                                "name": "String",
-                                "printedName": "Swift.String",
-                                "usr": "s:SS"
-                              },
-                              {
-                                "kind": "TypeNominal",
-                                "name": "ProtocolComposition",
-                                "printedName": "Any"
+                                "name": "Dictionary",
+                                "printedName": "[Swift.String : Any]",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "String",
+                                    "printedName": "Swift.String",
+                                    "usr": "s:SS"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "Any"
+                                  }
+                                ],
+                                "usr": "s:SD"
                               }
                             ],
                             "usr": "s:SD"
@@ -47990,8 +49413,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(any Swift.Error) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "((any Swift.Error) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -48007,8 +49430,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Error",
-                        "printedName": "any Swift.Error",
+                        "name": "Paren",
+                        "printedName": "(any Swift.Error)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Error",
+                            "printedName": "any Swift.Error",
+                            "usr": "s:s5ErrorP"
+                          }
+                        ],
                         "usr": "s:s5ErrorP"
                       }
                     ]
@@ -48040,8 +49471,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(any Swift.Error) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((any Swift.Error) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48057,8 +49488,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Error",
-                            "printedName": "any Swift.Error",
+                            "name": "Paren",
+                            "printedName": "(any Swift.Error)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Error",
+                                "printedName": "any Swift.Error",
+                                "usr": "s:s5ErrorP"
+                              }
+                            ],
                             "usr": "s:s5ErrorP"
                           }
                         ]
@@ -48094,8 +49533,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(any Swift.Error) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((any Swift.Error) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48111,8 +49550,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "Error",
-                            "printedName": "any Swift.Error",
+                            "name": "Paren",
+                            "printedName": "(any Swift.Error)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Error",
+                                "printedName": "any Swift.Error",
+                                "usr": "s:s5ErrorP"
+                              }
+                            ],
                             "usr": "s:s5ErrorP"
                           }
                         ]
@@ -48145,8 +49592,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -48162,8 +49609,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackThemeConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackThemeConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                          }
+                        ],
                         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                       }
                     ]
@@ -48195,8 +49650,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48212,8 +49667,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackThemeConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackThemeConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                           }
                         ]
@@ -48249,8 +49712,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48266,8 +49729,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackThemeConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackThemeConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                           }
                         ]
@@ -48300,8 +49771,8 @@
                 "children": [
                   {
                     "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                    "name": "Paren",
+                    "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -48317,8 +49788,16 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackThemeConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackThemeConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                          }
+                        ],
                         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                       }
                     ]
@@ -48350,8 +49829,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48367,8 +49846,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackThemeConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackThemeConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                           }
                         ]
@@ -48404,8 +49891,8 @@
                     "children": [
                       {
                         "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void",
+                        "name": "Paren",
+                        "printedName": "((Sentry.SentryUserFeedbackThemeConfiguration) -> Swift.Void)",
                         "children": [
                           {
                             "kind": "TypeNameAlias",
@@ -48421,8 +49908,16 @@
                           },
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackThemeConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                            "name": "Paren",
+                            "printedName": "(Sentry.SentryUserFeedbackThemeConfiguration)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackThemeConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
+                              }
+                            ],
                             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
                           }
                         ]
@@ -48571,14 +50066,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryProfileOptions.SentryProfileLifecycle.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryProfileLifecycle",
-                            "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle",
-                            "usr": "s:6Sentry0A14ProfileOptionsC0aB9LifecycleO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryProfileLifecycle",
+                                "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle",
+                                "usr": "s:6Sentry0A14ProfileOptionsC0aB9LifecycleO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -48611,14 +50113,21 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle.Type",
+                        "name": "Paren",
+                        "printedName": "(Sentry.SentryProfileOptions.SentryProfileLifecycle.Type)",
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryProfileLifecycle",
-                            "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle",
-                            "usr": "s:6Sentry0A14ProfileOptionsC0aB9LifecycleO"
+                            "name": "Metatype",
+                            "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle.Type",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryProfileLifecycle",
+                                "printedName": "Sentry.SentryProfileOptions.SentryProfileLifecycle",
+                                "usr": "s:6Sentry0A14ProfileOptionsC0aB9LifecycleO"
+                              }
+                            ]
                           }
                         ]
                       }
@@ -49663,14 +51172,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -49704,14 +51220,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -49745,14 +51268,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -49786,14 +51316,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -49827,14 +51364,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -49868,14 +51412,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryTransactionNameSource.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryTransactionNameSource.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryTransactionNameSource",
-                        "printedName": "Sentry.SentryTransactionNameSource",
-                        "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryTransactionNameSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryTransactionNameSource",
+                            "printedName": "Sentry.SentryTransactionNameSource",
+                            "usr": "c:@M@Sentry@E@SentryTransactionNameSource"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50428,14 +51979,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50469,14 +52027,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50510,14 +52075,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50551,14 +52123,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50592,14 +52171,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -50633,14 +52219,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryLevel.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryLevel.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryLevel",
-                        "printedName": "Sentry.SentryLevel",
-                        "usr": "c:@M@Sentry@E@SentryLevel"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLevel.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLevel",
+                            "printedName": "Sentry.SentryLevel",
+                            "usr": "c:@M@Sentry@E@SentryLevel"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -51156,6 +52749,79 @@
                 "declKind": "Accessor",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableUnhandledCPPExceptionsV2:",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "enableLogs",
+            "printedName": "enableLogs",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableLogs",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvp",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableLogs",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableLogs:",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvs",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
@@ -53182,14 +54848,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryRedactRegionType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryRedactRegionType",
-                        "printedName": "Sentry.SentryRedactRegionType",
-                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryRedactRegionType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryRedactRegionType",
+                            "printedName": "Sentry.SentryRedactRegionType",
+                            "usr": "s:6Sentry0A16RedactRegionTypeO"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -53219,14 +54892,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryRedactRegionType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryRedactRegionType",
-                        "printedName": "Sentry.SentryRedactRegionType",
-                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryRedactRegionType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryRedactRegionType",
+                            "printedName": "Sentry.SentryRedactRegionType",
+                            "usr": "s:6Sentry0A16RedactRegionTypeO"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -53256,14 +54936,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryRedactRegionType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryRedactRegionType",
-                        "printedName": "Sentry.SentryRedactRegionType",
-                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryRedactRegionType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryRedactRegionType",
+                            "printedName": "Sentry.SentryRedactRegionType",
+                            "usr": "s:6Sentry0A16RedactRegionTypeO"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -53293,14 +54980,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryRedactRegionType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryRedactRegionType",
-                        "printedName": "Sentry.SentryRedactRegionType",
-                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryRedactRegionType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryRedactRegionType",
+                            "printedName": "Sentry.SentryRedactRegionType",
+                            "usr": "s:6Sentry0A16RedactRegionTypeO"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -53330,14 +55024,21 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryRedactRegionType.Type",
+                    "name": "Paren",
+                    "printedName": "(Sentry.SentryRedactRegionType.Type)",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryRedactRegionType",
-                        "printedName": "Sentry.SentryRedactRegionType",
-                        "usr": "s:6Sentry0A16RedactRegionTypeO"
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryRedactRegionType.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryRedactRegionType",
+                            "printedName": "Sentry.SentryRedactRegionType",
+                            "usr": "s:6Sentry0A16RedactRegionTypeO"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -56851,6 +58552,35 @@
           },
           {
             "kind": "Conformance",
+            "name": "ReferenceConvertible",
+            "printedName": "ReferenceConvertible",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ReferenceType",
+                "printedName": "ReferenceType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "ReferenceType",
+                    "printedName": "Foundation.Data.ReferenceType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSData",
+                        "printedName": "Foundation.NSData",
+                        "usr": "c:objc(cs)NSData"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:10Foundation20ReferenceConvertibleP",
+            "mangledName": "$s10Foundation20ReferenceConvertibleP"
+          },
+          {
+            "kind": "Conformance",
             "name": "CustomStringConvertible",
             "printedName": "CustomStringConvertible",
             "usr": "s:s23CustomStringConvertibleP",
@@ -56883,35 +58613,6 @@
             "printedName": "Encodable",
             "usr": "s:SE",
             "mangledName": "$sSE"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ReferenceConvertible",
-            "printedName": "ReferenceConvertible",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "ReferenceType",
-                "printedName": "ReferenceType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "ReferenceType",
-                    "printedName": "Foundation.Data.ReferenceType",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "NSData",
-                        "printedName": "Foundation.NSData",
-                        "usr": "c:objc(cs)NSData"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:10Foundation20ReferenceConvertibleP",
-            "mangledName": "$s10Foundation20ReferenceConvertibleP"
           }
         ]
       }
