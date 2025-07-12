@@ -63,11 +63,12 @@ typedef struct {
     SentrySamplerDecision *_Nullable profilesDecision;
 } SentryLaunchProfileConfig;
 
+#    if !SDK_V9
 SentryLaunchProfileConfig
 sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
     if (!shouldProfileNextLaunch) {
         SENTRY_LOG_DEBUG(@"Specified options configuration doesn't enable launch profiling: "
@@ -76,7 +77,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
             options.enableAppLaunchProfiling, options.enableTracing);
         return (SentryLaunchProfileConfig) { NO, nil, nil };
     }
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 
     SentryTransactionContext *transactionContext =
         [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
@@ -101,6 +102,7 @@ sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
     SENTRY_LOG_DEBUG(@"Will start transaction profile next launch; will profile launch.");
     return (SentryLaunchProfileConfig) { YES, tracesSamplerDecision, profilesSamplerDecision };
 }
+#    endif // !SDK_V9
 
 SentryLaunchProfileConfig
 sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
@@ -163,15 +165,19 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     if ([options isContinuousProfilingV2Enabled]) {
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
+#    if SDK_V9
+    return (SentryLaunchProfileConfig) { NO, nil, nil };
+#    else
 
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options isContinuousProfilingEnabled]) {
         return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
     }
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 
     return sentry_launchShouldHaveTransactionProfiling(options);
+#    endif // SDK_V9
 }
 
 SentryTransactionContext *
