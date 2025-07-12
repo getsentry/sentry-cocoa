@@ -14,56 +14,33 @@ on:
 jobs:
   api-stability:
     runs-on: macos-15
+    strategy:
+      matrix:
+        version: [default, v9]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: ./scripts/ci-select-xcode.sh 16.5
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Generate HEAD SDK
         run: |
-          mv sdk_api.json sdk_api_base.json
-          make generate-public-api
-
-      - name: Diagnose breaking changes
-        run: |
-          if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
-            echo "No API changes detected."
+          if [ "${{ matrix.version }}" = "v9" ]; then
+            mv sdk_api_v9.json sdk_api_base.json
+            make generate-public-api CONFIG=V9
+            mv sdk_api_v9.json sdk_api.json
           else
-            echo "❌ Public API changes are detected. If they’re intended run "make generate-public-api" and commit the changes."
-            diff "sdk_api_base.json" "sdk_api.json" || true
-            xcrun --sdk iphoneos swift-api-digester \
-              -diagnose-sdk \
-              -o result.json \
-              -input-paths sdk_api_base.json \
-              -input-paths sdk_api.json \
-              -json \
-              -v
-            cat result.json
-            exit 1
+            mv sdk_api.json sdk_api_base.json
+            make generate-public-api
           fi
-  
-  api-stability-v9:
-    runs-on: macos-15
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - run: ./scripts/ci-select-xcode.sh 16.5
-
-      - name: Generate HEAD SDK
-        run: |
-          mv sdk_api_v9.json sdk_api_base.json
-          make generate-public-api
 
       - name: Diagnose breaking changes
         run: |
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
-            echo "No API changes detected."
+            echo "No API changes detected for ${{ matrix.version }} version."
           else
-            echo "❌ Public API changes are detected. If they’re intended run "make generate-public-api" and commit the changes."
+            echo "❌ Public API changes are detected for ${{ matrix.version }} version. If they're intended run "make generate-public-api" and commit the changes."
             diff "sdk_api_base.json" "sdk_api.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
