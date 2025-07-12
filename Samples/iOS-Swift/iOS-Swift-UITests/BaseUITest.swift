@@ -1,4 +1,5 @@
 import SentrySampleShared
+import SentrySampleShared
 import SentrySampleUITestShared
 import XCTest
 
