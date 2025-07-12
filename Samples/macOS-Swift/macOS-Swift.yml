@@ -52,6 +52,7 @@ targets:
       - target: macOS-Swift-Other
       - target: macOS-Swift-Sandboxed
       - target: macOS-Swift-Sandboxed-Other
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: macOS-Swift-UITests.xcconfig
       Release: macOS-Swift-UITests.xcconfig

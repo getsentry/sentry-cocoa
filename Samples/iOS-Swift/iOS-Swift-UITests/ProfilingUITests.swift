@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentrySampleShared
 import XCTest
 
 //swiftlint:disable function_body_length todo
@@ -44,14 +45,14 @@ class ProfilingUITests: BaseUITest {
     func testProfilingGPUInfo() throws {
         if #available(iOS 16, *) {
             app.launchArguments.append(contentsOf: [
-                "--io.sentry.wipe-data",
+                SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue,
 
                 // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-                "--io.sentry.other.disable-swizzling",
+                SentrySDKOverrides.Other.disableSwizzling.rawValue,
 
-                "--io.sentry.profiling.disable-app-start-profiling"
+                SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
             ])
-            app.launchEnvironment["--io.sentry.profiling.profilesSampleRate"] = "1.0"
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1.0"
             launchApp()
             
             goToTransactions()
@@ -144,36 +145,36 @@ extension ProfilingUITests {
     fileprivate func setAppLaunchParameters(_ profileType: ProfilingUITests.ProfilingType, _ lifecycle: SentryProfileOptions.SentryProfileLifecycle?, _ shouldProfileNextLaunch: Bool) {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
-            "--io.sentry.other.disable-swizzling",
-            "--io.sentry.performance.disable-auto-performance-tracing",
-            "--io.sentry.performance.disable-uiviewcontroller-tracing",
+            SentrySDKOverrides.Other.disableSwizzling.rawValue,
+            SentrySDKOverrides.Performance.disablePerformanceTracing.rawValue,
+            SentrySDKOverrides.Performance.disableUIVCTracing.rawValue,
             
             // sets a marker function to run in a load command that the launch profile should detect
-            "--io.sentry.profiling.slow-load-method",
+            SentrySDKOverrides.Profiling.slowLoadMethod.rawValue,
             
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-            "--io.sentry.profiling.continuous-profiler-immediate-stop"
+            SentrySDKOverrides.Profiling.immediateStop.rawValue
         ])
         
         switch profileType {
         case .ui:
-            app.launchEnvironment["--io.sentry.profiling.profile-session-sample-rate"] = "1"
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sessionSampleRate.rawValue] = "1"
             switch lifecycle {
             case .none:
                 fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
             case .trace:
                 break
             case .manual:
-                app.launchArguments.append("--io.sentry.profiling.profile-lifecycle-manual")
+                app.launchArguments.append(SentrySDKOverrides.Profiling.manualLifecycle.rawValue)
             }
         case .continuous:
-            app.launchArguments.append("--io.sentry.profiling.disable-ui-profiling")
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
         case .trace:
-            app.launchEnvironment["--io.sentry.profiling.profilesSampleRate"] = "1"
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1"
         }
         
         if !shouldProfileNextLaunch {
-            app.launchArguments.append("--io.sentry.profiling.disable-app-start-profiling")
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue)
         }
     }
     
