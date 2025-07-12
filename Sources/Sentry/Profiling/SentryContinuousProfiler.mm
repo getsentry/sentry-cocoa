@@ -169,7 +169,7 @@ _sentry_unsafe_stopTimerAndCleanup()
     // https://github.com/getsentry/sentry-cocoa/pull/4214). we just want to look in its samples
     // for a call to main()
     if ([NSProcessInfo.processInfo.arguments
-            containsObject:@"--io.sentry.continuous-profiler-immediate-stop"]) {
+            containsObject:@"--io.sentry.profiling.continuous-profiler-immediate-stop"]) {
         _sentry_threadUnsafe_transmitChunkEnvelope();
         _sentry_unsafe_stopTimerAndCleanup();
         return;

@@ -416,7 +416,7 @@ extension SentrySDKWrapper {
     
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
-    var isUITest: Bool { env["--io.sentry.sdk-environment"] == "ui-tests" }
+    var isUITest: Bool { env["--io.sentry.scope.sdk-environment"] == "ui-tests" }
 }
 
 // MARK: Profiling configuration

@@ -4,7 +4,8 @@
 + (void)load
 {
     NSLog(@"[iOS-Swift] Starting app launch work");
-    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.slow-load-method"]) {
+    if ([NSProcessInfo.processInfo.arguments
+            containsObject:@"--io.sentry.profiling.slow-load-method"]) {
         [self sentry_slowLoadWork];
     }
     NSLog(@"[iOS-Swift] Finishing app launch work");
