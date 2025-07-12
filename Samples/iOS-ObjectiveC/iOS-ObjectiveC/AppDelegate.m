@@ -37,8 +37,6 @@
         }
 
         if (![args containsObject:@"--io.sentry.profiling.disable-ui-profiling"]) {
-            // TODO: for some reason, getting EXC_BAD_ACCESS when trying to profile UI transactions
-            // in this app
             options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
                 profiling.lifecycle =
                     [args containsObject:@"--io.sentry.profiling.profile-lifecycle-manual"]
