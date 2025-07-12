@@ -152,7 +152,7 @@ extension ProfilingUITests {
             "--io.sentry.profiling.slow-load-method",
             
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-            "--io.sentry.continuous-profiler-immediate-stop"
+            "--io.sentry.profiling.continuous-profiler-immediate-stop"
         ])
         
         switch profileType {
