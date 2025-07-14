@@ -117,10 +117,14 @@ public final class SentryLogger: NSObject {
         if let span = hub.scope.span {
             logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
+
+        let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
+        let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
+
         batcher.add(
             SentryLog(
                 timestamp: dateProvider.date(),
-                traceId: hub.scope.propagationContextTraceId,
+                traceId: propagationContextTraceId,
                 level: level,
                 body: body,
                 attributes: logAttributes
