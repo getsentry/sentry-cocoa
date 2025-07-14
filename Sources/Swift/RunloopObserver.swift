@@ -8,15 +8,18 @@ final class RunLoopObserver {
     private let dateProvider: SentryCurrentDateProvider
     private let threadInspector: ThreadInspector
     private let debugImageCache: DebugImageCache
+    private let fileManager: SentryFileManager
 
     init(
         dateProvider: SentryCurrentDateProvider,
         threadInspector: ThreadInspector,
         debugImageCache: DebugImageCache,
+        fileManager: SentryFileManager,
         minHangTime: TimeInterval) {
         self.dateProvider = dateProvider
         self.threadInspector = threadInspector
         self.debugImageCache = debugImageCache
+        self.fileManager = fileManager
         self.lastFrameTime = 0
         self.minHangTime = minHangTime
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
@@ -32,6 +35,7 @@ final class RunLoopObserver {
         #endif
         expectedFrameDuration = 1.0 / maxFPS
         thresholdForFrameStacktrace = expectedFrameDuration * 0.5
+        // TODO: Check for stored app hang
     }
     
     // This queue is used to detect main thread hangs, they need to be detected on a background thread
@@ -55,25 +59,16 @@ final class RunLoopObserver {
         let observer = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue | CFRunLoopActivity.afterWaiting.rawValue | CFRunLoopActivity.beforeSources.rawValue, true, CFIndex(INT_MAX)) { [weak self] _, activity in
             guard let self else { return }
 
+            let started = updateFrameStatistics()
             switch activity {
             case .beforeWaiting:
-                updateFrameStatistics()
                 running = false
             case .afterWaiting, .beforeSources:
-                updateFrameStatistics()
                 semaphore = DispatchSemaphore(value: 0)
                 running = true
-                let timeout = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int((expectedFrameDuration + thresholdForFrameStacktrace) * 1_000))
                 let localSemaphore = semaphore
                 queue.async { [weak self] in
-                    let result = localSemaphore.wait(timeout: timeout)
-                    switch result {
-                    case .timedOut:
-                        print("[HANG] Timeout, hang detected")
-                        self?.hangStarted()
-                    case .success:
-                        break
-                    }
+                    self?.waitForHang(semaphore: localSemaphore, started: started, isStarting: true)
                 }
             default:
                 fatalError()
@@ -82,13 +77,10 @@ final class RunLoopObserver {
         CFRunLoopAddObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
     
-    private func updateFrameStatistics() {
+    private func updateFrameStatistics() -> Double {
         dispatchPrecondition(condition: .onQueue(.main))
 
         let currentTime = dateProvider.systemUptime()
-        defer {
-            lastFrameTime = currentTime
-        }
         // Only consider frames that were within 2x the minHangTime
         frameStatistics = frameStatistics.filter { $0.startTime > currentTime - minHangTime * 2 }
         
@@ -104,10 +96,17 @@ final class RunLoopObserver {
                 frameStatistics.append((startTime: lastFrameTime, delayTime: frameDelay))
             }
             let totalTime = frameStatistics.map({ $0.delayTime }).reduce(0, +)
+            let type: SentryANRType = frameStatistics.count > 0 ? .nonFullyBlocking : .fullyBlocking
             if totalTime > minHangTime {
                 print("[HANG] Hang detected \(totalTime)")
-                maxHangTime = max(maxHangTime ?? 0, totalTime)
-                // print("[HANG] Hang max \(maxHangTime ?? 0)")
+                let maxTime = max(maxHangTime ?? 0, totalTime)
+                maxHangTime = maxTime
+                // Update on disk hang
+                queue.async { [weak self] in
+                    guard let self, let threads = threads, !threads.isEmpty else { return }
+                    let event = makeEvent(duration: maxTime, threads: threads, type: type)
+                    fileManager.storeAppHang(event)
+                }
             } else {
                 if let maxHangTime {
                     // The hang has ended
@@ -119,36 +118,75 @@ final class RunLoopObserver {
                     // non fully blocking hang. Maybe we will eventually support something like
                     // "scroll hitches" and report each time a frame is dropped rather than an
                     // overal hang event with just one stacktrace.
-                    let type: SentryANRType = frameStatistics.count > 0 ? .nonFullyBlocking : .fullyBlocking
                     queue.async { [weak self] in
-                        self?.recordHang(duration: maxHangTime, type: type)
+                        guard let self, let threads = threads, !threads.isEmpty else { return }
+                        let event = makeEvent(duration: maxHangTime, threads: threads, type: type)
+                        SentrySDK.capture(event: event)
                     }
                 }
                 maxHangTime = nil
             }
         }
+        lastFrameTime = currentTime
+        return currentTime
     }
     
     // MARK: Background queue
-
+    
+    private var blockingDuration: TimeInterval?
     private var threads: [SentryThread]?
     
-    private func hangStarted() {
+    private func waitForHang(semaphore: DispatchSemaphore, started: TimeInterval, isStarting: Bool) {
         dispatchPrecondition(condition: .onQueue(queue))
-
-        // TOD: Write to disk to record fatal hangs on app start
-        // Record threads when the hang is first detected
-        threads = threadInspector.getCurrentThreadsWithStackTrace()
+        
+        let timeout = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int((expectedFrameDuration + thresholdForFrameStacktrace) * 1_000))
+        let result = semaphore.wait(timeout: timeout)
+        switch result {
+        case .timedOut:
+            semaphore.signal()
+            print("[HANG] Timeout, hang detected")
+            continueHang(started: started, isStarting: isStarting)
+            waitForHang(semaphore: semaphore, started: started, isStarting: false)
+        case .success:
+            break
+        }
     }
     
-    private func recordHang(duration: TimeInterval, type: SentryANRType) {
+    // TODO: Only write hang if it's long enough
+    // TODO: Need to clear hang details after the hang ends
+    // Problem: If we are detecting a multiple runloop hang, which then turns into a single long hang
+    // we might want to add the total time of that long hang to what is on disk from the multiple runloop hang
+    // Or we could not do that and just say we only overwrite what is on disk if the hang exceeds the time
+    // of the multiple runloop hang.
+    // Could have two paths, fullyBlocking only used when the semaphore times out, we keep tracking in memory until
+    // it exceeds the threshold then we write to disk.
+    // Non fully blocking only writes when the runloop finishes if it exceeds the threshold.
+    // Sampled stacktrace should be kept separate from time, because time for nonFullyBlocking is kep on main thread
+    // time for fullyBlocking is kept on background thread
+    
+    // TODO: Not using should sample
+    private func continueHang(started: TimeInterval, isStarting: Bool) {
         dispatchPrecondition(condition: .onQueue(queue))
-        
-        guard let threads, !threads.isEmpty else {
-            return
+
+        if isStarting {
+            // A hang lasts a while, but we only support showing the stacktrace when it was first detected
+            threads = threadInspector.getCurrentThreadsWithStackTrace()
+            threads?.forEach { $0.current = false }
+            threads?[0].current = true
+        }
+        let duration = dateProvider.systemUptime() - started
+        blockingDuration = duration
+        if let threads, !threads.isEmpty, duration > minHangTime {
+            // Hangs detected in the background are always fully blocking
+            // Otherwise we'd be detecting them on the main thread.
+            fileManager.storeAppHang(makeEvent(duration: duration, threads: threads, type: .fullyBlocking))
         }
         
-        let event = Event()
+    }
+    
+    // Safe to call from any thread
+    private func makeEvent(duration: TimeInterval, threads: [SentryThread], type: SentryANRType) -> Event {
+        var event = Event()
         SentryLevelBridge.setBreadcrumbLevelOn(event, level: SentryLevel.error.rawValue)
         let exceptionType = SentryAppHangTypeMapper.getExceptionType(anrType: type)
         let exception = Exception(value: String(format: "App hanging for %.3f seconds.", duration), type: exceptionType)
@@ -156,15 +194,12 @@ final class RunLoopObserver {
         exception.mechanism = mechanism
         exception.stacktrace = threads[0].stacktrace
         exception.stacktrace?.snapshot = true
-
-        threads.forEach { $0.current = false }
-        threads[0].current = true
-
+        exception.stacktrace?.snapshot = true
         event.exceptions = [exception]
         event.threads = threads
-
         event.debugMeta = debugImageCache.getDebugImagesFromCacheFor(threads: event.threads)
-        SentrySDK.capture(event: event)
+        SentryDependencyContainerSwiftHelper.applyScope(to: event)
+        return event
     }
 }
 
@@ -176,10 +211,14 @@ final class RunLoopObserver {
     @objc public init(
         dateProvider: SentryCurrentDateProvider,
         threadInspector: ThreadInspector,
-        debugImageCache: DebugImageCache) {
-        observer = RunLoopObserver(dateProvider: dateProvider,
-                                           threadInspector: threadInspector,
-                                           debugImageCache: debugImageCache, minHangTime: 2)
+        debugImageCache: DebugImageCache,
+        fileManager: SentryFileManager) {
+        observer = RunLoopObserver(
+            dateProvider: dateProvider,
+            threadInspector: threadInspector,
+            debugImageCache: debugImageCache,
+            fileManager: fileManager,
+            minHangTime: 2)
     }
     
     @objc public func start() {

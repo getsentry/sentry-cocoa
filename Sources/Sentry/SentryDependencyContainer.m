@@ -263,7 +263,8 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_observer,
         [[RunLoopObserverObjcBridge alloc] initWithDateProvider:self.dateProvider
                                                 threadInspector:self.threadInspector
-                                                debugImageCache:self.debugImageProvider]);
+                                                debugImageCache:self.debugImageProvider
+                                                    fileManager:self.fileManager]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
