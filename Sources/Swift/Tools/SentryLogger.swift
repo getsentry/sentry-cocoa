@@ -103,16 +103,14 @@ public final class SentryLogger: NSObject {
         guard let batcher else {
             return
         }
-        guard let options = hub.getClient()?.options else {
-            return
-        }
+        
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         // Add default attributes
         logAttributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         logAttributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        logAttributes["sentry.environment"] = .string(options.environment)
+        logAttributes["sentry.environment"] = .string(batcher.options.environment)
         
-        if let releaseName = options.releaseName {
+        if let releaseName = batcher.options.releaseName {
             logAttributes["sentry.release"] = .string(releaseName)
         }
         
@@ -122,7 +120,7 @@ public final class SentryLogger: NSObject {
         batcher.add(
             SentryLog(
                 timestamp: dateProvider.date(),
-                traceId: hub.scope.propagationContext.traceId,
+                traceId: hub.scope.propagationContextTraceId,
                 level: level,
                 body: body,
                 attributes: logAttributes
