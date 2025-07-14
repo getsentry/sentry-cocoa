@@ -120,7 +120,7 @@ public final class SentryLogger: NSObject {
         batcher.add(
             SentryLog(
                 timestamp: dateProvider.date(),
-                traceId: hub.scope.propagationContextTraceId(),
+                traceId: hub.scope.propagationContextTraceId,
                 level: level,
                 body: body,
                 attributes: logAttributes
