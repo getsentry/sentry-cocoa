@@ -622,11 +622,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryId *)propagationContextTraceId
-{
-    return self.propagationContext.traceId;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
