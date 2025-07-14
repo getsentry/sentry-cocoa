@@ -88,6 +88,7 @@ format-yaml:
 
 generate-public-api:
 	./scripts/update-api.sh
+	./scripts/update-api.sh V9
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
