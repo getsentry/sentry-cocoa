@@ -334,5 +334,5 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
         XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
         XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
-    }    
+    }
 }

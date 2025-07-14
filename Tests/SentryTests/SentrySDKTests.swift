@@ -873,7 +873,62 @@ class SentrySDKTests: XCTestCase {
 
         XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
     }
+    
+    func testLogger_ReturnsSameInstanceOnMultipleCalls() {
+        givenSdkWithHub()
+        
+        let logger1 = SentrySDK.logger
+        let logger2 = SentrySDK.logger
+        
+        XCTAssertIdentical(logger1, logger2)
+    }
 
+    func testClose_ResetsLogger() {
+        givenSdkWithHub()
+        
+        // Get logger instance
+        let logger1 = SentrySDK.logger
+        XCTAssertNotNil(logger1)
+        
+        // Close SDK
+        SentrySDK.close()
+        
+        // Start SDK again
+        givenSdkWithHub()
+        
+        // Get logger instance again
+        let logger2 = SentrySDK.logger
+        XCTAssertNotNil(logger2)
+        
+        // Should be a different instance
+        XCTAssertNotIdentical(logger1, logger2)
+    }
+
+    func testLogger_WithLogsEnabled_CapturesLog() {
+        fixture.client.options.experimental.enableLogs = true
+        givenSdkWithHub()
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+
+    func testLogger_WithNoClient_DoesNotCaptureLog() {
+        fixture.client.options.experimental.enableLogs = true
+        let hubWithoutClient = SentryHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hubWithoutClient)
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
+    func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
+        fixture.client.options.experimental.enableLogs = false
+        givenSdkWithHub()
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -1195,7 +1250,7 @@ private extension SentrySDKTests {
         SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
         SentrySDK.setStart(fixture.options)
     }
-
+    
     func assertIntegrationsInstalled(integrations: [String]) {
         XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations().count)
         integrations.forEach { integration in
