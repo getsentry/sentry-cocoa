@@ -14,6 +14,10 @@
 
 ## 8.53.2
 
+### Features
+
+- Add `isiOSAppOnMac` and `isMacCatalystApp` from ProcessInfo to the app context (#5570)
+
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
