@@ -639,6 +639,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 #if SENTRY_UIKIT_AVAILABLE
 
+#    if !SDK_V9
 /**
  * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
  * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
@@ -657,6 +658,8 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  enableAppHangTracking.
  */
 @property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+
+#    endif // !SDK_V9
 
 /**
  * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when

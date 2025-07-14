@@ -1957,6 +1957,7 @@
 		84A8891A28DBD28900C51DFD /* SentryDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDevice.h; path = include/SentryDevice.h; sourceTree = "<group>"; };
 		84A8891B28DBD28900C51DFD /* SentryDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDevice.m; sourceTree = "<group>"; };
 		84A8892028DBD8D600C51DFD /* SentryDeviceTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDeviceTests.m; sourceTree = "<group>"; };
+		84A899342E218C5F009A551E /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		84A903702D39F66F00690CE4 /* SentryUserFeedbackFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUserFeedbackFormViewModel.swift; sourceTree = "<group>"; };
 		84AB6AAF2DB2E9BA006D6C83 /* Versioning.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versioning.xcconfig; sourceTree = "<group>"; };
 		84AC61D029F7541E009EEF61 /* SentryDispatchSourceWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDispatchSourceWrapper.h; path = include/SentryDispatchSourceWrapper.h; sourceTree = "<group>"; };
@@ -2679,6 +2680,7 @@
 		6327C5C91EB8A783004E799B = {
 			isa = PBXGroup;
 			children = (
+				84A899032E2090E9009A551E /* CLAUDE.md */,
 				844DA80C28246D5000E6B62E /* CHANGELOG.md */,
 				63AA756E1EB8AEDB00D153DE /* Sources */,
 				63AA75921EB8AEDB00D153DE /* Tests */,
@@ -4416,6 +4418,7 @@
 		D878C6C22BC8066D0039D6A3 /* Docs */ = {
 			isa = PBXGroup;
 			children = (
+				84A899342E218C5F009A551E /* CLAUDE.md */,
 				844DA81028246D5000E6B62E /* CONTRIBUTING.md */,
 				844DA80E28246D5000E6B62E /* LICENSE.md */,
 				840B7EF02BBF2B5F008B8120 /* MIGRATION.md */,
