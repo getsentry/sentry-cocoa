@@ -71,7 +71,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDsn.m", "Sentry/NSLocale+Sentry.m", "SentryScope+PropagationContext.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
+            exclude: ["Sentry/SentryDsn.m", "Sentry/NSLocale+Sentry.m", "Sentry/SentryScope+PropagationContext.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
