@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)applyScopeTo:(SentryEvent *)event;
 
++ (void)captureFatalAppHangEvent:(SentryEvent *)event;
+
 @end
 
 NS_ASSUME_NONNULL_END

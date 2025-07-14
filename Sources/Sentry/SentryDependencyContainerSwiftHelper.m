@@ -31,4 +31,9 @@
     }
 }
 
++ (void)captureFatalAppHangEvent:(SentryEvent *)event
+{
+    [SentrySDK captureFatalAppHangEvent:event];
+}
+
 @end

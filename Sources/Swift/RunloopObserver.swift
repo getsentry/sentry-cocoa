@@ -4,22 +4,27 @@ import UIKit
 #endif
 
 final class RunLoopObserver {
+    
+    static let SentryANRMechanismDataAppHangDuration = "app_hang_duration"
 
     private let dateProvider: SentryCurrentDateProvider
     private let threadInspector: ThreadInspector
     private let debugImageCache: DebugImageCache
     private let fileManager: SentryFileManager
+    private let crashWrapper: CrashWrapper
 
     init(
         dateProvider: SentryCurrentDateProvider,
         threadInspector: ThreadInspector,
         debugImageCache: DebugImageCache,
         fileManager: SentryFileManager,
+        crashWrapper: CrashWrapper,
         minHangTime: TimeInterval) {
         self.dateProvider = dateProvider
         self.threadInspector = threadInspector
         self.debugImageCache = debugImageCache
         self.fileManager = fileManager
+        self.crashWrapper = crashWrapper
         self.lastFrameTime = 0
         self.minHangTime = minHangTime
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
@@ -35,7 +40,7 @@ final class RunLoopObserver {
         #endif
         expectedFrameDuration = 1.0 / maxFPS
         thresholdForFrameStacktrace = expectedFrameDuration * 0.5
-        // TODO: Check for stored app hang
+            captureStoredAppHang()
     }
     
     // This queue is used to detect main thread hangs, they need to be detected on a background thread
@@ -131,6 +136,43 @@ final class RunLoopObserver {
         return currentTime
     }
     
+    func captureStoredAppHang() {
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            guard let self, let event = fileManager.readAppHangEvent() else { return }
+            
+            fileManager.deleteAppHangEvent()
+            if crashWrapper.crashedLastLaunch {
+                // The app crashed during an ongoing app hang. Capture the stored app hang as it is.
+                // We already applied the scope. We use an empty scope to avoid overwriting exising
+                // fields on the event.
+                SentrySDK.capture(event: event, scope: Scope())
+            } else {
+                // Fatal App Hang
+                // We can't differ if the watchdog or the user terminated the app, because when the main
+                // thread is blocked we don't receive the applicationWillTerminate notification. Further
+                // investigations are required to validate if we somehow can differ between watchdog or
+                // user terminations; see https://github.com/getsentry/sentry-cocoa/issues/4845.
+                guard let exceptions = event.exceptions, let exception = exceptions.first, exceptions.count == 1 else {
+                    SentrySDKLog.warning("The stored app hang event is expected to have exactly one exception, so we don't capture it.")
+                    return
+                }
+                
+                SentryLevelBridge.setBreadcrumbLevelOn(event, level: SentryLevel.fatal.rawValue)
+                event.exceptions?.first?.mechanism?.handled = false
+                let fatalExceptionType = SentryAppHangTypeMapper.getFatalExceptionType(nonFatalErrorType: exception.type)
+                event.exceptions?.first?.type = fatalExceptionType
+                
+                var mechanismData = exception.mechanism?.data
+                let durationInfo = mechanismData?[Self.SentryANRMechanismDataAppHangDuration] as? String ?? "over \(minHangTime) seconds"
+                mechanismData?.removeValue(forKey: Self.SentryANRMechanismDataAppHangDuration)
+                event.exceptions?.first?.value = "The user or the OS watchdog terminated your app while it blocked the main thread for \(durationInfo)"
+                event.exceptions?.first?.mechanism?.data = mechanismData
+                SentryDependencyContainerSwiftHelper.captureFatalAppHang(event)
+                
+            }
+        }
+    }
+    
     // MARK: Background queue
     
     private var blockingDuration: TimeInterval?
@@ -151,20 +193,7 @@ final class RunLoopObserver {
             break
         }
     }
-    
-    // TODO: Only write hang if it's long enough
-    // TODO: Need to clear hang details after the hang ends
-    // Problem: If we are detecting a multiple runloop hang, which then turns into a single long hang
-    // we might want to add the total time of that long hang to what is on disk from the multiple runloop hang
-    // Or we could not do that and just say we only overwrite what is on disk if the hang exceeds the time
-    // of the multiple runloop hang.
-    // Could have two paths, fullyBlocking only used when the semaphore times out, we keep tracking in memory until
-    // it exceeds the threshold then we write to disk.
-    // Non fully blocking only writes when the runloop finishes if it exceeds the threshold.
-    // Sampled stacktrace should be kept separate from time, because time for nonFullyBlocking is kep on main thread
-    // time for fullyBlocking is kept on background thread
-    
-    // TODO: Not using should sample
+
     private func continueHang(started: TimeInterval, isStarting: Bool) {
         dispatchPrecondition(condition: .onQueue(queue))
 
@@ -186,11 +215,15 @@ final class RunLoopObserver {
     
     // Safe to call from any thread
     private func makeEvent(duration: TimeInterval, threads: [SentryThread], type: SentryANRType) -> Event {
-        var event = Event()
+        let event = Event()
         SentryLevelBridge.setBreadcrumbLevelOn(event, level: SentryLevel.error.rawValue)
         let exceptionType = SentryAppHangTypeMapper.getExceptionType(anrType: type)
         let exception = Exception(value: String(format: "App hanging for %.3f seconds.", duration), type: exceptionType)
         let mechanism = Mechanism(type: "AppHang")
+        // We only temporarily store the app hang duration info, so we can change the error message
+        // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
+        // string parsing to retrieve the app hang duration info from the error message.
+        mechanism.data = [Self.SentryANRMechanismDataAppHangDuration: "\(duration) seconds"]
         exception.mechanism = mechanism
         exception.stacktrace = threads[0].stacktrace
         exception.stacktrace?.snapshot = true
@@ -212,12 +245,14 @@ final class RunLoopObserver {
         dateProvider: SentryCurrentDateProvider,
         threadInspector: ThreadInspector,
         debugImageCache: DebugImageCache,
-        fileManager: SentryFileManager) {
+        fileManager: SentryFileManager,
+        crashWrapper: CrashWrapper) {
         observer = RunLoopObserver(
             dateProvider: dateProvider,
             threadInspector: threadInspector,
             debugImageCache: debugImageCache,
             fileManager: fileManager,
+            crashWrapper: crashWrapper,
             minHangTime: 2)
     }
     
@@ -232,4 +267,8 @@ final class RunLoopObserver {
 
 @objc @_spi(Private) public protocol DebugImageCache {
     func getDebugImagesFromCacheFor(threads: [SentryThread]?) -> [DebugMeta]
+}
+
+@objc @_spi(Private) public protocol CrashWrapper {
+    var crashedLastLaunch: Bool { get }
 }

@@ -95,6 +95,10 @@
 
 @end
 
+@interface SentryCrashWrapper () <CrashWrapper>
+
+@end
+
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
@@ -264,7 +268,8 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[RunLoopObserverObjcBridge alloc] initWithDateProvider:self.dateProvider
                                                 threadInspector:self.threadInspector
                                                 debugImageCache:self.debugImageProvider
-                                                    fileManager:self.fileManager]);
+                                                    fileManager:self.fileManager
+                                                   crashWrapper:self.crashWrapper]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
