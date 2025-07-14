@@ -9,9 +9,9 @@ class ViewLifecycleUITests: BaseUITest {
     override func setUp() {
         super.setUp()
         launchApp(args: [
-            "--disable-time-to-full-display-tracing",
-            "--disable-performance-v2",
-            "--disable-app-hang-tracking-v2"
+            "--io.sentry.performance.disable-time-to-full-display-tracing",
+            "--io.sentry.performance.disable-performance-v2",
+            "--io.sentry.performance.disable-app-hang-tracking-v2"
         ])
     }
 
