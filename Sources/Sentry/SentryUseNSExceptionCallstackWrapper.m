@@ -45,7 +45,7 @@
         enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             SentryCrashStackCursor stackCursor;
             stackCursor.stackEntry.address = [obj unsignedLongValue];
-            sentrycrashsymbolicator_symbolicate(&stackCursor);
+            sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr(&stackCursor);
 
             [frames addObject:[crashStackToEntryMapper
                                   sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry]];
