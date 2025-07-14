@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryScope.h"
 
 @class SentryId;
