@@ -908,7 +908,10 @@ class SentrySDKTests: XCTestCase {
         fixture.client.options.experimental.enableLogs = true
         givenSdkWithHub()
         
-        SentrySDK.logger.error("foo")
+        for index in (0..<100) {
+            SentrySDK.logger.error("foo \(index)")
+        }
+        
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
 
