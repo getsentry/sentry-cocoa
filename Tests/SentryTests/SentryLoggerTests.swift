@@ -376,7 +376,7 @@ final class SentryLoggerTests: XCTestCase {
         let logs = fixture.batcher.addInvocations.invocations
         guard let lastLog = logs.last else {
             XCTFail("No logs captured")
-            return SentryLog(timestamp: Date(), level: .info, body: "", attributes: [:])
+            return SentryLog(timestamp: Date(), traceId: .empty, level: .info, body: "", attributes: [:])
         }
         return lastLog
     }

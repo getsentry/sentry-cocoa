@@ -39,6 +39,75 @@ final class SentryLogTests: XCTestCase {
     }
     """.utf8)
     
+    // MARK: - Severity Number Fallback Tests
+    
+    func testConstructorWithExplicitSeverityNumber() throws {
+        let log = SentryLog(
+            timestamp: Date(),
+            traceId: SentryId(),
+            level: .info,
+            body: "Test message",
+            attributes: [:],
+            severityNumber: 99  // Explicit value different from level's default
+        )
+        
+        XCTAssertEqual(log.severityNumber, 99, "Should use explicitly provided severity number")
+        XCTAssertEqual(log.level, .info)
+    }
+    
+    func testConstructorWithoutSeverityNumberFallsBackToLevel() throws {
+        let log = SentryLog(
+            timestamp: Date(),
+            traceId: SentryId(),
+            level: .info,
+            body: "Test message",
+            attributes: [:]
+            // severityNumber not provided - should default to nil and fallback to level
+        )
+        
+        XCTAssertEqual(log.severityNumber, 9, "Should derive severity number from info level")
+        XCTAssertEqual(log.level, .info)
+    }
+    
+    func testConstructorWithNilSeverityNumberFallsBackToLevel() throws {
+        let log = SentryLog(
+            timestamp: Date(),
+            traceId: SentryId(),
+            level: .error,
+            body: "Error message",
+            attributes: [:],
+            severityNumber: nil  // Explicitly nil
+        )
+        
+        XCTAssertEqual(log.severityNumber, 17, "Should derive severity number from error level")
+        XCTAssertEqual(log.level, .error)
+    }
+    
+    func testSeverityNumberFallbackForAllLevels() throws {
+        let testCases: [(SentryLog.Level, Int)] = [
+            (.trace, 1),
+            (.debug, 5),
+            (.info, 9),
+            (.warn, 13),
+            (.error, 17),
+            (.fatal, 21)
+        ]
+        
+        for (level, expectedSeverity) in testCases {
+            let log = SentryLog(
+                timestamp: Date(),
+                traceId: SentryId(),
+                level: level,
+                body: "Test message",
+                attributes: [:]
+                // severityNumber not provided
+            )
+            
+            XCTAssertEqual(log.severityNumber, expectedSeverity, 
+                          "Level \(level) should derive severity number \(expectedSeverity)")
+        }
+    }
+
     func testEncode() throws {
         let data = try encodeToJSONData(data: log)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -103,35 +172,5 @@ final class SentryLogTests: XCTestCase {
         XCTAssertEqual(decoded.attributes["score"]?.type, "double")
         let decodedScoreValue = try XCTUnwrap(decoded.attributes["score"]?.value as? Double)
         XCTAssertEqual(decodedScoreValue, 3.14159, accuracy: 0.00001)
-    }
-    
-    // MARK: - addAttribute Tests
-    
-    func testAddAttribute_AddsNewAttributes() {
-        var log = SentryLog(
-            timestamp: Date(),
-            level: .info,
-            body: "Test message",
-            attributes: [:]
-        )
-        
-        log.addAttribute("string_attr", value: "test_string")
-        log.addAttribute("bool_attr", value: true)
-        log.addAttribute("int_attr", value: 42)
-        log.addAttribute("double_attr", value: 3.14159)
-        
-        XCTAssertEqual(log.attributes.count, 4)
-        
-        XCTAssertEqual(log.attributes["string_attr"]?.type, "string")
-        XCTAssertEqual(log.attributes["string_attr"]?.value as? String, "test_string")
-        
-        XCTAssertEqual(log.attributes["bool_attr"]?.type, "boolean")
-        XCTAssertEqual(log.attributes["bool_attr"]?.value as? Bool, true)
-        
-        XCTAssertEqual(log.attributes["int_attr"]?.type, "integer")
-        XCTAssertEqual(log.attributes["int_attr"]?.value as? Int, 42)
-        
-        XCTAssertEqual(log.attributes["double_attr"]?.type, "double")
-        XCTAssertEqual(log.attributes["double_attr"]?.value as? Double, 3.14159)
     }
 }

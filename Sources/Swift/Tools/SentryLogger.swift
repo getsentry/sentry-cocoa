@@ -106,29 +106,27 @@ public final class SentryLogger: NSObject {
         guard let options = hub.getClient()?.options else {
             return
         }
-        let logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        var log = SentryLog(
-            timestamp: dateProvider.date(),
-            level: level,
-            body: body,
-            attributes: logAttributes
-        )
-        // Set trace ID from propagation context
-        log.traceId = hub.scope.propagationContext.traceId
-        
+        var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         // Add default attributes
-        log.addAttribute("sentry.sdk.name", value: SentryMeta.sdkName)
-        log.addAttribute("sentry.sdk.version", value: SentryMeta.versionString)
-        log.addAttribute("sentry.environment", value: options.environment)
+        logAttributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        logAttributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
+        logAttributes["sentry.environment"] = .string(options.environment)
         
         if let releaseName = options.releaseName {
-            log.addAttribute("sentry.release", value: releaseName)
+            logAttributes["sentry.release"] = .string(releaseName)
         }
         
         if let span = hub.scope.span {
-            log.addAttribute("sentry.trace.parent_span_id", value: span.spanId.sentrySpanIdString)
+            logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
-        
-        batcher.add(log)
+        batcher.add(
+            SentryLog(
+                timestamp: dateProvider.date(),
+                traceId: hub.scope.propagationContext.traceId,
+                level: level,
+                body: body,
+                attributes: logAttributes
+            )
+        )
     }
 }

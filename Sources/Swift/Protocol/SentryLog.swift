@@ -1,9 +1,9 @@
 struct SentryLog: Codable {
     let timestamp: Date
-    var traceId: SentryId
+    let traceId: SentryId
     let level: SentryLog.Level
     let body: String
-    var attributes: [String: SentryLog.Attribute]
+    let attributes: [String: SentryLog.Attribute]
     let severityNumber: Int?
     
     private enum CodingKeys: String, CodingKey {
@@ -19,18 +19,18 @@ struct SentryLog: Codable {
     /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
     init(
         timestamp: Date,
-        traceId: SentryId? = nil,
+        traceId: SentryId,
         level: SentryLog.Level,
         body: String,
         attributes: [String: SentryLog.Attribute],
         severityNumber: Int? = nil
     ) {
         self.timestamp = timestamp
-        self.traceId = traceId ?? SentryId.empty
+        self.traceId = traceId
         self.level = level
         self.body = body
         self.attributes = attributes
-        self.severityNumber = severityNumber
+        self.severityNumber = severityNumber ?? level.toSeverityNumber()
     }
     
     init(from decoder: any Decoder) throws {
@@ -54,9 +54,5 @@ struct SentryLog: Codable {
         try container.encode(body, forKey: .body)
         try container.encode(attributes, forKey: .attributes)
         try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
-    }
-    
-    mutating func addAttribute(_ name: String, value: Any) {
-        attributes[name] = SentryLog.Attribute(value: value)
     }
 }
