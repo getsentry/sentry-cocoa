@@ -90,7 +90,6 @@ targets:
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
-      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Benchmarking.xcconfig
       Release: iOS-Benchmarking.xcconfig
