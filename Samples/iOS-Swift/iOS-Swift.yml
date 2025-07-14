@@ -76,6 +76,7 @@ targets:
       - iOS-Swift-UITests
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift-UITests.xcconfig
       Release: iOS-Swift-UITests.xcconfig

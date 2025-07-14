@@ -1,3 +1,4 @@
+import SentrySampleShared
 import XCTest
 
 // This is an UI test for a scenario that was previously crashing the SDK (see https://github.com/getsentry/sentry-cocoa/issues/5087 for details).
@@ -9,9 +10,9 @@ class ViewLifecycleUITests: BaseUITest {
     override func setUp() {
         super.setUp()
         launchApp(args: [
-            "--io.sentry.performance.disable-time-to-full-display-tracing",
-            "--io.sentry.performance.disable-performance-v2",
-            "--io.sentry.performance.disable-app-hang-tracking-v2"
+            SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.rawValue,
+            SentrySDKOverrides.Performance.disablePerformanceV2.rawValue,
+            SentrySDKOverrides.Performance.disableAppHangTrackingV2.rawValue
         ])
     }
 

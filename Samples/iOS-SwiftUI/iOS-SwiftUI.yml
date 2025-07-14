@@ -53,6 +53,7 @@ targets:
     platform: auto
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     sources:
       - iOS-SwiftUI-UITests
     configFiles:
