@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScope ()
 
-@property (nonatomic, readonly) SentryId *propagationContextTraceId;
+- (SentryId *)propagationContextTraceId;
 
 @end
 
