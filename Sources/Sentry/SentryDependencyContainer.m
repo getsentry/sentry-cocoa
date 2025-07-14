@@ -262,14 +262,14 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
 }
 
-- (RunLoopObserverObjcBridge *)observer SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (HangTrackerObjcBridge *)hangTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_observer,
-        [[RunLoopObserverObjcBridge alloc] initWithDateProvider:self.dateProvider
-                                                threadInspector:self.threadInspector
-                                                debugImageCache:self.debugImageProvider
-                                                    fileManager:self.fileManager
-                                                   crashWrapper:self.crashWrapper]);
+    SENTRY_LAZY_INIT(_hangTracker,
+        [[HangTrackerObjcBridge alloc] initWithDateProvider:self.dateProvider
+                                            threadInspector:self.threadInspector
+                                            debugImageCache:self.debugImageProvider
+                                                fileManager:self.fileManager
+                                               crashWrapper:self.crashWrapper]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout

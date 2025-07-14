@@ -31,6 +31,8 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
     
+    public var enableRunLoopObserverAppHangs = false
+
     /**
      * Logs are considered beta.
      */

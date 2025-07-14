@@ -3,7 +3,21 @@
 import UIKit
 #endif
 
-final class RunLoopObserver {
+// A hang is parameterized by the its minimum duration, HangDuration, and is defined by a period of time lasting longer than HangDuration*2 when the delay
+// of all frames started during that time sums to more than HangDuration. If there is only one frame during this time that is delayed then it is a "fullyBlocking"
+// hang, otherwise it is a "nonFullyBlocking" hang.
+//
+// We measure late frames using a runloop observer. Any frame that is more than 50% delayed has its stacktrace sampled once, when we first detect it is delayed.
+// After the hang ends (or the app restarts in the case of fatal hangs) the most recently recorded stacktrace is used to report the hang. Since a hang is not one
+// stacktrace, like a crash, but rather a period of time, it would make sense to talk about a flamegraph sampled during the hang but the API does not support this.
+// Note that stacktraces are always sampled from a background thread, since it’s the main thread that gets sampled.
+//
+// There are two ways we trigger saving hang data. One is on the main thread, when the hang is over. When each frame finishes rendering we collect its delay and
+// if the sum of delays during the last HangDuration*2 is greather than the threshold, we report the last stack trace as a hang. The other way is on a background
+// thread. Once a frame is delayed more than 50% we sample the thread and start tracking it. If the total delay becomes more than our threshold the event
+// is recorded. If the hang never ends (thus transfering us back to the previous main thread case) then the hang is saved on the filesystem and
+// sent as a fatal hang the next time the app is launched.
+final class HangTracker {
     
     static let SentryANRMechanismDataAppHangDuration = "app_hang_duration"
 
@@ -27,9 +41,9 @@ final class RunLoopObserver {
         self.crashWrapper = crashWrapper
         self.lastFrameTime = 0
         self.minHangTime = minHangTime
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && !os(visionOS) && !os(watchOS)
         var maxFPS = 60.0
-        if #available(iOS 13.0, *) {
+            if #available(iOS 13.0, tvOS 13.0, *) {
             let window = UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
             maxFPS = Double(window?.screen.maximumFramesPerSecond ?? 60)
         } else {
@@ -40,7 +54,7 @@ final class RunLoopObserver {
         #endif
         expectedFrameDuration = 1.0 / maxFPS
         thresholdForFrameStacktrace = expectedFrameDuration * 0.5
-            captureStoredAppHang()
+        captureStoredAppHang()
     }
     
     // This queue is used to detect main thread hangs, they need to be detected on a background thread
@@ -52,6 +66,7 @@ final class RunLoopObserver {
     
     // MARK: Main queue
 
+    private var observer: CFRunLoopObserver?
     private var semaphore = DispatchSemaphore(value: 0)
     private var lastFrameTime: TimeInterval
     private var running = false
@@ -79,7 +94,14 @@ final class RunLoopObserver {
                 fatalError()
             }
         }
+        self.observer = observer
         CFRunLoopAddObserver(CFRunLoopGetMain(), observer, .commonModes)
+    }
+    
+    func stop() {
+        guard let observer else { return }
+
+        CFRunLoopRemoveObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
     
     private func updateFrameStatistics() -> Double {
@@ -103,19 +125,19 @@ final class RunLoopObserver {
             let totalTime = frameStatistics.map({ $0.delayTime }).reduce(0, +)
             let type: SentryANRType = frameStatistics.count > 0 ? .nonFullyBlocking : .fullyBlocking
             if totalTime > minHangTime {
-                print("[HANG] Hang detected \(totalTime)")
+                SentrySDKLog.debug("Detected app hang for \(totalTime) seconds")
                 let maxTime = max(maxHangTime ?? 0, totalTime)
                 maxHangTime = maxTime
                 // Update on disk hang
                 queue.async { [weak self] in
                     guard let self, let threads = threads, !threads.isEmpty else { return }
-                    let event = makeEvent(duration: maxTime, threads: threads, type: type)
+                    let event = makeEvent(duration: maxTime, threads: threads, type: type, addMechanismData: true)
                     fileManager.storeAppHang(event)
                 }
             } else {
                 if let maxHangTime {
                     // The hang has ended
-                    print("[HANG] Hang reporting \(maxHangTime)")
+                    SentrySDKLog.debug("Reporting app hang with \(maxHangTime) seconds")
                     // Note: A non fully blocking hang always has multiple stacktraces
                     // because it is composed of multpile delayed frames. Each delayed frame has a stacktrace.
                     // We only support sending one stacktrace per event so we take the most recent one.
@@ -125,7 +147,7 @@ final class RunLoopObserver {
                     // overal hang event with just one stacktrace.
                     queue.async { [weak self] in
                         guard let self, let threads = threads, !threads.isEmpty else { return }
-                        let event = makeEvent(duration: maxHangTime, threads: threads, type: type)
+                        let event = makeEvent(duration: maxHangTime, threads: threads, type: type, addMechanismData: false)
                         SentrySDK.capture(event: event)
                     }
                 }
@@ -198,7 +220,7 @@ final class RunLoopObserver {
         dispatchPrecondition(condition: .onQueue(queue))
 
         if isStarting {
-            // A hang lasts a while, but we only support showing the stacktrace when it was first detected
+            // A hang lasts a while, we show the stacktrace when it was first detected
             threads = threadInspector.getCurrentThreadsWithStackTrace()
             threads?.forEach { $0.current = false }
             threads?[0].current = true
@@ -208,13 +230,13 @@ final class RunLoopObserver {
         if let threads, !threads.isEmpty, duration > minHangTime {
             // Hangs detected in the background are always fully blocking
             // Otherwise we'd be detecting them on the main thread.
-            fileManager.storeAppHang(makeEvent(duration: duration, threads: threads, type: .fullyBlocking))
+            fileManager.storeAppHang(makeEvent(duration: duration, threads: threads, type: .fullyBlocking, addMechanismData: true))
         }
         
     }
     
     // Safe to call from any thread
-    private func makeEvent(duration: TimeInterval, threads: [SentryThread], type: SentryANRType) -> Event {
+    private func makeEvent(duration: TimeInterval, threads: [SentryThread], type: SentryANRType, addMechanismData: Bool) -> Event {
         let event = Event()
         SentryLevelBridge.setBreadcrumbLevelOn(event, level: SentryLevel.error.rawValue)
         let exceptionType = SentryAppHangTypeMapper.getExceptionType(anrType: type)
@@ -223,7 +245,9 @@ final class RunLoopObserver {
         // We only temporarily store the app hang duration info, so we can change the error message
         // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
         // string parsing to retrieve the app hang duration info from the error message.
-        mechanism.data = [Self.SentryANRMechanismDataAppHangDuration: "\(duration) seconds"]
+        if addMechanismData {
+            mechanism.data = [Self.SentryANRMechanismDataAppHangDuration: "\(duration) seconds"]
+        }
         exception.mechanism = mechanism
         exception.stacktrace = threads[0].stacktrace
         exception.stacktrace?.snapshot = true
@@ -237,9 +261,9 @@ final class RunLoopObserver {
 }
 
 @objc
-@_spi(Private) public final class RunLoopObserverObjcBridge: NSObject {
+@_spi(Private) public final class HangTrackerObjcBridge: NSObject {
 
-    private let observer: RunLoopObserver
+    private let observer: HangTracker
 
     @objc public init(
         dateProvider: SentryCurrentDateProvider,
@@ -247,7 +271,7 @@ final class RunLoopObserver {
         debugImageCache: DebugImageCache,
         fileManager: SentryFileManager,
         crashWrapper: CrashWrapper) {
-        observer = RunLoopObserver(
+        observer = HangTracker(
             dateProvider: dateProvider,
             threadInspector: threadInspector,
             debugImageCache: debugImageCache,
@@ -258,6 +282,10 @@ final class RunLoopObserver {
     
     @objc public func start() {
         observer.start()
+    }
+    
+    @objc public func stop() {
+        observer.stop()
     }
 }
 
