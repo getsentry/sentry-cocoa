@@ -117,6 +117,19 @@ public final class SentryLogger: NSObject {
         if let span = hub.scope.span {
             logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
+        
+        // Add user attributes if available
+        if let user = sentry_getCurrentUser() {
+            if let userId = user.userId {
+                logAttributes["user.id"] = .string(userId)
+            }
+            if let userName = user.name {
+                logAttributes["user.name"] = .string(userName)
+            }
+            if let userEmail = user.email {
+                logAttributes["user.email"] = .string(userEmail)
+            }
+        }
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
