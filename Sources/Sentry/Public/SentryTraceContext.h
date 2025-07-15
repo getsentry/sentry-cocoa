@@ -119,19 +119,20 @@ NS_SWIFT_NAME(TraceContext)
 
 #if SDK_V9
 /**
- * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
+ * Initializes a SentryTraceContext with data from a traceId, options and replayId.
  *
  *  @param traceId The current tracer.
  *  @param options The current active options.
+ *  @param replayId The current session replay.
  */
 #else
 /**
- * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
+ * Initializes a SentryTraceContext with data from a traceId, options, userSegment and replayId.
  *
  *  @param traceId The current tracer.
  *  @param options The current active options.
- *
  *  @param userSegment You can retrieve this usually from the `scope.userObject.segment`.
+ *  @param replayId The current session replay.
  */
 #endif
 - (instancetype)initWithTraceId:(SentryId *)traceId
