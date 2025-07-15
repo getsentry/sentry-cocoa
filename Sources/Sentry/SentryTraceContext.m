@@ -83,12 +83,14 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *userSegment;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V9
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (scope.userObject.segment) {
         userSegment = scope.userObject.segment;
     }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif // !SDK_V9
 
     NSString *serializedSampleRand = nil;
     NSNumber *sampleRand = [tracer.transactionContext sampleRand];
