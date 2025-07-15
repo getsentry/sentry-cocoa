@@ -10,6 +10,7 @@ on:
       - Sentry.xcodeproj/**
       - "Package.swift"
       - "scripts/build-xcframework-local.sh"
+      - "scripts/update-api.sh"
 
 jobs:
   api-stability:
