@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "2D246005-F10C-4B21-ADB9-C1FD56D43938",
+      "id" : "56E63385-97E2-48DB-B364-C72450F8D572",
       "name" : "Test Scheme Action",
       "options" : {
 
@@ -20,16 +20,16 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
-        "identifier" : "D89DD6722CEF7ADF009C3509",
-        "name" : "UITest-DuplicatedSDK"
+        "identifier" : "F45243112DE56862003E8F50",
+        "name" : "Unit Tests"
       }
     },
     {
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
-        "identifier" : "F45243112DE56862003E8F50",
-        "name" : "Unit Tests"
+        "identifier" : "D89DD6722CEF7ADF009C3509",
+        "name" : "UITest-DuplicatedSDK"
       }
     }
   ],
