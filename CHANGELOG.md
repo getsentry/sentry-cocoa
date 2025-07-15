@@ -5,6 +5,9 @@
 ### Features
 
 - Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637)
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628)
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532)
+- The SDK will show a warning in the console if it detects it was loaded twice (#5298)
 
 ### Improvements
 
@@ -54,7 +57,6 @@
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
-- The SDK will show a warning in the console if it detects it was loaded twice (#5298)
 
 ### Fixes
 
