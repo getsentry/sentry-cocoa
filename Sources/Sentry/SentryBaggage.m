@@ -29,8 +29,6 @@
                      transaction:transaction
 #if !SDK_V9
                      userSegment:userSegment
-#else
-                     userSegment:nil
 #endif
                       sampleRate:sampleRate
                       sampleRand:nil
@@ -60,8 +58,6 @@
         _transaction = transaction;
 #if !SDK_V9
         _userSegment = userSegment;
-#else
-        _userSegment = nil;
 #endif
         _sampleRate = sampleRate;
         _sampleRand = sampleRand;

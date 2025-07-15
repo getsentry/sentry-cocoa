@@ -35,8 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
                      transaction:transaction
 #if !SDK_V9
                      userSegment:userSegment
-#else
-                     userSegment:nil
 #endif
                       sampleRate:sampleRate
                       sampleRand:nil
@@ -65,8 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
         _transaction = transaction;
 #if !SDK_V9
         _userSegment = userSegment;
-#else
-        _userSegment = nil;
 #endif
         _sampleRand = sampleRand;
         _sampleRate = sampleRate;
