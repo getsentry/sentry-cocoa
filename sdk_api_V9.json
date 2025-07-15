@@ -40923,7 +40923,6 @@
             "objc_name": "init",
             "declAttributes": [
               "Override",
-              "Required",
               "ObjC",
               "Dynamic"
             ],
@@ -41069,12 +41068,6 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
-          },
           {
             "kind": "Conformance",
             "name": "NSCopying",

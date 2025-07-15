@@ -15,6 +15,7 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
