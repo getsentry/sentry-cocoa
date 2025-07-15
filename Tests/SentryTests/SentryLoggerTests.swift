@@ -2,6 +2,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+// swiftlint:disable cyclomatic_complexity
+
 final class SentryLoggerTests: XCTestCase {
     
     private class Fixture {
