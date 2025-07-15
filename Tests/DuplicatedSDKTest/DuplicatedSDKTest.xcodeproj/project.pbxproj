@@ -92,6 +92,7 @@
 		D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITest-DuplicatedSDK.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuplicatedSDKTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F45243122DE56862003E8F50 /* Unit Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DuplicatedSDKTest.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -199,6 +200,7 @@
 		D8C030C52CEF633A007FC5B4 = {
 			isa = PBXGroup;
 			children = (
+				F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */,
 				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
 				F45243132DE56862003E8F50 /* Unit Tests */,
 				D89DD6542CEF652B009C3509 /* Frameworks */,
