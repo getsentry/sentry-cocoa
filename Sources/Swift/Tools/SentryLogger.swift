@@ -118,6 +118,32 @@ public final class SentryLogger: NSObject {
             logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
 
+        // Add OS and device attributes from context
+        if let contextDictionary = hub.scope.serialize()["context"] as? [String: [String: Any]] {
+            // OS attributes
+            if let osContext = contextDictionary["os"] {
+                if let osName = osContext["name"] as? String {
+                    logAttributes["os.name"] = .string(osName)
+                }
+                if let osVersion = osContext["version"] as? String {
+                    logAttributes["os.version"] = .string(osVersion)
+                }
+            }
+            
+            // Device attributes
+            if let deviceContext = contextDictionary["device"] {
+                // For Apple devices, brand is always "Apple"
+                logAttributes["device.brand"] = .string("Apple")
+                
+                if let deviceModel = deviceContext["model"] as? String {
+                    logAttributes["device.model"] = .string(deviceModel)
+                }
+                if let deviceFamily = deviceContext["family"] as? String {
+                    logAttributes["device.family"] = .string(deviceFamily)
+                }
+            }
+        }
+
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
 
