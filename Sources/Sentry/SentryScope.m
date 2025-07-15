@@ -5,6 +5,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
