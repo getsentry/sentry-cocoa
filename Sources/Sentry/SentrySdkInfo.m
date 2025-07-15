@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)global
 {
-    SentryClient *_Nullable client = [SentrySDK.currentHub getClient];
+    SentryClient *_Nullable client = [SentrySDKInternal.currentHub getClient];
     return [[SentrySdkInfo alloc] initWithOptions:client.options];
 }
 
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 
     NSMutableArray<NSString *> *integrations =
-        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
+        [SentrySDKInternal.currentHub trimmedInstalledIntegrationNames];
 
 #if SENTRY_HAS_UIKIT
     if (options.enablePreWarmedAppStartTracing) {

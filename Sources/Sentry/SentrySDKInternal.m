@@ -1,4 +1,4 @@
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
@@ -48,14 +48,14 @@
 
 NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
 
-@interface SentrySDK ()
+@interface SentrySDKInternal ()
 
 @property (class) SentryHub *currentHub;
 
 @end
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation SentrySDK
+@implementation SentrySDKInternal
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
 static SentryLogger *_Nullable currentLogger;
@@ -80,7 +80,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)initialize
 {
-    if (self == [SentrySDK class]) {
+    if (self == [SentrySDKInternal class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
         currentLoggerLock = [[NSObject alloc] init];

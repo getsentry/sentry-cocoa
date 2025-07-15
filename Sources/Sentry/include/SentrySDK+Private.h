@@ -5,9 +5,9 @@
 #endif
 
 #if __has_include(<Sentry/SentryOptions.h>)
-#    import <Sentry/SentrySDK.h>
+#    import <Sentry/SentrySDKInternal.h>
 #else
-#    import "SentrySDK.h"
+#    import "SentrySDKInternal.h"
 #endif
 
 @class SentryAppStartMeasurement;
@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySDK ()
+@interface SentrySDKInternal ()
 
 + (void)captureFatalEvent:(SentryEvent *)event;
 
