@@ -14,7 +14,7 @@ final class TestLog: XCTestCase {
             // Force loading another library to trigger validation
             let path = Bundle(for: type(of: self)).bundlePath
             let fullpath = "\(path)/../../Frameworks/ModuleA.framework/ModuleA"
-            guard _ = dlopen(fullpath, RTLD_NOW) else {
+            guard dlopen(fullpath, RTLD_NOW) != nil else {
                 let error = String(cString: dlerror())
                 fatalError("Could not open framework: \(error)")
             }
