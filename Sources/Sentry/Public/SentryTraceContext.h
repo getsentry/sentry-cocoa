@@ -45,7 +45,9 @@ NS_SWIFT_NAME(TraceContext)
 /**
  * A subset of the scope's user context.
  */
+#if !SDK_V9
 @property (nullable, nonatomic, readonly) NSString *userSegment;
+#endif
 
 /**
  * Serialized sample rate used for this trace.
@@ -75,7 +77,9 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId;
@@ -88,7 +92,9 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                      sampleRate:(nullable NSString *)sampleRate
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
@@ -120,7 +126,9 @@ NS_SWIFT_NAME(TraceContext)
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
+#if !SDK_V9
                     userSegment:(nullable NSString *)userSegment
+#endif
                        replayId:(nullable NSString *)replayId;
 
 /**
