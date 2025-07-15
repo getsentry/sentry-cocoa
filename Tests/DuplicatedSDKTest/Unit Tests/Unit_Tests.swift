@@ -8,7 +8,7 @@ final class TestLog: XCTestCase {
         let output = captureStandardOutput {
             let options = Options()
             options.debug = true
-            options.diagnosticLevel = .warning
+            options.diagnosticLevel = .debug
             SentrySDK.start(options: options)
             
             // Force loading another library to trigger validation
