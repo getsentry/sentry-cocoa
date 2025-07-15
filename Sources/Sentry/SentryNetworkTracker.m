@@ -231,23 +231,21 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 {
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
     
-#if SDK_V9
-    SentryTraceContext *traceContext =
-        [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SentrySDK.currentHub.client.options
-                                           replayId:SentrySDK.currentHub.scope.replayId];
-#else
+#if !SDK_V9
     NSString *segment = nil;
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     segment = SentrySDK.currentHub.scope.userObject.segment;
 #    pragma clang diagnostic pop
+#endif
+    
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SentrySDK.currentHub.client.options
+#if !SDK_V9
                                         userSegment:segment
+#endif
                                            replayId:SentrySDK.currentHub.scope.replayId];
-#endif // SDK_V9
 
     [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]
