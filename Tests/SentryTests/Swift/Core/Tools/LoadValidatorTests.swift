@@ -16,8 +16,8 @@ class LoadValidatorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         testOutput = TestLogOutput()
-        SentryLog.setLogOutput(testOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(testOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         testObjCRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         
