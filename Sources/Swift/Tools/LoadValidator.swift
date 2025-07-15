@@ -4,13 +4,13 @@ import Foundation
 import MachO
 
 @objc
-class LoadValidator: NSObject {
+@_spi(Private) public final class LoadValidator: NSObject {
     // Any class should be fine
     static let targetClassName = "PrivateSentrySDKOnly"
     
     @objc
-    class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) {
-        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper)
+    @_spi(Private) public class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo) {
+        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance())
     }
     
     /**
@@ -67,7 +67,7 @@ class LoadValidator: NSObject {
                             var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
                             message.append("Ensure the SDK is linked only once, found classes in image paths: \(imageName)")
-                            SentryLog.warning(message.joined(separator: "\n"))
+                            SentrySDKLog.warning(message.joined(separator: "\n"))
                             duplicateFound = true
                             
                             break

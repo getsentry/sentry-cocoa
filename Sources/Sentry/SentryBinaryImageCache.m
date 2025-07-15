@@ -87,8 +87,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     if ([SentrySDK.currentHub getClient].options.debug == YES) {
         // Only validate if debug is enabled
-        [LoadValidator validateSDKPresenceIn:newImage
-                          objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+        [LoadValidator validateSDKPresenceIn:newImage];
     }
 }
 
