@@ -24,12 +24,12 @@
         XCUIApplication *app = [[XCUIApplication alloc] init];
 
         app.launchArguments = [app.launchArguments arrayByAddingObjectsFromArray:@[
-            @"--io.sentry.test.benchmarking", @"--io.sentry.disable-app-start-profiling"
+            @"--io.sentry.test.benchmarking", @"--io.sentry.profiling.disable-app-start-profiling"
         ]];
 
         NSMutableDictionary<NSString *, NSString *> *mutableEnvironment
             = app.launchEnvironment.mutableCopy;
-        mutableEnvironment[@"--io.sentry.profilesSampleRate"] = @"1";
+        mutableEnvironment[@"--io.sentry.profiling.profilesSampleRate"] = @"1";
         app.launchEnvironment = mutableEnvironment;
 
         [app launch];

@@ -9,6 +9,14 @@
 
 We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests. To get early feedback, we recommend opening up a [draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests). Please follow our official [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines) and also prefix the title of your PR according to the [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
 
+For more detailed information, see `develop-docs/README.md`.
+
+## Environment
+
+Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
+
+Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
+
 ## PR reviews
 
 For feedback in PRs, we use the [LOGAF scale](https://develop.sentry.dev/engineering-practices/code-review/#logaf-scale) to specify how important a comment is. You only need one approval from a maintainer to be able to merge. For some PRs, asking specific or multiple people for review might be adequate.
@@ -20,54 +28,12 @@ Our different types of reviews:
 3. **Only comments.** You must address all the comments and need another review until you merge.
 4. **Request changes.** Only use if something critical is in the PR that absolutely must be addressed. We usually use `h` comments for that. When someone requests changes, the same person must approve the changes to allow merging. Use this sparingly.
 
-## Setting up an Environment
-
-Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
-
-## Tests
-
-The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
-
-```sh
-make run-test-server
-```
-
-Test guidelines:
-
-- We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
-- Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
-- Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
-- Name the variable of the class you are testing `sut`, which stands for [system under test](https://en.wikipedia.org/wiki/System_under_test).
-- When calling `SentrySDK.start` in a test, specify only the minimum integrations required to minimize side effects for tests and reduce flakiness.
-
-Test can either be ran inside from Xcode or via
-
-```sh
-make test
-```
-
-### Flaky tests
-
-If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme by unchecking it in the associated test plan:
-
-![Disabling test cases via the Xcode Tests navigator](./develop-docs/disabling_tests_xcode_test_plan.png)
-
-Then create a GH issue with the [flaky test issue template](https://github.com/getsentry/sentry-cocoa/issues/new?assignees=&labels=Platform%3A+Cocoa%2CType%3A+Flaky+Test&template=flaky-test.yml).
-
-Disabling the test in the test plan has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped", as well as maintaining a centralized list of skipped tests (look in the associated .xctestplan file source in //Plans/) and they will be grayed out when viewing in the Xcode Tests Navigator (⌘6):
-
-![How Xcode displays skipped tests in the Tests Navigator](./develop-docs/xcode_tests_navigator_with_skipped_test.png)
-
 ## Code Formatting
 
 Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
 as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
 
-All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). Simply run the make task, which runs automatically with git pre commit, before submitting your changes for review:
-
-```sh
-make format
-```
+All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). Formatting should happen automatically as part of our precommit hook, which uses `make format`.
 
 ### GH actions suddenly formats code differently
 
@@ -85,43 +51,6 @@ We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swi
 ```sh
 make lint
 ```
-
-## Environment
-
-Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
-
-## Public Headers
-
-To make a header public follow these steps:
-
-- Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
-- Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
-- Set the target membership to public.
-
-## Converting to Swift
-
-Converting internal ObjC classes to Swift needs to be done following a partial order. The scripts in `SwiftConversion` generate this ordering and can be used to guide ObjC to Swift conversions.
-
-## Configuring certificates and provisioning profiles locally
-
-You can run samples in a real device without changing certificates and provisioning profiles if you are a Sentry employee with access to Sentry profiles repository and 1Password account.
-
-- Configure your environment to use SSH to access GitHub. Follow [this instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
-- You will need `Cocoa codesigning match encryption password` from your Sentry 1Password account.
-- run `fastlane match_local`
-
-This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with Xcode.
-
-## Promoting a beta release to a normal release
-
-We frequently release a beta version of our SDK and dogfood it with internal apps to increase our SDK stability. We continue to merge PRs to the main branch, so we can't promote a beta release by publishing it from the main branch. Instead, we create a branch from the GH tag of the beta release and promote it from there. To do this, follow these steps:
-
-1. Checkout a new branch from the GH tag of the beta release: `git checkout -b publish/x.x.x x.x.x-beta.1`. You can't use `release/x.x.x` or `x.x.x` as the branch name as craft will fail, as it creates a `release/x.x.x` branch for updating the changelog and it will create a tag `x.x.x` for the release.
-2. Duplicate the Changelog.md entry of the beta release and change header of the version number to unreleased.
-3. Commit and push the changes.
-4. Trigger the release workflow with use workflow from the `publish/x.x.x` branch and set the target branch to merge into to `publish/x.x.x`, cause per default craft will merge into the main branch and this could lead to merge conflicts in the changelog.
-5. After the successful release, validate that craft merged the changes back into `publish/x.x.x` branch and deleted the release branch.
-6. Manually open a PR from the `publish/x.x.x` branch into the main branch and merge it.
 
 ## Final Notes
 

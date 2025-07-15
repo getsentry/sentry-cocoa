@@ -1,3 +1,4 @@
+import SentrySampleShared
 import SentrySampleUITestShared
 import XCTest
 
@@ -52,8 +53,8 @@ class LaunchUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
         app.launchArguments.append(contentsOf: [
-            "--disable-spotlight",
-            "--io.sentry.wipe-data"
+            SentrySDKOverrides.Other.disableSpotlight.rawValue,
+            SentrySDKOverrides.Other.wipeDataOnLaunch.rawValue
         ])
         return app
     }
