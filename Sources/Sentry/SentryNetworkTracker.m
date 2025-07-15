@@ -230,7 +230,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
     SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
-    
+
 #if !SDK_V9
     NSString *segment = nil;
 #    pragma clang diagnostic push
@@ -238,7 +238,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     segment = SentrySDK.currentHub.scope.userObject.segment;
 #    pragma clang diagnostic pop
 #endif
-    
+
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SentrySDK.currentHub.client.options

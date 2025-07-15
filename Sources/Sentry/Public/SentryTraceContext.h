@@ -117,13 +117,23 @@ NS_SWIFT_NAME(TraceContext)
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
 
+#if SDK_V9
 /**
  * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
  *
  *  @param traceId The current tracer.
  *  @param options The current active options.
+ */
+#else
+/**
+ * Initializes a SentryTraceContext with data from a traceID, options and userSegment.
+ *
+ *  @param traceId The current tracer.
+ *  @param options The current active options.
+ *
  *  @param userSegment You can retrieve this usually from the `scope.userObject.segment`.
  */
+#endif
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
 #if !SDK_V9

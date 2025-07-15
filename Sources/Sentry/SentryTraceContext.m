@@ -89,9 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (tracer.traceId == nil || options.parsedDsn == nil)
         return nil;
 
-    NSString *userSegment = nil;
-
 #if !SDK_V9
+    NSString *userSegment = nil;
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (scope.userObject.segment) {
