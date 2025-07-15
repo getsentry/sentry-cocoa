@@ -105,44 +105,9 @@ public final class SentryLogger: NSObject {
         }
         
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        // Add default attributes
-        logAttributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
-        logAttributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        logAttributes["sentry.environment"] = .string(batcher.options.environment)
-        
-        if let releaseName = batcher.options.releaseName {
-            logAttributes["sentry.release"] = .string(releaseName)
-        }
-        
-        if let span = hub.scope.span {
-            logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
-        }
-
-        // Add OS and device attributes from context
-        if let contextDictionary = hub.scope.serialize()["context"] as? [String: [String: Any]] {
-            // OS attributes
-            if let osContext = contextDictionary["os"] {
-                if let osName = osContext["name"] as? String {
-                    logAttributes["os.name"] = .string(osName)
-                }
-                if let osVersion = osContext["version"] as? String {
-                    logAttributes["os.version"] = .string(osVersion)
-                }
-            }
-            
-            // Device attributes
-            if let deviceContext = contextDictionary["device"] {
-                // For Apple devices, brand is always "Apple"
-                logAttributes["device.brand"] = .string("Apple")
-                
-                if let deviceModel = deviceContext["model"] as? String {
-                    logAttributes["device.model"] = .string(deviceModel)
-                }
-                if let deviceFamily = deviceContext["family"] as? String {
-                    logAttributes["device.family"] = .string(deviceFamily)
-                }
-            }
-        }
+        addDefaultAttributes(to: &logAttributes)
+        addOSAttributes(to: &logAttributes)
+        addDeviceAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -156,5 +121,47 @@ public final class SentryLogger: NSObject {
                 attributes: logAttributes
             )
         )
+    }
+    
+    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let batcher else {
+            return
+        }
+        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
+        attributes["sentry.environment"] = .string(batcher.options.environment)
+        if let releaseName = batcher.options.releaseName {
+            attributes["sentry.release"] = .string(releaseName)
+        }
+        if let span = hub.scope.span {
+            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+        }
+    }
+    
+    private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let osContext = hub.scope.getContextForKey("os") else {
+            return
+        }
+        if let osName = osContext["name"] as? String {
+            attributes["os.name"] = .string(osName)
+        }
+        if let osVersion = osContext["version"] as? String {
+            attributes["os.version"] = .string(osVersion)
+        }
+    }
+    
+    private func addDeviceAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let deviceContext = hub.scope.getContextForKey("device") else {
+            return
+        }
+        // For Apple devices, brand is always "Apple"
+        attributes["device.brand"] = .string("Apple")
+        
+        if let deviceModel = deviceContext["model"] as? String {
+            attributes["device.model"] = .string(deviceModel)
+        }
+        if let deviceFamily = deviceContext["family"] as? String {
+            attributes["device.family"] = .string(deviceFamily)
+        }
     }
 }

@@ -231,6 +231,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (nullable NSDictionary<NSString *, id> *)getContextForKey:(NSString *)key
+{
+    @synchronized(_contextDictionary) {
+        return [_contextDictionary objectForKey:key];
+    }
+}
+
 - (void)removeContextForKey:(NSString *)key
 {
     @synchronized(_contextDictionary) {
