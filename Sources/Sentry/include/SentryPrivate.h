@@ -4,7 +4,6 @@
 #import "SentryBinaryImageInfo.h"
 #import "SentryCrashExceptionApplicationHelper.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
-#import "SentryEnvelope.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryObjCRuntimeWrapper.h"
