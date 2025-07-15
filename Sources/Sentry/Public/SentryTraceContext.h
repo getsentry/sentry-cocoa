@@ -123,6 +123,18 @@ NS_SWIFT_NAME(TraceContext)
                     userSegment:(nullable NSString *)userSegment
                        replayId:(nullable NSString *)replayId;
 
+#if SDK_V9
+/**
+ * Initializes a SentryTraceContext with data from a traceID and options (SDK_V9 version without userSegment).
+ *
+ *  @param traceId The current tracer.
+ *  @param options The current active options.
+ */
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                        options:(SentryOptions *)options
+                       replayId:(nullable NSString *)replayId;
+#endif // SDK_V9
+
 /**
  * Create a SentryBaggage with the information of this SentryTraceContext.
  */

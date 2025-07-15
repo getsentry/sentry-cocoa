@@ -138,6 +138,24 @@ NS_ASSUME_NONNULL_BEGIN
                                               replayId:replayId];
 }
 
+#if SDK_V9
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                        options:(SentryOptions *)options
+                       replayId:(nullable NSString *)replayId
+{
+    return [[SentryTraceContext alloc] initWithTraceId:traceId
+                                             publicKey:options.parsedDsn.url.user
+                                           releaseName:options.releaseName
+                                           environment:options.environment
+                                           transaction:nil
+                                           userSegment:nil
+                                            sampleRate:nil
+                                            sampleRand:nil
+                                               sampled:nil
+                                              replayId:replayId];
+}
+#endif // SDK_V9
+
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
     SentryId *traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];
