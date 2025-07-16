@@ -197,9 +197,10 @@ public final class SentryLogger: NSObject {
     }
     
     private func format(body: String, arguments: [CVarArg]) -> String {
-        guard !arguments.isEmpty else {
+        if arguments.isEmpty {
             return body
+        } else {
+            return NSString(format: body, arguments: getVaList(arguments)) as String
         }
-        return NSString(format: body, arguments: getVaList(arguments)) as String
     }
 }
