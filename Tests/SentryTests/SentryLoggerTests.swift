@@ -311,12 +311,12 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testDebug_WithMessageTemplating() {
-        sut.debug("Processing user %@ with ID %@", arguments: ["john_doe", 12345])
+        sut.debug("Processing user %@ with ID %@", arguments: ["john_doe", 12_345])
         
         let expectedAttributes: [String: SentryLog.Attribute] = [
             "sentry.message.template": .string("Processing user %@ with ID %@"),
             "sentry.message.parameter.0": .string("john_doe"),
-            "sentry.message.parameter.1": .integer(12345)
+            "sentry.message.parameter.1": .integer(12_345)
         ]
         
         assertLogCaptured(

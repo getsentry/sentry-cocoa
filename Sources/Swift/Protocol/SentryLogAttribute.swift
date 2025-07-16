@@ -1,3 +1,5 @@
+import CoreGraphics
+
 extension SentryLog {
     enum Attribute: Codable {
         case string(String)
@@ -43,6 +45,39 @@ extension SentryLog {
                 self = .double(doubleValue)
             case let floatValue as Float:
                 self = .double(Double(floatValue))
+            case let int8Value as Int8:
+                self = .integer(Int(int8Value))
+            case let int16Value as Int16:
+                self = .integer(Int(int16Value))
+            case let int32Value as Int32:
+                self = .integer(Int(int32Value))
+            case let int64Value as Int64:
+                // Check if Int64 value fits in Int range
+                if int64Value >= Int.min && int64Value <= Int.max {
+                    self = .integer(Int(int64Value))
+                } else {
+                    self = .string(String(int64Value))
+                }
+            case let uint8Value as UInt8:
+                self = .integer(Int(uint8Value))
+            case let uint16Value as UInt16:
+                self = .integer(Int(uint16Value))
+            case let uint32Value as UInt32:
+                // Check if UInt32 value fits in Int range
+                if uint32Value <= Int.max {
+                    self = .integer(Int(uint32Value))
+                } else {
+                    self = .string(String(uint32Value))
+                }
+            case let uint64Value as UInt64:
+                // Check if UInt64 value fits in Int range
+                if uint64Value <= Int.max {
+                    self = .integer(Int(uint64Value))
+                } else {
+                    self = .string(String(uint64Value))
+                }
+            case let cgFloatValue as CGFloat:
+                self = .double(Double(cgFloatValue))
             default:
                 // For any other type, convert to string representation
                 self = .string(String(describing: value))
