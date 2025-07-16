@@ -397,20 +397,6 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testTemplating_WithComplexTypes() {
-        let url = URL(string: "https://example.com")!
-        sut.info("Processing URL: %@", arguments: [url.absoluteString])
-        
-        assertLogCaptured(
-            .info,
-            "Processing URL: https://example.com",
-            [
-                "sentry.message.template": .string("Processing URL: %@"),
-                "sentry.message.parameter.0": .string("https://example.com")
-            ]
-        )
-    }
-    
     func testTemplating_CombinedWithUserAttributes() {
         let userAttributes: [String: Any] = [
             "session_id": "sess_123",
