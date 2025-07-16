@@ -31,7 +31,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
 
@@ -214,7 +214,7 @@ jobs:
           sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
         shell: bash
 
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |

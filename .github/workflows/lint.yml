@@ -43,7 +43,7 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make analyze
 
   lint-podspec:
