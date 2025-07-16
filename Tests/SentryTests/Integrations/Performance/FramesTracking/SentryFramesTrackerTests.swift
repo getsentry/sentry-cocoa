@@ -710,6 +710,156 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(sut.isRunning, true)
     }
     
+    func testUnpause_ResetsPreviousFrameTimestamp_ToAvoidFalseAppHangDetection() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some frames to establish a previous frame timestamp
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Pause the tracker
+        sut.pause()
+        
+        // Verify it's paused
+        XCTAssertFalse(sut.isRunning)
+        
+        // Unpause and verify the previous frame timestamp is reset
+        sut.unpause()
+        XCTAssertTrue(sut.isRunning)
+        
+        // The next frame should be treated as the first frame (previousFrameTimestamp == SentryPreviousFrameInitialValue)
+        // This means it won't be classified as slow/frozen even if there was a long pause
+        fixture.displayLinkWrapper.call()
+        
+        // Should not detect any slow or frozen frames after unpausing
+        try assert(slow: 0, frozen: 0, total: 2)
+    }
+    
+    func testUnpause_AfterLongPause_DoesNotDetectHang() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some normal frames
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Pause the tracker
+        sut.pause()
+        
+        // Simulate a very long pause (longer than frozen frame threshold)
+        fixture.dateProvider.advance(by: 5.0) // Much longer than 0.7s frozen threshold
+        
+        // Unpause the tracker
+        sut.unpause()
+        
+        // The next frame should not be classified as frozen even though there was a long pause
+        fixture.displayLinkWrapper.call()
+        
+        // Should not detect any slow or frozen frames
+        try assert(slow: 0, frozen: 0, total: 1)
+    }
+    
+    func testUnpause_WhenAlreadyRunning_DoesNotResetTimestamp() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some frames
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Try to unpause when already running
+        sut.unpause()
+        
+        // Should still be running
+        XCTAssertTrue(sut.isRunning)
+        
+        // Continue with normal frames
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Should have normal frame counting behavior
+        try assert(slow: 0, frozen: 0, total: 2)
+    }
+    
+    func testUnpause_AfterBackgroundForegroundTransition_ResetsTimestamp() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some frames
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Simulate app going to background
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+        XCTAssertFalse(sut.isRunning)
+        
+        // Simulate a long time in background
+        fixture.dateProvider.advance(by: 10.0)
+        
+        // Simulate app coming to foreground
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+        XCTAssertTrue(sut.isRunning)
+        
+        // The next frame should not be classified as slow/frozen due to the long background time
+        fixture.displayLinkWrapper.call()
+        
+        // Should not detect any slow or frozen frames
+        try assert(slow: 0, frozen: 0, total: 1)
+    }
+    
+    func testUnpause_MultipleTimes_AlwaysResetsTimestamp() throws {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some frames
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Pause and unpause multiple times
+        for _ in 0..<3 {
+            sut.pause()
+            fixture.dateProvider.advance(by: 2.0) // Long pause each time
+            sut.unpause()
+            
+            // Each unpause should reset the timestamp
+            fixture.displayLinkWrapper.call()
+            fixture.displayLinkWrapper.normalFrame()
+        }
+        
+        // Should not detect any slow or frozen frames from the pauses
+        try assert(slow: 0, frozen: 0, total: 4)
+    }
+    
+    func testUnpause_WithDelayedFramesTracker_ResetsPreviousFrameSystemTimestamp() {
+        let sut = fixture.sut
+        sut.start()
+        
+        // Simulate some frames to establish system timestamps
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.normalFrame()
+        
+        // Pause the tracker
+        sut.pause()
+        
+        // Advance time significantly
+        fixture.dateProvider.advance(by: 5.0)
+        
+        // Unpause the tracker
+        sut.unpause()
+        
+        // The delayed frames tracker should also have its previous frame system timestamp reset
+        // This prevents false delay calculations after unpausing
+        let startSystemTime = fixture.dateProvider.systemTime()
+        fixture.dateProvider.advance(by: 0.001)
+        let endSystemTime = fixture.dateProvider.systemTime()
+        
+        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+        
+        // Should not report any delay from the pause period
+        XCTAssertEqual(frameDelay.delayDuration, 0.001, accuracy: 0.0001)
+    }
+
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testResetProfilingTimestamps_FromBackgroundThread() {
         let sut = fixture.sut
