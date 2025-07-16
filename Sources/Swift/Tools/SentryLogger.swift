@@ -105,31 +105,8 @@ public final class SentryLogger: NSObject {
         }
         
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        // Add default attributes
-        logAttributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
-        logAttributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        logAttributes["sentry.environment"] = .string(batcher.options.environment)
-        
-        if let releaseName = batcher.options.releaseName {
-            logAttributes["sentry.release"] = .string(releaseName)
-        }
-        
-        if let span = hub.scope.span {
-            logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
-        }
-        
-        // Add user attributes if available
-        if let user = sentry_getCurrentUser() {
-            if let userId = user.userId {
-                logAttributes["user.id"] = .string(userId)
-            }
-            if let userName = user.name {
-                logAttributes["user.name"] = .string(userName)
-            }
-            if let userEmail = user.email {
-                logAttributes["user.email"] = .string(userEmail)
-            }
-        }
+        addDefaultAttributes(to: &logAttributes)
+        addUserAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -143,5 +120,35 @@ public final class SentryLogger: NSObject {
                 attributes: logAttributes
             )
         )
+    }
+
+    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let batcher else {
+            return
+        }
+        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
+        attributes["sentry.environment"] = .string(batcher.options.environment)
+        if let releaseName = batcher.options.releaseName {
+            attributes["sentry.release"] = .string(releaseName)
+        }
+        if let span = hub.scope.span {
+            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+        }
+    }
+
+    private func addUserAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let user = sentry_getCurrentUser() else {
+            return
+        }
+        if let userId = user.userId {
+            attributes["user.id"] = .string(userId)
+        }
+        if let userName = user.name {
+            attributes["user.name"] = .string(userName)
+        }
+        if let userEmail = user.email {
+            attributes["user.email"] = .string(userEmail)
+        }
     }
 }

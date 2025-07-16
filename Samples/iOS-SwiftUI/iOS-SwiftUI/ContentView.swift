@@ -35,11 +35,15 @@ struct ContentView: View {
             scope.setLevel(.fatal)
         }
         
+#if SDK_V9
+    print("SDK V9 does not support user feedback.")
+#else
         let userFeedback = UserFeedback(eventId: eventId)
         userFeedback.comments = "It broke on tvOS-Swift. I don't know why, but this happens."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
         SentrySDK.capture(userFeedback: userFeedback)
+      #endif // SDK_V9
     }
     
     var captureErrorAction: () -> Void = {

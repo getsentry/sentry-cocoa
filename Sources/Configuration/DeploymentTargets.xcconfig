@@ -1,4 +1,5 @@
 MAJOR_VERSION_DebugV9 = 9
+MAJOR_VERSION_ReleaseV9 = 9
 MAJOR_VERSION=$(MAJOR_VERSION_$(CONFIGURATION))
 
 // Defaults when no version is specified
