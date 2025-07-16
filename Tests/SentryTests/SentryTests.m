@@ -28,7 +28,7 @@
 
 - (void)setUp
 {
-    [SentrySDK.currentHub bindClient:nil];
+    [SentrySDKInternal.currentHub bindClient:nil];
 }
 
 - (void)testSharedClient
@@ -40,10 +40,10 @@
 
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);
-    XCTAssertNil([SentrySDK.currentHub getClient]);
-    [SentrySDK.currentHub bindClient:client];
-    XCTAssertNotNil([SentrySDK.currentHub getClient]);
-    [SentrySDK.currentHub bindClient:nil];
+    XCTAssertNil([SentrySDKInternal.currentHub getClient]);
+    [SentrySDKInternal.currentHub bindClient:client];
+    XCTAssertNotNil([SentrySDKInternal.currentHub getClient]);
+    [SentrySDKInternal.currentHub bindClient:nil];
 }
 
 - (void)testSDKDefaultHub
@@ -51,8 +51,8 @@
     [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
         options.dsn = @"https://username:password@app.getsentry.com/12345";
     }];
-    XCTAssertNotNil([SentrySDK.currentHub getClient]);
-    [SentrySDK.currentHub bindClient:nil];
+    XCTAssertNotNil([SentrySDKInternal.currentHub getClient]);
+    [SentrySDKInternal.currentHub bindClient:nil];
 }
 
 - (void)testSDKBreadCrumbAdd

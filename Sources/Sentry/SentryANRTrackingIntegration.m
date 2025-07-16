@@ -125,7 +125,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         return;
     }
 #endif // SENTRY_HAS_UIKIT
-    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
@@ -179,8 +179,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         // We need to apply the scope now because if the app hang turns into a fatal one,
         // we would lose the scope. Furthermore, we want to know in which state the app was when the
         // app hang started.
-        SentryScope *scope = [SentrySDK currentHub].scope;
-        SentryOptions *options = SentrySDK.options;
+        SentryScope *scope = [SentrySDKInternal currentHub].scope;
+        SentryOptions *options = SentrySDKInternal.options;
         if (scope != nil && options != nil) {
             [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
         }
@@ -301,7 +301,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
             // We already applied the scope. We use an empty scope to avoid overwriting exising
             // fields on the event.
-            [SentrySDK captureFatalAppHangEvent:event];
+            [SentrySDKInternal captureFatalAppHangEvent:event];
         }
     }];
 }

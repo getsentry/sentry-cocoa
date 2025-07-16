@@ -104,7 +104,7 @@
 
 - (void)stop
 {
-    [[SentrySDK currentHub] endSession];
+    [[SentrySDKInternal currentHub] endSession];
 
     [self removeObservers];
 
@@ -145,7 +145,7 @@
  */
 - (void)endCachedSession
 {
-    SentryHub *hub = [SentrySDK currentHub];
+    SentryHub *hub = [SentrySDKInternal currentHub];
     NSDate *_Nullable lastInForeground =
         [[[hub getClient] fileManager] readTimestampLastInForeground];
     if (nil != lastInForeground) {
@@ -184,7 +184,7 @@
         self.wasStartSessionCalled = YES;
     }
 
-    SentryHub *hub = [SentrySDK currentHub];
+    SentryHub *hub = [SentrySDKInternal currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
     if (nil == self.lastInForeground) {
@@ -229,7 +229,7 @@
 - (void)willResignActive
 {
     self.lastInForeground = [self.dateProvider date];
-    SentryHub *hub = [SentrySDK currentHub];
+    SentryHub *hub = [SentrySDKInternal currentHub];
     [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
     self.wasStartSessionCalled = NO;
 }
@@ -241,7 +241,7 @@
 {
     NSDate *sessionEnded
         = nil == self.lastInForeground ? [self.dateProvider date] : self.lastInForeground;
-    SentryHub *hub = [SentrySDK currentHub];
+    SentryHub *hub = [SentrySDKInternal currentHub];
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     self.wasStartSessionCalled = NO;

@@ -4,6 +4,7 @@ import Foundation
 /// Adds additional information about what happened to an event.
 /// @deprecated Use `SentryFeedback`.
 @objc(SentryUserFeedback)
+@objcMembers
 @available(*, deprecated, message: "Use SentryFeedback.")
 open class UserFeedback: NSObject, SentrySerializable {
     
@@ -18,6 +19,9 @@ open class UserFeedback: NSObject, SentrySerializable {
     
     /// Comments of the user about what happened.
     @objc open var comments: String
+    
+    //@available(iOS 13.0, *)
+    //public static var test: MyTestClass?
     
     /// Initializes SentryUserFeedback and sets the required eventId.
     /// - Parameter eventId: The eventId of the event to which the user feedback is associated.
@@ -39,3 +43,6 @@ open class UserFeedback: NSObject, SentrySerializable {
     }
 }
 #endif // !SDK_V9
+
+@available(iOS 13.0, *)
+@objc public class MyTestClass: NSObject { }

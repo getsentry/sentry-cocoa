@@ -11,7 +11,6 @@
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryFeedbackAPI;
 @class SentryId;
 @class SentryOptions;
 @class SentryReplayApi;
@@ -47,11 +46,6 @@ SENTRY_NO_INIT
  */
 @property (class, nonatomic, readonly) SentryReplayApi *replay;
 #endif
-
-/**
- * API to access Sentry logs
- */
-@property (class, nonatomic, readonly) SentryLogger *logger;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -278,12 +272,6 @@ SENTRY_NO_INIT
  * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
  */
 + (void)captureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(capture(feedback:));
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
-@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback API_AVAILABLE(ios(13.0));
-
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

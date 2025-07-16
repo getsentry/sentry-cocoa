@@ -59,7 +59,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                 }
 
                 // Get the working directory of the SDK, as these files are ignored by default
-                guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
+                guard let sentryPath = SentrySDKInternal.currentHub().getClient()?.fileManager.sentryPath else {
                     preconditionFailure("Sentry path is nil, but should be configured for test cases.")
                 }
                 let sentryPathUrl = URL(fileURLWithPath: sentryPath)

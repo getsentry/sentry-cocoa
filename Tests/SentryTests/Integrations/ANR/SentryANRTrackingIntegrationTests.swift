@@ -495,7 +495,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
-        SentrySDK.currentHub().client()?.fileManager.storeAppHang(Event())
+        SentrySDKInternal.currentHub().client()?.fileManager.storeAppHang(Event())
 
         // Act
         let result = SentryANRStoppedResult(minDuration: 1.851, maxDuration: 2.249)
@@ -593,13 +593,13 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let abnormalSession = SentrySession(releaseName: "release", distinctId: "distinct")
         abnormalSession.endAbnormal(withTimestamp: fixture.currentDate.date())
-        SentrySDK.currentHub().client()?.fileManager.storeAbnormalSession(abnormalSession)
+        SentrySDKInternal.currentHub().client()?.fileManager.storeAbnormalSession(abnormalSession)
         
         // Act
         givenInitializedTracker(enableV2: true)
         
         // Assert
-        let client = try XCTUnwrap(SentrySDK.currentHub().getClient() as? TestClient)
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         
         XCTAssertEqual(1, client.captureFatalEventWithSessionInvocations.count, "Wrong number of `Crashs` captured.")
         let capture = try XCTUnwrap(client.captureFatalEventWithSessionInvocations.first)
@@ -656,7 +656,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Arrange
         givenInitializedTracker(enableV2: true)
         let event = Event()
-        SentrySDK.currentHub().client()?.fileManager.storeAppHang(event)
+        SentrySDKInternal.currentHub().client()?.fileManager.storeAppHang(event)
         
         // Act
         givenInitializedTracker(enableV2: true)
@@ -688,7 +688,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker(enableV2: true)
         setUpThreadInspector()
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
-        SentrySDK.currentHub().client()?.fileManager.deleteAppHangEvent()
+        SentrySDKInternal.currentHub().client()?.fileManager.deleteAppHangEvent()
 
         // Act
         let result = SentryANRStoppedResult(minDuration: 1.8, maxDuration: 2.2)
@@ -776,6 +776,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             threadInspector.allThreads = []
         }
         
-        SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
+        SentrySDKInternal.currentHub().getClient()?.threadInspector = threadInspector
     }
 }

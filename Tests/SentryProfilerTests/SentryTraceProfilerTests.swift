@@ -336,7 +336,7 @@ class SentryTraceProfilerTests: XCTestCase {
     func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() throws {
         XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(0))
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         fixture.currentDateProvider.advance(by: 1)
         func performTransaction() throws {
             let sut = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
@@ -402,7 +402,7 @@ private extension SentryTraceProfilerTests {
         if let uikitParameters = uikitParameters {
             testingAppLaunchSpans = true
             let appStartMeasurement = fixture.getAppStartMeasurement(type: uikitParameters.launchType, preWarmed: uikitParameters.prewarmed)
-            SentrySDK.setAppStartMeasurement(appStartMeasurement)
+            SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -608,7 +608,7 @@ private extension SentryTraceProfilerTests {
         var startTimestampString = sentry_toIso8601String(latestTransactionTimestamp)
         #if !os(macOS)
         if appStartProfile {
-            let runtimeInitTimestamp = try XCTUnwrap(SentrySDK.getAppStartMeasurement()?.runtimeInitTimestamp)
+            let runtimeInitTimestamp = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement()?.runtimeInitTimestamp)
             startTimestampString = sentry_toIso8601String(runtimeInitTimestamp)
         }
         #endif // !os(macOS)

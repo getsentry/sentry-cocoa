@@ -19,7 +19,7 @@ struct SentryReplayMaskPreview: ViewModifier {
 @available(iOS 13, macOS 10.15, tvOS 13, *)
 public extension View {
     func sentryReplayPreviewMask(redactOptions: SentryRedactOptions? = nil, opacity: Float = 1) -> some View {
-        let options = redactOptions ?? SentrySDK.options?.sessionReplay ?? PreviewRedactOptions()
+        let options = redactOptions ?? SentrySDKInternal.options?.sessionReplay ?? PreviewRedactOptions()
         return modifier(SentryReplayMaskPreview(redactOptions: options, opacity: opacity))
     }
 }

@@ -315,7 +315,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     NSMutableDictionary<NSString *, id> *payload = sentry_serializedContinuousProfileChunk(
         profileID, chunkID, profileState, metricProfilerState,
         [SentryDependencyContainer.sharedInstance.debugImageProvider getDebugImagesFromCache],
-        SentrySDK.currentHub
+        SentrySDKInternal.currentHub
 #    if SENTRY_HAS_UIKIT
         ,
         gpuData

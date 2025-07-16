@@ -2,13 +2,38 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+final class DateProviderBridge: SentryCurrentDateProvider {
+
+    private let dateProvider: SentryInternalCurrentDateProvider
+
+    func date() -> Date {
+        self.dateProvider.date()
+    }
+    
+    func timezoneOffset() -> Int {
+        self.dateProvider.timezoneOffset()
+    }
+    
+    func systemTime() -> UInt64 {
+        self.dateProvider.systemTime()
+    }
+    
+    func systemUptime() -> TimeInterval {
+        self.dateProvider.systemUptime()
+    }
+    
+    init(dateProvider: SentryInternalCurrentDateProvider) {
+        self.dateProvider = dateProvider
+    }
+}
+
 /**
  * The main entry point for the SentrySDK.
  * We recommend using `start(configureOptions:)` to initialize Sentry.
  */
-@objc public class SentrySDK: NSObject {
+@objc open class SentrySDK: NSObject {
     
-    // MARK: - Properties
+    // MARK: - Public
     
     /**
      * The current active transaction or span bound to the scope.
@@ -23,8 +48,8 @@ import Foundation
     @objc public static var isEnabled: Bool {
         return SentrySDKInternal.isEnabled
     }
-    
-    #if SENTRY_TARGET_REPLAY_SUPPORTED
+
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
     /**
      * API to control session replay
      */
@@ -37,10 +62,20 @@ import Foundation
      * API to access Sentry logs
      */
     @objc public static var logger: SentryLogger {
-       fatalError()
+        return _loggerLock.synchronized {
+            if let _logger {
+                return _logger
+            }
+            let hub = SentrySwiftHelpers.currentHub()
+            var batcher: SentryLogBatcher?
+            if let client = hub.getClient(), client.options.experimental.enableLogs {
+                batcher = SentryLogBatcher(client: client)
+            }
+            let logger = SentryLogger(hub: hub, dateProvider: DateProviderBridge(dateProvider: SentrySwiftHelpers.currentDateProvider()), batcher: batcher)
+            _logger = logger
+            return logger
+        }
     }
-    
-    // MARK: - Initialization
     
     /**
      * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -71,7 +106,8 @@ import Foundation
      * @param event The event to send to Sentry.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(event: Event) -> SentryId {
+    @objc(captureEvent:)
+    @discardableResult public static func capture(event: Event) -> SentryId {
         return SentrySDKInternal.capture(event: event)
     }
     
@@ -82,7 +118,8 @@ import Foundation
      * @param scope The scope containing event metadata.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(event: Event, scope: Scope) -> SentryId {
+    @objc(captureEvent:withScope:)
+    @discardableResult public static func capture(event: Event, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(event: event, scope: scope)
     }
     
@@ -93,7 +130,8 @@ import Foundation
      * @param block The block mutating the scope only for this call.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
+    @objc(captureEvent:withScopeBlock:)
+    @discardableResult public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(event: event, block: block)
     }
     
@@ -105,7 +143,7 @@ import Foundation
      * @param operation Short code identifying the type of operation the span is measuring.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(name: String, operation: String) -> Span {
+    @objc @discardableResult public static func startTransaction(name: String, operation: String) -> Span {
         return SentrySDKInternal.startTransaction(name: name, operation: operation)
     }
     
@@ -116,7 +154,7 @@ import Foundation
      * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
+    @objc @discardableResult public static func startTransaction(name: String, operation: String, bindToScope: Bool) -> Span {
         return SentrySDKInternal.startTransaction(name: name, operation: operation, bindToScope: bindToScope)
     }
     
@@ -125,7 +163,8 @@ import Foundation
      * @param transactionContext The transaction context.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(transactionContext: TransactionContext) -> Span {
+    @objc(startTransactionWithContext:)
+    @discardableResult public static func startTransaction(transactionContext: TransactionContext) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext)
     }
     
@@ -135,7 +174,8 @@ import Foundation
      * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
+    @objc(startTransactionWithContext:bindToScope:)
+    @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope)
     }
     
@@ -146,7 +186,8 @@ import Foundation
      * @param customSamplingContext Additional information about the sampling context.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool, customSamplingContext: [String: Any]) -> Span {
+    @objc(startTransactionWithContext:bindToScope:customSamplingContext:)
+    @discardableResult public static func startTransaction(transactionContext: TransactionContext, bindToScope: Bool, customSamplingContext: [String: Any]) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, bindToScope: bindToScope, customSamplingContext: customSamplingContext)
     }
     
@@ -156,7 +197,8 @@ import Foundation
      * @param customSamplingContext Additional information about the sampling context.
      * @return The created transaction.
      */
-    @objc public static func startTransaction(transactionContext: TransactionContext, customSamplingContext: [String: Any]) -> Span {
+    @objc(startTransactionWithContext:customSamplingContext:)
+    @discardableResult public static func startTransaction(transactionContext: TransactionContext, customSamplingContext: [String: Any]) -> Span {
         return SentrySDKInternal.startTransaction(transactionContext: transactionContext, customSamplingContext: customSamplingContext)
     }
     
@@ -167,7 +209,8 @@ import Foundation
      * @param error The error to send to Sentry.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(error: NSError) -> SentryId {
+    @objc(captureError:)
+    @discardableResult public static func capture(error: Error) -> SentryId {
         return SentrySDKInternal.capture(error: error)
     }
     
@@ -178,7 +221,8 @@ import Foundation
      * @param scope The scope containing event metadata.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(error: NSError, scope: Scope) -> SentryId {
+    @objc(captureError:withScope:)
+    @discardableResult public static func capture(error: Error, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(error: error, scope: scope)
     }
     
@@ -189,7 +233,8 @@ import Foundation
      * @param block The block mutating the scope only for this call.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(error: NSError, block: @escaping (Scope) -> Void) -> SentryId {
+    @objc(captureError:withScopeBlock:)
+    @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(error: error, block: block)
     }
     
@@ -200,7 +245,8 @@ import Foundation
      * @param exception The exception to send to Sentry.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(exception: NSException) -> SentryId {
+    @objc(captureException:)
+    @discardableResult public static func capture(exception: NSException) -> SentryId {
         return SentrySDKInternal.capture(exception: exception)
     }
     
@@ -211,7 +257,8 @@ import Foundation
      * @param scope The scope containing event metadata.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(exception: NSException, scope: Scope) -> SentryId {
+    @objc(captureException:withScope:)
+    @discardableResult public static func capture(exception: NSException, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(exception: exception, scope: scope)
     }
     
@@ -222,7 +269,8 @@ import Foundation
      * @param block The block mutating the scope only for this call.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
+    @objc(captureException:withScopeBlock:)
+    @discardableResult public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(exception: exception, block: block)
     }
     
@@ -233,7 +281,8 @@ import Foundation
      * @param message The message to send to Sentry.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(message: String) -> SentryId {
+    @objc(captureMessage:)
+    @discardableResult public static func capture(message: String) -> SentryId {
         return SentrySDKInternal.capture(message: message)
     }
     
@@ -244,7 +293,8 @@ import Foundation
      * @param scope The scope containing event metadata.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(message: String, scope: Scope) -> SentryId {
+    @objc(captureMessage:withScope:)
+    @discardableResult public static func capture(message: String, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(message: message, scope: scope)
     }
     
@@ -255,11 +305,10 @@ import Foundation
      * @param block The block mutating the scope only for this call.
      * @return The SentryId of the event or SentryId.empty if the event is not sent.
      */
-    @objc public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
+    @objc(captureMessage:withScopeBlock:)
+    @discardableResult public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(message: message, block: block)
     }
-    
-    // MARK: - Feedback
     
     #if !SDK_V9
     /**
@@ -268,8 +317,9 @@ import Foundation
      * @deprecated Use SentrySDK.captureFeedback or use or configure our new managed UX with
      * SentryOptions.configureUserFeedback .
      */
-    @available(*, deprecated, message: "Use SentrySDK.captureFeedback or use or configure our new managed UX with SentryOptions.configureUserFeedback.")
-    @objc public static func capture(userFeedback: UserFeedback) {
+    @available(*, deprecated, message: "Use SentrySDK.back or use or configure our new managed UX with SentryOptions.configureUserFeedback.")
+    @objc(captureUserFeedback:)
+    public static func capture(userFeedback: UserFeedback) {
         SentrySDKInternal.capture(userFeedback: userFeedback)
     }
     #endif
@@ -282,26 +332,25 @@ import Foundation
      * see SentryOptions.configureUserFeedback to customize a fully managed integration. See
      * https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
      */
-    @available(iOS 13.0, *)
-    @objc public static func capture(feedback: SentryFeedback) {
+    @objc(captureFeedback:)
+    public static func capture(feedback: SentryFeedback) {
         SentrySDKInternal.capture(feedback: feedback)
     }
     
     #if os(iOS) && !SENTRY_NO_UIKIT
     @available(iOS 13.0, *)
-    @objc public static var feedback: SentryFeedbackAPI {
-        return SentrySDKInternal.feedback
-    }
+    @objc public static let feedback = {
+      return SentryT()
+    }()
     #endif
-    
-    // MARK: - Breadcrumbs and Scope
     
     /**
      * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
      * exceeds the SentryOptions.maxBreadcrumbs the SDK removes the oldest breadcrumb.
      * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
      */
-    @objc public static func addBreadcrumb(_ crumb: Breadcrumb) {
+    @objc(addBreadcrumb:)
+    public static func addBreadcrumb(_ crumb: Breadcrumb) {
         SentrySDKInternal.addBreadcrumb(crumb)
     }
     
@@ -310,7 +359,8 @@ import Foundation
      * contextual data to events.
      * @param callback The callback for configuring the current Scope of the current Hub.
      */
-    @objc public static func configureScope(_ callback: @escaping (Scope) -> Void) {
+    @objc(configureScope:)
+    public static func configureScope(_ callback: @escaping (Scope) -> Void) {
         SentrySDKInternal.configureScope(callback)
     }
     
@@ -368,8 +418,6 @@ import Foundation
         SentrySDKInternal.endSession()
     }
     
-    // MARK: - Testing
-    
     /**
      * This forces a crash, useful to test the SentryCrash integration.
      *
@@ -380,8 +428,6 @@ import Foundation
     @objc public static func crash() {
         SentrySDKInternal.crash()
     }
-    
-    // MARK: - UI Performance
     
     /**
      * Reports to the ongoing UIViewController transaction
@@ -414,15 +460,14 @@ import Foundation
         SentrySDKInternal.resumeAppHangTracking()
     }
     
-    // MARK: - SDK Lifecycle
-    
     /**
      * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
      * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
      * doesn't dispose the client or the hub.
      * @param timeout The time to wait for the SDK to complete the flush.
      */
-    @objc public static func flush(timeout: TimeInterval) {
+    @objc(flush:)
+    public static func flush(timeout: TimeInterval) {
         SentrySDKInternal.flush(timeout: timeout)
     }
     
@@ -434,9 +479,7 @@ import Foundation
         SentrySDKInternal.close()
     }
     
-    // MARK: - Profiling
-    
-    #if SENTRY_TARGET_PROFILING_SUPPORTED
+#if !(os(watchOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
     /**
      * Start a new continuous profiling session if one is not already running.
      * @warning Continuous profiling mode is experimental and may still contain bugs.
@@ -478,5 +521,19 @@ import Foundation
         SentrySDKInternal.stopProfiler()
     }
     #endif
-} 
+
+    // MARK: Internal
+
+    // Conceptually internal but needs to be marked public with SPI for ObjC visibility
+    @objc @_spi(Private) public static func clearLogger() {
+        _loggerLock.synchronized {
+            _logger = nil
+        }
+    }
+
+    // MARK: Private
+    
+    private static var _loggerLock = NSLock()
+    private static var _logger: SentryLogger?
+}
 // swiftlint:enable file_length

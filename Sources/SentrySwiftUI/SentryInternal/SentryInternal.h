@@ -13,6 +13,8 @@
 #    import "Sentry.h"
 #endif
 
+#import "SentrySDKInternal.h"
+
 #if SENTRY_TEST
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
@@ -109,7 +111,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-@interface SentrySDK ()
+@interface SentrySDKInternal ()
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 

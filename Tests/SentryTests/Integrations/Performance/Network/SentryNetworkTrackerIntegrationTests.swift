@@ -149,7 +149,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         wait(for: [expect], timeout: 5)
         
-        let scope = SentrySDK.currentHub().scope
+        let scope = SentrySDKInternal.currentHub().scope
         let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
     }

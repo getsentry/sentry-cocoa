@@ -4,7 +4,7 @@
 #    import "SentryProfilingConditionals.h"
 #endif
 
-#if __has_include(<Sentry/SentryOptions.h>)
+#if __has_include(<Sentry/SentrySDKInternal.h>)
 #    import <Sentry/SentrySDKInternal.h>
 #else
 #    import "SentrySDKInternal.h"

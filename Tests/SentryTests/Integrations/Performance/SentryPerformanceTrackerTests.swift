@@ -32,7 +32,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         super.setUp()
         
         fixture = Fixture()
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
     }
     
     override func tearDown() {
@@ -62,7 +62,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = startSpan(tracker: sut)
                 
         let transaction = sut.getSpan(spanId)
-        let scopeSpan = SentrySDK.currentHub().scope.span
+        let scopeSpan = SentrySDKInternal.currentHub().scope.span
         
         XCTAssert(scopeSpan !== transaction)
         XCTAssert(scopeSpan === firstTransaction)
@@ -75,7 +75,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = startSpan(tracker: sut)
                 
         let transaction = sut.getSpan(spanId)
-        let scopeSpan = SentrySDK.currentHub().scope.span
+        let scopeSpan = SentrySDKInternal.currentHub().scope.span
         
         XCTAssert(scopeSpan === transaction)
         XCTAssert(scopeSpan !== firstTransaction)
