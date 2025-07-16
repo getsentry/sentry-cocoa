@@ -273,167 +273,145 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - String Templating Tests
     
-    func testInfo_WithMessageTemplating_SingleParameter() {
+    func testInfo_WithTemplating_SingleParameter() {
         sut.info("Adding item %@ for processing", arguments: ["item123"], attributes: ["extra": "data"])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "extra": .string("data"),
-            "sentry.message.template": .string("Adding item %@ for processing"),
-            "sentry.message.parameter.0": .string("item123")
-        ]
         
         assertLogCaptured(
             .info,
             "Adding item item123 for processing",
-            expectedAttributes
+            [
+                "extra": .string("data"),
+                "sentry.message.template": .string("Adding item %@ for processing"),
+                "sentry.message.parameter.0": .string("item123")
+            ]
         )
     }
     
-    func testInfo_WithMessageTemplating_MultipleParameters() {
+    func testInfo_WithTemplating_MultipleParameters() {
         sut.info("Name: %@, Age: %d, Active: %@, Score: %.1f", 
                 arguments: ["Alice", 30, NSNumber(value: true), 95.5], 
                 attributes: ["extra": "123"])
         
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "extra": .string("123"),
-            "sentry.message.template": .string("Name: %@, Age: %d, Active: %@, Score: %.1f"),
-            "sentry.message.parameter.0": .string("Alice"),
-            "sentry.message.parameter.1": .integer(30),
-            "sentry.message.parameter.2": .boolean(true),
-            "sentry.message.parameter.3": .double(95.5)
-        ]
-        
         assertLogCaptured(
             .info,
             "Name: Alice, Age: 30, Active: 1, Score: 95.5",
-            expectedAttributes
+            [
+                "extra": .string("123"),
+                "sentry.message.template": .string("Name: %@, Age: %d, Active: %@, Score: %.1f"),
+                "sentry.message.parameter.0": .string("Alice"),
+                "sentry.message.parameter.1": .integer(30),
+                "sentry.message.parameter.2": .boolean(true),
+                "sentry.message.parameter.3": .double(95.5)
+            ]
         )
     }
     
-    func testDebug_WithMessageTemplating() {
-        sut.debug("Processing user %@ with ID %@", arguments: ["john_doe", 12_345])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Processing user %@ with ID %@"),
-            "sentry.message.parameter.0": .string("john_doe"),
-            "sentry.message.parameter.1": .integer(12_345)
-        ]
+    func testDebug_WithTemplating() {
+        sut.debug("Processing user %@ with ID %i", arguments: ["john_doe", 12_345])
         
         assertLogCaptured(
             .debug,
             "Processing user john_doe with ID 12345",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Processing user %@ with ID %i"),
+                "sentry.message.parameter.0": .string("john_doe"),
+                "sentry.message.parameter.1": .integer(12_345)
+            ]
         )
     }
     
-    func testTrace_WithMessageTemplating() {
+    func testTrace_WithTemplating() {
         sut.trace("Trace event %@", arguments: ["test_event"])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Trace event %@"),
-            "sentry.message.parameter.0": .string("test_event")
-        ]
         
         assertLogCaptured(
             .trace,
             "Trace event test_event",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Trace event %@"),
+                "sentry.message.parameter.0": .string("test_event")
+            ]
         )
     }
     
-    func testWarn_WithMessageTemplating() {
-        sut.warn("Warning: %@ attempts remaining", arguments: [3])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Warning: %@ attempts remaining"),
-            "sentry.message.parameter.0": .integer(3)
-        ]
+    func testWarn_WithTemplating() {
+        sut.warn("Warning: %i attempts remaining", arguments: [3])
         
         assertLogCaptured(
             .warn,
             "Warning: 3 attempts remaining",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Warning: %i attempts remaining"),
+                "sentry.message.parameter.0": .integer(3)
+            ]
         )
     }
     
-    func testError_WithMessageTemplating() {
-        sut.error("Error %@ occurred in %@", arguments: [404, "API"])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Error %@ occurred in %@"),
-            "sentry.message.parameter.0": .integer(404),
-            "sentry.message.parameter.1": .string("API")
-        ]
-        
+    func testError_WithTemplating() {
+        sut.error("Error %i occurred in %@", arguments: [404, "API"])
+
         assertLogCaptured(
             .error,
             "Error 404 occurred in API",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Error %i occurred in %@"),
+                "sentry.message.parameter.0": .integer(404),
+                "sentry.message.parameter.1": .string("API")
+            ]
         )
     }
     
-    func testFatal_WithMessageTemplating() {
+    func testFatal_WithTemplating() {
         sut.fatal("Fatal error: %@", arguments: ["System crash"])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Fatal error: %@"),
-            "sentry.message.parameter.0": .string("System crash")
-        ]
-        
+
         assertLogCaptured(
             .fatal,
             "Fatal error: System crash",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Fatal error: %@"),
+                "sentry.message.parameter.0": .string("System crash")
+            ]
         )
     }
     
-    func testMessageTemplating_WithEmptyParameters() {
-        sut.info("Simple message without parameters", arguments: [])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Simple message without parameters")
-        ]
-        
+    func testTemplating_WithEmptyParameters() {
+        sut.info("Simple message without arguments", arguments: [])
+
         assertLogCaptured(
             .info,
-            "Simple message without parameters",
-            expectedAttributes
+            "Simple message without arguments",
+            [:]
         )
     }
     
-    func testMessageTemplating_WithFloatParameter() {
+    func testTemplating_WithFloatParameter() {
         let floatValue: Float = 2.71828
-        sut.info("Pi approximation: %@", arguments: [floatValue])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Pi approximation: %@"),
-            "sentry.message.parameter.0": .double(Double(floatValue))
-        ]
+        sut.info("Pi approximation: %f", arguments: [floatValue])
         
         assertLogCaptured(
             .info,
-            "Pi approximation: 2.71828",
-            expectedAttributes
+            "Pi approximation: 2.718280",
+            [
+                "sentry.message.template": .string("Pi approximation: %f"),
+                "sentry.message.parameter.0": .double(Double(floatValue))
+            ]
         )
     }
     
-    func testMessageTemplating_WithComplexTypes() {
+    func testTemplating_WithComplexTypes() {
         let url = URL(string: "https://example.com")!
         sut.info("Processing URL: %@", arguments: [url.absoluteString])
-        
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "sentry.message.template": .string("Processing URL: %@"),
-            "sentry.message.parameter.0": .string("https://example.com")
-        ]
         
         assertLogCaptured(
             .info,
             "Processing URL: https://example.com",
-            expectedAttributes
+            [
+                "sentry.message.template": .string("Processing URL: %@"),
+                "sentry.message.parameter.0": .string("https://example.com")
+            ]
         )
     }
     
-    func testMessageTemplating_CombinedWithUserAttributes() {
+    func testTemplating_CombinedWithUserAttributes() {
         let userAttributes: [String: Any] = [
             "session_id": "sess_123",
             "user_id": 456,
@@ -444,19 +422,17 @@ final class SentryLoggerTests: XCTestCase {
                 arguments: ["alice", "login"], 
                 attributes: userAttributes)
         
-        let expectedAttributes: [String: SentryLog.Attribute] = [
-            "session_id": .string("sess_123"),
-            "user_id": .integer(456),
-            "debug_mode": .boolean(true),
-            "sentry.message.template": .string("User %@ performed action %@"),
-            "sentry.message.parameter.0": .string("alice"),
-            "sentry.message.parameter.1": .string("login")
-        ]
-        
         assertLogCaptured(
             .info,
             "User alice performed action login",
-            expectedAttributes
+            [
+                "session_id": .string("sess_123"),
+                "user_id": .integer(456),
+                "debug_mode": .boolean(true),
+                "sentry.message.template": .string("User %@ performed action %@"),
+                "sentry.message.parameter.0": .string("alice"),
+                "sentry.message.parameter.1": .string("login")
+            ]
         )
     }
     
@@ -517,7 +493,7 @@ final class SentryLoggerTests: XCTestCase {
     }
 }
 
-class TestLogBatcher: SentryLogBatcher {
+final class TestLogBatcher: SentryLogBatcher {
     
     var addInvocations = Invocations<SentryLog>()
     
