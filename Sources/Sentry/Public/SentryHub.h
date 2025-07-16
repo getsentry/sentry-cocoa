@@ -12,7 +12,6 @@
 @class SentryEvent;
 @class SentryFeedback;
 @class SentryId;
-@class SentryMetricsAPI;
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
@@ -24,8 +23,6 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
-
-@property (nonatomic, readonly) SentryMetricsAPI *metrics;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the

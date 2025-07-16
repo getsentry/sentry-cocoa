@@ -13,7 +13,6 @@
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
-@class SentryMetricsAPI;
 @class SentryOptions;
 @class SentryReplayApi;
 @class SentryScope;
@@ -41,8 +40,6 @@ SENTRY_NO_INIT
  * Indicates whether the SentrySDK is enabled.
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
-
-@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
