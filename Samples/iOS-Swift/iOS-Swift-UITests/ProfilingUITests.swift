@@ -148,7 +148,8 @@ extension ProfilingUITests {
             SentrySDKOverrides.Other.disableSwizzling.rawValue,
             SentrySDKOverrides.Performance.disablePerformanceTracing.rawValue,
             SentrySDKOverrides.Performance.disableUIVCTracing.rawValue,
-            
+            SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.rawValue,
+
             // sets a marker function to run in a load command that the launch profile should detect
             SentrySDKOverrides.Profiling.slowLoadMethod.rawValue,
             
@@ -170,6 +171,7 @@ extension ProfilingUITests {
         case .continuous:
             app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
         case .trace:
+            app.launchArguments.append("--io.sentry.disable-ui-profiling")
             app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1"
         }
         
