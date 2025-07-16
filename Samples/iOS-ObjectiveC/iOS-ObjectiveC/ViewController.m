@@ -72,11 +72,15 @@
           captureError:error
         withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
 
+#if SDK_V9
+    NSLog(@"SDK V9 does not support user feedback.");
+#else
     SentryUserFeedback *userFeedback = [[SentryUserFeedback alloc] initWithEventId:eventId];
     userFeedback.comments = @"It broke on iOS-ObjectiveC. I don't know why, but this happens.";
     userFeedback.email = @"john@me.com";
     userFeedback.name = @"John Me";
     [SentrySDK captureUserFeedback:userFeedback];
+#endif // SDK_V9
 }
 
 - (IBAction)captureUserFeedbackV2:(id)sender
