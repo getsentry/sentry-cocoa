@@ -1,9 +1,10 @@
+import SentrySampleShared
 import SentrySampleUITestShared
 import XCTest
 
 class BaseUITest: XCTestCase {
     internal lazy var app: XCUIApplication = newAppSession()
-    
+
     //swiftlint:disable implicit_getter
     var automaticallyLaunchAndTerminateApp: Bool { get { true } }
     //swiftlint:enable implicit_getter
@@ -12,7 +13,7 @@ class BaseUITest: XCTestCase {
         super.setUp()
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["--io.sentry.sdk-environment"] = "ui-tests"
+        app.launchEnvironment["--io.sentry.scope.sdk-environment"] = "ui-tests"
         app.launchArguments.append(contentsOf: [
             "--io.sentry.wipe-data"
         ])
@@ -20,7 +21,7 @@ class BaseUITest: XCTestCase {
             launchApp()
         }
     }
-    
+
     override func tearDown() {
         if automaticallyLaunchAndTerminateApp {
             app.terminate()
@@ -33,7 +34,7 @@ extension BaseUITest {
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
-        app.launchArguments.append("--disable-spotlight")
+        app.launchArguments.append(SentrySDKOverrides.Other.disableSpotlight.rawValue)
         return app
     }
     
@@ -67,5 +68,4 @@ extension BaseUITest {
     func waitForExistenceOfMainScreen() {
         app.waitForExistence("Home Screen doesn't exist.")
     }
-    
 }
