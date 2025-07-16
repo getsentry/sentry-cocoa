@@ -227,7 +227,7 @@
     // If nobody called `stopFlushing`, we must call `dispatch_group_leave` here, because
     // otherwise the dispatch group never leaves and the next time somebody calls flush,
     // flush will always time out.
-    [self stopFlusing];
+    [self stopFlushing];
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
@@ -238,7 +238,7 @@
     }
 }
 
-- (void)stopFlusing
+- (void)stopFlushing
 {
     @synchronized(self) {
         if (_isFlushing) {
@@ -434,7 +434,7 @@
 {
     @synchronized(self) {
         self.isSending = NO;
-        [self stopFlusing];
+        [self stopFlushing];
     }
 }
 
