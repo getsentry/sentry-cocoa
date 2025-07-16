@@ -105,18 +105,7 @@ public final class SentryLogger: NSObject {
         }
         
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        // Add default attributes
-        logAttributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
-        logAttributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        logAttributes["sentry.environment"] = .string(batcher.options.environment)
-        
-        if let releaseName = batcher.options.releaseName {
-            logAttributes["sentry.release"] = .string(releaseName)
-        }
-        
-        if let span = hub.scope.span {
-            logAttributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
-        }
+        addDefaultAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -130,5 +119,20 @@ public final class SentryLogger: NSObject {
                 attributes: logAttributes
             )
         )
+    }
+
+    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let batcher else {
+            return
+        }
+        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
+        attributes["sentry.environment"] = .string(batcher.options.environment)
+        if let releaseName = batcher.options.releaseName {
+            attributes["sentry.release"] = .string(releaseName)
+        }
+        if let span = hub.scope.span {
+            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+        }
     }
 }
