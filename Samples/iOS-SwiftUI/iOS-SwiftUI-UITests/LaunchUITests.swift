@@ -1,3 +1,4 @@
+import SentrySampleShared
 import SentrySampleUITestShared
 import XCTest
 
@@ -47,13 +48,13 @@ class LaunchUITests: XCTestCase {
         
         XCTAssertEqual(app.staticTexts["TTDInfo"].label, "TTID and TTFD found")
     }
-  
-  func newAppSession() -> XCUIApplication {
-      let app = XCUIApplication()
-      app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
-      app.launchArguments.append("--disable-spotlight")
-      return app
-  }
+
+    func newAppSession() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
+        app.launchArguments.append(SentrySDKOverrides.Other.disableSpotlight.rawValue)
+        return app
+    }
 }
 
 extension XCUIApplication {

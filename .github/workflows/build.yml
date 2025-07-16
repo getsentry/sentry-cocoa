@@ -49,7 +49,7 @@ jobs:
         run: bundle exec fastlane build_ios_swift
 
   build-sample:
-    name: Sample ${{ matrix.scheme }}
+    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -57,11 +57,29 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
+            config: Debug
           - scheme: iOS13-Swift
+            config: Debug
           - scheme: watchOS-Swift WatchKit App
+            config: Debug
           - scheme: macOS-SwiftUI
+            config: Debug
           - scheme: SessionReplay-CameraTest
+            config: Debug
           - scheme: visionOS-Swift
+            config: Debug
+          - scheme: iOS-Swift
+            config: DebugV9
+          - scheme: macOS-Swift
+            config: DebugV9
+          - scheme: tvOS-Swift
+            config: DebugV9
+          - scheme: visionOS-Swift
+            config: DebugV9
+          - scheme: iOS-SwiftUI
+            config: DebugV9
+          - scheme: iOS-ObjectiveC
+            config: DebugV9
 
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +94,7 @@ jobs:
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
-          -configuration Debug
+          -configuration ${{matrix.config}}
           CODE_SIGNING_ALLOWED="NO"
           build
 

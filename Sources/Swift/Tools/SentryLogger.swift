@@ -122,7 +122,7 @@ public final class SentryLogger: NSObject {
             )
         )
     }
-    
+
     private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
         guard let batcher else {
             return
@@ -137,7 +137,7 @@ public final class SentryLogger: NSObject {
             attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
     }
-    
+
     private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute]) {
         guard let osContext = hub.scope.getContextForKey("os") else {
             return
