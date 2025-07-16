@@ -48,7 +48,9 @@ extension UserDecodable: Decodable {
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.username = try container.decodeIfPresent(String.self, forKey: .username)
         self.ipAddress = try container.decodeIfPresent(String.self, forKey: .ipAddress)
+        #if !SDK_V9
         self.segment = try container.decodeIfPresent(String.self, forKey: .segment)
+        #endif // !SDK_V9
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.geo = try container.decodeIfPresent(GeoDecodable.self, forKey: .geo)
         
