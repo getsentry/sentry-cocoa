@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryLogBatcherTests: XCTestCase {
+final class SentryLogBatcherTests: XCTestCase {
     
     private var options: Options!
     private var testClient: TestClient!
