@@ -17,7 +17,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
         "identifier" : "F45243112DE56862003E8F50",
@@ -25,7 +25,6 @@
       }
     },
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
         "identifier" : "D89DD6722CEF7ADF009C3509",
