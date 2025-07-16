@@ -1,5 +1,7 @@
 import CoreGraphics
 
+// swiftlint:disable cyclomatic_complexity
+
 extension SentryLog {
     enum Attribute: Codable {
         case string(String)
