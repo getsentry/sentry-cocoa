@@ -45,7 +45,8 @@ final class TestLog: XCTestCase {
             }
         }
         
-        wait(for: [expectation], timeout: 60.0)
+        // This expectation is fulfilled immediately on a mac, but takes way longer on CI
+        wait(for: [expectation], timeout: 600.0)
         
         XCTAssertTrue(capturedOutput.contains("Sentry SDK was loaded multiple times in the binary"))
     }
