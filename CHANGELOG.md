@@ -2,17 +2,39 @@
 
 ## Unreleased
 
+### Features
+
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532)
+
+### Improvements
+
+- Extract video processing to a new class (#5604)
+- Move continuous profiling payload serialization off of the main thread (#5613)
+- Improve video generation using apple recommended loop (#5612)
+
+### Fixes
+
+- Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
+- Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
+
+## 8.53.2
+
 ### Fixes
 
 - Set handled to false for fatal app hangs (#5514)
 - User feedback widget can now be displayed in SwiftUI apps (#5223)
 - Fix crash when SentryFileManger is nil (#5535)
-- Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
+- Fix crash when capturing events at the same time `bindClient:` is called from a different thread (#5523)
+- Record user for watchdog termination events (#5558)
+- Add support for dist and environment fields for termination watch (#5560)
+- Add support for tags and context fields for termination watch (#5561)
+- Add support for extras, fingerprint, and level watchdog termination events (#5569)
 
 ### Improvements
 
 - Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
 - Improve launch profile configuration management (#5318)
+- Deprecate getStoreEndpoint (#5591)
 
 ## 8.53.1
 

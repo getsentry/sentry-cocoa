@@ -164,9 +164,12 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options isContinuousProfilingEnabled]) {
         return (SentryLaunchProfileConfig) { options.enableAppLaunchProfiling, nil, nil };
     }
+#    pragma clang diagnostic pop
 
     return sentry_launchShouldHaveTransactionProfiling(options);
 }

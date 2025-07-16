@@ -2,6 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
     private var fixture: Fixture!
@@ -70,8 +71,8 @@ class SentrySpanTests: XCTestCase {
         fixture.options.profilesSampleRate = 1
         SentrySDK.setStart(fixture.options)
         let span = fixture.getSut()
-        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
+            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
         XCTAssertEqual(continuousProfileObservations.count, 0)
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
@@ -86,8 +87,8 @@ class SentrySpanTests: XCTestCase {
         SentryContinuousProfiler.start()
         SentrySDK.setStart(fixture.options)
         let _ = fixture.getSut()
-        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
+            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
         XCTAssertEqual(continuousProfileObservations.count, 0)
     }
@@ -96,8 +97,8 @@ class SentrySpanTests: XCTestCase {
         fixture.options.profilesSampleRate = 1
         SentrySDK.setStart(fixture.options)
         let _ = fixture.getSut()
-        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
+            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
         XCTAssertEqual(continuousProfileObservations.count, 0)
     }
@@ -106,8 +107,8 @@ class SentrySpanTests: XCTestCase {
         fixture.options.profilesSampleRate = nil
         SentrySDK.setStart(fixture.options)
         let _ = fixture.getSut()
-        let continuousProfileObservations = fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
+            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }
         XCTAssertEqual(continuousProfileObservations.count, 1)
     }
@@ -122,8 +123,8 @@ class SentrySpanTests: XCTestCase {
         fixture.options.profilesSampleRate = nil
         SentrySDK.setStart(fixture.options)
         let span = fixture.getSut()
-        XCTAssertEqual(fixture.notificationCenter.addObserverInvocations.invocations.filter {
-            $0.name.rawValue == kSentryNotificationContinuousProfileStarted
+        XCTAssertEqual(fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
+            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
         }.count, 1)
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)

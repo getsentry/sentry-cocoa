@@ -3,6 +3,7 @@ import Foundation
 @objcMembers @_spi(Private) public class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     public static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
@@ -40,9 +41,11 @@ import Foundation
         }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if !SDK_V9
         if options.enableAppHangTrackingV2 {
             features.append("appHangTrackingV2")
         }
+        #endif // !SDK_V9
 #endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         if options.enablePersistingTracesWhenCrashing {

@@ -543,7 +543,9 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling;
+@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
+    "This property is deprecated and will be removed in a future version of the SDK. See "
+    "SentryProfileOptions.startOnAppStart and SentryProfileOptions.lifecycle");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -570,7 +572,9 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c  SentryProfileOptions.sessionSampleRate.
  */
-@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
+@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate DEPRECATED_MSG_ATTRIBUTE(
+    "This property is deprecated and will be removed in a future version of the SDK. See "
+    "SentryProfileOptions.sessionSampleRate");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -584,7 +588,11 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @warning This property is deprecated and will be removed in a future version of the SDK. See
  * @c SentryProfileOptions.sessionSampleRate .
  */
-@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE;
+@property (nullable, nonatomic)
+    SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE DEPRECATED_MSG_ATTRIBUTE(
+        "This property is deprecated and will be removed in a future version of the SDK. See "
+        "SentryProfileOptions.sessionSampleRate");
+;
 
 /**
  * If profiling should be enabled or not.
@@ -597,7 +605,8 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note Profiling is automatically disabled if a thread sanitizer is attached.
  * @warning This property is deprecated and will be removed in a future version of the SDK.
  */
-@property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
+@property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
+    "This property is deprecated and will be removed in a future version of the SDK");
 
 /**
  * @brief Whether to enable the sampling profiler.
@@ -630,6 +639,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 #if SENTRY_UIKIT_AVAILABLE
 
+#    if !SDK_V9
 /**
  * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
  * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
@@ -648,6 +658,8 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  enableAppHangTracking.
  */
 @property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+
+#    endif // !SDK_V9
 
 /**
  * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when

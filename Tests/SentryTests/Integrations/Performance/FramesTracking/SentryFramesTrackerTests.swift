@@ -62,7 +62,7 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         sut.start()
         
-        XCTAssertEqual(self.fixture.notificationCenter.addObserverInvocations.invocations.count, 2)
+        XCTAssertEqual(self.fixture.notificationCenter.addObserverWithObjectInvocations.invocations.count, 2)
     }
     
     func testIsNotRunning_WhenStopped() {
@@ -79,7 +79,7 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.stop()
         sut.stop()
         
-        XCTAssertEqual(self.fixture.notificationCenter.removeObserverWithNameInvocations.invocations.count, 2)
+        XCTAssertEqual(self.fixture.notificationCenter.removeObserverWithNameAndObjectInvocations.invocations.count, 2)
     }
     
     func testKeepFrames_WhenStopped() throws {
@@ -683,7 +683,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
         
-        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName))
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
         XCTAssertFalse(sut.isRunning)
     }
@@ -699,9 +699,9 @@ class SentryFramesTrackerTests: XCTestCase {
         }
         sut.add(listener)
         
-        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName))
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
-        fixture.notificationCenter.post(Notification(name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName))
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
         
         // Ensure to keep listeners when moving to background
         fixture.displayLinkWrapper.normalFrame()

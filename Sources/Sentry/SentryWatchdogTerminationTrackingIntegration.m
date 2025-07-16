@@ -12,6 +12,7 @@
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
+#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
@@ -66,21 +67,27 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
                                                    crashAdapter:crashWrapper
                                                 appStateManager:appStateManager];
-    SentryScopeContextPersistentStore *scopeContextStore =
-        [SentryDependencyContainer.sharedInstance scopeContextPersistentStore];
+    SentryScopePersistentStore *scopeStore =
+        [SentryDependencyContainer.sharedInstance scopePersistentStore];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
                                                     watchdogTerminationLogic:logic
                                                              appStateManager:appStateManager
                                                         dispatchQueueWrapper:dispatchQueueWrapper
                                                                  fileManager:fileManager
-                                                           scopeContextStore:scopeContextStore];
+                                                        scopePersistentStore:scopeStore];
 
     [self.tracker start];
 
+#    if SDK_V9
+    BOOL isV2Enabled = YES;
+#    else
+    BOOL isV2Enabled = options.enableAppHangTrackingV2;
+#    endif // SDK_V9
+
     self.anrTracker =
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:options.enableAppHangTrackingV2];
+                                                    isV2Enabled:isV2Enabled];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
@@ -96,6 +103,15 @@ NS_ASSUME_NONNULL_BEGIN
         // Sync the current context to the observer to capture context modifications that happened
         // before installation.
         [scopeObserver setContext:outerScope.contextDictionary];
+        [scopeObserver setUser:outerScope.userObject];
+        [scopeObserver setEnvironment:outerScope.environmentString];
+        [scopeObserver setDist:outerScope.distString];
+        [scopeObserver setTags:outerScope.tags];
+        [scopeObserver setExtras:outerScope.extraDictionary];
+        [scopeObserver setFingerprint:outerScope.fingerprintArray];
+        // We intentionally skip calling `setTraceContext:` since traces are not stored for watchdog
+        // termination events
+        // We intentionally skip calling `setLevel:` since all termination events have fatal level
     }];
 
     return YES;

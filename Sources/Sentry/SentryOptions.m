@@ -136,7 +136,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
+#    if !SDK_V9
         self.enableAppHangTrackingV2 = NO;
+#    endif // !SDK_V9
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 
@@ -153,7 +155,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         _enableProfiling = NO;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
+#    pragma clang diagnostic pop
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -465,8 +470,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
+#    if !SDK_V9
     [self setBool:options[@"enableAppHangTrackingV2"]
             block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
+#    endif // !SDK_V9
 
     [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
             block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
@@ -538,12 +545,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = options[@"profilesSampleRate"];
+#    pragma clang diagnostic pop
     }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([self isBlock:options[@"profilesSampler"]]) {
         self.profilesSampler = options[@"profilesSampler"];
     }
+#    pragma clang diagnostic pop
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
@@ -834,7 +847,12 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #if SENTRY_HAS_UIKIT
 - (BOOL)isAppHangTrackingV2Disabled
 {
-    return !self.enableAppHangTrackingV2 || self.appHangTimeoutInterval <= 0;
+#    if SDK_V9
+    BOOL isV2Enabled = self.enableAppHangTracking;
+#    else
+    BOOL isV2Enabled = self.enableAppHangTrackingV2;
+#    endif // SDK_V9
+    return !isV2Enabled || self.appHangTimeoutInterval <= 0;
 }
 #endif // SENTRY_HAS_UIKIT
 

@@ -25,7 +25,7 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.addObserver(self, selector: dummySelector, name: notificationName)
 
         // -- Assert --
-        let invocations = sut.addObserverInvocations
+        let invocations = sut.addObserverWithObjectInvocations
         XCTAssertEqual(invocations.count, 1)
         let invocation = try XCTUnwrap(invocations.invocations.first)
         XCTAssertIdentical(invocation.observer.value, self)
@@ -41,7 +41,7 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.addObserver(self, selector: dummySelector, name: notificationName)
 
         // -- Assert --
-        XCTAssertEqual(sut.addObserverInvocations.count, 0)
+        XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 0)
     }
 
     func testAddObserverWithObject_whenIgnoreAddObserverIsFalse_shouldRecordObserver() throws {
@@ -95,9 +95,9 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.removeObserver(self, name: notificationName)
 
         // -- Assert --
-        XCTAssertEqual(sut.removeObserverWithNameInvocations.count, 1)
-        let invocation = try XCTUnwrap(sut.removeObserverWithNameInvocations.invocations.first)
-        XCTAssertEqual(invocation, notificationName)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 1)
+        let invocation = try XCTUnwrap(sut.removeObserverWithNameAndObjectInvocations.invocations.first)
+        XCTAssertEqual(invocation.name, notificationName)
     }
 
     func testRemoveObserver_whenIgnoreRemoveObserverIsFalse_shouldRecordRemoval() throws {
@@ -108,7 +108,7 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.removeObserver(self)
 
         // -- Assert --
-        XCTAssertEqual(sut.removeObserverInvocations.count, 1)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 1)
     }
 
     func testRemoveObserver_whenIgnoreRemoveObserverIsTrue_shouldNotRecordRemoval() {
@@ -119,7 +119,7 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.removeObserver(self)
 
         // -- Assert --
-        XCTAssertEqual(sut.removeObserverInvocations.count, 0)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 0)
     }
 
     func testPost_whenObserverAdded_shouldPerformSelectorOnObserverObject() {
@@ -189,9 +189,9 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.removeObserver(self, forKeyPath: keyPath)
 
         // -- Assert --
-        XCTAssertEqual(sut.removeObserverForKeyPathInvocations.count, 1)
-        let invocation = try XCTUnwrap(sut.removeObserverForKeyPathInvocations.invocations.first)
-        XCTAssertEqual(invocation, keyPath)
+        XCTAssertEqual(sut.removeObserverForKeyPathWithContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(sut.removeObserverForKeyPathWithContextInvocations.invocations.first)
+        XCTAssertEqual(invocation.keyPath, keyPath)
     }
 
     func testRemoveObserverForKeyPath_whenIgnoreRemoveObserverIsTrue_shouldNotRecordRemoval() {
@@ -202,7 +202,7 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         sut.removeObserver(self, forKeyPath: keyPath)
 
         // -- Assert --
-        XCTAssertEqual(sut.removeObserverForKeyPathInvocations.count, 0)
+        XCTAssertEqual(sut.removeObserverForKeyPathWithContextInvocations.count, 0)
     }
 
     func testRemoveObserverForKeyPathWithContext_whenIgnoreRemoveObserverIsFalse_shouldRecordRemoval() throws {
@@ -492,21 +492,20 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
         
         // Verify we have observers and invocations before clearing
         XCTAssertEqual(sut.observerCount, 3)
-        XCTAssertEqual(sut.addObserverInvocations.count, 1)
-        XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 1)
+        XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 2)
         XCTAssertEqual(sut.addObserverForKeyPathWithContextInvocations.count, 1)
-        XCTAssertEqual(sut.removeObserverInvocations.count, 1)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 1)
 
         // -- Act --
         sut.clearAllObservers()
 
         // -- Assert --
         XCTAssertEqual(sut.observerCount, 0)
-        XCTAssertEqual(sut.addObserverInvocations.count, 0)
+        XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 0)
         XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 0)
         XCTAssertEqual(sut.addObserverForKeyPathWithContextInvocations.count, 0)
         XCTAssertEqual(sut.addObserverWithBlockInvocations.count, 0)
-        XCTAssertEqual(sut.removeObserverInvocations.count, 0)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 0)
     }
 
     func testIgnoreFlags_whenSet_shouldPreventOperations() {
@@ -520,8 +519,8 @@ class TestNSNotificationCenterWrapperTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(sut.observerCount, 0)
-        XCTAssertEqual(sut.addObserverInvocations.count, 0)
-        XCTAssertEqual(sut.removeObserverInvocations.count, 0)
+        XCTAssertEqual(sut.addObserverWithObjectInvocations.count, 0)
+        XCTAssertEqual(sut.removeObserverWithNameAndObjectInvocations.count, 0)
     }
 
     // MARK: - Helpers

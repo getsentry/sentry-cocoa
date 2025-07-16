@@ -49,7 +49,7 @@ jobs:
         run: bundle exec fastlane build_ios_swift
 
   build-sample:
-    name: Sample ${{ matrix.scheme }}
+    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -57,11 +57,29 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
+            config: Debug
           - scheme: iOS13-Swift
+            config: Debug
           - scheme: watchOS-Swift WatchKit App
+            config: Debug
           - scheme: macOS-SwiftUI
+            config: Debug
           - scheme: SessionReplay-CameraTest
+            config: Debug
           - scheme: visionOS-Swift
+            config: Debug
+          - scheme: iOS-Swift
+            config: DebugV9
+          - scheme: macOS-Swift
+            config: DebugV9
+          - scheme: tvOS-Swift
+            config: DebugV9
+          - scheme: visionOS-Swift
+            config: DebugV9
+          - scheme: iOS-SwiftUI
+            config: DebugV9
+          - scheme: iOS-ObjectiveC
+            config: DebugV9
 
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +94,7 @@ jobs:
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
-          -configuration Debug
+          -configuration ${{matrix.config}}
           CODE_SIGNING_ALLOWED="NO"
           build
 
@@ -97,6 +115,13 @@ jobs:
       # Only watchOS is compiling with SPM so far, the rest of the targets need profiling support which is still a work in progress due to the ObjC++ usage
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
         shell: sh
+
+  build-v9:
+    name: Build SDK v9
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os latest --device "iPhone 16" --command build --configuration DebugV9
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)

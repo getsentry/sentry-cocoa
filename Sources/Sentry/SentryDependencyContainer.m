@@ -21,15 +21,13 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
-#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDebugImageProvider.h>
+#import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
-#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
@@ -167,7 +165,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
 
-        _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
         _application = [[SentryUIApplication alloc]
@@ -390,11 +388,10 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (SentryScopeContextPersistentStore *)
-    scopeContextPersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryScopePersistentStore *)scopePersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_scopeContextPersistentStore,
-        [[SentryScopeContextPersistentStore alloc] initWithFileManager:self.fileManager]);
+    SENTRY_LAZY_INIT(_scopePersistentStore,
+        [[SentryScopePersistentStore alloc] initWithFileManager:self.fileManager]);
 }
 
 - (SentryDebugImageProvider *)debugImageProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -416,7 +413,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         initWithBreadcrumbProcessor:
             [self
                 getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                   contextProcessor:self.watchdogTerminationContextProcessor];
+                attributesProcessor:self.watchdogTerminationAttributesProcessor];
 }
 
 - (SentryWatchdogTerminationBreadcrumbProcessor *)
@@ -429,16 +426,16 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:self.fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)
-    watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryWatchdogTerminationAttributesProcessor *)
+    watchdogTerminationAttributesProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_watchdogTerminationContextProcessor,
-        [[SentryWatchdogTerminationContextProcessor alloc]
+    SENTRY_LAZY_INIT(_watchdogTerminationAttributesProcessor,
+        [[SentryWatchdogTerminationAttributesProcessor alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
-                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.fields-processor"
                       relativePriority:0]
-                       scopeContextStore:self.scopeContextPersistentStore])
+                    scopePersistentStore:self.scopePersistentStore])
 }
 #endif
 

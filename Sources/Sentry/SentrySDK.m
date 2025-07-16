@@ -57,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
+static SentryLogger *_Nullable currentLogger;
+static NSObject *currentLoggerLock;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
@@ -80,6 +82,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
+        currentLoggerLock = [[NSObject alloc] init];
         startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
@@ -111,6 +114,26 @@ static NSDate *_Nullable startTimestamp = nil;
     return replay;
 }
 #endif
+
++ (SentryLogger *)logger
+{
+    @synchronized(currentLoggerLock) {
+        if (currentLogger == nil) {
+            SentryLogBatcher *batcher;
+            if (nil != currentHub.client && currentHub.client.options.experimental.enableLogs) {
+                batcher = [[SentryLogBatcher alloc] initWithClient:currentHub.client];
+            } else {
+                batcher = nil;
+            }
+            currentLogger = [[SentryLogger alloc]
+                 initWithHub:currentHub
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                     batcher:batcher];
+        }
+        return currentLogger;
+    }
+}
+
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
@@ -241,7 +264,7 @@ static NSDate *_Nullable startTimestamp = nil;
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
     [SentryDependencyContainer.sharedInstance
-            .scopeContextPersistentStore moveCurrentFileToPreviousFile];
+            .scopePersistentStore moveAllCurrentStateToPreviousState];
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
@@ -442,10 +465,12 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDK.currentHub storeEnvelope:envelope];
 }
 
+#if !SDK_V9
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
 }
+#endif // !SDK_V9
 
 + (void)captureFeedback:(SentryFeedback *)feedback
 {
@@ -626,6 +651,10 @@ static NSDate *_Nullable startTimestamp = nil;
     [hub bindClient:nil];
 
     [SentrySDK setCurrentHub:nil];
+
+    @synchronized(currentLoggerLock) {
+        currentLogger = nil;
+    }
 
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];

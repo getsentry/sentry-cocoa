@@ -26,6 +26,12 @@ class SentrySDKTests: XCTestCase {
         let userFeedback: UserFeedback
         let feedback: SentryFeedback
         let currentDate = TestCurrentDateProvider()
+        
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let observer: SentryWatchdogTerminationScopeObserver
+        let scopePersistentStore: TestSentryScopePersistentStore
+#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         let scopeBlock: (Scope) -> Void = { scope in
             scope.setTag(value: "tag", key: "tag")
@@ -60,6 +66,19 @@ class SentrySDKTests: XCTestCase {
             userFeedback.name = "Tim Apple"
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
+            
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            options.dsn = SentrySDKTests.dsnAsString
+
+            let fileManager = try! TestFileManager(options: options)
+            let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+            scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+            let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopePersistentStore: scopePersistentStore
+            )
+            observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
+#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         }
     }
 
@@ -854,7 +873,62 @@ class SentrySDKTests: XCTestCase {
 
         XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
     }
+    
+    func testLogger_ReturnsSameInstanceOnMultipleCalls() {
+        givenSdkWithHub()
+        
+        let logger1 = SentrySDK.logger
+        let logger2 = SentrySDK.logger
+        
+        XCTAssertIdentical(logger1, logger2)
+    }
 
+    func testClose_ResetsLogger() {
+        givenSdkWithHub()
+        
+        // Get logger instance
+        let logger1 = SentrySDK.logger
+        XCTAssertNotNil(logger1)
+        
+        // Close SDK
+        SentrySDK.close()
+        
+        // Start SDK again
+        givenSdkWithHub()
+        
+        // Get logger instance again
+        let logger2 = SentrySDK.logger
+        XCTAssertNotNil(logger2)
+        
+        // Should be a different instance
+        XCTAssertNotIdentical(logger1, logger2)
+    }
+
+    func testLogger_WithLogsEnabled_CapturesLog() {
+        fixture.client.options.experimental.enableLogs = true
+        givenSdkWithHub()
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+
+    func testLogger_WithNoClient_DoesNotCaptureLog() {
+        fixture.client.options.experimental.enableLogs = true
+        let hubWithoutClient = SentryHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hubWithoutClient)
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
+    func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
+        fixture.client.options.experimental.enableLogs = false
+        givenSdkWithHub()
+        
+        SentrySDK.logger.error("foo")
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -941,12 +1015,12 @@ class SentrySDKTests: XCTestCase {
         let fileManager = try TestFileManager(options: options)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
+        let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+        let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
+            scopePersistentStore: scopePersistentStore
         )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
+        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -961,46 +1035,193 @@ class SentrySDKTests: XCTestCase {
 
     func testStartWithOptions_shouldMoveCurrentContextFileToPreviousFile() throws {
         // -- Arrange --
-        let options = Options()
-        options.dsn = SentrySDKTests.dsnAsString
-
-        let fileManager = try TestFileManager(options: options)
-        let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let scopeContextStore = try XCTUnwrap(TestSentryScopeContextPersistentStore(fileManager: fileManager))
-        let contextProcessor = SentryWatchdogTerminationContextProcessor(
-            withDispatchQueueWrapper: dispatchQueueWrapper,
-            scopeContextStore: scopeContextStore
-        )
-        let observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, contextProcessor: contextProcessor)
-        observer.setContext([
+        fixture.observer.setContext([
             "a": ["b": "c"]
         ])
 
         // Wait for the observer to complete
         let expectation = XCTestExpectation(description: "setContext completes")
-        dispatchQueueWrapper.dispatchAsync {
+        fixture.dispatchQueueWrapper.dispatchAsync {
             // Dispatching a block on the same queue will be run after the context processor.
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
 
         // Delete the previous context file if it exists
-        scopeContextStore.deletePreviousContextOnDisk()
+        fixture.scopePersistentStore.deleteAllPreviousState()
         // Sanity-check for the pre-condition
-        let previousContext = scopeContextStore.readPreviousContextFromDisk()
+        let previousContext = fixture.scopePersistentStore.readPreviousContextFromDisk()
         XCTAssertNil(previousContext)
 
         // -- Act --
-        SentrySDK.start(options: options)
+        SentrySDK.start(options: fixture.options)
 
         // -- Assert --
-        let result = try XCTUnwrap(scopeContextStore.readPreviousContextFromDisk())
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousContextFromDisk())
         XCTAssertEqual(result.count, 1)
         let value = try XCTUnwrap(result["a"] as? [String: String])
         XCTAssertEqual(value["b"], "c")
     }
+    
+    func testStartWithOptions_shouldMoveCurrentUserFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setUser(User(userId: "user1234"))
 
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setUser completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous context file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = fixture.scopePersistentStore.readPreviousUserFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousUserFromDisk())
+        XCTAssertEqual(result.userId, "user1234")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentDistFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setDist("dist-string")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setDist completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        // Delete the previous context file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = fixture.scopePersistentStore.readPreviousDistFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousDistFromDisk())
+        XCTAssertEqual(result, "dist-string")
+    }
+
+    func testStartWithOptions_shouldMoveCurrentEnvironmentFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setEnvironment("prod-string")
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setEnvironment completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        // Delete the previous context file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousUser = fixture.scopePersistentStore.readPreviousEnvironmentFromDisk()
+        XCTAssertNil(previousUser)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousEnvironmentFromDisk())
+        XCTAssertEqual(result, "prod-string")
+    }
+
+    func testStartWithOptions_shouldMoveCurrentExtraFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setExtras(["extra1": "value1", "extra2": "value2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setExtras completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        // Delete the previous context file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        
+        // Sanity-check for the pre-condition
+        let previousExtras = fixture.scopePersistentStore.readPreviousExtrasFromDisk()
+        XCTAssertNil(previousExtras)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousExtrasFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["extra1"] as? String, "value1")
+        XCTAssertEqual(result["extra2"] as? String, "value2")
+    }
+
+    func testStartWithOptions_shouldMoveCurrentFingerprintFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setFingerprint completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous fingerprint file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousFingerprint = fixture.scopePersistentStore.readPreviousFingerprintFromDisk()
+        XCTAssertNil(previousFingerprint)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousFingerprintFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0], "fingerprint1")
+        XCTAssertEqual(result[1], "fingerprint2")
+    }
+    
+    func testStartWithOptions_shouldMoveCurrentTagsFileToPreviousFile() throws {
+        // -- Arrange --
+        fixture.observer.setTags(["tag1": "value1", "tag2": "value2"])
+
+        // Wait for the observer to complete
+        let expectation = XCTestExpectation(description: "setTags completes")
+        fixture.dispatchQueueWrapper.dispatchAsync {
+            // Dispatching a block on the same queue will be run after the context processor.
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // Delete the previous tags file if it exists
+        fixture.scopePersistentStore.deleteAllPreviousState()
+        // Sanity-check for the pre-condition
+        let previousTags = fixture.scopePersistentStore.readPreviousTagsFromDisk()
+        XCTAssertNil(previousTags)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        let result = try XCTUnwrap(fixture.scopePersistentStore.readPreviousTagsFromDisk())
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result["tag1"], "value1")
+        XCTAssertEqual(result["tag2"], "value2")
+    }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
 #if os(macOS)
@@ -1029,7 +1250,7 @@ private extension SentrySDKTests {
         SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
         SentrySDK.setStart(fixture.options)
     }
-
+    
     func assertIntegrationsInstalled(integrations: [String]) {
         XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations().count)
         integrations.forEach { integration in
