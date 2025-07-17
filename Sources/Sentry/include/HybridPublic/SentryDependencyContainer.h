@@ -24,6 +24,7 @@
 @class SentryScopePersistentStore;
 @class SentryOptions;
 @class SentrySessionTracker;
+@class HangTrackerObjcBridge;
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
@@ -121,6 +122,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
+
+@property (nonatomic, strong) HangTrackerObjcBridge *hangTracker;
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 #if SENTRY_UIKIT_AVAILABLE

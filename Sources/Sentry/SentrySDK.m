@@ -283,6 +283,10 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start];
 
+        if (options.experimental.enableRunLoopObserverAppHangs) {
+            [SentryDependencyContainer.sharedInstance.hangTracker start];
+        }
+
         [SentrySDK installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -598,20 +602,28 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)pauseAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration
-        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
-            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+    if (currentHub.client.options.experimental.enableRunLoopObserverAppHangs) {
+        [SentryDependencyContainer.sharedInstance.hangTracker stop];
+    } else {
+        SentryANRTrackingIntegration *anrTrackingIntegration
+            = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+                getInstalledIntegration:[SentryANRTrackingIntegration class]];
 
-    [anrTrackingIntegration pauseAppHangTracking];
+        [anrTrackingIntegration pauseAppHangTracking];
+    }
 }
 
 + (void)resumeAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration
-        = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
-            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+    if (currentHub.client.options.experimental.enableRunLoopObserverAppHangs) {
+        [SentryDependencyContainer.sharedInstance.hangTracker start];
+    } else {
+        SentryANRTrackingIntegration *anrTrackingIntegration
+            = (SentryANRTrackingIntegration *)[SentrySDK.currentHub
+                getInstalledIntegration:[SentryANRTrackingIntegration class]];
 
-    [anrTrackingIntegration resumeAppHangTracking];
+        [anrTrackingIntegration resumeAppHangTracking];
+    }
 }
 
 + (void)flush:(NSTimeInterval)timeout

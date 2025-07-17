@@ -87,6 +87,18 @@
 
 @end
 
+@interface SentryDebugImageProvider () <DebugImageCache>
+
+@end
+
+@interface SentryThreadInspector () <ThreadInspector>
+
+@end
+
+@interface SentryCrashWrapper () <CrashWrapper>
+
+@end
+
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
@@ -248,6 +260,16 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
     SENTRY_LAZY_INIT(_crashReporter,
         [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+}
+
+- (HangTrackerObjcBridge *)hangTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_hangTracker,
+        [[HangTrackerObjcBridge alloc] initWithDateProvider:self.dateProvider
+                                            threadInspector:self.threadInspector
+                                            debugImageCache:self.debugImageProvider
+                                                fileManager:self.fileManager
+                                               crashWrapper:self.crashWrapper]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
