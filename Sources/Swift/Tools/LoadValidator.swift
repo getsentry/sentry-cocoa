@@ -50,11 +50,11 @@ import MachO
                             continue
                         }
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
+                        if name == self.targetClassName && isCurrentImageContainingLoadValidator {
+                            // Skip the implementation of the class we are using as a proxy for being loaded that exists in the same binary that this instance of LoadValidator was loaded in
+                            continue
+                        }
                         if name.contains(self.targetClassName) {
-                            if name == self.targetClassName && isCurrentImageContainingLoadValidator {
-                                // Skip the implementation of the class we are using as a proxy for being loaded that exists in the same binary that this instance of LoadValidator was loaded in
-                                continue
-                            }
                             var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
                             message.append("Ensure the SDK is linked only once, found classes in image paths: \(imageName)")
