@@ -13,7 +13,7 @@ import Foundation
     // All mutable state is accessed from the same dispatch queue.
     private var encodedLogs: [Data] = []
     private var encodedLogsSize: Int = 0
-    private var isTimerActive: Bool = false
+    private var timerWorkItem: DispatchWorkItem?
 
     @_spi(Private) public init(
         client: SentryClient,
@@ -42,10 +42,17 @@ import Foundation
             self?.encodeAndBuffer(log: log)
         }
     }
+    
+    @objc
+    public func flush() {
+        dispatchQueue.dispatchAsync { [weak self] in
+            self?.performFlush()
+        }
+    }
 
     // Helper
 
-    // Called on the dispatch queue.
+    // Only ever call this from the dispatch queue.
     private func encodeAndBuffer(log: SentryLog) {
         do {
             let encodedLog = try encodeToJSONData(data: log)
@@ -55,52 +62,52 @@ import Foundation
             encodedLogs.append(encodedLog)
             encodedLogsSize += encodedLog.count
             
-            let shouldFlush = encodedLogsSize >= maxBufferSizeBytes
-            let shouldStartTimer = wasEmpty && !isTimerActive && !shouldFlush
+            let shouldFlushImmediatley = encodedLogsSize >= maxBufferSizeBytes
+            let shouldStartTimer = wasEmpty && timerWorkItem == nil && !shouldFlushImmediatley
             
             if shouldStartTimer {
-                isTimerActive = true
+                startTimer()
             }
-            
-            // Need to flush due to max buffer size exceeded.
-            if shouldFlush {
+            if shouldFlushImmediatley {
                 performFlush()
-            } else if shouldStartTimer {
-                dispatchQueue.dispatch(after: flushTimeout) { [weak self] in
-                    self?.performFlush()
-                }
             }
         } catch {
             SentrySDKLog.error("Failed to encode log: \(error)")
         }
     }
-
-    @objc
-    public func flush() {
-        dispatchQueue.dispatchAsync { [weak self] in
+    
+    // Only ever call this from the dispatch queue.
+    private func startTimer() {
+        let timerWorkItem = DispatchWorkItem { [weak self] in
             self?.performFlush()
         }
+        self.timerWorkItem = timerWorkItem
+        dispatchQueue.queue.asyncAfter(
+            deadline: .now() + flushTimeout,
+            execute: timerWorkItem
+        )
     }
 
     // Only ever call this from the dispatch queue.
     private func performFlush() {
         let encodedLogsToSend = Array(encodedLogs)
 
-        // Reset state.    
+        // Reset buffer state
         encodedLogs.removeAll()
         encodedLogsSize = 0
-        isTimerActive = false
+
+        // Reset timer state
+        timerWorkItem?.cancel()
+        timerWorkItem = nil
         
         // If there are no logs to send, return early.
-        
         guard encodedLogsToSend.count > 0 else {
             return
         }
 
         // Create the payload.
-
-        let opening = "{\"items\":[".data(using: .utf8),
-            let comma = ",".data(using: .utf8),
+        guard let opening = "{\"items\":[".data(using: .utf8),
+            let separator = ",".data(using: .utf8),
             let closing = "]}}".data(using: .utf8) else {
             return
         }
@@ -109,7 +116,7 @@ import Foundation
         payloadData.append(opening)
         for (index, encodedLog) in encodedLogsToSend.enumerated() {
             if index > 0 {
-                payloadData.append(comma)
+                payloadData.append(separator)
             }
             payloadData.append(encodedLog)
         }
@@ -120,4 +127,3 @@ import Foundation
         client.captureLogsData(payloadData, with: NSNumber(value: encodedLogsToSend.count))
     }
 }
-
