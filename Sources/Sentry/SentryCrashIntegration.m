@@ -13,10 +13,10 @@
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryScope+PrivateSwift.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>

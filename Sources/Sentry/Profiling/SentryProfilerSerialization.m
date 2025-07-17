@@ -27,13 +27,13 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentryScope+Private.h"
+#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
-#    import "SentryScope+PrivateSwift.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
