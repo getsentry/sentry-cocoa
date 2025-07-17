@@ -59,7 +59,7 @@ final class SentryLogBatcherTests: XCTestCase {
         
         // Verify both logs are batched together
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(2, items.count)
@@ -82,7 +82,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
         // Verify the large log is sent
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(1, items.count)
@@ -109,7 +109,7 @@ final class SentryLogBatcherTests: XCTestCase {
         
         // Verify flush occurred
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(1, items.count)
@@ -131,7 +131,7 @@ final class SentryLogBatcherTests: XCTestCase {
         
         // Verify both logs are flushed together
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(2, items.count)
@@ -157,7 +157,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // Then - manual flush dispatches async, so it executes immediately with test setup
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(2, items.count)
@@ -235,8 +235,8 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 2)
         
         // Verify each flush contains only one log
-        for (index, data) in testClient.captureLogsDataInvocations.invocations.enumerated() {
-            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        for (index, invocation) in testClient.captureLogsDataInvocations.invocations.enumerated() {
+            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
             let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
             XCTAssertEqual(1, items.count)
             XCTAssertEqual("Log \(index + 1)", items[0]["body"] as? String)
@@ -271,7 +271,7 @@ final class SentryLogBatcherTests: XCTestCase {
         waitBeforeTimeout()
         
         // Verify all 10 logs were included in the single batch
-        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(10, items.count, "All 10 concurrently added logs should be in the batch")
@@ -295,7 +295,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     private func waitBeforeTimeout() {
         // Wait for timer to fire
-        let expectation = self.expectation(description: "Timer should flush logs")
+        let expectation = self.expectation(description: "Wait for async add")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
             expectation.fulfill()
         }
@@ -304,7 +304,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     private func waitAfterTimeout() {
         // Wait for timer to fire
-        let expectation = self.expectation(description: "Timer should flush logs")
+        let expectation = self.expectation(description: "Wait for timer flush")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             expectation.fulfill()
         }
