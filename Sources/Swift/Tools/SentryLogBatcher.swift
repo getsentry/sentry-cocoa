@@ -44,10 +44,10 @@ import Foundation
             return logBuffer.count >= maxBufferSize
         }
         
-        if !shouldFlush {
-            scheduleFlush()
-        } else {
+        if shouldFlush {
             flush()
+        } else {
+            scheduleFlush()
         }
     }
     
