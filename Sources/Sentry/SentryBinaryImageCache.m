@@ -17,18 +17,20 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
 @interface SentryBinaryImageCache ()
 @property (nonatomic, strong, nullable) NSMutableArray<SentryBinaryImageInfo *> *cache;
+@property (nonatomic, assign) BOOL isDebug;
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image;
 @end
 
 @implementation SentryBinaryImageCache
 
-- (void)start
+- (void)start:(BOOL)isDebug
 {
     @synchronized(self) {
         _cache = [NSMutableArray array];
         sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
         sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
+        self.isDebug = isDebug;
     }
 }
 
@@ -85,7 +87,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
         [_cache insertObject:newImage atIndex:left];
     }
 
-    if ([SentrySDK.currentHub getClient].options.debug == YES) {
+    if (self.isDebug) {
         // Only validate if debug is enabled
         [LoadValidator validateSDKPresenceIn:newImage];
     }
