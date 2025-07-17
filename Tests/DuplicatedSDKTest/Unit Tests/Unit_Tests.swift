@@ -30,7 +30,8 @@ final class TestLog: XCTestCase {
         let fullpath = "\(path)/../../Frameworks/ModuleA.framework/ModuleA"
         guard dlopen(fullpath, RTLD_NOW) != nil else {
             let error = String(cString: dlerror())
-            fatalError("Could not open framework: \(error)")
+            XCTFail("Could not open framework: \(error)")
+            return
         }
         
         // Check for the message periodically

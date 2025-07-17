@@ -5,44 +5,32 @@ import MachO
 
 @objc
 @_spi(Private) public final class LoadValidator: NSObject {
-    // Any class should be fine
-    static let targetClassName = "PrivateSentrySDKOnly"
+    // Any class should be fine, ObjC classes are better
+    static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
     
     @objc
     @_spi(Private) public class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo) {
-        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance())
+        internalValidateSDKPresenceIn(image,
+                                      objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(),
+                                      dispatchQueueWrapper: SentryDispatchQueueWrapper())
     }
     
-    /**
-     * This synchronous version is intended to be used in tests.
-     * It uses a higher QoS and wait for the result
-     */
-    @discardableResult class func validateSDKPresenceInSync(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper) -> Bool {
-        var result = false
-        let semaphore = DispatchSemaphore(value: 0)
-        internalValidateSDKPresenceIn(image, objcRuntimeWrapper: objcRuntimeWrapper, qos: .userInitiated) { duplicateFound in
-            result = duplicateFound
-            semaphore.signal()
+    class func internalValidateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {
+        let systemLibraryPath = "/usr/lib/"
+#if targetEnvironment(simulator)
+        let ignoredPath = "/Library/Developer/CoreSimulator/Profiles/Runtimes/"
+#else
+        let ignoredPath = "/System/Library/"
+#endif
+        let imageName = image.name
+        guard !imageName.contains(ignoredPath) && !imageName.hasPrefix(systemLibraryPath) else {
+            resultHandler?(false)
+            return
         }
-        semaphore.wait()
-        return result
-    }
-    
-    class private func internalValidateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, qos: DispatchQoS.QoSClass = .background, resultHandler: ((Bool) -> Void)? = nil) {
-        DispatchQueue.global(qos: qos).async {
+        dispatchQueueWrapper.dispatchAsync {
             var duplicateFound = false
             defer {
                 resultHandler?(duplicateFound)
-            }
-            let systemLibraryPath = "/usr/lib/"
-#if targetEnvironment(simulator)
-            let ignoredPath = "/Library/Developer/CoreSimulator/Profiles/Runtimes/"
-#else
-            let ignoredPath = "/System/Library/"
-#endif
-            let imageName = image.name
-            guard !imageName.contains(ignoredPath) && !imageName.hasPrefix(systemLibraryPath) else {
-                return
             }
             
             let loadValidatorAddress = self.getCurrentFrameworkTextPointer()
@@ -54,6 +42,9 @@ import MachO
             var classCount: UInt32 = 0
             imageName.withCString { cImageName in
                 if let classNames = objcRuntimeWrapper.copyClassNames(forImage: cImageName, amount: &classCount) {
+                    defer {
+                        free(classNames)
+                    }
                     for j in 0..<Int(classCount) {
                         guard let className = classNames[j] else {
                             continue
@@ -61,7 +52,7 @@ import MachO
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
                         if name.contains(self.targetClassName) {
                             if name == self.targetClassName && isCurrentImageContainingLoadValidator {
-                                // Skip our implementation of `PrivateSentrySDKOnly`
+                                // Skip the implementation of the class we are using as a proxy for being loaded that exists in the same binary that this instance of LoadValidator was loaded in
                                 continue
                             }
                             var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
@@ -73,14 +64,13 @@ import MachO
                             break
                         }
                     }
-                    free(classNames)
                 }
             }
         }
     }
     
     /**
-     * Returns a pointer to a function inside the __TEXT segment of the binary containing this class
+     * Returns a pointer to a function inside the `__TEXT` segment of the binary containing this class
      */
     class func getCurrentFrameworkTextPointer() -> UnsafeRawPointer {
         let cFunction: @convention(c) () -> Void = { }
