@@ -32,7 +32,7 @@ import Foundation
         self.init(
             client: client,
             flushTimeout: 5,
-            maxBufferSizeBytes: 1024 * 1024, // 1MB
+            maxBufferSizeBytes: 1_024 * 1_024, // 1MB
             dispatchQueue: dispatchQueue
         )
     }
@@ -108,7 +108,7 @@ import Foundation
         // Create the payload.
         guard let opening = "{\"items\":[".data(using: .utf8),
             let separator = ",".data(using: .utf8),
-            let closing = "]}}".data(using: .utf8) else {
+            let closing = "]}".data(using: .utf8) else {
             return
         }
 

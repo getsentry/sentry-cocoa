@@ -18,10 +18,12 @@ final class SentryLogBatcherTests: XCTestCase {
         
         testClient = TestClient(options: options)
         testDispatchQueue = TestSentryDispatchQueueWrapper()
+        testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
+        
         sut = SentryLogBatcher(
             client: testClient,
-            flushTimeout: 5.0,
-            maxBufferSize: 3,
+            flushTimeout: 0.1, // Very small timeout for testing
+            maxBufferSizeBytes: 500, // Small byte limit for testing
             dispatchQueue: testDispatchQueue
         )
         scope = Scope()
@@ -52,6 +54,9 @@ final class SentryLogBatcherTests: XCTestCase {
         // Trigger flush manually
         sut.flush()
         
+        // Async, wait a bit.
+        waitBeforeTimeout()
+        
         // Verify both logs are batched together
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
@@ -63,26 +68,25 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Buffer Size Tests
     
     func testBufferReachesMaxSize_FlushesImmediately() throws {
-        // Given
-        let log1 = createTestLog(body: "Log 1")
-        let log2 = createTestLog(body: "Log 2")
-        let log3 = createTestLog(body: "Log 3")
+        // Given - create a log that will exceed the 500 byte limit
+        let largeLogBody = String(repeating: "A", count: 600) // Larger than 500 byte limit
+        let largeLog = createTestLog(body: largeLogBody)
         
-        // When - add logs up to max buffer size (3)
-        sut.add(log1)
-        sut.add(log2)
-        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
+        // When - add a log that exceeds buffer size
+        sut.add(largeLog)
         
-        sut.add(log3) // This should trigger immediate flush
+        // Async, wait a bit.
+        waitBeforeTimeout()
         
-        // Then
+        // Then - should trigger immediate flush
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
-        // Verify all three logs are batched together
+        // Verify the large log is sent
         let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
-        XCTAssertEqual(3, items.count)
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual(largeLogBody, items[0]["body"] as? String)
     }
     
     // MARK: - Timeout Tests
@@ -94,41 +98,36 @@ final class SentryLogBatcherTests: XCTestCase {
         // When
         sut.add(log)
         
+        // Async, wait a bit.
+        waitBeforeTimeout()
+        
         // Then - no immediate flush
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
         
-        // Called dispatch with correct interval
-        let invocation = try XCTUnwrap(testDispatchQueue.dispatchAfterInvocations.first)
-        XCTAssertEqual(invocation.interval, 5.0)
-        
-        // Simulate timeout by executing the scheduled block
-        let scheduledBlock = invocation.block
-        scheduledBlock()
+        // Wait enough time for timet to fire
+        waitAfterTimeout()
         
         // Verify flush occurred
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count)
     }
     
-    func testMultipleLogsBeforeTimeout_CancelsAndReschedulesFlush() throws {
+    func testAddingLogToEmptyBuffer_StartsTimer() throws {
         // Given
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         
-        // When
+        // When - add logs
         sut.add(log1)
-        XCTAssertEqual(testDispatchQueue.dispatchAfterInvocations.count, 1)
-        
         sut.add(log2)
-        XCTAssertEqual(testDispatchQueue.dispatchAfterInvocations.count, 2)
         
-        // Execute the first scheduled flush (should do nothing due to cancellation)
-        let firstBlock = testDispatchQueue.dispatchAfterInvocations.invocations[0].block
-        firstBlock()
-        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0, "First flush should be cancelled")
+        // Should not flush immediately
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
         
-        // Execute second scheduled flush
-        let secondBlock = testDispatchQueue.dispatchAfterInvocations.invocations[1].block
-        secondBlock()
+        waitAfterTimeout()
         
         // Verify both logs are flushed together
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
@@ -136,9 +135,9 @@ final class SentryLogBatcherTests: XCTestCase {
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(2, items.count)
-    }
-    
-    // MARK: - Manual Flush Tests
+         }
+     
+     // MARK: - Manual Flush Tests
     
     func testManualFlush_FlushesImmediately() throws {
         // Given
@@ -152,7 +151,10 @@ final class SentryLogBatcherTests: XCTestCase {
         
         sut.flush()
         
-        // Then
+        // Async, wait a bit.
+        waitBeforeTimeout()
+        
+        // Then - manual flush dispatches async, so it executes immediately with test setup
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
         let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
@@ -167,22 +169,24 @@ final class SentryLogBatcherTests: XCTestCase {
         
         // When
         sut.add(log)
-        XCTAssertEqual(testDispatchQueue.dispatchAfterInvocations.count, 1)
         
+        // Manual flush immediately
         sut.flush()
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Manual flush should work")
         
-        // Execute the scheduled flush (should do nothing since buffer was already flushed)
-        let scheduledBlock = try XCTUnwrap(testDispatchQueue.dispatchAfterInvocations.invocations.first).block
-        scheduledBlock()
+        // Wait for any timer that might have been scheduled to potentially fire
+        waitAfterTimeout()
         
-        // Then - no additional flush should occur (proves cancellation worked)
-        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Scheduled flush should be cancelled")
+        // Then - no additional flush should occur (timer was cancelled by performFlush)
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Timer should be cancelled")
     }
     
     func testFlushEmptyBuffer_DoesNothing() {
         // When
         sut.flush()
+        
+        // Async, wait a bit.
+        waitBeforeTimeout()
         
         // Then
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
@@ -191,22 +195,21 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Edge Cases Tests
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {
-        // Given
-        let log1 = createTestLog(body: "Log 1")
-        let log2 = createTestLog(body: "Log 2")
-        let log3 = createTestLog(body: "Log 3")
+        // Given - create logs that will trigger size-based flush
+        let largeLogBody = String(repeating: "B", count: 300)
+        let log1 = createTestLog(body: largeLogBody)
+        let log2 = createTestLog(body: largeLogBody) // Together > 500 bytes
         
-        // When - fill buffer to trigger immediate flush
+        // When - add first log (starts timer)
         sut.add(log1)
-        sut.add(log2)
-        sut.add(log3)
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
         
+        // Add second log that triggers size-based flush
+        sut.add(log2)
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
-        // Simulate a delayed flush callback (should do nothing since buffer is empty)
-        if let delayedBlock = testDispatchQueue.dispatchAfterInvocations.first?.block {
-            delayedBlock()
-        }
+        // Wait for any timer that might have been scheduled to potentially fire
+        waitAfterTimeout()
         
         // Then - no additional flush should occur
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
@@ -220,10 +223,13 @@ final class SentryLogBatcherTests: XCTestCase {
         // When
         sut.add(log1)
         sut.flush()
+        waitBeforeTimeout()
+        
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
         sut.add(log2)
         sut.flush()
+        waitBeforeTimeout()
         
         // Then - should have two separate flush calls
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 2)
@@ -244,7 +250,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let sutWithRealQueue = SentryLogBatcher(
             client: testClient,
             flushTimeout: 5,
-            maxBufferSize: 100, // Large buffer to avoid immediate flushes
+            maxBufferSizeBytes: 10_000, // Large buffer to avoid immediate flushes
             dispatchQueue: SentryDispatchQueueWrapper()
         )
         
@@ -259,13 +265,10 @@ final class SentryLogBatcherTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        
-        wait(for: [expectation], timeout: 5.0)
-        
-        // Then - manually flush and verify all logs were added
+        wait(for: [expectation], timeout: 1.0)
+                
         sutWithRealQueue.flush()
-        
-        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
+        waitBeforeTimeout()
         
         // Verify all 10 logs were included in the single batch
         let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first)
@@ -288,5 +291,23 @@ final class SentryLogBatcherTests: XCTestCase {
             body: body,
             attributes: attributes
         )
+    }
+    
+    private func waitBeforeTimeout() {
+        // Wait for timer to fire
+        let expectation = self.expectation(description: "Timer should flush logs")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 0.5)
+    }
+    
+    private func waitAfterTimeout() {
+        // Wait for timer to fire
+        let expectation = self.expectation(description: "Timer should flush logs")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 0.5)
     }
 }

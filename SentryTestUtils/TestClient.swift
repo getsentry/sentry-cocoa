@@ -151,7 +151,7 @@ public class TestClient: SentryClient {
     }
     
     public var captureLogsDataInvocations = Invocations<Data>()
-    public override func captureLogsData(_ data: Data) {
+    public override func captureLogsData(_ data: Data, with count: NSNumber) {
         captureLogsDataInvocations.record(data)
     }
 }
