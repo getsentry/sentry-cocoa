@@ -5,6 +5,7 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryScope.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>

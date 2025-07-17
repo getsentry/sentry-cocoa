@@ -33,6 +33,7 @@
 #    import "SentryTracer+Private.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
+#    import "SentryScope+PrivateSwift.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";

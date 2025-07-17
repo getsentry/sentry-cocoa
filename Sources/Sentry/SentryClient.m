@@ -48,6 +48,7 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 #import "SentryWatchdogTerminationTracker.h"
+#import "SentryScope+PrivateSwift.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
