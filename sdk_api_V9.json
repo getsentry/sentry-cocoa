@@ -42749,6 +42749,105 @@
           },
           {
             "kind": "Function",
+            "name": "trace",
+            "printedName": "trace(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5trace_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5trace_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "trace",
+            "printedName": "trace(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5trace_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5trace_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "debug",
             "printedName": "debug(_:)",
             "children": [
@@ -42817,6 +42916,105 @@
             "declAttributes": [
               "Final",
               "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "debug",
+            "printedName": "debug(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5debug_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5debug_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "debug",
+            "printedName": "debug(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5debug_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5debug_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -42895,6 +43093,105 @@
           },
           {
             "kind": "Function",
+            "name": "info",
+            "printedName": "info(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC4info_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4info_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "info",
+            "printedName": "info(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC4info_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4info_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "warn",
             "printedName": "warn(_:)",
             "children": [
@@ -42963,6 +43260,105 @@
             "declAttributes": [
               "Final",
               "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "warn",
+            "printedName": "warn(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC4warn_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4warn_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "warn",
+            "printedName": "warn(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC4warn_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4warn_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -43041,6 +43437,105 @@
           },
           {
             "kind": "Function",
+            "name": "error",
+            "printedName": "error(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5error_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5error_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "error",
+            "printedName": "error(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5error_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5error_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "fatal",
             "printedName": "fatal(_:)",
             "children": [
@@ -43109,6 +43604,105 @@
             "declAttributes": [
               "Final",
               "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "fatal",
+            "printedName": "fatal(_:arguments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5fatal_9argumentsySS_Says7CVarArg_pGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal_9argumentsySS_Says7CVarArg_pGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "fatal",
+            "printedName": "fatal(_:arguments:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Swift.CVarArg]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CVarArg",
+                    "printedName": "any Swift.CVarArg",
+                    "usr": "s:s7CVarArgP"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5fatal_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
             ],
             "funcSelfKind": "NonMutating"
           }
