@@ -1121,6 +1121,41 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = "Sentry-iOS";
 		};
+		846D3F262E286ECF00D4E7E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8C030CE2CEF633A007FC5B4;
+			remoteInfo = DuplicatedSDKTest;
+		};
+		846D3F282E286ECF00D4E7E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D89DD6362CEF650A009C3509;
+			remoteInfo = ModuleA;
+		};
+		846D3F2A2E286ECF00D4E7E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D89DD6482CEF6516009C3509;
+			remoteInfo = ModuleB;
+		};
+		846D3F2C2E286ECF00D4E7E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D89DD6732CEF7ADF009C3509;
+			remoteInfo = "UITest-DuplicatedSDK";
+		};
+		846D3F2E2E286ECF00D4E7E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F45243122DE56862003E8F50;
+			remoteInfo = "Unit Tests";
+		};
 		84B7FA3729B2860500AD93B1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -1935,6 +1970,13 @@
 		845CEAEE2D83F79500B6B325 /* SentryProfilingPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryProfilingPublicAPITests.swift; sourceTree = "<group>"; };
 		845CEB162D8A979700B6B325 /* SentryAppStartProfilingConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAppStartProfilingConfigurationTests.swift; sourceTree = "<group>"; };
 		846628B82DF0E52C00F11CD9 /* Brewfile-ci-format */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = "Brewfile-ci-format"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		846D3F092E286ECF00D4E7E3 /* DuplicatedSDKTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DuplicatedSDKTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		846D3F0A2E286ECF00D4E7E3 /* DuplicatedSDKTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicatedSDKTestApp.swift; sourceTree = "<group>"; };
+		846D3F0B2E286ECF00D4E7E3 /* SomeWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomeWork.swift; sourceTree = "<group>"; };
+		846D3F0C2E286ECF00D4E7E3 /* UITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITest.swift; sourceTree = "<group>"; };
+		846D3F0E2E286ECF00D4E7E3 /* Unit_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unit_Tests.swift; sourceTree = "<group>"; };
+		846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = DuplicatedSDKTest.xcodeproj; sourceTree = "<group>"; };
+		846D3F112E286ECF00D4E7E3 /* DuplicatedSDKTest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DuplicatedSDKTest.xctestplan; sourceTree = "<group>"; };
 		846F90332D56F59D009E86C1 /* Brewfile-ci-deploy */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = "Brewfile-ci-deploy"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		8482FA992DD7C397000E9283 /* SentryFeedbackAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryFeedbackAPI.h; path = ../../../Sentry/Public/SentryFeedbackAPI.h; sourceTree = "<group>"; };
 		8482FA9A2DD7C397000E9283 /* SentryFeedbackAPI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SentryFeedbackAPI.m; path = ../../../Sentry/SentryFeedbackAPI.m; sourceTree = "<group>"; };
@@ -2897,6 +2939,7 @@
 				844DA7F6282435CD00E6B62E /* README.md */,
 				630C01951EC341D600C52CEF /* Resources */,
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
+				846D3F122E286ECF00D4E7E3 /* DuplicatedSDKTest */,
 				63AA75931EB8AEDB00D153DE /* SentryTests */,
 				8431EFDB29B27B3D00D8DC56 /* SentryProfilerTests */,
 				D8F01DE32A125D7B008F4996 /* HybridSDKTest */,
@@ -3956,6 +3999,48 @@
 				843FB3412D156B9900558F18 /* SentryFeedbackTests.swift */,
 			);
 			path = Feedback;
+			sourceTree = "<group>";
+		};
+		846D3F0D2E286ECF00D4E7E3 /* DuplicatedSDKTest */ = {
+			isa = PBXGroup;
+			children = (
+				846D3F092E286ECF00D4E7E3 /* DuplicatedSDKTest-Bridging-Header.h */,
+				846D3F0A2E286ECF00D4E7E3 /* DuplicatedSDKTestApp.swift */,
+				846D3F0B2E286ECF00D4E7E3 /* SomeWork.swift */,
+				846D3F0C2E286ECF00D4E7E3 /* UITest.swift */,
+			);
+			path = DuplicatedSDKTest;
+			sourceTree = "<group>";
+		};
+		846D3F0F2E286ECF00D4E7E3 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				846D3F0E2E286ECF00D4E7E3 /* Unit_Tests.swift */,
+			);
+			path = "Unit Tests";
+			sourceTree = "<group>";
+		};
+		846D3F122E286ECF00D4E7E3 /* DuplicatedSDKTest */ = {
+			isa = PBXGroup;
+			children = (
+				846D3F0D2E286ECF00D4E7E3 /* DuplicatedSDKTest */,
+				846D3F0F2E286ECF00D4E7E3 /* Unit Tests */,
+				846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */,
+				846D3F112E286ECF00D4E7E3 /* DuplicatedSDKTest.xctestplan */,
+			);
+			path = DuplicatedSDKTest;
+			sourceTree = "<group>";
+		};
+		846D3F132E286ECF00D4E7E3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				846D3F272E286ECF00D4E7E3 /* DuplicatedSDKTest.app */,
+				846D3F292E286ECF00D4E7E3 /* ModuleA.framework */,
+				846D3F2B2E286ECF00D4E7E3 /* ModuleB.framework */,
+				846D3F2D2E286ECF00D4E7E3 /* UITest-DuplicatedSDK.xctest */,
+				846D3F2F2E286ECF00D4E7E3 /* Unit Tests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		847B1A002C618ACA002CB1F3 /* UserFeedback */ = {
@@ -5288,6 +5373,12 @@
 			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 846D3F132E286ECF00D4E7E3 /* Products */;
+					ProjectRef = 846D3F102E286ECF00D4E7E3 /* DuplicatedSDKTest.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				63AA759A1EB8AEF500D153DE /* Sentry */,
@@ -5301,6 +5392,44 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		846D3F272E286ECF00D4E7E3 /* DuplicatedSDKTest.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = DuplicatedSDKTest.app;
+			remoteRef = 846D3F262E286ECF00D4E7E3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		846D3F292E286ECF00D4E7E3 /* ModuleA.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ModuleA.framework;
+			remoteRef = 846D3F282E286ECF00D4E7E3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		846D3F2B2E286ECF00D4E7E3 /* ModuleB.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ModuleB.framework;
+			remoteRef = 846D3F2A2E286ECF00D4E7E3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		846D3F2D2E286ECF00D4E7E3 /* UITest-DuplicatedSDK.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "UITest-DuplicatedSDK.xctest";
+			remoteRef = 846D3F2C2E286ECF00D4E7E3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		846D3F2F2E286ECF00D4E7E3 /* Unit Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "Unit Tests.xctest";
+			remoteRef = 846D3F2E2E286ECF00D4E7E3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		63AA75991EB8AEF500D153DE /* Resources */ = {
