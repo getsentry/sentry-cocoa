@@ -48,6 +48,8 @@ import MachO
                         guard let className = classNames[j] else {
                             continue
                         }
+                        // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecesarry work
+                        // or calling `NSClassFromString` since that can lead to issues (see `SentrySubClassFinder` for more details).
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
                         if name == self.targetClassName && isCurrentImageContainingLoadValidator {
                             // Skip the implementation of the class we are using as a proxy for being loaded that exists in the same binary that this instance of LoadValidator was loaded in
