@@ -5,6 +5,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
@@ -13,6 +14,7 @@
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN

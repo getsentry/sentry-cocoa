@@ -42,6 +42,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -157,11 +158,6 @@ static NSDate *_Nullable startTimestamp = nil;
 + (BOOL)isEnabled
 {
     return currentHub != nil && [currentHub getClient] != nil;
-}
-
-+ (SentryMetricsAPI *)metrics
-{
-    return currentHub.metrics;
 }
 
 + (BOOL)crashedLastRunCalled
@@ -698,7 +694,8 @@ static NSDate *_Nullable startTimestamp = nil;
             return;
         }
 
-        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+        if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
+            != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"The profiling session has been sampled out, no profiling will take place.");
             return;
@@ -715,6 +712,35 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
+    // check if we'd be stopping a launch profiler, because then we need to check the hydrated
+    // configuration options, not the current ones
+    if (sentry_profileConfiguration.isProfilingThisLaunch) {
+        if (sentry_profileConfiguration.isContinuousV1) {
+            SENTRY_LOG_DEBUG(@"Stopping continuous v1 launch profile.");
+            [SentryContinuousProfiler stop];
+            return;
+        }
+
+        if (sentry_profileConfiguration.profileOptions == nil) {
+            SENTRY_LOG_WARN(
+                @"The current profiler was started on app launch and was configured as a "
+                @"transaction profiler, which cannot be stopped manually. Transaction profiling is "
+                @"deprecated and will be removed in a future SDK version.");
+            return;
+        }
+
+        if (sentry_profileConfiguration.profileOptions.lifecycle == SentryProfileLifecycleTrace) {
+            SENTRY_LOG_WARN(
+                @"The launch profile lifecycle was set to trace, so you cannot stop profile "
+                @"sessions manually. See SentryProfileLifecycle for more information.");
+            return;
+        }
+
+        SENTRY_LOG_DEBUG(@"Stopping launch UI profiler with manual lifecycle.");
+        [SentryContinuousProfiler stop];
+        return;
+    }
+
     SentryOptions *options = currentHub.client.options;
     if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(
