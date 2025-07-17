@@ -27,10 +27,10 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (void)start:(BOOL)isDebug
 {
     @synchronized(self) {
+        _isDebug = isDebug;
         _cache = [NSMutableArray array];
         sentrycrashbic_registerAddedCallback(&binaryImageWasAdded);
         sentrycrashbic_registerRemovedCallback(&binaryImageWasRemoved);
-        self.isDebug = isDebug;
     }
 }
 
