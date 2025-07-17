@@ -15,6 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const SENTRY_CONTEXT_OS_KEY = @"os";
+static NSString *const SENTRY_CONTEXT_DEVICE_KEY = @"device";
+
 /**
  * The scope holds useful information that should be sent along with the event. For instance tags or
  * breadcrumbs are stored on the scope.

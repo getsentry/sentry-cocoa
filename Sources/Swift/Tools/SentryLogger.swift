@@ -139,7 +139,7 @@ public final class SentryLogger: NSObject {
     }
 
     private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let osContext = hub.scope.getContextForKey("os") else {
+        guard let osContext = hub.scope.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
             return
         }
         if let osName = osContext["name"] as? String {
@@ -151,7 +151,7 @@ public final class SentryLogger: NSObject {
     }
     
     private func addDeviceAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let deviceContext = hub.scope.getContextForKey("device") else {
+        guard let deviceContext = hub.scope.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
             return
         }
         // For Apple devices, brand is always "Apple"

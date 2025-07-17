@@ -35,7 +35,6 @@
 static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
-static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
 void
@@ -258,9 +257,10 @@ sentry_finishAndSaveTransaction(void)
 {
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
         NSMutableDictionary<NSString *, id> *device;
-        if (scope.contextDictionary != nil && scope.contextDictionary[DEVICE_KEY] != nil) {
+        if (scope.contextDictionary != nil
+            && scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[DEVICE_KEY]];
+                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY]];
         } else {
             device = [NSMutableDictionary new];
         }
@@ -268,7 +268,7 @@ sentry_finishAndSaveTransaction(void)
         NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
         device[LOCALE_KEY] = locale;
 
-        [scope setContextValue:device forKey:DEVICE_KEY];
+        [scope setContextValue:device forKey:SENTRY_CONTEXT_DEVICE_KEY];
     }];
 }
 
