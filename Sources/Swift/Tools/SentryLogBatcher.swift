@@ -106,24 +106,20 @@ import Foundation
         }
 
         // Create the payload.
-        guard let opening = "{\"items\":[".data(using: .utf8),
-            let separator = ",".data(using: .utf8),
-            let closing = "]}".data(using: .utf8) else {
-            return
-        }
-
+        
         var payloadData = Data()
-        payloadData.append(opening)
+        payloadData.append(Data("{\"items\":[".utf8))
+        let separator = Data(",".utf8)
         for (index, encodedLog) in encodedLogsToSend.enumerated() {
             if index > 0 {
                 payloadData.append(separator)
             }
             payloadData.append(encodedLog)
         }
-        payloadData.append(closing)
+        payloadData.append(Data("]}".utf8))
         
         // Send the payload.
-
+        
         client.captureLogsData(payloadData, with: NSNumber(value: encodedLogsToSend.count))
     }
 }
