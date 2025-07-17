@@ -66,7 +66,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
+        sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
             ^{ [self cacheMainThreadID]; });
     }
     return self;
@@ -153,7 +153,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         const auto sample = [[SentrySample alloc] init];
         sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-        sample.absoluteNSDateInterval = getDate().timeIntervalSince1970;
+        sample.absoluteNSDateInterval = sentry_getDate().timeIntervalSince1970;
         sample.threadID = backtrace.threadMetadata.threadID;
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];

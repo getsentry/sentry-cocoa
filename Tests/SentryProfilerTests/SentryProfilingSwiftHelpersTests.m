@@ -17,7 +17,7 @@
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertEqual(
-        [client.options isContinuousProfilingEnabled], isContinuousProfilingEnabled(client));
+        [client.options isContinuousProfilingEnabled], sentry_isContinuousProfilingEnabled(client));
 }
 
 - (void)testIsContinuousProfilingV2Enabled
@@ -26,8 +26,8 @@
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    XCTAssertEqual(
-        [client.options isContinuousProfilingV2Enabled], isContinuousProfilingV2Enabled(client));
+    XCTAssertEqual([client.options isContinuousProfilingV2Enabled],
+        sentry_isContinuousProfilingV2Enabled(client));
 }
 
 - (void)testIsProfilingCorrelatedToTraces
@@ -37,8 +37,8 @@
     options.profiling = [[SentryProfileOptions alloc] init];
     options.profiling.lifecycle = SentryProfileLifecycleTrace;
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    XCTAssertEqual(
-        [client.options isProfilingCorrelatedToTraces], isProfilingCorrelatedToTraces(client));
+    XCTAssertEqual([client.options isProfilingCorrelatedToTraces],
+        sentry_isProfilingCorrelatedToTraces(client));
 }
 
 - (void)testGetProfiling
@@ -47,60 +47,60 @@
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    XCTAssertEqual(client.options.profiling, getProfiling(client));
+    XCTAssertEqual(client.options.profiling, sentry_getProfiling(client));
 }
 
 - (void)testStringFromSentryID
 {
     SentryId *sentryId = [[SentryId alloc] init];
-    XCTAssertEqualObjects(sentryId.sentryIdString, stringFromSentryID(sentryId));
+    XCTAssertEqualObjects(sentryId.sentryIdString, sentry_stringFromSentryID(sentryId));
 }
 
 - (void)testGetSentryId
 {
-    XCTAssertNotNil(getSentryId());
+    XCTAssertNotNil(sentry_getSentryId());
 }
 
 - (void)testGetSentryProfileOptions
 {
-    XCTAssertNotNil(getSentryProfileOptions());
+    XCTAssertNotNil(sentry_getSentryProfileOptions());
 }
 
 - (void)testIsTraceLifecycle
 {
     SentryProfileOptions *options = [[SentryProfileOptions alloc] init];
     options.lifecycle = SentryProfileLifecycleTrace;
-    XCTAssertTrue(isTraceLifecycle(options));
+    XCTAssertTrue(sentry_isTraceLifecycle(options));
 
     options.lifecycle = SentryProfileLifecycleManual;
-    XCTAssertFalse(isTraceLifecycle(options));
+    XCTAssertFalse(sentry_isTraceLifecycle(options));
 }
 
 - (void)testSessionSampleRate
 {
     SentryProfileOptions *options = [[SentryProfileOptions alloc] init];
     options.sessionSampleRate = 0.2;
-    XCTAssertEqual(options.sessionSampleRate, sessionSampleRate(options));
+    XCTAssertEqual(options.sessionSampleRate, sentry_sessionSampleRate(options));
 }
 
 - (void)testProfileAppStarts
 {
     SentryProfileOptions *options = [[SentryProfileOptions alloc] init];
     options.profileAppStarts = true;
-    XCTAssertTrue(profileAppStarts(options));
+    XCTAssertTrue(sentry_profileAppStarts(options));
 
     options.profileAppStarts = false;
-    XCTAssertFalse(profileAppStarts(options));
+    XCTAssertFalse(sentry_profileAppStarts(options));
 }
 
 - (void)testIsManual
 {
     SentryProfileOptions *options = [[SentryProfileOptions alloc] init];
     options.profileAppStarts = true;
-    XCTAssertTrue(profileAppStarts(options));
+    XCTAssertTrue(sentry_profileAppStarts(options));
 
     options.profileAppStarts = false;
-    XCTAssertFalse(profileAppStarts(options));
+    XCTAssertFalse(sentry_profileAppStarts(options));
 }
 
 - (void)testGetParentSpanID
@@ -111,7 +111,7 @@
                                                  parentId:[[SentrySpanId alloc] init]
                                                 operation:@""
                                                   sampled:kSentrySampleDecisionNo];
-    XCTAssertEqual(context.parentSpanId, getParentSpanID(context));
+    XCTAssertEqual(context.parentSpanId, sentry_getParentSpanID(context));
 }
 
 - (void)testGetTraceID
@@ -122,7 +122,7 @@
                                                  parentId:[[SentrySpanId alloc] init]
                                                 operation:@""
                                                   sampled:kSentrySampleDecisionNo];
-    XCTAssertEqual(context.traceId, getTraceID(context));
+    XCTAssertEqual(context.traceId, sentry_getTraceID(context));
 }
 
 - (void)testIsNotSampled
@@ -133,14 +133,14 @@
                                                  parentId:[[SentrySpanId alloc] init]
                                                 operation:@""
                                                   sampled:kSentrySampleDecisionNo];
-    XCTAssertTrue(isNotSampled(context));
+    XCTAssertTrue(sentry_isNotSampled(context));
 
     context = [[SentryTransactionContext alloc] initWithTraceId:[[SentryId alloc] init]
                                                          spanId:[[SentrySpanId alloc] init]
                                                        parentId:[[SentrySpanId alloc] init]
                                                       operation:@""
                                                         sampled:kSentrySampleDecisionYes];
-    XCTAssertFalse(isNotSampled(context));
+    XCTAssertFalse(sentry_isNotSampled(context));
 }
 
 #endif

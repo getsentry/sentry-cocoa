@@ -49,7 +49,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return NO;
         }
 
-        _threadUnsafe_gTraceProfiler.profilerId = getSentryId();
+        _threadUnsafe_gTraceProfiler.profilerId = sentry_getSentryId();
         sentry_trackTransactionProfilerForTrace(_threadUnsafe_gTraceProfiler, traceId);
     }
 
@@ -82,7 +82,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
  */
 + (void)scheduleTimeoutTimer
 {
-    dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
         if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
             return;

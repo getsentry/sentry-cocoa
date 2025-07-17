@@ -9,121 +9,109 @@
 #    import "SentrySwift.h"
 
 BOOL
-isContinuousProfilingEnabled(SentryClient *client)
+sentry_isContinuousProfilingEnabled(SentryClient *client)
 {
     return [client.options isContinuousProfilingEnabled];
 }
 
 BOOL
-isContinuousProfilingV2Enabled(SentryClient *client)
+sentry_isContinuousProfilingV2Enabled(SentryClient *client)
 {
     return [client.options isContinuousProfilingV2Enabled];
 }
 
 BOOL
-isProfilingCorrelatedToTraces(SentryClient *client)
+sentry_isProfilingCorrelatedToTraces(SentryClient *client)
 {
     return [client.options isProfilingCorrelatedToTraces];
 }
 
 SentryProfileOptions *
-getProfiling(SentryClient *client)
+sentry_getProfiling(SentryClient *client)
 {
     return client.options.profiling;
 }
 
 NSString *
-stringFromSentryID(SentryId *sentryID)
+sentry_stringFromSentryID(SentryId *sentryID)
 {
     return sentryID.sentryIdString;
 }
 
 NSDate *
-getDate(void)
+sentry_getDate(void)
 {
     return [SentryDependencyContainer.sharedInstance.dateProvider date];
 }
 
 uint64_t
-getSystemTime(void)
+sentry_getSystemTime(void)
 {
     return SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
 }
 
 SentryId *
-getSentryId(void)
+sentry_getSentryId(void)
 {
     return [[SentryId alloc] init];
 }
 
 SentryProfileOptions *
-getSentryProfileOptions(void)
+sentry_getSentryProfileOptions(void)
 {
     return [[SentryProfileOptions alloc] init];
 }
 
 BOOL
-isTraceLifecycle(SentryProfileOptions *options)
+sentry_isTraceLifecycle(SentryProfileOptions *options)
 {
     return options.lifecycle == SentryProfileLifecycleTrace;
 }
 
 float
-sessionSampleRate(SentryProfileOptions *options)
+sentry_sessionSampleRate(SentryProfileOptions *options)
 {
     return options.sessionSampleRate;
 }
 
 BOOL
-profileAppStarts(SentryProfileOptions *options)
+sentry_profileAppStarts(SentryProfileOptions *options)
 {
     return options.profileAppStarts;
 }
 
-BOOL
-isTrace(int lifecycle)
-{
-    return lifecycle == SentryProfileLifecycleTrace;
-}
-
-BOOL
-isManual(int lifecycle)
-{
-    return lifecycle == SentryProfileLifecycleManual;
-}
-
 SentrySpanId *
-getParentSpanID(SentryTransactionContext *context)
+sentry_getParentSpanID(SentryTransactionContext *context)
 {
     return context.parentSpanId;
 }
 
 SentryId *
-getTraceID(SentryTransactionContext *context)
+sentry_getTraceID(SentryTransactionContext *context)
 {
     return context.traceId;
 }
 
 BOOL
-isNotSampled(SentryTransactionContext *context)
+sentry_isNotSampled(SentryTransactionContext *context)
 {
     return context.sampled != kSentrySampleDecisionYes;
 }
 
 void
-dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
+sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
 {
     [wrapper dispatchAsyncWithBlock:block];
 }
 
 void
-dispatchAsyncOnMain(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
+sentry_dispatchAsyncOnMain(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
 {
     [wrapper dispatchAsyncOnMainQueue:block];
 }
 
 void
-removeObserver(id object)
+sentry_removeObserver(id object)
 {
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:object
                                                                                   name:nil
@@ -131,7 +119,7 @@ removeObserver(id object)
 }
 
 void
-addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id object)
+sentry_addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id object)
 {
     return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper addObserver:observer
                                                                                   selector:selector
@@ -140,14 +128,14 @@ addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id obj
 }
 
 void
-postNotification(NSNotification *notification)
+sentry_postNotification(NSNotification *notification)
 {
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         postNotification:notification];
 }
 
 id
-addObserverForName(NSNotificationName name, dispatch_block_t block)
+sentry_addObserverForName(NSNotificationName name, dispatch_block_t block)
 {
     return [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserverForName:name

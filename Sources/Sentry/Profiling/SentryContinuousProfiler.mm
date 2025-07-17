@@ -75,7 +75,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
         const auto envelope
             = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
@@ -121,18 +121,18 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = getSentryId(); });
+        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
     }
-    postNotification(
+    sentry_postNotification(
         [[NSNotification alloc] initWithName:kSentryNotificationContinuousProfileStarted
                                       object:nil
                                     userInfo:nil]);
     [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
-    _observerToken = addObserverForName(UIApplicationWillResignActiveNotification, ^{
-        removeObserver(_observerToken);
+    _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
+        sentry_removeObserver(_observerToken);
         [self stopTimerAndCleanup];
     });
 #    endif // SENTRY_HAS_UIKIT
@@ -185,7 +185,7 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
             SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
@@ -224,7 +224,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
-        removeObserver(_observerToken);
+        sentry_removeObserver(_observerToken);
     }
 #    endif // SENTRY_HAS_UIKIT
 
