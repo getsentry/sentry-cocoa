@@ -334,9 +334,8 @@ final class SentryLoggerTests: XCTestCase {
         user.email = "test@test.com"
         user.name = "test-name"
         
-        // Set the user on both the scope and make sure it's available globally
+        // Set the user on the scope
         fixture.hub.scope.setUser(user)
-        SentrySDK.setCurrentHub(fixture.hub)
         
         sut.info("Test log message with user")
         
@@ -359,7 +358,6 @@ final class SentryLoggerTests: XCTestCase {
         // email and name are nil
         
         fixture.hub.scope.setUser(user)
-        SentrySDK.setCurrentHub(fixture.hub)
         
         sut.info("Test log message with partial user")
         
@@ -413,7 +411,7 @@ final class SentryLoggerTests: XCTestCase {
         if fixture.hub.scope.span != nil {
             expectedDefaultAttributesCount += 1 // sentry.trace.parent_span_id
         }
-        if let user = sentry_getCurrentUser() {
+        if let user = fixture.hub.scope.userObject {
             if user.userId != nil { expectedDefaultAttributesCount += 1 }
             if user.name != nil { expectedDefaultAttributesCount += 1 }
             if user.email != nil { expectedDefaultAttributesCount += 1 }

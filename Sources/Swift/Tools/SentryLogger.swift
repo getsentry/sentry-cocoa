@@ -138,7 +138,7 @@ public final class SentryLogger: NSObject {
     }
 
     private func addUserAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let user = sentry_getCurrentUser() else {
+        guard let user = hub.scope.userObject else {
             return
         }
         if let userId = user.userId {

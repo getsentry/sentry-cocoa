@@ -14,6 +14,7 @@
 #    import <SentryOptions+Private.h>
 #    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
+#    import <SentryScope+PrivateSwift.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>

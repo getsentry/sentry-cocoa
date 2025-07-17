@@ -9,6 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 // Can't expose the SentryId directly for some reason.
 @property (nonatomic, readonly) NSString *propagationContextTraceIdString;
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+@property (atomic, strong) SentryUser *_Nullable userObject;
+
 @end
 
 NS_ASSUME_NONNULL_END
