@@ -38,7 +38,7 @@ final class TestLog: XCTestCase {
         let checkQueue = DispatchQueue(label: "message.check")
         checkQueue.async {
             while self.isCapturing {
-                if self.capturedOutput.contains("Sentry SDK was loaded multiple times in the binary") {
+                if self.capturedOutput.contains("Sentry SDK was loaded multiple times in the same binary") {
                     expectation.fulfill()
                     break
                 }
@@ -49,7 +49,7 @@ final class TestLog: XCTestCase {
         // This expectation is fulfilled immediately on a mac, but takes way longer on CI
         wait(for: [expectation], timeout: 600.0)
         
-        XCTAssertTrue(capturedOutput.contains("Sentry SDK was loaded multiple times in the binary"))
+        XCTAssertTrue(capturedOutput.contains("Sentry SDK was loaded multiple times in the same binary"))
     }
     
     private func startCapturingOutput() {
