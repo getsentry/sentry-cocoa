@@ -9,7 +9,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #    import <Sentry/SentryAttachment.h>
 #    import <Sentry/SentryBaggage.h>
-#    import <Sentry/SentryBinaryImageInfo.h>
 #    import <Sentry/SentryBreadcrumb.h>
 #    import <Sentry/SentryClient.h>
 #    import <Sentry/SentryCrashExceptionApplication.h>

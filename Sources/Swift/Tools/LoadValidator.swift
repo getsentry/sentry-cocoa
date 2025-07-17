@@ -8,21 +8,22 @@ import MachO
     // Any class should be fine, ObjC classes are better
     static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
     
+    // This function is used to check for duplicated SDKs in the binary.
+    // Since `SentryBinaryImageInfo` is not public and only available through the Hybrid SDK, we use the expanded parameters.
     @objc
-    @_spi(Private) public class func validateSDKPresenceIn(_ image: SentryBinaryImageInfo) {
-        internalValidateSDKPresenceIn(image,
+    @_spi(Private) public class func checkForDuplicatedSDK(imageName: String, imageAddress: NSNumber, imageSize: NSNumber) {
+        internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,
                                       objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(),
                                       dispatchQueueWrapper: SentryDispatchQueueWrapper())
     }
     
-    class func internalValidateSDKPresenceIn(_ image: SentryBinaryImageInfo, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {
+    class func internalCheckForDuplicatedSDK(_ imageName: String, _ imageAddress: UInt64, _ imageSize: UInt64, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {
         let systemLibraryPath = "/usr/lib/"
 #if targetEnvironment(simulator)
         let ignoredPath = "/Library/Developer/CoreSimulator/Profiles/Runtimes/"
 #else
         let ignoredPath = "/System/Library/"
 #endif
-        let imageName = image.name
         guard !imageName.contains(ignoredPath) && !imageName.hasPrefix(systemLibraryPath) else {
             resultHandler?(false)
             return
@@ -34,8 +35,6 @@ import MachO
             }
             
             let loadValidatorAddress = self.getCurrentFrameworkTextPointer()
-            let imageAddress = image.address
-            let imageSize = image.size
             let loadValidatorAddressValue = UInt(bitPattern: loadValidatorAddress)
             let isCurrentImageContainingLoadValidator = (loadValidatorAddressValue >= imageAddress) && (loadValidatorAddressValue < (imageAddress + imageSize))
 
@@ -55,9 +54,9 @@ import MachO
                             continue
                         }
                         if name.contains(self.targetClassName) {
-                            var message = ["❌ Sentry SDK was loaded multiple times in the binary ❌"]
+                            var message = ["❌ Sentry SDK was loaded multiple times in the same binary ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
-                            message.append("Ensure the SDK is linked only once, found classes in image paths: \(imageName)")
+                            message.append("Ensure the SDK is linked only once, found `\(self.targetClassName)` class in image path: \(imageName)")
                             SentrySDKLog.warning(message.joined(separator: "\n"))
                             duplicateFound = true
                             
