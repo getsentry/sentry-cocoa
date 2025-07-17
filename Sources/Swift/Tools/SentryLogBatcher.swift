@@ -7,22 +7,23 @@ import Foundation
     
     private let client: SentryClient
     private let flushTimeout: TimeInterval
-    private let maxBufferSize: Int
+    private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
     
-    private var logBuffer: [SentryLog] = []
-    private let logBufferLock = NSLock()
-    private var currentFlushId: UUID?
-    
+    // All mutable state is accessed from the same dispatch queue.
+    private var encodedLogs: [Data] = []
+    private var encodedLogsSize: Int = 0
+    private var isTimerActive: Bool = false
+
     @_spi(Private) public init(
         client: SentryClient,
         flushTimeout: TimeInterval,
-        maxBufferSize: Int,
+        maxBufferSizeBytes: Int,
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.client = client
         self.flushTimeout = flushTimeout
-        self.maxBufferSize = maxBufferSize
+        self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue
         super.init()
     }
@@ -31,77 +32,92 @@ import Foundation
         self.init(
             client: client,
             flushTimeout: 5,
-            maxBufferSize: 100,
+            maxBufferSizeBytes: 1024 * 1024, // 1MB
             dispatchQueue: dispatchQueue
         )
     }
     
     func add(_ log: SentryLog) {
-        cancelFlush()
-
-        let shouldFlush = logBufferLock.synchronized {
-            logBuffer.append(log)
-            return logBuffer.count >= maxBufferSize
-        }
-        
-        if shouldFlush {
-            flush()
-        } else {
-            scheduleFlush()
+        dispatchQueue.dispatchAsync { [weak self] in
+            self?.encodeAndBuffer(log: log)
         }
     }
-    
+
+    // Helper
+
+    // Called on the dispatch queue.
+    private func encodeAndBuffer(log: SentryLog) {
+        do {
+            let encodedLog = try encodeToJSONData(data: log)
+            
+            let wasEmpty = encodedLogs.isEmpty
+            
+            encodedLogs.append(encodedLog)
+            encodedLogsSize += encodedLog.count
+            
+            let shouldFlush = encodedLogsSize >= maxBufferSizeBytes
+            let shouldStartTimer = wasEmpty && !isTimerActive && !shouldFlush
+            
+            if shouldStartTimer {
+                isTimerActive = true
+            }
+            
+            // Need to flush due to max buffer size exceeded.
+            if shouldFlush {
+                performFlush()
+            } else if shouldStartTimer {
+                dispatchQueue.dispatch(after: flushTimeout) { [weak self] in
+                    self?.performFlush()
+                }
+            }
+        } catch {
+            SentrySDKLog.error("Failed to encode log: \(error)")
+        }
+    }
+
     @objc
     public func flush() {
-        cancelFlush()
-
-        let logs = logBufferLock.synchronized {
-            let logs = Array(logBuffer)
-            logBuffer.removeAll()
-            return logs
-        }
-        
-        if !logs.isEmpty {
-            dispatch(logs: logs)
+        dispatchQueue.dispatchAsync { [weak self] in
+            self?.performFlush()
         }
     }
 
-    private func scheduleFlush() {
-        let flushId = UUID()
-        
-        logBufferLock.synchronized {
-            currentFlushId = flushId
-        }
-        
-        dispatchQueue.dispatch(after: flushTimeout) { [weak self] in
-            self?.executeFlushIfMatching(flushId: flushId)
-        }
-    }
+    // Only ever call this from the dispatch queue.
+    private func performFlush() {
+        let encodedLogsToSend = Array(encodedLogs)
 
-    private func executeFlushIfMatching(flushId: UUID) {
-        let shouldFlush = logBufferLock.synchronized {
-            return currentFlushId == flushId
-        }
+        // Reset state.    
+        encodedLogs.removeAll()
+        encodedLogsSize = 0
+        isTimerActive = false
         
-        if shouldFlush {
-            flush()
+        // If there are no logs to send, return early.
+        
+        guard encodedLogsToSend.count > 0 else {
+            return
         }
-    }
 
-    private func cancelFlush() {
-        logBufferLock.synchronized {
-            currentFlushId = nil
+        // Create the payload.
+
+        let opening = "{\"items\":[".data(using: .utf8),
+            let comma = ",".data(using: .utf8),
+            let closing = "]}}".data(using: .utf8) else {
+            return
         }
-    }
-    
-    private func dispatch(logs: [SentryLog]) {
-        do {
-            let payload = ["items": logs]
-            let data = try encodeToJSONData(data: payload)
-            
-            client.captureLogsData(data)
-        } catch {
-            SentrySDKLog.error("Failed to create logs envelope.")
+
+        var payloadData = Data()
+        payloadData.append(opening)
+        for (index, encodedLog) in encodedLogsToSend.enumerated() {
+            if index > 0 {
+                payloadData.append(comma)
+            }
+            payloadData.append(encodedLog)
         }
+        payloadData.append(closing)
+        
+        // Send the payload.
+
+        client.captureLogsData(payloadData, with: NSNumber(value: encodedLogsToSend.count))
     }
 }
+
