@@ -36,7 +36,6 @@ import Foundation
         super.init()
     }
     
-    
     /// Convenience initializer with default flush timeout and buffer size.
     /// - Parameters:
     ///   - client: The SentryClient to use for sending logs
@@ -91,10 +90,7 @@ import Foundation
             self?.performFlush()
         }
         self.timerWorkItem = timerWorkItem
-        dispatchQueue.queue.asyncAfter(
-            deadline: .now() + flushTimeout,
-            execute: timerWorkItem
-        )
+        dispatchQueue.dispatch(after: flushTimeout, workItem: timerWorkItem)
     }
 
     // Only ever call this from the serial dispatch queue.
