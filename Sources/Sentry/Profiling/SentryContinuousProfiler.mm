@@ -9,9 +9,9 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
-#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -75,7 +75,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
         const auto envelope
             = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
@@ -85,7 +85,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 #    endif // SENTRY_HAS_UIKIT
             );
         [SentrySDK captureEnvelope:envelope];
-    }];
+    });
 }
 
 void
@@ -121,29 +121,20 @@ _sentry_unsafe_stopTimerAndCleanup()
         }
 
         static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
+        dispatch_once(&onceToken, ^{ _profileSessionID = sentry_getSentryId(); });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
     }
-
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        postNotification:[[NSNotification alloc]
-                             initWithName:kSentryNotificationContinuousProfileStarted
-                                   object:nil
-                                 userInfo:nil]];
+    sentry_postNotification(
+        [[NSNotification alloc] initWithName:kSentryNotificationContinuousProfileStarted
+                                      object:nil
+                                    userInfo:nil]);
     [self scheduleTimer];
 
 #    if SENTRY_HAS_UIKIT
-    _observerToken = [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserverForName:UIApplicationWillResignActiveNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *_Nonnull notification) {
-                    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-                        removeObserver:_observerToken
-                                  name:nil
-                                object:nil];
-                    [self stopTimerAndCleanup];
-                }];
+    _observerToken = sentry_addObserverForName(UIApplicationWillResignActiveNotification, ^{
+        sentry_removeObserver(_observerToken);
+        [self stopTimerAndCleanup];
+    });
 #    endif // SENTRY_HAS_UIKIT
 }
 
@@ -194,7 +185,7 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
             SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
@@ -208,7 +199,7 @@ _sentry_unsafe_stopTimerAndCleanup()
                                   selector:@selector(timerExpired)
                                   userInfo:nil
                                    repeats:YES];
-    }];
+    });
 }
 
 + (void)timerExpired
@@ -233,10 +224,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 
 #    if SENTRY_HAS_UIKIT
     if (_observerToken != nil) {
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            removeObserver:_observerToken
-                      name:nil
-                    object:nil];
+        sentry_removeObserver(_observerToken);
     }
 #    endif // SENTRY_HAS_UIKIT
 

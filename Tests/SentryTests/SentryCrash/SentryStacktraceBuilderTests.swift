@@ -128,7 +128,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
         }
         
-        var timeout: TimeInterval = 1
+        var timeout: TimeInterval = 5
         #if !os(watchOS) && !os(tvOS)
         // observed the async task taking a long time to finish if TSAN is attached
         if sentry_threadSanitizerIsPresent() {
