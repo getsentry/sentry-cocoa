@@ -62,6 +62,20 @@ import Foundation
         dispatchAfterInvocations.invocations.last?.block()
     }
 
+    public var dispatchAfterWorkItemInvocations = Invocations<(interval: TimeInterval, workItem: DispatchWorkItem)>()
+    public override func dispatch(after interval: TimeInterval, workItem: DispatchWorkItem) {
+        dispatchAfterWorkItemInvocations.record((interval, workItem))
+        if blockBeforeMainBlock() {
+            if dispatchAfterExecutesBlock {
+                workItem.perform()
+            }
+        }
+    }
+
+    public func invokeLastDispatchAfterWorkItem() {
+        dispatchAfterWorkItemInvocations.invocations.last?.workItem.perform()
+    }
+
     public var dispatchCancelInvocations = 0
     public override var shouldDispatchCancel: Bool {
         dispatchCancelInvocations += 1
