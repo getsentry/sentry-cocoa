@@ -26189,10 +26189,8 @@
         "usr": "c:objc(cs)SentryFeedbackAPI",
         "moduleName": "Sentry",
         "isOpen": true,
-        "intro_iOS": "13.0",
         "objc_name": "SentryFeedbackAPI",
         "declAttributes": [
-          "Available",
           "ObjC",
           "Dynamic"
         ],
@@ -32026,10 +32024,8 @@
             "moduleName": "Sentry",
             "static": true,
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "feedback",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -32051,11 +32047,9 @@
                 "moduleName": "Sentry",
                 "static": true,
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "feedback",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
