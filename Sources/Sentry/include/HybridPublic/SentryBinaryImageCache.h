@@ -1,12 +1,15 @@
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/SentryBinaryImageInfo.h>)
-#    import <Sentry/SentryBinaryImageInfo.h>
-#else
-#    import "SentryBinaryImageInfo.h"
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryBinaryImageInfo : NSObject
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, copy) NSString *UUID;
+@property (nonatomic) uint64_t vmAddress;
+@property (nonatomic) uint64_t address;
+@property (nonatomic) uint64_t size;
+
+@end
 
 /**
  * This class listens to `SentryCrashBinaryImageCache` to keep a copy of the loaded binaries
