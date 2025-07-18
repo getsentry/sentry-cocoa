@@ -1,5 +1,4 @@
 #import "SentryBinaryImageCache.h"
-#import "SentryBinaryImageInfo.h"
 #import "SentryCrashBinaryImageCache.h"
 #include "SentryCrashUUIDConversion.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
@@ -14,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
 static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
+
+@implementation SentryBinaryImageInfo
+@end
 
 @interface SentryBinaryImageCache ()
 @property (nonatomic, strong, nullable) NSMutableArray<SentryBinaryImageInfo *> *cache;
