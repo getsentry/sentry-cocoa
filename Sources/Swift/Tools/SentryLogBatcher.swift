@@ -22,7 +22,10 @@ import Foundation
     ///   - client: The SentryClient to use for sending logs
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
-    ///   - dispatchQueue: A serial dispatch queue wrapper for thread-safe access to mutable state
+    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///
+    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
+    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     @_spi(Private) public init(
         client: SentryClient,
         flushTimeout: TimeInterval,
@@ -39,7 +42,10 @@ import Foundation
     /// Convenience initializer with default flush timeout and buffer size.
     /// - Parameters:
     ///   - client: The SentryClient to use for sending logs
-    ///   - dispatchQueue: A serial dispatch queue wrapper for thread-safe access to mutable state
+    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///
+    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
+    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     @_spi(Private) public convenience init(client: SentryClient, dispatchQueue: SentryDispatchQueueWrapper) {
         self.init(
             client: client,
