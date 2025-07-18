@@ -8,6 +8,8 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySDK.h"
+#    import "SentryScope.h"
+#    import "SentrySwift.h"
 
 @implementation SentryCrashExceptionApplicationHelper
 
@@ -21,9 +23,11 @@
 
 + (void)_crashOnException:(NSException *)exception
 {
-    [SentrySDK captureCrashOnException:exception];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    [scope setLevel:kSentryLevelFatal];
+    [SentrySDK captureCrashOnException:exception withScope:scope];
 #    if !(SENTRY_TEST || SENTRY_TEST_CI)
-    abort();
+//    abort();
 #    endif
 }
 
