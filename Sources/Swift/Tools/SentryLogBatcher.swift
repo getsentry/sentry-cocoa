@@ -90,18 +90,17 @@ import Foundation
 
     // Only ever call this from the dispatch queue.
     private func performFlush() {
-        let encodedLogsToSend = Array(encodedLogs)
-
-        // Reset buffer state
-        encodedLogs.removeAll()
-        encodedLogsSize = 0
-
+        // Reset logs on function exit
+        defer {
+            encodedLogs.removeAll()
+            encodedLogsSize = 0
+        }
+        
         // Reset timer state
         timerWorkItem?.cancel()
         timerWorkItem = nil
         
-        // If there are no logs to send, return early.
-        guard encodedLogsToSend.count > 0 else {
+        guard encodedLogs.count > 0 else {
             return
         }
 
@@ -110,7 +109,7 @@ import Foundation
         var payloadData = Data()
         payloadData.append(Data("{\"items\":[".utf8))
         let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogsToSend.enumerated() {
+        for (index, encodedLog) in encodedLogs.enumerated() {
             if index > 0 {
                 payloadData.append(separator)
             }
@@ -120,6 +119,8 @@ import Foundation
         
         // Send the payload.
         
-        client.captureLogsData(payloadData, with: NSNumber(value: encodedLogsToSend.count))
+        client.captureLogsData(payloadData, with: NSNumber(value: encodedLogs.count))
+
+        
     }
 }

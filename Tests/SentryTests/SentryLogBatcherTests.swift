@@ -135,7 +135,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(2, items.count)
-         }
+    }
      
      // MARK: - Manual Flush Tests
     
