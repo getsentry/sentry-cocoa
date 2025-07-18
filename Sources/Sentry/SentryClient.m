@@ -426,13 +426,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V9
+        NSString *segment = nil;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        segment = scope.userObject.segment;
+#    pragma clang diagnostic pop
+#endif
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
-                                               userSegment:scope.userObject.segment
+#if !SDK_V9
+                                               userSegment:segment
+#endif
                                                   replayId:scope.replayId];
-#pragma clang diagnostic pop
     }
 
     return nil;
@@ -1120,6 +1126,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return processedAttachments;
+}
+
+- (void)captureLogsData:(NSData *)data
+{
+    SentryEnvelopeItemHeader *header =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeLog
+                                                length:data.length
+                                           contentType:@"application/vnd.sentry.items.log+json"];
+
+    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:data];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                           singleItem:envelopeItem];
+    [self captureEnvelope:envelope];
 }
 
 @end

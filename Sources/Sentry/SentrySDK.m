@@ -42,6 +42,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
+#    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -57,6 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
+static SentryLogger *_Nullable currentLogger;
+static NSObject *currentLoggerLock;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
@@ -80,6 +83,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
+        currentLoggerLock = [[NSObject alloc] init];
         startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
@@ -111,6 +115,26 @@ static NSDate *_Nullable startTimestamp = nil;
     return replay;
 }
 #endif
+
++ (SentryLogger *)logger
+{
+    @synchronized(currentLoggerLock) {
+        if (currentLogger == nil) {
+            SentryLogBatcher *batcher;
+            if (nil != currentHub.client && currentHub.client.options.experimental.enableLogs) {
+                batcher = [[SentryLogBatcher alloc] initWithClient:currentHub.client];
+            } else {
+                batcher = nil;
+            }
+            currentLogger = [[SentryLogger alloc]
+                 initWithHub:currentHub
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                     batcher:batcher];
+        }
+        return currentLogger;
+    }
+}
+
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {
@@ -134,11 +158,6 @@ static NSDate *_Nullable startTimestamp = nil;
 + (BOOL)isEnabled
 {
     return currentHub != nil && [currentHub getClient] != nil;
-}
-
-+ (SentryMetricsAPI *)metrics
-{
-    return currentHub.metrics;
 }
 
 + (BOOL)crashedLastRunCalled
@@ -629,6 +648,10 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentrySDK setCurrentHub:nil];
 
+    @synchronized(currentLoggerLock) {
+        currentLogger = nil;
+    }
+
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
@@ -671,7 +694,8 @@ static NSDate *_Nullable startTimestamp = nil;
             return;
         }
 
-        if (sentry_profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+        if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
+            != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"The profiling session has been sampled out, no profiling will take place.");
             return;
@@ -688,6 +712,35 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)stopProfiler
 {
+    // check if we'd be stopping a launch profiler, because then we need to check the hydrated
+    // configuration options, not the current ones
+    if (sentry_profileConfiguration.isProfilingThisLaunch) {
+        if (sentry_profileConfiguration.isContinuousV1) {
+            SENTRY_LOG_DEBUG(@"Stopping continuous v1 launch profile.");
+            [SentryContinuousProfiler stop];
+            return;
+        }
+
+        if (sentry_profileConfiguration.profileOptions == nil) {
+            SENTRY_LOG_WARN(
+                @"The current profiler was started on app launch and was configured as a "
+                @"transaction profiler, which cannot be stopped manually. Transaction profiling is "
+                @"deprecated and will be removed in a future SDK version.");
+            return;
+        }
+
+        if (sentry_profileConfiguration.profileOptions.lifecycle == SentryProfileLifecycleTrace) {
+            SENTRY_LOG_WARN(
+                @"The launch profile lifecycle was set to trace, so you cannot stop profile "
+                @"sessions manually. See SentryProfileLifecycle for more information.");
+            return;
+        }
+
+        SENTRY_LOG_DEBUG(@"Stopping launch UI profiler with manual lifecycle.");
+        [SentryContinuousProfiler stop];
+        return;
+    }
+
     SentryOptions *options = currentHub.client.options;
     if (![options isContinuousProfilingEnabled]) {
         SENTRY_LOG_WARN(

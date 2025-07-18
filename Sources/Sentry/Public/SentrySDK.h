@@ -13,13 +13,13 @@
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
-@class SentryMetricsAPI;
 @class SentryOptions;
 @class SentryReplayApi;
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
 @class SentryUserFeedback;
+@class SentryLogger;
 @class UIView;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,14 +41,17 @@ SENTRY_NO_INIT
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
-@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
-
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
  * API to control session replay
  */
 @property (class, nonatomic, readonly) SentryReplayApi *replay;
 #endif
+
+/**
+ * API to access Sentry logs
+ */
+@property (class, nonatomic, readonly) SentryLogger *logger;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to

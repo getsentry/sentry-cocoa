@@ -3,6 +3,7 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
+  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -24,6 +25,7 @@ targets:
       - target: Sentry/Sentry
     configFiles:
       Debug: SentrySampleShared.xcconfig
+      DebugV9: SentrySampleShared.xcconfig
       Release: SentrySampleShared.xcconfig
       Test: SentrySampleShared.xcconfig
       TestCI: SentrySampleShared.xcconfig
