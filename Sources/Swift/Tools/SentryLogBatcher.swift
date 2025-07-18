@@ -10,11 +10,19 @@ import Foundation
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
     
-    // All mutable state is accessed from the same dispatch queue.
+    // All mutable state is accessed from the same serial dispatch queue.
+    
+    // Every logs data is added sepratley. They are flushed together in an envelope.
     private var encodedLogs: [Data] = []
     private var encodedLogsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
 
+    /// Initializes a new SentryLogBatcher.
+    /// - Parameters:
+    ///   - client: The SentryClient to use for sending logs
+    ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
+    ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
+    ///   - dispatchQueue: A serial dispatch queue wrapper for thread-safe access to mutable state
     @_spi(Private) public init(
         client: SentryClient,
         flushTimeout: TimeInterval,
@@ -28,6 +36,11 @@ import Foundation
         super.init()
     }
     
+    
+    /// Convenience initializer with default flush timeout and buffer size.
+    /// - Parameters:
+    ///   - client: The SentryClient to use for sending logs
+    ///   - dispatchQueue: A serial dispatch queue wrapper for thread-safe access to mutable state
     @_spi(Private) public convenience init(client: SentryClient, dispatchQueue: SentryDispatchQueueWrapper) {
         self.init(
             client: client,
@@ -37,14 +50,14 @@ import Foundation
         )
     }
     
-    func add(_ log: SentryLog) {
+    @_spi(Private) func add(_ log: SentryLog) {
         dispatchQueue.dispatchAsync { [weak self] in
             self?.encodeAndBuffer(log: log)
         }
     }
     
     @objc
-    public func flush() {
+    @_spi(Private) func flush() {
         dispatchQueue.dispatchAsync { [weak self] in
             self?.performFlush()
         }
@@ -52,7 +65,7 @@ import Foundation
 
     // Helper
 
-    // Only ever call this from the dispatch queue.
+    // Only ever call this from the serial dispatch queue.
     private func encodeAndBuffer(log: SentryLog) {
         do {
             let encodedLog = try encodeToJSONData(data: log)
@@ -76,7 +89,7 @@ import Foundation
         }
     }
     
-    // Only ever call this from the dispatch queue.
+    // Only ever call this from the serial dispatch queue.
     private func startTimer() {
         let timerWorkItem = DispatchWorkItem { [weak self] in
             self?.performFlush()
@@ -88,7 +101,7 @@ import Foundation
         )
     }
 
-    // Only ever call this from the dispatch queue.
+    // Only ever call this from the serial dispatch queue.
     private func performFlush() {
         // Reset logs on function exit
         defer {
@@ -120,7 +133,5 @@ import Foundation
         // Send the payload.
         
         client.captureLogsData(payloadData, with: NSNumber(value: encodedLogs.count))
-
-        
     }
 }
