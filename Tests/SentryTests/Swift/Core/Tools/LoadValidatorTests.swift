@@ -51,7 +51,7 @@ class LoadValidatorTests: XCTestCase {
         
         // Assert
         XCTAssertFalse(validationResult, "Validation should skip for system libraries")
-        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper shouldd not be called for a system library")
+        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a system library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
@@ -72,7 +72,7 @@ class LoadValidatorTests: XCTestCase {
         
         // Assert
         XCTAssertFalse(validationResult, "Validation should skip for simulator libraries")
-        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper shouldd not be called for a simulator library")
+        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a simulator library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
@@ -115,7 +115,7 @@ class LoadValidatorTests: XCTestCase {
         
         // Assert
         XCTAssertTrue(validationResult, "Validation should skip for app binary")
-        XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper shouldd be called for an app binary")
+        XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times in the same binary ❌") })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.") })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("Ensure the SDK is linked only once, found `SentryDependencyContainerSwiftHelper` class in image path: \(imageName)") })
