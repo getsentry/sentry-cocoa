@@ -1955,7 +1955,7 @@ class SentryClientTest: XCTestCase {
         let sut = fixture.getSut()
         
         let hub = SentryHub(client: sut, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         func addIntegrations(amount: Int) {
             let emptyIntegration = EmptyIntegration()

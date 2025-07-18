@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                  operation:operation
                                                                                     origin:origin];
 
-        id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+        id<SentrySpan> span = SentrySDKInternal.currentHub.scope.span;
 
         BOOL bindToScope = NO;
         if (span == nil) {
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(
             @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
 
-        newSpan = [SentrySDK.currentHub
+        newSpan = [SentrySDKInternal.currentHub
             startTransactionWithContext:context
                             bindToScope:bindToScope
                   customSamplingContext:@{}

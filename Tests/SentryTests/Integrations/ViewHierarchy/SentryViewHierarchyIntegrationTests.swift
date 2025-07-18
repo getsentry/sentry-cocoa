@@ -40,7 +40,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.attachViewHierarchy = false
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
-        XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 0)
+        XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
@@ -49,7 +49,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.attachViewHierarchy = true
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
-        XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
@@ -59,7 +59,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.setIntegrations([SentryViewHierarchyIntegration.self])
         }
         SentrySDK.close()
-        XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
+        XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 

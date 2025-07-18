@@ -51,7 +51,7 @@ class TopViewControllerInspector: UIView {
     
     @objc
     private func getTopVC() {
-        let names = SentrySDK.relevantViewControllersNames()
+        let names = SentrySDKInternal.relevantViewControllersNames()
         lbl.text = names?.joined(separator: ", ")
     }
     

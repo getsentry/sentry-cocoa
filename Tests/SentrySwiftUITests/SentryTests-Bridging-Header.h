@@ -15,6 +15,6 @@
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 @end
 
-@interface SentrySDK ()
+@interface SentrySDKInternal ()
 + (void)setStartOptions:(nullable SentryOptions *)options;
 @end

@@ -185,7 +185,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
-            guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+            guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
                 return
             }
@@ -270,7 +270,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     private func assertNothingCaptured() {
-        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }
@@ -279,7 +279,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     private func assertNotPerThread(exceptionType: String, exceptionValue: String, exceptionMechanism: String) throws {
-        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }

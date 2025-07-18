@@ -53,7 +53,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
             }
 
             // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
-            let sentryBasePath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.basePath, "Sentry base path is nil, but should be configured for test cases.")
+            let sentryBasePath = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager.basePath, "Sentry base path is nil, but should be configured for test cases.")
             let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
 
             // The base path is not unique for the DSN, therefore we need to make it unique
@@ -66,7 +66,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
             }
 
             // Get the working directory of the SDK, as these files are ignored by default
-            let sentryPath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.sentryPath, "Sentry path is nil, but should be configured for test cases.")
+            let sentryPath = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager.sentryPath, "Sentry path is nil, but should be configured for test cases.")
             let sentryPathUrl = URL(fileURLWithPath: sentryPath)
 
             ignoredFileToCreateUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-create")

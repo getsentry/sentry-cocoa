@@ -77,7 +77,7 @@
             // We don't need to update the releaseName of the event to the previous app state as we
             // assume it's not a watchdog termination when the releaseName changed between app
             // starts.
-            [SentrySDK captureFatalEvent:event];
+            [SentrySDKInternal captureFatalEvent:event];
         }
     }];
 #else // !SENTRY_HAS_UIKIT

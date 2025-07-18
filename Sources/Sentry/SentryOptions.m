@@ -12,7 +12,7 @@
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentryScope.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"

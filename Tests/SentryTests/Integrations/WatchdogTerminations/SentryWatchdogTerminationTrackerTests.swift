@@ -49,7 +49,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
         
         func getSut() throws -> SentryWatchdogTerminationTracker {
@@ -91,7 +91,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         fixture = try Fixture()
         sut = try fixture.getSut()
-        SentrySDK.startInvocations = 1
+        SentrySDKInternal.startInvocations = 1
     }
     
     override func tearDown() {
@@ -244,7 +244,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        SentrySDK.startInvocations = 2
+        SentrySDKInternal.startInvocations = 2
         sut.start()
         assertNoOOMSent()
     }

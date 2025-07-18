@@ -79,7 +79,7 @@ class SentryProfileTestFixture {
         client = TestClient(options: options)
         hub = SentryHub(client: client, andScope: scope)
         hub.bindClient(client)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0

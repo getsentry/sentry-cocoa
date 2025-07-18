@@ -84,7 +84,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                 screenFrameData
 #    endif // SENTRY_HAS_UIKIT
             );
-        [SentrySDK captureEnvelope:envelope];
+        [SentrySDKInternal captureEnvelope:envelope];
     });
 }
 

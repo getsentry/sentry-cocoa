@@ -20,7 +20,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryError.h>
 #    import <Sentry/SentryEvent.h>
 #    import <Sentry/SentryException.h>
-#    import <Sentry/SentryFeedbackAPI.h>
 #    import <Sentry/SentryFrame.h>
 #    import <Sentry/SentryGeo.h>
 #    import <Sentry/SentryHttpStatusCodeRange.h>
@@ -34,7 +33,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryOptions.h>
 #    import <Sentry/SentryReplayApi.h>
 #    import <Sentry/SentryRequest.h>
-#    import <Sentry/SentrySDK.h>
 #    import <Sentry/SentrySampleDecision.h>
 #    import <Sentry/SentrySamplingContext.h>
 #    import <Sentry/SentryScope.h>
