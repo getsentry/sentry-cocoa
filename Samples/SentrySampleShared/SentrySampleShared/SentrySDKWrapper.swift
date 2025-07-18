@@ -100,7 +100,9 @@ public struct SentrySDKWrapper {
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+#if !SDK_V9
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+#endif // !SDK_V9
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
@@ -423,6 +425,7 @@ extension SentrySDKWrapper {
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
+#if !SDK_V9
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
             options.profilesSampleRate = NSNumber(value: sampleRate)
         }
@@ -431,7 +434,9 @@ extension SentrySDKWrapper {
                 return NSNumber(value: samplerValue)
             }
         }
+
         options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
+#endif // !SDK_V9
 
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
             options.configureProfiling = {
