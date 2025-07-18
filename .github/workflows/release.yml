@@ -189,6 +189,7 @@ jobs:
     name: Collect app metrics
     runs-on: macos-15
     needs: assemble-xcframework-variant
+    timeout-minutes: 30
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -228,7 +229,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
-        uses: getsentry/action-app-sdk-overhead-metrics@c9eca50e02d180ee07a02952c062b2f3f545f735
+        uses: getsentry/action-app-sdk-overhead-metrics@4c4980abf09f06d688b82e81cfa8973e4ba5cefe
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
