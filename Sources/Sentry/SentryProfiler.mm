@@ -15,10 +15,10 @@
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentryProfilerTestHelpers.h"
+#    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScreenFrames.h"
-#    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 
@@ -62,7 +62,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return !sentry_profileConfiguration.isContinuousV1;
     }
 
-    return options.profileAppStarts == true && options.lifecycle == SentryProfileLifecycleTrace;
+    return sentry_profileAppStarts(options) && sentry_isTraceLifecycle(options);
 }
 
 void
@@ -83,10 +83,10 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         return;
     }
 
-    options.profiling = [[SentryProfileOptions alloc] init];
+    options.profiling = sentry_getSentryProfileOptions();
     options.configureProfiling(options.profiling);
 
-    if (options.profiling.lifecycle == SentryProfileLifecycleTrace && !options.isTracingEnabled) {
+    if (sentry_isTraceLifecycle(options.profiling) && !options.isTracingEnabled) {
         SENTRY_LOG_WARN(
             @"Tracing must be enabled in order to configure profiling with trace lifecycle.");
         return;
@@ -106,9 +106,9 @@ sentry_configureContinuousProfiling(SentryOptions *options)
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
                      @"%.2f\n  profileAppStarts: %@\n}",
-        options.profiling,
-        options.profiling.lifecycle == SentryProfileLifecycleTrace ? @"trace" : @"manual",
-        options.profiling.sessionSampleRate, options.profiling.profileAppStarts ? @"YES" : @"NO");
+        options.profiling, sentry_isTraceLifecycle(options.profiling) ? @"trace" : @"manual",
+        sentry_sessionSampleRate(options.profiling),
+        sentry_profileAppStarts(options.profiling) ? @"YES" : @"NO");
 }
 
 void
@@ -120,17 +120,17 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
     sentry_configureContinuousProfiling(options);
 
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
         if (configurationFromLaunch.isProfilingThisLaunch) {
             BOOL shouldStopAndTransmitLaunchProfile = YES;
 
             const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;
             const auto v2LifecycleIsManual = profileIsContinuousV2
-                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleManual;
+                && !sentry_isTraceLifecycle(configurationFromLaunch.profileOptions);
 
 #    if SENTRY_HAS_UIKIT
             const auto v2LifecycleIsTrace = profileIsContinuousV2
-                && configurationFromLaunch.profileOptions.lifecycle == SentryProfileLifecycleTrace;
+                && sentry_isTraceLifecycle(configurationFromLaunch.profileOptions);
             const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
             if (profileIsCorrelatedToTrace && configurationFromLaunch.waitForFullDisplay) {
                 SENTRY_LOG_DEBUG(
@@ -156,7 +156,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         }
 
         sentry_configureLaunchProfilingForNextLaunch(options);
-    }];
+    });
 }
 
 @implementation SentryProfiler {
@@ -204,11 +204,8 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
 #    if SENTRY_HAS_UIKIT
     if (mode == SentryProfilerModeTrace) {
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            addObserver:self
-               selector:@selector(backgroundAbort)
-                   name:UIApplicationWillResignActiveNotification
-                 object:nil];
+        sentry_addObserver(
+            self, @selector(backgroundAbort), UIApplicationWillResignActiveNotification, nil);
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -291,8 +288,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     _samplingProfiler = std::make_unique<SamplingProfiler>(
         [state](auto &backtrace) {
             Backtrace backtraceCopy = backtrace;
-            backtraceCopy.absoluteTimestamp
-                = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+            backtraceCopy.absoluteTimestamp = sentry_getSystemTime();
             @autoreleasepool {
                 [state appendBacktrace:backtraceCopy];
             }

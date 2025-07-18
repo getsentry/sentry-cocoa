@@ -104,8 +104,8 @@ _sentry_continuousProfilingV2_startManualLaunchProfile(
     NSNumber *sampleRand = launchConfigDict[kSentryLaunchProfileConfigKeyProfilesSampleRand];
 
     if (sampleRand == nil) {
-        SENTRY_TEST_FATAL(@"Tried to start a continuous profile v2 with no configured sample "
-                          @"rate/rand. Will not run profiler.");
+        SENTRY_LOG_ERROR(@"Tried to start a continuous profile v2 with no configured sample "
+                         @"rate/rand. Will not run profiler.");
         return;
     }
 
@@ -358,7 +358,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
             [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
         if (lifecycleValue == nil) {
-            SENTRY_TEST_FATAL(
+            SENTRY_LOG_ERROR(
                 @"Missing expected launch profile config parameter for lifecycle. Will "
                 @"not proceed with launch profile.");
             _sentry_cleanUpConfigFile();
