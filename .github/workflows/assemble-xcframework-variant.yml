@@ -55,7 +55,7 @@ jobs:
   assemble-xcframework-variant:
     name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
