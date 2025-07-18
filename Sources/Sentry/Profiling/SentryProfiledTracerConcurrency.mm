@@ -80,11 +80,6 @@ void
 _unsafe_cleanUpContinuousProfilerV2()
 {
     if (_gInFlightRootSpans == 0) {
-        // This log message has been changed from an assertion failing in debug builds and tests to
-        // be less disruptive. This needs to be investigated because spans should not be finished
-        // multiple times.
-        //
-        // See https://github.com/getsentry/sentry-cocoa/pull/5363 for the full context.
         SENTRY_LOG_ERROR(@"Attemtpted to stop continuous profiler with no root spans in flight.");
     } else {
         _gInFlightRootSpans -= 1;
@@ -104,7 +99,7 @@ sentry_trackRootSpanForContinuousProfilerV2()
     std::lock_guard<std::mutex> l(_gStateLock);
 
     if (![SentryContinuousProfiler isCurrentlyProfiling] && _gInFlightRootSpans != 0) {
-        SENTRY_TEST_FATAL(@"Unbalanced tracking of root spans and profiler detected.");
+        SENTRY_LOG_ERROR(@"Unbalanced tracking of root spans and profiler detected.");
         return;
     }
 
@@ -183,13 +178,13 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
         if (sentry_isContinuousProfilingEnabled(hub.getClient)) {
-            SENTRY_TEST_FATAL(@"Tracers are not tracked with continuous profiling V1.");
+            SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
             return;
         }
 
         if (_gTracersToProfilers == nil) {
-            SENTRY_TEST_FATAL(@"Tracer to profiler should have already been initialized by the "
-                              @"time they are being queried");
+            SENTRY_LOG_ERROR(@"Tracer to profiler should have already been initialized by the "
+                             @"time they are being queried");
         }
 
         const auto tracerKey = sentry_stringFromSentryID(internalTraceId);
@@ -203,8 +198,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
 
 #    if SENTRY_HAS_UIKIT
         if (_gProfilersToTracers == nil) {
-            SENTRY_TEST_FATAL(@"Profiler to tracer structure should have already been "
-                              @"initialized by the time they are being queried");
+            SENTRY_LOG_ERROR(@"Profiler to tracer structure should have already been "
+                             @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
             [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
