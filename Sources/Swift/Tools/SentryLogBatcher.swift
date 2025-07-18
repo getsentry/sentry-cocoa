@@ -70,19 +70,15 @@ import Foundation
         do {
             let encodedLog = try encodeToJSONData(data: log)
             
-            let wasEmpty = encodedLogs.isEmpty
+            let encodedLogsWereEmpty = encodedLogs.isEmpty
             
             encodedLogs.append(encodedLog)
             encodedLogsSize += encodedLog.count
             
-            let shouldFlushImmediatley = encodedLogsSize >= maxBufferSizeBytes
-            let shouldStartTimer = wasEmpty && timerWorkItem == nil && !shouldFlushImmediatley
-            
-            if shouldStartTimer {
-                startTimer()
-            }
-            if shouldFlushImmediatley {
+            if encodedLogsSize >= maxBufferSizeBytes {
                 performFlush()
+            } else if encodedLogsWereEmpty && timerWorkItem == nil {
+                startTimer()
             }
         } catch {
             SentrySDKLog.error("Failed to encode log: \(error)")
