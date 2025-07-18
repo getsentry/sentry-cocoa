@@ -2765,6 +2765,7 @@
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
 				7D826E3C2390840E00EED93D /* Utils */,
+				F474CB872E2EC5040001DF41 /* Recovered References */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -4697,6 +4698,14 @@
 				F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */,
 			);
 			path = Tools;
+			sourceTree = "<group>";
+		};
+		F474CB872E2EC5040001DF41 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				926C89722E26A30C006F3154 /* SentryScope+PrivateSwift.h */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		FA67DCC62DDBD4EA00896B02 /* Extensions */ = {
