@@ -41,6 +41,7 @@ jobs:
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-14
+      codecov_test_analytics: true
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
