@@ -40,8 +40,8 @@ public class TestRequestManager: NSObject, RequestManager {
         })
     }
     
-    public func waitForAllRequests() {
-        group.waitWithTimeout()
+    public func waitForAllRequests(timeout: Double = 100) {
+        group.waitWithTimeout(timeout: timeout)
     }
     
     func returnResponse(response: HTTPURLResponse?) {
