@@ -271,6 +271,157 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(logs[5].level, .fatal)
     }
     
+    // MARK: - String Templating Tests
+    
+    func testInfo_WithTemplating_SingleParameter() {
+        sut.info("Adding item %@ for processing", arguments: ["item123"], attributes: ["extra": "data"])
+        
+        assertLogCaptured(
+            .info,
+            "Adding item item123 for processing",
+            [
+                "extra": .string("data"),
+                "sentry.message.template": .string("Adding item %@ for processing"),
+                "sentry.message.parameter.0": .string("item123")
+            ]
+        )
+    }
+    
+    func testInfo_WithTemplating_MultipleParameters() {
+        sut.info("Name: %@, Age: %d, Active: %@, Score: %.1f", 
+                arguments: ["Alice", 30, NSNumber(value: true), 95.5], 
+                attributes: ["extra": "123"])
+        
+        assertLogCaptured(
+            .info,
+            "Name: Alice, Age: 30, Active: 1, Score: 95.5",
+            [
+                "extra": .string("123"),
+                "sentry.message.template": .string("Name: %@, Age: %d, Active: %@, Score: %.1f"),
+                "sentry.message.parameter.0": .string("Alice"),
+                "sentry.message.parameter.1": .integer(30),
+                "sentry.message.parameter.2": .boolean(true),
+                "sentry.message.parameter.3": .double(95.5)
+            ]
+        )
+    }
+    
+    func testDebug_WithTemplating() {
+        sut.debug("Processing user %@ with ID %i", arguments: ["john_doe", 12_345])
+        
+        assertLogCaptured(
+            .debug,
+            "Processing user john_doe with ID 12345",
+            [
+                "sentry.message.template": .string("Processing user %@ with ID %i"),
+                "sentry.message.parameter.0": .string("john_doe"),
+                "sentry.message.parameter.1": .integer(12_345)
+            ]
+        )
+    }
+    
+    func testTrace_WithTemplating() {
+        sut.trace("Trace event %@", arguments: ["test_event"])
+        
+        assertLogCaptured(
+            .trace,
+            "Trace event test_event",
+            [
+                "sentry.message.template": .string("Trace event %@"),
+                "sentry.message.parameter.0": .string("test_event")
+            ]
+        )
+    }
+    
+    func testWarn_WithTemplating() {
+        sut.warn("Warning: %i attempts remaining", arguments: [3])
+        
+        assertLogCaptured(
+            .warn,
+            "Warning: 3 attempts remaining",
+            [
+                "sentry.message.template": .string("Warning: %i attempts remaining"),
+                "sentry.message.parameter.0": .integer(3)
+            ]
+        )
+    }
+    
+    func testError_WithTemplating() {
+        sut.error("Error %i occurred in %@", arguments: [404, "API"])
+
+        assertLogCaptured(
+            .error,
+            "Error 404 occurred in API",
+            [
+                "sentry.message.template": .string("Error %i occurred in %@"),
+                "sentry.message.parameter.0": .integer(404),
+                "sentry.message.parameter.1": .string("API")
+            ]
+        )
+    }
+    
+    func testFatal_WithTemplating() {
+        sut.fatal("Fatal error: %@", arguments: ["System crash"])
+
+        assertLogCaptured(
+            .fatal,
+            "Fatal error: System crash",
+            [
+                "sentry.message.template": .string("Fatal error: %@"),
+                "sentry.message.parameter.0": .string("System crash")
+            ]
+        )
+    }
+    
+    func testTemplating_WithEmptyParameters() {
+        sut.info("Simple message without arguments", arguments: [])
+
+        assertLogCaptured(
+            .info,
+            "Simple message without arguments",
+            [:]
+        )
+    }
+    
+    func testTemplating_WithFloatParameter() {
+        let floatValue: Float = 2.71828
+        sut.info("Pi approximation: %f", arguments: [floatValue])
+        
+        assertLogCaptured(
+            .info,
+            "Pi approximation: 2.718280",
+            [
+                "sentry.message.template": .string("Pi approximation: %f"),
+                "sentry.message.parameter.0": .double(Double(floatValue))
+            ]
+        )
+    }
+    
+    func testTemplating_CombinedWithUserAttributes() {
+        let userAttributes: [String: Any] = [
+            "session_id": "sess_123",
+            "user_id": 456,
+            "debug_mode": true
+        ]
+        
+        sut.info("User %@ performed action %@", 
+                arguments: ["alice", "login"], 
+                attributes: userAttributes)
+        
+        assertLogCaptured(
+            .info,
+            "User alice performed action login",
+            [
+                "session_id": .string("sess_123"),
+                "user_id": .integer(456),
+                "debug_mode": .boolean(true),
+                "sentry.message.template": .string("User %@ performed action %@"),
+                "sentry.message.parameter.0": .string("alice"),
+                "sentry.message.parameter.1": .string("login")
+            ]
+        )
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
@@ -328,7 +479,7 @@ final class SentryLoggerTests: XCTestCase {
     }
 }
 
-class TestLogBatcher: SentryLogBatcher {
+final class TestLogBatcher: SentryLogBatcher {
     
     var addInvocations = Invocations<SentryLog>()
     
