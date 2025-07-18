@@ -31,6 +31,14 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
  */
 - (BOOL)isProfilingCorrelatedToTraces;
 
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
+
+- (BOOL)enableViewRendererV2;
+
+- (BOOL)enableFastViewRendering;
+
+#    endif // # SENTRY_TARGET_REPLAY_SUPPORTED
+
 /**
  * UI Profiling options set on SDK start.
  * @note Not for use with launch profiles. See functions in @c SentryLaunchProfiling .
