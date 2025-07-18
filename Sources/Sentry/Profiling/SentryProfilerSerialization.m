@@ -27,6 +27,7 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    import "SentryScope+Private.h"
+#    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
@@ -157,14 +158,14 @@ sentry_serializedTraceProfileData(
         payload[@"debug_meta"] = @ { @"images" : debugImages };
     }
 
-    payload[@"os"] = @ {
+    payload[SENTRY_CONTEXT_OS_KEY] = @ {
         @"name" : sentry_getOSName(),
         @"version" : sentry_getOSVersion(),
         @"build_number" : sentry_getOSBuildNumber()
     };
 
     bool isEmulated = sentry_isSimulatorBuild();
-    payload[@"device"] = @{
+    payload[SENTRY_CONTEXT_DEVICE_KEY] = @{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
