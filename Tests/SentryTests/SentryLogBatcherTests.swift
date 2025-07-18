@@ -244,7 +244,7 @@ final class SentryLogBatcherTests: XCTestCase {
         }
     }
     
-    // MARK: - Thread Safety Tests
+    // MARK: - IntegrationTests
     
     func testConcurrentAdds_ThreadSafe() throws {
         // Given
@@ -283,6 +283,40 @@ final class SentryLogBatcherTests: XCTestCase {
         let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
         XCTAssertEqual(10, items.count, "All 10 concurrently added logs should be in the batch")
         // Note: We can't verify exact order due to concurrency, but count should be correct
+    }
+
+    func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
+        // Given - create batcher with real dispatch queue and short timeout
+        let sutWithRealQueue = SentryLogBatcher(
+            client: testClient,
+            flushTimeout: 0.2, // Short but realistic timeout
+            maxBufferSizeBytes: 10_000, // Large buffer to avoid size-based flush
+            dispatchQueue: SentryDispatchQueueWrapper() // Real dispatch queue
+        )
+        
+        let log = createTestLog(body: "Real timeout test log")
+        let expectation = XCTestExpectation(description: "Real timeout flush")
+        
+        // When - add log and wait for real timeout
+        sutWithRealQueue.add(log)
+        
+        // Initially no flush should have occurred
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
+        
+        // Wait for timeout to trigger flush
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { // Wait longer than timeout
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        
+        // Then - verify flush occurred due to timeout
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Timeout should trigger flush")
+        
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: sentData) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        XCTAssertEqual(1, items.count, "Should contain exactly one log")
+        XCTAssertEqual("Real timeout test log", items[0]["body"] as? String)
     }
     
     // MARK: - Helper Methods

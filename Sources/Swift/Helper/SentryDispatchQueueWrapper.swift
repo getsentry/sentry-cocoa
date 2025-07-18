@@ -47,9 +47,7 @@
     }
 
     public func dispatch(after interval: TimeInterval, workItem: DispatchWorkItem) {
-        internalWrapper.dispatch(after: interval) {
-            workItem.perform()
-        }
+        internalWrapper.queue.asyncAfter(deadline: .now() + interval, execute: workItem)
     }
 
     public func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void) {
