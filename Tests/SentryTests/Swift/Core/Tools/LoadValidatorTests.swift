@@ -41,42 +41,82 @@ class LoadValidatorTests: XCTestCase {
         testObjCRuntimeWrapper.beforeGetClassList = {
             getClassListCalled = true
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        let validationResult = LoadValidator.checkForDuplicatedSDKInSync(imageName,
-                                                                         defaultImageAddress,
-                                                                         defaultImageSize,
-                                                                         objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                                         dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
-        XCTAssertFalse(validationResult, "Validation should skip for system libraries")
+        XCTAssertFalse(validationResult, "Validation should return false for system libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a system library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
  
-#if targetEnvironment(simulator)
     func testValidateSDKPresenceIn_SimulatorPath_DoesNotValidate() {
         // Arrange
-        let imageName = "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/usr/lib/system.dylib"
+        let imageName = "/Library/Developer/CoreSimulator/Volumes/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/usr/lib/system.dylib"
         var getClassListCalled = false
         testObjCRuntimeWrapper.beforeGetClassList = {
             getClassListCalled = true
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        let validationResult = LoadValidator.checkForDuplicatedSDKInSync(imageName, defaultImageAddress, defaultImageSize,
-                                                                         objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                                       dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
-        XCTAssertFalse(validationResult, "Validation should skip for simulator libraries")
+        XCTAssertFalse(validationResult, "Validation should return false for simulator libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a simulator library")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
-#endif
+    
+    func testValidateSDKPresenceIn_SystemPath_DoesNotValidate() {
+        // Arrange
+        let imageName = "/System/Library/system.dylib"
+        var getClassListCalled = false
+        testObjCRuntimeWrapper.beforeGetClassList = {
+            getClassListCalled = true
+        }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
+        
+        // Act
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
+        
+        // Assert
+        XCTAssertFalse(validationResult, "Validation should return false for system libraries")
+        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a simulator library")
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
+    }
     
     func testValidateSDKPresenceIn_AppImage_CallsRuntimeWrapper() {
         // Arrange
@@ -85,13 +125,22 @@ class LoadValidatorTests: XCTestCase {
         testObjCRuntimeWrapper.beforeGetClassList = {
             getClassListCalled = true
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        LoadValidator.checkForDuplicatedSDKInSync(imageName, defaultImageAddress, defaultImageSize,
-                                                  objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
+        XCTAssertFalse(validationResult, "Validation should return false")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
@@ -107,11 +156,19 @@ class LoadValidatorTests: XCTestCase {
         testObjCRuntimeWrapper.beforeGetClassList = {
             getClassListCalled = true
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        let validationResult = LoadValidator.checkForDuplicatedSDKInSync(imageName, defaultImageAddress, defaultImageSize,
-                                                                         objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                                       dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
         XCTAssertTrue(validationResult, "Validation should skip for app binary")
@@ -132,11 +189,19 @@ class LoadValidatorTests: XCTestCase {
         testObjCRuntimeWrapper.beforeGetClassList = {
             getClassListCalled = true
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        let validationResult = LoadValidator.checkForDuplicatedSDKInSync(imageName, defaultImageAddress, defaultImageSize,
-                                                                         objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                                       dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
         XCTAssertTrue(validationResult, "Validation should return true for app")
@@ -161,37 +226,24 @@ class LoadValidatorTests: XCTestCase {
         testObjCRuntimeWrapper.classesNames = { _ in
             return ["SentryDependencyContainerSwiftHelper"]
         }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
         
         // Act
-        let validationResult = LoadValidator.checkForDuplicatedSDKInSync(imageName, imageAddress, imageSize,
-                                                                         objcRuntimeWrapper: testObjCRuntimeWrapper,
-                                                                       dispatchQueueWrapper: dispatchQueueWrapper)
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    imageAddress,
+                                                    imageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
         
         // Assert
         XCTAssertFalse(validationResult, "Validation should skip for sentry framework")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should not be called for an app binary")
         XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
-    }
-}
-
-private extension LoadValidator {
-    /**
-     * This synchronous version is intended to be used in tests.
-     */
-    @discardableResult class func checkForDuplicatedSDKInSync(_ imageName: String,
-                                                              _ imageAddress: UInt64,
-                                                              _ imageSize: UInt64,
-                                                              objcRuntimeWrapper: SentryObjCRuntimeWrapper,
-                                                              dispatchQueueWrapper: SentryDispatchQueueWrapper) -> Bool {
-        var result = false
-        let semaphore = DispatchSemaphore(value: 0)
-        internalCheckForDuplicatedSDK(imageName, imageAddress, imageSize, objcRuntimeWrapper: objcRuntimeWrapper,
-                                      dispatchQueueWrapper: dispatchQueueWrapper) { duplicateFound in
-            result = duplicateFound
-            semaphore.signal()
-        }
-        semaphore.wait()
-        return result
     }
 }
