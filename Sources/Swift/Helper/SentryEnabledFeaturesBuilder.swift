@@ -1,3 +1,4 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers @_spi(Private) public class SentryEnabledFeaturesBuilder: NSObject {
@@ -53,11 +54,11 @@ import Foundation
         }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        if options.sessionReplay.enableViewRendererV2 {
+        if options.enableViewRendererV2() {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
-        if options.sessionReplay.enableFastViewRendering {
+        if options.enableFastViewRendering() {
             features.append("fastViewRendering")
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
