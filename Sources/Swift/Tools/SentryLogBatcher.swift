@@ -93,6 +93,7 @@ import Foundation
     // Only ever call this from the serial dispatch queue.
     private func startTimer() {
         let timerWorkItem = DispatchWorkItem { [weak self] in
+            SentrySDKLog.debug("SentryLogBatcher: Timer fired, calling performFlush().")
             self?.performFlush()
         }
         self.timerWorkItem = timerWorkItem
@@ -112,6 +113,7 @@ import Foundation
         timerWorkItem = nil
         
         guard encodedLogs.count > 0 else {
+            SentrySDKLog.debug("SentryLogBatcher: No logs to flush.")
             return
         }
 
