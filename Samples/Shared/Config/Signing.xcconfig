@@ -10,6 +10,8 @@ CODE_SIGN_IDENTITY_Debug[sdk=macosx*] = Apple Development
 CODE_SIGN_IDENTITY_DebugV9[sdk=macosx*] = Apple Development
 CODE_SIGN_IDENTITY_Test[sdk=macosx*] = Apple Development
 CODE_SIGN_IDENTITY_TestCI[sdk=macosx*] = Apple Development
+CODE_SIGN_IDENTITY_TestV9[sdk=macosx*] = Apple Development
+CODE_SIGN_IDENTITY_TestCIV9[sdk=macosx*] = Apple Development
 CODE_SIGN_IDENTITY_Release[sdk=macosx*] = Apple Distribution
 
 CODE_SIGN_IDENTITY = $(CODE_SIGN_IDENTITY_$(CONFIGURATION))

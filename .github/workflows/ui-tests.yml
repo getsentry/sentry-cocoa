@@ -42,6 +42,14 @@ jobs:
       build_with_make: true
       macos_version: macos-14
 
+  ui-tests-sdk-v9:
+    name: UI Tests for SDK v9 - V1
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swift_sdk_v9
+      xcode_version: 16.2
+      build_with_make: true
+
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI - V4 # Up the version with every change to keep track of flaky tests

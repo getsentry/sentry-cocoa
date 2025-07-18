@@ -9,8 +9,13 @@ platform :ios do
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
   # Helper method to run tests with common configuration
-  def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
-    configuration = if is_ci then 'TestCI' else 'Test' end
+  def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, sdk_v9: false)
+    if sdk_v9
+      configuration = if is_ci then 'TestCIV9' else 'TestV9' end
+    else
+      configuration = if is_ci then 'TestCI' else 'Test' end
+    end
+
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     
@@ -257,6 +262,16 @@ platform :ios do
       result_bundle_name: "ui_tests_ios_swift",
       device: options[:device],
       address_sanitizer: options[:address_sanitizer]
+    )
+  end
+
+  lane :ui_tests_ios_swift_sdk_v9 do |options|
+    run_ui_tests(
+      scheme: "iOS-Swift",
+      result_bundle_name: "ui_tests_ios_swift_sdk_v9",
+      device: options[:device],
+      address_sanitizer: options[:address_sanitizer],
+      sdk_v9: true
     )
   end
 

@@ -5,7 +5,9 @@ configs:
   Debug: debug
   DebugV9: debug
   Test: debug
+  TestV9: debug
   TestCI: debug
+  TestCIV9: debug
   Release: release
 projectReferences:
   Sentry:
@@ -28,7 +30,9 @@ targets:
       DebugV9: SentrySampleShared.xcconfig
       Release: SentrySampleShared.xcconfig
       Test: SentrySampleShared.xcconfig
+      TestV9: SentrySampleShared.xcconfig
       TestCI: SentrySampleShared.xcconfig
+      TestCIV9: SentrySampleShared.xcconfig
   SentrySampleUITestShared:
     type: framework
     platform: auto
@@ -36,6 +40,9 @@ targets:
       - SentrySampleUITestShared
     configFiles:
       Debug: SentrySampleUITestShared.xcconfig
+      DebugV9: SentrySampleUITestShared.xcconfig
       Release: SentrySampleUITestShared.xcconfig
       Test: SentrySampleUITestShared.xcconfig
+      TestV9: SentrySampleUITestShared.xcconfig
       TestCI: SentrySampleUITestShared.xcconfig
+      TestCIV9: SentrySampleUITestShared.xcconfig
