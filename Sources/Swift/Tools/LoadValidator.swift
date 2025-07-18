@@ -20,11 +20,11 @@ import MachO
     class func internalCheckForDuplicatedSDK(_ imageName: String, _ imageAddress: UInt64, _ imageSize: UInt64, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {
         let systemLibraryPath = "/usr/lib/"
 #if targetEnvironment(simulator)
-        let ignoredPath = "/Library/Developer/CoreSimulator/Profiles/Runtimes/"
+        let ignoredPath = "/Library/Developer/CoreSimulator/Volumes/"
 #else
         let ignoredPath = "/System/Library/"
 #endif
-        guard !imageName.contains(ignoredPath) && !imageName.hasPrefix(systemLibraryPath) else {
+        guard !imageName.hasPrefix(ignoredPath) && !imageName.hasPrefix(systemLibraryPath) else {
             resultHandler?(false)
             return
         }
