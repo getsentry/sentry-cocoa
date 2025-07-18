@@ -8,6 +8,7 @@
 #import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"

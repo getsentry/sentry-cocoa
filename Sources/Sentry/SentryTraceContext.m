@@ -6,6 +6,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
