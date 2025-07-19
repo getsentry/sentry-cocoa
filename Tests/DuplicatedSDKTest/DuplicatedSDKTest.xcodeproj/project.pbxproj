@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,6 +15,10 @@
 		D89DD6572CEF652B009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D89DD6592CEF6535009C3509 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; };
 		D89DD65A2CEF6535009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F474CB2D2E2B3DFC0001DF41 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
+		F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */; };
+		F474CB2F2E2B3E180001DF41 /* UITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB2A2E2B3DFC0001DF41 /* UITest.swift */; };
+		F474CB322E2B3E270001DF41 /* Unit_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB302E2B3E270001DF41 /* Unit_Tests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,58 +97,12 @@
 		D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuplicatedSDKTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F45243122DE56862003E8F50 /* Unit Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DuplicatedSDKTest.xctestplan; sourceTree = "<group>"; };
+		F474CB272E2B3DFC0001DF41 /* DuplicatedSDKTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DuplicatedSDKTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicatedSDKTestApp.swift; sourceTree = "<group>"; };
+		F474CB292E2B3DFC0001DF41 /* SomeWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomeWork.swift; sourceTree = "<group>"; };
+		F474CB2A2E2B3DFC0001DF41 /* UITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITest.swift; sourceTree = "<group>"; };
+		F474CB302E2B3E270001DF41 /* Unit_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unit_Tests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D89DD66C2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "DuplicatedSDKTest" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-				UITest.swift,
-			);
-			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
-		};
-		D89DD66D2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleA" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-			);
-			target = D89DD6352CEF650A009C3509 /* ModuleA */;
-		};
-		D89DD66E2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleB" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-			);
-			target = D89DD6472CEF6516009C3509 /* ModuleB */;
-		};
-		D89DD67E2CEF8389009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "UITest-DuplicatedSDK" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				UITest.swift,
-			);
-			target = D89DD6722CEF7ADF009C3509 /* UITest-DuplicatedSDK */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D89DD66C2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "DuplicatedSDKTest" target */,
-				D89DD66D2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleA" target */,
-				D89DD66E2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleB" target */,
-				D89DD67E2CEF8389009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "UITest-DuplicatedSDK" target */,
-			);
-			path = DuplicatedSDKTest;
-			sourceTree = "<group>";
-		};
-		F45243132DE56862003E8F50 /* Unit Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Unit Tests";
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D89DD6332CEF650A009C3509 /* Frameworks */ = {
@@ -201,8 +159,8 @@
 			isa = PBXGroup;
 			children = (
 				F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */,
-				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
-				F45243132DE56862003E8F50 /* Unit Tests */,
+				F474CB2B2E2B3DFC0001DF41 /* DuplicatedSDKTest */,
+				F474CB312E2B3E270001DF41 /* Unit Tests */,
 				D89DD6542CEF652B009C3509 /* Frameworks */,
 				D8C030CF2CEF633A007FC5B4 /* Products */,
 			);
@@ -218,6 +176,25 @@
 				F45243122DE56862003E8F50 /* Unit Tests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F474CB2B2E2B3DFC0001DF41 /* DuplicatedSDKTest */ = {
+			isa = PBXGroup;
+			children = (
+				F474CB272E2B3DFC0001DF41 /* DuplicatedSDKTest-Bridging-Header.h */,
+				F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */,
+				F474CB292E2B3DFC0001DF41 /* SomeWork.swift */,
+				F474CB2A2E2B3DFC0001DF41 /* UITest.swift */,
+			);
+			path = DuplicatedSDKTest;
+			sourceTree = "<group>";
+		};
+		F474CB312E2B3E270001DF41 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				F474CB302E2B3E270001DF41 /* Unit_Tests.swift */,
+			);
+			path = "Unit Tests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -317,9 +294,6 @@
 				D89DD63B2CEF650A009C3509 /* PBXTargetDependency */,
 				D89DD64D2CEF6516009C3509 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
-			);
 			name = DuplicatedSDKTest;
 			packageProductDependencies = (
 			);
@@ -339,9 +313,6 @@
 			);
 			dependencies = (
 				F45243172DE56862003E8F50 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F45243132DE56862003E8F50 /* Unit Tests */,
 			);
 			name = "Unit Tests";
 			packageProductDependencies = (
@@ -383,6 +354,7 @@
 				};
 			};
 			buildConfigurationList = D8C030C92CEF633A007FC5B4 /* Build configuration list for PBXProject "DuplicatedSDKTest" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -391,7 +363,6 @@
 			);
 			mainGroup = D8C030C52CEF633A007FC5B4;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = D8C030CF2CEF633A007FC5B4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -462,6 +433,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F474CB2F2E2B3E180001DF41 /* UITest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +441,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F474CB2D2E2B3DFC0001DF41 /* SomeWork.swift in Sources */,
+				F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +450,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F474CB322E2B3E270001DF41 /* Unit_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
