@@ -22,6 +22,7 @@
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentryOptions+Private.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
 #import "SentrySdkInfo.h"
