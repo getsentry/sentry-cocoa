@@ -7,8 +7,11 @@ import Foundation
     
     private let client: SentryClient
     
+    let options: Options
+    
     @_spi(Private) public init(client: SentryClient) {
         self.client = client
+        self.options = client.options
         super.init()
     }
     
