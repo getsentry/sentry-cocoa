@@ -15,6 +15,7 @@
 #import "SentryClient+Logs.h"
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFileIOTracker.h"

@@ -20,7 +20,7 @@ class SentryDebugImageProviderTests: XCTestCase {
             imageProvider.imageCount = images.count
             imageProvider.binaryImage = images
             
-            cache.start()
+            cache.start(false)
             for image in images {
                 var i = image
                 cache.binaryImageAdded(&i)
