@@ -1,16 +1,16 @@
 #import "SentryDefines.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 
 @class SentryEnvelope;
 @class SentryHub;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySDK ()
+@interface SentrySDKInternal ()
 
 + (void)setCurrentHub:(nullable SentryHub *)hub;
 
-+ (void)setStartOptions:(nullable SentryOptions *)options;
++ (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
 
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 

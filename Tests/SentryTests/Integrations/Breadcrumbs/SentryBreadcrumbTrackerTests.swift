@@ -100,7 +100,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
@@ -167,7 +167,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let tracker = SentryBreadcrumbTracker()
         tracker.start(with: delegate)
@@ -211,7 +211,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let swizzlingWrapper = TestSentrySwizzleWrapper()
         SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
@@ -240,7 +240,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let swizzlingWrapper = TestSentrySwizzleWrapper()
         SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
@@ -268,7 +268,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let swizzlingWrapper = TestSentrySwizzleWrapper()
         SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
@@ -295,7 +295,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let scope = Scope()
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
 
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)

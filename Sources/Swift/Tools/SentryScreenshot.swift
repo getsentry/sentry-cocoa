@@ -24,7 +24,7 @@ import UIKit
         
         let takeScreenShot = { result = self.appScreenshots() }
         
-        SentryDependencyContainerSwiftHelper.dispatchSync(onMainQueue: takeScreenShot)
+        SentrySwiftHelpers.dispatchSync(onMainQueue: takeScreenShot)
         
         return result
     }
@@ -36,7 +36,7 @@ import UIKit
         
         let takeScreenShot = { result = self.appScreenshotsData() }
         
-        SentryDependencyContainerSwiftHelper.dispatchSync(onMainQueue: takeScreenShot)
+        SentrySwiftHelpers.dispatchSync(onMainQueue: takeScreenShot)
         
         return result
     }
@@ -60,7 +60,7 @@ import UIKit
     }
     
     public func appScreenshots() -> [UIImage] {
-        let windows = SentryDependencyContainerSwiftHelper.windows() ?? []
+        let windows = SentrySwiftHelpers.windows() ?? []
         var result: [UIImage] = []
         result.reserveCapacity(windows.count)
         

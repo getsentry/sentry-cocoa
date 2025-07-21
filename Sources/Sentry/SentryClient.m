@@ -877,10 +877,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event != nil && isFatalEvent && nil != self.options.onCrashedLastRun
-        && !SentrySDK.crashedLastRunCalled) {
+        && !SentrySDKInternal.crashedLastRunCalled) {
         // We only want to call the callback once. It can occur that multiple crash events are
         // about to be sent.
-        SentrySDK.crashedLastRunCalled = YES;
+        SentrySDKInternal.crashedLastRunCalled = YES;
         self.options.onCrashedLastRun(event);
     }
 

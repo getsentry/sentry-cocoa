@@ -25,10 +25,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The main entry point for the SentrySDK.
- * We recommend using @c +[startWithConfigureOptions:] to initialize Sentry.
+ * The internal implementation of SentrySDK.
+ * This class is used internally by the Swift wrapper.
  */
-@interface SentrySDK : NSObject
+@interface SentrySDKInternal : NSObject
 SENTRY_NO_INIT
 
 /**
@@ -47,11 +47,6 @@ SENTRY_NO_INIT
  */
 @property (class, nonatomic, readonly) SentryReplayApi *replay;
 #endif
-
-/**
- * API to access Sentry logs
- */
-@property (class, nonatomic, readonly) SentryLogger *logger;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to

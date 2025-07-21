@@ -109,7 +109,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-@interface SentrySDK ()
+@interface SentrySDKInternal : NSObject
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 @end
 

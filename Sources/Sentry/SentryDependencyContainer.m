@@ -160,7 +160,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     if (self = [super init]) {
         isInitialializingDependencyContainer = YES;
 
-        _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        _dispatchQueueWrapper = SentryDependencyScope.dispatchQueueWrapper;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
@@ -213,8 +213,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;
-        SentryFileManager *manager = [[SentryFileManager alloc] initWithOptions:SentrySDK.options
-                                                                          error:&error];
+        SentryFileManager *manager =
+            [[SentryFileManager alloc] initWithOptions:SentrySDKInternal.options error:&error];
         if (manager == nil) {
             SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
         }
@@ -225,7 +225,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryAppStateManager alloc] initWithOptions:SentrySDK.options
+        [[SentryAppStateManager alloc] initWithOptions:SentrySDKInternal.options
                                           crashWrapper:self.crashWrapper
                                            fileManager:self.fileManager
                                   dispatchQueueWrapper:self.dispatchQueueWrapper
@@ -234,8 +234,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(
-        _threadInspector, [[SentryThreadInspector alloc] initWithOptions:SentrySDK.options]);
+    SENTRY_LAZY_INIT(_threadInspector,
+        [[SentryThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -248,7 +248,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+        [[SentryCrash alloc] initWithBasePath:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout

@@ -1,7 +1,7 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryFileIOTracker.h"
 #import "SentryOptions.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"

@@ -101,7 +101,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             let fatalEvent = Event()
             fatalEvent.level = SentryLevel.fatal
             fatalEvent.message = SentryMessage(formatted: "Crash for SentrySessionGeneratorTests")
-            SentrySDK.captureFatalEvent(fatalEvent)
+            SentrySDKInternal.captureFatalEvent(fatalEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false
         
@@ -118,7 +118,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             autoSessionTrackingIntegration.install(with: options)
             goToForeground()
             
-            SentrySDK.captureFatalEvent(TestData.oomEvent)
+            SentrySDKInternal.captureFatalEvent(TestData.oomEvent)
         }
         fileManager.deleteAppState()
         #endif
@@ -141,9 +141,9 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         SentrySDK.start(options: options)
         
         sentryCrash = TestSentryCrashWrapper.sharedInstance()
-        let client = SentrySDK.currentHub().getClient()
+        let client = SentrySDKInternal.currentHub().getClient()
         let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
