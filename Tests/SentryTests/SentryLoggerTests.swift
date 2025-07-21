@@ -22,7 +22,7 @@ final class SentryLoggerTests: XCTestCase {
             scope = Scope()
             hub = TestHub(client: client, andScope: scope)
             dateProvider = TestCurrentDateProvider()
-            batcher = TestLogBatcher(client: client)
+            batcher = TestLogBatcher(client: client, dispatchQueue: TestSentryDispatchQueueWrapper())
             
             dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
         }
@@ -672,11 +672,7 @@ final class SentryLoggerTests: XCTestCase {
 final class TestLogBatcher: SentryLogBatcher {
     
     var addInvocations = Invocations<SentryLog>()
-    
-    override init(client: SentryClient) {
-        super.init(client: client)
-    }
-    
+        
     override func add(_ log: SentryLog) {
         addInvocations.record(log)
     }

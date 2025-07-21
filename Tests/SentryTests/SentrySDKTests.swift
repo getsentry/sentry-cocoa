@@ -908,7 +908,14 @@ class SentrySDKTests: XCTestCase {
         fixture.client.options.experimental.enableLogs = true
         givenSdkWithHub()
         
-        SentrySDK.logger.error("foo")
+        SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
+        
+        let expectation = self.expectation(description: "Wait for async add.")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 0.5)
+        
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
 
@@ -917,7 +924,14 @@ class SentrySDKTests: XCTestCase {
         let hubWithoutClient = SentryHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hubWithoutClient)
         
-        SentrySDK.logger.error("foo")
+        SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
+        
+        let expectation = self.expectation(description: "Wait for async add.")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 0.5)
+        
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
     }
     
