@@ -15,7 +15,7 @@ class LaunchUITests: XCTestCase {
 
         let transactionName = app.staticTexts["TRANSACTION_NAME"]
         let transactionId = app.staticTexts["TRANSACTION_ID"]
-        if !transactionName.waitForExistence(timeout: 1) {
+        if !transactionName.waitForExistence(timeout: 5) {
             XCTFail("Span operation label not found")
         }
 

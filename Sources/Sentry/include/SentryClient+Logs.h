@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Helper to capture encoded logs, as SentryEnvelope can't be used in the Swift SDK.
  */
-- (void)captureLogsData:(NSData *)data;
+- (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount;
 
 @end
 

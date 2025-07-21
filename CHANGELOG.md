@@ -4,8 +4,7 @@
 
 ### Features
 
-- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639)
-- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593)
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628)
 
 ### Improvements
 
