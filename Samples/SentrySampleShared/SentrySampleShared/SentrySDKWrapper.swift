@@ -425,6 +425,7 @@ extension SentrySDKWrapper {
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
+      #if !SDK_V9
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
             options.profilesSampleRate = NSNumber(value: sampleRate)
         }
@@ -434,6 +435,7 @@ extension SentrySDKWrapper {
             }
         }
         options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
+      #endif // !SDK_V9
 
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
             options.configureProfiling = {

@@ -49,9 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFramesTracker *_framesTracker;
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
     BOOL _isContinuousProfiling;
-#endif //  SENTRY_TARGET_PROFILING_SUPPORTED
+#endif //  SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
@@ -98,8 +98,10 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if !SDK_V9
         _isContinuousProfiling = [SentrySDK.options isContinuousProfilingEnabled];
         if (_isContinuousProfiling) {
+#    endif // !SDK_V9
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -108,7 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
                            name:kSentryNotificationContinuousProfileStarted
                          object:nil];
             }
+#    if !SDK_V9
         }
+#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
@@ -135,12 +139,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stopObservingContinuousProfiling
 {
+#    if !SDK_V9
     if (_isContinuousProfiling) {
+#    endif // !SDK_V9
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
                       name:kSentryNotificationContinuousProfileStarted
                     object:nil];
+#    if !SDK_V9
     }
+#    endif // !SDK_V9
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
