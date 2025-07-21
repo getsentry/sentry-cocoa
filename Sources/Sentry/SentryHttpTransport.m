@@ -356,6 +356,10 @@
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
     rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
+#if DEBUG
+    SENTRY_LOG_DEBUG(@"%@", rateLimitedEnvelope.debugDescription);
+#endif // DEBUG
+
     NSError *requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
                                                                    dsn:self.options.parsedDsn

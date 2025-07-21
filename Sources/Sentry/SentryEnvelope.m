@@ -1,6 +1,7 @@
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClientReport.h"
+#import "SentryDateUtils.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
@@ -319,6 +320,189 @@ NS_ASSUME_NONNULL_BEGIN
         _items = items;
     }
     return self;
+}
+
+- (NSString *)debugDescription
+{
+    return [self logEnvelopeContents];
+}
+
+- (NSString *)logEnvelopeContents
+{
+    NSMutableString *output =
+        [NSMutableString stringWithString:@"===Begin raw envelope contents===\n"];
+
+    // Log envelope header
+    NSMutableDictionary *headerDict = [NSMutableDictionary new];
+    if (self.header.eventId) {
+        headerDict[@"event_id"] = self.header.eventId.sentryIdString;
+    }
+    if (self.header.sdkInfo) {
+        headerDict[@"sdk"] = [self.header.sdkInfo serialize];
+    }
+    if (self.header.traceContext) {
+        headerDict[@"trace"] = [self.header.traceContext serialize];
+    }
+    if (self.header.sentAt) {
+        headerDict[@"sent_at"] = sentry_toIso8601String(self.header.sentAt);
+    }
+
+    NSData *headerData = [SentrySerialization dataWithJSONObject:headerDict];
+    if (headerData) {
+        NSString *headerString = [[NSString alloc] initWithData:headerData
+                                                       encoding:NSUTF8StringEncoding];
+        if (headerString) {
+            [output appendFormat:@"%@\n", headerString];
+        }
+    }
+
+    // Log envelope items
+    for (SentryEnvelopeItem *item in self.items) {
+        // Log item header
+        NSDictionary *itemHeaderDict = [item.header serialize];
+        NSData *itemHeaderData = [SentrySerialization dataWithJSONObject:itemHeaderDict];
+        if (itemHeaderData) {
+            NSString *itemHeaderString = [[NSString alloc] initWithData:itemHeaderData
+                                                               encoding:NSUTF8StringEncoding];
+            if (itemHeaderString) {
+                [output appendFormat:@"%@\n", itemHeaderString];
+            }
+        }
+
+        // Log item payload
+        NSString *itemType = item.header.type;
+
+        if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeTransaction] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeSession] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeFeedback] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeClientReport] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeProfile] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeProfileChunk] ||
+            [itemType isEqualToString:SentryEnvelopeItemTypeLog]) {
+            // JSON payloads - log the actual JSON
+            NSString *jsonString = [[NSString alloc] initWithData:item.data
+                                                         encoding:NSUTF8StringEncoding];
+            if (jsonString) {
+                [output appendFormat:@"%@\n", jsonString];
+            } else {
+                [output appendString:@"<invalid UTF-8 JSON data>\n"];
+            }
+        } else if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
+            // For attachments, show summary since the data might be binary
+            NSString *attachmentOutput = [self getAttachmentOutput:item.data header:item.header];
+            [output appendString:attachmentOutput];
+        } else {
+            // Binary or non-JSON payload - try to show as text, otherwise hex
+            NSString *textString = [[NSString alloc] initWithData:item.data
+                                                         encoding:NSUTF8StringEncoding];
+            if (textString) {
+                [output appendFormat:@"%@\n", textString];
+            } else {
+                // Show hex dump for binary data
+                NSString *hexPreview = [self getDataPreview:item.data maxLength:200];
+                [output appendFormat:@"%@\n", hexPreview];
+            }
+        }
+    }
+
+    [output appendString:@"===End raw envelope contents==="];
+
+    return output;
+}
+
+- (NSString *)getAttachmentOutput:(NSData *)data header:(SentryEnvelopeItemHeader *)header
+{
+    NSString *contentType = header.contentType ?: @"unknown";
+    NSString *filename = header.filename ?: @"<no filename>";
+
+    NSMutableDictionary *attachmentSummary =
+        [@{ @"filename" : filename, @"content_type" : contentType, @"size" : @(data.length) }
+            mutableCopy];
+
+    if ([contentType hasPrefix:@"text/"] || [contentType isEqualToString:@"application/json"] ||
+        [contentType hasPrefix:@"application/x-"]) {
+        // Try to display as text
+        NSString *textContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (textContent) {
+            NSArray *lines = [textContent componentsSeparatedByString:@"\n"];
+            NSUInteger maxLines = MIN([lines count], 5);
+            NSMutableArray *sampleLines = [NSMutableArray array];
+
+            for (NSUInteger i = 0; i < maxLines; i++) {
+                NSString *line = lines[i];
+                if ([line length] > 100) {
+                    line = [[line substringToIndex:100] stringByAppendingString:@"..."];
+                }
+                [sampleLines addObject:line];
+            }
+
+            attachmentSummary[@"content_preview"] = sampleLines;
+            if ([lines count] > maxLines) {
+                attachmentSummary[@"remaining_lines"] = @([lines count] - maxLines);
+            }
+        } else {
+            NSString *preview = [self getDataPreview:data maxLength:100];
+            attachmentSummary[@"content_preview"] = preview;
+        }
+    } else {
+        NSString *preview = [self getDataPreview:data maxLength:100];
+        attachmentSummary[@"content_preview"] = preview;
+    }
+
+    // Serialize with pretty printing
+    NSError *error;
+    NSData *summaryData =
+        [NSJSONSerialization dataWithJSONObject:@{ @"attachment" : attachmentSummary }
+                                        options:0
+                                          error:&error];
+    if (summaryData && !error) {
+        NSString *summaryString = [[NSString alloc] initWithData:summaryData
+                                                        encoding:NSUTF8StringEncoding];
+        return [summaryString stringByAppendingString:@"\n"];
+    } else {
+        return [NSString stringWithFormat:@"Failed to serialize attachment summary: %@\n",
+            error.localizedDescription];
+    }
+}
+
+- (NSString *)getDataPreview:(NSData *)data maxLength:(NSUInteger)maxLength
+{
+    if (data.length == 0) {
+        return @"<empty>";
+    }
+
+    // First try to decode as UTF-8 string
+    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (string) {
+        if ([string length] <= maxLength) {
+            return [NSString stringWithFormat:@"\"%@\"", string];
+        } else {
+            NSString *truncated = [string substringToIndex:maxLength];
+            return [NSString stringWithFormat:@"\"%@...\" (%lu total chars)", truncated,
+                (unsigned long)[string length]];
+        }
+    }
+
+    // If not valid UTF-8, show as hex dump
+    const unsigned char *bytes = [data bytes];
+    NSMutableString *hexString = [NSMutableString string];
+    NSUInteger displayLength = MIN(data.length, maxLength / 2); // 2 chars per byte in hex
+
+    for (NSUInteger i = 0; i < displayLength; i++) {
+        [hexString appendFormat:@"%02x", bytes[i]];
+        if (i < displayLength - 1 && (i + 1) % 16 == 0) {
+            [hexString appendString:@"\n      "];
+        } else if (i < displayLength - 1 && (i + 1) % 4 == 0) {
+            [hexString appendString:@" "];
+        }
+    }
+
+    if (data.length > displayLength) {
+        [hexString appendFormat:@"... (%lu total bytes)", (unsigned long)data.length];
+    }
+
+    return [NSString stringWithFormat:@"Binary data:\n      %@", hexString];
 }
 
 @end

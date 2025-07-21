@@ -36,26 +36,26 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
 {
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedHeaderData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
-        [serializedData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
+        [serializedHeaderData setValue:[envelope.header.eventId sentryIdString] forKey:@"event_id"];
     }
 
     SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
     if (nil != sdkInfo) {
-        [serializedData setValue:[sdkInfo serialize] forKey:@"sdk"];
+        [serializedHeaderData setValue:[sdkInfo serialize] forKey:@"sdk"];
     }
 
     SentryTraceContext *traceContext = envelope.header.traceContext;
     if (traceContext != nil) {
-        [serializedData setValue:[traceContext serialize] forKey:@"trace"];
+        [serializedHeaderData setValue:[traceContext serialize] forKey:@"trace"];
     }
 
     NSDate *sentAt = envelope.header.sentAt;
     if (sentAt != nil) {
-        [serializedData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
+        [serializedHeaderData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
     }
-    NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
+    NSData *header = [SentrySerialization dataWithJSONObject:serializedHeaderData];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
         return nil;
@@ -90,11 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
             envelopeHeaderIndex = i;
             // Envelope header end
             NSData *headerData = [NSData dataWithBytes:bytes length:i];
-#ifdef DEBUG
-            NSString *headerString = [[NSString alloc] initWithData:headerData
-                                                           encoding:NSUTF8StringEncoding];
-            SENTRY_LOG_DEBUG(@"Header %@", headerString);
-#endif
             NSError *error = nil;
             NSDictionary *headerDictionary = [NSJSONSerialization JSONObjectWithData:headerData
                                                                              options:0
@@ -153,11 +148,6 @@ NS_ASSUME_NONNULL_BEGIN
 
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
-#ifdef DEBUG
-            NSString *itemHeaderString = [[NSString alloc] initWithData:itemHeaderData
-                                                               encoding:NSUTF8StringEncoding];
-            SENTRY_LOG_DEBUG(@"Item Header %@", itemHeaderString);
-#endif
             NSError *error = nil;
             NSDictionary *headerDictionary = [NSJSONSerialization JSONObjectWithData:itemHeaderData
                                                                              options:0

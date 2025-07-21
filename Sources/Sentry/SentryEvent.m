@@ -84,7 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
     // before
     [serializedData setValue:sentry_sanitize(self.extra) forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-    SENTRY_LOG_DEBUG(@"Serialized event: %@", serializedData);
 
     return serializedData;
 }
