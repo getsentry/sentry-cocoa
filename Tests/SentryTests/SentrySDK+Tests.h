@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySDKInternal.h"
 
 @class SentryEnvelope;
 @class SentryHub;

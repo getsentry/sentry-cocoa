@@ -2,31 +2,6 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-final class DateProviderBridge: SentryCurrentDateProvider {
-
-    private let dateProvider: SentryInternalCurrentDateProvider
-
-    func date() -> Date {
-        self.dateProvider.date()
-    }
-    
-    func timezoneOffset() -> Int {
-        self.dateProvider.timezoneOffset()
-    }
-    
-    func systemTime() -> UInt64 {
-        self.dateProvider.systemTime()
-    }
-    
-    func systemUptime() -> TimeInterval {
-        self.dateProvider.systemUptime()
-    }
-    
-    init(dateProvider: SentryInternalCurrentDateProvider) {
-        self.dateProvider = dateProvider
-    }
-}
-
 /**
  * The main entry point for the SentrySDK.
  * We recommend using `start(configureOptions:)` to initialize Sentry.
@@ -71,7 +46,7 @@ final class DateProviderBridge: SentryCurrentDateProvider {
             if let client = hub.getClient(), client.options.experimental.enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: DependencyScope.dispatchQueueWrapper)
             }
-            let logger = SentryLogger(hub: hub, dateProvider: DateProviderBridge(dateProvider: SentrySwiftHelpers.currentDateProvider()), batcher: batcher)
+            let logger = SentryLogger(hub: hub, dateProvider: DependencyScope.dateProvider, batcher: batcher)
             _logger = logger
             return logger
         }

@@ -35,4 +35,3 @@
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryUser+Serialize.h"
-#import "SentryUserFeedbackIntegration.h"

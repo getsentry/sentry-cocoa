@@ -13,6 +13,10 @@
 #    import "Sentry.h"
 #endif
 
+#if __has_include("SentrySDKInternal.h")
+#    include "SentrySDKInternal.h"
+#endif
+
 #if SENTRY_TEST
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
@@ -109,8 +113,16 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
+#if __has_include("SentrySDKInternal.h")
+@interface SentrySDKInternal ()
+#else
 @interface SentrySDKInternal : NSObject
+#endif
+
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
++ (void)setCurrentHub:(nullable SentryHub *)hub;
++ (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
+
 @end
 
 NS_ASSUME_NONNULL_END
