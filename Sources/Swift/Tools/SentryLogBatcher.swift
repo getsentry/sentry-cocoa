@@ -10,6 +10,8 @@ import Foundation
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
     
+    internal let options: Options
+
     // All mutable state is accessed from the same serial dispatch queue.
     
     // Every logs data is added sepratley. They are flushed together in an envelope.
@@ -33,6 +35,7 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.client = client
+        self.options = client.options
         self.flushTimeout = flushTimeout
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue

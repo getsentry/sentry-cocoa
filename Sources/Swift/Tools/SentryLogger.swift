@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 import Foundation
 
 /// **EXPERIMENTAL** - A structured logging API for Sentry.
@@ -101,13 +103,36 @@ public final class SentryLogger: NSObject {
         guard let batcher else {
             return
         }
-        let logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
-        let log = SentryLog(
-            timestamp: dateProvider.date(),
-            level: level,
-            body: body,
-            attributes: logAttributes
+        
+        var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+        addDefaultAttributes(to: &logAttributes)
+
+        let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
+        let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
+
+        batcher.add(
+            SentryLog(
+                timestamp: dateProvider.date(),
+                traceId: propagationContextTraceId,
+                level: level,
+                body: body,
+                attributes: logAttributes
+            )
         )
-        batcher.add(log)
+    }
+
+    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let batcher else {
+            return
+        }
+        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
+        attributes["sentry.environment"] = .string(batcher.options.environment)
+        if let releaseName = batcher.options.releaseName {
+            attributes["sentry.release"] = .string(releaseName)
+        }
+        if let span = hub.scope.span {
+            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+        }
     }
 }

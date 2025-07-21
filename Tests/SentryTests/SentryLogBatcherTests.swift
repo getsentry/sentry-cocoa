@@ -328,6 +328,7 @@ final class SentryLogBatcherTests: XCTestCase {
     ) -> SentryLog {
         return SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
+            traceId: SentryId.empty,
             level: level,
             body: body,
             attributes: attributes

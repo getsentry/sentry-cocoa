@@ -624,6 +624,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (NSString *)propagationContextTraceIdString
+{
+    return [self.propagationContext.traceId sentryIdString];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
