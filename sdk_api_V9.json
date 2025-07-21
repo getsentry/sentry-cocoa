@@ -42665,6 +42665,505 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SentryLogString",
+        "printedName": "SentryLogString",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(stringLiteral:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A9LogStringV13stringLiteralACSS_tcfc",
+            "mangledName": "$s6Sentry0A9LogStringV13stringLiteralACSS_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(stringInterpolation:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "StringInterpolation",
+                "printedName": "Sentry.SentryLogString.StringInterpolation",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A9LogStringV19stringInterpolationA2C0cE0V_tcfc",
+            "mangledName": "$s6Sentry0A9LogStringV19stringInterpolationA2C0cE0V_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "StringInterpolation",
+            "printedName": "StringInterpolation",
+            "children": [
+              {
+                "kind": "Constructor",
+                "name": "init",
+                "printedName": "init(literalCapacity:interpolationCount:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "StringInterpolation",
+                    "printedName": "Sentry.SentryLogString.StringInterpolation",
+                    "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Constructor",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "moduleName": "Sentry",
+                "init_kind": "Designated"
+              },
+              {
+                "kind": "Function",
+                "name": "appendLiteral",
+                "printedName": "appendLiteral(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV13appendLiteralyySSF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV13appendLiteralyySSF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySSF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySSF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySbF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySbF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySiF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySiF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySdF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySdF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Float",
+                    "printedName": "Swift.Float",
+                    "usr": "s:Sf"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySfF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySfF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(untracked:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "T"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD09untrackedyx_tlF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD09untrackedyx_tlF",
+                "moduleName": "Sentry",
+                "genericSig": "<T>",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "TypeAlias",
+                "name": "StringLiteralType",
+                "printedName": "StringLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV0C11LiteralTypea",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV0C11LiteralTypea",
+                "moduleName": "Sentry"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:6Sentry0A9LogStringV0C13InterpolationV",
+            "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV",
+            "moduleName": "Sentry",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "StringInterpolationProtocol",
+                "printedName": "StringInterpolationProtocol",
+                "children": [
+                  {
+                    "kind": "TypeWitness",
+                    "name": "StringLiteralType",
+                    "printedName": "StringLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "StringLiteralType",
+                        "printedName": "Sentry.SentryLogString.StringInterpolation.StringLiteralType",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:s27StringInterpolationProtocolP",
+                "mangledName": "$ss27StringInterpolationProtocolP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "ExtendedGraphemeClusterLiteralType",
+            "printedName": "ExtendedGraphemeClusterLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A9LogStringV34ExtendedGraphemeClusterLiteralTypea",
+            "mangledName": "$s6Sentry0A9LogStringV34ExtendedGraphemeClusterLiteralTypea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "StringLiteralType",
+            "printedName": "StringLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A9LogStringV0C11LiteralTypea",
+            "mangledName": "$s6Sentry0A9LogStringV0C11LiteralTypea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "UnicodeScalarLiteralType",
+            "printedName": "UnicodeScalarLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A9LogStringV24UnicodeScalarLiteralTypea",
+            "mangledName": "$s6Sentry0A9LogStringV24UnicodeScalarLiteralTypea",
+            "moduleName": "Sentry"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:6Sentry0A9LogStringV",
+        "mangledName": "$s6Sentry0A9LogStringV",
+        "moduleName": "Sentry",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByStringInterpolation",
+            "printedName": "ExpressibleByStringInterpolation",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "StringInterpolation",
+                "printedName": "StringInterpolation",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "StringInterpolation",
+                    "printedName": "Sentry.SentryLogString.StringInterpolation",
+                    "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s32ExpressibleByStringInterpolationP",
+            "mangledName": "$ss32ExpressibleByStringInterpolationP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByStringLiteral",
+            "printedName": "ExpressibleByStringLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "StringLiteralType",
+                "printedName": "StringLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "StringLiteralType",
+                    "printedName": "Sentry.SentryLogString.StringLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s26ExpressibleByStringLiteralP",
+            "mangledName": "$ss26ExpressibleByStringLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByExtendedGraphemeClusterLiteral",
+            "printedName": "ExpressibleByExtendedGraphemeClusterLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ExtendedGraphemeClusterLiteralType",
+                "printedName": "ExtendedGraphemeClusterLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "ExtendedGraphemeClusterLiteralType",
+                    "printedName": "Sentry.SentryLogString.ExtendedGraphemeClusterLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s43ExpressibleByExtendedGraphemeClusterLiteralP",
+            "mangledName": "$ss43ExpressibleByExtendedGraphemeClusterLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByUnicodeScalarLiteral",
+            "printedName": "ExpressibleByUnicodeScalarLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "UnicodeScalarLiteralType",
+                "printedName": "UnicodeScalarLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "UnicodeScalarLiteralType",
+                    "printedName": "Sentry.SentryLogString.UnicodeScalarLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s33ExpressibleByUnicodeScalarLiteralP",
+            "mangledName": "$ss33ExpressibleByUnicodeScalarLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SentryLogger",
         "printedName": "SentryLogger",
         "children": [
@@ -42744,7 +43243,7 @@
           {
             "kind": "Function",
             "name": "trace",
-            "printedName": "trace(_:arguments:)",
+            "printedName": "trace(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -42753,63 +43252,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5trace_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5trace_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "trace",
-            "printedName": "trace(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -42828,12 +43273,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5trace_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5trace_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5trace9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5trace9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -42916,7 +43362,7 @@
           {
             "kind": "Function",
             "name": "debug",
-            "printedName": "debug(_:arguments:)",
+            "printedName": "debug(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -42925,63 +43371,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5debug_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5debug_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "debug",
-            "printedName": "debug(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -43000,12 +43392,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5debug_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5debug_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5debug9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5debug9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43088,7 +43481,7 @@
           {
             "kind": "Function",
             "name": "info",
-            "printedName": "info(_:arguments:)",
+            "printedName": "info(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43097,63 +43490,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4info_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4info_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "info",
-            "printedName": "info(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -43172,12 +43511,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4info_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4info_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC4info9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4info9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43260,7 +43600,7 @@
           {
             "kind": "Function",
             "name": "warn",
-            "printedName": "warn(_:arguments:)",
+            "printedName": "warn(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43269,63 +43609,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4warn_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4warn_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "warn",
-            "printedName": "warn(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -43344,12 +43630,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4warn_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4warn_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC4warn9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4warn9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43432,7 +43719,7 @@
           {
             "kind": "Function",
             "name": "error",
-            "printedName": "error(_:arguments:)",
+            "printedName": "error(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43441,63 +43728,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5error_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5error_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "error",
-            "printedName": "error(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -43516,12 +43749,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5error_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5error_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5error9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5error9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43604,7 +43838,7 @@
           {
             "kind": "Function",
             "name": "fatal",
-            "printedName": "fatal(_:arguments:)",
+            "printedName": "fatal(formatted:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43613,63 +43847,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5fatal_9argumentsySS_Says7CVarArg_pGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5fatal_9argumentsySS_Says7CVarArg_pGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "fatal",
-            "printedName": "fatal(_:arguments:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[any Swift.CVarArg]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CVarArg",
-                    "printedName": "any Swift.CVarArg",
-                    "usr": "s:s7CVarArgP"
-                  }
-                ],
-                "usr": "s:Sa"
+                "name": "SentryLogString",
+                "printedName": "Sentry.SentryLogString",
+                "usr": "s:6Sentry0A9LogStringV"
               },
               {
                 "kind": "TypeNominal",
@@ -43688,12 +43868,13 @@
                     "printedName": "Any"
                   }
                 ],
+                "hasDefaultArg": true,
                 "usr": "s:SD"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5fatal_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5fatal_9arguments10attributesySS_Says7CVarArg_pGSDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5fatal9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
