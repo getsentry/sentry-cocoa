@@ -12,6 +12,11 @@ static NSString *const SENTRY_CONTEXT_DEVICE_KEY = @"device";
 // Can't expose the SentryId directly for some reason.
 @property (nonatomic, readonly) NSString *propagationContextTraceIdString;
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+@property (atomic, strong) SentryUser *_Nullable userObject;
+
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
 @end

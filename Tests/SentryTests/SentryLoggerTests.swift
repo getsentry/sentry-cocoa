@@ -326,6 +326,62 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(capturedLog.traceId, expectedTraceId)
     }
     
+    // MARK: - User Attributes Tests
+    
+    func testCaptureLog_AddsUserAttributes() {
+        let user = User()
+        user.userId = "123"
+        user.email = "test@test.com"
+        user.name = "test-name"
+        
+        // Set the user on the scope
+        fixture.hub.scope.setUser(user)
+        
+        sut.info("Test log message with user")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify user attributes were added to the log
+        XCTAssertEqual(capturedLog.attributes["user.id"]?.value as? String, "123")
+        XCTAssertEqual(capturedLog.attributes["user.id"]?.type, "string")
+        
+        XCTAssertEqual(capturedLog.attributes["user.name"]?.value as? String, "test-name")
+        XCTAssertEqual(capturedLog.attributes["user.name"]?.type, "string")
+        
+        XCTAssertEqual(capturedLog.attributes["user.email"]?.value as? String, "test@test.com")
+        XCTAssertEqual(capturedLog.attributes["user.email"]?.type, "string")
+    }
+    
+    func testCaptureLog_DoesNotAddNilUserAttributes() {
+        let user = User()
+        user.userId = "123"
+        // email and name are nil
+        
+        fixture.hub.scope.setUser(user)
+        
+        sut.info("Test log message with partial user")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Should only have user.id
+        XCTAssertEqual(capturedLog.attributes["user.id"]?.value as? String, "123")
+        XCTAssertNil(capturedLog.attributes["user.name"])
+        XCTAssertNil(capturedLog.attributes["user.email"])
+    }
+    
+    func testCaptureLog_DoesNotAddUserAttributesWhenNoUser() {
+        // No user set on scope
+        
+        sut.info("Test log message without user")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Should not have any user attributes
+        XCTAssertNil(capturedLog.attributes["user.id"])
+        XCTAssertNil(capturedLog.attributes["user.name"])
+        XCTAssertNil(capturedLog.attributes["user.email"])
+    }
+
     func testCaptureLog_AddsOSAndDeviceAttributes() {
         // Set up OS context
         let osContext = [

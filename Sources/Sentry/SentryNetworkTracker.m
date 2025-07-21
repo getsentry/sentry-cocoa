@@ -17,6 +17,7 @@
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentrySpanOperation.h"
 #import "SentryStacktrace.h"
