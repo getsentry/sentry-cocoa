@@ -2,6 +2,7 @@
 
 #import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
@@ -450,5 +451,10 @@ static BOOL isInitialializingDependencyContainer = NO;
                                              application:self.application
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
+}
+
+- (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_objcRuntimeWrapper, [[SentryDefaultObjCRuntimeWrapper alloc] init]);
 }
 @end
