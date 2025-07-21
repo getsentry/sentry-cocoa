@@ -11,10 +11,10 @@ import MachO
     // This function is used to check for duplicated SDKs in the binary.
     // Since `SentryBinaryImageInfo` is not public and only available through the Hybrid SDK, we use the expanded parameters.
     @objc
-    @_spi(Private) public class func checkForDuplicatedSDK(imageName: String, imageAddress: NSNumber, imageSize: NSNumber) {
+    @_spi(Private) public class func checkForDuplicatedSDK(imageName: String, imageAddress: NSNumber, imageSize: NSNumber, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
         internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,
-                                      objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(),
-                                      dispatchQueueWrapper: SentryDispatchQueueWrapper())
+                                      objcRuntimeWrapper: SentryDependencyContainerSwiftHelper.objcRuntimeWrapper(),
+                                      dispatchQueueWrapper: dispatchQueueWrapper)
     }
     
     class func internalCheckForDuplicatedSDK(_ imageName: String, _ imageAddress: UInt64, _ imageSize: UInt64, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {

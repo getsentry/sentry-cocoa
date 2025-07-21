@@ -1313,70 +1313,6 @@
           },
           {
             "kind": "Var",
-            "name": "userSegment",
-            "printedName": "userSegment",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:objc(cs)SentryBaggage(py)userSegment",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "userSegment",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryBaggage(im)userSegment",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "userSegment",
-                "declAttributes": [
-                  "DiscardableResult",
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
             "name": "sampleRand",
             "printedName": "sampleRand",
             "children": [
@@ -1720,7 +1656,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(trace:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:)",
+            "printedName": "init(trace:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -1823,26 +1759,12 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryBaggage(im)initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:",
+            "usr": "c:objc(cs)SentryBaggage(im)initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:",
             "moduleName": "Sentry",
-            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:",
+            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -1852,7 +1774,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(trace:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:)",
+            "printedName": "init(trace:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -1969,26 +1891,12 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryBaggage(im)initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:",
+            "usr": "c:objc(cs)SentryBaggage(im)initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:",
             "moduleName": "Sentry",
-            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:",
+            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -37316,70 +37224,6 @@
           },
           {
             "kind": "Var",
-            "name": "userSegment",
-            "printedName": "userSegment",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:objc(cs)SentryTraceContext(py)userSegment",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "userSegment",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryTraceContext(im)userSegment",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "userSegment",
-                "declAttributes": [
-                  "DiscardableResult",
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
             "name": "sampleRate",
             "printedName": "sampleRate",
             "children": [
@@ -37637,7 +37481,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(trace:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:)",
+            "printedName": "init(trace:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -37740,26 +37584,12 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:",
+            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:",
             "moduleName": "Sentry",
-            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampled:replayId:",
+            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampled:replayId:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -37769,7 +37599,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(trace:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:)",
+            "printedName": "init(trace:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -37886,26 +37716,12 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:",
+            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:",
             "moduleName": "Sentry",
-            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:userSegment:sampleRate:sampleRand:sampled:replayId:",
+            "objc_name": "initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -38006,7 +37822,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(trace:options:userSegment:replayId:)",
+            "printedName": "init(trace:options:replayId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -38039,26 +37855,12 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:options:userSegment:replayId:",
+            "usr": "c:objc(cs)SentryTraceContext(im)initWithTraceId:options:replayId:",
             "moduleName": "Sentry",
-            "objc_name": "initWithTraceId:options:userSegment:replayId:",
+            "objc_name": "initWithTraceId:options:replayId:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -40182,119 +39984,6 @@
                 "isOpen": true,
                 "objc_name": "setIpAddress:",
                 "declAttributes": [
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "set"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "segment",
-            "printedName": "segment",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:objc(cs)SentryUser(py)segment",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "isOpen": true,
-            "objc_name": "segment",
-            "declAttributes": [
-              "Available",
-              "ObjC",
-              "Dynamic"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryUser(im)segment",
-                "moduleName": "Sentry",
-                "deprecated": true,
-                "isOpen": true,
-                "objc_name": "segment",
-                "declAttributes": [
-                  "DiscardableResult",
-                  "Available",
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryUser(im)setSegment:",
-                "moduleName": "Sentry",
-                "deprecated": true,
-                "isOpen": true,
-                "objc_name": "setSegment:",
-                "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],

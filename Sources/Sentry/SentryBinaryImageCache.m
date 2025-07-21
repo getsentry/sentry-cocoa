@@ -91,9 +91,12 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     if (self.isDebug) {
         // Only validate if debug is enabled
-        [LoadValidator checkForDuplicatedSDKWithImageName:imageName
-                                             imageAddress:@(newImage.address)
-                                                imageSize:@(newImage.size)];
+        [LoadValidator
+            checkForDuplicatedSDKWithImageName:imageName
+                                  imageAddress:@(newImage.address)
+                                     imageSize:@(newImage.size)
+                          dispatchQueueWrapper:[[SentryDependencyContainer sharedInstance]
+                                                   dispatchQueueWrapper]];
     }
 }
 
