@@ -1,5 +1,3 @@
-import CoreGraphics
-
 extension SentryLog {
     enum Attribute: Codable {
         case string(String)
