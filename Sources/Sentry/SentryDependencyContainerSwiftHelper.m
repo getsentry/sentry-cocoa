@@ -1,5 +1,6 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentryUIApplication.h"
 
@@ -17,6 +18,11 @@
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];
+}
+
++ (SentryHub *)currentHub
+{
+    return [SentrySDKInternal currentHub];
 }
 
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper

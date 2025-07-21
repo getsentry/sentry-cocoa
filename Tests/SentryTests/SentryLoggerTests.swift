@@ -28,7 +28,7 @@ final class SentryLoggerTests: XCTestCase {
         }
         
         func getSut() -> SentryLogger {
-            return SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
+            return SentryLogger(dateProvider: dateProvider, batcher: batcher)
         }
     }
     

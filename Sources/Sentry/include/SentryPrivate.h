@@ -20,6 +20,7 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
+#import "SentryHub.h"
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryNSDictionarySanitize.h"

@@ -132,9 +132,8 @@ static NSDate *_Nullable startTimestamp = nil;
             }
 
             currentLogger = [[SentryLogger alloc]
-                 initWithHub:currentHub
-                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     batcher:batcher];
+                initWithDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                             batcher:batcher];
         }
         return currentLogger;
     }

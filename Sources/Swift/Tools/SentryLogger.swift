@@ -30,8 +30,8 @@ public final class SentryLogger: NSObject {
     // Nil in the case where the Hub's client is nil or logs are disabled through options.
     private let batcher: SentryLogBatcher?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
-        self.hub = hub
+    @_spi(Private) public init(dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
+        self.hub = SentryDependencyContainerSwiftHelper.currentHub()
         self.dateProvider = dateProvider
         self.batcher = batcher
         super.init()
