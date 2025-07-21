@@ -22,7 +22,7 @@ final class TestLog: XCTestCase {
         // Initialize Sentry SDK
         let options = Options()
         options.debug = true
-        options.diagnosticLevel = .debug
+        options.diagnosticLevel = .error
         SentrySDK.start(options: options)
         
         // Force loading another library to trigger validation

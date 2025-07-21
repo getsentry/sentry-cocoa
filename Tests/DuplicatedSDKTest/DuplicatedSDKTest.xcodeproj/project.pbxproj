@@ -15,7 +15,8 @@
 		D89DD6572CEF652B009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D89DD6592CEF6535009C3509 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; };
 		D89DD65A2CEF6535009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F474CB2D2E2B3DFC0001DF41 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
+		F41CE14C2E2EE7AC001123A5 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
+		F41CE14D2E2EE7AC001123A5 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
 		F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */; };
 		F474CB2F2E2B3E180001DF41 /* UITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB2A2E2B3DFC0001DF41 /* UITest.swift */; };
 		F474CB322E2B3E270001DF41 /* Unit_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB302E2B3E270001DF41 /* Unit_Tests.swift */; };
@@ -419,6 +420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41CE14C2E2EE7AC001123A5 /* SomeWork.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,6 +428,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41CE14D2E2EE7AC001123A5 /* SomeWork.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,7 +444,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F474CB2D2E2B3DFC0001DF41 /* SomeWork.swift in Sources */,
 				F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
