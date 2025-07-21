@@ -16,7 +16,7 @@ schemeTemplates:
         "--io.sentry.session-replay.disable-mask-all-images": false
 
         # user feedback
-        "--io.sentry.feedback.use-custom-feedback-button": true
+        "--io.sentry.feedback.use-custom-feedback-button": false
         "--io.sentry.feedback.dont-use-sentry-user": false
         "--io.sentry.feedback.require-name": false
         "--io.sentry.feedback.require-email": false
