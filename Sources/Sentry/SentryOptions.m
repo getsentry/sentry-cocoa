@@ -815,6 +815,20 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #    endif // SENTRY_HAS_UIKIT
 }
 
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
+
+- (BOOL)enableViewRendererV2
+{
+    return self.sessionReplay.enableViewRendererV2;
+}
+
+- (BOOL)enableFastViewRendering
+{
+    return self.sessionReplay.enableFastViewRendering;
+}
+
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
 - (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
 {
 #    if SENTRY_HAS_UIKIT
