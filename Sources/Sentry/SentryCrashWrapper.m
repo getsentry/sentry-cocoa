@@ -4,6 +4,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 #import "SentryUIDeviceWrapper.h"
 #import <SentryCrashCachedData.h>
@@ -17,7 +18,6 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
         [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
     }
 
-    [scope setContextValue:osData forKey:@"os"];
+    [scope setContextValue:osData forKey:SENTRY_CONTEXT_OS_KEY];
 
     // SystemInfo should only be nil when SentryCrash has not been installed
     if (systemInfo == nil || systemInfo.count == 0) {
@@ -195,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-    [scope setContextValue:deviceData forKey:DEVICE_KEY];
+    [scope setContextValue:deviceData forKey:SENTRY_CONTEXT_DEVICE_KEY];
 
     // APP
     NSMutableDictionary *appData = [NSMutableDictionary new];

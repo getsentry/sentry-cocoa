@@ -170,6 +170,8 @@ public final class SentryLogger: NSObject {
         }
         
         addDefaultAttributes(to: &logAttributes)
+        addOSAttributes(to: &logAttributes)
+        addDeviceAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -200,4 +202,30 @@ public final class SentryLogger: NSObject {
         }
     }
 
+    private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let osContext = hub.scope.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
+            return
+        }
+        if let osName = osContext["name"] as? String {
+            attributes["os.name"] = .string(osName)
+        }
+        if let osVersion = osContext["version"] as? String {
+            attributes["os.version"] = .string(osVersion)
+        }
+    }
+    
+    private func addDeviceAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let deviceContext = hub.scope.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
+            return
+        }
+        // For Apple devices, brand is always "Apple"
+        attributes["device.brand"] = .string("Apple")
+        
+        if let deviceModel = deviceContext["model"] as? String {
+            attributes["device.model"] = .string(deviceModel)
+        }
+        if let deviceFamily = deviceContext["family"] as? String {
+            attributes["device.family"] = .string(deviceFamily)
+        }
+    }
 }
