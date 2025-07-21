@@ -23,9 +23,11 @@ import Foundation
         }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        #if !SDK_V9
         if options.enableAppLaunchProfiling {
             features.append("appLaunchProfiling")
         }
+        #endif // !SDK_V9
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if os(iOS) || os(tvOS)

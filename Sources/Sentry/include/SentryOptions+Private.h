@@ -12,11 +12,13 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
 
+#    if !SDK_V9
 /**
  * If continuous profiling mode v1 ("beta") is enabled.
  * @note Not for use with launch profiles. See functions in @c SentryLaunchProfiling .
  */
 - (BOOL)isContinuousProfilingEnabled;
+#    endif // !SDK_V9
 
 /**
  * If UI profiling mode ("continuous v2") is enabled.

@@ -68,6 +68,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 void
 sentry_configureContinuousProfiling(SentryOptions *options)
 {
+#    if !SDK_V9
     if (![options isContinuousProfilingEnabled]) {
         if (options.configureProfiling != nil) {
             SENTRY_LOG_WARN(@"In order to configure SentryProfileOptions you must remove "
@@ -76,6 +77,7 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         }
         return;
     }
+#    endif // !SDK_V9
 
     if (options.configureProfiling == nil) {
         SENTRY_LOG_DEBUG(@"Continuous profiling V2 configuration not set by SDK consumer, nothing "

@@ -177,10 +177,12 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
             sentry_stringFromSentryID(internalTraceId));
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
+#    if !SDK_V9
         if (sentry_isContinuousProfilingEnabled(hub.getClient)) {
             SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
             return;
         }
+#    endif // !SDK_V9
 
         if (_gTracersToProfilers == nil) {
             SENTRY_LOG_ERROR(@"Tracer to profiler should have already been initialized by the "
@@ -351,8 +353,13 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     } else {
         BOOL profileShouldBeSampled
             = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
+#    if !SDK_V9
         BOOL isContinuousProfiling = sentry_isContinuousProfilingEnabled(hub.client);
         BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
+#    else
+        BOOL shouldStartNormalTraceProfile = profileShouldBeSampled;
+#    endif // !SDK_V9
+
         if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
             SentryId *internalID = sentry_getSentryId();
             if ([SentryTraceProfiler startWithTracer:internalID]) {

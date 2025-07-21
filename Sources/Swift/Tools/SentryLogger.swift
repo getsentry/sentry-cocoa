@@ -172,6 +172,7 @@ public final class SentryLogger: NSObject {
         addDefaultAttributes(to: &logAttributes)
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
+        addUserAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -226,6 +227,21 @@ public final class SentryLogger: NSObject {
         }
         if let deviceFamily = deviceContext["family"] as? String {
             attributes["device.family"] = .string(deviceFamily)
+        }
+    }
+
+    private func addUserAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+        guard let user = hub.scope.userObject else {
+            return
+        }
+        if let userId = user.userId {
+            attributes["user.id"] = .string(userId)
+        }
+        if let userName = user.name {
+            attributes["user.name"] = .string(userName)
+        }
+        if let userEmail = user.email {
+            attributes["user.email"] = .string(userEmail)
         }
     }
 }
