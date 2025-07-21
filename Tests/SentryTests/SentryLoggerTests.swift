@@ -422,6 +422,59 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
+    // MARK: - Default Attributes Tests
+    
+    func testCaptureLog_AddsDefaultAttributes() {
+        fixture.options.environment = "test-environment"
+        fixture.options.releaseName = "1.0.0"
+        
+        let span = fixture.hub.startTransaction(name: "Test Transaction", operation: "test-operation")
+        fixture.hub.scope.span = span
+        
+        sut.info("Test log message")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify default attributes were added to the log
+        XCTAssertEqual(capturedLog.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
+        XCTAssertEqual(capturedLog.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
+        XCTAssertEqual(capturedLog.attributes["sentry.environment"]?.value as? String, "test-environment")
+        XCTAssertEqual(capturedLog.attributes["sentry.release"]?.value as? String, "1.0.0")
+        XCTAssertEqual(capturedLog.attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+    }
+    
+    func testCaptureLog_DoesNotAddNilDefaultAttributes() {
+        fixture.options.releaseName = nil
+        
+        sut.info("Test log message")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        XCTAssertNil(capturedLog.attributes["sentry.release"])
+        XCTAssertNil(capturedLog.attributes["sentry.trace.parent_span_id"])
+        
+        // But should still have the non-nil defaults
+        XCTAssertEqual(capturedLog.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
+        XCTAssertEqual(capturedLog.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
+        XCTAssertEqual(capturedLog.attributes["sentry.environment"]?.value as? String, fixture.options.environment)
+    }
+
+    func testCaptureLog_SetsTraceIdFromPropagationContext() {
+        fixture.options.experimental.enableLogs = true
+        
+        let expectedTraceId = SentryId()
+        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        
+        fixture.hub.scope.propagationContext = propagationContext
+        
+        sut.info("Test log message with trace ID")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify that the log's trace ID matches the one from the propagation context
+        XCTAssertEqual(capturedLog.traceId, expectedTraceId)
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
@@ -443,8 +496,9 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(capturedLog.body, expectedBody, "Log body mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.timestamp, fixture.dateProvider.date(), "Log timestamp mismatch", file: file, line: line)
         
+        let numberOfDefaultAttributes = 4
         // Compare attributes
-        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count, "Attribute count mismatch", file: file, line: line)
+        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count + numberOfDefaultAttributes, "Attribute count mismatch", file: file, line: line)
         
         for (key, expectedAttribute) in expectedAttributes {
             guard let actualAttribute = capturedLog.attributes[key] else {
@@ -473,7 +527,7 @@ final class SentryLoggerTests: XCTestCase {
         let logs = fixture.batcher.addInvocations.invocations
         guard let lastLog = logs.last else {
             XCTFail("No logs captured")
-            return SentryLog(timestamp: Date(), level: .info, body: "", attributes: [:])
+            return SentryLog(timestamp: Date(), traceId: .empty, level: .info, body: "", attributes: [:])
         }
         return lastLog
     }
