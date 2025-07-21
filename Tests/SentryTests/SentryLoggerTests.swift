@@ -381,6 +381,83 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(capturedLog.attributes["user.name"])
         XCTAssertNil(capturedLog.attributes["user.email"])
     }
+
+    func testCaptureLog_AddsOSAndDeviceAttributes() {
+        // Set up OS context
+        let osContext = [
+            "name": "iOS",
+            "version": "16.0.1"
+        ]
+        
+        // Set up device context  
+        let deviceContext = [
+            "family": "iOS",
+            "model": "iPhone14,4"
+        ]
+        
+        // Set up scope context
+        fixture.hub.scope.setContext(value: osContext, key: "os")
+        fixture.hub.scope.setContext(value: deviceContext, key: "device")
+        
+        sut.info("Test log message")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify OS attributes
+        XCTAssertEqual(capturedLog.attributes["os.name"]?.value as? String, "iOS")
+        XCTAssertEqual(capturedLog.attributes["os.version"]?.value as? String, "16.0.1")
+        
+        // Verify device attributes
+        XCTAssertEqual(capturedLog.attributes["device.brand"]?.value as? String, "Apple")
+        XCTAssertEqual(capturedLog.attributes["device.model"]?.value as? String, "iPhone14,4")
+        XCTAssertEqual(capturedLog.attributes["device.family"]?.value as? String, "iOS")
+    }
+    
+    func testCaptureLog_HandlesPartialOSAndDeviceAttributes() {
+        // Set up partial OS context (missing version)
+        let osContext = [
+            "name": "macOS"
+        ]
+        
+        // Set up partial device context (missing model)
+        let deviceContext = [
+            "family": "macOS"
+        ]
+        
+        // Set up scope context
+        fixture.hub.scope.setContext(value: osContext, key: "os")
+        fixture.hub.scope.setContext(value: deviceContext, key: "device")
+        
+        sut.info("Test log message")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify only available OS attributes are added
+        XCTAssertEqual(capturedLog.attributes["os.name"]?.value as? String, "macOS")
+        XCTAssertNil(capturedLog.attributes["os.version"])
+        
+        // Verify only available device attributes are added
+        XCTAssertEqual(capturedLog.attributes["device.brand"]?.value as? String, "Apple")
+        XCTAssertNil(capturedLog.attributes["device.model"])
+        XCTAssertEqual(capturedLog.attributes["device.family"]?.value as? String, "macOS")
+    }
+    
+    func testCaptureLog_HandlesMissingOSAndDeviceContext() {
+        // Clear any OS and device context that might be automatically populated
+        fixture.hub.scope.removeContext(key: "os")
+        fixture.hub.scope.removeContext(key: "device")
+        
+        sut.info("Test log message")
+        
+        let capturedLog = getLastCapturedLog()
+        
+        // Verify no OS or device attributes are added when context is missing
+        XCTAssertNil(capturedLog.attributes["os.name"])
+        XCTAssertNil(capturedLog.attributes["os.version"])
+        XCTAssertNil(capturedLog.attributes["device.brand"])
+        XCTAssertNil(capturedLog.attributes["device.model"])
+        XCTAssertNil(capturedLog.attributes["device.family"])
+    }
     
     // MARK: - Helper Methods
     
@@ -403,22 +480,31 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(capturedLog.body, expectedBody, "Log body mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.timestamp, fixture.dateProvider.date(), "Log timestamp mismatch", file: file, line: line)
         
-        // Calculate expected default attributes count dynamically
-        var expectedDefaultAttributesCount = 3 // sentry.sdk.name, sentry.sdk.version, sentry.environment
+        // Count expected default attributes dynamically
+        var expectedDefaultAttributeCount = 3 // sdk.name, sdk.version, environment are always present
         if fixture.options.releaseName != nil {
-            expectedDefaultAttributesCount += 1 // sentry.release
+            expectedDefaultAttributeCount += 1 // sentry.release
         }
         if fixture.hub.scope.span != nil {
-            expectedDefaultAttributesCount += 1 // sentry.trace.parent_span_id
+            expectedDefaultAttributeCount += 1 // sentry.trace.parent_span_id
         }
-        if let user = fixture.hub.scope.userObject {
-            if user.userId != nil { expectedDefaultAttributesCount += 1 }
-            if user.name != nil { expectedDefaultAttributesCount += 1 }
-            if user.email != nil { expectedDefaultAttributesCount += 1 }
+        // OS and device attributes (up to 5 more if context is available)
+        if let contextDictionary = fixture.hub.scope.serialize()["context"] as? [String: [String: Any]] {
+            if let osContext = contextDictionary["os"] {
+                if osContext["name"] != nil { expectedDefaultAttributeCount += 1 }
+                if osContext["version"] != nil { expectedDefaultAttributeCount += 1 }
+            }
+            if contextDictionary["device"] != nil {
+                expectedDefaultAttributeCount += 1 // device.brand (always "Apple")
+                if let deviceContext = contextDictionary["device"] {
+                    if deviceContext["model"] != nil { expectedDefaultAttributeCount += 1 }
+                    if deviceContext["family"] != nil { expectedDefaultAttributeCount += 1 }
+                }
+            }
         }
         
         // Compare attributes
-        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count + expectedDefaultAttributesCount, "Attribute count mismatch", file: file, line: line)
+        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count + expectedDefaultAttributeCount, "Attribute count mismatch", file: file, line: line)
         
         for (key, expectedAttribute) in expectedAttributes {
             guard let actualAttribute = capturedLog.attributes[key] else {

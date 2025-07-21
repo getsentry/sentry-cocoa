@@ -2,6 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const SENTRY_CONTEXT_OS_KEY = @"os";
+static NSString *const SENTRY_CONTEXT_DEVICE_KEY = @"device";
+
 // Added to only expose a limited sub-set of internal API needed in the Swift layer.
 @interface SentryScope ()
 
@@ -13,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Set global user -> thus will be sent with every event
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
+
+- (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
 @end
 
