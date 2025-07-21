@@ -32,6 +32,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
@@ -1016,9 +1017,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSDictionary *extraContext =
         [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
     [self modifyContext:event
-                    key:@"device"
+                    key:SENTRY_CONTEXT_DEVICE_KEY
                   block:^(NSMutableDictionary *device) {
-                      [device addEntriesFromDictionary:extraContext[@"device"]];
+                      [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]];
                   }];
 
     [self modifyContext:event
@@ -1054,7 +1055,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
 {
     [self modifyContext:event
-                    key:@"device"
+                    key:SENTRY_CONTEXT_DEVICE_KEY
                   block:^(NSMutableDictionary *device) {
                       [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
                       [device removeObjectForKey:@"orientation"];
