@@ -19,4 +19,9 @@
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];
 }
 
++ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
+{
+    return SentryDependencyContainer.sharedInstance.objcRuntimeWrapper;
+}
+
 @end
