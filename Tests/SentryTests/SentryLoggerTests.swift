@@ -271,157 +271,6 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertEqual(logs[5].level, .fatal)
     }
     
-    // MARK: - String Templating Tests
-    
-    func testInfo_WithTemplating_SingleParameter() {
-        sut.info("Adding item %@ for processing", arguments: ["item123"], attributes: ["extra": "data"])
-        
-        assertLogCaptured(
-            .info,
-            "Adding item item123 for processing",
-            [
-                "extra": .string("data"),
-                "sentry.message.template": .string("Adding item %@ for processing"),
-                "sentry.message.parameter.0": .string("item123")
-            ]
-        )
-    }
-    
-    func testInfo_WithTemplating_MultipleParameters() {
-        sut.info("Name: %@, Age: %d, Active: %@, Score: %.1f", 
-                arguments: ["Alice", 30, NSNumber(value: true), 95.5], 
-                attributes: ["extra": "123"])
-        
-        assertLogCaptured(
-            .info,
-            "Name: Alice, Age: 30, Active: 1, Score: 95.5",
-            [
-                "extra": .string("123"),
-                "sentry.message.template": .string("Name: %@, Age: %d, Active: %@, Score: %.1f"),
-                "sentry.message.parameter.0": .string("Alice"),
-                "sentry.message.parameter.1": .integer(30),
-                "sentry.message.parameter.2": .boolean(true),
-                "sentry.message.parameter.3": .double(95.5)
-            ]
-        )
-    }
-    
-    func testDebug_WithTemplating() {
-        sut.debug("Processing user %@ with ID %i", arguments: ["john_doe", 12_345])
-        
-        assertLogCaptured(
-            .debug,
-            "Processing user john_doe with ID 12345",
-            [
-                "sentry.message.template": .string("Processing user %@ with ID %i"),
-                "sentry.message.parameter.0": .string("john_doe"),
-                "sentry.message.parameter.1": .integer(12_345)
-            ]
-        )
-    }
-    
-    func testTrace_WithTemplating() {
-        sut.trace("Trace event %@", arguments: ["test_event"])
-        
-        assertLogCaptured(
-            .trace,
-            "Trace event test_event",
-            [
-                "sentry.message.template": .string("Trace event %@"),
-                "sentry.message.parameter.0": .string("test_event")
-            ]
-        )
-    }
-    
-    func testWarn_WithTemplating() {
-        sut.warn("Warning: %i attempts remaining", arguments: [3])
-        
-        assertLogCaptured(
-            .warn,
-            "Warning: 3 attempts remaining",
-            [
-                "sentry.message.template": .string("Warning: %i attempts remaining"),
-                "sentry.message.parameter.0": .integer(3)
-            ]
-        )
-    }
-    
-    func testError_WithTemplating() {
-        sut.error("Error %i occurred in %@", arguments: [404, "API"])
-
-        assertLogCaptured(
-            .error,
-            "Error 404 occurred in API",
-            [
-                "sentry.message.template": .string("Error %i occurred in %@"),
-                "sentry.message.parameter.0": .integer(404),
-                "sentry.message.parameter.1": .string("API")
-            ]
-        )
-    }
-    
-    func testFatal_WithTemplating() {
-        sut.fatal("Fatal error: %@", arguments: ["System crash"])
-
-        assertLogCaptured(
-            .fatal,
-            "Fatal error: System crash",
-            [
-                "sentry.message.template": .string("Fatal error: %@"),
-                "sentry.message.parameter.0": .string("System crash")
-            ]
-        )
-    }
-    
-    func testTemplating_WithEmptyParameters() {
-        sut.info("Simple message without arguments", arguments: [])
-
-        assertLogCaptured(
-            .info,
-            "Simple message without arguments",
-            [:]
-        )
-    }
-    
-    func testTemplating_WithFloatParameter() {
-        let floatValue: Float = 2.71828
-        sut.info("Pi approximation: %f", arguments: [floatValue])
-        
-        assertLogCaptured(
-            .info,
-            "Pi approximation: 2.718280",
-            [
-                "sentry.message.template": .string("Pi approximation: %f"),
-                "sentry.message.parameter.0": .double(Double(floatValue))
-            ]
-        )
-    }
-    
-    func testTemplating_CombinedWithUserAttributes() {
-        let userAttributes: [String: Any] = [
-            "session_id": "sess_123",
-            "user_id": 456,
-            "debug_mode": true
-        ]
-        
-        sut.info("User %@ performed action %@", 
-                arguments: ["alice", "login"], 
-                attributes: userAttributes)
-        
-        assertLogCaptured(
-            .info,
-            "User alice performed action login",
-            [
-                "session_id": .string("sess_123"),
-                "user_id": .integer(456),
-                "debug_mode": .boolean(true),
-                "sentry.message.template": .string("User %@ performed action %@"),
-                "sentry.message.parameter.0": .string("alice"),
-                "sentry.message.parameter.1": .string("login")
-            ]
-        )
-    }
-    
     // MARK: - Default Attributes Tests
     
     func testCaptureLog_AddsDefaultAttributes() {
@@ -473,6 +322,192 @@ final class SentryLoggerTests: XCTestCase {
         
         // Verify that the log's trace ID matches the one from the propagation context
         XCTAssertEqual(capturedLog.traceId, expectedTraceId)
+    }
+    
+    // MARK: - Formatted String Tests
+    
+    func testTrace_WithFormattedString() {
+        let user = "john"
+        let count = 42
+        let active = true
+        let score = 95.5
+        
+        let logString: SentryLogString = "User \(user) processed \(count) items, active: \(active), score: \(score)"
+        sut.trace(formatted: logString)
+        
+        assertLogCaptured(
+            .trace,
+            "User john processed 42 items, active: true, score: 95.5",
+            [
+                "sentry.message.template": .string("User {0} processed {1} items, active: {2}, score: {3}"),
+                "sentry.message.parameter.0": .string("john"),
+                "sentry.message.parameter.1": .integer(42),
+                "sentry.message.parameter.2": .boolean(true),
+                "sentry.message.parameter.3": .double(95.5)
+            ]
+        )
+    }
+    
+    func testTrace_WithFormattedStringAndAttributes() {
+        let userId = "user123"
+        let logString: SentryLogString = "Processing user \(userId)"
+        
+        sut.trace(formatted: logString, attributes: ["extra": "data", "count": 10])
+        
+        assertLogCaptured(
+            .trace,
+            "Processing user user123",
+            [
+                "sentry.message.template": .string("Processing user {0}"),
+                "sentry.message.parameter.0": .string("user123"),
+                "extra": .string("data"),
+                "count": .integer(10)
+            ]
+        )
+    }
+    
+    func testDebug_WithFormattedString() {
+        let value: Float = 3.14
+        let enabled = false
+        
+        let logString: SentryLogString = "Float value: \(value), enabled: \(enabled)"
+        sut.debug(formatted: logString)
+        
+        assertLogCaptured(
+            .debug,
+            "Float value: 3.14, enabled: false",
+            [
+                "sentry.message.template": .string("Float value: {0}, enabled: {1}"),
+                "sentry.message.parameter.0": .double(Double(value)),
+                "sentry.message.parameter.1": .boolean(false)
+            ]
+        )
+    }
+    
+    func testInfo_WithFormattedString() {
+        let temperature = 98.6
+        let unit = "F"
+        
+        let logString: SentryLogString = "Temperature: \(temperature)°\(unit)"
+        sut.info(formatted: logString)
+        
+        assertLogCaptured(
+            .info,
+            "Temperature: 98.6°F",
+            [
+                "sentry.message.template": .string("Temperature: {0}°{1}"),
+                "sentry.message.parameter.0": .double(98.6),
+                "sentry.message.parameter.1": .string("F")
+            ]
+        )
+    }
+    
+    func testWarn_WithFormattedString() {
+        let attempts = 3
+        let maxAttempts = 5
+        
+        let logString: SentryLogString = "Retry \(attempts) of \(maxAttempts)"
+        sut.warn(formatted: logString, attributes: ["retry_policy": "exponential"])
+        
+        assertLogCaptured(
+            .warn,
+            "Retry 3 of 5",
+            [
+                "sentry.message.template": .string("Retry {0} of {1}"),
+                "sentry.message.parameter.0": .integer(3),
+                "sentry.message.parameter.1": .integer(5),
+                "retry_policy": .string("exponential")
+            ]
+        )
+    }
+    
+    func testError_WithFormattedString() {
+        let errorCode = 500
+        let service = "payment"
+        
+        let logString: SentryLogString = "Service \(service) failed with code \(errorCode)"
+        sut.error(formatted: logString)
+        
+        assertLogCaptured(
+            .error,
+            "Service payment failed with code 500",
+            [
+                "sentry.message.template": .string("Service {0} failed with code {1}"),
+                "sentry.message.parameter.0": .string("payment"),
+                "sentry.message.parameter.1": .integer(500)
+            ]
+        )
+    }
+    
+    func testFatal_WithFormattedString() {
+        let component = "database"
+        let critical = true
+        
+        let logString: SentryLogString = "Critical failure in \(component): \(critical)"
+        sut.fatal(formatted: logString, attributes: ["shutdown": true])
+        
+        assertLogCaptured(
+            .fatal,
+            "Critical failure in database: true",
+            [
+                "sentry.message.template": .string("Critical failure in {0}: {1}"),
+                "sentry.message.parameter.0": .string("database"),
+                "sentry.message.parameter.1": .boolean(true),
+                "shutdown": .boolean(true)
+            ]
+        )
+    }
+    
+    func testFormattedString_WithUntrackedInterpolation() {
+        let publicData = "visible"
+        let sensitiveData = ["password": "secret123"]
+        
+        let logString: SentryLogString = "Data: \(publicData), sensitive: \(untracked: sensitiveData)"
+        sut.info(formatted: logString)
+        
+        assertLogCaptured(
+            .info,
+            "Data: visible, sensitive: [\"password\": \"secret123\"]",
+            [
+                "sentry.message.template": .string("Data: {0}, sensitive: [\"password\": \"secret123\"]"),
+                "sentry.message.parameter.0": .string("visible")
+            ]
+        )
+    }
+    
+    func testFormattedString_WithMixedTypes() {
+        let name = "test"
+        let count = 0
+        let percentage = 0.0
+        let success = false
+        let value: Float = -1.5
+        
+        let logString: SentryLogString = "Test \(name): \(count) items, \(percentage)% complete, success: \(success), float: \(value)"
+        sut.debug(formatted: logString)
+        
+        assertLogCaptured(
+            .debug,
+            "Test test: 0 items, 0.0% complete, success: false, float: -1.5",
+            [
+                "sentry.message.template": .string("Test {0}: {1} items, {2}% complete, success: {3}, float: {4}"),
+                "sentry.message.parameter.0": .string("test"),
+                "sentry.message.parameter.1": .integer(0),
+                "sentry.message.parameter.2": .double(0.0),
+                "sentry.message.parameter.3": .boolean(false),
+                "sentry.message.parameter.4": .double(Double(-1.5))
+            ]
+        )
+    }
+    
+    func testFormattedString_EmptyAttributes() {
+        let logString: SentryLogString = "Simple message"
+        sut.info(formatted: logString, attributes: [:])
+        
+        assertLogCaptured(
+            .info,
+            "Simple message",
+            [:]  // No template should be added for string literals without interpolations
+        )
     }
     
     // MARK: - Helper Methods

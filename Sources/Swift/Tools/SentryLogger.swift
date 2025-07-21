@@ -22,10 +22,10 @@ import Foundation
 /// logger.info("User logged in", attributes: ["userId": "12345"])
 /// logger.error("Payment failed", attributes: ["errorCode": 500])
 /// 
-/// // String templating with various format specifiers
-/// logger.info("Adding item %@ for user %@", arguments: [itemId, userId], attributes: ["extra": "123"])
-/// logger.debug("Processing %d items with %.2f%% completion", arguments: [count, percentage])
-/// logger.warn("Retry attempt %d of %d failed", arguments: [currentAttempt, maxAttempts])
+/// // Structured string interpolation with automatic type detection
+/// logger.info(formatted: "User \(userId) processed \(count) items with \(percentage)% success")
+/// logger.debug(formatted: "Processing \(itemCount) items, active: \(isActive)")
+/// logger.warn(formatted: "Retry attempt \(currentAttempt) of \(maxAttempts) failed")
 /// ```
 @objc
 @objcMembers
@@ -46,150 +46,130 @@ public final class SentryLogger: NSObject {
     
     /// Logs a trace-level message.
     public func trace(_ body: String) {
-        captureLog(level: .trace, body: body, arguments: [], attributes: [:])
+        captureLog(level: .trace, body: body, attributes: [:])
     }
     
     /// Logs a trace-level message with additional attributes.
     public func trace(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .trace, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .trace, body: body, attributes: attributes)
     }
     
-    /// Logs a trace-level message with string templating.
-    public func trace(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .trace, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs a trace-level message with string templating and additional attributes.
-    public func trace(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .trace, body: body, arguments: arguments, attributes: attributes)
+    /// Logs a trace-level message with structured string interpolation.
+    public func trace(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .trace, logString: body, attributes: attributes)
     }
     
     // MARK: - Debug Level
     
     /// Logs a debug-level message.
     public func debug(_ body: String) {
-        captureLog(level: .debug, body: body, arguments: [], attributes: [:])
+        captureLog(level: .debug, body: body, attributes: [:])
     }
     
     /// Logs a debug-level message with additional attributes.
     public func debug(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .debug, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .debug, body: body, attributes: attributes)
     }
     
-    /// Logs a debug-level message with string templating.
-    public func debug(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .debug, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs a debug-level message with string templating and additional attributes.
-    public func debug(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .debug, body: body, arguments: arguments, attributes: attributes)
+    /// Logs a debug-level message with structured string interpolation.
+    public func debug(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .debug, logString: body, attributes: attributes)
     }
     
     // MARK: - Info Level
     
     /// Logs an info-level message.
     public func info(_ body: String) {
-        captureLog(level: .info, body: body, arguments: [], attributes: [:])
+        captureLog(level: .info, body: body, attributes: [:])
     }
     
     /// Logs an info-level message with additional attributes.
     public func info(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .info, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .info, body: body, attributes: attributes)
     }
     
-    /// Logs an info-level message with string templating.
-    public func info(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .info, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs an info-level message with string templating and additional attributes.
-    public func info(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .info, body: body, arguments: arguments, attributes: attributes)
+    /// Logs an info-level message with structured string interpolation.
+    public func info(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .info, logString: body, attributes: attributes)
     }
     
     // MARK: - Warn Level
     
     /// Logs a warning-level message.
     public func warn(_ body: String) {
-        captureLog(level: .warn, body: body, arguments: [], attributes: [:])
+        captureLog(level: .warn, body: body, attributes: [:])
     }
     
     /// Logs a warning-level message with additional attributes.
     public func warn(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .warn, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .warn, body: body, attributes: attributes)
     }
     
-    /// Logs a warning-level message with string templating.
-    public func warn(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .warn, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs a warning-level message with string templating and additional attributes.
-    public func warn(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .warn, body: body, arguments: arguments, attributes: attributes)
+    /// Logs a warning-level message with structured string interpolation.
+    public func warn(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .warn, logString: body, attributes: attributes)
     }
     
     // MARK: - Error Level
     
     /// Logs an error-level message.
     public func error(_ body: String) {
-        captureLog(level: .error, body: body, arguments: [], attributes: [:])
+        captureLog(level: .error, body: body, attributes: [:])
     }
     
     /// Logs an error-level message with additional attributes.
     public func error(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .error, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .error, body: body, attributes: attributes)
     }
     
-    /// Logs an error-level message with string templating.
-    public func error(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .error, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs an error-level message with string templating and additional attributes.
-    public func error(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .error, body: body, arguments: arguments, attributes: attributes)
+    /// Logs an error-level message with structured string interpolation.
+    public func error(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .error, logString: body, attributes: attributes)
     }
     
     // MARK: - Fatal Level
     
     /// Logs a fatal-level message.
     public func fatal(_ body: String) {
-        captureLog(level: .fatal, body: body, arguments: [], attributes: [:])
+        captureLog(level: .fatal, body: body, attributes: [:])
     }
     
     /// Logs a fatal-level message with additional attributes.
     public func fatal(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .fatal, body: body, arguments: [], attributes: attributes)
+        captureLog(level: .fatal, body: body, attributes: attributes)
     }
     
-    /// Logs a fatal-level message with string templating.
-    public func fatal(_ body: String, arguments: [CVarArg]) {
-        captureLog(level: .fatal, body: body, arguments: arguments, attributes: [:])
-    }
-    
-    /// Logs a fatal-level message with string templating and additional attributes.
-    public func fatal(_ body: String, arguments: [CVarArg], attributes: [String: Any]) {
-        captureLog(level: .fatal, body: body, arguments: arguments, attributes: attributes)
+    /// Logs a fatal-level message with structured string interpolation.
+    public func fatal(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .fatal, logString: body, attributes: attributes)
     }
     
     // MARK: - Private
     
-    private func captureLog(level: SentryLog.Level, body: String, arguments: [CVarArg], attributes: [String: Any]) {
+    private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
+        let logString = SentryLogString(stringLiteral: body)
+        captureLog(level: level, logString: logString, attributes: attributes)
+    }
+
+    private func captureLog(level: SentryLog.Level, logString: SentryLogString, attributes: [String: Any]) {
         guard let batcher else {
             return
         }
         
+        // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+        
+        // Add template string if there are interpolations
+        if !logString.attributes.isEmpty {
+            logAttributes["sentry.message.template"] = .string(logString.template)
+        }
+        
+        // Add attributes from the SentryLogString
+        for (index, attribute) in logString.attributes.enumerated() {
+            logAttributes["sentry.message.parameter.\(index)"] = attribute
+        }
+        
         addDefaultAttributes(to: &logAttributes)
-
-        if !arguments.isEmpty {
-            logAttributes["sentry.message.template"] = .string(body)
-        }
-        for (index, argument) in arguments.enumerated() {
-            logAttributes["sentry.message.parameter.\(index)"] = SentryLog.Attribute(value: argument)
-        }
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -199,7 +179,7 @@ public final class SentryLogger: NSObject {
                 timestamp: dateProvider.date(),
                 traceId: propagationContextTraceId,
                 level: level,
-                body: format(body: body, arguments: arguments),
+                body: logString.message,
                 attributes: logAttributes
             )
         )
@@ -219,12 +199,5 @@ public final class SentryLogger: NSObject {
             attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
         }
     }
-    
-    private func format(body: String, arguments: [CVarArg]) -> String {
-        if arguments.isEmpty {
-            return body
-        } else {
-            return NSString(format: body, arguments: getVaList(arguments)) as String
-        }
-    }
+
 }
