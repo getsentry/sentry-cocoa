@@ -281,7 +281,7 @@ SENTRY_NO_INIT
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback API_AVAILABLE(ios(13.0));
+@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback;
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
