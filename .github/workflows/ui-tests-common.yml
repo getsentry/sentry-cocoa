@@ -40,6 +40,9 @@ on:
         required: false
         default: false
         type: boolean
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   common-ui-tests:
