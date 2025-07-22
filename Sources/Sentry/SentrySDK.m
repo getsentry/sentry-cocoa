@@ -286,7 +286,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDK setCurrentHub:hub];
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
         [SentrySDK installIntegrations];
 

@@ -43464,8 +43464,22 @@
       },
       {
         "kind": "Import",
+        "name": "Darwin",
+        "printedName": "Darwin",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
+        "name": "MachO",
+        "printedName": "MachO",
         "declKind": "Import",
         "moduleName": "Sentry"
       },

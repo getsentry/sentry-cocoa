@@ -8,7 +8,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut.start()
+        sut.start(false)
     }
 
     override func tearDown() {
@@ -191,7 +191,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
                 self.sut.binaryImageAdded(&binaryImage0)
                 
                 self.sut.stop()
-                self.sut.start()
+                self.sut.start(false)
                 
                 expectation.fulfill()
             }
@@ -206,7 +206,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         let expectation = expectation(description: "Add images on background thread")
         expectation.expectedFulfillmentCount = count
         
-        self.sut.start()
+        self.sut.start(false)
         
         for i in 0..<count {
             DispatchQueue.global().async {
