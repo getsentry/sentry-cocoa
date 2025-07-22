@@ -813,7 +813,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nonatomic, copy, nullable)
     SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0))
-        API_UNAVAILABLE(iOSApplicationExtension);
+        NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
