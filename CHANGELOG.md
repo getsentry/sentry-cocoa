@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `isiOSAppOnMac` and `isMacCatalystApp` from ProcessInfo to the app context (#5570)
+- Add `isiOSAppOnMac` and `isMacCatalystApp` from ProcessInfo to the runtime context (#5570)
 - Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637)
 
 ### Improvements
