@@ -23,12 +23,6 @@ static NSString *const LOCALE_KEY = @"locale";
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCrashWrapper ()
-
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
-
-@end
-
 @implementation SentryCrashWrapper
 
 + (instancetype)sharedInstance
@@ -223,6 +217,12 @@ NS_ASSUME_NONNULL_BEGIN
     // Runtime
     NSMutableDictionary *runtimeContext = [NSMutableDictionary new];
 
+    // We set this info on the runtime context because the app context has no existing fields
+    // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
+    // adding two new Apple-specific fields to the app context. Coming up with a generic,
+    // reusable property on the app context proved difficult, so instead we reuse the "name"
+    // field of the runtime context as a pragmatic and semantically acceptable solution.
+    // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
     if (@available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *)) {
         if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isiOSAppOnMac) {
             runtimeContext[@"name"] = @"iOS App on Mac";
