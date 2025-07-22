@@ -90,7 +90,8 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
     }
 
     if (self.isDebug) {
-        // Only validate if debug is enabled
+        // This validation adds some overhead with each class present in the image, so we only
+        // run this when debug is enabled. A non main queue is used to avoid affecting the UI.
         [LoadValidator
             checkForDuplicatedSDKWithImageName:imageName
                                   imageAddress:@(newImage.address)

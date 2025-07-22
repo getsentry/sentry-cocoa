@@ -33,6 +33,10 @@ import MachO
             
             let loadValidatorAddress = self.getCurrentFrameworkTextPointer()
             let loadValidatorAddressValue = UInt(bitPattern: loadValidatorAddress)
+            // The SDK looks for classes on each image. We might find:
+            //   - Unrelated Classes, nothing to do
+            //   - Classes with the exact name (`SentryDependencyContainerSwiftHelper`), if it is present in the same text section as LoadValidator is, it is our implementation, it isn't it is a duplicate class
+            //   - Classes containing `SentryDependencyContainerSwiftHelper`, it also is a duplicate
             let isCurrentImageContainingLoadValidator = (loadValidatorAddressValue >= imageAddress) && (loadValidatorAddressValue < (imageAddress + imageSize))
 
             var classCount: UInt32 = 0
