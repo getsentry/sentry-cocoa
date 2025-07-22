@@ -12,6 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_UNAVAILABLE(iOSApplicationExtension)
 @interface SentryFeedbackAPI : NSObject
 
 /**

@@ -7,6 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
+API_UNAVAILABLE(iOSApplicationExtension)
 @interface SentryUserFeedbackIntegration : SentryBaseIntegration
 - (void)showWidget;
 - (void)hideWidget;
