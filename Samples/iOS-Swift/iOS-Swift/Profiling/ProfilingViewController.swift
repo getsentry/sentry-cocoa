@@ -167,7 +167,7 @@ private extension ProfilingViewController {
     }
 
     func optionsConfiguration() {
-        guard let options = SentrySDK.currentHub().getClient()?.options else { return }
+        guard let options = SentrySDKInternal.currentHub().getClient()?.options else { return }
 
         if let sampleRate = options.profilesSampleRate {
             sampleRateField.text = String(format: "%.2f", sampleRate.floatValue)

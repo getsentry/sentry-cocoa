@@ -1,7 +1,6 @@
 #import <SentryWatchdogTerminationTrackingIntegration.h>
 
 #if SENTRY_HAS_UIKIT
-
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
 #    import <SentryAppState.h>
@@ -60,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.watchdog-termination-tracker"
                                               attributes:attributes];
 
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+    SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
@@ -97,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryDependencyContainer.sharedInstance
             getWatchdogTerminationScopeObserverWithOptions:options];
 
-    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+    [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.
         [outerScope addObserver:scopeObserver];
 

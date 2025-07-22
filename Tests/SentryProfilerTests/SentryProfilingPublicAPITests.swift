@@ -57,7 +57,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
         givenSdkWithHubButNoClient()
 
-        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations().first(where: { it in
+        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
             it is SentryAutoSessionTrackingIntegration
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
@@ -669,14 +669,14 @@ extension SentryProfilingPublicAPITests {
 
 private extension SentryProfilingPublicAPITests {
     func givenSdkWithHub() {
-        SentrySDK.setCurrentHub(fixture.hub)
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.options)
         sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 
     func stopProfiler() throws {

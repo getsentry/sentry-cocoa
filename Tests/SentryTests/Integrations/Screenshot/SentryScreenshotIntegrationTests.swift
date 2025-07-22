@@ -40,7 +40,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = false
             $0.setIntegrations([SentryScreenshotIntegration.self])
         }
-        XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 0)
+        XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
     }
     
@@ -49,7 +49,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = true
             $0.setIntegrations([SentryScreenshotIntegration.self])
         }
-        XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
         XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
     }
     
@@ -60,7 +60,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         
-        XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
+        XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
     }
     

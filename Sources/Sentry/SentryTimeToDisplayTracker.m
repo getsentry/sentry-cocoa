@@ -177,7 +177,7 @@
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
             if (sentry_isLaunchProfileCorrelatedToTraces()) {
-                sentry_stopAndDiscardLaunchProfileTracer(SentrySDK.currentHub);
+                sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
             }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
@@ -189,7 +189,7 @@
         [self.fullDisplaySpan finish];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
         if (sentry_isLaunchProfileCorrelatedToTraces()) {
-            sentry_stopAndDiscardLaunchProfileTracer(SentrySDK.currentHub);
+            sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
         }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
