@@ -40,7 +40,6 @@ NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoule";
 // backtrace profiler's resolution.
 static uint64_t frequencyHz = 10;
 
-namespace {
 /**
  * @return a dictionary containing all the metric values recorded during the transaction, or @c nil
  * if there were no metrics recorded during the transaction.
@@ -49,7 +48,8 @@ SentrySerializedMetricEntry *_Nullable serializeTraceProfileMetricValuesWithNorm
     NSArray<SentryMetricReading *> *absoluteTimestampValues, NSString *unit,
     uint64_t startSystemTime, uint64_t endSystemTime)
 {
-    const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
+    NSMutableArray<SentrySerializedMetricReading *> *timestampNormalizedValues =
+        [NSMutableArray<SentrySerializedMetricReading *> array];
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
         // if the metric reading wasn't recorded until the transaction ended, don't include it
@@ -62,8 +62,8 @@ SentrySerializedMetricEntry *_Nullable serializeTraceProfileMetricValuesWithNorm
             return;
         }
 
-        const auto value = [NSMutableDictionary dictionary];
-        const auto relativeTimestamp
+        NSMutableDictionary *value = [NSMutableDictionary dictionary];
+        uint64_t relativeTimestamp
             = getDurationNs(startSystemTime, reading.absoluteSystemTimestamp);
         value[@"elapsed_since_start_ns"] = sentry_stringForUInt64(relativeTimestamp);
         value[@"value"] = reading.value;
@@ -85,17 +85,46 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     if (readings.count == 0) {
         return nil;
     }
-    const auto *serializedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
+    NSMutableArray<SentrySerializedMetricReading *> *serializedValues =
+        [NSMutableArray<SentrySerializedMetricReading *> array];
     [readings enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto value = [NSMutableDictionary dictionary];
+        NSMutableDictionary *value = [NSMutableDictionary dictionary];
         value[@"timestamp"] = @(reading.absoluteNSDateInterval);
         value[@"value"] = reading.value;
         [serializedValues addObject:value];
     }];
     return @ { @"unit" : unit, @"values" : serializedValues };
 }
-} // namespace
+
+NSDictionary<NSString *, id> *
+serializeContinuousProfileMetrics(NSDictionary *state)
+{
+    NSMutableDictionary<NSString *, id> *dict = [NSMutableDictionary<NSString *, id> dictionary];
+    NSArray<SentryMetricReading *> *memoryFootprint
+        = state[kSentryMetricProfilerSerializationKeyMemoryFootprint];
+    if (memoryFootprint.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
+            = serializeContinuousProfileMetricReadings(
+                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
+    }
+    NSArray<SentryMetricReading *> *cpuEnergyUsage
+        = state[kSentryMetricProfilerSerializationKeyCPUEnergyUsage];
+    if (cpuEnergyUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
+            = serializeContinuousProfileMetricReadings(
+                cpuEnergyUsage, kSentryMetricProfilerSerializationUnitNanoJoules);
+    }
+
+    NSArray<SentryMetricReading *> *cpuUsage = state[kSentryMetricProfilerSerializationKeyCPUUsage];
+    if (cpuUsage.count > 0) {
+        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
+            = serializeContinuousProfileMetricReadings(
+                cpuUsage, kSentryMetricProfilerSerializationUnitPercentage);
+    }
+
+    return dict;
+}
 
 @implementation SentryMetricProfiler {
     SentryDispatchSourceWrapper *_dispatchSource;
@@ -156,7 +185,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
         cpuUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuUsage];
     }
 
-    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
+    NSMutableDictionary<NSString *, id> *dict = [NSMutableDictionary<NSString *, id> dictionary];
     if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializeTraceProfileMetricValuesWithNormalizedTime(memoryFootprint,
@@ -177,36 +206,15 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
     return dict;
 }
 
-- (NSMutableDictionary<NSString *, id> *)serializeContinuousProfileMetrics;
+- (NSDictionary<NSString *, NSArray<SentryMetricReading *> *> *)copyMetricProfilerData
 {
-    NSArray<SentryMetricReading *> *memoryFootprint;
-    NSArray<SentryMetricReading *> *cpuEnergyUsage;
-    NSArray<SentryMetricReading *> *cpuUsage;
+    NSMutableDictionary *copy = [NSMutableDictionary dictionary];
     @synchronized(self) {
-        cpuEnergyUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuEnergyUsage];
-        memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
-        cpuUsage = [NSArray<SentryMetricReading *> arrayWithArray:_cpuUsage];
+        copy[kSentryMetricProfilerSerializationKeyMemoryFootprint] = [_memoryFootprint copy];
+        copy[kSentryMetricProfilerSerializationKeyCPUUsage] = [_cpuUsage copy];
+        copy[kSentryMetricProfilerSerializationKeyCPUEnergyUsage] = [_cpuEnergyUsage copy];
     }
-
-    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
-    if (memoryFootprint.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
-            = serializeContinuousProfileMetricReadings(
-                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
-    }
-    if (cpuEnergyUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUEnergyUsage]
-            = serializeContinuousProfileMetricReadings(
-                cpuEnergyUsage, kSentryMetricProfilerSerializationUnitNanoJoules);
-    }
-
-    if (cpuUsage.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyCPUUsage]
-            = serializeContinuousProfileMetricReadings(
-                cpuUsage, kSentryMetricProfilerSerializationUnitPercentage);
-    }
-
-    return dict;
+    return copy;
 }
 
 - (void)clear
@@ -227,9 +235,9 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 
 - (void)registerSampler
 {
-    __weak auto weakSelf = self;
-    const auto intervalNs = (uint64_t)1e9 / frequencyHz;
-    const auto leewayNs = intervalNs / 2;
+    __weak typeof(self) weakSelf = self;
+    uint64_t intervalNs = (uint64_t)1e9 / frequencyHz;
+    uint64_t leewayNs = intervalNs / 2;
     _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
         sourceWithInterval:intervalNs
                     leeway:leewayNs
@@ -242,7 +250,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 - (void)recordMemoryFootprint
 {
     NSError *error;
-    const auto footprintBytes =
+    SentryRAMBytes footprintBytes =
         [SentryDependencyContainer.sharedInstance.systemWrapper memoryFootprintBytes:&error];
 
     if (error) {
@@ -258,7 +266,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 - (void)recordCPUsage
 {
     NSError *error;
-    const auto result =
+    NSNumber *result =
         [SentryDependencyContainer.sharedInstance.systemWrapper cpuUsageWithError:&error];
 
     if (error) {
@@ -278,7 +286,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
-    const auto reading =
+    NSNumber *reading =
         [SentryDependencyContainer.sharedInstance.systemWrapper cpuEnergyUsageWithError:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
@@ -290,7 +298,7 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
         return;
     }
 
-    const auto value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
+    NSUInteger value = reading.unsignedIntegerValue - previousEnergyReading.unsignedIntegerValue;
     previousEnergyReading = reading;
 
     @synchronized(self) {
@@ -300,9 +308,10 @@ SentrySerializedMetricEntry *_Nullable serializeContinuousProfileMetricReadings(
 
 - (SentryMetricReading *)metricReadingForValue:(NSNumber *)value
 {
-    const auto reading = [[SentryMetricReading alloc] init];
+    SentryMetricReading *reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    const auto dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    id<SentryCurrentDateProvider> dateProvider
+        = SentryDependencyContainer.sharedInstance.dateProvider;
     reading.absoluteSystemTimestamp = dateProvider.systemTime;
     reading.absoluteNSDateInterval = dateProvider.date.timeIntervalSince1970;
     return reading;

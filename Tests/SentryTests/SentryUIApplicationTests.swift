@@ -95,7 +95,7 @@ class SentryUIApplicationTests: XCTestCase {
         sut.notificationCenterWrapper.ignoreRemoveObserver = true
         XCTAssertEqual(sut.applicationState, .active)
         
-        sut.notificationCenterWrapper.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+        sut.notificationCenterWrapper.addObserverWithObjectInvocations.invocations.forEach { (observer: WeakReference<NSObject>, selector: Selector, name: NSNotification.Name?, _: Any?) in
             if name == UIApplication.didEnterBackgroundNotification {
                 sut.perform(selector, with: observer)
             }
@@ -103,7 +103,7 @@ class SentryUIApplicationTests: XCTestCase {
         
         XCTAssertEqual(sut.applicationState, .background)
         
-        sut.notificationCenterWrapper.addObserverInvocations.invocations.forEach { (observer: Any, selector: Selector, name: NSNotification.Name) in
+        sut.notificationCenterWrapper.addObserverWithObjectInvocations.invocations.forEach { (observer: WeakReference<NSObject>, selector: Selector, name: NSNotification.Name?, _: Any?) in
             if name == UIApplication.didBecomeActiveNotification {
                 sut.perform(selector, with: observer)
             }

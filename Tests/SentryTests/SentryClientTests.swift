@@ -2094,6 +2094,42 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(scope.replayId, "someReplay")
     }
     
+    func testCaptureLogsData() throws {
+        let sut = fixture.getSut()
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
+        
+        sut.captureLogsData(logData, with: NSNumber(value: 1))
+        
+        // Verify that an envelope was sent
+        XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
+        
+        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
+        
+        // Verify envelope has one item
+        XCTAssertEqual(1, envelope.items.count)
+        
+        let item = try XCTUnwrap(envelope.items.first)
+        
+        // Verify the envelope item header
+        XCTAssertEqual("log", item.header.type)
+        XCTAssertEqual(UInt(logData.count), item.header.length)
+        XCTAssertEqual("application/vnd.sentry.items.log+json", item.header.contentType)
+        XCTAssertEqual(NSNumber(value: 1), item.header.itemCount)
+        
+        // Verify the envelope item data
+        XCTAssertEqual(logData, item.data)
+    }
+    
+    func testCaptureLogsData_WithDisabledClient() {
+        let sut = fixture.getSutDisabledSdk()
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
+        
+        sut.captureLogsData(logData, with: NSNumber(value: 1))
+        
+        // Verify that no envelope was sent when client is disabled
+        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
+    }
+    
 #if os(macOS)
     func testCaptureSentryWrappedException() throws {
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)

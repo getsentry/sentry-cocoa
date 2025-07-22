@@ -43,7 +43,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 dispatchQueueWrapper: dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                notificationCenterWrapper: NotificationCenter.default
             )
             
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),

@@ -88,6 +88,7 @@ format-yaml:
 
 generate-public-api:
 	./scripts/update-api.sh
+	./scripts/update-api.sh V9
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -107,12 +108,6 @@ run-test-server-sync:
 	cd ./test-server && swift run
 
 .PHONY: run-test-server run-test-server-sync
-
-test-alamofire:
-	./scripts/test-alamofire.sh
-
-test-homekit:
-	./scripts/test-homekit.sh
 
 test-ui-critical:
 	./scripts/test-ui-critical.sh

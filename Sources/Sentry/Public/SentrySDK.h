@@ -13,13 +13,13 @@
 @class SentryFeedback;
 @class SentryFeedbackAPI;
 @class SentryId;
-@class SentryMetricsAPI;
 @class SentryOptions;
 @class SentryReplayApi;
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
 @class SentryUserFeedback;
+@class SentryLogger;
 @class UIView;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,14 +41,17 @@ SENTRY_NO_INIT
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
-@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
-
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
  * API to control session replay
  */
 @property (class, nonatomic, readonly) SentryReplayApi *replay;
 #endif
+
+/**
+ * API to access Sentry logs
+ */
+@property (class, nonatomic, readonly) SentryLogger *logger;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -253,6 +256,7 @@ SENTRY_NO_INIT
               withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
 
+#if !SDK_V9
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
@@ -263,6 +267,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
         "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
         "SentryOptions.configureUserFeedback.");
+#endif // !SDK_V9
 
 /**
  * Captures user feedback that was manually gathered and sends it to Sentry.
@@ -276,7 +281,7 @@ SENTRY_NO_INIT
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback API_AVAILABLE(ios(13.0));
+@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback;
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

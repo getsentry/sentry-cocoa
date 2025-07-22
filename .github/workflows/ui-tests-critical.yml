@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - run: make init-ci-build
       - run: make xcode-ci

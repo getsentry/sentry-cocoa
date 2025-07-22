@@ -198,4 +198,97 @@ final class SentryLogAttributeTests: XCTestCase {
         let originalValue = try XCTUnwrap(original.value as? Double)
         XCTAssertEqual(decodedValue, originalValue, accuracy: 0.00001)
     }
+    
+    // MARK: - Initializer Tests
+    
+    func testInitializer_StringValue() {
+        let attribute = SentryLog.Attribute(value: "test string")
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "test string")
+    }
+    
+    func testInitializer_EmptyStringValue() {
+        let attribute = SentryLog.Attribute(value: "")
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "")
+    }
+    
+    func testInitializer_BooleanValue() {
+        let trueAttribute = SentryLog.Attribute(value: true)
+        XCTAssertEqual(trueAttribute.type, "boolean")
+        XCTAssertEqual(trueAttribute.value as? Bool, true)
+        
+        let falseAttribute = SentryLog.Attribute(value: false)
+        XCTAssertEqual(falseAttribute.type, "boolean")
+        XCTAssertEqual(falseAttribute.value as? Bool, false)
+    }
+    
+    func testInitializer_IntegerValue() {
+        let attribute = SentryLog.Attribute(value: 42)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 42)
+    }
+    
+    func testInitializer_ZeroIntegerValue() {
+        let attribute = SentryLog.Attribute(value: 0)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 0)
+    }
+    
+    func testInitializer_NegativeIntegerValue() {
+        let attribute = SentryLog.Attribute(value: -42)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, -42)
+    }
+    
+    func testInitializer_DoubleValue() {
+        let attribute = SentryLog.Attribute(value: 3.14159)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 3.14159)
+    }
+    
+    func testInitializer_ZeroDoubleValue() {
+        let attribute = SentryLog.Attribute(value: 0.0)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 0.0)
+    }
+    
+    func testInitializer_NegativeDoubleValue() {
+        let attribute = SentryLog.Attribute(value: -3.14)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, -3.14)
+    }
+    
+    func testInitializer_FloatValue() {
+        let attribute = SentryLog.Attribute(value: Float(2.71828))
+        XCTAssertEqual(attribute.type, "double")
+        let doubleValue = attribute.value as? Double
+        XCTAssertNotNil(doubleValue)
+        XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
+    }
+    
+    func testInitializer_NSStringValue() {
+        let attribute = SentryLog.Attribute(value: NSString("nsstring test"))
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "nsstring test")
+    }
+    
+    func testInitializer_UnsupportedValue() {
+        let url = URL(string: "https://example.com")!
+        let attribute = SentryLog.Attribute(value: url)
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertTrue((attribute.value as? String)?.contains("https://example.com") == true)
+    }
+    
+    func testInitializer_ArrayValue() {
+        let attribute = SentryLog.Attribute(value: [1, 2, 3])
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertTrue((attribute.value as? String)?.contains("1") == true)
+    }
+    
+    func testInitializer_DictionaryValue() {
+        let attribute = SentryLog.Attribute(value: ["key": "value"])
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertTrue((attribute.value as? String)?.contains("key") == true)
+    }
 }

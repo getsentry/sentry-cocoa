@@ -12,6 +12,7 @@
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
 #import "SentryAsyncLog.h"
+#import "SentryClient+Logs.h"
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
@@ -21,8 +22,10 @@
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryNSDictionarySanitize.h"
+#import "SentryOptions+Private.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
@@ -30,3 +33,4 @@
 #import "SentrySpanOperation.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
+#import "SentryUser+Serialize.h"

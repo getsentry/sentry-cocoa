@@ -337,7 +337,18 @@ class SentryHttpTransportTests: XCTestCase {
         // second envelope the response contains a rate limit.
         // Now 2 envelopes are still to be sent, but they get discarded cause of the
         // active rate limit.
-        givenFirstRateLimitGetsActiveWithSecondResponse()
+
+        // First rate limit gets active with the second response.
+        var i = -1
+        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
+            i += 1
+            if i == 0 {
+                return HTTPURLResponse()
+            } else {
+                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
+            }
+        }
+
         sendEvent()
 
         XCTAssertEqual(5, fixture.requestManager.requests.count)
@@ -931,7 +942,21 @@ class SentryHttpTransportTests: XCTestCase {
         }
 
     }
-    
+
+    func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() {
+        let sut = fixture.getSut(dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        givenCachedEvents(amount: 1)
+
+        fixture.requestManager.waitForResponseDispatchGroup = true
+        fixture.requestManager.responseDispatchGroup.enter()
+
+        XCTAssertEqual(sut.flush(0.0), .timedOut, "Flush should time out.")
+
+        self.fixture.requestManager.responseDispatchGroup.leave()
+
+        XCTAssertEqual(sut.flush(self.fixture.flushTimeout), .success, "Flush should not time out.")
+    }
+
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         givenCachedEvents(amount: 30)
 
@@ -1047,18 +1072,6 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
                 sut.recordLostEvent(event.category, reason: event.reason)
-            }
-        }
-    }
-
-    private func givenFirstRateLimitGetsActiveWithSecondResponse() {
-        var i = -1
-        fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
-            i += 1
-            if i == 0 {
-                return HTTPURLResponse()
-            } else {
-                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
             }
         }
     }
