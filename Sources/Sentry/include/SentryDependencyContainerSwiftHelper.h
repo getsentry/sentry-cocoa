@@ -5,6 +5,8 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
+@protocol SentryObjCRuntimeWrapper;
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Some Swift code needs to access SentryDependencyContainer. To
@@ -20,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
++ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 
 @end
 

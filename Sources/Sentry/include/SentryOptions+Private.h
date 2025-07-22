@@ -40,6 +40,14 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 @property (nonatomic, nullable, strong) SentryProfileOptions *profiling;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+
+- (BOOL)enableViewRendererV2;
+
+- (BOOL)enableFastViewRendering;
+
+#endif // # SENTRY_TARGET_REPLAY_SUPPORTED
+
 @property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
 
 @property (nonatomic, strong, nullable)
