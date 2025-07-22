@@ -46,6 +46,34 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
+  iOS-Swift-Widget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - iOS-Swift-Widget
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-Widget.xcconfig
+      DebugV9: iOS-Swift-Widget.xcconfig
+      Release: iOS-Swift-Widget.xcconfig
+      Test: iOS-Swift-Widget.xcconfig
+      TestCI: iOS-Swift-Widget.xcconfig
+  iOS-Swift-Keyboard-Extension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - iOS-Swift-Keyboard-Extension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-Keyboard-Extension.xcconfig
+      DebugV9: iOS-Swift-Keyboard-Extension.xcconfig
+      Release: iOS-Swift-Keyboard-Extension.xcconfig
+      Test: iOS-Swift-Keyboard-Extension.xcconfig
+      TestCI: iOS-Swift-Keyboard-Extension.xcconfig
   iOS-SwiftClip:
     type: application.on-demand-install-capable
     platform: auto
