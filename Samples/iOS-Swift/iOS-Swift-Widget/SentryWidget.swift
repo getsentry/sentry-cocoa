@@ -2,23 +2,23 @@ import SentrySampleShared
 import SwiftUI
 import WidgetKit
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+struct SentryProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> SentryWidgetTimelineEntry {
+        SentryWidgetTimelineEntry(date: Date(), configuration: ConfigurationAppIntent())
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
+    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SentryWidgetTimelineEntry {
+        SentryWidgetTimelineEntry(date: Date(), configuration: configuration)
     }
     
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
+    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SentryWidgetTimelineEntry> {
+        var entries: [SentryWidgetTimelineEntry] = []
 
         // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         let currentDate = Date()
         for hourOffset in 0 ..< 5 {
             let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
+            let entry = SentryWidgetTimelineEntry(date: entryDate, configuration: configuration)
             entries.append(entry)
         }
 
@@ -26,13 +26,13 @@ struct Provider: AppIntentTimelineProvider {
     }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct SentryWidgetTimelineEntry: TimelineEntry {
     let date: Date
     let configuration: ConfigurationAppIntent
 }
 
-struct WidgetEntryView: View {
-    var entry: Provider.Entry
+struct SentryWidgetEntryView: View {
+    var entry: SentryProvider.Entry
 
     var body: some View {
         VStack {
@@ -45,16 +45,16 @@ struct WidgetEntryView: View {
     }
 }
 
-struct SentryTestWidget: Widget {
-    let kind: String = "SentryTestWidget"
+struct SentryWidget: Widget {
+    let kind: String = "SentryWidget"
 
     init() {
         SentrySDKWrapper.shared.startSentry()
     }
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            WidgetEntryView(entry: entry)
+        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: SentryProvider()) { entry in
+            SentryWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
     }
@@ -75,8 +75,8 @@ extension ConfigurationAppIntent {
 }
 
 #Preview(as: .systemSmall) {
-    SentryTestWidget()
+    SentryWidget()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+    SentryWidgetTimelineEntry(date: .now, configuration: .smiley)
+    SentryWidgetTimelineEntry(date: .now, configuration: .starEyes)
 }

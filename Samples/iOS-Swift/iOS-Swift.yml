@@ -60,20 +60,62 @@ targets:
       Release: iOS-Swift-Widget.xcconfig
       Test: iOS-Swift-Widget.xcconfig
       TestCI: iOS-Swift-Widget.xcconfig
-  iOS-Swift-Keyboard-Extension:
+  iOS-Swift-KeyboardExtension:
     type: app-extension
     platform: iOS
     sources:
-      - iOS-Swift-Keyboard-Extension
+      - iOS-Swift-KeyboardExtension
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-Swift-Keyboard-Extension.xcconfig
-      DebugV9: iOS-Swift-Keyboard-Extension.xcconfig
-      Release: iOS-Swift-Keyboard-Extension.xcconfig
-      Test: iOS-Swift-Keyboard-Extension.xcconfig
-      TestCI: iOS-Swift-Keyboard-Extension.xcconfig
+      Debug: iOS-Swift-KeyboardExtension.xcconfig
+      DebugV9: iOS-Swift-KeyboardExtension.xcconfig
+      Release: iOS-Swift-KeyboardExtension.xcconfig
+      Test: iOS-Swift-KeyboardExtension.xcconfig
+      TestCI: iOS-Swift-KeyboardExtension.xcconfig
+  iOS-Swift-ShareExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - iOS-Swift-ShareExtension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-ShareExtension.xcconfig
+      DebugV9: iOS-Swift-ShareExtension.xcconfig
+      Release: iOS-Swift-ShareExtension.xcconfig
+      Test: iOS-Swift-ShareExtension.xcconfig
+      TestCI: iOS-Swift-ShareExtension.xcconfig
+  iOS-Swift-FileProvider:
+    type: app-extension
+    platform: iOS
+    sources:
+      - iOS-Swift-FileProvider
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-FileProvider.xcconfig
+      DebugV9: iOS-Swift-FileProvider.xcconfig
+      Release: iOS-Swift-FileProvider.xcconfig
+      Test: iOS-Swift-FileProvider.xcconfig
+      TestCI: iOS-Swift-FileProvider.xcconfig
+  iOS-Swift-DeviceActivityMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - iOS-Swift-DeviceActivityMonitor
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-DeviceActivityMonitor.xcconfig
+      DebugV9: iOS-Swift-DeviceActivityMonitor.xcconfig
+      Release: iOS-Swift-DeviceActivityMonitor.xcconfig
+      Test: iOS-Swift-DeviceActivityMonitor.xcconfig
+      TestCI: iOS-Swift-DeviceActivityMonitor.xcconfig
   iOS-SwiftClip:
     type: application.on-demand-install-capable
     platform: auto
@@ -130,6 +172,11 @@ schemes:
     build:
       targets:
         iOS-Swift: all
+        iOS-Swift-Widget: all
+        iOS-Swift-KeyboardExtension: all
+        iOS-Swift-ShareExtension: all
+        iOS-Swift-FileProvider: all
+        iOS-Swift-DeviceActivityMonitor: all
     test:
       config: Test
       testPlans:

@@ -2,7 +2,7 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
-struct WidgetControl: ControlWidget {
+struct SentryWidgetControl: ControlWidget {
     static let kind: String = "io.sentry.sample.iOS-Swift.iOS-Swift-Widget"
 
     var body: some ControlWidgetConfiguration {
@@ -23,25 +23,25 @@ struct WidgetControl: ControlWidget {
     }
 }
 
-extension WidgetControl {
+extension SentryWidgetControl {
     struct Value {
         var isRunning: Bool
         var name: String
     }
 
     struct Provider: AppIntentControlValueProvider {
-        func previewValue(configuration: TimerConfiguration) -> Value {
-            WidgetControl.Value(isRunning: false, name: configuration.timerName)
+        func previewValue(configuration: SentryTimerConfiguration) -> Value {
+            SentryWidgetControl.Value(isRunning: false, name: configuration.timerName)
         }
 
-        func currentValue(configuration: TimerConfiguration) async throws -> Value {
+        func currentValue(configuration: SentryTimerConfiguration) async throws -> Value {
             let isRunning = true // Check if the timer is running
-            return WidgetControl.Value(isRunning: isRunning, name: configuration.timerName)
+            return SentryWidgetControl.Value(isRunning: isRunning, name: configuration.timerName)
         }
     }
 }
 
-struct TimerConfiguration: ControlConfigurationIntent {
+struct SentryTimerConfiguration: ControlConfigurationIntent {
     static let title: LocalizedStringResource = "Timer Name Configuration"
 
     @Parameter(title: "Timer Name", default: "Timer")

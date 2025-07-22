@@ -1,10 +1,3 @@
-//
-//  AppIntent.swift
-//  iOS-Swift-Widget
-//
-//  Created by Andrew McKnight on 7/22/25.
-//
-
 import AppIntents
 import WidgetKit
 

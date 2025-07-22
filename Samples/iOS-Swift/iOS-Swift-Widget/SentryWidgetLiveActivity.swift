@@ -2,7 +2,7 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
-struct WidgetAttributes: ActivityAttributes {
+struct SentryWidgetAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         // Dynamic stateful properties about your activity go here!
         var emoji: String
@@ -12,9 +12,9 @@ struct WidgetAttributes: ActivityAttributes {
     var name: String
 }
 
-struct WidgetLiveActivity: Widget {
+struct SentryWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: WidgetAttributes.self) { context in
+        ActivityConfiguration(for: SentryWidgetAttributes.self) { context in
             // Lock screen/banner UI goes here
             VStack {
                 Text("Hello \(context.state.emoji)")
@@ -49,25 +49,25 @@ struct WidgetLiveActivity: Widget {
     }
 }
 
-extension WidgetAttributes {
-    fileprivate static var preview: WidgetAttributes {
-        WidgetAttributes(name: "World")
+extension SentryWidgetAttributes {
+    fileprivate static var preview: SentryWidgetAttributes {
+        SentryWidgetAttributes(name: "World")
     }
 }
 
-extension WidgetAttributes.ContentState {
-    fileprivate static var smiley: WidgetAttributes.ContentState {
-        WidgetAttributes.ContentState(emoji: "😀")
+extension SentryWidgetAttributes.ContentState {
+    fileprivate static var smiley: SentryWidgetAttributes.ContentState {
+        SentryWidgetAttributes.ContentState(emoji: "😀")
      }
      
-     fileprivate static var starEyes: WidgetAttributes.ContentState {
-         WidgetAttributes.ContentState(emoji: "🤩")
+     fileprivate static var starEyes: SentryWidgetAttributes.ContentState {
+         SentryWidgetAttributes.ContentState(emoji: "🤩")
      }
 }
 
-#Preview("Notification", as: .content, using: WidgetAttributes.preview) {
-   WidgetLiveActivity()
+#Preview("Notification", as: .content, using: SentryWidgetAttributes.preview) {
+   SentryWidgetLiveActivity()
 } contentStates: {
-    WidgetAttributes.ContentState.smiley
-    WidgetAttributes.ContentState.starEyes
+    SentryWidgetAttributes.ContentState.smiley
+    SentryWidgetAttributes.ContentState.starEyes
 }

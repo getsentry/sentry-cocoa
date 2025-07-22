@@ -1,14 +1,16 @@
-//
-//  KeyboardViewController.swift
-//  test-keyboard-extension
-//
-//  Created by Andrew McKnight on 7/22/25.
-//
-
-import Sentry
+import SentrySampleShared
 import UIKit
 
 class KeyboardViewController: UIInputViewController {
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        SentrySDKWrapper.shared.startSentry()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        SentrySDKWrapper.shared.startSentry()
+    }
 
     let label: UILabel = {
         let _label = UILabel(frame: .zero)
@@ -17,8 +19,6 @@ class KeyboardViewController: UIInputViewController {
     }()
     
     override func viewDidLoad() {
-        SentrySDK.start { _ in }
-
         super.viewDidLoad()
 
         view.addSubview(label)
@@ -26,7 +26,5 @@ class KeyboardViewController: UIInputViewController {
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-
-        label.text = SentrySDK.isEnabled ? "Sentry is enabled" : "Sentry is disabled"
     }
 }
