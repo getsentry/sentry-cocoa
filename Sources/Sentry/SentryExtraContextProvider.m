@@ -88,18 +88,7 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 
 - (NSDictionary *)getExtraAppContext
 {
-    NSMutableDictionary *extraAppContext = [NSMutableDictionary dictionary];
-    extraAppContext[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemorySize);
-
-    if (@available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *)) {
-        extraAppContext[@"ios_app_on_mac"] = @(self.processInfoWrapper.isiOSAppOnMac);
-    }
-
-    if (@available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)) {
-        extraAppContext[@"mac_catalyst_app"] = @(self.processInfoWrapper.isMacCatalystApp);
-    }
-
-    return extraAppContext;
+    return @{ SentryDeviceContextAppMemoryKey : @(self.crashWrapper.appMemorySize) };
 }
 
 @end

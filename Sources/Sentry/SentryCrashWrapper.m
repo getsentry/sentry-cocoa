@@ -4,6 +4,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 #import "SentryUIDeviceWrapper.h"
@@ -21,6 +22,12 @@
 static NSString *const LOCALE_KEY = @"locale";
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryCrashWrapper ()
+
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+
+@end
 
 @implementation SentryCrashWrapper
 
@@ -212,6 +219,25 @@ NS_ASSUME_NONNULL_BEGIN
     [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 
     [scope setContextValue:appData forKey:@"app"];
+
+    // Runtime
+    NSMutableDictionary *runtimeContext = [NSMutableDictionary new];
+
+    if (@available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *)) {
+        if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isiOSAppOnMac) {
+            runtimeContext[@"name"] = @"iOS App on Mac";
+        }
+    }
+
+    if (@available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)) {
+        if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isMacCatalystApp) {
+            runtimeContext[@"name"] = @"Mac Catalyst App";
+        }
+    }
+
+    if (runtimeContext.count > 0) {
+        [scope setContextValue:runtimeContext forKey:@"runtime"];
+    }
 }
 
 @end

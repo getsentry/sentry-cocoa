@@ -187,7 +187,53 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
     }
-    
+
+    func testScopeEnriched_WithNoRuntime() throws {
+        // Arrange
+        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+
+        processInfoWrapper.overrides.isiOSAppOnMac = false
+        processInfoWrapper.overrides.isMacCatalystApp = false
+
+        // Act
+        let hub = SentryHub(client: nil, andScope: Scope())
+
+        // Assert
+        XCTAssertNil(hub.scope.contextDictionary["runtime"])
+    }
+
+    func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
+        // Arrange
+        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        processInfoWrapper.overrides.isiOSAppOnMac = true
+        processInfoWrapper.overrides.isMacCatalystApp = false
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+
+        // Act
+        let hub = SentryHub(client: nil, andScope: Scope())
+
+        // Assert
+        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
+
+        XCTAssertEqual(runtimeContext["name"], "iOS App on Mac")
+    }
+
+    func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
+        // Arrange
+        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        processInfoWrapper.overrides.isiOSAppOnMac = false
+        processInfoWrapper.overrides.isMacCatalystApp = true
+        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+
+        // Act
+        let hub = SentryHub(client: nil, andScope: Scope())
+
+        // Assert
+        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
+        XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
+    }
+
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
      

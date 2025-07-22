@@ -78,24 +78,4 @@ final class SentryExtraContextProviderTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(device["thermal_state"] as? String), "critical")
     }
 
-    func testExtraAppContext() throws {
-        let sut = fixture.getSut()
-        let actualContext = sut.getExtraContext()
-
-        let appContext = try XCTUnwrap(actualContext["app"] as? [String: Any])
-
-        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, *) {
-            XCTAssertEqual(appContext["ios_app_on_mac"] as? Bool, ProcessInfo.processInfo.isiOSAppOnMac)
-        } else {
-            XCTAssertNil(appContext["ios_app_on_mac"])
-        }
-
-        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, *) {
-            XCTAssertEqual(appContext["mac_catalyst_app"] as? Bool, ProcessInfo.processInfo.isMacCatalystApp)
-        } else {
-            XCTAssertNil(appContext["mac_catalyst_app"])
-        }
-
-    }
-
 }
