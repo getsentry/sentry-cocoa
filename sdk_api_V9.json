@@ -24165,32 +24165,6 @@
           },
           {
             "kind": "Function",
-            "name": "getStoreEndpoint",
-            "printedName": "getStoreEndpoint()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "URL",
-                "printedName": "Foundation.URL",
-                "usr": "s:10Foundation3URLV"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryDsn(im)getStoreEndpoint",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "isOpen": true,
-            "objc_name": "getStoreEndpoint",
-            "declAttributes": [
-              "DiscardableResult",
-              "Available",
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
             "name": "getEnvelopeEndpoint",
             "printedName": "getEnvelopeEndpoint()",
             "children": [
