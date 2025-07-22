@@ -113,15 +113,23 @@ public final class SentryLogger: NSObject {
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
 
-        batcher.add(
-            SentryLog(
-                timestamp: dateProvider.date(),
-                traceId: propagationContextTraceId,
-                level: level,
-                body: body,
-                attributes: logAttributes
-            )
+        let log = SentryLog(
+            timestamp: dateProvider.date(),
+            traceId: propagationContextTraceId,
+            level: level,
+            body: body,
+            attributes: logAttributes
         )
+        
+        var processedLog: SentryLog? = log
+        if let beforeSendLog = batcher.options.beforeSendLog {
+            let mutableSentryLog = MutableSentryLog(log: log)
+            processedLog = beforeSendLog(mutableSentryLog)?.toSentryLog()
+        }
+        
+        if let processedLog {
+            batcher.add(processedLog)
+        }
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {

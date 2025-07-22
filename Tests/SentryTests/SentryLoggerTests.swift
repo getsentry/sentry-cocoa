@@ -459,6 +459,128 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(capturedLog.attributes["device.family"])
     }
     
+    // MARK: - BeforeSendLog Callback Tests
+    
+    func testBeforeSendLogCallback_ReturnsModifiedLog() {
+        var beforeSendCalled = false
+        fixture.options.beforeSendLog = { mutableLog in
+            beforeSendCalled = true
+            
+            // Verify the mutable log has expected properties
+            XCTAssertEqual(mutableLog.level, .info)
+            XCTAssertEqual(mutableLog.body, "Original message")
+            
+            // Modify the log
+            mutableLog.body = "Modified by callback"
+            mutableLog.level = .warn
+            mutableLog.attributes["callback_modified"] = true
+            
+            return mutableLog
+        }
+        
+        sut.info("Original message")
+        
+        XCTAssertTrue(beforeSendCalled, "beforeSendLog callback should be called")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        XCTAssertEqual(capturedLog.level, .warn)
+        XCTAssertEqual(capturedLog.body, "Modified by callback")
+        XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
+    }
+    
+    func testBeforeSendLogCallback_ReturnsNil_LogNotCaptured() {
+        var beforeSendCalled = false
+        fixture.options.beforeSendLog = { _ in
+            beforeSendCalled = true
+            return nil // Drop the log
+        }
+        
+        sut.error("This log should be dropped")
+        
+        XCTAssertTrue(beforeSendCalled, "beforeSendLog callback should be called")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 0, "Log should be dropped when callback returns nil")
+    }
+    
+    func testBeforeSendLogCallback_NotSet_LogCapturedUnmodified() {
+        // No beforeSendLog callback set
+        fixture.options.beforeSendLog = nil
+        
+        sut.debug("Debug message")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        XCTAssertEqual(capturedLog.level, .debug)
+        XCTAssertEqual(capturedLog.body, "Debug message")
+    }
+    
+    func testBeforeSendLogCallback_MultipleLogLevels() {
+        var callbackInvocations: [(MutableSentryLogLevel, String)] = []
+        
+        fixture.options.beforeSendLog = { mutableLog in
+            callbackInvocations.append((mutableLog.level, mutableLog.body))
+            mutableLog.attributes["processed"] = true
+            return mutableLog
+        }
+        
+        sut.trace("Trace message")
+        sut.debug("Debug message")  
+        sut.info("Info message")
+        sut.warn("Warn message")
+        sut.error("Error message")
+        sut.fatal("Fatal message")
+        
+        XCTAssertEqual(callbackInvocations.count, 6)
+        XCTAssertEqual(callbackInvocations[0].0, .trace)
+        XCTAssertEqual(callbackInvocations[0].1, "Trace message")
+        XCTAssertEqual(callbackInvocations[1].0, .debug)
+        XCTAssertEqual(callbackInvocations[1].1, "Debug message")
+        XCTAssertEqual(callbackInvocations[2].0, .info)
+        XCTAssertEqual(callbackInvocations[2].1, "Info message")
+        XCTAssertEqual(callbackInvocations[3].0, .warn)
+        XCTAssertEqual(callbackInvocations[3].1, "Warn message")
+        XCTAssertEqual(callbackInvocations[4].0, .error)
+        XCTAssertEqual(callbackInvocations[4].1, "Error message")
+        XCTAssertEqual(callbackInvocations[5].0, .fatal)
+        XCTAssertEqual(callbackInvocations[5].1, "Fatal message")
+        
+        // Verify all logs were processed
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 6)
+        for log in logs {
+            XCTAssertEqual(log.attributes["processed"]?.value as? Bool, true)
+        }
+    }
+    
+    func testBeforeSendLogCallback_PreservesOriginalLogAttributes() {
+        fixture.options.beforeSendLog = { mutableLog in
+            // Add new attributes without removing existing ones
+            mutableLog.attributes["added_by_callback"] = "callback_value"
+            return mutableLog
+        }
+        
+        sut.info("Test message", attributes: [
+            "original_key": "original_value",
+            "user_id": 12_345
+        ])
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        // Original attributes should be preserved
+        XCTAssertEqual(capturedLog.attributes["original_key"]?.value as? String, "original_value")
+        XCTAssertEqual(capturedLog.attributes["user_id"]?.value as? Int, 12_345)
+        // New attribute should be added
+        XCTAssertEqual(capturedLog.attributes["added_by_callback"]?.value as? String, "callback_value")
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
