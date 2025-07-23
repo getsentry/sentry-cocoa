@@ -130,7 +130,10 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         allFlushCallsGroup.waitWithTimeout()
     }
 
-    // We use the test name as part of the DSN to ensure that each test runs in isolation
+    // We use the test name as part of the DSN to ensure that each test runs in isolation.
+    // As we use real dispatch queues it could happen that some delayed operations don't finish before
+    // the next test starts. Deleting the envelopes at the end or beginning of the test doesn't help,
+    // when some operation is still in flight.
     private func getSut(testName: String) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
         let options = Options()
         options.debug = true
