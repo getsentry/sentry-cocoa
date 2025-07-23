@@ -126,7 +126,7 @@ jobs:
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -144,7 +144,7 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -162,7 +162,7 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -180,7 +180,7 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release

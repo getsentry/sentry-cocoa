@@ -32,10 +32,10 @@ concurrency:
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
