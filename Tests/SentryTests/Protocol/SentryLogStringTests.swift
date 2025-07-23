@@ -190,30 +190,130 @@ final class SentryLogStringTests: XCTestCase {
         XCTAssertEqual(percentageValue, 85.7, accuracy: 0.001)
     }
     
-    // MARK: - Untracked Interpolation Tests
+    // MARK: - Privacy Control Tests
     
-    func testUntrackedInterpolation() {
-        let url = URL(string: "https://example.com")!
-        let logString: SentryLogString = "Accessing \(untracked: url)"
+    func testPrivateStringInterpolation() {
+        let sensitiveValue = "secret-token"
+        let logString: SentryLogString = "Accessing \(sensitiveValue, privacy: .`private`)"
         
-        XCTAssertTrue(logString.message.contains("https://example.com"))
+        XCTAssertEqual(logString.message, "Accessing <private>")
+        XCTAssertEqual(logString.template, "Accessing {0}")
         XCTAssertTrue(logString.attributes.isEmpty)
     }
     
-    func testUntrackedWithTrackedInterpolation() {
+    func testPrivateWithTrackedInterpolation() {
         let count = 5
-        let sensitiveData = ["secret": "value"]
+        let sensitiveData = "sensitive-data"
         
-        let logString: SentryLogString = "Processing \(count) items with data: \(untracked: sensitiveData)"
+        let logString: SentryLogString = "Processing \(count) items with data: \(sensitiveData, privacy: .`private`)"
         
-        XCTAssertTrue(logString.message.contains("Processing 5 items"))
-        XCTAssertTrue(logString.message.contains("secret"))
-        XCTAssertTrue(logString.template.contains("Processing {0} items with data: "))
-        XCTAssertTrue(logString.template.contains("secret"))
+        XCTAssertEqual(logString.message, "Processing 5 items with data: <private>")
+        XCTAssertEqual(logString.template, "Processing {0} items with data: {1}")
         XCTAssertEqual(logString.attributes.count, 1)
         
         guard case .integer(let countValue) = logString.attributes[0] else {
             XCTFail("Expected integer attribute")
+            return
+        }
+        XCTAssertEqual(countValue, 5)
+    }
+    
+    func testMixedPublicAndPrivateInterpolation() {
+        let publicUserId = "user123"
+        let sensitiveToken = "secret-token"
+        let publicCount = 5
+        let sensitiveFlag = true
+        
+        let logString: SentryLogString = "User \(publicUserId) with token \(sensitiveToken, privacy: .`private`) processed \(publicCount) items, flag: \(sensitiveFlag, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "User user123 with token <private> processed 5 items, flag: <private>")
+        XCTAssertEqual(logString.template, "User {0} with token {1} processed {2} items, flag: {3}")
+        XCTAssertEqual(logString.attributes.count, 2) // Only public values should be in attributes
+        
+        guard case .string(let userIdValue) = logString.attributes[0] else {
+            XCTFail("Expected string attribute for userId")
+            return
+        }
+        XCTAssertEqual(userIdValue, "user123")
+        
+        guard case .integer(let countValue) = logString.attributes[1] else {
+            XCTFail("Expected integer attribute for count")
+            return
+        }
+        XCTAssertEqual(countValue, 5)
+    }
+    
+    func testPrivateBoolInterpolation() {
+        let sensitiveFlag = true
+        let logString: SentryLogString = "Feature enabled: \(sensitiveFlag, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "Feature enabled: <private>")
+        XCTAssertEqual(logString.template, "Feature enabled: {0}")
+        XCTAssertTrue(logString.attributes.isEmpty)
+    }
+    
+    func testPrivateIntInterpolation() {
+        let sensitiveCount = 42
+        let logString: SentryLogString = "Secret count: \(sensitiveCount, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "Secret count: <private>")
+        XCTAssertEqual(logString.template, "Secret count: {0}")
+        XCTAssertTrue(logString.attributes.isEmpty)
+    }
+    
+    func testPrivateDoubleInterpolation() {
+        let sensitiveValue = 3.14159
+        let logString: SentryLogString = "Pi value: \(sensitiveValue, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "Pi value: <private>")
+        XCTAssertEqual(logString.template, "Pi value: {0}")
+        XCTAssertTrue(logString.attributes.isEmpty)
+    }
+    
+    func testPrivateFloatInterpolation() {
+        let sensitiveFloat: Float = 2.718
+        let logString: SentryLogString = "E value: \(sensitiveFloat, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "E value: <private>")
+        XCTAssertEqual(logString.template, "E value: {0}")
+        XCTAssertTrue(logString.attributes.isEmpty)
+    }
+    
+    func testExplicitPublicInterpolation() {
+        let value = "test"
+        let logString: SentryLogString = "Value: \(value, privacy: .`public`)"
+        
+        XCTAssertEqual(logString.message, "Value: test")
+        XCTAssertEqual(logString.template, "Value: {0}")
+        XCTAssertEqual(logString.attributes.count, 1)
+        
+        guard case .string(let stringValue) = logString.attributes[0] else {
+            XCTFail("Expected string attribute")
+            return
+        }
+        XCTAssertEqual(stringValue, "test")
+    }
+    
+    func testMixedPrivacyInterpolations() {
+        let publicUserId = "user123"
+        let sensitiveToken = "secret-token"
+        let publicCount = 5
+        let sensitiveFlag = true
+        
+        let logString: SentryLogString = "User \(publicUserId) with token \(sensitiveToken, privacy: .`private`) processed \(publicCount) items, flag: \(sensitiveFlag, privacy: .`private`)"
+        
+        XCTAssertEqual(logString.message, "User user123 with token <private> processed 5 items, flag: <private>")
+        XCTAssertEqual(logString.template, "User {0} with token {1} processed {2} items, flag: {3}")
+        XCTAssertEqual(logString.attributes.count, 2)
+        
+        guard case .string(let userValue) = logString.attributes[0] else {
+            XCTFail("Expected string attribute for user")
+            return
+        }
+        XCTAssertEqual(userValue, "user123")
+        
+        guard case .integer(let countValue) = logString.attributes[1] else {
+            XCTFail("Expected integer attribute for count")
             return
         }
         XCTAssertEqual(countValue, 5)
@@ -340,26 +440,24 @@ final class SentryLogStringTests: XCTestCase {
         XCTAssertEqual(logString.message, "Temperature: 98.6°F, Humidity: 65.2%")
     }
     
-    func testUntrackedInterpolationTemplate() {
-        let url = URL(string: "https://example.com")!
-        let logString: SentryLogString = "Accessing \(untracked: url)"
+    func testPrivateInterpolationTemplate() {
+        let urlString = "https://example.com"
+        let logString: SentryLogString = "Accessing \(urlString, privacy: .`private`)"
         
-        XCTAssertTrue(logString.template.contains("https://example.com"))
-        XCTAssertEqual(logString.template, logString.message)
+        XCTAssertEqual(logString.template, "Accessing {0}")
+        XCTAssertEqual(logString.message, "Accessing <private>")
         XCTAssertTrue(logString.attributes.isEmpty)
     }
     
-    func testMixedTrackedAndUntrackedTemplate() {
+    func testMixedPublicAndPrivateTemplate() {
         let userId = "alice"
-        let sensitiveData = ["token": "secret123"]
+        let sensitiveData = "secret-token-123"
         let count = 5
         
-        let logString: SentryLogString = "User \(userId) processed \(count) items with data \(untracked: sensitiveData)"
+        let logString: SentryLogString = "User \(userId) processed \(count) items with data \(sensitiveData, privacy: .`private`)"
         
-        XCTAssertTrue(logString.template.contains("User {0} processed {1} items with data"))
-        XCTAssertTrue(logString.template.contains("token"))
-        XCTAssertTrue(logString.template.contains("secret123"))
-        XCTAssertEqual(logString.attributes.count, 2) // Only tracked values
+        XCTAssertEqual(logString.template, "User {0} processed {1} items with data {2}")
+        XCTAssertEqual(logString.attributes.count, 2) // Only public values
         
         guard case .string(let userValue) = logString.attributes[0] else {
             XCTFail("Expected string attribute for user")
@@ -448,16 +546,16 @@ final class SentryLogStringTests: XCTestCase {
         let timestamp = 1_234_567_890
         let success = true
         let duration = 1.5
-        let sensitive = ["password": "hidden"]
+        let sensitive = "secret-data"
         
-        let logString: SentryLogString = "[\(timestamp)] User '\(user)' performed '\(action)' - Success: \(success), Duration: \(duration)s, Extra: \(untracked: sensitive)"
+        let logString: SentryLogString = "[\(timestamp)] User '\(user)' performed '\(action)' - Success: \(success), Duration: \(duration)s, Extra: \(sensitive, privacy: .`private`)"
         
-        let expectedTemplate = "[{0}] User '{1}' performed '{2}' - Success: {3}, Duration: {4}s, Extra: [\"password\": \"hidden\"]"
+        let expectedTemplate = "[{0}] User '{1}' performed '{2}' - Success: {3}, Duration: {4}s, Extra: {5}"
         XCTAssertEqual(logString.template, expectedTemplate)
         
-        let expectedMessage = "[1234567890] User 'john' performed 'login' - Success: true, Duration: 1.5s, Extra: [\"password\": \"hidden\"]"
+        let expectedMessage = "[1234567890] User 'john' performed 'login' - Success: true, Duration: 1.5s, Extra: <private>"
         XCTAssertEqual(logString.message, expectedMessage)
         
-        XCTAssertEqual(logString.attributes.count, 5) // Only tracked interpolations
+        XCTAssertEqual(logString.attributes.count, 5) // Only public interpolations
     }
 }

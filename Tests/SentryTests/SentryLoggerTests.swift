@@ -460,18 +460,18 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testFormattedString_WithUntrackedInterpolation() {
+    func testFormattedString_WithPrivateInterpolation() {
         let publicData = "visible"
-        let sensitiveData = ["password": "secret123"]
+        let sensitiveData = "secret-data-123"
         
-        let logString: SentryLogString = "Data: \(publicData), sensitive: \(untracked: sensitiveData)"
+        let logString: SentryLogString = "Data: \(publicData), sensitive: \(sensitiveData, privacy: .`private`)"
         sut.info(formatted: logString)
         
         assertLogCaptured(
             .info,
-            "Data: visible, sensitive: [\"password\": \"secret123\"]",
+            "Data: visible, sensitive: secret-data-123",
             [
-                "sentry.message.template": .string("Data: {0}, sensitive: [\"password\": \"secret123\"]"),
+                "sentry.message.template": .string("Data: {0}, sensitive: {1}"),
                 "sentry.message.parameter.0": .string("visible")
             ]
         )

@@ -4,18 +4,24 @@ import Foundation
 ///
 /// `SentryLogString` captures both the final message and the interpolated values
 /// as structured attributes, enabling better log analysis and searchability.
+/// Private values are replaced with "<private>" in the message for privacy protection.
 ///
 /// Example:
 /// ```swift
 /// let userId = 123
-/// let username = "john_doe"
-/// let logString: SentryLogString = "User \(userId) logged in as \(username)"
+/// let sessionToken = "abc123xyz"
+/// let logString: SentryLogString = "User \(userId) authenticated with token \(sessionToken, privacy: .private)"
 /// // Results in:
-/// // - message: "User 123 logged in as john_doe"
-/// // - template: "User {0} logged in as {1}"
-/// // - attributes: [.integer(123), .string("john_doe")]
+/// // - message: "User 123 authenticated with token <private>"
+/// // - template: "User {0} authenticated with token {1}"
+/// // - attributes: [.integer(123)] // Only public values are captured
 /// ```
 public struct SentryLogString: ExpressibleByStringInterpolation {
+    public enum Privacy {
+        case `public`
+        case `private`
+    }
+
     /// The final formatted message with all interpolations resolved
     let message: String
     /// Structured attributes extracted from interpolated values
@@ -52,65 +58,120 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
             template.append(literal)
         }
         
-        // MARK: - Supported SentryLog.Attribute types only
+        // MARK: - Supported SentryLog.Attribute types with privacy control
         
         /// Append String interpolation
-        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> String) {
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> String, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            message.append(actualValue)
+            
+            // Private values are replaced with "<private>" in the message
+            if privacy == .`public` {
+                message.append(actualValue)
+            } else {
+                message.append("<private>")
+            }
+            
+            // Both public and private values create placeholders in template
             template.append("{\(interpolationCount)}")
-            attributes.append(.string(actualValue))
+            
+            // Only public values are added to attributes for structured logging
+            if privacy == .`public` {
+                attributes.append(.string(actualValue))
+            }
+            
             interpolationCount += 1
         }
         
         /// Append Bool interpolation
-        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Bool) {
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Bool, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            message.append(String(actualValue))
+            
+            // Private values are replaced with "<private>" in the message
+            if privacy == .`public` {
+                let stringValue = String(actualValue)
+                message.append(stringValue)
+            } else {
+                message.append("<private>")
+            }
+            
+            // Both public and private values create placeholders in template
             template.append("{\(interpolationCount)}")
-            attributes.append(.boolean(actualValue))
+            
+            // Only public values are added to attributes for structured logging
+            if privacy == .`public` {
+                attributes.append(.boolean(actualValue))
+            }
+            
             interpolationCount += 1
         }
         
         /// Append Int interpolation
-        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Int) {
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Int, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            message.append(String(actualValue))
+            
+            // Private values are replaced with "<private>" in the message
+            if privacy == .`public` {
+                let stringValue = String(actualValue)
+                message.append(stringValue)
+            } else {
+                message.append("<private>")
+            }
+            
+            // Both public and private values create placeholders in template
             template.append("{\(interpolationCount)}")
-            attributes.append(.integer(actualValue))
+            
+            // Only public values are added to attributes for structured logging
+            if privacy == .`public` {
+                attributes.append(.integer(actualValue))
+            }
+            
             interpolationCount += 1
         }
         
         /// Append Double interpolation
-        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Double) {
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Double, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            message.append(String(actualValue))
+            
+            // Private values are replaced with "<private>" in the message
+            if privacy == .`public` {
+                let stringValue = String(actualValue)
+                message.append(stringValue)
+            } else {
+                message.append("<private>")
+            }
+            
+            // Both public and private values create placeholders in template
             template.append("{\(interpolationCount)}")
-            attributes.append(.double(actualValue))
+            
+            // Only public values are added to attributes for structured logging
+            if privacy == .`public` {
+                attributes.append(.double(actualValue))
+            }
+            
             interpolationCount += 1
         }
         
         /// Append Float interpolation (converted to Double)
-        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Float) {
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Float, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            message.append(String(actualValue))
+            
+            // Private values are replaced with "<private>" in the message
+            if privacy == .`public` {
+                let stringValue = String(actualValue)
+                message.append(stringValue)
+            } else {
+                message.append("<private>")
+            }
+            
+            // Both public and private values create placeholders in template
             template.append("{\(interpolationCount)}")
-            attributes.append(.double(Double(actualValue)))
+            
+            // Only public values are added to attributes for structured logging
+            if privacy == .`public` {
+                attributes.append(.double(Double(actualValue)))
+            }
+            
             interpolationCount += 1
-        }
-        
-        /// Append interpolation without tracking (for any other type or sensitive data)
-        ///
-        /// Use this for values that shouldn't be captured as structured attributes,
-        /// such as sensitive data or unsupported types.
-        ///
-        /// Example:
-        /// ```swift
-        /// let logString: SentryLogString = "Processing \(untracked: sensitiveToken)"
-        /// ```
-        public mutating func appendInterpolation<T>(untracked value: T) {
-            message.append(String(describing: value))
-            template.append(String(describing: value))
         }
     }
 }
