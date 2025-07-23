@@ -8,7 +8,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
 
-        let (sut, _, _) = try getSut()
+        let (sut, _, _) = try getSut(testName: "\(#function)")
 
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
@@ -26,7 +26,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
 
         requestManager.returnResponse(response: nil)
 
@@ -49,7 +49,9 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
-        let (sut, _, fileManager) = try getSut()
+        let (sut, _, fileManager) = try getSut(testName: "\(#function)")
+
+        defer { fileManager.deleteAllEnvelopes() }
 
         for _ in 0..<10 {
             sut.send(envelope: SentryEnvelope(event: Event()))
@@ -61,7 +63,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
 
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
@@ -78,7 +80,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
 
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
@@ -128,10 +130,11 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         allFlushCallsGroup.waitWithTimeout()
     }
 
-    private func getSut() throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
+    // We use the test name as part of the DSN to ensure that each test runs in isolation
+    private func getSut(testName: String) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
         let options = Options()
         options.debug = true
-        options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests")
+        options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
 
         let fileManager = try SentryFileManager(options: options)
         fileManager.deleteAllEnvelopes()
