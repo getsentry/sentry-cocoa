@@ -8,7 +8,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
 
-        let (sut, _, _) = try getSut(testName: "\(#function)")
+        let (sut, _, _) = try getSut()
 
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
@@ -26,7 +26,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
-        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
+        let (sut, requestManager, _) = try getSut()
 
         requestManager.returnResponse(response: nil)
 
@@ -49,7 +49,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
-        let (sut, _, fileManager) = try getSut(testName: "\(#function)")
+        let (sut, _, fileManager) = try getSut()
 
         defer { fileManager.deleteAllEnvelopes() }
 
@@ -63,7 +63,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
-        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
+        let (sut, requestManager, _) = try getSut()
 
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
@@ -80,7 +80,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
-        let (sut, requestManager, _) = try getSut(testName: "\(#function)")
+        let (sut, requestManager, _) = try getSut()
 
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
@@ -134,7 +134,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     // As we use real dispatch queues it could happen that some delayed operations don't finish before
     // the next test starts. Deleting the envelopes at the end or beginning of the test doesn't help,
     // when some operation is still in flight.
-    private func getSut(testName: String) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
+    private func getSut(testName: String = #function) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
         let options = Options()
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
