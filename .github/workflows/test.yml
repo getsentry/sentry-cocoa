@@ -36,9 +36,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}
+          key: test-server-${{ hashFiles('./test-server') }}-arm64
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}
+            test-server-${{ hashFiles('./test-server') }}-arm64
             test-server-
 
       - name: Build Test Server
