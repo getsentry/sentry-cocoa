@@ -64,7 +64,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             let client = TestClient(options: options)
             scope = Scope()
             hub = SentryHub(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
 
         func getSut() -> SentryWatchdogTerminationTrackingIntegration {

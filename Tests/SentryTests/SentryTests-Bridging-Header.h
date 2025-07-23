@@ -175,7 +175,7 @@
 #import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
-#import "SentrySDK+Tests.h"
+#import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
