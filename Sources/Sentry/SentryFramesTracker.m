@@ -166,7 +166,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
     _isRunning = YES;
-
+    // Reset the previous frame timestamp to avoid wrong metrics being collected
+    self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
 }
 
