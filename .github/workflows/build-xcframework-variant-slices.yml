@@ -94,9 +94,7 @@ jobs:
 
       - name: Bump version
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
-        run: |
-          ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ env.VERSION }}
+        run: make bump-version TO=${{ env.VERSION }}
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
