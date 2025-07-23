@@ -189,6 +189,7 @@ jobs:
     name: Collect app metrics
     runs-on: macos-15
     needs: assemble-xcframework-variant
+    timeout-minutes: 20
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
