@@ -42150,6 +42150,213 @@
         "printedName": "SentryLogString",
         "children": [
           {
+            "kind": "TypeDecl",
+            "name": "Privacy",
+            "printedName": "Privacy",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "public",
+                "printedName": "public",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryLogString.Privacy.Type) -> Sentry.SentryLogString.Privacy",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Privacy",
+                        "printedName": "Sentry.SentryLogString.Privacy",
+                        "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogString.Privacy.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Privacy",
+                            "printedName": "Sentry.SentryLogString.Privacy",
+                            "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:6Sentry0A9LogStringV7PrivacyO6publicyA2EmF",
+                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO6publicyA2EmF",
+                "moduleName": "Sentry"
+              },
+              {
+                "kind": "Var",
+                "name": "private",
+                "printedName": "private",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryLogString.Privacy.Type) -> Sentry.SentryLogString.Privacy",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Privacy",
+                        "printedName": "Sentry.SentryLogString.Privacy",
+                        "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryLogString.Privacy.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Privacy",
+                            "printedName": "Sentry.SentryLogString.Privacy",
+                            "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:6Sentry0A9LogStringV7PrivacyO7privateyA2EmF",
+                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO7privateyA2EmF",
+                "moduleName": "Sentry"
+              },
+              {
+                "kind": "Function",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV7PrivacyO2eeoiySbAE_AEtFZ",
+                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "static": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "hash",
+                "printedName": "hash(into:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Hasher",
+                    "printedName": "Swift.Hasher",
+                    "paramValueOwnership": "InOut",
+                    "usr": "s:s6HasherV"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A9LogStringV7PrivacyO4hash4intoys6HasherVz_tF",
+                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO4hash4intoys6HasherVz_tF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Var",
+                "name": "hashValue",
+                "printedName": "hashValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A9LogStringV7PrivacyO9hashValueSivp",
+                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO9hashValueSivp",
+                "moduleName": "Sentry",
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO9hashValueSivg",
+                    "mangledName": "$s6Sentry0A9LogStringV7PrivacyO9hashValueSivg",
+                    "moduleName": "Sentry",
+                    "accessorKind": "get"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Enum",
+            "usr": "s:6Sentry0A9LogStringV7PrivacyO",
+            "mangledName": "$s6Sentry0A9LogStringV7PrivacyO",
+            "moduleName": "Sentry",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH",
+                "mangledName": "$sSH"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init(stringLiteral:)",
@@ -42258,7 +42465,7 @@
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
+                "printedName": "appendInterpolation(_:privacy:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -42266,22 +42473,41 @@
                     "printedName": "()"
                   },
                   {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
                     "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "hasDefaultArg": true,
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySSF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySSF",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySSyXA_AC7PrivacyOtF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySSyXA_AC7PrivacyOtF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
+                "printedName": "appendInterpolation(_:privacy:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -42289,22 +42515,41 @@
                     "printedName": "()"
                   },
                   {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Bool",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
                     "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "hasDefaultArg": true,
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySbF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySbF",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySbyXA_AC7PrivacyOtF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySbyXA_AC7PrivacyOtF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
+                "printedName": "appendInterpolation(_:privacy:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -42312,22 +42557,41 @@
                     "printedName": "()"
                   },
                   {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Int",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
                     "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "hasDefaultArg": true,
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySiF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySiF",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySiyXA_AC7PrivacyOtF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySiyXA_AC7PrivacyOtF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
+                "printedName": "appendInterpolation(_:privacy:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -42335,22 +42599,41 @@
                     "printedName": "()"
                   },
                   {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Double",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
                     "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "hasDefaultArg": true,
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySdF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySdF",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySdyXA_AC7PrivacyOtF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySdyXA_AC7PrivacyOtF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
+                "printedName": "appendInterpolation(_:privacy:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -42358,39 +42641,35 @@
                     "printedName": "()"
                   },
                   {
-                    "kind": "TypeNominal",
-                    "name": "Float",
-                    "printedName": "Swift.Float",
-                    "usr": "s:Sf"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0yySfF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0yySfF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(untracked:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Float",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Float",
+                        "printedName": "Swift.Float",
+                        "usr": "s:Sf"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "GenericTypeParam",
-                    "printedName": "T"
+                    "name": "Privacy",
+                    "printedName": "Sentry.SentryLogString.Privacy",
+                    "hasDefaultArg": true,
+                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD09untrackedyx_tlF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD09untrackedyx_tlF",
+                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySfyXA_AC7PrivacyOtF",
+                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySfyXA_AC7PrivacyOtF",
                 "moduleName": "Sentry",
-                "genericSig": "<T>",
                 "funcSelfKind": "Mutating"
               },
               {
