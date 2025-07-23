@@ -102,3 +102,12 @@ Sentry.xcframework*
 Sentry-Dynamic.xcframework*
 SentrySwiftUI.xcframework*
 Sentry-WithoutUIKitOrAppKit.xcframework*
+
+Integration/*/Package.swift
+Integration/*/Info.plist
+Integration/*/Podfile*
+Integration/*/*xcodeproj*
+Integration/*/*xcworkspace*
+Integration/*/*.yml
+Integration/*/Cartfile
+Integration/*/*.Carthage.json
