@@ -42,7 +42,7 @@ on:
         type: boolean
     secrets:
       CODECOV_TOKEN:
-        required: true
+        required: false
 
 jobs:
   common-ui-tests:
