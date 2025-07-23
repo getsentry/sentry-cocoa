@@ -18,6 +18,7 @@
 - Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
 - Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
 - Launch profiling now respects original configured options if they change on the next launch (#5417)
+- Build error in app extensions (#5682)
 - Fix frame metrics including time while in background (#5681)
 
 ## 8.53.2
