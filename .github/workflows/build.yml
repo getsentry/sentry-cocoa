@@ -136,7 +136,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -154,7 +154,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -172,7 +172,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Debug \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
@@ -190,7 +190,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Release \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
