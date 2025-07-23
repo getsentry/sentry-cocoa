@@ -1,11 +1,3 @@
-//
-//  SentryLogStringTests.swift
-//  Sentry
-//
-//  Created by Denis Andrašec on 21.07.25.
-//  Copyright © 2025 Sentry. All rights reserved.
-//
-
 @testable import Sentry
 import XCTest
 
