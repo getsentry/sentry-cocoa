@@ -48,6 +48,8 @@ jobs:
             xcode: "16.2"
         command:
           - fastlane_command: ui_critical_tests_ios_swiftui_envelope
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   run-swiftui-crash-test:
     name: Run SwiftUI Crash Test
