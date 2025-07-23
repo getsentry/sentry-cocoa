@@ -166,8 +166,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
     _isRunning = YES;
-    // Reset the previous frame timestamp to avoid false app hang detection
-    // This also means we will not detect a hang if the app stuck while the tracker was paused.
+    // Reset the previous frame timestamp to avoid wrong metrics being collected
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
 }
