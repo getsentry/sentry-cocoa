@@ -141,6 +141,7 @@ if [ $RUN_BUILD == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
+        -quiet \
         build 2>&1 |
         tee raw-build-output.log |
         xcbeautify
@@ -152,6 +153,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        -quiet \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify
