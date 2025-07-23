@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-15
 
     # the carthage test doesn't work with anything other than iOS, so skip the other platforms until we can fix it
-    if: ${{inputs.sdk_variant != 'carthage' || inputs.platform}} == 'ios'}}
+    if: ${{inputs.sdk-variant != 'carthage' || inputs.platform}} == 'ios'}}
 
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
           unzip -o Integration/Frameworks/SentrySwiftUI.xcframework.zip -d Integration/Frameworks/
           unzip -o Integration/Frameworks/Sentry-WithoutUIKitOrAppKit.xcframework.zip -d Integration/Frameworks/
       - name: Run Integration Test
-        run: ./scripts/package-integration-test.sh ${{ inputs.platform }} ${{ inputs.sdk_variant }}
+        run: ./scripts/package-integration-test.sh ${{ inputs.platform }} ${{ inputs.sdk-variant }}
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
