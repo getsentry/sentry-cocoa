@@ -281,7 +281,8 @@ SENTRY_NO_INIT
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback;
+@property (nonatomic, class, readonly) SentryFeedbackAPI *feedback NS_EXTENSION_UNAVAILABLE(
+    "Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
