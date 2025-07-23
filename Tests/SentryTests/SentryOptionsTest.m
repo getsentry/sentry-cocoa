@@ -1,6 +1,6 @@
 #import "SentryOptions.h"
 #import "SentryError.h"
-#import "SentryOptions+HybridSDKs.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
@@ -15,7 +15,7 @@
 - (void)testEmptyDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{} didFailWithError:&error];
 
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(NO, options.debug);
@@ -27,7 +27,7 @@
 - (void)testInvalidDsnBoolean
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @YES }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @YES }
                                                 didFailWithError:&error];
 
     [self assertDsnNil:options andError:error];
@@ -43,7 +43,7 @@
 - (void)testInvalidDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
                                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
@@ -51,7 +51,7 @@
 
 - (void)testInvalidDsnWithNoErrorArgument
 {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
                                                 didFailWithError:nil];
     XCTAssertNil(options);
 }
@@ -129,7 +129,7 @@
 - (void)testDebugWith:(NSObject *)debugValue expected:(BOOL)expectedDebugValue
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"dsn" : @"https://username:password@sentry.io/1",
         @"debug" : debugValue
     }
@@ -595,7 +595,7 @@
 
 - (void)testNSNull_SetsDefaultValue
 {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
         @"enabled" : [NSNull null],
@@ -1448,7 +1448,7 @@
 
     [options addEntriesFromDictionary:dict];
 
-    SentryOptions *sentryOptions = [[SentryOptions alloc] initWithDict:options
+    SentryOptions *sentryOptions = [SentryOptionsInternal initWithDict:options
                                                       didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;
