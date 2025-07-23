@@ -11,6 +11,7 @@
 @class SentryTracer;
 @class SentryTracerConfiguration;
 @class SentryReplayEvent;
+@class SentryAttachment;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
 
@@ -63,6 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
 
