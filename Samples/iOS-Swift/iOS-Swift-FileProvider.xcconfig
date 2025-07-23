@@ -1,0 +1,29 @@
+#include "../Shared/Config/Architectures.xcconfig"
+#include "../Shared/Config/BuildOptions.xcconfig"
+#include "../Shared/Config/Deployment.xcconfig"
+#include "../Shared/Config/Linking.xcconfig"
+#include "../Shared/Config/Localization.xcconfig"
+#include "../Shared/Config/Packaging.xcconfig"
+#include "../Shared/Config/SearchPaths.xcconfig"
+#include "../Shared/Config/Signing.xcconfig"
+#include "../Shared/Config/Versioning.xcconfig"
+#include "../Shared/Config/CodeGeneration.xcconfig"
+#include "../Shared/Config/ClangLanguage.xcconfig"
+#include "../Shared/Config/ClangCppLanguage.xcconfig"
+#include "../Shared/Config/ClangModules.xcconfig"
+#include "../Shared/Config/ClangObjCLanguage.xcconfig"
+#include "../Shared/Config/ClangPreprocessing.xcconfig"
+#include "../Shared/Config/ClangWarnings.xcconfig"
+#include "../Shared/Config/ClangWarningsCpp.xcconfig"
+#include "../Shared/Config/ClangWarningsObjC.xcconfig"
+#include "../Shared/Config/AssetCatalog.xcconfig"
+#include "../Shared/Config/ClangAnalyzer.xcconfig"
+#include "../Shared/Config/Swift.xcconfig"
+#include "../Shared/Config/Metal.xcconfig"
+
+SDKROOT = iphoneos
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-FileProvider 
