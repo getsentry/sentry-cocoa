@@ -139,6 +139,12 @@ jobs:
             --device "iPhone 14" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
+      - run: ls uikit-check-build
+      - run: ls uikit-check-build/Build
+      - run: ls uikit-check-build/Build/Products
+      - run: ls uikit-check-build/Build/Products/DebugWithoutUIKit-iphonesimulator
+      - run: ls uikit-check-build/Build/Products/DebugWithoutUIKit-iphonesimulator/SentryWithoutUIKit.framework/
+      - run: ls uikit-check-build/Build/Products/DebugWithoutUIKit-iphonesimulator/SentryWithoutUIKit.framework/SentryWithoutUIKit
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
