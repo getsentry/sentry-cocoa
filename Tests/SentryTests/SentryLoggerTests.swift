@@ -380,7 +380,7 @@ final class SentryLoggerTests: XCTestCase {
             "Float value: 3.14, enabled: false",
             [
                 "sentry.message.template": .string("Float value: {0}, enabled: {1}"),
-                "sentry.message.parameter.0": .double(Double(value)),
+                "sentry.message.parameter.0": .double(Double(value)), // Float is converted to Double
                 "sentry.message.parameter.1": .boolean(false)
             ]
         )

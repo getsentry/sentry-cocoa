@@ -121,6 +121,34 @@ final class SentryLogStringTests: XCTestCase {
         XCTAssertEqual(attributeValue, Double(value), accuracy: 0.001)
     }
     
+    func testNegativeDoubleInterpolation() {
+        let value = -3.14159
+        let logString: SentryLogString = "Negative Pi: \(value)"
+        
+        XCTAssertEqual(logString.message, "Negative Pi: -3.14159")
+        XCTAssertEqual(logString.attributes.count, 1)
+        
+        guard case .double(let attributeValue) = logString.attributes[0] else {
+            XCTFail("Expected double attribute")
+            return
+        }
+        XCTAssertEqual(attributeValue, -3.14159, accuracy: 0.00001)
+    }
+    
+    func testNegativeFloatInterpolation() {
+        let value: Float = -2.718
+        let logString: SentryLogString = "Negative E: \(value)"
+        
+        XCTAssertEqual(logString.message, "Negative E: -2.718")
+        XCTAssertEqual(logString.attributes.count, 1)
+        
+        guard case .double(let attributeValue) = logString.attributes[0] else {
+            XCTFail("Expected double attribute (from Float)")
+            return
+        }
+        XCTAssertEqual(attributeValue, Double(value), accuracy: 0.001)
+    }
+    
     // MARK: - Multiple Interpolation Tests
     
     func testMultipleInterpolations() {
