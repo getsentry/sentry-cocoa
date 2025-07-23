@@ -59,7 +59,7 @@ take_simulator_screenshot() {
     timestamp=$(date '+%H%M%S')
     screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}.png"
 
-    log "Taking screenshot: $screenshot_name"
+    log "Taking screenshot with name: $screenshot_name"
     
     # Use timeout to limit screenshot command to 10 seconds
     if timeout 10s xcrun simctl io booted screenshot "$screenshot_name" 2>/dev/null; then
@@ -67,7 +67,7 @@ take_simulator_screenshot() {
     else
         exit_code=$?
         if [ $exit_code -eq $TIMEOUT_TIMED_OUT_EXIT_CODE ]; then
-            log "⚠️  Screenshot timed out after 10 seconds, continuing without screenshot"
+            log "⚠️  Taking screenshot timed out after 10 seconds, continuing without screenshot."
         else
             log "⚠️  Failed to take screenshot, continuing without screenshot"
         fi
