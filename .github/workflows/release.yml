@@ -184,7 +184,7 @@ jobs:
     uses: ./.github/workflows/package-integration-test.yml
 
     # the carthage test doesn't work with anything other than iOS, so skip the other platforms until we can fix it
-    if: ${{ matrix.sdk-variant != 'carthage' || matrix.platform == 'ios' }}
+    if: ${{matrix.sdk-variant}} != 'carthage' || ${{matrix.platform}} == 'ios'
 
     with:
       platform: ${{matrix.platform}}
