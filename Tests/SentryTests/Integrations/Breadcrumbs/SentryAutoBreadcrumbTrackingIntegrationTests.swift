@@ -70,7 +70,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
         let scope = Scope()
         let hub = SentryHub(client: TestClient(options: Options()), andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let crumb = TestData.crumb
         fixture.systemEventBreadcrumbTracker?.startWithDelegateInvocations.first?.add(crumb)

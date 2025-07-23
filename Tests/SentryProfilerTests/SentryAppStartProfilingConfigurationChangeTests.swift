@@ -973,7 +973,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Act: simulate TTFD using launch tracer (not a new transaction)
         // Since the launch profiler is trace-based, we use the existing launch tracer
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         // Use the launch tracer for TTFD simulation
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
@@ -1026,7 +1026,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         // Use the launch tracer for TTFD simulation
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
@@ -1079,7 +1079,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: launchTracer)
@@ -1126,7 +1126,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
         // Act: simulate TTFD
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: launchTracer)

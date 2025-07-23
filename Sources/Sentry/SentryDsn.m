@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     return output;
 }
 
-#if !SDK_v9
+#if !SDK_V9
 - (NSURL *)getStoreEndpoint
 {
     if (nil == _storeEndpoint) {
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return _storeEndpoint;
 }
-#endif // !SDK_v9
+#endif // !SDK_V9
 
 - (NSURL *)getEnvelopeEndpoint
 {

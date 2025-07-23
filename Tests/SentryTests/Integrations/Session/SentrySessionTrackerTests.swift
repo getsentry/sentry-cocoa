@@ -55,7 +55,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         func setNewHubToSDK() {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
     }
     
@@ -858,7 +858,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.fileManager.storeCrashedSession(crashedSession)
         
         startSutInAppDelegate()
-        SentrySDK.captureFatalEvent(Event())
+        SentrySDKInternal.captureFatalEvent(Event())
         
         let session = try XCTUnwrap(fixture.client.captureFatalEventWithSessionInvocations.last?.session)
         assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)

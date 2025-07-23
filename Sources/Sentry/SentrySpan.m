@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
-        _isContinuousProfiling = [SentrySDK.options isContinuousProfilingEnabled];
+        _isContinuousProfiling = [SentrySDKInternal.options isContinuousProfilingEnabled];
         if (_isContinuousProfiling) {
 #    endif // !SDK_V9
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;

@@ -111,7 +111,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertNotNil(sentry_launchTracer)
 
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         // Ensure frames tracker is running (required for TTD tracker)
         SentryDependencyContainer.sharedInstance().framesTracker = fixture.framesTracker
@@ -145,7 +145,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler()).isRunning())
 
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: try XCTUnwrap(sentry_launchTracer))
         ttd.reportInitialDisplay()
@@ -230,7 +230,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertNil(sentry_launchTracer)
 
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)
@@ -251,7 +251,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertNil(sentry_launchTracer)
 
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)
@@ -525,7 +525,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Act
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)
@@ -557,7 +557,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Act
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)
@@ -590,7 +590,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Act
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)
@@ -621,7 +621,7 @@ extension SentryAppLaunchProfilingTests {
 
         // Act
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         let tracer = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: false, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: tracer)

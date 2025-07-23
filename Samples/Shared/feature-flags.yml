@@ -16,7 +16,7 @@ schemeTemplates:
         "--io.sentry.session-replay.disable-mask-all-images": false
 
         # user feedback
-        "--io.sentry.feedback.use-custom-feedback-button": true
+        "--io.sentry.feedback.use-custom-feedback-button": false
         "--io.sentry.feedback.dont-use-sentry-user": false
         "--io.sentry.feedback.require-name": false
         "--io.sentry.feedback.require-email": false
@@ -35,6 +35,11 @@ schemeTemplates:
         "--io.sentry.profiling.disable-app-start-profiling": false
         "--io.sentry.profiling.continuous-profiler-immediate-stop": false
 
+        # networking
+        "--io.sentry.networking.disable-breadcrumbs": false
+        "--io.sentry.networking.disable-tracking": false
+        "--io.sentry.networking.disable-failed-request-tracking": false
+
         # performance
         "--io.sentry.performance.disable-app-hang-tracking-v2": false
         "--io.sentry.performance.disable-time-to-full-display-tracing": false
@@ -49,9 +54,7 @@ schemeTemplates:
         "--io.sentry.tracing.disable-tracing": false
         "--io.sentry.other.disable-crash-handler": false
         "--io.sentry.other.disable-swizzling": false
-        "--io.sentry.other.disable-network-breadcrumbs": false
         "--io.sentry.performance.disable-core-data-tracing": false
-        "--io.sentry.performance.disable-network-tracking": false
         "--io.sentry.performance.disable-uiviewcontroller-tracing": false
         "--io.sentry.other.disable-automatic-breadcrumbs": false
         "--io.sentry.performance.disable-anr-tracking": false

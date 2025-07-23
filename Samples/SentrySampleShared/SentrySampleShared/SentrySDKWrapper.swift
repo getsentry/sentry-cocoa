@@ -114,11 +114,13 @@ public struct SentrySDKWrapper {
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
         options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
 
+        options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
+        options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
+        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Networking.disableBreadcrumbs.boolValue
+
         options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
-        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
