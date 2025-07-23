@@ -78,10 +78,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOSApplicationExtension 13.0, *)) {
-        if (@available(iOS 13.0, *)) {
-            [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-        }
+    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
+        [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
