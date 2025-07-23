@@ -469,7 +469,7 @@ final class SentryLoggerTests: XCTestCase {
         
         assertLogCaptured(
             .info,
-            "Data: visible, sensitive: secret-data-123",
+            "Data: visible, sensitive: <private>",
             [
                 "sentry.message.template": .string("Data: {0}, sensitive: {1}"),
                 "sentry.message.parameter.0": .string("visible")
