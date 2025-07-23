@@ -51,16 +51,27 @@ log() {
 # Take screenshot with timestamp and custom name
 take_simulator_screenshot() {
     local name="$1"
+    local TIMEOUT_TIMED_OUT_EXIT_CODE=124
     
-    # Create screenshots directory if it doesn't exist
     mkdir -p "$SCREENSHOTS_DIR"
     
     # Generate timestamp-based filename with custom name
     timestamp=$(date '+%H%M%S')
     screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}.png"
+
+    log "Taking screenshot: $screenshot_name"
     
-    # Take screenshot
-    xcrun simctl io booted screenshot "$screenshot_name" 2>/dev/null || true
+    # Use timeout to limit screenshot command to 10 seconds
+    if timeout 10s xcrun simctl io booted screenshot "$screenshot_name" 2>/dev/null; then
+        log "Screenshot taken: $screenshot_name"
+    else
+        exit_code=$?
+        if [ $exit_code -eq $TIMEOUT_TIMED_OUT_EXIT_CODE ]; then
+            log "⚠️  Screenshot timed out after 10 seconds, continuing without screenshot"
+        else
+            log "⚠️  Failed to take screenshot, continuing without screenshot"
+        fi
+    fi
 }
 
 # Check if the app is currently running
