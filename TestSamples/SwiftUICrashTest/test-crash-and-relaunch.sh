@@ -51,7 +51,6 @@ log() {
 # Take screenshot with timestamp and custom name
 take_simulator_screenshot() {
     local name="$1"
-    local TIMEOUT_TIMED_OUT_EXIT_CODE=124
     
     mkdir -p "$SCREENSHOTS_DIR"
     
@@ -61,17 +60,44 @@ take_simulator_screenshot() {
 
     log "Taking screenshot with name: $screenshot_name"
     
-    # Use timeout to limit screenshot command to 10 seconds
-    if timeout 10s xcrun simctl io booted screenshot "$screenshot_name" 2>/dev/null; then
-        log "Screenshot taken: $screenshot_name"
-    else
-        exit_code=$?
-        if [ $exit_code -eq $TIMEOUT_TIMED_OUT_EXIT_CODE ]; then
-            log "⚠️  Taking screenshot timed out after 10 seconds, continuing without screenshot."
-        else
-            log "⚠️  Failed to take screenshot, continuing without screenshot"
+    # Use native timeout implementation with background process and kill
+    # Note: macOS doesn't include 'timeout' by default. While it's available via
+    # 'brew install coreutils' as 'gtimeout', we avoid external dependencies
+    # for this single use case. This native approach works with built-in commands.
+    
+    # Start screenshot command in background
+    xcrun simctl io booted screenshot "$screenshot_name" &
+    screenshot_pid=$!
+    
+    # Wait for 10 seconds or until process completes
+    start_time=$(date +%s)
+    while true; do
+        if ! kill -0 $screenshot_pid 2>/dev/null; then
+            # Process has finished
+            wait $screenshot_pid
+            exit_code=$?
+            if [ $exit_code -eq 0 ]; then
+                log "Screenshot taken: $screenshot_name"
+            else
+                log "⚠️  Failed to take screenshot (exit code: $exit_code), continuing without screenshot"
+            fi
+            return
         fi
-    fi
+        
+        current_time=$(date +%s)
+        elapsed=$((current_time - start_time))
+        
+        if [ $elapsed -ge 10 ]; then
+            # Timeout reached - terminate the process
+            log "Terminating screenshot process due to timeout"
+            kill $screenshot_pid 2>/dev/null || true
+            wait $screenshot_pid 2>/dev/null || true
+            log "⚠️  Taking screenshot timed out after 10 seconds, continuing without screenshot."
+            break
+        fi
+        
+        sleep 0.1
+    done
 }
 
 # Check if the app is currently running
