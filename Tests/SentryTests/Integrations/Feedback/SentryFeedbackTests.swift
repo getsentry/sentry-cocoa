@@ -226,11 +226,8 @@ class SentryFeedbackTests: XCTestCase {
         // Verify that the feedback was captured and sent despite the 0.0 sample rate
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
-        print(capturedFeedback)
-//
-//        XCTAssertEqual(capturedFeedback.message, "Test feedback message")
-//        XCTAssertEqual(capturedFeedback.name, "Test User")
-//        XCTAssertEqual(capturedFeedback.email, "test@example.com")
+
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
     }
     
     func testFeedbackNotSubjectToBeforeSendFiltering() throws {
@@ -267,7 +264,8 @@ class SentryFeedbackTests: XCTestCase {
         // Verify that the feedback was captured and sent despite beforeSend returning nil
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
-        print(capturedFeedback)
+
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
     }
     
     func testFeedbackWithSamplingAndBeforeSendFilteringCombined() throws {
@@ -312,7 +310,8 @@ class SentryFeedbackTests: XCTestCase {
         // Verify that the feedback was captured and sent despite both sampling and beforeSend filtering
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
-        print(capturedFeedback)
+
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
     }
 }
 
