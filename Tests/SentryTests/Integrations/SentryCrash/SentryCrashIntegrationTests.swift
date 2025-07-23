@@ -62,7 +62,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
         
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
     }
     
     override func tearDown() {
@@ -109,7 +109,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsCrashed_WithCurrentSession() throws {
         let expectedCrashedSession = givenCrashedSession()
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         
         try advanceTime(bySeconds: 10)
         
@@ -122,11 +122,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
         givenOOMAppState()
-        SentrySDK.startInvocations = 1
+        SentrySDKInternal.startInvocations = 1
         
         let expectedCrashedSession = givenCrashedSession()
         
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         try advanceTime(bySeconds: 10)
         
         let sut = fixture.sutWithoutCrash
@@ -210,7 +210,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsAbnormal_NoCurrentSession() {
         // Arrange
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
@@ -227,7 +227,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsAbnormal_NoAppHangEvent() {
         // Arrange
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
@@ -249,7 +249,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(options: fixture.options)
         fixture.client.fileManager = fileManager
         
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
@@ -269,7 +269,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsAbnormal_AppHangEvent_EndsSessionAsAbnormal() throws {
         // Arrange
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
@@ -300,7 +300,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsAbnormal_AppHangEventAndCrash_EndsSessionAsCrashed() throws {
         // Arrange
         let expectedCrashedSession = givenCrashedSession()
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
         let fileManager = fixture.client.fileManager
         let appHangEvent = Event()
         fileManager.storeAppHang(appHangEvent)
@@ -540,7 +540,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         sut.install(with: options)
@@ -565,13 +565,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
-        SentrySDK.currentHub().scope.span = nil
+        SentrySDKInternal.currentHub().scope.span = nil
         
         sentrycrash_invokeSaveTransaction()
         
@@ -586,14 +586,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let client = SentryClient(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         let span = transaction.startChild(operation: "child")
-        SentrySDK.currentHub().scope.span = span
+        SentrySDKInternal.currentHub().scope.span = span
         
         sentrycrash_invokeSaveTransaction()
         
@@ -630,7 +630,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private func givenSutWithGlobalHub() -> (SentryCrashIntegration, SentryHub) {
         let sut = fixture.getSut()
         let hub = fixture.hub
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
 
         return (sut, hub)
     }
@@ -641,7 +641,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #endif
         let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         let hub = fixture.hub
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
 
         return (sut, hub)
     }

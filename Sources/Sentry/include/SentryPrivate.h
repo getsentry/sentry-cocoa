@@ -26,6 +26,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryProfiler+Private.h"
 #import "SentryRandom.h"
+#import "SentrySDKInternal.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"

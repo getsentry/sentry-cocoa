@@ -51,7 +51,7 @@
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryReachability.h"
 #import "SentrySDK+Private.h"
-#import "SentrySDK+Tests.h"
+#import "SentrySDKInternal+Tests.h"
 #import "SentryScopeSyncC.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"

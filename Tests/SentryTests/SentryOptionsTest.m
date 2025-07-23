@@ -1,7 +1,7 @@
 #import "SentryOptions.h"
 #import "SentryError.h"
 #import "SentryOptions+HybridSDKs.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
