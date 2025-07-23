@@ -102,20 +102,6 @@ targets:
       Release: iOS-Swift-FileProvider.xcconfig
       Test: iOS-Swift-FileProvider.xcconfig
       TestCI: iOS-Swift-FileProvider.xcconfig
-  iOS-Swift-DeviceActivityMonitor:
-    type: app-extension
-    platform: iOS
-    sources:
-      - iOS-Swift-DeviceActivityMonitor
-    dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
-    configFiles:
-      Debug: iOS-Swift-DeviceActivityMonitor.xcconfig
-      DebugV9: iOS-Swift-DeviceActivityMonitor.xcconfig
-      Release: iOS-Swift-DeviceActivityMonitor.xcconfig
-      Test: iOS-Swift-DeviceActivityMonitor.xcconfig
-      TestCI: iOS-Swift-DeviceActivityMonitor.xcconfig
   iOS-SwiftClip:
     type: application.on-demand-install-capable
     platform: auto
@@ -176,7 +162,6 @@ schemes:
         iOS-Swift-KeyboardExtension: all
         iOS-Swift-ShareExtension: all
         iOS-Swift-FileProvider: all
-        iOS-Swift-DeviceActivityMonitor: all
     test:
       config: Test
       testPlans:
