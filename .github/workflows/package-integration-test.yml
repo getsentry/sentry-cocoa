@@ -19,6 +19,10 @@ jobs:
   package-integration-test:
     name: ${{inputs.sdk-variant}}-${{inputs.platform}}
     runs-on: macos-15
+
+    # the carthage test doesn't work with anything other than iOS, so skip the other platforms until we can fix it
+    if: ${{inputs.sdk_variant != 'carthage' || inputs.platform}} == 'ios'}}
+
     steps:
       - uses: actions/checkout@v4
       - name: Install tooling

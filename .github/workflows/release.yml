@@ -182,10 +182,6 @@ jobs:
         platform: [ios, tvos, watchos, macos, visionos]
         sdk-variant: [carthage, cocoapods, spm, xcframework-static, xcframework-dynamic]
     uses: ./.github/workflows/package-integration-test.yml
-
-    # the carthage test doesn't work with anything other than iOS, so skip the other platforms until we can fix it
-    if: ${{matrix.sdk-variant}} != 'carthage' || ${{matrix.platform}} == 'ios'
-
     with:
       platform: ${{matrix.platform}}
       sdk-variant: ${{matrix.sdk-variant}}
