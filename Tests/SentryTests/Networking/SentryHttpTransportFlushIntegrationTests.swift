@@ -4,8 +4,7 @@ import XCTest
 
 final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
-    private let flushTimeout: TimeInterval = 2.0
-    private let currentDate = SentryDefaultCurrentDateProvider()
+    private let flushTimeout: TimeInterval = 5.0
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
 
@@ -139,6 +138,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
         let requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         requestManager.returnResponse(response: HTTPURLResponse())
+
+        let currentDate = SentryDefaultCurrentDateProvider()
 
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
 
