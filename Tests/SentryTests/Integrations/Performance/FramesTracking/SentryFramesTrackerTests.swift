@@ -710,7 +710,7 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(sut.isRunning, true)
     }
     
-    func testUnpause_ResetsPreviousFrameTimestamp_ToAvoidFalseAppHangDetection() throws {
+    func testUnpause_ResetsPreviousFrameTimestamp_ToAvoidWrongMetrics() throws {
         let sut = fixture.sut
         sut.start()
         
@@ -735,30 +735,6 @@ class SentryFramesTrackerTests: XCTestCase {
         
         // Should not detect any slow or frozen frames after unpausing
         try assert(slow: 0, frozen: 0, total: 2)
-    }
-    
-    func testUnpause_AfterLongPause_DoesNotDetectHang() throws {
-        let sut = fixture.sut
-        sut.start()
-        
-        // Simulate some normal frames
-        fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.normalFrame()
-        
-        // Pause the tracker
-        sut.pause()
-        
-        // Simulate a very long pause (longer than frozen frame threshold)
-        fixture.dateProvider.advance(by: 5.0) // Much longer than 0.7s frozen threshold
-        
-        // Unpause the tracker
-        sut.unpause()
-        
-        // The next frame should not be classified as frozen even though there was a long pause
-        fixture.displayLinkWrapper.call()
-        
-        // Should not detect any slow or frozen frames
-        try assert(slow: 0, frozen: 0, total: 1)
     }
     
     func testUnpause_WhenAlreadyRunning_DoesNotResetTimestamp() throws {
