@@ -63,31 +63,31 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
         /// Append String interpolation
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> String, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: actualValue, privacy: privacy) { .string(actualValue) }
+            appendInterpolationValue(stringValue: actualValue, privacy: privacy, attributeFactory: .string(actualValue))
         }
         
         /// Append Bool interpolation
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Bool, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy) { .boolean(actualValue) }
+            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy, attributeFactory: .boolean(actualValue))
         }
         
         /// Append Int interpolation
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Int, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy) { .integer(actualValue) }
+            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy, attributeFactory: .integer(actualValue))
         }
         
         /// Append Double interpolation
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Double, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy) { .double(actualValue) }
+            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy, attributeFactory: .double(actualValue))
         }
         
         /// Append Float interpolation (converted to Double)
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Float, privacy: SentryLogString.Privacy = .`public`) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy) { .double(Double(actualValue)) }
+            appendInterpolationValue(stringValue: String(actualValue), privacy: privacy, attributeFactory: .double(Double(actualValue)))
         }
         
         // Helper
@@ -95,7 +95,7 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
         private mutating func appendInterpolationValue(
             stringValue: String,
             privacy: SentryLogString.Privacy,
-            attributeFactory: () -> SentryLog.Attribute
+            attributeFactory: @autoclosure () -> SentryLog.Attribute
         ) {
             // Private values are replaced with "<private>" in the message
             if privacy == .`public` {
