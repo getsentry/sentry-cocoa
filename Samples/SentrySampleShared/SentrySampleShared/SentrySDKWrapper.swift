@@ -193,6 +193,7 @@ public struct SentrySDKWrapper {
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
 
         scope.setTag(value: options.sampleRate?.stringValue ?? "0", key: "sample-rate")
+        scope.setTag(value: SentrySDKOverrides.Events.rejectAll.boolValue ? "true" : "false", key: "beforeSend-reject-all")
 
         return scope
     }
