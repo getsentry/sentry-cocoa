@@ -43,8 +43,8 @@ var targets: [Target] = [
         publicHeadersPath: "SentryInternal/")
 ]
 
-let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
+//let env = getenv("EXPERIMENTAL_SPM_BUILDS")
+//if let env = env, String(cString: env, encoding: .utf8) == "1" {
     products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required
@@ -65,7 +65,8 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 // This flag is used to make some API breaking changes necessary for the framework to compile with SPM.
                 // We can either make more extensive changes to allow it to be backwards compatible, or release them as part of a V9 release.
                 // For now we use this flag so that CI can compile the SPM version.
-                    .define("SENTRY_SWIFT_PACKAGE")
+                    .define("SENTRY_SWIFT_PACKAGE"),
+                    .define("SDK_V9")
             ]),
         .target(
             name: "SentryObjc",
@@ -80,9 +81,10 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
+                .define("SDK_V9")])
     ])
-}
+//}
 
 let package = Package(
     name: "Sentry",

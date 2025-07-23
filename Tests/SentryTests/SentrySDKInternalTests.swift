@@ -192,13 +192,10 @@ class SentrySDKInternalTests: XCTestCase {
 
         SentrySDK.capture(feedback: fixture.feedback)
         let client = fixture.client
-        XCTAssertEqual(1, client.captureFeedbackInvocations.count)
-        if let actual = client.captureFeedbackInvocations.first {
+        XCTAssertEqual(1, client.captureSerializedFeedbackInvocations.count)
+        if let actual = client.captureSerializedFeedbackInvocations.first {
             let expected = fixture.feedback
-            XCTAssertEqual(expected.eventId, actual.0.eventId)
-            XCTAssertEqual(expected.name, actual.0.name)
-            XCTAssertEqual(expected.email, actual.0.email)
-            XCTAssertEqual(expected.message, actual.0.message)
+            XCTAssertEqual(expected.eventId.sentryIdString, actual.0)
         }
     }
     

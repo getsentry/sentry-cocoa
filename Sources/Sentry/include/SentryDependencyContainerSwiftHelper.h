@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
++ (SentryHub *)currentHub;
 
 @end
 
