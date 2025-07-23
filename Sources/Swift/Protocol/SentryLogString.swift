@@ -55,42 +55,47 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
         // MARK: - Supported SentryLog.Attribute types only
         
         /// Append String interpolation
-        public mutating func appendInterpolation(_ value: String) {
-            message.append(value)
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> String) {
+            let actualValue = value()
+            message.append(actualValue)
             template.append("{\(interpolationCount)}")
-            attributes.append(.string(value))
+            attributes.append(.string(actualValue))
             interpolationCount += 1
         }
         
         /// Append Bool interpolation
-        public mutating func appendInterpolation(_ value: Bool) {
-            message.append(String(value))
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Bool) {
+            let actualValue = value()
+            message.append(String(actualValue))
             template.append("{\(interpolationCount)}")
-            attributes.append(.boolean(value))
+            attributes.append(.boolean(actualValue))
             interpolationCount += 1
         }
         
         /// Append Int interpolation
-        public mutating func appendInterpolation(_ value: Int) {
-            message.append(String(value))
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Int) {
+            let actualValue = value()
+            message.append(String(actualValue))
             template.append("{\(interpolationCount)}")
-            attributes.append(.integer(value))
+            attributes.append(.integer(actualValue))
             interpolationCount += 1
         }
         
         /// Append Double interpolation
-        public mutating func appendInterpolation(_ value: Double) {
-            message.append(String(value))
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Double) {
+            let actualValue = value()
+            message.append(String(actualValue))
             template.append("{\(interpolationCount)}")
-            attributes.append(.double(value))
+            attributes.append(.double(actualValue))
             interpolationCount += 1
         }
         
         /// Append Float interpolation (converted to Double)
-        public mutating func appendInterpolation(_ value: Float) {
-            message.append(String(value))
+        public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Float) {
+            let actualValue = value()
+            message.append(String(actualValue))
             template.append("{\(interpolationCount)}")
-            attributes.append(.double(Double(value)))
+            attributes.append(.double(Double(actualValue)))
             interpolationCount += 1
         }
         
