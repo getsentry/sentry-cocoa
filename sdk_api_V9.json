@@ -53936,18 +53936,11 @@
                 "usr": "s:10Foundation3URLV"
               },
               {
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "ReadingOptions",
-                "printedName": "Foundation.Data.ReadingOptions",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ReadingOptions",
-                    "printedName": "Foundation.NSData.ReadingOptions",
-                    "usr": "c:@E@NSDataReadingOptions"
-                  }
-                ],
-                "hasDefaultArg": true
+                "printedName": "Foundation.NSData.ReadingOptions",
+                "hasDefaultArg": true,
+                "usr": "c:@E@NSDataReadingOptions"
               }
             ],
             "declKind": "Constructor",
