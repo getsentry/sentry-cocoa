@@ -720,13 +720,13 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.normalFrame()
         
         // Pause the tracker
-        sut.pause()
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
         // Verify it's paused
         XCTAssertFalse(sut.isRunning)
         
         // Unpause and verify the previous frame timestamp is reset
-        sut.unpause()
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
         XCTAssertTrue(sut.isRunning)
         
         // The next frame should be treated as the first frame (previousFrameTimestamp == SentryPreviousFrameInitialValue)
@@ -770,7 +770,7 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.normalFrame()
         
         // Try to unpause when already running
-        sut.unpause()
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
         
         // Should still be running
         XCTAssertTrue(sut.isRunning)
@@ -818,9 +818,9 @@ class SentryFramesTrackerTests: XCTestCase {
         
         // Pause and unpause multiple times
         for _ in 0..<3 {
-            sut.pause()
+            fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
             fixture.dateProvider.advance(by: 2.0) // Long pause each time
-            sut.unpause()
+            fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
             
             // Each unpause should reset the timestamp
             fixture.displayLinkWrapper.call()
@@ -840,13 +840,13 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.normalFrame()
         
         // Pause the tracker
-        sut.pause()
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
         // Advance time significantly
         fixture.dateProvider.advance(by: 5.0)
         
         // Unpause the tracker
-        sut.unpause()
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
         
         // The delayed frames tracker should also have its previous frame system timestamp reset
         // This prevents false delay calculations after unpausing
