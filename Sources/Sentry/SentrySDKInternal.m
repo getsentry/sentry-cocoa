@@ -57,6 +57,11 @@
     return nil;
 }
 
+- (SentryId *)sentryId
+{
+    return [[SentryId alloc] initWithUUIDString:self.sentryIdString];
+}
+
 @end
 
 @implementation SentryId (Wrapper)
@@ -425,9 +430,9 @@ static NSDate *_Nullable startTimestamp = nil;
                               reason:exception.reason
                             userInfo:exception.userInfo
             callStackReturnAddresses:exception.callStackReturnAddresses];
-    return [[SentryId alloc]
-        initWithUUIDString:[SentrySDKInternal captureException:wrappedException
-                                                     withScope:SentrySDKInternal.currentHub.scope]];
+    return [SentrySDKInternal captureException:wrappedException
+                                     withScope:SentrySDKInternal.currentHub.scope]
+        .sentryId;
 }
 
 #endif // TARGET_OS_OSX
