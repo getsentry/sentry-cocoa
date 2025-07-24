@@ -715,9 +715,6 @@ class SentrySDKInternalTests: XCTestCase {
         let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
 
         wait(for: [mainThreadIntegration.expectation], timeout: 5.0)
-
-        XCTAssert(mainThreadIntegration.wasInstalledOnTheMainThread(), "SDK is not being initialized in the main thread")
-
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1057,12 +1054,9 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
 
     public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
 
-    private var installedInTheMainThread = false
-
     public func install(with options: Options) -> Bool {
         print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
-
-        installedInTheMainThread = Thread.isMainThread
+        dispatchPrecondition(condition: .onQueue(.main))
 
         expectation.fulfill()
 
@@ -1071,10 +1065,6 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
 
     public func uninstall() {
 
-    }
-
-    public func wasInstalledOnTheMainThread() -> Bool {
-        return installedInTheMainThread
     }
 }
 // swiftlint:enable file_length
