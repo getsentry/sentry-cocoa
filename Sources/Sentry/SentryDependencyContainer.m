@@ -2,6 +2,7 @@
 
 #import "SentryApplication.h"
 #import "SentryBinaryImageCache.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
@@ -21,15 +22,13 @@
 #import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
-#import <SentryCrashDefaultBinaryImageProvider.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDebugImageProvider.h>
+#import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryInternalDefines.h>
-#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
@@ -167,7 +166,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
 
-        _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
         _application = [[SentryUIApplication alloc]
@@ -286,7 +285,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDK.options.cacheDirectoryPath]);
+        [[SentryCrash alloc] initWithBasePath:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
@@ -504,8 +503,8 @@ static BOOL isInitialializingDependencyContainer = NO;
                    fileManager:(SentryFileManager *_Nonnull)fileManager];
 }
 
-- (SentryWatchdogTerminationContextProcessor *)
-    watchdogTerminationContextProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryWatchdogTerminationAttributesProcessor *)
+    watchdogTerminationAttributesProcessor SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SentryScopeContextPersistentStore *_Nullable nullableScopeContextPersistentStore
         = self.scopeContextPersistentStore;
@@ -522,7 +521,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryWatchdogTerminationContextProcessor alloc]
             initWithDispatchQueueWrapper:
                 [self.dispatchFactory
-                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.context-processor"
+                    createUtilityQueue:"io.sentry.watchdog-termination-tracking.fields-processor"
                       relativePriority:0]
                        scopeContextStore:scopeContextPersistentStore])
 }
@@ -539,5 +538,10 @@ static BOOL isInitialializingDependencyContainer = NO;
                                              application:self.application
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
+}
+
+- (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_objcRuntimeWrapper, [[SentryDefaultObjCRuntimeWrapper alloc] init]);
 }
 @end

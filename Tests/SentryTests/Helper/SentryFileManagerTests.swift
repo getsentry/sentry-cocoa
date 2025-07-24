@@ -850,13 +850,13 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = try SentryWatchdogTerminationContextProcessor(
+        let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: sut))
+            scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))
         )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
+            attributesProcessor: attributesProcessor
         )
 
         for count in 0..<3 {
@@ -880,13 +880,13 @@ class SentryFileManagerTests: XCTestCase {
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
-        let contextProcessor = try SentryWatchdogTerminationContextProcessor(
+        let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-            scopeContextStore: XCTUnwrap(SentryScopeContextPersistentStore(fileManager: sut))
+            scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))
         )
         let observer = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: breadcrumbProcessor,
-            contextProcessor: contextProcessor
+            attributesProcessor: attributesProcessor
         )
 
         for count in 0..<5 {
@@ -1167,7 +1167,7 @@ extension SentryFileManagerTests {
             profilesSampleRate: expectedProfilesSampleRate,
             profilesSampleRand: expectedProfilesSampleRand
         )
-        let config = sentry_appLaunchProfileConfiguration()
+        let config = sentry_persistedLaunchProfileConfigurationOptions()
 
         // -- Assert --
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
@@ -1183,7 +1183,7 @@ extension SentryFileManagerTests {
     // if a file isn't present when we expect it to be, like if there was an issue when we went to write it to disk
     func testsentry_appLaunchProfileConfiguration_noConfigurationExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        XCTAssertNil(sentry_appLaunchProfileConfiguration())
+        XCTAssertNil(sentry_persistedLaunchProfileConfigurationOptions())
     }
     
     func testWriteAppLaunchProfilingConfigFile_noCurrentFileExists() throws {

@@ -839,7 +839,8 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
-NSDictionary<NSString *, NSNumber *> *_Nullable sentry_appLaunchProfileConfiguration(void)
+NSDictionary<NSString *, NSNumber *> *_Nullable sentry_persistedLaunchProfileConfigurationOptions(
+    void)
 {
     NSURL *url = launchProfileConfigFileURL();
     NSString *urlPath = url.path;

@@ -40,7 +40,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         sut = fixture.getSut()
         sut.start()
         
-        SentrySDK.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
     }
     
     override func tearDown() {

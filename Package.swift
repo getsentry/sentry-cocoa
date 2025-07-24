@@ -18,13 +18,13 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.1/Sentry.xcframework.zip",
-        checksum: "f2c1d1dfaa102edac4c5270bbf0b57977d9ef61985b17a1f277cb72ac6c80302" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.2/Sentry.xcframework.zip",
+        checksum: "b4c0b46ea2752d5fbf2b98b2c4bddc71e8803714b1faff0f2e427082474a7d3e" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "8b643291cd90d59672dfcf57be4eef53b6e17c6270d1ffb35903eef523b16bad" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.2/Sentry-Dynamic.xcframework.zip",
+        checksum: "d0a293654ab99979c5aae2a4a7ce50a4c40c62e36c98fb3c7b2bc1adcc2621d1" //Sentry-Dynamic
     ),
     .target (
         name: "SentrySwiftUI",
@@ -62,10 +62,9 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             path: "Sources/Swift",
             swiftSettings: [
                 .unsafeFlags(["-enable-library-evolution"]),
-                // This flag is used to make some API breaking changes necessary for the framework to compile with SPM.
-                // We can either make more extensive changes to allow it to be backwards compatible, or release them as part of a V9 release.
-                // For now we use this flag so that CI can compile the SPM version.
-                    .define("SENTRY_SWIFT_PACKAGE")
+                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
+                // those in V9.
+                .define("SDK_V9")
             ]),
         .target(
             name: "SentryObjc",
@@ -80,7 +79,8 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
+                .define("SDK_V9")])
     ])
 }
 

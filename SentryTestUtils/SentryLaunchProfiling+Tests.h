@@ -3,22 +3,12 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
+#    import "SentryProfiler+Private.h"
 
 @class SentryOptions;
 @class SentrySamplerDecision;
-@class SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef struct {
-    BOOL shouldProfile;
-    SentrySamplerDecision *_Nullable tracesDecision;
-    SentrySamplerDecision *_Nullable profilesDecision;
-} SentryLaunchProfileConfig;
-
-SENTRY_EXTERN SentryTracer *_Nullable sentry_launchTracer;
-
-SentryLaunchProfileConfig sentry_shouldProfileNextLaunch(SentryOptions *options);
 
 /**
  * `sentry_shouldProfileNextLaunch` cannot be exposed to Swift tests because its return type is not

@@ -227,7 +227,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                           sdkStartTimestamp:sdkStartTimestamp
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
-        SentrySDK.appStartMeasurement = appStartMeasurement;
+        SentrySDKInternal.appStartMeasurement = appStartMeasurement;
     };
 
 // With only running this once we know that the process is a new one when the following

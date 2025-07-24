@@ -7,6 +7,7 @@
 #import "SentryError.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
@@ -328,6 +329,22 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         return kSentryLevelInfo; // Default level if not specified or invalid
     }
+}
+
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
+{
+    NSError *error = nil;
+    id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (nil != error) {
+        SENTRY_LOG_ERROR(@"Failed to deserialize json item array: %@", error);
+        return nil;
+    }
+    if (![json isKindOfClass:[NSArray class]]) {
+        SENTRY_LOG_ERROR(
+            @"Deserialized json is not an NSArray, found %@", NSStringFromClass([json class]));
+        return nil;
+    }
+    return (NSArray *)json;
 }
 
 @end

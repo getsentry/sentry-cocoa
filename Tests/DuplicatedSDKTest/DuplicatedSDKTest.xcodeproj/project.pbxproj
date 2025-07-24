@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,6 +15,11 @@
 		D89DD6572CEF652B009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D89DD6592CEF6535009C3509 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; };
 		D89DD65A2CEF6535009C3509 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D89DD6552CEF652B009C3509 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F41CE14C2E2EE7AC001123A5 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
+		F41CE14D2E2EE7AC001123A5 /* SomeWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB292E2B3DFC0001DF41 /* SomeWork.swift */; };
+		F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */; };
+		F474CB2F2E2B3E180001DF41 /* UITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB2A2E2B3DFC0001DF41 /* UITest.swift */; };
+		F474CB322E2B3E270001DF41 /* Unit_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474CB302E2B3E270001DF41 /* Unit_Tests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +38,13 @@
 			remoteInfo = ModuleB;
 		};
 		D89DD6792CEF7ADF009C3509 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D8C030C62CEF633A007FC5B4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8C030CD2CEF633A007FC5B4;
+			remoteInfo = DuplicatedSDKTest;
+		};
+		F45243162DE56862003E8F50 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D8C030C62CEF633A007FC5B4 /* Project object */;
 			proxyType = 1;
@@ -84,53 +96,14 @@
 		D89DD6552CEF652B009C3509 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../Carthage/Sentry.xcframework; sourceTree = "<group>"; };
 		D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITest-DuplicatedSDK.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuplicatedSDKTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F45243122DE56862003E8F50 /* Unit Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DuplicatedSDKTest.xctestplan; sourceTree = "<group>"; };
+		F474CB272E2B3DFC0001DF41 /* DuplicatedSDKTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DuplicatedSDKTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicatedSDKTestApp.swift; sourceTree = "<group>"; };
+		F474CB292E2B3DFC0001DF41 /* SomeWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomeWork.swift; sourceTree = "<group>"; };
+		F474CB2A2E2B3DFC0001DF41 /* UITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITest.swift; sourceTree = "<group>"; };
+		F474CB302E2B3E270001DF41 /* Unit_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unit_Tests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D89DD66C2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "DuplicatedSDKTest" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-				UITest.swift,
-			);
-			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
-		};
-		D89DD66D2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleA" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-			);
-			target = D89DD6352CEF650A009C3509 /* ModuleA */;
-		};
-		D89DD66E2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleB" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SomeWork.swift,
-			);
-			target = D89DD6472CEF6516009C3509 /* ModuleB */;
-		};
-		D89DD67E2CEF8389009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "UITest-DuplicatedSDK" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				UITest.swift,
-			);
-			target = D89DD6722CEF7ADF009C3509 /* UITest-DuplicatedSDK */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D89DD66C2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "DuplicatedSDKTest" target */,
-				D89DD66D2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleA" target */,
-				D89DD66E2CEF7940009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "ModuleB" target */,
-				D89DD67E2CEF8389009C3509 /* Exceptions for "DuplicatedSDKTest" folder in "UITest-DuplicatedSDK" target */,
-			);
-			path = DuplicatedSDKTest;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D89DD6332CEF650A009C3509 /* Frameworks */ = {
@@ -165,6 +138,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F452430F2DE56862003E8F50 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -179,7 +159,9 @@
 		D8C030C52CEF633A007FC5B4 = {
 			isa = PBXGroup;
 			children = (
-				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
+				F458F7462E271BC80001644E /* DuplicatedSDKTest.xctestplan */,
+				F474CB2B2E2B3DFC0001DF41 /* DuplicatedSDKTest */,
+				F474CB312E2B3E270001DF41 /* Unit Tests */,
 				D89DD6542CEF652B009C3509 /* Frameworks */,
 				D8C030CF2CEF633A007FC5B4 /* Products */,
 			);
@@ -192,8 +174,28 @@
 				D89DD6362CEF650A009C3509 /* ModuleA.framework */,
 				D89DD6482CEF6516009C3509 /* ModuleB.framework */,
 				D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */,
+				F45243122DE56862003E8F50 /* Unit Tests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F474CB2B2E2B3DFC0001DF41 /* DuplicatedSDKTest */ = {
+			isa = PBXGroup;
+			children = (
+				F474CB272E2B3DFC0001DF41 /* DuplicatedSDKTest-Bridging-Header.h */,
+				F474CB282E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift */,
+				F474CB292E2B3DFC0001DF41 /* SomeWork.swift */,
+				F474CB2A2E2B3DFC0001DF41 /* UITest.swift */,
+			);
+			path = DuplicatedSDKTest;
+			sourceTree = "<group>";
+		};
+		F474CB312E2B3E270001DF41 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				F474CB302E2B3E270001DF41 /* Unit_Tests.swift */,
+			);
+			path = "Unit Tests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -293,15 +295,32 @@
 				D89DD63B2CEF650A009C3509 /* PBXTargetDependency */,
 				D89DD64D2CEF6516009C3509 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				D8C030D02CEF633A007FC5B4 /* DuplicatedSDKTest */,
-			);
 			name = DuplicatedSDKTest;
 			packageProductDependencies = (
 			);
 			productName = DuplicatedSDKTest;
 			productReference = D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F45243112DE56862003E8F50 /* Unit Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F452431A2DE56862003E8F50 /* Build configuration list for PBXNativeTarget "Unit Tests" */;
+			buildPhases = (
+				F452430E2DE56862003E8F50 /* Sources */,
+				F452430F2DE56862003E8F50 /* Frameworks */,
+				F45243102DE56862003E8F50 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F45243172DE56862003E8F50 /* PBXTargetDependency */,
+			);
+			name = "Unit Tests";
+			packageProductDependencies = (
+			);
+			productName = "Unit Tests";
+			productReference = F45243122DE56862003E8F50 /* Unit Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -310,7 +329,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					D89DD6352CEF650A009C3509 = {
@@ -329,9 +348,14 @@
 						CreatedOnToolsVersion = 16.1;
 						LastSwiftMigration = 1610;
 					};
+					F45243112DE56862003E8F50 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = D8C030CD2CEF633A007FC5B4;
+					};
 				};
 			};
 			buildConfigurationList = D8C030C92CEF633A007FC5B4 /* Build configuration list for PBXProject "DuplicatedSDKTest" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -340,7 +364,6 @@
 			);
 			mainGroup = D8C030C52CEF633A007FC5B4;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = D8C030CF2CEF633A007FC5B4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -349,6 +372,7 @@
 				D89DD6352CEF650A009C3509 /* ModuleA */,
 				D89DD6472CEF6516009C3509 /* ModuleB */,
 				D89DD6722CEF7ADF009C3509 /* UITest-DuplicatedSDK */,
+				F45243112DE56862003E8F50 /* Unit Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +406,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F45243102DE56862003E8F50 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -389,6 +420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41CE14C2E2EE7AC001123A5 /* SomeWork.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +428,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41CE14D2E2EE7AC001123A5 /* SomeWork.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,6 +436,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F474CB2F2E2B3E180001DF41 /* UITest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +444,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F474CB2E2E2B3DFC0001DF41 /* DuplicatedSDKTestApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F452430E2DE56862003E8F50 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F474CB322E2B3E270001DF41 /* Unit_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +473,11 @@
 			isa = PBXTargetDependency;
 			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
 			targetProxy = D89DD6792CEF7ADF009C3509 /* PBXContainerItemProxy */;
+		};
+		F45243172DE56862003E8F50 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8C030CD2CEF633A007FC5B4 /* DuplicatedSDKTest */;
+			targetProxy = F45243162DE56862003E8F50 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -800,6 +848,42 @@
 			};
 			name = Release;
 		};
+		F45243182DE56862003E8F50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DuplicatedSDKTest.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DuplicatedSDKTest";
+			};
+			name = Debug;
+		};
+		F45243192DE56862003E8F50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DuplicatedSDKTest.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DuplicatedSDKTest";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -844,6 +928,15 @@
 			buildConfigurations = (
 				D8C030DD2CEF633B007FC5B4 /* Debug */,
 				D8C030DE2CEF633B007FC5B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F452431A2DE56862003E8F50 /* Build configuration list for PBXNativeTarget "Unit Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F45243182DE56862003E8F50 /* Debug */,
+				F45243192DE56862003E8F50 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

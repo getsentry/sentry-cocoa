@@ -1,7 +1,6 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import Sentry;
-#import <Sentry/SentryOptions+Private.h>
 
 @import SentrySampleShared;
 
@@ -37,35 +36,48 @@
             options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
         }
 
-        if (![args containsObject:@"--io.sentry.disable-ui-profiling"]) {
+        if (![args containsObject:@"--io.sentry.profiling.disable-ui-profiling"]) {
             options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
-                profiling.lifecycle = [args containsObject:@"--io.sentry.profile-lifecycle-manual"]
+                profiling.lifecycle =
+                    [args containsObject:@"--io.sentry.profiling.profile-lifecycle-manual"]
                     ? SentryProfileLifecycleManual
                     : SentryProfileLifecycleTrace;
 
                 profiling.sessionSampleRate = 1.f;
-                if (env[@"--io.sentry.profile-session-sample-rate"] != nil) {
+                if (env[@"--io.sentry.profiling.profile-session-sample-rate"] != nil) {
                     profiling.sessionSampleRate =
-                        [env[@"--io.sentry.profile-session-sample-rate"] floatValue];
+                        [env[@"--io.sentry.profiling.profile-session-sample-rate"] floatValue];
                 }
             };
         }
 
-        if (env[@"--io.sentry.profilesSampleRate"] != nil) {
-            options.profilesSampleRate = @([env[@"--io.sentry.profilesSampleRate"] floatValue]);
+#if !SDK_V9
+        if (env[@"--io.sentry.profiling.profilesSampleRate"] != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            options.profilesSampleRate =
+                @([env[@"--io.sentry.profiling.profilesSampleRate"] floatValue]);
+#    pragma clang diagnostic pop
         }
 
         if (env[@"--io.sentry.profilesSamplerValue"] != nil) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
             options.profilesSampler
                 = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
             {
                 return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
             };
+#    pragma clang diagnostic pop
         }
 
-        if (![args containsObject:@"--io.sentry.disable-app-start-profiling"]) {
+        if (![args containsObject:@"--io.sentry.profiling.disable-app-start-profiling"]) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
             options.enableAppLaunchProfiling = YES;
+#    pragma clang diagnostic pop
         }
+#endif // !SDK_V9
 
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];

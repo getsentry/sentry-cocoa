@@ -17,6 +17,7 @@
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentrySpanOperation.h"
 #import "SentryStacktrace.h"
@@ -152,7 +153,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
 
     // SDK not enabled no need to continue
-    if (SentrySDK.options == nil) {
+    if (SentrySDKInternal.options == nil) {
         return;
     }
 
@@ -193,7 +194,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
             netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
@@ -428,7 +429,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
-    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     // sessionTask.error isn't used because it's not about network errors but rather
@@ -502,7 +503,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode
 {
-    for (SentryHttpStatusCodeRange *range in SentrySDK.options.failedRequestStatusCodes) {
+    for (SentryHttpStatusCodeRange *range in SentrySDKInternal.options.failedRequestStatusCodes) {
         if ([range isInRange:statusCode]) {
             return YES;
         }

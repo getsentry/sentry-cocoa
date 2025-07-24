@@ -48,6 +48,8 @@ jobs:
             xcode: "16.2"
         command:
           - fastlane_command: ui_critical_tests_ios_swiftui_envelope
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   run-swiftui-crash-test:
     name: Run SwiftUI Crash Test
@@ -56,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - run: make init-ci-build
       - run: make xcode-ci

@@ -1,7 +1,7 @@
 #import "SentryOptions.h"
 #import "SentryError.h"
 #import "SentryOptions+HybridSDKs.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
@@ -736,9 +736,9 @@
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
-#    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
+#    pragma clang diagnostic pop
     XCTAssertTrue([options isContinuousProfilingEnabled]);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -1155,6 +1155,8 @@
     [self testBooleanField:@"enableProfiling" defaultValue:NO];
 }
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testProfilesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
@@ -1344,6 +1346,7 @@
     XCTAssertNil(options.profilesSampler);
     XCTAssertTrue([options isContinuousProfilingEnabled]);
 }
+#    pragma clang diagnostic pop
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -1426,11 +1429,14 @@
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testEnableAppLaunchProfilingDefaultValue
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertFalse(options.enableAppLaunchProfiling);
 }
+#    pragma clang diagnostic pop
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict

@@ -5,44 +5,22 @@
 #import "SentryEvent+Private.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScope ()
-
-/**
- * Set global tags -> these will be sent with every event
- */
-@property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
-
-/**
- * Set global extra -> these will be sent with every event
- */
-@property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
-
-/**
- * This distribution of the application.
- */
-@property (atomic, copy) NSString *_Nullable distString;
-
-/**
- * Set the fingerprint of an event to determine the grouping
- */
-@property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;
-
-/**
- * SentryLevel of the event
- */
-@property (atomic) enum SentryLevel levelEnum;
 
 @property (atomic) NSUInteger maxBreadcrumbs;
 @property (atomic) NSUInteger currentBreadcrumbIndex;
@@ -253,6 +231,13 @@ NS_ASSUME_NONNULL_BEGIN
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setContext:_contextDictionary];
         }
+    }
+}
+
+- (nullable NSDictionary<NSString *, id> *)getContextForKey:(NSString *)key
+{
+    @synchronized(_contextDictionary) {
+        return [_contextDictionary objectForKey:key];
     }
 }
 
@@ -665,6 +650,11 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         return [self.propagationContext traceContextForEvent];
     }
+}
+
+- (NSString *)propagationContextTraceIdString
+{
+    return [self.propagationContext.traceId sentryIdString];
 }
 
 @end

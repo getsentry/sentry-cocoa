@@ -32,6 +32,7 @@
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
@@ -435,13 +436,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V9
+        NSString *segment = nil;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        segment = scope.userObject.segment;
+#    pragma clang diagnostic pop
+#endif
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
-                                               userSegment:scope.userObject.segment
+#if !SDK_V9
+                                               userSegment:segment
+#endif
                                                   replayId:scope.replayId];
-#pragma clang diagnostic pop
     }
 
     return nil;
@@ -591,6 +598,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
+#if !SDK_V9
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     if ([self isDisabled]) {
@@ -605,6 +613,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self.transportAdapter sendUserFeedback:userFeedback];
 }
+#endif // !SDK_V9
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
@@ -907,10 +916,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event != nil && isFatalEvent && nil != self.options.onCrashedLastRun
-        && !SentrySDK.crashedLastRunCalled) {
+        && !SentrySDKInternal.crashedLastRunCalled) {
         // We only want to call the callback once. It can occur that multiple crash events are
         // about to be sent.
-        SentrySDK.crashedLastRunCalled = YES;
+        SentrySDKInternal.crashedLastRunCalled = YES;
         self.options.onCrashedLastRun(event);
     }
 
@@ -1047,9 +1056,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSDictionary *extraContext =
         [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
     [self modifyContext:event
-                    key:@"device"
+                    key:SENTRY_CONTEXT_DEVICE_KEY
                   block:^(NSMutableDictionary *device) {
-                      id deviceContext = extraContext[@"device"];
+                      id deviceContext = extraContext[SENTRY_CONTEXT_DEVICE_KEY];
                       if ([deviceContext isKindOfClass:[NSDictionary class]]) {
                           [device addEntriesFromDictionary:deviceContext];
                       }
@@ -1091,7 +1100,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
 {
     [self modifyContext:event
-                    key:@"device"
+                    key:SENTRY_CONTEXT_DEVICE_KEY
                   block:^(NSMutableDictionary *device) {
                       [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
                       [device removeObjectForKey:@"orientation"];
@@ -1164,6 +1173,20 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return processedAttachments;
+}
+
+- (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount;
+{
+    SentryEnvelopeItemHeader *header =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeLog
+                                                length:data.length
+                                           contentType:@"application/vnd.sentry.items.log+json"
+                                             itemCount:itemCount];
+
+    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header data:data];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
+                                                           singleItem:envelopeItem];
+    [self captureEnvelope:envelope];
 }
 
 @end

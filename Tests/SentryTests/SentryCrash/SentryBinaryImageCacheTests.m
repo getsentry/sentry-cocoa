@@ -273,7 +273,7 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
 
     SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
-    [imageCache start];
+    [imageCache start:false];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
     XCTAssertEqual(5, imageCache.cache.count);

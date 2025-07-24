@@ -185,11 +185,15 @@ class ExtraViewController: UIViewController {
             scope.setLevel(.fatal)
         }
 
+      #if SDK_V9
+        print("SDK V9 does not support user feedback.")
+      #else
         let userFeedback = UserFeedback(eventId: eventId)
         userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
         SentrySDK.capture(userFeedback: userFeedback)
+      #endif // SDK_V9
     }
 
     @IBAction func permissions(_ sender: UIButton) {

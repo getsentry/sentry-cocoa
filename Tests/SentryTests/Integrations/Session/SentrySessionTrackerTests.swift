@@ -55,7 +55,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         func setNewHubToSDK() {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
     }
     
@@ -428,24 +428,24 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionsSent(count: 2)
     }
     
-    func testStart_AddsObservers() {
+    func testStart_AddsObservers() throws {
         // -- Act --
         startSutInAppDelegate()
 
         // -- Assert --
-        let invocations = fixture.notificationCenter.addObserverInvocations
-        let notificationNames = invocations.invocations.map { $0.name }
+        let invocations = fixture.notificationCenter.addObserverWithObjectInvocations
+        let notificationNames = try invocations.invocations.map { try XCTUnwrap($0.name) }
         
         assertNotificationNames(notificationNames)
     }
     
-    func testStop_RemovesObservers() {
+    func testStop_RemovesObservers() throws {
         // -- Act --
         stopSut()
 
         // -- Assert --
-        let invocations = fixture.notificationCenter.removeObserverWithNameInvocations
-        let notificationNames = invocations.invocations.map { $0 }
+        let invocations = fixture.notificationCenter.removeObserverWithNameAndObjectInvocations
+        let notificationNames = try invocations.invocations.map { try XCTUnwrap($0.name) }
         
         assertNotificationNames(notificationNames)
     }
@@ -608,7 +608,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    name: CrossPlatformApplication.didBecomeActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -624,7 +624,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
            .post(
                Notification(
-                   name: SentryNSNotificationCenterWrapper.didEnterBackgroundNotificationName,
+                  name: UIApplication.didEnterBackgroundNotification,
                    object: nil,
                    userInfo: nil
                )
@@ -652,7 +652,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+                    name: CrossPlatformApplication.willResignActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -669,7 +669,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+                    name: CrossPlatformApplication.didBecomeActiveNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -699,7 +699,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.notificationCenter
             .post(
                 Notification(
-                    name: SentryNSNotificationCenterWrapper.willTerminateNotificationName,
+                    name: CrossPlatformApplication.willTerminateNotification,
                     object: nil,
                     userInfo: nil
                 )
@@ -858,7 +858,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.fileManager.storeCrashedSession(crashedSession)
         
         startSutInAppDelegate()
-        SentrySDK.captureFatalEvent(Event())
+        SentrySDKInternal.captureFatalEvent(Event())
         
         let session = try XCTUnwrap(fixture.client.captureFatalEventWithSessionInvocations.last?.session)
         assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
@@ -868,10 +868,10 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertEqual(4, notificationNames.count)
         
         XCTAssertEqual([
-            SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+            CrossPlatformApplication.didBecomeActiveNotification,
             NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
-            SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
-            SentryNSNotificationCenterWrapper.willTerminateNotificationName
+            CrossPlatformApplication.willResignActiveNotification,
+            CrossPlatformApplication.willTerminateNotification
         ], notificationNames)
     }
 

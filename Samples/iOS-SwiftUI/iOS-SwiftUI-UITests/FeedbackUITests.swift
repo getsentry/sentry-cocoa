@@ -4,7 +4,8 @@ final class FeedbackUITests: XCTestCase {
     func testWidgetDisplayInSwiftUIApp() throws {
         let app = XCUIApplication()
         app.launchArguments.append(contentsOf: [
-            "--io.sentry.feedback.all-defaults"
+            "--io.sentry.feedback.all-defaults",
+            "--io.sentry.disable-app-start-profiling"
         ])
         app.launch()
 

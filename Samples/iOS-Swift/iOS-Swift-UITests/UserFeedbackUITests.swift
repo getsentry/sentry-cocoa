@@ -22,7 +22,7 @@ class UserFeedbackUITests: BaseUITest {
             "--io.sentry.disable-everything",
             
             // write base64-encoded data into the envelope file for attachments instead of raw bytes, specifically for images. this way the entire envelope contents can be more easily passed as a string through the text field in the app to this process for validation.
-            "--io.sentry.base64-attachment-data"
+            "--io.sentry.other.base64-attachment-data"
         ])
         continueAfterFailure = true
     }
@@ -90,8 +90,8 @@ extension UserFeedbackUITests {
         launchApp(args: [
             "--io.sentry.feedback.all-defaults"
         ], env: [
-            "--io.sentry.user.name": "ui test user",
-            "--io.sentry.user.email": "ui-testing@sentry.io"
+            "--io.sentry.scope.user.name": "ui test user",
+            "--io.sentry.scope.user.email": "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -103,8 +103,8 @@ extension UserFeedbackUITests {
         launchApp(args: [
             "--io.sentry.feedback.dont-use-sentry-user"
         ], env: [
-            "--io.sentry.user.name": "ui test user",
-            "--io.sentry.user.email": "ui-testing@sentry.io"
+            "--io.sentry.scope.user.name": "ui test user",
+            "--io.sentry.scope.user.email": "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -156,8 +156,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.user.name": testName,
-            "--io.sentry.user.email": testContactEmail
+            "--io.sentry.scope.user.name": testName,
+            "--io.sentry.scope.user.email": testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -244,8 +244,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.user.name": testName,
-            "--io.sentry.user.email": testContactEmail
+            "--io.sentry.scope.user.name": testName,
+            "--io.sentry.scope.user.email": testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -273,8 +273,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.user.name": testName,
-            "--io.sentry.user.email": testContactEmail
+            "--io.sentry.scope.user.name": testName,
+            "--io.sentry.scope.user.email": testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -310,8 +310,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.user.name": testName,
-            "--io.sentry.user.email": testContactEmail
+            "--io.sentry.scope.user.name": testName,
+            "--io.sentry.scope.user.email": testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -463,8 +463,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.user.name": testName,
-            "--io.sentry.user.email": testContactEmail
+            "--io.sentry.scope.user.name": testName,
+            "--io.sentry.scope.user.email": testContactEmail
         ])
         
         try retrieveAppUnderTestApplicationSupportDirectory()

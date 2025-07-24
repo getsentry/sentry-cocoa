@@ -12,7 +12,7 @@
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
-#import "SentrySDK.h"
+#import "SentrySDKInternal.h"
 #import "SentryScope.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
@@ -78,7 +78,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
         [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
     }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
@@ -136,7 +136,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
+#    if !SDK_V9
         self.enableAppHangTrackingV2 = NO;
+#    endif // !SDK_V9
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 
@@ -152,8 +154,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkBreadcrumbs = YES;
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if !SDK_V9
         _enableProfiling = NO;
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
+#        pragma clang diagnostic pop
+#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
@@ -471,8 +478,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { self->_enablePreWarmedAppStartTracing = value; }];
 
+#    if !SDK_V9
     [self setBool:options[@"enableAppHangTrackingV2"]
             block:^(BOOL value) { self->_enableAppHangTrackingV2 = value; }];
+#    endif // !SDK_V9
 
     [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
             block:^(BOOL value) { self->_enableReportNonFullyBlockingAppHangs = value; }];
@@ -550,19 +559,27 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableCoreDataTracing = value; }];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if !SDK_V9
     if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.profilesSampleRate = options[@"profilesSampleRate"];
+#        pragma clang diagnostic pop
     }
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([self isBlock:options[@"profilesSampler"]]) {
         self.profilesSampler = options[@"profilesSampler"];
     }
+#        pragma clang diagnostic pop
 
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
 
     [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
             block:^(BOOL value) { self->_enableAppLaunchProfiling = value; }];
+#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self setBool:options[@"sendClientReports"]
@@ -685,6 +702,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if !SDK_V9
 - (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
     if (profilesSampleRate == nil) {
@@ -704,41 +722,53 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 
 - (BOOL)isContinuousProfilingEnabled
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // this looks a little weird with the `!self.enableProfiling` but that actually is the
     // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
     // profiling as they are mutually exclusive modes
     return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
+
+#    endif // !SDK_V9
 
 - (BOOL)isContinuousProfilingV2Enabled
 {
+#    if SDK_V9
+    return _profiling != nil;
+#    else
     return [self isContinuousProfilingEnabled] && _profiling != nil;
+#    endif // SDK_V9
 }
 
 - (BOOL)isProfilingCorrelatedToTraces
 {
+#    if SDK_V9
+    return _profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace;
+#    else
     return ![self isContinuousProfilingEnabled]
         || (_profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace);
+#    endif // SDK_V9
 }
 
+#    if !SDK_V9
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 - (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return self.enableProfiling;
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
+#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
@@ -798,6 +828,20 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #    endif // SENTRY_HAS_UIKIT
 }
 
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
+
+- (BOOL)enableViewRendererV2
+{
+    return self.sessionReplay.enableViewRendererV2;
+}
+
+- (BOOL)enableFastViewRendering
+{
+    return self.sessionReplay.enableFastViewRendering;
+}
+
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
 - (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
 {
 #    if SENTRY_HAS_UIKIT
@@ -847,7 +891,12 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #if SENTRY_HAS_UIKIT
 - (BOOL)isAppHangTrackingV2Disabled
 {
-    return !self.enableAppHangTrackingV2 || self.appHangTimeoutInterval <= 0;
+#    if SDK_V9
+    BOOL isV2Enabled = self.enableAppHangTracking;
+#    else
+    BOOL isV2Enabled = self.enableAppHangTrackingV2;
+#    endif // SDK_V9
+    return !isV2Enabled || self.appHangTimeoutInterval <= 0;
 }
 #endif // SENTRY_HAS_UIKIT
 

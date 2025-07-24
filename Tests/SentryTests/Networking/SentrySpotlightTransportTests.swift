@@ -143,7 +143,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         sut.send(envelope: eventEnvelope)
         
-        requestManager.waitForAllRequests()
+        requestManager.waitForAllRequests(timeout: 1_000)
         
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("[Sentry] [error]") &&

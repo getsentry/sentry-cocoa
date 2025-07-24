@@ -111,6 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
                   data:json];
 }
 
+#if !SDK_V9
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
 {
     NSError *error = nil;
@@ -128,6 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
                                           length:json.length]
                            data:json];
 }
+#endif // !SDK_V9
 
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport
 {
@@ -163,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.base64-attachment-data"]) {
+                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
             data = [[attachment.data base64EncodedStringWithOptions:0]
                 dataUsingEncoding:NSUTF8StringEncoding];
         } else {
@@ -201,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.base64-attachment-data"]) {
+                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
             if (attachment.path != nil) {
                 NSData *fileData = [[NSFileManager defaultManager]
                     contentsAtPath:(NSString *_Nonnull)attachment.path];
@@ -299,6 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
                      singleItem:item];
 }
 
+#if !SDK_V9
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
@@ -306,6 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId]
                      singleItem:item];
 }
+#endif // !SDK_V9
 
 - (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item
 {

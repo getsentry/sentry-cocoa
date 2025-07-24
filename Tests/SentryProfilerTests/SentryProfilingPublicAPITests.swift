@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -41,6 +41,11 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
     private let fixture = Fixture()
 
+    override class func setUp() {
+        super.setUp()
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+    }
+
     override func setUp() {
         super.setUp()
         SentryDependencyContainer.sharedInstance().timerFactory = fixture.timerFactory
@@ -52,7 +57,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
         givenSdkWithHubButNoClient()
 
-        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations().first(where: { it in
+        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
             it is SentryAutoSessionTrackingIntegration
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
@@ -63,6 +68,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 }
 
 // MARK: transaction profiling
+@available(*, deprecated, message: "Transaction profiling is deprecated")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
         // Arrange
@@ -98,6 +104,7 @@ extension SentryProfilingPublicAPITests {
 }
 
 // MARK: continuous profiling v1
+@available(*, deprecated, message: "Continuous profiling v1 is deprecated")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingEnabled() {
         // Arrange
@@ -203,6 +210,7 @@ extension SentryProfilingPublicAPITests {
 }
 
 // MARK: continuous profiling v2
+@available(*, deprecated, message: "This is only deprecated because profilesSampleRate is deprecated. Once that is removed this attribute can be removed.")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Enabled() {
         // Arrange
@@ -661,14 +669,14 @@ extension SentryProfilingPublicAPITests {
 
 private extension SentryProfilingPublicAPITests {
     func givenSdkWithHub() {
-        SentrySDK.setCurrentHub(fixture.hub)
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.options)
         sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 
     func stopProfiler() throws {

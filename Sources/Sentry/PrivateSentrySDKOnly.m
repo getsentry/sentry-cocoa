@@ -2,6 +2,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
@@ -39,12 +40,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
-    [SentrySDK storeEnvelope:envelope];
+    [SentrySDKInternal storeEnvelope:envelope];
 }
 
 + (void)captureEnvelope:(SentryEnvelope *)envelope
 {
-    [SentrySDK captureEnvelope:envelope];
+    [SentrySDKInternal captureEnvelope:envelope];
 }
 
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data
@@ -52,6 +53,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySerialization envelopeWithData:data];
 }
 
+#if !SDK_V9
 + (NSArray<SentryDebugMeta *> *)getDebugImages
 {
     // maintains previous behavior for the same method call by also trying to gather crash info
@@ -60,22 +62,23 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[SentryDependencyContainer sharedInstance].debugImageProvider
         getDebugImagesCrashed:isCrash];
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
+#endif // !SDK_V9
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
-    return [SentrySDK getAppStartMeasurement];
+    return [SentrySDKInternal getAppStartMeasurement];
 }
 
 + (nullable NSDictionary<NSString *, id> *)appStartMeasurementWithSpans
 {
 #if SENTRY_HAS_UIKIT
-    SentryAppStartMeasurement *measurement = [SentrySDK getAppStartMeasurement];
+    SentryAppStartMeasurement *measurement = [SentrySDKInternal getAppStartMeasurement];
     if (measurement == nil) {
         return nil;
     }
@@ -139,7 +142,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (SentryOptions *)options
 {
-    SentryOptions *options = [[SentrySDK currentHub] client].options;
+    SentryOptions *options = [[SentrySDKInternal currentHub] client].options;
     if (options != nil) {
         return options;
     }
@@ -200,7 +203,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId
 {
-    [SentrySDK.currentHub configureScope:^(SentryScope *scope) {
+    [SentrySDKInternal.currentHub configureScope:^(SentryScope *scope) {
         scope.propagationContext = [[SentryPropagationContext alloc] initWithTraceId:traceId
                                                                               spanId:spanId];
     }];
@@ -224,7 +227,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;
 {
-    sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDK.currentHub);
+    sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDKInternal.currentHub);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -291,7 +294,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #if SENTRY_UIKIT_AVAILABLE
 + (void)setCurrentScreen:(NSString *)screenName
 {
-    [SentrySDK.currentHub
+    [SentrySDKInternal.currentHub
         configureScope:^(SentryScope *scope) { scope.currentScreen = screenName; }];
 }
 #endif // SENTRY_HAS_UIKIT
@@ -328,7 +331,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
-    NSArray *integrations = [[SentrySDK currentHub] installedIntegrations];
+    NSArray *integrations = [[SentrySDKInternal currentHub] installedIntegrations];
     SentrySessionReplayIntegration *replayIntegration;
     for (id obj in integrations) {
         if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {

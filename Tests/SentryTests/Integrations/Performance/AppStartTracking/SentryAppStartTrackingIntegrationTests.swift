@@ -31,7 +31,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentrySDK.setAppStartMeasurement(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
         sut = SentryAppStartTrackingIntegration()
     }
 
@@ -39,7 +39,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         super.tearDown()
         fixture.fileManager.deleteAppState()
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
-        SentrySDK.setAppStartMeasurement(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
         sut.stop()
         clearTestState()
     }

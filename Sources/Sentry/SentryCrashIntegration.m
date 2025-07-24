@@ -9,9 +9,11 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
+#import "SentryModels+Serializable.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
@@ -35,13 +37,12 @@
 static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
-static NSString *const DEVICE_KEY = @"device";
 static NSString *const LOCALE_KEY = @"locale";
 
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = SentrySDK.currentHub.scope.span;
+    SentrySpan *span = SentrySDKInternal.currentHub.scope.span;
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];
@@ -237,7 +238,7 @@ sentry_finishAndSaveTransaction(void)
 {
     // We need to make sure to set always the scope to KSCrash so we have it in
     // case of a crash
-    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+    [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         NSMutableDictionary<NSString *, id> *userInfo =
             [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
         // SentryCrashReportConverter.convertReportToEvent needs the release name and
@@ -262,11 +263,12 @@ sentry_finishAndSaveTransaction(void)
 
 - (void)currentLocaleDidChange
 {
-    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+    [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull scope) {
         NSMutableDictionary<NSString *, id> *device;
-        if (scope.contextDictionary != nil && scope.contextDictionary[DEVICE_KEY] != nil) {
+        if (scope.contextDictionary != nil
+            && scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[DEVICE_KEY] ?: @ {}];
+                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] ?: @ {}];
         } else {
             device = [NSMutableDictionary new];
         }
@@ -274,7 +276,7 @@ sentry_finishAndSaveTransaction(void)
         NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
         device[LOCALE_KEY] = locale;
 
-        [scope setContextValue:device forKey:DEVICE_KEY];
+        [scope setContextValue:device forKey:SENTRY_CONTEXT_DEVICE_KEY];
     }];
 }
 

@@ -18,14 +18,14 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
         // Arrange
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         let exception = NSException(name: NSExceptionName("TestException"), reason: "Test Reason", userInfo: nil)
         
         // Act
         SentryCrashExceptionApplicationHelper._crash(on: exception)
         
         // Assert
-        let testClient = try XCTUnwrap(SentrySDK.currentHub().getClient() as? TestClient)
+        let testClient = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         XCTAssertEqual(1, testClient.captureExceptionWithScopeInvocations.count)
         XCTAssertEqual(exception.name, testClient.captureExceptionWithScopeInvocations.first?.exception.name)
         XCTAssertEqual(exception.reason, testClient.captureExceptionWithScopeInvocations.first?.exception.reason)

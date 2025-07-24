@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "56E63385-97E2-48DB-B364-C72450F8D572",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
+      "identifier" : "D8C030CD2CEF633A007FC5B4",
+      "name" : "DuplicatedSDKTest"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
+        "identifier" : "F45243112DE56862003E8F50",
+        "name" : "Unit Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:DuplicatedSDKTest.xcodeproj",
+        "identifier" : "D89DD6722CEF7ADF009C3509",
+        "name" : "UITest-DuplicatedSDK"
+      }
+    }
+  ],
+  "version" : 1
+}

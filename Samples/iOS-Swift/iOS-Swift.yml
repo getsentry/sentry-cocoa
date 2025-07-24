@@ -5,6 +5,7 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
+  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -33,6 +34,7 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift.xcconfig
+      DebugV9: iOS-Swift.xcconfig
       Release: iOS-Swift.xcconfig
       Test: iOS-Swift.xcconfig
       TestCI: iOS-Swift.xcconfig
@@ -55,6 +57,7 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftClip.xcconfig
+      DebugV9: iOS-SwiftClip.xcconfig
       Release: iOS-SwiftClip.xcconfig
       Test: iOS-SwiftClip.xcconfig
       TestCI: iOS-SwiftClip.xcconfig
@@ -73,6 +76,7 @@ targets:
       - iOS-Swift-UITests
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift-UITests.xcconfig
       Release: iOS-Swift-UITests.xcconfig

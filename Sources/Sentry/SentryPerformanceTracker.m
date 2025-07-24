@@ -9,6 +9,11 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 
+#import "SentryProfilingConditionals.h"
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryLaunchProfiling.h"
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"
 #endif // SENTRY_HAS_UIKIT
@@ -47,8 +52,14 @@ NS_ASSUME_NONNULL_BEGIN
                              origin:(NSString *)origin
 {
     id<SentrySpan> activeSpan;
-    @synchronized(self.activeSpanStack) {
-        activeSpan = [self.activeSpanStack lastObject];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    activeSpan = sentry_launchTracer;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+    if (activeSpan == nil) {
+        @synchronized(self.activeSpanStack) {
+            activeSpan = [self.activeSpanStack lastObject];
+        }
     }
 
     id<SentrySpan> newSpan;
@@ -61,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                  operation:operation
                                                                                     origin:origin];
 
-        id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+        id<SentrySpan> span = SentrySDKInternal.currentHub.scope.span;
 
         BOOL bindToScope = NO;
         if (span == nil) {
@@ -81,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(
             @"Starting new transaction for %@ with bindToScope: %d", name, bindToScope);
 
-        newSpan = [SentrySDK.currentHub
+        newSpan = [SentrySDKInternal.currentHub
             startTransactionWithContext:context
                             bindToScope:bindToScope
                   customSamplingContext:@{}

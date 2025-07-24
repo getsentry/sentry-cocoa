@@ -24,7 +24,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
-        let contextProcessor: SentryWatchdogTerminationContextProcessor
+        let attributesProcessor: SentryWatchdogTerminationAttributesProcessor
+        let scopePersistentStore: SentryScopePersistentStore
 
         init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
@@ -37,10 +38,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
-            let scopeContextStore = try XCTUnwrap(SentryScopeContextPersistentStore(fileManager: fileManager))
-            contextProcessor = SentryWatchdogTerminationContextProcessor(
+            scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
+            attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeContextStore: scopeContextStore
+                scopePersistentStore: scopePersistentStore
             )
 
             client = TestClient(options: options)
@@ -48,7 +49,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
         
         func getSut() throws -> SentryWatchdogTerminationTracker {
@@ -61,14 +62,14 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 dispatchQueueWrapper: self.dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                notificationCenterWrapper: NotificationCenter.default
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
-            let scopePersistentStore = try XCTUnwrap(SentryScopeContextPersistentStore(
+            let scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(
                 fileManager: fileManager
             ))
             return SentryWatchdogTerminationTracker(
@@ -77,7 +78,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopeContextStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore
             )
         }
     }
@@ -90,7 +91,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         fixture = try Fixture()
         sut = try fixture.getSut()
-        SentrySDK.startInvocations = 1
+        SentrySDKInternal.startInvocations = 1
     }
     
     override func tearDown() {
@@ -243,7 +244,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        SentrySDK.startInvocations = 2
+        SentrySDKInternal.startInvocations = 2
         sut.start()
         assertNoOOMSent()
     }
@@ -288,7 +289,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let breadcrumb = TestData.crumb
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: fixture.breadcrumbProcessor,
-            contextProcessor: fixture.contextProcessor
+            attributesProcessor: fixture.attributesProcessor
         )
 
         for _ in 0..<3 {
@@ -305,6 +306,57 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
         let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
         XCTAssertEqual(fatalEvent?.timestamp, breadcrumb.timestamp)
+    }
+    
+    func testAppOOM_WithAttributes() throws {
+        sut = try fixture.getSut()
+
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: fixture.breadcrumbProcessor,
+            attributesProcessor: fixture.attributesProcessor
+        )
+
+        let testUser = TestData.user
+        let extra = ["key": "value"] as [String: Any]
+        let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
+        let dist = "1.0.0"
+        let env = "development"
+        let tags = ["tag1": "value1", "tag2": "value2"]
+        sentryWatchdogTerminationScopeObserver.setUser(testUser)
+        sentryWatchdogTerminationScopeObserver.setContext(testContext)
+        sentryWatchdogTerminationScopeObserver.setDist(dist)
+        sentryWatchdogTerminationScopeObserver.setEnvironment(env)
+        sentryWatchdogTerminationScopeObserver.setTags(tags)
+        sentryWatchdogTerminationScopeObserver.setExtras(extra)
+        sentryWatchdogTerminationScopeObserver.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        sut.start()
+        goToForeground()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.scopePersistentStore.moveAllCurrentStateToPreviousState()
+        sut.start()
+
+        let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
+
+        // Verify all attributes are properly set on the event
+        XCTAssertEqual(fatalEvent?.user?.userId, testUser.userId)
+        XCTAssertEqual(fatalEvent?.user?.email, testUser.email)
+        XCTAssertEqual(fatalEvent?.user?.username, testUser.username)
+        XCTAssertEqual(fatalEvent?.user?.name, testUser.name)
+        
+        XCTAssertEqual(fatalEvent?.dist, dist)
+        XCTAssertEqual(fatalEvent?.environment, env)
+        XCTAssertEqual(fatalEvent?.tags, tags)
+
+        XCTAssertEqual(NSDictionary(dictionary: fatalEvent?.extra ?? [:]), NSDictionary(dictionary: extra))
+        XCTAssertEqual(fatalEvent?.fingerprint, ["fingerprint1", "fingerprint2"])
+
+        // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
+        let eventContext = fatalEvent?.context
+        XCTAssertNotNil(eventContext)
+        XCTAssertEqual(eventContext?["device"] as? [String: String], testContext["device"] as? [String: String])
+        XCTAssertEqual(eventContext?["appData"] as? [String: String], testContext["appData"] as? [String: String])
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() throws {
