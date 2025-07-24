@@ -62,16 +62,23 @@ schemeTemplates:
         "--io.sentry.performance.disable-ui-tracing": false
         "--io.sentry.other.disable-filemanager-swizzling": false
 
+        # events
+        "--io.sentry.events.reject-all": false
+
         # other
         "--io.sentry.other.base64-attachment-data": false
         "--io.sentry.other.disable-http-transport": false
         "--io.sentry.other.disable-spotlight": false
         "--io.sentry.other.reject-screenshots-in-before-capture-screenshot": false
         "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy": false
-        "--io.sentry.other.reject-all-events": false
         "--io.sentry.other.reject-all-spans": false
 
       environmentVariables:
+        # events
+        - variable: "--io.sentry.events.sampleRate"
+          value:
+          isEnabled: false
+
         # session replay
         - variable: "--io.sentry.session-replay.sessionReplaySampleRate"
           value:

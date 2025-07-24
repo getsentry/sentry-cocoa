@@ -1,3 +1,5 @@
+//swiftlint:disable file_length
+
 import Foundation
 
 public enum OverrideType {
@@ -39,6 +41,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .feedback: return SentrySDKOverrides.Feedback.allCases
         case .performance: return SentrySDKOverrides.Performance.allCases
         case .sessionReplay: return SentrySDKOverrides.SessionReplay.allCases
+        case .events: return SentrySDKOverrides.Events.allCases
         case .other: return SentrySDKOverrides.Other.allCases
         case .tracing: return SentrySDKOverrides.Tracing.allCases
         case .profiling: return SentrySDKOverrides.Profiling.allCases
@@ -70,6 +73,12 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case noShakeGesture             = "--io.sentry.feedback.no-shake-gesture"
     }
     case feedback = "Feedback"
+
+    public enum Events: String, SentrySDKOverride {
+        case sampleRate = "--io.sentry.events.sampleRate"
+        case rejectAll = "--io.sentry.events.reject-all"
+    }
+    case events = "Events"
 
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
@@ -110,7 +119,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot        = "--io.sentry.other.disable-attach-screenshot"
         case disableAttachViewHierarchy     = "--io.sentry.other.disable-attach-view-hierarchy"
-        case rejectAllEvents                = "--io.sentry.other.reject-all-events"
         case rejectAllSpans                 = "--io.sentry.other.reject-all-spans"
         case rejectScreenshots              = "--io.sentry.other.reject-screenshots-in-before-capture-screenshot"
         case rejectViewHierarchy            = "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy"
@@ -273,10 +281,20 @@ extension SentrySDKOverrides.Networking {
     }
 }
 
+extension SentrySDKOverrides.Events {
+    public var overrideType: OverrideType {
+        switch self {
+        case .rejectAll: return .boolean
+        case .sampleRate: return .float
+        }
+    }
+
+}
+
 extension SentrySDKOverrides.Other {
     public var overrideType: OverrideType {
         switch self {
-        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .rejectAllEvents, .base64AttachmentData, .disableHttpTransport: return .boolean
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .base64AttachmentData, .disableHttpTransport: return .boolean
         case .username, .userFullName, .userEmail, .userID, .environment: return .string
         }
     }
@@ -348,10 +366,14 @@ extension SentrySDKOverrides.Networking {
     public var ignoresDisableEverything: Bool { return false }
 }
 
+extension SentrySDKOverrides.Events {
+    public var ignoresDisableEverything: Bool { return false }
+}
+
 extension SentrySDKOverrides.Other {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .rejectAllEvents, .username, .userFullName, .userEmail, .userID, .environment, .base64AttachmentData: return true
+        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .username, .userFullName, .userEmail, .userID, .environment, .base64AttachmentData: return true
         case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableHttpTransport: return false
         }
     }
@@ -390,3 +412,5 @@ extension SentrySDKOverrides.Special {
         }
     }
 }
+
+//swiftlint:enable file_length

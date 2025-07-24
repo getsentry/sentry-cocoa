@@ -700,7 +700,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeFeedback];
 
     // Transactions and replays have their own sampleRate
-    if (eventIsNotATransaction && eventIsNotReplay && [self isSampled:self.options.sampleRate]) {
+    if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback &&
+        [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
         [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
         return nil;
@@ -857,7 +858,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
-    if (event != nil && nil != self.options.beforeSend) {
+    if (eventIsNotUserFeedback && event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
