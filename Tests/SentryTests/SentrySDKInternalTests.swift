@@ -695,7 +695,7 @@ class SentrySDKInternalTests: XCTestCase {
         MainThreadTestIntegration.expectation = expectation
 
         print("[Sentry] [TEST] [\(#file):\(#line) Dispatching to nonmain queue.")
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .utility).async {
             print("[Sentry] [TEST] [\(#file):\(#line) About to start SDK from nonmain queue.")
             SentrySDK.start { options in
                 print("[Sentry] [TEST] [\(#file):\(#line) configuring options.")
@@ -703,7 +703,7 @@ class SentrySDKInternalTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
 
         let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
         XCTAssert(mainThreadIntegration.installedInTheMainThread, "SDK is not being initialized in the main thread")

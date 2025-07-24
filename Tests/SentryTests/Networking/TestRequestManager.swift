@@ -9,7 +9,7 @@ public class TestRequestManager: NSObject, RequestManager {
     
     var requests = Invocations<URLRequest>()
     
-    private let queue = DispatchQueue(label: "TestRequestManager", qos: .background, attributes: [])
+    private let queue = DispatchQueue(label: "TestRequestManager")
     private let group = DispatchGroup()
     
     public required init(session: URLSession) {
