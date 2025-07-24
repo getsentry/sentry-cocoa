@@ -37,7 +37,9 @@
 NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryOptions {
+#if !SDK_V9
     BOOL _enableTracingManual;
+#endif // !SDK_V9
 }
 
 + (NSArray<NSString *> *)defaultIntegrations
@@ -126,8 +128,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
         __swiftExperimentalOptions = [[SentryExperimentalOptions alloc] init];
+#if !SDK_V9
         _enableTracing = NO;
         _enableTracingManual = NO;
+#endif // !SDK_V9
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
@@ -509,12 +513,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isBlock:options[@"tracesSampler"]]) {
         self.tracesSampler = options[@"tracesSampler"];
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V9
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
         self.enableTracing = [options[@"enableTracing"] boolValue];
     }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif // !SDK_V9
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
@@ -646,6 +652,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     return rate >= 0 && rate <= 1.0;
 }
 
+#if !SDK_V9
 - (void)setEnableTracing:(BOOL)enableTracing
 {
     //`enableTracing` is basically an alias to tracesSampleRate
@@ -658,6 +665,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     }
     _enableTracingManual = YES;
 }
+#endif // !SDK_V9
 
 - (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
 {
@@ -665,9 +673,11 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
         _tracesSampleRate = nil;
     } else if (sentry_isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
+#if !SDK_V9
         if (!_enableTracingManual) {
             _enableTracing = YES;
         }
+#endif // !SDK_V9
     } else {
         _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
     }
@@ -676,16 +686,23 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setTracesSampler:(SentryTracesSamplerCallback)tracesSampler
 {
     _tracesSampler = tracesSampler;
+#if !SDK_V9
     if (_tracesSampler != nil && !_enableTracingManual) {
         _enableTracing = YES;
     }
+#endif // !SDK_V9
 }
 
 - (BOOL)isTracingEnabled
 {
+#if SDK_V9
+    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
+        || _tracesSampler != nil;
+#else
     return _enableTracing
         && ((_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
             || _tracesSampler != nil);
+#endif // !SDK_V9
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
