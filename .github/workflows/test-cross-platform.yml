@@ -61,8 +61,9 @@ jobs:
           CONFIGURATION: Release
           DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
         run: |
+          set -o pipefail
           env NSUnbufferedIO=YES \
             xcodebuild -workspace *.xcworkspace \
             -scheme $SCHEME -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
-            test | xcbeautify
+            build-for-testing | xcbeautify
