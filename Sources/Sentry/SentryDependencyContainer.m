@@ -160,11 +160,11 @@ static BOOL isInitialializingDependencyContainer = NO;
     if (self = [super init]) {
         isInitialializingDependencyContainer = YES;
 
-        _dispatchQueueWrapper = SentryDependencyScope.dispatchQueueWrapper;
+        _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
-        _dateProvider = SentryDependencyScope.dateProvider;
+        _dateProvider = SentryDependencies.dateProvider;
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT

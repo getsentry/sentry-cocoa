@@ -44,9 +44,9 @@ import Foundation
             let hub = SentryDependencyContainerSwiftHelper.currentHub()
             var batcher: SentryLogBatcher?
             if let client = hub.getClient(), client.options.experimental.enableLogs {
-                batcher = SentryLogBatcher(client: client, dispatchQueue: DependencyScope.dispatchQueueWrapper)
+                batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
-            let logger = SentryLogger(hub: hub, dateProvider: DependencyScope.dateProvider, batcher: batcher)
+            let logger = SentryLogger(hub: hub, dateProvider: Dependencies.dateProvider, batcher: batcher)
             _logger = logger
             return logger
         }
@@ -83,7 +83,7 @@ import Foundation
      */
     @objc(captureEvent:)
     @discardableResult public static func capture(event: Event) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(event: event))
+        return SentrySDKInternal.capture(event: event).sentryId
     }
     
     /**
@@ -95,7 +95,7 @@ import Foundation
      */
     @objc(captureEvent:withScope:)
     @discardableResult public static func capture(event: Event, scope: Scope) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(event: event, scope: scope))
+        return SentrySDKInternal.capture(event: event, scope: scope).sentryId
     }
     
     /**
@@ -107,7 +107,7 @@ import Foundation
      */
     @objc(captureEvent:withScopeBlock:)
     @discardableResult public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(event: event, block: block))
+        return SentrySDKInternal.capture(event: event, block: block).sentryId
     }
     
     // MARK: - Transaction Management
@@ -186,7 +186,7 @@ import Foundation
      */
     @objc(captureError:)
     @discardableResult public static func capture(error: Error) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(error: error))
+        return SentrySDKInternal.capture(error: error).sentryId
     }
     
     /**
@@ -198,7 +198,7 @@ import Foundation
      */
     @objc(captureError:withScope:)
     @discardableResult public static func capture(error: Error, scope: Scope) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(error: error, scope: scope))
+        return SentrySDKInternal.capture(error: error, scope: scope).sentryId
     }
     
     /**
@@ -210,7 +210,7 @@ import Foundation
      */
     @objc(captureError:withScopeBlock:)
     @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(error: error, block: block))
+        return SentrySDKInternal.capture(error: error, block: block).sentryId
     }
     
     // MARK: - Exception Capture
@@ -222,7 +222,7 @@ import Foundation
      */
     @objc(captureException:)
     @discardableResult public static func capture(exception: NSException) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(exception: exception))
+        return SentrySDKInternal.capture(exception: exception).sentryId
     }
     
     /**
@@ -234,7 +234,7 @@ import Foundation
      */
     @objc(captureException:withScope:)
     @discardableResult public static func capture(exception: NSException, scope: Scope) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(exception: exception, scope: scope))
+        return SentrySDKInternal.capture(exception: exception, scope: scope).sentryId
     }
     
     /**
@@ -246,7 +246,7 @@ import Foundation
      */
     @objc(captureException:withScopeBlock:)
     @discardableResult public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(exception: exception, block: block))
+        return SentrySDKInternal.capture(exception: exception, block: block).sentryId
     }
     
     // MARK: - Message Capture
@@ -258,7 +258,7 @@ import Foundation
      */
     @objc(captureMessage:)
     @discardableResult public static func capture(message: String) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(message: message))
+        return SentrySDKInternal.capture(message: message).sentryId
     }
     
     /**
@@ -270,7 +270,7 @@ import Foundation
      */
     @objc(captureMessage:withScope:)
     @discardableResult public static func capture(message: String, scope: Scope) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(message: message, scope: scope))
+        return SentrySDKInternal.capture(message: message, scope: scope).sentryId
     }
     
     /**
@@ -282,7 +282,7 @@ import Foundation
      */
     @objc(captureMessage:withScopeBlock:)
     @discardableResult public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentryId(uuidString: SentrySDKInternal.capture(message: message, block: block))
+        return SentrySDKInternal.capture(message: message, block: block).sentryId
     }
     
     #if !SDK_V9
@@ -514,4 +514,11 @@ import Foundation
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
 }
+
+extension SentryIdWrapper {
+    var sentryId: SentryId {
+        SentryId(uuidString: sentryIdString)
+    }
+}
+
 // swiftlint:enable file_length
