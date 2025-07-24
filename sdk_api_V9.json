@@ -40935,13 +40935,6 @@
       },
       {
         "kind": "Import",
-        "name": "SwiftOnoneSupport",
-        "printedName": "SwiftOnoneSupport",
-        "declKind": "Import",
-        "moduleName": "Sentry"
-      },
-      {
-        "kind": "Import",
         "name": "UIKit",
         "printedName": "UIKit",
         "declKind": "Import",
