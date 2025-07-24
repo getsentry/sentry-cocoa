@@ -707,7 +707,10 @@ class SentrySDKInternalTests: XCTestCase {
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
 
-            expectation.fulfill()
+            // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueue {
+                expectation.fulfill()
+            }
         }
 
         wait(for: [expectation], timeout: 5.0)
