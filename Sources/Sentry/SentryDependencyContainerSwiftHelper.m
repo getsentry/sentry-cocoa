@@ -1,5 +1,6 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentryUIApplication.h"
 
@@ -22,6 +23,11 @@
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
 {
     return SentryDependencyContainer.sharedInstance.objcRuntimeWrapper;
+}
+
++ (SentryHub *)currentHub
+{
+    return SentrySDKInternal.currentHub;
 }
 
 @end

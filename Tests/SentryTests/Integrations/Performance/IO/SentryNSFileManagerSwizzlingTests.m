@@ -2,7 +2,6 @@
 #import "SentryFileIOTracker.h"
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryOptions.h"
-#import "SentrySDK.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"

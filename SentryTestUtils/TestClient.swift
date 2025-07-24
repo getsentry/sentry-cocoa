@@ -125,6 +125,11 @@ public class TestClient: SentryClient {
         captureFeedbackInvocations.record((feedback, scope))
     }
     
+    public var captureSerializedFeedbackInvocations = Invocations<(String, Scope)>()
+    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Attachment], scope: Scope) {
+        captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
+    }
+    
     public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
     public override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
