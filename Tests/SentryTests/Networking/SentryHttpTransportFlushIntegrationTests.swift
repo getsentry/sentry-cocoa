@@ -139,8 +139,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
 
-        let fileManager = try SentryFileManager(options: options)
-        fileManager.deleteAllEnvelopes()
+        let fileManager = try HTTPTestFileManager(options: options)
 
         let requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         requestManager.returnResponse(response: HTTPURLResponse())
@@ -161,5 +160,44 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
             dispatchQueueWrapper: SentryDispatchQueueWrapper()
         ), requestManager, fileManager)
     }
-
+    
+    private class HTTPTestFileManager: SentryFileManager {
+        var envelopes: [SentryEnvelope] = []
+        
+        public init(options: Options) throws {
+            try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        }
+        
+        public override func store(_ envelope: SentryEnvelope) -> String? {
+            envelopes.append(envelope)
+            return "\(envelope.hashValue)"
+        }
+        
+        public override func getAllEnvelopes() -> [SentryFileContents] {
+            envelopes.compactMap { envelope in
+                guard let data = SentrySerialization.data(with: envelope) else {
+                    return nil
+                }
+                return SentryFileContents(path: "\(envelope.hashValue)", contents: data)
+            }
+        }
+        
+        public override func deleteAllEnvelopes() {
+            envelopes.removeAll()
+        }
+        
+        public override func removeFile(atPath path: String) {
+            envelopes.removeAll { envelope in
+                "\(envelope.hashValue)" == path
+            }
+        }
+        
+        public override func getOldestEnvelope() -> SentryFileContents? {
+            guard let oldestEnvelope = envelopes.first,
+                  let data = SentrySerialization.data(with: oldestEnvelope) else {
+                return nil
+            }
+            return SentryFileContents(path: "\(oldestEnvelope.hashValue)", contents: data)
+        }
+    }
 }
