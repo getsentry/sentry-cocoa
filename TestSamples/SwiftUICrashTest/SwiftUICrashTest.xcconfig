@@ -1,29 +1,7 @@
-#include "../SwiftUITestSample/Shared/Config/Architectures.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/BuildOptions.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Deployment.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Linking.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Localization.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Packaging.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/SearchPaths.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Signing.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Versioning.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/CodeGeneration.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangLanguage.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangCppLanguage.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangModules.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangObjCLanguage.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangPreprocessing.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangWarnings.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangWarningsCpp.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangWarningsObjC.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/AssetCatalog.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/ClangAnalyzer.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Swift.xcconfig"
-#include "../SwiftUITestSample/Shared/Config/Metal.xcconfig"
+#include "../../Samples/Shared/Config/_Common.xcconfig"
 
 PRODUCT_NAME = SwiftUICrashTest
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.SwiftUICrashTest
 GENERATE_INFOPLIST_FILE = YES
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-MARKETING_VERSION = 1
