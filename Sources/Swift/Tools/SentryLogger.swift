@@ -21,6 +21,11 @@ import Foundation
 /// let logger = SentrySDK.logger
 /// logger.info("User logged in", attributes: ["userId": "12345"])
 /// logger.error("Payment failed", attributes: ["errorCode": 500])
+/// 
+/// // Structured string interpolation with automatic type detection
+/// logger.info(formatted: "User \(userId) processed \(count) items with \(percentage)% success")
+/// logger.debug(formatted: "Processing \(itemCount) items, active: \(isActive)")
+/// logger.warn(formatted: "Retry attempt \(currentAttempt) of \(maxAttempts) failed")
 /// ```
 @objc
 @objcMembers
@@ -37,6 +42,8 @@ public final class SentryLogger: NSObject {
         super.init()
     }
     
+    // MARK: - Trace Level
+    
     /// Logs a trace-level message.
     public func trace(_ body: String) {
         captureLog(level: .trace, body: body, attributes: [:])
@@ -46,6 +53,13 @@ public final class SentryLogger: NSObject {
     public func trace(_ body: String, attributes: [String: Any]) {
         captureLog(level: .trace, body: body, attributes: attributes)
     }
+    
+    /// Logs a trace-level message with structured string interpolation.
+    public func trace(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .trace, logString: body, attributes: attributes)
+    }
+    
+    // MARK: - Debug Level
     
     /// Logs a debug-level message.
     public func debug(_ body: String) {
@@ -57,6 +71,13 @@ public final class SentryLogger: NSObject {
         captureLog(level: .debug, body: body, attributes: attributes)
     }
     
+    /// Logs a debug-level message with structured string interpolation.
+    public func debug(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .debug, logString: body, attributes: attributes)
+    }
+    
+    // MARK: - Info Level
+    
     /// Logs an info-level message.
     public func info(_ body: String) {
         captureLog(level: .info, body: body, attributes: [:])
@@ -66,6 +87,13 @@ public final class SentryLogger: NSObject {
     public func info(_ body: String, attributes: [String: Any]) {
         captureLog(level: .info, body: body, attributes: attributes)
     }
+    
+    /// Logs an info-level message with structured string interpolation.
+    public func info(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .info, logString: body, attributes: attributes)
+    }
+    
+    // MARK: - Warn Level
     
     /// Logs a warning-level message.
     public func warn(_ body: String) {
@@ -77,6 +105,13 @@ public final class SentryLogger: NSObject {
         captureLog(level: .warn, body: body, attributes: attributes)
     }
     
+    /// Logs a warning-level message with structured string interpolation.
+    public func warn(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .warn, logString: body, attributes: attributes)
+    }
+    
+    // MARK: - Error Level
+    
     /// Logs an error-level message.
     public func error(_ body: String) {
         captureLog(level: .error, body: body, attributes: [:])
@@ -86,6 +121,13 @@ public final class SentryLogger: NSObject {
     public func error(_ body: String, attributes: [String: Any]) {
         captureLog(level: .error, body: body, attributes: attributes)
     }
+    
+    /// Logs an error-level message with structured string interpolation.
+    public func error(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .error, logString: body, attributes: attributes)
+    }
+    
+    // MARK: - Fatal Level
     
     /// Logs a fatal-level message.
     public func fatal(_ body: String) {
@@ -97,14 +139,36 @@ public final class SentryLogger: NSObject {
         captureLog(level: .fatal, body: body, attributes: attributes)
     }
     
+    /// Logs a fatal-level message with structured string interpolation.
+    public func fatal(formatted body: SentryLogString, attributes: [String: Any] = [:]) {
+        captureLog(level: .fatal, logString: body, attributes: attributes)
+    }
+    
     // MARK: - Private
     
     private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
+        let logString = SentryLogString(stringLiteral: body)
+        captureLog(level: level, logString: logString, attributes: attributes)
+    }
+
+    private func captureLog(level: SentryLog.Level, logString: SentryLogString, attributes: [String: Any]) {
         guard let batcher else {
             return
         }
         
+        // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+        
+        // Add template string if there are interpolations
+        if !logString.attributes.isEmpty {
+            logAttributes["sentry.message.template"] = .string(logString.template)
+        }
+        
+        // Add attributes from the SentryLogString
+        for (index, attribute) in logString.attributes.enumerated() {
+            logAttributes["sentry.message.parameter.\(index)"] = attribute
+        }
+        
         addDefaultAttributes(to: &logAttributes)
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
@@ -118,7 +182,7 @@ public final class SentryLogger: NSObject {
                 timestamp: dateProvider.date(),
                 traceId: propagationContextTraceId,
                 level: level,
-                body: body,
+                body: logString.message,
                 attributes: logAttributes
             )
         )
