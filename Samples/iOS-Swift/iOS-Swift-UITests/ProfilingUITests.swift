@@ -171,7 +171,7 @@ extension ProfilingUITests {
         case .continuous:
             app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
         case .trace:
-            app.launchArguments.append("--io.sentry.disable-ui-profiling")
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
             app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1"
         }
         
