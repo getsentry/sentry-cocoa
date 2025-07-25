@@ -178,7 +178,8 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
 #    if !SDK_V9
-        if (sentry_isContinuousProfilingEnabled(hub.getClient)) {
+        SentryClient *client = (SentryClient *_Nonnull)hub.getClient; // TODO: remove the force cast
+        if (sentry_isContinuousProfilingEnabled(client)) {
             SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
             return;
         }
@@ -256,14 +257,17 @@ sentry_stopProfilerDueToFinishedTransaction(
 {
     if (sentry_profileConfiguration != nil && sentry_profileConfiguration.isProfilingThisLaunch
         && sentry_profileConfiguration.profileOptions != nil
-        && sentry_isTraceLifecycle(sentry_profileConfiguration.profileOptions)) {
+        && sentry_isTraceLifecycle(
+            (SentryProfileOptions *_Nonnull)sentry_profileConfiguration.profileOptions)) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         return;
     }
 
-    if (isProfiling && sentry_isContinuousProfilingV2Enabled(hub.getClient)
-        && sentry_isProfilingCorrelatedToTraces(hub.getClient)) {
+    SentryClient *_Nonnull client
+        = (SentryClient *_Nonnull)hub.getClient; // TODO: remove the force cast
+    if (isProfiling && sentry_isContinuousProfilingV2Enabled(client)
+        && sentry_isProfilingCorrelatedToTraces(client)) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
@@ -325,8 +329,8 @@ sentry_stopProfilerDueToFinishedTransaction(
 
         SentryEnvelopeItem *_Nullable profileEnvelopeItem;
         if (profilingData != nil) {
-            profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
-                hub, profiler, profilingData, transaction, startTimestamp);
+            profileEnvelopeItem = sentry_traceProfileEnvelopeItem(hub, profiler,
+                (NSDictionary<NSString *, id> *_Nonnull)profilingData, transaction, startTimestamp);
         }
 
         if (!profileEnvelopeItem) {
@@ -347,19 +351,22 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
         // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
             sentry_profileConfiguration.profileOptions, transactionContext);
-    } else if (sentry_isContinuousProfilingV2Enabled(hub.getClient)) {
+    } else if (sentry_isContinuousProfilingV2Enabled(
+                   (SentryClient *_Nonnull)hub.getClient)) { // TODO: remove the force cast
         // non launch profile
         if (sentry_getParentSpanID(transactionContext) != nil) {
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
             return nil;
         }
         return _sentry_startContinuousProfilerV2ForTrace(
-            sentry_getProfiling(hub.getClient), transactionContext);
+            sentry_getProfiling((SentryClient *_Nonnull)hub.getClient),
+            transactionContext); // TODO: remove the force cast
     } else {
         BOOL profileShouldBeSampled
             = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
 #    if !SDK_V9
-        BOOL isContinuousProfiling = sentry_isContinuousProfilingEnabled(hub.client);
+        BOOL isContinuousProfiling = sentry_isContinuousProfilingEnabled(
+            (SentryClient *_Nonnull)hub.client); // TODO: remove the force cast
         BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
 #    else
         BOOL shouldStartNormalTraceProfile = profileShouldBeSampled;

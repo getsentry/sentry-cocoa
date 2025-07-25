@@ -722,8 +722,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeFeedback];
 
     // Transactions and replays have their own sampleRate
-    if (eventIsNotATransaction && eventIsNotReplay && self.options.sampleRate != nil) {
-        if ([self isSampled:(NSNumber *_Nonnull)self.options.sampleRate]) {
+    if (eventIsNotATransaction && eventIsNotReplay) {
+        if (self.options.sampleRate == nil ||
+            [self isSampled:(NSNumber *_Nonnull)self.options.sampleRate]) {
             SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
             [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
             return nil;
@@ -766,13 +767,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            if (event.threads != nil) {
-                event.debugMeta = [self.debugImageProvider
-                    getDebugImagesFromCacheForThreads:(NSArray<SentryThread *> *_Nonnull)
-                                                          event.threads];
-            } else {
-                event.debugMeta = @[];
-            }
+            event.debugMeta =
+                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads ?: @[]];
         }
     }
 
@@ -799,11 +795,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Crash events are from a previous run. Applying the current scope would potentially apply
     // current data.
     if (!isFatalEvent) {
-        SentryEvent *appliedEvent = [scope applyToEvent:event
-                                          maxBreadcrumb:self.options.maxBreadcrumbs];
-        if (appliedEvent != nil) {
-            event = appliedEvent;
-        }
+        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs] ?: event;
     }
 
     if (!eventIsNotReplay) {
@@ -856,10 +848,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         currentSpanCount = 0;
     }
 
-    SentryEvent *processedEvent = [self callEventProcessors:event];
-    if (processedEvent != nil) {
-        event = processedEvent;
-    }
+    event = (SentryEvent *_Nonnull)[self callEventProcessors:event]; // TODO: Remove the force cast
     if (event == nil) {
         [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
         if (eventIsATransaction) {
@@ -894,10 +883,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event != nil && nil != self.options.beforeSend) {
-        SentryEvent *beforeSendEvent = self.options.beforeSend(event);
-        if (beforeSendEvent != nil) {
-            event = beforeSendEvent;
-        }
+        event
+            = (SentryEvent *_Nonnull)self.options.beforeSend(event); // TODO: Remove the force cast
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
             if (eventIsATransaction) {
@@ -1125,10 +1112,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     NSMutableDictionary *context =
-        [[NSMutableDictionary alloc] initWithDictionary:event.context ?: @{}];
+        [[NSMutableDictionary alloc] initWithDictionary:(NSDictionary *_Nonnull)event.context];
     NSMutableDictionary *dict = event.context[key] == nil
         ? [[NSMutableDictionary alloc] init]
-        : [[NSMutableDictionary alloc] initWithDictionary:context[key] ?: @{}];
+        : [[NSMutableDictionary alloc]
+              initWithDictionary:(NSDictionary *_Nonnull)event.context[key]];
     block(dict);
     context[key] = dict;
     event.context = context;

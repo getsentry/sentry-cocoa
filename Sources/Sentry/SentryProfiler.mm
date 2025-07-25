@@ -90,7 +90,9 @@ sentry_configureContinuousProfiling(SentryOptions *options)
         options.configureProfiling((SentryProfileOptions *_Nonnull)options.profiling);
     }
 
-    if (sentry_isTraceLifecycle(options.profiling) && !options.isTracingEnabled) {
+    if (options.profiling != nil
+        && sentry_isTraceLifecycle((SentryProfileOptions *_Nonnull)options.profiling)
+        && !options.isTracingEnabled) {
         SENTRY_LOG_WARN(
             @"Tracing must be enabled in order to configure profiling with trace lifecycle.");
         return;
@@ -102,17 +104,20 @@ sentry_configureContinuousProfiling(SentryOptions *options)
     // SentryProfileConfiguration instance, so we'll instantiate one which will be used to access
     // the profile session sample rate henceforth
     if (sentry_profileConfiguration == nil) {
-        sentry_profileConfiguration =
-            [[SentryProfileConfiguration alloc] initWithProfileOptions:options.profiling];
+        sentry_profileConfiguration = [[SentryProfileConfiguration alloc]
+            initWithProfileOptions:(SentryProfileOptions *_Nonnull)options.profiling];
     }
 
     sentry_reevaluateSessionSampleRate();
 
     SENTRY_LOG_DEBUG(@"Configured profiling options: <%@: {\n  lifecycle: %@\n  sessionSampleRate: "
                      @"%.2f\n  profileAppStarts: %@\n}",
-        options.profiling, sentry_isTraceLifecycle(options.profiling) ? @"trace" : @"manual",
-        sentry_sessionSampleRate(options.profiling),
-        sentry_profileAppStarts(options.profiling) ? @"YES" : @"NO");
+        options.profiling,
+        sentry_isTraceLifecycle((SentryProfileOptions *_Nonnull)options.profiling) ? @"trace"
+                                                                                   : @"manual",
+        sentry_sessionSampleRate((SentryProfileOptions *_Nonnull)options.profiling),
+        sentry_profileAppStarts((SentryProfileOptions *_Nonnull)options.profiling) ? @"YES"
+                                                                                   : @"NO");
 }
 
 void
@@ -130,7 +135,8 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
             const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;
             const auto v2LifecycleIsManual = profileIsContinuousV2
-                && !sentry_isTraceLifecycle(configurationFromLaunch.profileOptions);
+                && !sentry_isTraceLifecycle(
+                    (SentryProfileOptions *_Nonnull)configurationFromLaunch.profileOptions);
 
 #    if SENTRY_HAS_UIKIT
             const auto v2LifecycleIsTrace = profileIsContinuousV2

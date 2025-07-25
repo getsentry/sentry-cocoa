@@ -533,8 +533,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+- (SentryEvent *_Nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
     if (event.isFatalEvent) {
         SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "

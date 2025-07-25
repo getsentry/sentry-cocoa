@@ -165,12 +165,12 @@ sentry_serializedTraceProfileData(
     };
 
     bool isEmulated = sentry_isSimulatorBuild();
-    payload[SENTRY_CONTEXT_DEVICE_KEY] = @{
+    payload[SENTRY_CONTEXT_DEVICE_KEY] = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple"
-    };
+    }];
     NSString *deviceModel = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     if (deviceModel != nil) {
         payload[@"device"][@"model"] = deviceModel;
@@ -383,11 +383,11 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     }
 
     payload[@"platform"] = SentryPlatformName;
-    payload[@"transaction"] = @ {
+    payload[@"transaction"] = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
+    }];
     if (transaction.transaction != nil) {
         payload[@"transaction"][@"name"] = transaction.transaction;
     }
