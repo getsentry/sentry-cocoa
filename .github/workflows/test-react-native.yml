@@ -1,4 +1,4 @@
-name: Test Cross-Platform Sentry SDK Installation
+name: Test React Native Integration
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
     paths:
-      - ".github/workflows/test-cross-platform.yml"
+      - ".github/workflows/test-react-native.yml"
       - "Sources/**"
       - "Sentry.podspec"
 
