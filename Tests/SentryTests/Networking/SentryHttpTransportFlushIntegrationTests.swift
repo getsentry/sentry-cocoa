@@ -88,46 +88,47 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         }
         requestManager.returnResponse(response: HTTPURLResponse())
 
-        let flushTimeout = 0.1
+        let flushTimeout = 5.0
         requestManager.waitForResponseDispatchGroup = true
         requestManager.responseDispatchGroup.enter()
 
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
+        let allFlushCallsExpectation = expectation(description: "All flush calls should finish")
+        allFlushCallsExpectation.expectedFulfillmentCount = 3
+
+        let ensureFlushingExpectation = expectation(description: "Ensure transport is flushing")
         let ensureFlushingQueue = DispatchQueue(label: "First flushing")
 
         sut.setStartFlushCallback {
-            ensureFlushingGroup.leave()
+            ensureFlushingExpectation.fulfill()
         }
 
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
         ensureFlushingQueue.async {
             XCTAssertEqual(.timedOut, sut.flush(flushTimeout))
             requestManager.responseDispatchGroup.leave()
-            allFlushCallsGroup.leave()
+            allFlushCallsExpectation.fulfill()
         }
 
         // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
+        // This timeout must be significantly shorter than the flushTimeout.
+        wait(for: [ensureFlushingExpectation], timeout: 1.0)
 
         // Now the transport should also have left the synchronized block, and the
         // flush should return immediately.
 
         let initiallyInactiveQueue = DispatchQueue(label: "testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
         for _ in 0..<2 {
-            allFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
                 for _ in 0..<10 {
                     XCTAssertEqual(.alreadyFlushing, sut.flush(flushTimeout), "Flush should have returned immediately")
                 }
 
-                allFlushCallsGroup.leave()
+                allFlushCallsExpectation.fulfill()
             }
         }
 
         initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
+
+        wait(for: [allFlushCallsExpectation], timeout: flushTimeout * 2)
     }
 
     // We use the test name as part of the DSN to ensure that each test runs in isolation.
