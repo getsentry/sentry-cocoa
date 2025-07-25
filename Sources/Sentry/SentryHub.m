@@ -124,12 +124,10 @@ NS_ASSUME_NONNULL_BEGIN
 
         _session.environment = options.environment;
 
-        if (_session != nil) {
-            SentrySession *_Nonnull session = (SentrySession *_Nonnull)_session;
-            [scope applyToSession:session];
-            [self storeCurrentSession:session];
-            [self captureSession:session];
-        }
+        SentrySession *_Nonnull session = (SentrySession *_Nonnull)_session;
+        [scope applyToSession:session];
+        [self storeCurrentSession:session];
+        [self captureSession:session];
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
@@ -200,14 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Using session's start time %@",
                 session.started);
             timestamp = session.started;
-            if (timestamp != nil) {
-                [session endSessionAbnormalWithTimestamp:(NSDate *_Nonnull)timestamp];
-            }
+            [session endSessionAbnormalWithTimestamp:(NSDate *_Nonnull)timestamp];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            if (timestamp != nil) {
-                [session endSessionExitedWithTimestamp:(NSDate *_Nonnull)timestamp];
-            }
+            [session endSessionExitedWithTimestamp:(NSDate *_Nonnull)timestamp];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -220,15 +214,10 @@ NS_ASSUME_NONNULL_BEGIN
         SentryClient *client = self.client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            NSString *debugString = @"nil";
-            if (session != nil) {
-                debugString = [self createSessionDebugString:(SentrySession *_Nonnull)session];
-            }
-            SENTRY_LOG_DEBUG(@"Capturing session with status: %@", debugString);
+            SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
+                [self createSessionDebugString:(SentrySession *_Nonnull)session]);
         }
-        if (session != nil) {
-            [client captureSession:(SentrySession *_Nonnull)session];
-        }
+        [client captureSession:(SentrySession *_Nonnull)session];
     }
 }
 
@@ -238,9 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_sessionLock) {
         if (_session != nil) {
             [_session incrementErrors];
-            if (_session != nil) {
-                [self storeCurrentSession:(SentrySession *_Nonnull)_session];
-            }
+            [self storeCurrentSession:(SentrySession *_Nonnull)_session];
             sessionCopy = [_session copy];
         }
     }

@@ -80,7 +80,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             = serializeContinuousProfileMetrics((NSDictionary *_Nonnull)metricProfilerState);
         if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
             const auto envelope
-                = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profiler.profilerId,
+                = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profilerID,
                     (NSDictionary<NSString *, id> *_Nonnull)profilerState,
                     (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
                         serializedMetrics

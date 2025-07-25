@@ -83,9 +83,10 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
     }
 
     if (options.tracesSampleRate == nil) {
-        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                 forSampleRate:nil
-                                                withSampleRand:nil];
+        return
+            [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.parentSampled
+                                              forSampleRate:context.transactionContext.sampleRate
+                                             withSampleRand:context.transactionContext.sampleRand];
     }
     return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.tracesSampleRate);
 }

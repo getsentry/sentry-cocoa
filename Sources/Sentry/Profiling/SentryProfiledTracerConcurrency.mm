@@ -323,10 +323,11 @@ sentry_stopProfilerDueToFinishedTransaction(
     sentry_dispatchAsync(dispatchQueue, ^{
         NSDictionary<NSString *, id> *_Nullable profilingData = [profiler.state copyProfilingData];
 
-        SentryEnvelopeItem *_Nullable profileEnvelopeItem = profilingData
-            ? sentry_traceProfileEnvelopeItem(
-                  hub, profiler, profilingData, transaction, startTimestamp)
-            : nil;
+        SentryEnvelopeItem *_Nullable profileEnvelopeItem;
+        if (profilingData != nil) {
+            profileEnvelopeItem = sentry_traceProfileEnvelopeItem(
+                hub, profiler, profilingData, transaction, startTimestamp);
+        }
 
         if (!profileEnvelopeItem) {
             [hub captureTransaction:transaction withScope:hub.scope];
