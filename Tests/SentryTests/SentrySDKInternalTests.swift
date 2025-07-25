@@ -192,13 +192,10 @@ class SentrySDKInternalTests: XCTestCase {
 
         SentrySDK.capture(feedback: fixture.feedback)
         let client = fixture.client
-        XCTAssertEqual(1, client.captureFeedbackInvocations.count)
-        if let actual = client.captureFeedbackInvocations.first {
+        XCTAssertEqual(1, client.captureSerializedFeedbackInvocations.count)
+        if let actual = client.captureSerializedFeedbackInvocations.first {
             let expected = fixture.feedback
-            XCTAssertEqual(expected.eventId, actual.0.eventId)
-            XCTAssertEqual(expected.name, actual.0.name)
-            XCTAssertEqual(expected.email, actual.0.email)
-            XCTAssertEqual(expected.message, actual.0.message)
+            XCTAssertEqual(expected.eventId.sentryIdString, actual.0)
         }
     }
     
@@ -509,16 +506,24 @@ class SentrySDKInternalTests: XCTestCase {
 
     /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
     func testStartSDK_ScopeContextContainsOSVersion() throws {
-        let expectation = expectation(description: "MainThreadTestIntegration install called")
-        MainThreadTestIntegration.expectation = expectation
+        let expectation = XCTestExpectation(description: "SentrySDK start called")
 
-        DispatchQueue.global(qos: .default).async {
+        DispatchQueue.global().async {
             SentrySDK.start { options in
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
+
+            // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueue {
+                expectation.fulfill()
+            }
         }
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
+
+        let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
+
+        wait(for: [mainThreadIntegration.expectation], timeout: 5.0)
 
         let os = try XCTUnwrap (SentrySDKInternal.currentHub().scope.contextDictionary["os"] as? [String: Any])
 #if !targetEnvironment(macCatalyst)
@@ -691,23 +696,28 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
     func testStartOnTheMainThread() throws {
-        let expectation = expectation(description: "MainThreadTestIntegration install called")
-        MainThreadTestIntegration.expectation = expectation
+
+        let expectation = XCTestExpectation(description: "SentrySDK start called")
 
         print("[Sentry] [TEST] [\(#file):\(#line) Dispatching to nonmain queue.")
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .utility).async {
             print("[Sentry] [TEST] [\(#file):\(#line) About to start SDK from nonmain queue.")
             SentrySDK.start { options in
                 print("[Sentry] [TEST] [\(#file):\(#line) configuring options.")
                 options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
             }
+
+            // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueue {
+                expectation.fulfill()
+            }
         }
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
 
         let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
-        XCTAssert(mainThreadIntegration.installedInTheMainThread, "SDK is not being initialized in the main thread")
 
+        wait(for: [mainThreadIntegration.expectation], timeout: 5.0)
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1045,19 +1055,19 @@ class SentrySDKWithSetupTests: XCTestCase {
 
 public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
 
-    static var expectation: XCTestExpectation?
-
-    public var installedInTheMainThread = false
+    public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
 
     public func install(with options: Options) -> Bool {
         print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
-        installedInTheMainThread = Thread.isMainThread
-        MainThreadTestIntegration.expectation?.fulfill()
-        MainThreadTestIntegration.expectation = nil
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        expectation.fulfill()
+
         return true
     }
 
     public func uninstall() {
+
     }
 }
 // swiftlint:enable file_length

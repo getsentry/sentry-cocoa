@@ -17,7 +17,7 @@ framework module Sentry {
         header "SentryEnvelopeItemType.h"
         header "SentryFormatter.h"
         header "SentryFramesTracker.h"
-        header "SentryOptions+HybridSDKs.h"
+        header "SentryOptionsInternal.h"
         header "SentryScreenFrames.h"
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
