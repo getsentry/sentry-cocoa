@@ -26,14 +26,14 @@ private extension MacOSSwiftUITests {
         let app = XCUIApplication(bundleIdentifier: appBundleID)
 
         if wipeData {
-            app.launchArguments.append("--io.sentry.wipe-data")
+            app.launchArguments.append("--io.sentry.special.wipe-data")
         }
 
         try launchAndConfigureSubsequentLaunches(app: app, shouldProfileThisLaunch: false, shouldProfileNextLaunch: shouldProfileLaunches, shouldBeSandboxed: isSandboxed)
         app.terminate()
 
         if wipeData {
-            app.launchArguments.removeAll { $0 == "--io.sentry.wipe-data" }
+            app.launchArguments.removeAll { $0 == "--io.sentry.special.wipe-data" }
         }
 
         // second launch to profile a launch if configured

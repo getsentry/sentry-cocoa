@@ -2,11 +2,12 @@ schemeTemplates:
   SampleAppScheme:
     run:
       commandLineArguments:
-        "--io.sentry.schema-environment-variable-precedence": true
-        "--io.sentry.disable-everything": false
-        "--io.sentry.skip-sentry-init": false
-        "--io.sentry.wipe-data": false
-        "--io.sentry.disable-debug-mode": false
+        # special
+        "--io.sentry.special.schema-environment-variable-precedence": true
+        "--io.sentry.special.disable-everything": false
+        "--io.sentry.special.skip-sentry-init": false
+        "--io.sentry.special.wipe-data": false
+        "--io.sentry.special.disable-debug-mode": false
 
         # session replay
         "--io.sentry.session-replay.disable-session-replay": false
@@ -132,6 +133,6 @@ schemeTemplates:
           isEnabled: false
 
         # other
-        - variable: "--io.sentry.dsn"
+        - variable: "--io.sentry.special.dsn"
           value:
           isEnabled: false

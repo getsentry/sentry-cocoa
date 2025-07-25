@@ -16,10 +16,10 @@ class UserFeedbackUITests: BaseUITest {
         
         app.launchArguments.append(contentsOf: [
             "--io.sentry.feedback.no-animations",
-            "--io.sentry.wipe-data",
+            "--io.sentry.special.wipe-data",
             
             // since the goal of these tests is only to exercise the UI of the widget and form, disable other SDK features to avoid any confounding factors that might fail or crash a test case
-            "--io.sentry.disable-everything",
+            "--io.sentry.special.disable-everything",
             
             // write base64-encoded data into the envelope file for attachments instead of raw bytes, specifically for images. this way the entire envelope contents can be more easily passed as a string through the text field in the app to this process for validation.
             "--io.sentry.other.base64-attachment-data"

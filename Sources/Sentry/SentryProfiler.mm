@@ -178,7 +178,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     // initially, however we need to make sure to remove stale versions of the file before it gets
     // used to potentially start a launch profile that shouldn't have started, so we check here for
     // this
-    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.wipe-data"]) {
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
         removeSentryStaticBasePath();
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)

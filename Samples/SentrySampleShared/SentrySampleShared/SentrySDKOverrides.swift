@@ -31,7 +31,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
 
     public static var schemaPrecedenceForEnvironmentVariables: Bool {
-        ProcessInfo.processInfo.arguments.contains("--io.sentry.schema-environment-variable-precedence")
+        ProcessInfo.processInfo.arguments.contains("--io.sentry.special.schema-environment-variable-precedence")
     }
 
     /// Helps quickly traverse using an NSIndexPath for driving a table view.
@@ -50,11 +50,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
 
     public enum Special: String, SentrySDKOverride {
-        case wipeDataOnLaunch  = "--io.sentry.wipe-data"
-        case disableEverything = "--io.sentry.disable-everything"
-        case skipSDKInit       = "--io.sentry.skip-sentry-init"
-        case disableDebugMode  = "--io.sentry.disable-debug-mode"
-        case dsn               = "--io.sentry.dsn"
+        case wipeDataOnLaunch  = "--io.sentry.special.wipe-data"
+        case disableEverything = "--io.sentry.special.disable-everything"
+        case skipSDKInit       = "--io.sentry.special.skip-sentry-init"
+        case disableDebugMode  = "--io.sentry.special.disable-debug-mode"
+        case dsn               = "--io.sentry.special.dsn"
     }
     case special = "Special"
 

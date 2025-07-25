@@ -180,6 +180,7 @@ public struct SentrySDKWrapper {
             scope.setTag(value: uiTestName, key: "ui-test-name")
         }
 
+        setTagsForConfiguredOverrides(scope: scope)
         injectGitInformation(scope: scope)
 
         let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
@@ -193,9 +194,6 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-
-        scope.setTag(value: options.sampleRate?.stringValue ?? "0", key: "sample-rate")
-        scope.setTag(value: SentrySDKOverrides.Events.rejectAll.boolValue ? "true" : "false", key: "beforeSend-reject-all")
 
         return scope
     }
@@ -215,6 +213,35 @@ public struct SentrySDKWrapper {
                 .lastPathComponent ?? "cocoadev"
         }
         return username
+    }
+
+    private func setTagsForConfiguredOverrides(scope: Scope) {
+        for overrideCategory in SentrySDKOverrides.allCases {
+            for flag in overrideCategory.featureFlags {
+                let tagKey = cleanTagKey(from: flag.rawValue)
+                
+                switch flag.overrideType {
+                case .boolean:
+                    if flag.boolValue {
+                        scope.setTag(value: "true", key: tagKey)
+                    }
+                case .string:
+                    if let stringValue = flag.stringValue, !stringValue.isEmpty {
+                        scope.setTag(value: stringValue, key: tagKey)
+                    }
+                case .float:
+                    if let floatValue = flag.floatValue {
+                        scope.setTag(value: String(format: "%.2f", floatValue), key: tagKey)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func cleanTagKey(from rawValue: String) -> String {
+        return rawValue
+            .replacingOccurrences(of: "--io.sentry.", with: "")
+            .replacingOccurrences(of: ".", with: "_")
     }
 }
 
