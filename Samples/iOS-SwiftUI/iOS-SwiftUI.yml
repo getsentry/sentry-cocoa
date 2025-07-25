@@ -20,6 +20,7 @@ fileGroups:
   - ../../Plans/iOS-SwiftUI_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  xcodeVersion: 14.3.1
 targets:
   iOS-SwiftUI:
     type: application

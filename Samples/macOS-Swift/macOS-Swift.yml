@@ -19,6 +19,7 @@ fileGroups:
   - macOS-Swift.yml
 options:
   bundleIdPrefix: io.sentry
+  xcodeVersion: 14.3.1
 targets:
   macOS-Swift:
     type: application

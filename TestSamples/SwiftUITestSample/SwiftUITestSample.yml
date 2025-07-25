@@ -13,6 +13,7 @@ fileGroups:
   - SwiftUITestSample.yml
 options:
   bundleIdPrefix: io.sentry
+  xcodeVersion: 14.3.1
 targets:
   SwiftUITestSample:
     type: application

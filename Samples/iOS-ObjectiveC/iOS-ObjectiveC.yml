@@ -20,6 +20,7 @@ fileGroups:
   - ../../Plans/iOS-ObjectiveC_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  xcodeVersion: 14.3.1
 targets:
   iOS-ObjectiveC:
     type: application

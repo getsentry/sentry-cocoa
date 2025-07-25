@@ -15,6 +15,7 @@ fileGroups:
   - ../Plans/iOS13-Swift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  xcodeVersion: 14.3.1
 targets:
   iOS13-Swift:
     type: application
