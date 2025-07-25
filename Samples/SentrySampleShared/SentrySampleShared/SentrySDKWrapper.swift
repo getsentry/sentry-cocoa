@@ -286,7 +286,7 @@ extension SentrySDKWrapper {
     }
 
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
-        guard !args.contains("--io.sentry.feedback.all-defaults") else {
+        guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
             config.configureWidget = { widget in
                 widget.layoutUIOffset = self.layoutOffset
             }
