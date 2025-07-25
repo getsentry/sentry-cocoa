@@ -76,24 +76,23 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
     sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
+        const auto serializedMetrics
+            = serializeContinuousProfileMetrics((NSDictionary *_Nonnull)metricProfilerState);
         if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
-            if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
-                const auto envelope
-                    = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profiler.profilerId,
-                        (NSDictionary<NSString *, id> *_Nonnull)profilerState,
-                        (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
-                            metricProfilerState)
+            const auto envelope
+                = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profiler.profilerId,
+                    (NSDictionary<NSString *, id> *_Nonnull)profilerState,
+                    (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
+                        serializedMetrics
+#    if SENTRY_HAS_UIKIT
+                    ,
+                    screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+                );
+            if (envelope != nil) {
+                [SentrySDKInternal captureEnvelope:(SentryEnvelope *_Nonnull)envelope];
             }
         }
-#    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
-#    endif // SENTRY_HAS_UIKIT
-            );
-                if (envelope != nil) {
-                    [SentrySDK captureEnvelope:(SentryEnvelope *_Nonnull)envelope];
-                }
     });
 }
 

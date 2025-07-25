@@ -854,11 +854,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                           options:0
                                                             error:nil];
     NSString *result = [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
-    if (result != nil) {
-        return result;
-    } else {
-        return @"Failed to serialize session";
+    if (result == nil) {
+        return @"Failed to serialize session.";
     }
+    return result;
 }
 
 - (void)flush:(NSTimeInterval)timeout

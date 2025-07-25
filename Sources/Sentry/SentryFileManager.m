@@ -778,11 +778,7 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
         return nil;
     }
 
-    if (identifier != nil) {
-        return [cachesDirectory stringByAppendingPathComponent:(NSString *_Nonnull)identifier];
-    } else {
-        return cachesDirectory;
-    }
+    return [cachesDirectory stringByAppendingPathComponent:(NSString *_Nonnull)identifier];
 }
 
 NSString *_Nullable sentryStaticBasePath(void)
@@ -805,9 +801,10 @@ void
 removeSentryStaticBasePath(void)
 {
     NSString *_Nullable staticBasePath = sentryStaticBasePath();
-    if (staticBasePath != nil) {
-        _non_thread_safe_removeFileAtPath((NSString *_Nonnull)staticBasePath);
+    if (staticBasePath == nil) {
+        return;
     }
+    _non_thread_safe_removeFileAtPath((NSString *_Nonnull)staticBasePath);
 }
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
@@ -878,18 +875,20 @@ writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *c
 {
     NSError *error;
     SENTRY_LOG_DEBUG(@"Writing launch profiling config file.");
-    NSURL *configFileURL = launchProfileConfigFileURL();
-    SENTRY_CASSERT(configFileURL != nil && [config writeToURL:configFileURL error:&error],
+    NSURL *_Nullable configFileURL = launchProfileConfigFileURL();
+    SENTRY_CASSERT(
+        configFileURL != nil && [config writeToURL:(NSURL *_Nonnull)configFileURL error:&error],
         @"Failed to write launch profile config file: %@.", error);
 }
 
 void
 removeAppLaunchProfilingConfigFile(void)
 {
-    NSURL *configFileURL = launchProfileConfigFileURL();
-    if (configFileURL.path != nil) {
-        _non_thread_safe_removeFileAtPath((NSString *_Nonnull)configFileURL.path);
+    NSURL *_Nullable configFileURL = launchProfileConfigFileURL();
+    if (configFileURL == nil) {
+        return;
     }
+    _non_thread_safe_removeFileAtPath((NSString *_Nonnull)configFileURL.path);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

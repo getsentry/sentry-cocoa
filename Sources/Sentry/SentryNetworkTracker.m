@@ -134,7 +134,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     if (sessionTask.currentRequest == nil || sessionTask.currentRequest.URL == nil) {
         return NO;
     }
-    NSArray *targets = SentrySDK.options.tracePropagationTargets;
+    NSArray *targets = SentrySDKInternal.options.tracePropagationTargets;
     if (targets == nil) {
         return NO;
     }
@@ -164,7 +164,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
+    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if (apiUrl != nil && url.host != nil && apiUrl.host != nil && apiUrl.path != nil) {
         if ([url.host isEqualToString:(NSString *_Nonnull)apiUrl.host] &&
             [url.path containsString:(NSString *_Nonnull)apiUrl.path]) {
@@ -244,18 +244,25 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
-    SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    SentryHub *currentHub = SentrySDK.currentHub;
-    SentryClient *_Nullable client = currentHub.client;
-    SentryTraceContext *traceContext = [[SentryTraceContext alloc]
-        initWithTraceId:propagationContext.traceId
-                options:(SentryOptions *_Nonnull)
-                            client.options // TODO: remove the force cast to non-null
-            userSegment:currentHub.scope.userObject.segment
-               replayId:currentHub.scope.replayId];
-#pragma clang diagnostic pop
+    SentryPropagationContext *propagationContext
+        = SentrySDKInternal.currentHub.scope.propagationContext;
+
+#if !SDK_V9
+    NSString *segment = nil;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    segment = SentrySDKInternal.currentHub.scope.userObject.segment;
+#    pragma clang diagnostic pop
+#endif
+    SentryHub *currentHub = SentrySDKInternal.currentHub;
+    SentryClient *client = currentHub.client;
+    SentryTraceContext *traceContext =
+        [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
+                                            options:client.options
+#if !SDK_V9
+                                        userSegment:segment
+#endif
+                                           replayId:SentrySDKInternal.currentHub.scope.replayId];
 
     [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]
@@ -274,11 +281,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSString *baggageValue
+        NSDictionary *_Nullable originalBaggage;
+        NSString *_Nullable headerValue
             = sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER];
-        NSDictionary *originalBaggage = [SentryBaggageSerialization decode:baggageValue];
-
-        if (originalBaggage[@"sentry-trace_id"] == nil) {
+        if (headerValue != nil) {
+            originalBaggage = [SentryBaggageSerialization decode:(NSString *_Nonnull)headerValue];
+        }
+        if (originalBaggage != nil
+            && ((NSDictionary *_Nonnull)originalBaggage)[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
         }
     }
@@ -342,7 +352,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
+    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if (apiUrl != nil && url.host != nil && apiUrl.host != nil && apiUrl.path != nil) {
         if ([url.host isEqualToString:(NSString *_Nonnull)apiUrl.host] &&
             [url.path containsString:(NSString *_Nonnull)apiUrl.path]) {
@@ -413,7 +423,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    NSArray *failedRequestTargets = SentrySDK.options.failedRequestTargets;
+    NSArray *failedRequestTargets = SentrySDKInternal.options.failedRequestTargets;
     if (failedRequestTargets == nil || myRequest.URL == nil) {
         SENTRY_LOG_DEBUG(@"Request url or targets are nil, not capturing HTTP Client errors.");
         return;

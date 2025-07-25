@@ -309,21 +309,21 @@ sentry_stopProfilerDueToFinishedTransaction(
     [SentryTraceProfiler recordMetrics];
     transaction.endSystemTime = sentry_getSystemTime();
 
-    const auto nullableProfiler
+    SentryProfiler *_Nullable nullableProfiler
         = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
     if (!nullableProfiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
     }
-    const auto profiler = (SentryProfiler *_Nonnull)nullableProfiler;
+    SentryProfiler *_Nonnull profiler = (SentryProfiler *_Nonnull)nullableProfiler;
 
     // This code can run on the main thread, and the profile serialization can take a couple of
     // milliseconds. Therefore, we move this to a background thread to avoid potentially
     // blocking the main thread.
     sentry_dispatchAsync(dispatchQueue, ^{
-        const auto profilingData = [profiler.state copyProfilingData];
+        NSDictionary<NSString *, id> *_Nullable profilingData = [profiler.state copyProfilingData];
 
-        const auto profileEnvelopeItem = profilingData
+        SentryEnvelopeItem *_Nullable profileEnvelopeItem = profilingData
             ? sentry_traceProfileEnvelopeItem(
                   hub, profiler, profilingData, transaction, startTimestamp)
             : nil;

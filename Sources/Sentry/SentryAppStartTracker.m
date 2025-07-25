@@ -207,12 +207,13 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
         }
 
         NSDate *_Nonnull sdkStartTimestamp;
-        if (SentrySDK.startTimestamp != nil) {
-            sdkStartTimestamp = (NSDate *_Nonnull)SentrySDK.startTimestamp;
+        if (SentrySDKInternal.startTimestamp != nil) {
+            sdkStartTimestamp = (NSDate *_Nonnull)SentrySDKInternal.startTimestamp;
         } else {
-            SENTRY_LOG_WARN(@"SentrySDK.startTimestamp is nil. Not measuring app start duration. "
-                            @"This is expected if the SDK was not initialized in "
-                            @"application:didFinishLaunchingWithOptions:.");
+            SENTRY_LOG_WARN(
+                @"SentrySDKInternal.startTimestamp is nil. Not measuring app start duration. "
+                @"This is expected if the SDK was not initialized in "
+                @"application:didFinishLaunchingWithOptions:.");
             sdkStartTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         }
 

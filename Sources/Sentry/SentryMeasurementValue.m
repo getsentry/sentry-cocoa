@@ -25,9 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self.unit != nil) {
         return @{ @"value" : _value, @"unit" : ((SentryMeasurementUnit *_Nonnull)_unit).unit };
-    } else {
-        return @{ @"value" : _value };
     }
+    return @{ @"value" : _value };
 }
 
 @end

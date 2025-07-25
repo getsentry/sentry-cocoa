@@ -407,10 +407,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     SEL setCurrentScreen = @selector(setCurrentScreen:);
     for (id<SentryScopeObserver> observer in self.observers) {
-        if ([observer respondsToSelector:setCurrentScreen]) {
-            if (currentScreen != nil) {
-                [observer setCurrentScreen:(NSString *_Nonnull)currentScreen];
-            }
+        if ([observer respondsToSelector:setCurrentScreen] && currentScreen != nil) {
+            [observer setCurrentScreen:(NSString *_Nonnull)currentScreen];
         }
     }
 }
@@ -550,9 +548,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newTags = [NSMutableDictionary new];
         [newTags addEntriesFromDictionary:[self tags]];
-        if (event.tags != nil) {
-            [newTags addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.tags];
-        }
+        [newTags addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.tags];
         event.tags = newTags;
     }
 
@@ -561,9 +557,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newExtra = [NSMutableDictionary new];
         [newExtra addEntriesFromDictionary:[self extras]];
-        if (event.extra != nil) {
-            [newExtra addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.extra];
-        }
+        [newExtra addEntriesFromDictionary:(NSDictionary<NSString *, id> *_Nonnull)event.extra];
         event.extra = newExtra;
     }
 
@@ -640,16 +634,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
-    if (span != nil) {
-        NSDictionary *_Nullable serialized = [span serialize];
-        if (serialized != nil) {
-            return (NSDictionary *_Nonnull)serialized;
-        } else {
-            return @{};
-        }
-    } else {
+    if (span == nil) {
         return [self.propagationContext traceContextForEvent];
     }
+    NSDictionary *_Nullable serialized = [span serialize];
+    if (serialized == nil) {
+        return @{};
+    }
+    return (NSDictionary *_Nonnull)serialized;
 }
 
 - (NSString *)propagationContextTraceIdString

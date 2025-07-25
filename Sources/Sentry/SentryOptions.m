@@ -529,11 +529,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
-        NSArray *_Nullable inAppExcludesArray = options[@"inAppExcludes"];
-        if (inAppExcludesArray != nil) {
-            _inAppExcludes =
-                [(NSArray *_Nonnull)inAppExcludesArray filteredArrayUsingPredicate:isNSString];
-        }
+        _inAppExcludes =
+            [(NSArray *_Nonnull)options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
     }
 
     if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
@@ -548,11 +545,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 
     if ([options[@"swizzleClassNameExcludes"] isKindOfClass:[NSSet class]]) {
-        NSSet *_Nullable swizzleExcludesSet = options[@"swizzleClassNameExcludes"];
-        if (swizzleExcludesSet != nil) {
-            _swizzleClassNameExcludes =
-                [(NSSet *_Nonnull)swizzleExcludesSet filteredSetUsingPredicate:isNSString];
-        }
+        _swizzleClassNameExcludes = [(NSSet *_Nonnull)options[@"swizzleClassNameExcludes"]
+            filteredSetUsingPredicate:isNSString];
     }
 
     [self setBool:options[@"enableCoreDataTracing"]

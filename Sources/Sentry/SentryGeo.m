@@ -46,10 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ([other isKindOfClass:[SentryGeo class]]) {
-        return [self isEqualToGeo:other];
-    }
-    return NO;
+    return [self isEqualToGeo:other];
 }
 
 - (BOOL)isEqualToGeo:(SentryGeo *_Nullable)geo

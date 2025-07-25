@@ -82,13 +82,12 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
                                              withSampleRand:context.transactionContext.sampleRand];
     }
 
-    if (options.tracesSampleRate != nil) {
-        return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.tracesSampleRate);
-    } else {
+    if (options.tracesSampleRate == nil) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                  forSampleRate:nil
                                                 withSampleRand:nil];
     }
+    return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.tracesSampleRate);
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -125,13 +124,12 @@ sentry_sampleTraceProfile(SentrySamplingContext *context,
 
 #        pragma clang diagnostic push
 #        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (options.profilesSampleRate != nil) {
-        return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.profilesSampleRate);
-    } else {
+    if (options.profilesSampleRate == nil) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                  forSampleRate:nil
                                                 withSampleRand:nil];
     }
+    return _sentry_calcSampleFromNumericalRate((NSNumber *_Nonnull)options.profilesSampleRate);
 #        pragma clang diagnostic pop
 }
 #    endif // !SDK_V9

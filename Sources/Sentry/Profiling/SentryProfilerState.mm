@@ -28,7 +28,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                                  options:0
                                    error:nil];
     });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol] ?: @"";
+    const auto symbolNSStr = [NSString stringWithUTF8String:symbol] ?: @"<nil>";
     const auto match = [regex firstMatchInString:symbolNSStr
                                          options:0
                                            range:NSMakeRange(0, [symbolNSStr length])];

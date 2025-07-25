@@ -203,8 +203,7 @@
         [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
 
     if (request.predicate) {
-        NSString *predicateDesc = @"(null)";
-        predicateDesc =
+        NSString *_Nonnull predicateDesc =
             [predicateDescriptor predicateDescription:(NSPredicate *_Nonnull)request.predicate];
         [result appendFormat:@" WHERE %@", predicateDesc];
     }

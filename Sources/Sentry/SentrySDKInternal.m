@@ -96,12 +96,7 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        if (currentHub != nil) {
-            return (SentryHub *_Nonnull)currentHub;
-        } else {
-            // Return a fallback hub if currentHub is nil
-            return [[SentryHub alloc] initWithClient:nil andScope:nil];
-        }
+        return (SentryHub *_Nonnull)currentHub;
     }
 }
 

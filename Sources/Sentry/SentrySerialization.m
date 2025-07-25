@@ -324,11 +324,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     id _Nullable levelObject = eventDictionary[@"level"];
-    if (levelObject != nil && [levelObject isKindOfClass:[NSString class]]) {
-        return sentryLevelForString((NSString *_Nonnull)levelObject);
-    } else {
+    if (levelObject == nil || ![levelObject isKindOfClass:[NSString class]]) {
         return kSentryLevelInfo; // Default level if not specified or invalid
     }
+    return sentryLevelForString((NSString *_Nonnull)levelObject);
 }
 
 + (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data

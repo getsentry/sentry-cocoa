@@ -179,11 +179,10 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
 {
     @synchronized(self) {
-        if (_cache != nil) {
-            return (NSMutableArray<SentryBinaryImageInfo *> *_Nonnull)_cache.copy;
-        } else {
+        if (_cache == nil) {
             return @[];
         }
+        return (NSMutableArray<SentryBinaryImageInfo *> *_Nonnull)_cache.copy;
     }
 }
 
