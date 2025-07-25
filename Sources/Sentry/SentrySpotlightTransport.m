@@ -4,7 +4,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
+#import "SentrySwift.h"
 #import "SentrySerialization.h"
 #import "SentryTransport.h"
 

@@ -262,7 +262,10 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 SentryLaunchProfileDecision
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([options isContinuousProfilingV2Enabled]) {
+#pragma clang diagnostic pop
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
 #    if SDK_V9
@@ -421,9 +424,15 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
         configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
             @(options.enableTimeToFullDisplayTracing);
 #    if !SDK_V9
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if ([options isContinuousProfilingEnabled]) {
+#pragma clang diagnostic pop
 #    endif // !SDK_V9
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
             if ([options isContinuousProfilingV2Enabled]) {
+#pragma clang diagnostic pop
                 SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
                 configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
                 configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] =

@@ -8,6 +8,7 @@
 #import "SentryRandom.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
+#import "SentryOptionsInternal.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list

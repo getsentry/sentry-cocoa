@@ -56,11 +56,11 @@ import Foundation
         }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        if options.enableViewRendererV2() {
+        if options.enableViewRendererV2 {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
-        if options.enableFastViewRendering() {
+        if options.enableFastViewRendering {
             features.append("fastViewRendering")
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

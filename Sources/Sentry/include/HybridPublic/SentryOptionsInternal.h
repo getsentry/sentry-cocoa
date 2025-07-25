@@ -6,6 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryOptionsInternal : NSObject
 
++ (NSArray<NSString *> *)defaultIntegrations;
+
 @property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
 
 + (nullable SentryOptions *)initWithDict:(NSDictionary<NSString *, id> *)options

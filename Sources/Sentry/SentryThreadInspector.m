@@ -6,7 +6,7 @@
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryInAppLogic.h"
-#import "SentryOptions.h"
+#import "SentrySwift.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"

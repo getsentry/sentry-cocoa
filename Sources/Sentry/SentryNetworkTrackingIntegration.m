@@ -2,7 +2,7 @@
 #import "SentryLogC.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
-#import "SentryOptions.h"
+#import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import <objc/runtime.h>
 

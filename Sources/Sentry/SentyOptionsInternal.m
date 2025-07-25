@@ -31,6 +31,19 @@
 
 @implementation SentryOptionsInternal
 
++ (NSArray<NSString *> *)defaultIntegrations
+{
+    NSArray<Class> *defaultIntegrationClasses = [SentryOptionsInternal defaultIntegrationClasses];
+    NSMutableArray<NSString *> *defaultIntegrationNames =
+        [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
+
+    for (Class class in defaultIntegrationClasses) {
+        [defaultIntegrationNames addObject:NSStringFromClass(class)];
+    }
+
+    return defaultIntegrationNames;
+}
+
 + (NSArray<Class> *)defaultIntegrationClasses
 {
     // The order of integrations here is important.

@@ -6,6 +6,7 @@
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryOptions.h>
+#import <SentrySwift.h>
 #    import <SentrySDK+Private.h>
 
 @interface SentryWatchdogTerminationLogic ()

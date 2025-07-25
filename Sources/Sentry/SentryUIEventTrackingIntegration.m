@@ -5,7 +5,7 @@
 #    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
 #    import <SentryOptions+Private.h>
-#    import <SentryOptions.h>
+#import <SentrySwift.h>
 #    import <SentryUIEventTracker.h>
 #    import <SentryUIEventTrackerTransactionMode.h>
 

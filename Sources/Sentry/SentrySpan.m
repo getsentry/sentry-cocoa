@@ -99,7 +99,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
+        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         _isContinuousProfiling = [SentrySDKInternal.options isContinuousProfilingEnabled];
+#pragma clang diagnostic pop
         if (_isContinuousProfiling) {
 #    endif // !SDK_V9
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;

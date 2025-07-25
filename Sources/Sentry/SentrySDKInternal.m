@@ -691,7 +691,10 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     SentryOptions *options = currentHub.client.options;
 #    if !SDK_V9
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (![options isContinuousProfilingEnabled]) {
+#pragma clang diagnostic pop
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
@@ -759,7 +762,10 @@ static NSDate *_Nullable startTimestamp = nil;
 
     SentryOptions *options = currentHub.client.options;
 #    if !SDK_V9
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (![options isContinuousProfilingEnabled]) {
+#pragma clang diagnostic pop
         SENTRY_LOG_WARN(
             @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
             @"SentryOptions.profilesSampler to nil (which is the default initial value for both "

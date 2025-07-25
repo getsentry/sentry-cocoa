@@ -465,7 +465,10 @@ NS_ASSUME_NONNULL_BEGIN
                                        sampleRand:tracesSamplerDecision.sampleRand];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (![self.client.options isContinuousProfilingEnabled]) {
+#pragma clang diagnostic pop
         SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
             samplingContext, tracesSamplerDecision, self.client.options);
         configuration.profilesSamplerDecision = profilesSamplerDecision;

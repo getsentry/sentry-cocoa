@@ -1,6 +1,7 @@
 #import "SentryUserFeedbackIntegration.h"
 #import "SentryDependencyContainer.h"
 #import "SentryOptions+Private.h"
+#import "SentrySwift.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 

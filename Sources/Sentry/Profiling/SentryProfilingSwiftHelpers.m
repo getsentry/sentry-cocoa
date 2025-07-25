@@ -12,20 +12,29 @@
 BOOL
 sentry_isContinuousProfilingEnabled(SentryClient *client)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [client.options isContinuousProfilingEnabled];
+#pragma clang diagnostic end
 }
 #    endif // !SDK_V9
 
 BOOL
 sentry_isContinuousProfilingV2Enabled(SentryClient *client)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [client.options isContinuousProfilingV2Enabled];
+#pragma clang diagnostic end
 }
 
 BOOL
 sentry_isProfilingCorrelatedToTraces(SentryClient *client)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [client.options isProfilingCorrelatedToTraces];
+#pragma clang diagnostic end
 }
 
 SentryProfileOptions *

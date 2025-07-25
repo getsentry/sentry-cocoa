@@ -11,6 +11,7 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
+#import "SentrySwift.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerState+ObjCpp.h"
@@ -69,7 +70,10 @@ void
 sentry_configureContinuousProfiling(SentryOptions *options)
 {
 #    if !SDK_V9
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (![options isContinuousProfilingEnabled]) {
+#pragma clang diagnostic pop
         if (options.configureProfiling != nil) {
             SENTRY_LOG_WARN(@"In order to configure SentryProfileOptions you must remove "
                             @"configuration of the older SentryOptions.profilesSampleRate, "
