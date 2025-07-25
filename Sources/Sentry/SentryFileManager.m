@@ -156,6 +156,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     NSString *cachePath = options.cacheDirectoryPath;
 
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
+    if (cachePath == NULL) {
+        SENTRY_LOG_FATAL(
+            @"SentryFileManager attempting to be created with a NULL cachePath %@", cachePath);
+    }
 
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
     self.sentryPath = [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
