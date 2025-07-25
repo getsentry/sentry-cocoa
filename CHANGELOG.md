@@ -12,6 +12,7 @@
 - Extract video processing to a new class (#5604)
 - Move continuous profiling payload serialization off of the main thread (#5613)
 - Improve video generation using apple recommended loop (#5612)
+- Use -OSize for release builds (#5721)
 
 ### Fixes
 
