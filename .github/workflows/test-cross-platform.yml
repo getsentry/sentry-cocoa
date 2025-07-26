@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: getsentry/sentry-react-native
+          ref: sentrySDKSwift
           path: sentry-react-native
 
       - name: Enable Corepack
@@ -66,4 +67,4 @@ jobs:
             xcodebuild -workspace *.xcworkspace \
             -scheme $SCHEME -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
-            build-for-testing SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST | xcbeautify
+            build-for-testing SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
