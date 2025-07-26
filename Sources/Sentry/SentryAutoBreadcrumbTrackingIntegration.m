@@ -28,14 +28,22 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    SentryFileManager *fileManager = [SentryDependencyContainer sharedInstance].fileManager;
+    if (fileManager == nil) {
+        SENTRY_LOG_ERROR(@"File manager is nil. Cannot install auto breadcrumb tracking.");
+        return NO;
+    }
+
+    SentryBreadcrumbTracker *breadcrumbTracker = [[SentryBreadcrumbTracker alloc]
+        initReportAccessibilityIdentifier:options.reportAccessibilityIdentifier];
+    SentryNSNotificationCenterWrapper *notificationCenterWrapper =
+        [SentryDependencyContainer sharedInstance].notificationCenterWrapper;
+    SentrySystemEventBreadcrumbs *systemEventBreadcrumbs =
+        [[SentrySystemEventBreadcrumbs alloc] initWithFileManager:fileManager
+                                     andNotificationCenterWrapper:notificationCenterWrapper];
     [self installWithOptions:options
-             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:
-                                       options.reportAccessibilityIdentifier]
-        systemEventBreadcrumbs:
-            [[SentrySystemEventBreadcrumbs alloc]
-                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
-                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]];
+             breadcrumbTracker:breadcrumbTracker
+        systemEventBreadcrumbs:systemEventBreadcrumbs];
 #else
     [self installWithOptions:options
            breadcrumbTracker:[[SentryBreadcrumbTracker alloc]

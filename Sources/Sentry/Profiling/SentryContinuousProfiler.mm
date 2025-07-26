@@ -76,15 +76,23 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
     sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
-        const auto envelope
-            = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
+        const auto serializedMetrics
+            = serializeContinuousProfileMetrics((NSDictionary *_Nonnull)metricProfilerState);
+        if (profiler.profilerId != nil && profilerState != nil && metricProfilerState != nil) {
+            const auto envelope
+                = sentry_continuousProfileChunkEnvelope((SentryId *_Nonnull)profilerID,
+                    (NSDictionary<NSString *, id> *_Nonnull)profilerState,
+                    (NSMutableDictionary<NSString *, SentrySerializedMetricEntry *> *_Nonnull)
+                        serializedMetrics
 #    if SENTRY_HAS_UIKIT
-                ,
-                screenFrameData
+                    ,
+                    screenFrameData
 #    endif // SENTRY_HAS_UIKIT
-            );
-        [SentrySDKInternal captureEnvelope:envelope];
+                );
+            if (envelope != nil) {
+                [SentrySDKInternal captureEnvelope:(SentryEnvelope *_Nonnull)envelope];
+            }
+        }
     });
 }
 

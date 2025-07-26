@@ -35,9 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     // parsing as double/seconds failed, try to parse as date
-    NSDate *retryAfterDate = [self.httpDateParser dateFromString:retryAfterHeader];
-
-    return retryAfterDate;
+    return [self.httpDateParser dateFromString:(NSString *_Nonnull)retryAfterHeader];
 }
 
 @end

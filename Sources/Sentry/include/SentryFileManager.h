@@ -96,8 +96,8 @@ SENTRY_NO_INIT
 #pragma mark - App State
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;
-- (SentryAppState *_Nullable)readAppState;
-- (SentryAppState *_Nullable)readPreviousAppState;
+- (nullable SentryAppState *)readAppState;
+- (nullable SentryAppState *)readPreviousAppState;
 - (void)deleteAppState;
 
 #pragma mark - Breadcrumbs

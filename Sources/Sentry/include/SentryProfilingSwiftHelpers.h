@@ -23,7 +23,7 @@ BOOL sentry_isContinuousProfilingEnabled(SentryClient *client);
 #endif // !SDK_V9
 BOOL sentry_isContinuousProfilingV2Enabled(SentryClient *client);
 BOOL sentry_isProfilingCorrelatedToTraces(SentryClient *client);
-SentryProfileOptions *sentry_getProfiling(SentryClient *client);
+SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client);
 NSString *sentry_stringFromSentryID(SentryId *sentryID);
 NSDate *sentry_getDate(void);
 uint64_t sentry_getSystemTime(void);
@@ -32,7 +32,7 @@ SentryProfileOptions *sentry_getSentryProfileOptions(void);
 BOOL sentry_isTraceLifecycle(SentryProfileOptions *options);
 float sentry_sessionSampleRate(SentryProfileOptions *options);
 BOOL sentry_profileAppStarts(SentryProfileOptions *options);
-SentrySpanId *sentry_getParentSpanID(SentryTransactionContext *context);
+SentrySpanId *_Nullable sentry_getParentSpanID(SentryTransactionContext *context);
 SentryId *sentry_getTraceID(SentryTransactionContext *context);
 BOOL sentry_isNotSampled(SentryTransactionContext *context);
 void sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);

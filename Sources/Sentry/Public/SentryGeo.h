@@ -47,7 +47,7 @@ NS_SWIFT_NAME(Geo)
 
 - (BOOL)isEqual:(id _Nullable)other;
 
-- (BOOL)isEqualToGeo:(SentryGeo *)geo;
+- (BOOL)isEqualToGeo:(SentryGeo *_Nullable)geo;
 
 - (NSUInteger)hash;
 

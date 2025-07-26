@@ -2,6 +2,7 @@
 
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,10 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        _url = [self convertDsnString:dsnString didFailWithError:error];
-        if (_url == nil) {
+        NSURL *_Nullable convertedURL = [self convertDsnString:dsnString didFailWithError:error];
+        if (convertedURL == nil) {
             return nil;
         }
+        _url = (NSURL *_Nonnull)convertedURL;
     }
     return self;
 }
@@ -87,7 +89,14 @@ NS_ASSUME_NONNULL_BEGIN
     components.host = url.host;
     components.port = url.port;
     components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
-    return components.URL;
+
+    NSURL *_Nullable resultUrl = components.URL;
+    if (nil == resultUrl) {
+        // This should never happen, therefore we log a fatal error and return nil, ignoring the
+        // compiler warning.
+        SENTRY_LOG_FATAL(@"Failed to create base endpoint from DSN URL: %@", url);
+    }
+    return (NSURL *_Nonnull)components.URL;
 }
 
 - (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
@@ -102,9 +111,11 @@ NS_ASSUME_NONNULL_BEGIN
         errorMessage = @"URL scheme of DSN is missing";
         url = nil;
     }
-    if (url != nil && ![allowedSchemes containsObject:url.scheme]) {
-        errorMessage = @"Unrecognized URL scheme in DSN";
-        url = nil;
+    if (url != nil && url.scheme != nil) {
+        if (![allowedSchemes containsObject:(NSString *_Nonnull)url.scheme]) {
+            errorMessage = @"Unrecognized URL scheme in DSN";
+            url = nil;
+        }
     }
     if (url != nil && (nil == url.host || url.host.length == 0)) {
         errorMessage = @"Host component of DSN is missing";

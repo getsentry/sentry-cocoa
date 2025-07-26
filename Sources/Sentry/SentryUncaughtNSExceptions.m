@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    crash.uncaughtExceptionHandler(exception);
+    crash.uncaughtExceptionHandler((NSException *_Nonnull)exception);
 }
 
 @end

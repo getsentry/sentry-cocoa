@@ -35,8 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
     serializedData[@"spans"] = serializedSpans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    id _Nullable contextsDict = serializedData[@"contexts"];
+    if (contextsDict != nil && [contextsDict isKindOfClass:[NSDictionary class]]) {
+        [mutableContext addEntriesFromDictionary:(NSDictionary *_Nonnull)contextsDict];
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -50,13 +51,19 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
-    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
+    NSDictionary *_Nullable sanitizedTags = sentry_sanitize(self.trace.tags);
+    if (sanitizedTags != nil) {
+        [traceTags addEntriesFromDictionary:(NSDictionary *_Nonnull)sanitizedTags];
+    }
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *tags = [NSMutableDictionary new];
-        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        id _Nullable tagsValue = serializedData[@"tags"];
+        if (tagsValue != nil) {
+            [tags addEntriesFromDictionary:(NSDictionary *_Nonnull)tagsValue];
+        }
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
     } else {
@@ -69,7 +76,10 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *extra = [NSMutableDictionary new];
-        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        id _Nullable extraValue = serializedData[@"extra"];
+        if (extraValue != nil) {
+            [extra addEntriesFromDictionary:(NSDictionary *_Nonnull)extraValue];
+        }
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;
     } else {

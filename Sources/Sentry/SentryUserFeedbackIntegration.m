@@ -20,7 +20,8 @@
     }
 
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
-        initWithConfiguration:options.userFeedbackConfiguration
+        initWithConfiguration:(SentryUserFeedbackConfiguration *_Nonnull)
+                                  options.userFeedbackConfiguration
                      delegate:self
            screenshotProvider:SentryDependencyContainer.sharedInstance.screenshot];
     return YES;

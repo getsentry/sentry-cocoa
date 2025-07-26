@@ -67,7 +67,10 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
     newImage.name = imageName;
-    newImage.UUID = [SentryBinaryImageCache convertUUID:image->uuid];
+    NSString *convertedUUID = [SentryBinaryImageCache convertUUID:image->uuid];
+    if (convertedUUID != nil) {
+        newImage.UUID = convertedUUID;
+    }
     newImage.address = image->address;
     newImage.vmAddress = image->vmAddress;
     newImage.size = image->size;
@@ -176,7 +179,10 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
 {
     @synchronized(self) {
-        return _cache.copy;
+        if (_cache == nil) {
+            return @[];
+        }
+        return (NSMutableArray<SentryBinaryImageInfo *> *_Nonnull)_cache.copy;
     }
 }
 

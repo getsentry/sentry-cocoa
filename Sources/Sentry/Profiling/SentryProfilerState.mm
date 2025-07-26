@@ -28,7 +28,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                                  options:0
                                    error:nil];
     });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
+    const auto symbolNSStr = [NSString stringWithUTF8String:symbol] ?: @"<nil>";
     const auto match = [regex firstMatchInString:symbolNSStr
                                          options:0
                                            range:NSMakeRange(0, [symbolNSStr length])];
@@ -144,7 +144,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
                 [state.frames addObject:frame];
             } else {
-                [stack addObject:frameIndex];
+                [stack addObject:(NSNumber *_Nonnull)frameIndex];
             }
         }
 #    if defined(DEBUG)
@@ -159,7 +159,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto stackKey = [stack componentsJoinedByString:@"|"];
         const auto stackIndex = state.stackIndexLookup[stackKey];
         if (stackIndex) {
-            sample.stackIndex = stackIndex;
+            sample.stackIndex = (NSNumber *_Nonnull)stackIndex;
         } else {
             const auto nextStackIndex = @(state.stacks.count);
             sample.stackIndex = nextStackIndex;

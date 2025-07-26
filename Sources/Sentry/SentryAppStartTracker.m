@@ -206,6 +206,17 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
             appStartDuration = 0;
         }
 
+        NSDate *_Nonnull sdkStartTimestamp;
+        if (SentrySDKInternal.startTimestamp != nil) {
+            sdkStartTimestamp = (NSDate *_Nonnull)SentrySDKInternal.startTimestamp;
+        } else {
+            SENTRY_LOG_WARN(
+                @"SentrySDKInternal.startTimestamp is nil. Not measuring app start duration. "
+                @"This is expected if the SDK was not initialized in "
+                @"application:didFinishLaunchingWithOptions:.");
+            sdkStartTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
+        }
+
         SentryAppStartMeasurement *appStartMeasurement =
             [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                 isPreWarmed:isPreWarmed
@@ -214,7 +225,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
-                                          sdkStartTimestamp:SentrySDKInternal.startTimestamp
+                                          sdkStartTimestamp:sdkStartTimestamp
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDKInternal.appStartMeasurement = appStartMeasurement;
@@ -262,7 +273,9 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
     // If the release name is different we assume it's an app upgrade
-    if (![currentAppState.releaseName isEqualToString:self.previousAppState.releaseName]) {
+    if (self.previousAppState.releaseName == nil
+        || ![currentAppState.releaseName
+            isEqualToString:(NSString *_Nonnull)self.previousAppState.releaseName]) {
         return SentryAppStartTypeCold;
     }
 

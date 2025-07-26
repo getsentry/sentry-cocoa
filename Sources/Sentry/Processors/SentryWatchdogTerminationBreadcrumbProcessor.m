@@ -44,7 +44,7 @@
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
     }
-    [self storeBreadcrumb:jsonData];
+    [self storeBreadcrumb:(NSData *_Nonnull)jsonData];
 }
 
 - (void)clear
@@ -103,7 +103,8 @@
         fileSize = [self.fileHandle seekToEndOfFile];
 
         [self.fileHandle writeData:data];
-        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+        [self.fileHandle
+            writeData:(NSData *_Nonnull)[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
         self.breadcrumbCounter += 1;
     } @catch (NSException *exception) {

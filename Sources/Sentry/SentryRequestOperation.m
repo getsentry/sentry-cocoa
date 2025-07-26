@@ -31,12 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
                   NSError *_Nullable error) {
                   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                   NSInteger statusCode = [httpResponse statusCode];
-
                   // We only have these if's here because of performance reasons
                   SENTRY_LOG_DEBUG(@"Request status: %ld", (long)statusCode);
                   if ([SentrySDKInternal.currentHub getClient].options.debug == YES) {
                       SENTRY_LOG_DEBUG(@"Request response: %@",
-                          [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                          data != nil ? [[NSString alloc] initWithData:(NSData *_Nonnull)data
+                                                              encoding:NSUTF8StringEncoding]
+                                      : @"<no response data>");
                   }
 
                   if (nil != error) {

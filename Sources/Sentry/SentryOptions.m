@@ -168,9 +168,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
-        self.cacheDirectoryPath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
+        NSArray<NSString *> *cachePaths
+            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        if (cachePaths.count > 0 && cachePaths.firstObject != nil) {
+            self.cacheDirectoryPath = (NSString *_Nonnull)cachePaths.firstObject;
+        } else {
+            self.cacheDirectoryPath = @""; // Default to empty string if no cache path found
+        }
 
 #if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
@@ -490,7 +494,8 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setConfigureUserFeedback:(SentryUserFeedbackConfigurationBlock)configureUserFeedback
 {
     self.userFeedbackConfiguration = [[SentryUserFeedbackConfiguration alloc] init];
-    configureUserFeedback(self.userFeedbackConfiguration);
+    configureUserFeedback(
+        (SentryUserFeedbackConfiguration *_Nonnull)self.userFeedbackConfiguration);
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

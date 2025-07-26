@@ -73,7 +73,7 @@
 
 @implementation NSURL (SentryStreameble)
 
-- (NSInputStream *)asInputStream
+- (nullable NSInputStream *)asInputStream
 {
     return [[NSInputStream alloc] initWithURL:self];
 }
@@ -82,7 +82,12 @@
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSDictionary *attributes = [fileManager attributesOfItemAtPath:self.path error:&error];
+    if (self.path == nil) {
+        SENTRY_LOG_DEBUG(@"URL path is nil - URL: %@", self);
+        return -1;
+    }
+    NSDictionary *attributes = [fileManager attributesOfItemAtPath:(NSString *_Nonnull)self.path
+                                                             error:&error];
     if (attributes == nil) {
         SENTRY_LOG_DEBUG(@"Could not read file attributes - File: %@ - %@", self, error);
         return -1;

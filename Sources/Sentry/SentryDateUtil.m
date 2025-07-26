@@ -21,10 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isInFuture:(NSDate *_Nullable)date
 {
-    if (date == nil)
+    if (date == nil) {
         return NO;
-
-    NSComparisonResult result = [[self.currentDateProvider date] compare:date];
+    }
+    NSComparisonResult result = [[self.currentDateProvider date] compare:(NSDate *_Nonnull)date];
     return result == NSOrderedAscending;
 }
 
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (second == nil)
         return first;
 
-    NSComparisonResult result = [first compare:second];
+    NSComparisonResult result = [first compare:(NSDate *_Nonnull)second];
     if (result == NSOrderedDescending) {
         return first;
     } else {

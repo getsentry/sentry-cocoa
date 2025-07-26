@@ -64,8 +64,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       items:allowedEnvelopeItems];
 
     NSError *requestError = nil;
+    if (self.apiURL == nil) {
+        SENTRY_LOG_ERROR(@"apiURL is nil, cannot create envelope request");
+        return;
+    }
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
-                                                                   url:self.apiURL
+                                                                   url:(NSURL *_Nonnull)self.apiURL
                                                       didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {

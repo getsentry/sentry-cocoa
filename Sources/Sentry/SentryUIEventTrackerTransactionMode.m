@@ -104,8 +104,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: %@", action);
 
-    if (accessibilityIdentifier) {
-        [transaction setTagValue:accessibilityIdentifier forKey:@"accessibilityIdentifier"];
+    if (accessibilityIdentifier != nil) {
+        [transaction setTagValue:(NSString *_Nonnull)accessibilityIdentifier
+                          forKey:@"accessibilityIdentifier"];
     }
 
     transaction.finishCallback = ^(SentryTracer *tracer) {

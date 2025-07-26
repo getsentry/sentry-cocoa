@@ -236,7 +236,7 @@ sentry_getOSBuildNumber(void)
     size_t size = sizeof(str);
     int cmd[2] = { CTL_KERN, KERN_OSVERSION };
     if (SENTRY_LOG_ERRNO(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
-        return [NSString stringWithUTF8String:str];
+        return [NSString stringWithUTF8String:str] ?: @"<nil>";
     }
     return @"";
 }

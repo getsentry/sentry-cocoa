@@ -61,7 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
             SentryDataCategory category
                 = sentryDataCategoryForNSUInteger(categoryAsNumber.unsignedIntegerValue);
 
-            [self updateRateLimit:category withDate:limits[categoryAsNumber]];
+            NSDate *limitDate = limits[categoryAsNumber];
+            if (limitDate != nil) {
+                [self updateRateLimit:category withDate:limitDate];
+            }
         }
     } else if (response.statusCode == 429) {
         NSDate *retryAfterHeaderDate =

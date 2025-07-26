@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self isEqualToGeo:other];
 }
 
-- (BOOL)isEqualToGeo:(SentryGeo *)geo
+- (BOOL)isEqualToGeo:(SentryGeo *_Nullable)geo
 {
     if (self == geo) {
         return YES;

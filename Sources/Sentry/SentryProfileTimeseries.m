@@ -112,10 +112,13 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
         }
         uint64_t relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
-        [slicedGPUEntries addObject:@ {
+        NSMutableDictionary *entry = [[NSMutableDictionary alloc] initWithDictionary:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : obj[@"value"],
         }];
+        if (obj[@"value"]) {
+            entry[@"value"] = obj[@"value"];
+        }
+        [slicedGPUEntries addObject:entry];
     }];
     if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
         [slicedGPUEntries addObject:@ {

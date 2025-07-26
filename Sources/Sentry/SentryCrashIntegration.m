@@ -55,6 +55,7 @@ sentry_finishAndSaveTransaction(void)
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryCrashIntegrationSessionHandler *sessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
@@ -65,6 +66,7 @@ sentry_finishAndSaveTransaction(void)
 - (instancetype)init
 {
     self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
+                  currentDateProvider:SentryDependencyContainer.sharedInstance.dateProvider
               andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 
     return self;
@@ -72,10 +74,12 @@ sentry_finishAndSaveTransaction(void)
 
 /** Internal constructor for testing */
 - (instancetype)initWithCrashAdapter:(SentryCrashWrapper *)crashAdapter
+                 currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.crashAdapter = crashAdapter;
+        self.currentDateProvider = currentDateProvider;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
     }
 
@@ -99,10 +103,12 @@ sentry_finishAndSaveTransaction(void)
                                                 appStateManager:appStateManager];
     self.sessionHandler =
         [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                       currentDateProvider:self.currentDateProvider
                                                   watchdogTerminationLogic:logic];
 #else
-    self.sessionHandler =
-        [[SentryCrashIntegrationSessionHandler alloc] initWithCrashWrapper:self.crashAdapter];
+    self.sessionHandler = [[SentryCrashIntegrationSessionHandler alloc]
+        initWithCrashWrapper:self.crashAdapter
+         currentDateProvider:self.currentDateProvider];
 #endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
@@ -262,7 +268,7 @@ sentry_finishAndSaveTransaction(void)
         if (scope.contextDictionary != nil
             && scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY]];
+                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] ?: @ {}];
         } else {
             device = [NSMutableDictionary new];
         }
