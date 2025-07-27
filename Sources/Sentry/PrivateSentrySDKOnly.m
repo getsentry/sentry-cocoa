@@ -2,6 +2,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryCrash.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
@@ -207,6 +208,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
         scope.propagationContext = [[SentryPropagationContext alloc] initWithTraceId:traceId
                                                                               spanId:spanId];
     }];
+}
+
++ (void)setCrashEventID:(SentryId *)crashEventId
+{
+    [SentryDependencyContainer.sharedInstance.crashReporter
+        setCrashEventID:[crashEventId sentryIdString]];
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

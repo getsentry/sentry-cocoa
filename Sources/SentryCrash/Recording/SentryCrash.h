@@ -239,6 +239,10 @@ SENTRY_NO_INIT
  */
 - (void)deleteReportWithID:(NSNumber *)reportID;
 
+/** Set a pre-generated ID to be used for the next crash event.
+ */
+- (void)setCrashEventID:(NSString *)eventID;
+
 @end
 
 //! Project version number for SentryCrashFramework.

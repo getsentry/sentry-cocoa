@@ -79,6 +79,7 @@ static Monitor g_monitors[] = {
     },
 };
 static int g_monitorsCount = sizeof(g_monitors) / sizeof(*g_monitors);
+static char g_eventID[37] = { 0 };
 
 static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
 
@@ -139,6 +140,16 @@ SentryCrashMonitorEventCallback
 sentrycrashcm_getEventCallback(void)
 {
     return g_onExceptionEvent;
+}
+
+void
+sentrycrashcm_setEventID(const char *eventID)
+{
+    if (eventID) {
+        memcpy(g_eventID, eventID, sizeof(g_eventID));
+    } else {
+        memset(g_eventID, 0, sizeof(g_eventID));
+    }
 }
 
 void
@@ -217,6 +228,10 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
         if (isMonitorEnabled(monitor)) {
             addContextualInfoToEvent(monitor, context);
         }
+    }
+
+    if (g_eventID[0] != '\0') {
+        context->eventID = g_eventID;
     }
 
     g_onExceptionEvent(context);

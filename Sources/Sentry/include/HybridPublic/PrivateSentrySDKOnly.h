@@ -111,6 +111,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId;
 
+/**
+ * Allows Hybrid SDKs to set a pre-generated ID to be used for the next crash event.
+ */
++ (void)setCrashEventID:(SentryId *)crashEventId;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Start a profiler session associated with the given @c SentryId.

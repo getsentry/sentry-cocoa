@@ -69,6 +69,10 @@ void sentrycrashcm_setEventCallback(SentryCrashMonitorEventCallback onEvent);
  */
 SentryCrashMonitorEventCallback sentrycrashcm_getEventCallback(void);
 
+/** Set a pre-generated ID to be used for the next crash event.
+ */
+void sentrycrashcm_setEventID(const char *eventID);
+
 // ============================================================================
 #pragma mark - Internal API -
 // ============================================================================
