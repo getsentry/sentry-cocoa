@@ -106,6 +106,9 @@
 {
     @try {
         SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+        if (nil != self.report[@"report"][@"id"]) {
+            event.eventId = [[SentryId alloc] initWithUUIDString:self.report[@"report"][@"id"]];
+        }
         if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
             event.timestamp = [NSDate
                 dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];

@@ -40,6 +40,7 @@
 #include "SentryInternalCDefines.h"
 
 #include <memory.h>
+#include <pthread.h>
 
 #include "SentryAsyncSafeLog.h"
 
@@ -87,6 +88,9 @@ static bool g_crashedDuringExceptionHandling = false;
 static bool g_requiresAsyncSafety = false;
 
 static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
+
+static char g_eventID[37] = { 0 };
+static pthread_mutex_t g_eventIDMutex = PTHREAD_MUTEX_INITIALIZER;
 
 // ============================================================================
 #pragma mark - API -
@@ -139,6 +143,18 @@ SentryCrashMonitorEventCallback
 sentrycrashcm_getEventCallback(void)
 {
     return g_onExceptionEvent;
+}
+
+void
+sentrycrashcm_setEventID(const char *eventID)
+{
+    pthread_mutex_lock(&g_eventIDMutex);
+    if (eventID) {
+        memcpy(g_eventID, eventID, sizeof(g_eventID));
+    } else {
+        memset(g_eventID, 0, sizeof(g_eventID));
+    }
+    pthread_mutex_unlock(&g_eventIDMutex);
 }
 
 void
@@ -218,6 +234,12 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
             addContextualInfoToEvent(monitor, context);
         }
     }
+
+    pthread_mutex_lock(&g_eventIDMutex);
+    if (g_eventID[0] != '\0') {
+        context->eventID = g_eventID;
+    }
+    pthread_mutex_unlock(&g_eventIDMutex);
 
     g_onExceptionEvent(context);
 

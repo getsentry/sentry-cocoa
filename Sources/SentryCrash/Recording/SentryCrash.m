@@ -559,6 +559,11 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return [self clearBundleName:bundleName];
 }
 
+- (void)setCrashEventID:(NSString *)eventID
+{
+    sentrycrashcm_setEventID(eventID.UTF8String);
+}
+
 @end
 
 //! Project version number for SentryCrashFramework.
