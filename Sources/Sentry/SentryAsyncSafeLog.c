@@ -98,7 +98,7 @@ writeToLog(const char *const str)
     // change console-based logging
     if (!g_checkedIsDebugging) {
         g_checkedIsDebugging = true;
-        g_isDebugging = sentrycrashdebug_isBeingTraced();
+        g_isDebugging = true; // sentrycrashdebug_isBeingTraced();
     }
     if (g_isDebugging) {
         fprintf(stdout, "%s", str);
