@@ -460,23 +460,6 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testFormattedString_WithPrivateInterpolation() {
-        let publicData = "visible"
-        let sensitiveData = "secret-data-123"
-        
-        let logString: SentryLogString = "Data: \(publicData), sensitive: \(sensitiveData, privacy: .`private`)"
-        sut.info(formatted: logString)
-        
-        assertLogCaptured(
-            .info,
-            "Data: visible, sensitive: <private>",
-            [
-                "sentry.message.template": .string("Data: {0}, sensitive: {1}"),
-                "sentry.message.parameter.0": .string("visible")
-            ]
-        )
-    }
-    
     func testFormattedString_WithMixedTypes() {
         let name = "test"
         let count = 0
