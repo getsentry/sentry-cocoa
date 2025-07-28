@@ -245,9 +245,9 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
     // profiles because it isn't needed for anything else
 
     BOOL autoPerformanceTracingDisabled
-        = ![[[[SentrySDK currentHub] getClient] options] enableAutoPerformanceTracing];
+        = ![[[[SentrySDKInternal currentHub] getClient] options] enableAutoPerformanceTracing];
     BOOL appHangsV2Disabled =
-        [[[[SentrySDK currentHub] getClient] options] isAppHangTrackingV2Disabled];
+        [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingV2Disabled];
 
     if (autoPerformanceTracingDisabled && appHangsV2Disabled) {
         [SentryDependencyContainer.sharedInstance.framesTracker stop];

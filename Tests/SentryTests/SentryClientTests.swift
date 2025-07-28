@@ -79,7 +79,7 @@ class SentryClientTest: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
             var client: SentryClient!
             do {
-                let options = try Options(dict: [
+                let options = try SentryOptionsInternal.initWithDict([
                     "dsn": SentryClientTest.dsn
                 ])
                 options.removeAllIntegrations()
@@ -1955,7 +1955,7 @@ class SentryClientTest: XCTestCase {
         let sut = fixture.getSut()
         
         let hub = SentryHub(client: sut, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         
         func addIntegrations(amount: Int) {
             let emptyIntegration = EmptyIntegration()

@@ -558,6 +558,19 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+{
+    SentryClient *client = self.client;
+    if (client != nil) {
+        [client captureSerializedFeedback:serializedFeedback
+                              withEventId:feedbackEventId
+                              attachments:feedbackAttachments
+                                    scope:self.scope];
+    }
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];
@@ -842,7 +855,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
 {
     NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
-    for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
+    for (NSString *integration in SentrySDKInternal.currentHub.installedIntegrationNames) {
         // Every integration starts with "Sentry" and ends with "Integration". To keep the
         // payload of the event small we remove both.
         NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"

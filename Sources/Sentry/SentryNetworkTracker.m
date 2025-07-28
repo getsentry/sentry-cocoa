@@ -133,7 +133,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 {
     return sessionTask.currentRequest != nil &&
         [self isTargetMatch:sessionTask.currentRequest.URL
-                withTargets:SentrySDK.options.tracePropagationTargets];
+                withTargets:SentrySDKInternal.options.tracePropagationTargets];
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
@@ -148,7 +148,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
 
     // SDK not enabled no need to continue
-    if (SentrySDK.options == nil) {
+    if (SentrySDKInternal.options == nil) {
         return;
     }
 
@@ -159,7 +159,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
+    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
     }
@@ -186,7 +186,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
             netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
@@ -230,23 +230,24 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
-    SentryPropagationContext *propagationContext = SentrySDK.currentHub.scope.propagationContext;
+    SentryPropagationContext *propagationContext
+        = SentrySDKInternal.currentHub.scope.propagationContext;
 
 #if !SDK_V9
     NSString *segment = nil;
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    segment = SentrySDK.currentHub.scope.userObject.segment;
+    segment = SentrySDKInternal.currentHub.scope.userObject.segment;
 #    pragma clang diagnostic pop
 #endif
 
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SentrySDK.currentHub.client.options
+                                            options:SentrySDKInternal.currentHub.client.options
 #if !SDK_V9
                                         userSegment:segment
 #endif
-                                           replayId:SentrySDK.currentHub.scope.replayId];
+                                           replayId:SentrySDKInternal.currentHub.scope.replayId];
 
     [self addBaggageHeader:[traceContext toBaggage]
                traceHeader:[propagationContext traceHeader]
@@ -332,7 +333,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
+    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
     }
@@ -400,7 +401,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
+    if (![self isTargetMatch:myRequest.URL
+                 withTargets:SentrySDKInternal.options.failedRequestTargets]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -411,7 +413,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
-    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     // sessionTask.error isn't used because it's not about network errors but rather
@@ -478,7 +480,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode
 {
-    for (SentryHttpStatusCodeRange *range in SentrySDK.options.failedRequestStatusCodes) {
+    for (SentryHttpStatusCodeRange *range in SentrySDKInternal.options.failedRequestStatusCodes) {
         if ([range isInRange:statusCode]) {
             return YES;
         }

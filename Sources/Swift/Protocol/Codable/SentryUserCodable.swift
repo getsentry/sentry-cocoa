@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-// See `develop-docs/README.md` for an explanation of this pattern.
-#if SENTRY_SWIFT_PACKAGE
+#if SDK_V9
 final class UserDecodable: User {
     @available(*, deprecated)
     convenience public init(from decoder: any Decoder) throws {
@@ -25,7 +24,7 @@ extension UserDecodable: Decodable {
         case data
     }
     
-    #if !SENTRY_SWIFT_PACKAGE
+    #if !SDK_V9
     @available(*, deprecated)
     required convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)

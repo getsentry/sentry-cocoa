@@ -1,3 +1,5 @@
+//swiftlint:disable file_length
+
 import Foundation
 
 public enum OverrideType {
@@ -39,9 +41,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .feedback: return SentrySDKOverrides.Feedback.allCases
         case .performance: return SentrySDKOverrides.Performance.allCases
         case .sessionReplay: return SentrySDKOverrides.SessionReplay.allCases
+        case .events: return SentrySDKOverrides.Events.allCases
         case .other: return SentrySDKOverrides.Other.allCases
         case .tracing: return SentrySDKOverrides.Tracing.allCases
         case .profiling: return SentrySDKOverrides.Profiling.allCases
+        case .networking: return SentrySDKOverrides.Networking.allCases
         }
     }
 
@@ -70,6 +74,12 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
     case feedback = "Feedback"
 
+    public enum Events: String, SentrySDKOverride {
+        case sampleRate = "--io.sentry.events.sampleRate"
+        case rejectAll = "--io.sentry.events.reject-all"
+    }
+    case events = "Events"
+
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
         case disablePerformanceV2               = "--io.sentry.performance.disable-performance-v2"
@@ -77,7 +87,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableSessionTracking             = "--io.sentry.performance.disable-automatic-session-tracking"
         case disableFileIOTracing               = "--io.sentry.performance.disable-file-io-tracing"
         case disableUIVCTracing                 = "--io.sentry.performance.disable-uiviewcontroller-tracing"
-        case disableNetworkTracing              = "--io.sentry.performance.disable-network-tracking"
         case disableCoreDataTracing             = "--io.sentry.performance.disable-core-data-tracing"
         case disableANRTracking                 = "--io.sentry.performance.disable-anr-tracking"
         case disableWatchdogTracking            = "--io.sentry.performance.disable-watchdog-tracking"
@@ -100,17 +109,22 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
     case sessionReplay = "Session Replay"
 
+    public enum Networking: String, SentrySDKOverride {
+        case disableBreadcrumbs            = "--io.sentry.networking.disable-breadcrumbs"
+        case disablePerformanceTracking    = "--io.sentry.networking.disable-tracking"
+        case disableFailedRequestTracking  = "--io.sentry.networking.disable-failed-request-tracking"
+    }
+    case networking = "Networking"
+
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot        = "--io.sentry.other.disable-attach-screenshot"
         case disableAttachViewHierarchy     = "--io.sentry.other.disable-attach-view-hierarchy"
-        case rejectAllEvents                = "--io.sentry.other.reject-all-events"
         case rejectAllSpans                 = "--io.sentry.other.reject-all-spans"
         case rejectScreenshots              = "--io.sentry.other.reject-screenshots-in-before-capture-screenshot"
         case rejectViewHierarchy            = "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy"
         case disableMetricKit               = "--io.sentry.other.disable-metrickit-integration"
         case disableMetricKitRawPayloads    = "--io.sentry.other.disable-metrickit-raw-payloads"
         case disableBreadcrumbs             = "--io.sentry.other.disable-automatic-breadcrumbs"
-        case disableNetworkBreadcrumbs      = "--io.sentry.other.disable-network-breadcrumbs"
         case disableSwizzling               = "--io.sentry.other.disable-swizzling"
         case disableCrashHandling           = "--io.sentry.other.disable-crash-handler"
         case disableSpotlight               = "--io.sentry.other.disable-spotlight"
@@ -259,10 +273,28 @@ extension SentrySDKOverrides.Tracing {
     }
 }
 
+extension SentrySDKOverrides.Networking {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableBreadcrumbs, .disablePerformanceTracking, .disableFailedRequestTracking: return .boolean
+        }
+    }
+}
+
+extension SentrySDKOverrides.Events {
+    public var overrideType: OverrideType {
+        switch self {
+        case .rejectAll: return .boolean
+        case .sampleRate: return .float
+        }
+    }
+
+}
+
 extension SentrySDKOverrides.Other {
     public var overrideType: OverrideType {
         switch self {
-        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .rejectAllEvents, .base64AttachmentData, .disableHttpTransport: return .boolean
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .rejectScreenshots, .rejectViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .rejectAllSpans, .base64AttachmentData, .disableHttpTransport: return .boolean
         case .username, .userFullName, .userEmail, .userID, .environment: return .string
         }
     }
@@ -271,7 +303,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableNetworkTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -330,11 +362,19 @@ extension SentrySDKOverrides.Tracing {
     }
 }
 
+extension SentrySDKOverrides.Networking {
+    public var ignoresDisableEverything: Bool { return false }
+}
+
+extension SentrySDKOverrides.Events {
+    public var ignoresDisableEverything: Bool { return false }
+}
+
 extension SentrySDKOverrides.Other {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .rejectAllEvents, .username, .userFullName, .userEmail, .userID, .environment, .base64AttachmentData: return true
-        case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableNetworkBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableHttpTransport: return false
+        case .rejectScreenshots, .rejectViewHierarchy, .rejectAllSpans, .username, .userFullName, .userEmail, .userID, .environment, .base64AttachmentData: return true
+        case .disableAttachScreenshot, .disableAttachViewHierarchy, .disableMetricKit, .disableMetricKitRawPayloads, .disableBreadcrumbs, .disableSwizzling, .disableCrashHandling, .disableSpotlight, .disableFileManagerSwizzling, .disableHttpTransport: return false
         }
     }
 }
@@ -342,7 +382,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableNetworkTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
+        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
         case .sessionTrackingIntervalMillis: return true
         }
     }
@@ -372,3 +412,5 @@ extension SentrySDKOverrides.Special {
         }
     }
 }
+
+//swiftlint:enable file_length
