@@ -1,11 +1,12 @@
+import SentrySampleShared
 import XCTest
 
 final class FeedbackUITests: XCTestCase {
     func testWidgetDisplayInSwiftUIApp() throws {
         let app = XCUIApplication()
         app.launchArguments.append(contentsOf: [
-            "--io.sentry.feedback.all-defaults",
-            "--io.sentry.disable-app-start-profiling"
+            SentrySDKOverrides.Feedback.allDefaults.rawValue,
+            SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
         ])
         app.launch()
 

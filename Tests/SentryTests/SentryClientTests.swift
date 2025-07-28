@@ -79,7 +79,7 @@ class SentryClientTest: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
             var client: SentryClient!
             do {
-                let options = try Options(dict: [
+                let options = try SentryOptionsInternal.initWithDict([
                     "dsn": SentryClientTest.dsn
                 ])
                 options.removeAllIntegrations()

@@ -64,6 +64,14 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install old xcodegen
+        if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
+        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        run: |
+          curl -o xcodegen.rb https://raw.githubusercontent.com/Homebrew/homebrew-core/ce15583d8bf5c7e9414d25fdadab704e06eabba9/Formula/x/xcodegen.rb
+          brew install --formula xcodegen.rb
+          brew pin xcodegen
+
       - name: Select Xcode version
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:

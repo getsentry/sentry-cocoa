@@ -28,7 +28,7 @@ concurrency:
 jobs:
   build-test-server:
     name: Build test server
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - name: Cache for Test Server
@@ -36,20 +36,27 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}
+          key: test-server-${{ hashFiles('./test-server') }}-universal
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}
+            test-server-${{ hashFiles('./test-server') }}-universal
             test-server-
 
-      - name: Build Test Server
+      - name: Build Test Server for Intel CPU
         if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
         run: >-
-          swift build -c release 2>&1 | tee test-server-build.log
+          swift build -c release --triple x86_64-apple-macosx 2>&1 | tee test-server-build-intel.log
 
-      - name: Copy exec
+      - name: Build Test Server for M1 CPU
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
-        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
+        run: >-
+          swift build -c release --arch arm64 2>&1 | tee test-server-build-arm64.log
+
+      - name: Combine Test Server
+        working-directory: test-server
+        run: >-
+          lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v4
@@ -62,9 +69,10 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: test-server-build-log
           path: |
-            raw-test-output.log
+            test-server-build-intel.log
+            test-server-build-arm64.log
 
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}} ${{matrix.scheme}}
@@ -215,10 +223,6 @@ jobs:
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
-
-      - name: Slowest Tests
-        if: ${{ always() }}
-        run: ./scripts/xcode-slowest-tests.sh
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v4
