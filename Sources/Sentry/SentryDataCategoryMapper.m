@@ -13,7 +13,7 @@ NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 #if !SDK_V9
 NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
-#endif // !SSDK_v9
+#endif // !SDK_V9
 NSString *const kSentryDataCategoryNameProfile = @"profile";
 NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";

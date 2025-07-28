@@ -39,7 +39,7 @@ saveScreenShot(const char *path)
         return NO;
     }
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
@@ -56,7 +56,7 @@ saveScreenShot(const char *path)
 {
     sentrycrash_setSaveScreenshots(NULL);
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 

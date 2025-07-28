@@ -398,6 +398,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
+#if !SDK_V9
 /**
  * Indicates whether tracing should be enabled.
  * @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
@@ -406,6 +407,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic)
     BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
+#endif // !SDK_V9
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -812,7 +814,8 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
-    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0));
+    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0))
+        NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

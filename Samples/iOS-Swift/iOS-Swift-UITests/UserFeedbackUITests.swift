@@ -1,5 +1,6 @@
 //swiftlint:disable file_length
 
+import SentrySampleShared
 import XCTest
 
 class UserFeedbackUITests: BaseUITest {
@@ -15,14 +16,14 @@ class UserFeedbackUITests: BaseUITest {
         super.setUp()
         
         app.launchArguments.append(contentsOf: [
-            "--io.sentry.feedback.no-animations",
-            "--io.sentry.wipe-data",
+            SentrySDKOverrides.Feedback.noAnimations.rawValue,
+            SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue,
             
             // since the goal of these tests is only to exercise the UI of the widget and form, disable other SDK features to avoid any confounding factors that might fail or crash a test case
-            "--io.sentry.disable-everything",
+            SentrySDKOverrides.Special.disableEverything.rawValue,
             
             // write base64-encoded data into the envelope file for attachments instead of raw bytes, specifically for images. this way the entire envelope contents can be more easily passed as a string through the text field in the app to this process for validation.
-            "--io.sentry.other.base64-attachment-data"
+            SentrySDKOverrides.Other.base64AttachmentData.rawValue
         ])
         continueAfterFailure = true
     }
@@ -32,7 +33,7 @@ extension UserFeedbackUITests {
     // MARK: Tests ensuring correct appearance
     
     func testUIElementsWithDefaults() {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
         // widget button text
         XCTAssert(app.otherElements["Report a Bug"].exists)
         
@@ -88,10 +89,10 @@ extension UserFeedbackUITests {
     
     func testPrefilledUserInformation() throws {
         launchApp(args: [
-            "--io.sentry.feedback.all-defaults"
+            SentrySDKOverrides.Feedback.allDefaults.rawValue
         ], env: [
-            "--io.sentry.scope.user.name": "ui test user",
-            "--io.sentry.scope.user.email": "ui-testing@sentry.io"
+            SentrySDKOverrides.Other.userFullName.rawValue: "ui test user",
+            SentrySDKOverrides.Other.userEmail.rawValue: "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -101,10 +102,10 @@ extension UserFeedbackUITests {
     
     func testNoPrefilledUserInformation() throws {
         launchApp(args: [
-            "--io.sentry.feedback.dont-use-sentry-user"
+            SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ], env: [
-            "--io.sentry.scope.user.name": "ui test user",
-            "--io.sentry.scope.user.email": "ui-testing@sentry.io"
+            SentrySDKOverrides.Other.userFullName.rawValue: "ui test user",
+            SentrySDKOverrides.Other.userEmail.rawValue: "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -117,7 +118,9 @@ extension UserFeedbackUITests {
     // MARK: Tests validating happy path / successful submission
 
     func testSubmitFullyFilledCustomForm() throws {
-        launchApp(args: ["--io.sentry.feedback.dont-use-sentry-user"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.noUserInjection.rawValue
+        ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -155,9 +158,9 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.scope.user.name": testName,
-            "--io.sentry.scope.user.email": testContactEmail
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+            SentrySDKOverrides.Other.userFullName.rawValue: testName,
+            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -202,8 +205,8 @@ extension UserFeedbackUITests {
 
     func testSubmitCustomButton() throws {
         launchApp(args: [
-            "--io.sentry.feedback.use-custom-feedback-button",
-            "--io.sentry.feedback.dont-use-sentry-user"
+            SentrySDKOverrides.Feedback.useCustomFeedbackButton.rawValue,
+            SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -243,9 +246,9 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.scope.user.name": testName,
-            "--io.sentry.scope.user.email": testContactEmail
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+            SentrySDKOverrides.Other.userFullName.rawValue: testName,
+            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -272,9 +275,9 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.scope.user.name": testName,
-            "--io.sentry.scope.user.email": testContactEmail
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+            SentrySDKOverrides.Other.userFullName.rawValue: testName,
+            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -309,9 +312,9 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.scope.user.name": testName,
-            "--io.sentry.scope.user.email": testContactEmail
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+            SentrySDKOverrides.Other.userFullName.rawValue: testName,
+            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -341,7 +344,9 @@ extension UserFeedbackUITests {
     // MARK: Tests validating screenshot functionality
     
     func testAddingScreenshots() throws {
-        launchApp(args: ["--io.sentry.feedback.inject-screenshot"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.injectScreenshot.rawValue
+        ])
         XCTAssert(removeScreenshotButton.isHittable)
         
         let testMessage = "UITest user feedback"
@@ -353,7 +358,9 @@ extension UserFeedbackUITests {
     }
     
     func testAddingAndRemovingScreenshots() throws {
-        launchApp(args: ["--io.sentry.feedback.inject-screenshot"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.injectScreenshot.rawValue
+        ])
         XCTAssert(removeScreenshotButton.isHittable)
         removeScreenshotButton.tap()
         XCTAssertFalse(removeScreenshotButton.isHittable)
@@ -369,7 +376,7 @@ extension UserFeedbackUITests {
     // MARK: Tests validating error cases
     
     func testSubmitWithNoFieldsFilledDefault() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -389,7 +396,10 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitWithNoFieldsFilledEmailAndMessageRequired() throws {
-        launchApp(args: ["--io.sentry.feedback.require-email", "--io.sentry.feedback.dont-use-sentry-user"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.requireEmail.rawValue,
+            SentrySDKOverrides.Feedback.noUserInjection.rawValue
+        ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -414,9 +424,9 @@ extension UserFeedbackUITests {
     
     func testSubmitWithNoFieldsFilledAllRequired() throws {
         launchApp(args: [
-            "--io.sentry.feedback.require-email",
-            "--io.sentry.feedback.require-name",
-            "--io.sentry.feedback.dont-use-sentry-user"
+            SentrySDKOverrides.Feedback.requireEmail.rawValue,
+            SentrySDKOverrides.Feedback.requireName.rawValue,
+            SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -440,7 +450,7 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        launchApp(args: ["--io.sentry.feedback.all-defaults"])
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -462,9 +472,9 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: ["--io.sentry.feedback.all-defaults"], env: [
-            "--io.sentry.scope.user.name": testName,
-            "--io.sentry.scope.user.email": testContactEmail
+        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+            SentrySDKOverrides.Other.userFullName.rawValue: testName,
+            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
         ])
         
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -492,7 +502,9 @@ extension UserFeedbackUITests {
     // MARK: Alternative widget control
 
     func testFormShowsAndDismissesProperlyWithCustomButton() {
-        launchApp(args: ["--io.sentry.feedback.use-custom-feedback-button"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.useCustomFeedbackButton.rawValue
+        ])
 
         customButton.tap()
         cancelButton.tap()
@@ -502,7 +514,9 @@ extension UserFeedbackUITests {
     }
 
     func testNoAutomaticallyInjectedWidgetWithCustomButton() {
-        launchApp(args: ["--io.sentry.feedback.use-custom-feedback-button"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.useCustomFeedbackButton.rawValue
+        ])
 
         XCTAssertFalse(widgetButton.isHittable)
         XCTAssert(customButton.isHittable)
@@ -516,7 +530,9 @@ extension UserFeedbackUITests {
     }
 
     func testManuallyDisplayingWidget() {
-        launchApp(args: ["--io.sentry.feedback.no-auto-inject-widget"])
+        launchApp(args: [
+            SentrySDKOverrides.Feedback.disableAutoInject.rawValue
+        ])
         XCTAssertFalse(widgetButton.isHittable)
         extrasAreaTabBarButton.tap()
         app.buttons["io.sentry.ui-test.button.show-widget"].tap()

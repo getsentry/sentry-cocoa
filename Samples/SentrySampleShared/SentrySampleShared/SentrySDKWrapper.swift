@@ -33,8 +33,11 @@ public struct SentrySDKWrapper {
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
+        if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
+            options.sampleRate = NSNumber(value: sampleRate)
+        }
         options.beforeSend = {
-            guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
+            guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0
         }
         options.beforeSendSpan = {
@@ -112,13 +115,17 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
+      #if !SDK_V9
         options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
+      #endif // !SDK_V9
+
+        options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
+        options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
+        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Networking.disableBreadcrumbs.boolValue
 
         options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
-        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
@@ -139,7 +146,9 @@ public struct SentrySDKWrapper {
             return breadcrumb
         }
 
-        options.initialScope = configureInitialScope(scope:)
+        options.initialScope = { scope in
+            configureInitialScope(scope: scope, options: options)
+        }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 13.0, *) {
@@ -152,7 +161,7 @@ public struct SentrySDKWrapper {
         options.experimental.enableUnhandledCPPExceptionsV2 = true
     }
 
-    func configureInitialScope(scope: Scope) -> Scope {
+    func configureInitialScope(scope: Scope, options: Options) -> Scope {
         if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
@@ -184,6 +193,10 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+
+        scope.setTag(value: options.sampleRate?.stringValue ?? "0", key: "sample-rate")
+        scope.setTag(value: SentrySDKOverrides.Events.rejectAll.boolValue ? "true" : "false", key: "beforeSend-reject-all")
+
         return scope
     }
 
@@ -273,7 +286,7 @@ extension SentrySDKWrapper {
     }
 
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
-        guard !args.contains("--io.sentry.feedback.all-defaults") else {
+        guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
             config.configureWidget = { widget in
                 widget.layoutUIOffset = self.layoutOffset
             }

@@ -69,7 +69,7 @@ class SentrySpanTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testSpanDoesNotIncludeTraceProfilerID() throws {
         fixture.options.profilesSampleRate = 1
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let span = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -85,7 +85,7 @@ class SentrySpanTests: XCTestCase {
     func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
         fixture.options.profilesSampleRate = nil
         SentryContinuousProfiler.start()
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -95,7 +95,7 @@ class SentrySpanTests: XCTestCase {
     
     func testSpanDoesNotSubscribeToNotificationsIfContinuousProfilingDisabled() {
         fixture.options.profilesSampleRate = 1
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -105,7 +105,7 @@ class SentrySpanTests: XCTestCase {
     
     func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -121,7 +121,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_spanStart_profileStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let span = fixture.getSut()
         XCTAssertEqual(fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -143,7 +143,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_spanStart_profileStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let span = fixture.getSut()
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
@@ -163,7 +163,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_profileStart_spanStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let span = fixture.getSut()
@@ -183,7 +183,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_profileStart_spanStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let span = fixture.getSut()
@@ -202,7 +202,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         let span = fixture.getSut()
         SentryContinuousProfiler.start()
         let profileId1 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
@@ -225,7 +225,7 @@ class SentrySpanTests: XCTestCase {
     /// ```
     func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
         fixture.options.profilesSampleRate = nil
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options)
         SentryContinuousProfiler.start()
         SentryContinuousProfiler.stop()
         let span = fixture.getSut()

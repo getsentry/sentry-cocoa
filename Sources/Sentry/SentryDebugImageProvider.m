@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
 #if !SDK_V9
         self.binaryImageProvider = binaryImageProvider;
-#endif // !SDK_v9
+#endif // !SDK_V9
         self.binaryImageCache = binaryImageCache;
     }
     return self;
