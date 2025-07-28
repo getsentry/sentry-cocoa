@@ -163,11 +163,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     if (nullableDsnHash == nil) {
         SENTRY_LOG_FATAL(@"No DSN provided, using base path for envelopes: %@", self.basePath);
     }
-    // We decided against changing the `sentryPath` and use a null fallback instead, because the
-    // impact of changing the base path can result in critical issues.
+    // We decided against changing the `sentryPath` and use a null fallback instead, because this
+    // has been broken for a long time and the impact of changing the base path can result in
+    // critical issues.
     //
     // Instead we silence the nullability warning and let `stringByAppendingPathComponent` handle
     // the null case.
+    //
+    // Full discussion in https://github.com/getsentry/sentry-cocoa/pull/5737
     self.sentryPath = [self.basePath
         stringByAppendingPathComponent:SENTRY_UNWRAP_NULLABLE(NSString, nullableDsnHash)];
 
