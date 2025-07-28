@@ -1,3 +1,9 @@
+/**
+ * A mutable wrapper for use in `beforeSendLog` callbacks.
+ *
+ * The internal log structure is immutable for thread safety and data integrity in the SDK pipeline.
+ * `MutableSentryLog` provides a mutable interface for user modifications in callbacks.
+ */
 @objcMembers
 public class MutableSentryLog: NSObject {
     

@@ -35,7 +35,7 @@ public enum MutableSentryLogLevel: Int {
         }
     }
     
-    // Get severity number for this level
+    // Docs: https://develop.sentry.dev/sdk/telemetry/logs/#log-severity-number
     internal func toSeverityNumber() -> Int {
         switch self {
         case .trace: return 1
