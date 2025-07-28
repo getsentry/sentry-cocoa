@@ -578,4 +578,28 @@ final class SentryLogStringTests: XCTestCase {
         
         XCTAssertEqual(logString.attributes.count, 5) // Only public interpolations
     }
+    
+    // MARK: - CustomStringConvertible Interpolation Tests
+    
+    func testCustomStringConvertibleInterpolation() {
+        let customObject = TestCustomStringConvertible(value: "test_description")
+        let logString: SentryLogString = "Custom object: \(customObject)"
+        
+        XCTAssertEqual(logString.message, "Custom object: test_description")
+        XCTAssertEqual(logString.template, "Custom object: {0}")
+        XCTAssertEqual(logString.attributes.count, 1)
+        
+        guard case .string(let attributeValue) = logString.attributes[0] else {
+            XCTFail("Expected string attribute")
+            return
+        }
+        XCTAssertEqual(attributeValue, "test_description")
+    }
+}
+
+// MARK: - Test Helper Classes
+
+private struct TestCustomStringConvertible: CustomStringConvertible {
+    let value: String
+    var description: String { value }
 }

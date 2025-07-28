@@ -85,6 +85,11 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
             appendInterpolationValue(stringValue: String(actualValue), privacy: privacy, attributeFactory: .double(Double(actualValue)))
         }
         
+        public mutating func appendInterpolation<T: CustomStringConvertible>(_ value: @autoclosure @escaping () -> T, privacy: SentryLogString.Privacy = .`public`) {
+            let actualValue = value()
+            appendInterpolationValue(stringValue: actualValue.description, privacy: privacy, attributeFactory: .string(actualValue.description))
+        }
+        
         // Helper
         
         private mutating func appendInterpolationValue(
