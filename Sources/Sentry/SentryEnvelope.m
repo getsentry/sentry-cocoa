@@ -175,11 +175,12 @@ NS_ASSUME_NONNULL_BEGIN
         data = attachment.data;
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     } else if (nil != attachment.path) {
+        NSString *_Nonnull attachmentPath = SENTRY_UNWRAP_NULLABLE(NSString, attachment.path);
 
         NSError *error = nil;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSDictionary<NSFileAttributeKey, id> *attr =
-            [fileManager attributesOfItemAtPath:attachment.path error:&error];
+            [fileManager attributesOfItemAtPath:attachmentPath error:&error];
 
         if (nil != error) {
             SENTRY_LOG_ERROR(@"Couldn't check file size of attachment with path: %@. Error: %@",
@@ -201,10 +202,10 @@ NS_ASSUME_NONNULL_BEGIN
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
                 containsObject:@"--io.sentry.other.base64-attachment-data"]) {
-            data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
+            data = [[[[NSFileManager defaultManager] contentsAtPath:attachmentPath]
                 base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
         } else {
-            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+            data = [[NSFileManager defaultManager] contentsAtPath:attachmentPath];
         }
 #else
         data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
@@ -231,15 +232,17 @@ NS_ASSUME_NONNULL_BEGIN
                                        video:(NSURL *)videoURL
 {
     NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
-    NSData *recording = [SentrySerialization dataWithReplayRecording:replayRecording];
+    NSData *_Nullable recording = [SentrySerialization dataWithReplayRecording:replayRecording];
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 
-    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
-        @"replay_event" : replayEventData,
-        @"replay_recording" : recording,
-        @"replay_video" : videoURL
+    NSMutableDictionary *envelopeContent = [NSMutableDictionary dictionary];
+    envelopeContent[@"replay_event"] = replayEventData;
+    if (nil != recording) {
+        envelopeContent[@"replay_recording"] = recording;
     }
+    envelopeContent[@"replay_video"] = videoURL;
+    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:envelopeContent
                                                                     intoFile:envelopeContentUrl];
     if (success == NO) {
         SENTRY_LOG_ERROR(@"Could not create MessagePack for session replay envelope item.");

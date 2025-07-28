@@ -539,7 +539,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerialization.session(with: data))
     }
     
-    func testSerializeReplayRecording() {
+    func testSerializeReplayRecording() throws {
         class MockReplayRecording: SentryReplayRecording {
             override func serialize() -> [[String: Any]] {
                 return [["KEY": "VALUE"]]
@@ -548,8 +548,8 @@ class SentrySerializationTests: XCTestCase {
         
         let date = Date(timeIntervalSince1970: 2)
         let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
-        let data = SentrySerialization.data(with: recording)
-        
+        let data = try XCTUnwrap(SentrySerialization.data(with: recording))
+
         let serialized = String(data: data, encoding: .utf8)
         
         XCTAssertEqual(serialized, "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]")
