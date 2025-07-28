@@ -209,14 +209,15 @@ class SentryHubTests: XCTestCase {
         processInfoWrapper.overrides.isiOSAppOnMac = true
         processInfoWrapper.overrides.isMacCatalystApp = false
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-
+        
         // Act
         let hub = SentryHub(client: nil, andScope: Scope())
-
+        
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-
+        
         XCTAssertEqual(runtimeContext["name"], "iOS App on Mac")
+        XCTAssertEqual(runtimeContext["raw_description"], "ios-app-on-mac")
     }
 
     func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
@@ -232,6 +233,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
         XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
+        XCTAssertEqual(runtimeContext["raw_description"], "raw_description")
     }
 
     func testScopeNotEnriched_WhenScopeIsNil() {

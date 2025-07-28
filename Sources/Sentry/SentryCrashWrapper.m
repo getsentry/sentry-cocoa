@@ -215,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
     [scope setContextValue:appData forKey:@"app"];
 
     // Runtime
-    NSMutableDictionary *runtimeContext = [NSMutableDictionary new];
+    NSMutableDictionary *runtimeContext = [[NSMutableDictionary alloc] initWithCapacity:2];
 
     // We set this info on the runtime context because the app context has no existing fields
     // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
@@ -226,12 +226,14 @@ NS_ASSUME_NONNULL_BEGIN
     if (@available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *)) {
         if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isiOSAppOnMac) {
             runtimeContext[@"name"] = @"iOS App on Mac";
+            runtimeContext[@"raw_description"] = @"ios-app-on-mac";
         }
     }
 
     if (@available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)) {
         if (SentryDependencyContainer.sharedInstance.processInfoWrapper.isMacCatalystApp) {
             runtimeContext[@"name"] = @"Mac Catalyst App";
+            runtimeContext[@"raw_description"] = @"raw_description";
         }
     }
 
