@@ -23,12 +23,11 @@ import Foundation
 /// logger.error("Payment failed", attributes: ["errorCode": 500])
 /// 
 /// // Structured string interpolation with automatic type detection
-/// logger.info(formatted: "User \(userId) processed \(count) items with \(percentage)% success")
-/// logger.debug(formatted: "Processing \(itemCount) items, active: \(isActive)")
-/// logger.warn(formatted: "Retry attempt \(currentAttempt) of \(maxAttempts) failed")
+/// logger.info("User \(userId) processed \(count) items with \(percentage)% success")
+/// logger.debug("Processing \(itemCount) items, active: \(isActive)")
+/// logger.warn("Retry attempt \(currentAttempt) of \(maxAttempts) failed")
 /// ```
 @objc
-@objcMembers
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
@@ -44,113 +43,120 @@ public final class SentryLogger: NSObject {
     
     // MARK: - Trace Level
     
+    /// Logs a trace-level message with structured string interpolation and optional attributes.
+    public func trace(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .trace, logString: body, attributes: attributes)
+    }
+    
     /// Logs a trace-level message.
+    @objc(trace:)
     public func trace(_ body: String) {
-        captureLog(level: .trace, body: body, attributes: [:])
+        trace(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs a trace-level message with additional attributes.
+    @objc(trace:attributes:)
     public func trace(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .trace, body: body, attributes: attributes)
-    }
-    
-    /// Logs a trace-level message with structured string interpolation.
-    public func trace(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .trace, logString: body, attributes: attributes)
+        trace(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Debug Level
     
+    /// Logs a debug-level message with structured string interpolation and optional attributes.
+    public func debug(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .debug, logString: body, attributes: attributes)
+    }
+    
     /// Logs a debug-level message.
+    @objc(debug:)
     public func debug(_ body: String) {
-        captureLog(level: .debug, body: body, attributes: [:])
+        debug(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs a debug-level message with additional attributes.
+    @objc(debug:attributes:)
     public func debug(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .debug, body: body, attributes: attributes)
-    }
-    
-    /// Logs a debug-level message with structured string interpolation.
-    public func debug(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .debug, logString: body, attributes: attributes)
+        debug(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Info Level
     
+    /// Logs an info-level message with structured string interpolation and optional attributes.
+    public func info(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .info, logString: body, attributes: attributes)
+    }
+    
     /// Logs an info-level message.
+    @objc(info:)
     public func info(_ body: String) {
-        captureLog(level: .info, body: body, attributes: [:])
+        info(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs an info-level message with additional attributes.
+    @objc(info:attributes:)
     public func info(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .info, body: body, attributes: attributes)
-    }
-    
-    /// Logs an info-level message with structured string interpolation.
-    public func info(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .info, logString: body, attributes: attributes)
+        info(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Warn Level
     
+    /// Logs a warning-level message with structured string interpolation and optional attributes.
+    public func warn(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .warn, logString: body, attributes: attributes)
+    }
+    
     /// Logs a warning-level message.
+    @objc(warn:)
     public func warn(_ body: String) {
-        captureLog(level: .warn, body: body, attributes: [:])
+        warn(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs a warning-level message with additional attributes.
+    @objc(warn:attributes:)
     public func warn(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .warn, body: body, attributes: attributes)
-    }
-    
-    /// Logs a warning-level message with structured string interpolation.
-    public func warn(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .warn, logString: body, attributes: attributes)
+        warn(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Error Level
     
+    /// Logs an error-level message with structured string interpolation and optional attributes.
+    public func error(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .error, logString: body, attributes: attributes)
+    }
+    
     /// Logs an error-level message.
+    @objc(error:)
     public func error(_ body: String) {
-        captureLog(level: .error, body: body, attributes: [:])
+        error(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs an error-level message with additional attributes.
+    @objc(error:attributes:)
     public func error(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .error, body: body, attributes: attributes)
-    }
-    
-    /// Logs an error-level message with structured string interpolation.
-    public func error(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .error, logString: body, attributes: attributes)
+        error(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Fatal Level
     
+    /// Logs a fatal-level message with structured string interpolation and optional attributes.
+    public func fatal(_ body: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .fatal, logString: body, attributes: attributes)
+    }
+    
     /// Logs a fatal-level message.
+    @objc(fatal:)
     public func fatal(_ body: String) {
-        captureLog(level: .fatal, body: body, attributes: [:])
+        fatal(SentryLogMessage(stringLiteral: body))
     }
     
     /// Logs a fatal-level message with additional attributes.
+    @objc(fatal:attributes:)
     public func fatal(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .fatal, body: body, attributes: attributes)
-    }
-    
-    /// Logs a fatal-level message with structured string interpolation.
-    public func fatal(formatted body: SentryLogMessage, attributes: [String: Any] = [:]) {
-        captureLog(level: .fatal, logString: body, attributes: attributes)
+        fatal(SentryLogMessage(stringLiteral: body), attributes: attributes)
     }
     
     // MARK: - Private
     
-    private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
-        let logString = SentryLogMessage(stringLiteral: body)
-        captureLog(level: level, logString: logString, attributes: attributes)
-    }
-
     private func captureLog(level: SentryLog.Level, logString: SentryLogMessage, attributes: [String: Any]) {
         guard let batcher else {
             return
