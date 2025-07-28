@@ -46,7 +46,9 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
             // equal or exceed the size of literals, avoiding expensive reallocations
             message.reserveCapacity(literalCapacity * 2)
             attributes.reserveCapacity(interpolationCount)
-            template.reserveCapacity(literalCapacity * 2)
+            // Here we know the exact count, as the tempkate always adds `{i}`,
+            // with i beeing the index to the literalCapacity
+            template.reserveCapacity(literalCapacity + interpolationCount * 3)
         }
         
         public mutating func appendLiteral(_ literal: String) {
