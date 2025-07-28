@@ -6403,6 +6403,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Debug;
 		};
@@ -6410,6 +6417,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Release;
 		};
@@ -6417,6 +6431,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Debug;
 		};
@@ -6424,6 +6445,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Release;
 		};
@@ -6504,6 +6532,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = TestCI;
 		};
@@ -6511,6 +6546,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = TestCI;
 		};
@@ -6555,6 +6597,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = DebugWithoutUIKit;
 		};
@@ -6562,6 +6611,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = DebugWithoutUIKit;
 		};
@@ -6952,6 +7008,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -6959,6 +7022,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -7249,6 +7319,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Test;
 		};
@@ -7256,6 +7333,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = Test;
 		};
@@ -8021,6 +8105,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = DebugV9;
 		};
@@ -8028,6 +8119,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = DebugV9;
 		};
@@ -8296,6 +8394,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = ReleaseV9;
 		};
@@ -8303,6 +8408,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				OTHER_CFLAGS = (
+					"-Wnullable-to-nonnull-conversion",
+					"-Wnullability-completeness",
+					"-Wno-error=nullable-to-nonnull-conversion",
+					"-Wno-error=nullability-completeness",
+				);
 			};
 			name = ReleaseV9;
 		};
