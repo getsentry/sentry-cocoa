@@ -48,6 +48,8 @@ public struct SentryLogString: ExpressibleByStringInterpolation {
         private var interpolationCount = 0
         
         public init(literalCapacity: Int, interpolationCount: Int) {
+            // Reserve 2x literal capacity to account for interpolated values which often
+            // equal or exceed the size of literals, avoiding expensive reallocations
             message.reserveCapacity(literalCapacity * 2)
             attributes.reserveCapacity(interpolationCount)
             template.reserveCapacity(literalCapacity * 2)
