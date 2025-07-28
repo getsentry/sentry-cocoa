@@ -42798,216 +42798,9 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryLogString",
-        "printedName": "SentryLogString",
+        "name": "SentryLogMessage",
+        "printedName": "SentryLogMessage",
         "children": [
-          {
-            "kind": "TypeDecl",
-            "name": "Privacy",
-            "printedName": "Privacy",
-            "children": [
-              {
-                "kind": "Var",
-                "name": "public",
-                "printedName": "public",
-                "children": [
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryLogString.Privacy.Type) -> Sentry.SentryLogString.Privacy",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Privacy",
-                        "printedName": "Sentry.SentryLogString.Privacy",
-                        "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryLogString.Privacy.Type",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Privacy",
-                            "printedName": "Sentry.SentryLogString.Privacy",
-                            "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "EnumElement",
-                "usr": "s:6Sentry0A9LogStringV7PrivacyO6publicyA2EmF",
-                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO6publicyA2EmF",
-                "moduleName": "Sentry"
-              },
-              {
-                "kind": "Var",
-                "name": "private",
-                "printedName": "private",
-                "children": [
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryLogString.Privacy.Type) -> Sentry.SentryLogString.Privacy",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Privacy",
-                        "printedName": "Sentry.SentryLogString.Privacy",
-                        "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryLogString.Privacy.Type",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Privacy",
-                            "printedName": "Sentry.SentryLogString.Privacy",
-                            "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "EnumElement",
-                "usr": "s:6Sentry0A9LogStringV7PrivacyO7privateyA2EmF",
-                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO7privateyA2EmF",
-                "moduleName": "Sentry"
-              },
-              {
-                "kind": "Function",
-                "name": "==",
-                "printedName": "==(_:_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV7PrivacyO2eeoiySbAE_AEtFZ",
-                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO2eeoiySbAE_AEtFZ",
-                "moduleName": "Sentry",
-                "static": true,
-                "funcSelfKind": "NonMutating"
-              },
-              {
-                "kind": "Function",
-                "name": "hash",
-                "printedName": "hash(into:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Hasher",
-                    "printedName": "Swift.Hasher",
-                    "paramValueOwnership": "InOut",
-                    "usr": "s:s6HasherV"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV7PrivacyO4hash4intoys6HasherVz_tF",
-                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO4hash4intoys6HasherVz_tF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "NonMutating"
-              },
-              {
-                "kind": "Var",
-                "name": "hashValue",
-                "printedName": "hashValue",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Var",
-                "usr": "s:6Sentry0A9LogStringV7PrivacyO9hashValueSivp",
-                "mangledName": "$s6Sentry0A9LogStringV7PrivacyO9hashValueSivp",
-                "moduleName": "Sentry",
-                "accessors": [
-                  {
-                    "kind": "Accessor",
-                    "name": "Get",
-                    "printedName": "Get()",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO9hashValueSivg",
-                    "mangledName": "$s6Sentry0A9LogStringV7PrivacyO9hashValueSivg",
-                    "moduleName": "Sentry",
-                    "accessorKind": "get"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Enum",
-            "usr": "s:6Sentry0A9LogStringV7PrivacyO",
-            "mangledName": "$s6Sentry0A9LogStringV7PrivacyO",
-            "moduleName": "Sentry",
-            "conformances": [
-              {
-                "kind": "Conformance",
-                "name": "Copyable",
-                "printedName": "Copyable",
-                "usr": "s:s8CopyableP",
-                "mangledName": "$ss8CopyableP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Escapable",
-                "printedName": "Escapable",
-                "usr": "s:s9EscapableP",
-                "mangledName": "$ss9EscapableP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Equatable",
-                "printedName": "Equatable",
-                "usr": "s:SQ",
-                "mangledName": "$sSQ"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Hashable",
-                "printedName": "Hashable",
-                "usr": "s:SH",
-                "mangledName": "$sSH"
-              }
-            ]
-          },
           {
             "kind": "Constructor",
             "name": "init",
@@ -43015,9 +42808,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -43027,8 +42820,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A9LogStringV13stringLiteralACSS_tcfc",
-            "mangledName": "$s6Sentry0A9LogStringV13stringLiteralACSS_tcfc",
+            "usr": "s:6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
+            "mangledName": "$s6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
             "moduleName": "Sentry",
             "init_kind": "Designated"
           },
@@ -43039,20 +42832,20 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
                 "name": "StringInterpolation",
-                "printedName": "Sentry.SentryLogString.StringInterpolation",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+                "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A9LogStringV19stringInterpolationA2C0cE0V_tcfc",
-            "mangledName": "$s6Sentry0A9LogStringV19stringInterpolationA2C0cE0V_tcfc",
+            "usr": "s:6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
+            "mangledName": "$s6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
             "moduleName": "Sentry",
             "init_kind": "Designated"
           },
@@ -43069,8 +42862,8 @@
                   {
                     "kind": "TypeNominal",
                     "name": "StringInterpolation",
-                    "printedName": "Sentry.SentryLogString.StringInterpolation",
-                    "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
                   },
                   {
                     "kind": "TypeNominal",
@@ -43086,8 +42879,8 @@
                   }
                 ],
                 "declKind": "Constructor",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
                 "moduleName": "Sentry",
                 "init_kind": "Designated"
               },
@@ -43109,15 +42902,15 @@
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV13appendLiteralyySSF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV13appendLiteralyySSF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:privacy:)",
+                "printedName": "appendInterpolation(_:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -43141,25 +42934,18 @@
                         "printedName": "()"
                       }
                     ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "hasDefaultArg": true,
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySSyXA_AC7PrivacyOtF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySSyXA_AC7PrivacyOtF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:privacy:)",
+                "printedName": "appendInterpolation(_:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -43183,25 +42969,18 @@
                         "printedName": "()"
                       }
                     ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "hasDefaultArg": true,
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySbyXA_AC7PrivacyOtF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySbyXA_AC7PrivacyOtF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:privacy:)",
+                "printedName": "appendInterpolation(_:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -43225,25 +43004,18 @@
                         "printedName": "()"
                       }
                     ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "hasDefaultArg": true,
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySiyXA_AC7PrivacyOtF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySiyXA_AC7PrivacyOtF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:privacy:)",
+                "printedName": "appendInterpolation(_:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -43267,25 +43039,18 @@
                         "printedName": "()"
                       }
                     ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "hasDefaultArg": true,
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySdyXA_AC7PrivacyOtF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySdyXA_AC7PrivacyOtF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
                 "moduleName": "Sentry",
                 "funcSelfKind": "Mutating"
               },
               {
                 "kind": "Function",
                 "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:privacy:)",
+                "printedName": "appendInterpolation(_:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -43309,19 +43074,47 @@
                         "printedName": "()"
                       }
                     ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Privacy",
-                    "printedName": "Sentry.SentryLogString.Privacy",
-                    "hasDefaultArg": true,
-                    "usr": "s:6Sentry0A9LogStringV7PrivacyO"
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySfyXA_AC7PrivacyOtF",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV06appendD0_7privacyySfyXA_AC7PrivacyOtF",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
                 "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> T",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GenericTypeParam",
+                        "printedName": "T"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
+                "moduleName": "Sentry",
+                "genericSig": "<T where T : Swift.CustomStringConvertible>",
                 "funcSelfKind": "Mutating"
               },
               {
@@ -43337,14 +43130,14 @@
                   }
                 ],
                 "declKind": "TypeAlias",
-                "usr": "s:6Sentry0A9LogStringV0C13InterpolationV0C11LiteralTypea",
-                "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV0C11LiteralTypea",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
                 "moduleName": "Sentry"
               }
             ],
             "declKind": "Struct",
-            "usr": "s:6Sentry0A9LogStringV0C13InterpolationV",
-            "mangledName": "$s6Sentry0A9LogStringV0C13InterpolationV",
+            "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV",
+            "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV",
             "moduleName": "Sentry",
             "conformances": [
               {
@@ -43360,7 +43153,7 @@
                       {
                         "kind": "TypeNameAlias",
                         "name": "StringLiteralType",
-                        "printedName": "Sentry.SentryLogString.StringInterpolation.StringLiteralType",
+                        "printedName": "Sentry.SentryLogMessage.StringInterpolation.StringLiteralType",
                         "children": [
                           {
                             "kind": "TypeNominal",
@@ -43405,8 +43198,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A9LogStringV34ExtendedGraphemeClusterLiteralTypea",
-            "mangledName": "$s6Sentry0A9LogStringV34ExtendedGraphemeClusterLiteralTypea",
+            "usr": "s:6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
             "moduleName": "Sentry"
           },
           {
@@ -43422,8 +43215,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A9LogStringV0C11LiteralTypea",
-            "mangledName": "$s6Sentry0A9LogStringV0C11LiteralTypea",
+            "usr": "s:6Sentry0A10LogMessageV17StringLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV17StringLiteralTypea",
             "moduleName": "Sentry"
           },
           {
@@ -43439,14 +43232,14 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A9LogStringV24UnicodeScalarLiteralTypea",
-            "mangledName": "$s6Sentry0A9LogStringV24UnicodeScalarLiteralTypea",
+            "usr": "s:6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
             "moduleName": "Sentry"
           }
         ],
         "declKind": "Struct",
-        "usr": "s:6Sentry0A9LogStringV",
-        "mangledName": "$s6Sentry0A9LogStringV",
+        "usr": "s:6Sentry0A10LogMessageV",
+        "mangledName": "$s6Sentry0A10LogMessageV",
         "moduleName": "Sentry",
         "conformances": [
           {
@@ -43462,8 +43255,8 @@
                   {
                     "kind": "TypeNominal",
                     "name": "StringInterpolation",
-                    "printedName": "Sentry.SentryLogString.StringInterpolation",
-                    "usr": "s:6Sentry0A9LogStringV0C13InterpolationV"
+                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
                   }
                 ]
               }
@@ -43484,7 +43277,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "StringLiteralType",
-                    "printedName": "Sentry.SentryLogString.StringLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.StringLiteralType",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -43513,7 +43306,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "ExtendedGraphemeClusterLiteralType",
-                    "printedName": "Sentry.SentryLogString.ExtendedGraphemeClusterLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.ExtendedGraphemeClusterLiteralType",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -43542,7 +43335,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "UnicodeScalarLiteralType",
-                    "printedName": "Sentry.SentryLogString.UnicodeScalarLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.UnicodeScalarLiteralType",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -43582,6 +43375,52 @@
           {
             "kind": "Function",
             "name": "trace",
+            "printedName": "trace(_:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:6Sentry0A6LoggerC5trace_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5trace_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "trace",
             "printedName": "trace(_:)",
             "children": [
               {
@@ -43600,6 +43439,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)trace:",
             "mangledName": "$s6Sentry0A6LoggerC5traceyySSF",
             "moduleName": "Sentry",
+            "objc_name": "trace:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43646,6 +43486,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)trace:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC5trace_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "trace:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43654,8 +43495,8 @@
           },
           {
             "kind": "Function",
-            "name": "trace",
-            "printedName": "trace(formatted:attributes:)",
+            "name": "debug",
+            "printedName": "debug(_:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43664,9 +43505,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -43690,8 +43531,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5trace9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5trace9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5debug_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5debug_10attributesyAA0A10LogMessageV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43719,6 +43560,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)debug:",
             "mangledName": "$s6Sentry0A6LoggerC5debugyySSF",
             "moduleName": "Sentry",
+            "objc_name": "debug:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43765,6 +43607,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)debug:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC5debug_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "debug:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43773,8 +43616,8 @@
           },
           {
             "kind": "Function",
-            "name": "debug",
-            "printedName": "debug(formatted:attributes:)",
+            "name": "info",
+            "printedName": "info(_:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43783,9 +43626,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -43809,8 +43652,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5debug9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5debug9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC4info_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4info_10attributesyAA0A10LogMessageV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43838,6 +43681,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)info:",
             "mangledName": "$s6Sentry0A6LoggerC4infoyySSF",
             "moduleName": "Sentry",
+            "objc_name": "info:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43884,6 +43728,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)info:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC4info_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "info:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -43892,8 +43737,8 @@
           },
           {
             "kind": "Function",
-            "name": "info",
-            "printedName": "info(formatted:attributes:)",
+            "name": "warn",
+            "printedName": "warn(_:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -43902,9 +43747,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -43928,8 +43773,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4info9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4info9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC4warn_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC4warn_10attributesyAA0A10LogMessageV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -43957,6 +43802,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:",
             "mangledName": "$s6Sentry0A6LoggerC4warnyySSF",
             "moduleName": "Sentry",
+            "objc_name": "warn:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -44003,6 +43849,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC4warn_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "warn:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -44011,8 +43858,8 @@
           },
           {
             "kind": "Function",
-            "name": "warn",
-            "printedName": "warn(formatted:attributes:)",
+            "name": "error",
+            "printedName": "error(_:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -44021,9 +43868,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -44047,8 +43894,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC4warn9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC4warn9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5error_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5error_10attributesyAA0A10LogMessageV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -44076,6 +43923,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)error:",
             "mangledName": "$s6Sentry0A6LoggerC5erroryySSF",
             "moduleName": "Sentry",
+            "objc_name": "error:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -44122,6 +43970,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)error:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC5error_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "error:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -44130,8 +43979,8 @@
           },
           {
             "kind": "Function",
-            "name": "error",
-            "printedName": "error(formatted:attributes:)",
+            "name": "fatal",
+            "printedName": "fatal(_:attributes:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -44140,9 +43989,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
               },
               {
                 "kind": "TypeNominal",
@@ -44166,8 +44015,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5error9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5error9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
+            "usr": "s:6Sentry0A6LoggerC5fatal_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal_10attributesyAA0A10LogMessageV_SDySSypGtF",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final"
@@ -44195,6 +44044,7 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)fatal:",
             "mangledName": "$s6Sentry0A6LoggerC5fatalyySSF",
             "moduleName": "Sentry",
+            "objc_name": "fatal:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -44241,55 +44091,10 @@
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)fatal:attributes:",
             "mangledName": "$s6Sentry0A6LoggerC5fatal_10attributesySS_SDySSypGtF",
             "moduleName": "Sentry",
+            "objc_name": "fatal:attributes:",
             "declAttributes": [
               "Final",
               "ObjC"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "fatal",
-            "printedName": "fatal(formatted:attributes:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogString",
-                "printedName": "Sentry.SentryLogString",
-                "usr": "s:6Sentry0A9LogStringV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "usr": "s:SD"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A6LoggerC5fatal9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "mangledName": "$s6Sentry0A6LoggerC5fatal9formatted10attributesyAA0A9LogStringV_SDySSypGtF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final"
             ],
             "funcSelfKind": "NonMutating"
           }
@@ -44300,7 +44105,6 @@
         "moduleName": "Sentry",
         "declAttributes": [
           "Final",
-          "ObjCMembers",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
