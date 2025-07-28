@@ -334,7 +334,7 @@ final class SentryLoggerTests: XCTestCase {
         let active = true
         let score = 95.5
         
-        let logString: SentryLogString = "User \(user) processed \(count) items, active: \(active), score: \(score)"
+        let logString: SentryLogMessage = "User \(user) processed \(count) items, active: \(active), score: \(score)"
         sut.trace(formatted: logString)
         
         assertLogCaptured(
@@ -352,7 +352,7 @@ final class SentryLoggerTests: XCTestCase {
     
     func testTrace_WithFormattedStringAndAttributes() {
         let userId = "user123"
-        let logString: SentryLogString = "Processing user \(userId)"
+        let logString: SentryLogMessage = "Processing user \(userId)"
         
         sut.trace(formatted: logString, attributes: ["extra": "data", "count": 10])
         
@@ -372,7 +372,7 @@ final class SentryLoggerTests: XCTestCase {
         let value: Float = 3.14
         let enabled = false
         
-        let logString: SentryLogString = "Float value: \(value), enabled: \(enabled)"
+        let logString: SentryLogMessage = "Float value: \(value), enabled: \(enabled)"
         sut.debug(formatted: logString)
         
         assertLogCaptured(
@@ -390,7 +390,7 @@ final class SentryLoggerTests: XCTestCase {
         let temperature = 98.6
         let unit = "F"
         
-        let logString: SentryLogString = "Temperature: \(temperature)°\(unit)"
+        let logString: SentryLogMessage = "Temperature: \(temperature)°\(unit)"
         sut.info(formatted: logString)
         
         assertLogCaptured(
@@ -408,7 +408,7 @@ final class SentryLoggerTests: XCTestCase {
         let attempts = 3
         let maxAttempts = 5
         
-        let logString: SentryLogString = "Retry \(attempts) of \(maxAttempts)"
+        let logString: SentryLogMessage = "Retry \(attempts) of \(maxAttempts)"
         sut.warn(formatted: logString, attributes: ["retry_policy": "exponential"])
         
         assertLogCaptured(
@@ -427,7 +427,7 @@ final class SentryLoggerTests: XCTestCase {
         let errorCode = 500
         let service = "payment"
         
-        let logString: SentryLogString = "Service \(service) failed with code \(errorCode)"
+        let logString: SentryLogMessage = "Service \(service) failed with code \(errorCode)"
         sut.error(formatted: logString)
         
         assertLogCaptured(
@@ -445,7 +445,7 @@ final class SentryLoggerTests: XCTestCase {
         let component = "database"
         let critical = true
         
-        let logString: SentryLogString = "Critical failure in \(component): \(critical)"
+        let logString: SentryLogMessage = "Critical failure in \(component): \(critical)"
         sut.fatal(formatted: logString, attributes: ["shutdown": true])
         
         assertLogCaptured(
@@ -467,7 +467,7 @@ final class SentryLoggerTests: XCTestCase {
         let success = false
         let value: Float = -1.5
         
-        let logString: SentryLogString = "Test \(name): \(count) items, \(percentage)% complete, success: \(success), float: \(value)"
+        let logString: SentryLogMessage = "Test \(name): \(count) items, \(percentage)% complete, success: \(success), float: \(value)"
         sut.debug(formatted: logString)
         
         assertLogCaptured(
@@ -485,7 +485,7 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testFormattedString_EmptyAttributes() {
-        let logString: SentryLogString = "Simple message"
+        let logString: SentryLogMessage = "Simple message"
         sut.info(formatted: logString, attributes: [:])
         
         assertLogCaptured(

@@ -1,12 +1,12 @@
 @testable import Sentry
 import XCTest
 
-final class SentryLogStringTests: XCTestCase {
+final class SentryLogMessageTests: XCTestCase {
     
     // MARK: - String Literal Tests
     
     func testStringLiteral() {
-        let logString: SentryLogString = "Simple string message"
+        let logString: SentryLogMessage = "Simple string message"
         
         XCTAssertEqual(logString.message, "Simple string message")
         XCTAssertEqual(logString.template, "Simple string message")
@@ -14,7 +14,7 @@ final class SentryLogStringTests: XCTestCase {
     }
     
     func testEmptyStringLiteral() {
-        let logString: SentryLogString = ""
+        let logString: SentryLogMessage = ""
         
         XCTAssertEqual(logString.message, "")
         XCTAssertTrue(logString.attributes.isEmpty)
@@ -24,7 +24,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testStringInterpolation() {
         let value = "test_value"
-        let logString: SentryLogString = "User: \(value)"
+        let logString: SentryLogMessage = "User: \(value)"
         
         XCTAssertEqual(logString.message, "User: test_value")
         XCTAssertEqual(logString.template, "User: {0}")
@@ -39,7 +39,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testBoolInterpolation() {
         let value = true
-        let logString: SentryLogString = "Active: \(value)"
+        let logString: SentryLogMessage = "Active: \(value)"
         
         XCTAssertEqual(logString.message, "Active: true")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -53,7 +53,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testBoolInterpolationFalse() {
         let value = false
-        let logString: SentryLogString = "Enabled: \(value)"
+        let logString: SentryLogMessage = "Enabled: \(value)"
         
         XCTAssertEqual(logString.message, "Enabled: false")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -67,7 +67,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testIntInterpolation() {
         let value = 42
-        let logString: SentryLogString = "Count: \(value)"
+        let logString: SentryLogMessage = "Count: \(value)"
         
         XCTAssertEqual(logString.message, "Count: 42")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -81,7 +81,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testNegativeIntInterpolation() {
         let value = -123
-        let logString: SentryLogString = "Value: \(value)"
+        let logString: SentryLogMessage = "Value: \(value)"
         
         XCTAssertEqual(logString.message, "Value: -123")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -95,7 +95,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testDoubleInterpolation() {
         let value = 3.14159
-        let logString: SentryLogString = "Pi: \(value)"
+        let logString: SentryLogMessage = "Pi: \(value)"
         
         XCTAssertEqual(logString.message, "Pi: 3.14159")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -109,7 +109,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testFloatInterpolation() {
         let value: Float = 2.718
-        let logString: SentryLogString = "E: \(value)"
+        let logString: SentryLogMessage = "E: \(value)"
         
         XCTAssertEqual(logString.message, "E: 2.718")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -123,7 +123,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testNegativeDoubleInterpolation() {
         let value = -3.14159
-        let logString: SentryLogString = "Negative Pi: \(value)"
+        let logString: SentryLogMessage = "Negative Pi: \(value)"
         
         XCTAssertEqual(logString.message, "Negative Pi: -3.14159")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -137,7 +137,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testNegativeFloatInterpolation() {
         let value: Float = -2.718
-        let logString: SentryLogString = "Negative E: \(value)"
+        let logString: SentryLogMessage = "Negative E: \(value)"
         
         XCTAssertEqual(logString.message, "Negative E: -2.718")
         XCTAssertEqual(logString.attributes.count, 1)
@@ -157,7 +157,7 @@ final class SentryLogStringTests: XCTestCase {
         let score = 95.5
         let attempts = 3
         
-        let logString: SentryLogString = "User \(user) has active=\(active), score=\(score), attempts=\(attempts)"
+        let logString: SentryLogMessage = "User \(user) has active=\(active), score=\(score), attempts=\(attempts)"
         
         XCTAssertEqual(logString.message, "User john has active=true, score=95.5, attempts=3")
         XCTAssertEqual(logString.template, "User {0} has active={1}, score={2}, attempts={3}")
@@ -192,7 +192,7 @@ final class SentryLogStringTests: XCTestCase {
         let count = 10
         let percentage = 85.7
         
-        let logString: SentryLogString = "Processing \(count) items with \(percentage)% completion rate"
+        let logString: SentryLogMessage = "Processing \(count) items with \(percentage)% completion rate"
         
         XCTAssertEqual(logString.message, "Processing 10 items with 85.7% completion rate")
         XCTAssertEqual(logString.attributes.count, 2)
@@ -217,7 +217,7 @@ final class SentryLogStringTests: XCTestCase {
         let zeroFloat = 0.0
         let emptyString = ""
         
-        let logString: SentryLogString = "Zero int: \(zero), zero double: \(zeroFloat), empty: '\(emptyString)'"
+        let logString: SentryLogMessage = "Zero int: \(zero), zero double: \(zeroFloat), empty: '\(emptyString)'"
         
         XCTAssertEqual(logString.message, "Zero int: 0, zero double: 0.0, empty: ''")
         XCTAssertEqual(logString.attributes.count, 3)
@@ -245,7 +245,7 @@ final class SentryLogStringTests: XCTestCase {
         let largeInt = Int.max
         let largeDouble = Double.greatestFiniteMagnitude
         
-        let logString: SentryLogString = "Large int: \(largeInt), large double: \(largeDouble)"
+        let logString: SentryLogMessage = "Large int: \(largeInt), large double: \(largeDouble)"
         
         XCTAssertTrue(logString.message.contains("Large int: \(Int.max)"))
         XCTAssertEqual(logString.attributes.count, 2)
@@ -264,7 +264,7 @@ final class SentryLogStringTests: XCTestCase {
     }
     
     func testComplexInterpolationPattern() {
-        let logString: SentryLogString = "\("prefix") \(42) \(true) \(3.14) \("suffix")"
+        let logString: SentryLogMessage = "\("prefix") \(42) \(true) \(3.14) \("suffix")"
         
         XCTAssertEqual(logString.message, "prefix 42 true 3.14 suffix")
         XCTAssertEqual(logString.attributes.count, 5)
@@ -278,14 +278,14 @@ final class SentryLogStringTests: XCTestCase {
     // MARK: - Template Tests
     
     func testStringLiteralTemplate() {
-        let logString: SentryLogString = "No interpolation here"
+        let logString: SentryLogMessage = "No interpolation here"
         
         XCTAssertEqual(logString.template, "No interpolation here")
         XCTAssertEqual(logString.message, logString.template)
     }
     
     func testEmptyStringTemplate() {
-        let logString: SentryLogString = ""
+        let logString: SentryLogMessage = ""
         
         XCTAssertEqual(logString.template, "")
         XCTAssertEqual(logString.message, "")
@@ -293,7 +293,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testSingleInterpolationTemplate() {
         let value = "test"
-        let logString: SentryLogString = "Value: \(value)"
+        let logString: SentryLogMessage = "Value: \(value)"
         
         XCTAssertEqual(logString.template, "Value: {0}")
         XCTAssertEqual(logString.message, "Value: test")
@@ -305,7 +305,7 @@ final class SentryLogStringTests: XCTestCase {
         let active = true
         let score = 95.5
         
-        let logString: SentryLogString = "User \(name), age \(age), active: \(active), score: \(score)"
+        let logString: SentryLogMessage = "User \(name), age \(age), active: \(active), score: \(score)"
         
         XCTAssertEqual(logString.template, "User {0}, age {1}, active: {2}, score: {3}")
         XCTAssertEqual(logString.message, "User Alice, age 30, active: true, score: 95.5")
@@ -315,7 +315,7 @@ final class SentryLogStringTests: XCTestCase {
         let userId = "user123"
         let count = 42
         
-        let logString: SentryLogString = "Processing user \(userId) with \(count) items completed successfully"
+        let logString: SentryLogMessage = "Processing user \(userId) with \(count) items completed successfully"
         
         XCTAssertEqual(logString.template, "Processing user {0} with {1} items completed successfully")
         XCTAssertEqual(logString.message, "Processing user user123 with 42 items completed successfully")
@@ -325,7 +325,7 @@ final class SentryLogStringTests: XCTestCase {
         let temperature: Float = 98.6
         let humidity = 65.2
         
-        let logString: SentryLogString = "Temperature: \(temperature)°F, Humidity: \(humidity)%"
+        let logString: SentryLogMessage = "Temperature: \(temperature)°F, Humidity: \(humidity)%"
         
         XCTAssertEqual(logString.template, "Temperature: {0}°F, Humidity: {1}%")
         XCTAssertEqual(logString.message, "Temperature: 98.6°F, Humidity: 65.2%")
@@ -335,7 +335,7 @@ final class SentryLogStringTests: XCTestCase {
         let message = "Hello, World!"
         let percentage = 100.0
         
-        let logString: SentryLogString = "Message: \(message) - Complete: \(percentage)%"
+        let logString: SentryLogMessage = "Message: \(message) - Complete: \(percentage)%"
         
         XCTAssertEqual(logString.template, "Message: {0} - Complete: {1}%")
         XCTAssertEqual(logString.message, "Message: Hello, World! - Complete: 100.0%")
@@ -347,7 +347,7 @@ final class SentryLogStringTests: XCTestCase {
         let emptyString = ""
         let falseValue = false
         
-        let logString: SentryLogString = "Int: \(zeroInt), Double: \(zeroDouble), String: '\(emptyString)', Bool: \(falseValue)"
+        let logString: SentryLogMessage = "Int: \(zeroInt), Double: \(zeroDouble), String: '\(emptyString)', Bool: \(falseValue)"
         
         XCTAssertEqual(logString.template, "Int: {0}, Double: {1}, String: '{2}', Bool: {3}")
         XCTAssertEqual(logString.message, "Int: 0, Double: 0.0, String: '', Bool: false")
@@ -358,7 +358,7 @@ final class SentryLogStringTests: XCTestCase {
         let negativeInt = -42
         let negativeDouble = -3.14159
         
-        let logString: SentryLogString = "Negative int: \(negativeInt), negative double: \(negativeDouble)"
+        let logString: SentryLogMessage = "Negative int: \(negativeInt), negative double: \(negativeDouble)"
         
         XCTAssertEqual(logString.template, "Negative int: {0}, negative double: {1}")
         XCTAssertEqual(logString.message, "Negative int: -42, negative double: -3.14159")
@@ -371,7 +371,7 @@ final class SentryLogStringTests: XCTestCase {
         let d = "fourth"
         let e = "fifth"
         
-        let logString: SentryLogString = "\(a) \(b) \(c) \(d) \(e)"
+        let logString: SentryLogMessage = "\(a) \(b) \(c) \(d) \(e)"
         
         XCTAssertEqual(logString.template, "{0} {1} {2} {3} {4}")
         XCTAssertEqual(logString.message, "first second third fourth fifth")
@@ -382,7 +382,7 @@ final class SentryLogStringTests: XCTestCase {
         let value1 = "hello"
         let value2 = 42
         
-        let logString: SentryLogString = "\(value1)\(value2)"
+        let logString: SentryLogMessage = "\(value1)\(value2)"
         
         XCTAssertEqual(logString.template, "{0}{1}")
         XCTAssertEqual(logString.message, "hello42")
@@ -393,7 +393,7 @@ final class SentryLogStringTests: XCTestCase {
         let middle = "middle"
         let end = "END"
         
-        let logString: SentryLogString = "\(start) some text \(middle) more text \(end)"
+        let logString: SentryLogMessage = "\(start) some text \(middle) more text \(end)"
         
         XCTAssertEqual(logString.template, "{0} some text {1} more text {2}")
         XCTAssertEqual(logString.message, "BEGIN some text middle more text END")
@@ -406,7 +406,7 @@ final class SentryLogStringTests: XCTestCase {
         let success = true
         let duration = 1.5
         
-        let logString: SentryLogString = "[\(timestamp)] User '\(user)' performed '\(action)' - Success: \(success), Duration: \(duration)s"
+        let logString: SentryLogMessage = "[\(timestamp)] User '\(user)' performed '\(action)' - Success: \(success), Duration: \(duration)s"
         
         let expectedTemplate = "[{0}] User '{1}' performed '{2}' - Success: {3}, Duration: {4}s"
         XCTAssertEqual(logString.template, expectedTemplate)
@@ -421,7 +421,7 @@ final class SentryLogStringTests: XCTestCase {
     
     func testCustomStringConvertibleInterpolation() {
         let customObject = TestCustomStringConvertible(value: "test_description")
-        let logString: SentryLogString = "Custom object: \(customObject)"
+        let logString: SentryLogMessage = "Custom object: \(customObject)"
         
         XCTAssertEqual(logString.message, "Custom object: test_description")
         XCTAssertEqual(logString.template, "Custom object: {0}")

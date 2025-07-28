@@ -2,20 +2,20 @@ import Foundation
 
 /// A string type that supports structured logging with interpolation tracking.
 ///
-/// `SentryLogString` captures both the final message and the interpolated values
+/// `SentryLogMessage` captures both the final message and the interpolated values
 /// as structured attributes, enabling better log analysis and searchability.
 ///
 /// Example:
 /// ```swift
 /// let userId = 123
 /// let userName = "john_doe"
-/// let logString: SentryLogString = "User \(userId) with name \(userName) authenticated"
+/// let logString: SentryLogMessage = "User \(userId) with name \(userName) authenticated"
 /// // Results in:
 /// // - message: "User 123 with name john_doe authenticated"
 /// // - template: "User {0} with name {1} authenticated"
 /// // - attributes: [.integer(123), .string("john_doe")]
 /// ```
-public struct SentryLogString: ExpressibleByStringInterpolation {
+public struct SentryLogMessage: ExpressibleByStringInterpolation {
     /// The final formatted message with all interpolations resolved
     let message: String
     /// Structured attributes extracted from interpolated values
