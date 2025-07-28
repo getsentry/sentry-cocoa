@@ -74,13 +74,13 @@ createDirectoryIfNotExists(NSString *path, NSError **error)
 void
 _non_thread_safe_removeFileAtPath(NSString *path)
 {
-    NSError *error = nil;
+    NSError *_Nullable error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager removeItemAtPath:path error:&error]) {
         SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
     } else if (error.code == NSFileNoSuchFileError) {
         SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
-    } else if (isErrorPathTooLong(error)) {
+    } else if (error != NULL && isErrorPathTooLong(SENTRY_UNWRAP_NULLABLE(NSError, error))) {
         SENTRY_LOG_FATAL(@"Failed to remove file, path is too long: %@", path);
     } else {
         SENTRY_LOG_ERROR(@"Error occurred while deleting file at %@ because of %@", path, error);
@@ -158,7 +158,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
 
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
-    self.sentryPath = [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
+
+    NSString *_Nullable nullableDsnHash = [options.parsedDsn getHash];
+    if (nullableDsnHash == nil) {
+        SENTRY_LOG_DEBUG(@"No DSN provided, using base path for envelopes: %@", self.basePath);
+    }
+    self.sentryPath = [self.basePath stringByAppendingPathComponent:nullableDsnHash ?: @"default"];
+
     self.currentSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.current"];
     self.crashedSessionFilePath =
@@ -233,7 +239,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         return nil;
     }
 
-    NSError *error = nil;
+    NSError *_Nullable error = nil;
     NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
                                                                           error:&error];
     if (error != nil) {
@@ -295,7 +301,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 - (void)deleteAllEnvelopes
 {
     [self removeFileAtPath:self.envelopesPath];
-    NSError *error;
+    NSError *_Nullable error;
     if (!createDirectoryIfNotExists(self.envelopesPath, &error)) {
         SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
@@ -355,7 +361,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     NSString *timestampString = sentry_toIso8601String(timestamp);
     SENTRY_LOG_DEBUG(@"Persisting lastInForeground: %@", timestampString);
     @synchronized(self.lastInForegroundFilePath) {
-        if (![self writeData:[timestampString dataUsingEncoding:NSUTF8StringEncoding]
+        NSData *_Nullable nullableData = [timestampString dataUsingEncoding:NSUTF8StringEncoding];
+        if (nullableData == nil) {
+            SENTRY_LOG_ERROR(@"Failed to convert lastInForeground timestamp to data.");
+            return;
+        }
+        if (![self writeData:SENTRY_UNWRAP_NULLABLE(NSData, nullableData)
                       toPath:self.lastInForegroundFilePath]) {
             SENTRY_LOG_WARN(@"Failed to store timestamp of last foreground event.");
         }
@@ -491,7 +502,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
                 continue;
             }
 
-            NSError *error;
+            NSError *_Nullable error;
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
                                                                  options:0
                                                                    error:&error];
@@ -535,7 +546,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     NSString *timezoneOffsetString = [NSString stringWithFormat:@"%ld", (long)offset];
     SENTRY_LOG_DEBUG(@"Persisting timezone offset: %@", timezoneOffsetString);
     @synchronized(self.timezoneOffsetFilePath) {
-        if (![self writeData:[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
+        NSData *_Nullable nullableData =
+            [timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding];
+        if (nullableData == nil) {
+            SENTRY_LOG_ERROR(@"Failed to convert timezone offset to data.");
+            return;
+        }
+
+        if (![self writeData:SENTRY_UNWRAP_NULLABLE(NSData, nullableData)
                       toPath:self.timezoneOffsetFilePath]) {
             SENTRY_LOG_WARN(@"Failed to store timezone offset.");
         }
@@ -613,7 +631,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
-    NSError *error;
+    NSError *_Nullable error;
     if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
         SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
         return NO;
@@ -645,7 +663,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         return @[];
     }
 
-    NSError *error = nil;
+    NSError *_Nullable error = nil;
     NSArray<NSString *> *storedFiles = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (error != nil) {
         SENTRY_LOG_ERROR(@"Couldn't load files in folder %@: %@", path, error);
@@ -674,13 +692,14 @@ NSString *_Nullable sentryStaticCachesPath(void)
         // For iOS apps and macOS apps with sandboxing, this path will be scoped for the current
         // app. For macOS apps without sandboxing, this path is not scoped and will be shared
         // between all apps.
-        NSString *_Nullable cachesDirectory
+        NSString *_Nullable nullableCachesDirectory
             = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
                   .firstObject;
-        if (cachesDirectory == nil) {
+        if (nullableCachesDirectory == nil) {
             SENTRY_LOG_WARN(@"No caches directory location reported.");
             return;
         }
+        NSString *_Nonnull cachesDirectory = (NSString *_Nonnull)nullableCachesDirectory;
 
         // We need to ensure our own scoped directory so that this path is not shared between other
         // apps on the same system.
@@ -767,7 +786,7 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
         return nil;
     }
 
-    return [cachesDirectory stringByAppendingPathComponent:identifier];
+    return [cachesDirectory stringByAppendingPathComponent:(NSString *_Nonnull)identifier];
 }
 
 NSString *_Nullable sentryStaticBasePath(void)
@@ -789,7 +808,12 @@ NSString *_Nullable sentryStaticBasePath(void)
 void
 removeSentryStaticBasePath(void)
 {
-    _non_thread_safe_removeFileAtPath(sentryStaticBasePath());
+    NSString *_Nullable basePath = sentryStaticBasePath();
+    if (basePath == nil) {
+        SENTRY_LOG_DEBUG(@"No base path available to remove.");
+        return;
+    }
+    _non_thread_safe_removeFileAtPath((NSString *_Nonnull)basePath);
 }
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
@@ -808,7 +832,7 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
             SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
             return;
         }
-        NSError *error;
+        NSError *_Nullable error;
         if (!createDirectoryIfNotExists(basePath, &error)) {
             SENTRY_LOG_ERROR(
                 @"Can't create base path to store launch profile config file: %@", error);
@@ -824,14 +848,25 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
 NSDictionary<NSString *, NSNumber *> *_Nullable sentry_persistedLaunchProfileConfigurationOptions(
     void)
 {
-    NSURL *url = launchProfileConfigFileURL();
-    if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+    NSURL *_Nullable url = launchProfileConfigFileURL();
+    if (url == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the URL to retrieve launch profile configs.")
+        return nil;
+    }
+    NSString *_Nullable nullablePath = url.path;
+    if (nullablePath == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the path to retrieve launch profile configs.")
+        return nil;
+    }
+    if (![[NSFileManager defaultManager]
+            fileExistsAtPath:SENTRY_UNWRAP_NULLABLE(NSString, nullablePath)]) {
         return nil;
     }
 
-    NSError *error;
-    NSDictionary<NSString *, NSNumber *> *config =
-        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
+    NSError *_Nullable error;
+    NSDictionary<NSString *, NSNumber *> *config = [NSDictionary<NSString *, NSNumber *>
+        dictionaryWithContentsOfURL:SENTRY_UNWRAP_NULLABLE(NSURL, url)
+                              error:&error];
 
     if (error != nil) {
         SENTRY_LOG_ERROR(
@@ -845,9 +880,14 @@ NSDictionary<NSString *, NSNumber *> *_Nullable sentry_persistedLaunchProfileCon
 BOOL
 appLaunchProfileConfigFileExists(void)
 {
-    NSString *path = launchProfileConfigFileURL().path;
+    NSURL *_Nullable url = launchProfileConfigFileURL();
+    if (url == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the URL to check for launch profile configs.")
+        return NO;
+    }
+    NSString *_Nullable path = url.path;
     if (path == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to construct the path to check for launch profile configs.")
+        SENTRY_LOG_ERROR(@"Failed to construct the path to check for launch profile configs.")
         return NO;
     }
 
@@ -857,16 +897,34 @@ appLaunchProfileConfigFileExists(void)
 void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
-    NSError *error;
-    SENTRY_LOG_DEBUG(@"Writing launch profiling config file.");
-    SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
+    NSURL *_Nullable url = launchProfileConfigFileURL();
+    if (url == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the URL to write launch profile configs.");
+        return;
+    }
+    SENTRY_LOG_DEBUG(@"Writing launch profiling config file at url %@", url);
+
+    NSError *_Nullable error;
+    SENTRY_CASSERT([config writeToURL:SENTRY_UNWRAP_NULLABLE(NSURL, url) error:&error],
         @"Failed to write launch profile config file: %@.", error);
 }
 
 void
 removeAppLaunchProfilingConfigFile(void)
 {
-    _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
+    NSURL *_Nullable url = launchProfileConfigFileURL();
+    if (url == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the URL to remove launch profile configs.");
+        return;
+    }
+    NSString *_Nullable path = url.path;
+    if (path == nil) {
+        SENTRY_LOG_ERROR(@"Failed to construct the path to remove launch profile configs.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Removing launch profiling config file at path: %@", path);
+    _non_thread_safe_removeFileAtPath(SENTRY_UNWRAP_NULLABLE(NSString, path));
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -940,7 +998,7 @@ removeAppLaunchProfilingConfigFile(void)
     // We first need to remove the old previous state file,
     // or we can't move the current state file to it.
     [self removeFileAtPath:previousStateFilePath];
-    NSError *error = nil;
+    NSError *_Nullable error = nil;
     if (![fileManager moveItemAtPath:stateFilePath toPath:previousStateFilePath error:&error]) {
         // We don't want to log an error if the file doesn't exist.
         if (nil != error && error.code != NSFileNoSuchFileError) {
