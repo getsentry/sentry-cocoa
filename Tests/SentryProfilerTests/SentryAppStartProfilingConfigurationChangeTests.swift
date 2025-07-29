@@ -33,7 +33,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -65,7 +65,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -101,7 +101,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -133,7 +133,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -171,7 +171,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -208,7 +208,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -247,7 +247,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -282,7 +282,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -320,7 +320,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -356,7 +356,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -399,7 +399,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -431,7 +431,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -467,7 +467,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -504,7 +504,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -538,7 +538,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -577,7 +577,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -623,7 +623,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -660,7 +660,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -702,7 +702,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -743,7 +743,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -784,7 +784,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -822,7 +822,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -865,7 +865,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -907,7 +907,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -949,7 +949,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration (continuous V1)
@@ -998,7 +998,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1052,7 +1052,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1102,7 +1102,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1147,7 +1147,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1181,7 +1181,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1220,7 +1220,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1258,7 +1258,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyContinuousProfiling: true,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1296,7 +1296,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1333,7 +1333,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1375,7 +1375,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1416,7 +1416,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1456,7 +1456,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1500,7 +1500,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1549,7 +1549,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
@@ -1597,7 +1597,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
             kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
             kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
         ]
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         // new options simulating current launch configuration
