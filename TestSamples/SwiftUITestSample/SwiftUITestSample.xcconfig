@@ -1,4 +1,5 @@
 #include "../../Samples/Shared/Config/_Common.xcconfig"
+#include "../Common.xcconfig"
 
 PRODUCT_NAME = SwiftUITestSample
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.SwiftUITestSample

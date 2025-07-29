@@ -1,7 +1,7 @@
 #include "../../Samples/Shared/Config/_Common.xcconfig"
+#include "../Common.xcconfig"
 
 PRODUCT_NAME = SwiftUICrashTest
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.SwiftUICrashTest
-GENERATE_INFOPLIST_FILE = YES
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
