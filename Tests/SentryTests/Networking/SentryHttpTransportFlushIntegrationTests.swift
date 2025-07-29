@@ -26,12 +26,14 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
-        let (sut, requestManager, _, _) = try getSut()
+        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
         requestManager.returnResponse(response: nil)
 
         sut.send(envelope: SentryEnvelope(event: Event()))
         sut.send(envelope: SentryEnvelope(event: Event()))
+        // Wait until the dispath queue drains to confirm the envelope is stored
+        waitForEnvelopeToBeStored(dispatchQueueWrapper)
 
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
@@ -56,11 +58,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         for _ in 0..<10 {
             sut.send(envelope: SentryEnvelope(event: Event()))
             // Wait until the dispath queue drains to confirm the envelope is stored
-            let expectation = XCTestExpectation(description: "Envelope sent")
-            dispatchQueueWrapper.dispatchAsync {
-                expectation.fulfill()
-            }
-            wait(for: [expectation], timeout: 0.5)
+            waitForEnvelopeToBeStored(dispatchQueueWrapper)
 
             XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
 
@@ -69,10 +67,12 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
-        let (sut, requestManager, _, _) = try getSut()
+        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
+        // Wait until the dispath queue drains to confirm the envelope is stored
+        waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
 
         requestManager.waitForResponseDispatchGroup = true
@@ -92,12 +92,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
             
-            // Ensure envelope is stored
-            let expectation = XCTestExpectation(description: "Envelope sent")
-            dispatchQueueWrapper.dispatchAsync {
-                expectation.fulfill()
-            }
-            wait(for: [expectation], timeout: 0.5)
+            // Wait until the dispath queue drains to confirm the envelope is stored
+            waitForEnvelopeToBeStored(dispatchQueueWrapper)
         }
         requestManager.returnResponse(response: HTTPURLResponse())
 
@@ -177,4 +173,12 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         ), requestManager, fileManager, dispatchQueueWrapper)
     }
 
+    private func waitForEnvelopeToBeStored(_ dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+        // Wait until the dispath queue drains to confirm the envelope is stored
+        let expectation = XCTestExpectation(description: "Envelope sent")
+        dispatchQueueWrapper.dispatchAsync {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 0.5)
+    }
 }
