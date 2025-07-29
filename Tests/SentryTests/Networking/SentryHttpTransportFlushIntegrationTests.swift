@@ -65,12 +65,12 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
         let (sut, requestManager, _) = try getSut()
 
+        requestManager.waitForResponseDispatchGroup = true
+        requestManager.responseDispatchGroup.enter()
+
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
         requestManager.returnResponse(response: HTTPURLResponse())
-
-        requestManager.waitForResponseDispatchGroup = true
-        requestManager.responseDispatchGroup.enter()
 
         XCTAssertEqual(sut.flush(0.0), .timedOut, "Flush should time out.")
 
