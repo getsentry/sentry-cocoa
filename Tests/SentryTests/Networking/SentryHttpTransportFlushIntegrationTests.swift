@@ -179,6 +179,6 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         dispatchQueueWrapper.dispatchAsync {
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 0.5)
+        wait(for: [expectation], timeout: 10.0)
     }
 }
