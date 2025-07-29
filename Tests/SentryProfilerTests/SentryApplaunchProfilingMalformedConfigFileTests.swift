@@ -15,7 +15,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
 
     func testMalformedConfigFile_CorruptedPlist_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a corrupted plist file that can't be parsed
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         let corruptedData = Data("this is not a valid plist file {[}".utf8)
         try corruptedData.write(to: configURL)
 
@@ -41,7 +41,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -65,7 +65,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRate
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -89,7 +89,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRand
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -113,7 +113,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRate
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -137,7 +137,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRand
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -161,7 +161,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyTracesSampleRate
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -185,7 +185,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyTracesSampleRand
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -204,7 +204,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         // Create an empty but valid plist file
         let configDict: [String: Any] = [:]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())
@@ -230,7 +230,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
             // Missing: kSentryLaunchProfileConfigKeyTracesSampleRate
         ]
 
-        let configURL = launchProfileConfigFileURL()
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
 
         XCTAssertTrue(appLaunchProfileConfigFileExists())

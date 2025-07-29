@@ -203,3 +203,20 @@ typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+/**
+ * `SENTRY_UNWRAP_NULLABLE` is used to unwrap a nullable pointer type to a non-nullable pointer type
+ *  It should be used after the pointer has been checked for nullability.
+ *
+ *  For example:
+ *  ```objc
+ *  id _Nullable nullablePointer = ...;
+ *  if (nullablePointer != nil) {
+ *      MyClass *_Nonnull nonNullPointer = SENTRY_UNWRAP_NULLABLE(MyClass, nullablePointer);
+ *  }
+ *  ```
+ *
+ *  We use this macro instead of directly casting to be able to find all usages of this
+ *  pattern in the codebase.
+ */
+#define SENTRY_UNWRAP_NULLABLE(type, nullable_var) (type *_Nonnull)(nullable_var)

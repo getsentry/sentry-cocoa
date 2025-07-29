@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Add null-handling for internal array sanitization (#5722)
+
 ### Features
 
 - Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637, #5643)
