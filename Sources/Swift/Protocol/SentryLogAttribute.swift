@@ -95,13 +95,25 @@ extension SentryLog {
             
             switch type {
             case "string":
-                try container.encode(value as! String, forKey: .value)
+                guard let stringValue = value as? String else {
+                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected String but got \(Swift.type(of: value))"))
+                }
+                try container.encode(stringValue, forKey: .value)
             case "boolean":
-                try container.encode(value as! Bool, forKey: .value)
+                guard let boolValue = value as? Bool else {
+                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Bool but got \(Swift.type(of: value))"))
+                }
+                try container.encode(boolValue, forKey: .value)
             case "integer":
-                try container.encode(value as! Int, forKey: .value)
+                guard let intValue = value as? Int else {
+                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Int but got \(Swift.type(of: value))"))
+                }
+                try container.encode(intValue, forKey: .value)
             case "double":
-                try container.encode(value as! Double, forKey: .value)
+                guard let doubleValue = value as? Double else {
+                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Double but got \(Swift.type(of: value))"))
+                }
+                try container.encode(doubleValue, forKey: .value)
             default:
                 try container.encode(String(describing: value), forKey: .value)
             }
