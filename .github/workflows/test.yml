@@ -254,7 +254,7 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
-      - name: Gather code coverage information
+      - name: Gather code coverage information via slather
         run: slather coverage --configuration TestCI --scheme Sentry
 
       # We can upload all coverage reports, because codecov merges them.
