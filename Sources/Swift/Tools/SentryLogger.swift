@@ -51,13 +51,15 @@ public final class SentryLogger: NSObject {
     /// Logs a trace-level message.
     @objc(trace:)
     public func trace(_ body: String) {
-        trace(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .trace, logMessage: message, attributes: [:])
     }
     
     /// Logs a trace-level message with additional attributes.
     @objc(trace:attributes:)
     public func trace(_ body: String, attributes: [String: Any]) {
-        trace(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .trace, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Debug Level
@@ -70,13 +72,15 @@ public final class SentryLogger: NSObject {
     /// Logs a debug-level message.
     @objc(debug:)
     public func debug(_ body: String) {
-        debug(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .debug, logMessage: message, attributes: [:])
     }
     
     /// Logs a debug-level message with additional attributes.
     @objc(debug:attributes:)
     public func debug(_ body: String, attributes: [String: Any]) {
-        debug(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .debug, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Info Level
@@ -89,13 +93,15 @@ public final class SentryLogger: NSObject {
     /// Logs an info-level message.
     @objc(info:)
     public func info(_ body: String) {
-        info(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .info, logMessage: message, attributes: [:])
     }
     
     /// Logs an info-level message with additional attributes.
     @objc(info:attributes:)
     public func info(_ body: String, attributes: [String: Any]) {
-        info(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .info, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Warn Level
@@ -108,13 +114,15 @@ public final class SentryLogger: NSObject {
     /// Logs a warning-level message.
     @objc(warn:)
     public func warn(_ body: String) {
-        warn(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .warn, logMessage: message, attributes: [:])
     }
     
     /// Logs a warning-level message with additional attributes.
     @objc(warn:attributes:)
     public func warn(_ body: String, attributes: [String: Any]) {
-        warn(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .warn, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Error Level
@@ -127,13 +135,15 @@ public final class SentryLogger: NSObject {
     /// Logs an error-level message.
     @objc(error:)
     public func error(_ body: String) {
-        error(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .error, logMessage: message, attributes: [:])
     }
     
     /// Logs an error-level message with additional attributes.
     @objc(error:attributes:)
     public func error(_ body: String, attributes: [String: Any]) {
-        error(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .error, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Fatal Level
@@ -146,13 +156,15 @@ public final class SentryLogger: NSObject {
     /// Logs a fatal-level message.
     @objc(fatal:)
     public func fatal(_ body: String) {
-        fatal(SentryLogMessage(stringLiteral: body))
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .fatal, logMessage: message, attributes: [:])
     }
     
     /// Logs a fatal-level message with additional attributes.
     @objc(fatal:attributes:)
     public func fatal(_ body: String, attributes: [String: Any]) {
-        fatal(SentryLogMessage(stringLiteral: body), attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Private
