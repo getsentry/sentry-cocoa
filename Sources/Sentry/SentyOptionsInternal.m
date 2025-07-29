@@ -100,8 +100,10 @@
     [self setBool:options[@"debug"] block:^(BOOL value) { sentryOptions.debug = value; }];
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
+        NSString *_Nonnull diagnosticLevel
+            = SENTRY_UNWRAP_NULLABLE(NSString, options[@"diagnosticLevel"]);
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-            if ([nameForSentryLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
+            if ([nameForSentryLevel(level) isEqualToString:diagnosticLevel]) {
                 sentryOptions.diagnosticLevel = level;
                 break;
             }
@@ -125,7 +127,8 @@
     }
 
     if ([options[@"environment"] isKindOfClass:[NSString class]]) {
-        sentryOptions.environment = options[@"environment"];
+        NSString *_Nonnull environment = SENTRY_UNWRAP_NULLABLE(NSString, options[@"environment"]);
+        sentryOptions.environment = environment;
     }
 
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
@@ -163,7 +166,9 @@
     }
 
     if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
-        sentryOptions.cacheDirectoryPath = options[@"cacheDirectoryPath"];
+        NSString *_Nonnull cacheDirectoryPath
+            = SENTRY_UNWRAP_NULLABLE(NSString, options[@"cacheDirectoryPath"]);
+        sentryOptions.cacheDirectoryPath = cacheDirectoryPath;
     }
 
     if ([self isBlock:options[@"beforeSend"]]) {
@@ -242,7 +247,8 @@
             block:^(BOOL value) { sentryOptions.enableTimeToFullDisplayTracing = value; }];
 
     if ([self isBlock:options[@"initialScope"]]) {
-        sentryOptions.initialScope = options[@"initialScope"];
+        sentryOptions.initialScope
+            = (SentryScope * (^_Nonnull)(SentryScope *)) options[@"initialScope"];
     }
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
@@ -279,8 +285,8 @@
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     if ([options[@"sessionReplay"] isKindOfClass:NSDictionary.class]) {
-        sentryOptions.sessionReplay =
-            [[SentryReplayOptions alloc] initWithDictionary:options[@"sessionReplay"]];
+        sentryOptions.sessionReplay = [[SentryReplayOptions alloc]
+            initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, options[@"sessionReplay"])];
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -341,8 +347,8 @@
             block:^(BOOL value) { sentryOptions.enableSwizzling = value; }];
 
     if ([options[@"swizzleClassNameExcludes"] isKindOfClass:[NSSet class]]) {
-        sentryOptions.swizzleClassNameExcludes =
-            [options[@"swizzleClassNameExcludes"] filteredSetUsingPredicate:isNSString];
+        sentryOptions.swizzleClassNameExcludes = [SENTRY_UNWRAP_NULLABLE(
+            NSSet, options[@"swizzleClassNameExcludes"]) filteredSetUsingPredicate:isNSString];
     }
 
     [self setBool:options[@"enableCoreDataTracing"]
@@ -382,15 +388,18 @@
             block:^(BOOL value) { sentryOptions.enableAutoBreadcrumbTracking = value; }];
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
-        sentryOptions.tracePropagationTargets = options[@"tracePropagationTargets"];
+        sentryOptions.tracePropagationTargets
+            = SENTRY_UNWRAP_NULLABLE(NSArray, options[@"tracePropagationTargets"]);
     }
 
     if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
-        sentryOptions.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
+        sentryOptions.failedRequestStatusCodes
+            = SENTRY_UNWRAP_NULLABLE(NSArray, options[@"failedRequestStatusCodes"]);
     }
 
     if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
-        sentryOptions.failedRequestTargets = options[@"failedRequestTargets"];
+        sentryOptions.failedRequestTargets
+            = SENTRY_UNWRAP_NULLABLE(NSArray, options[@"failedRequestTargets"]);
     }
 
 #if SENTRY_HAS_METRIC_KIT
@@ -406,7 +415,7 @@
             block:^(BOOL value) { sentryOptions.enableSpotlight = value; }];
 
     if ([options[@"spotlightUrl"] isKindOfClass:[NSString class]]) {
-        sentryOptions.spotlightUrl = options[@"spotlightUrl"];
+        sentryOptions.spotlightUrl = SENTRY_UNWRAP_NULLABLE(NSString, options[@"spotlightUrl"]);
     }
 
     if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
