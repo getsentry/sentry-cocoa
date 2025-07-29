@@ -20,4 +20,4 @@
 #include "Swift.xcconfig"
 #include "Metal.xcconfig"
 
-#include "../../Sources/Configuration/Versioning.xcconfig"
+#include "../../../Sources/Configuration/Versioning.xcconfig"
