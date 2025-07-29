@@ -182,13 +182,6 @@
     }
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-- (void)setStartFlushCallback:(void (^)(void))callback
-{
-    _startFlushCallback = callback;
-}
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
     // Calculate the dispatch time of the flush duration as early as possible to guarantee an exact
@@ -207,11 +200,6 @@
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-        if (self.startFlushCallback != nil) {
-            self.startFlushCallback();
-        }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
     }
 
     // We are waiting for the dispatch group below, which we leave in finished sending. As

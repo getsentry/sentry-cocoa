@@ -107,14 +107,6 @@ NS_ASSUME_NONNULL_BEGIN
     // Empty on purpose
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-- (void)setStartFlushCallback:(nonnull void (^)(void))callback
-{
-    // Empty on purpose
-}
-
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-
 @end
 
 NS_ASSUME_NONNULL_END

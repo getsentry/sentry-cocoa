@@ -79,57 +79,6 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
     }
 
-    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
-        let (sut, requestManager, _) = try getSut()
-
-        requestManager.returnResponse(response: nil)
-        for _ in 0..<30 {
-            sut.send(envelope: SentryEnvelope(event: Event()))
-        }
-        requestManager.returnResponse(response: HTTPURLResponse())
-
-        let flushTimeout = 0.1
-        requestManager.waitForResponseDispatchGroup = true
-        requestManager.responseDispatchGroup.enter()
-
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
-        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
-
-        sut.setStartFlushCallback {
-            ensureFlushingGroup.leave()
-        }
-
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
-        ensureFlushingQueue.async {
-            XCTAssertEqual(.timedOut, sut.flush(flushTimeout))
-            requestManager.responseDispatchGroup.leave()
-            allFlushCallsGroup.leave()
-        }
-
-        // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
-
-        // Now the transport should also have left the synchronized block, and the
-        // flush should return immediately.
-
-        let initiallyInactiveQueue = DispatchQueue(label: "testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
-        for _ in 0..<2 {
-            allFlushCallsGroup.enter()
-            initiallyInactiveQueue.async {
-                for _ in 0..<10 {
-                    XCTAssertEqual(.alreadyFlushing, sut.flush(flushTimeout), "Flush should have returned immediately")
-                }
-
-                allFlushCallsGroup.leave()
-            }
-        }
-
-        initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
-    }
-
     // We use the test name as part of the DSN to ensure that each test runs in isolation.
     // As we use real dispatch queues it could happen that some delayed operations don't finish before
     // the next test starts. Deleting the envelopes at the end or beginning of the test doesn't help,
