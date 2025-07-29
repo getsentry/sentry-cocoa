@@ -16303,9 +16303,11 @@
             "declKind": "Var",
             "usr": "c:objc(cs)SentryOptions(py)integrations",
             "moduleName": "Sentry",
+            "deprecated": true,
             "isOpen": true,
             "objc_name": "integrations",
             "declAttributes": [
+              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -16341,10 +16343,12 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)integrations",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "integrations",
                 "declAttributes": [
                   "DiscardableResult",
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -16393,9 +16397,11 @@
                 "declKind": "Accessor",
                 "usr": "c:objc(cs)SentryOptions(im)setIntegrations:",
                 "moduleName": "Sentry",
+                "deprecated": true,
                 "isOpen": true,
                 "objc_name": "setIntegrations:",
                 "declAttributes": [
+                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],

@@ -5,6 +5,7 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
