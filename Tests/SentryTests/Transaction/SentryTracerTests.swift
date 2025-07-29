@@ -1180,20 +1180,21 @@ class SentryTracerTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
-        let group = DispatchGroup()
-        
+
         let transactions = 5
+        let expectation = XCTestExpectation(description: "Finish transactions")
+        expectation.expectedFulfillmentCount = transactions
+
         for _ in 0..<transactions {
-            group.enter()
             queue.async {
                 self.fixture.getSut().finish()
-                group.leave()
+                expectation.fulfill()
             }
         }
         
         queue.activate()
-        group.wait()
-        
+        wait(for: [expectation], timeout: 5.0)
+
         XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
         
         let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.invocations.filter { pair in
