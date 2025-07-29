@@ -91,10 +91,9 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
-            
-            // Wait until the dispath queue drains to confirm the envelope is stored
-            waitForEnvelopeToBeStored(dispatchQueueWrapper)
         }
+        // Wait until the dispath queue drains to confirm the envelope is stored
+        waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
 
         let flushTimeout = 0.1
