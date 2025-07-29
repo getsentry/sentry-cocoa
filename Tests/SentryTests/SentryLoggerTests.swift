@@ -72,10 +72,10 @@ final class SentryLoggerTests: XCTestCase {
             .trace,
             "Test trace with attributes",
             [
-                "user_id": .string("12345"),
-                "is_debug": .boolean(true),
-                "count": .integer(42),
-                "score": .double(3.14159)
+                "user_id": SentryLog.Attribute(string: "12345"),
+                "is_debug": SentryLog.Attribute(boolean: true),
+                "count": SentryLog.Attribute(integer: 42),
+                "score": SentryLog.Attribute(double: 3.14159)
             ]
         )
     }
@@ -104,8 +104,8 @@ final class SentryLoggerTests: XCTestCase {
             .debug,
             "Debug networking",
             [
-                "module": .string("networking"),
-                "enabled": .boolean(false)
+                "module": SentryLog.Attribute(string: "networking"),
+                "enabled": SentryLog.Attribute(boolean: false)
             ]
         )
     }
@@ -134,8 +134,8 @@ final class SentryLoggerTests: XCTestCase {
             .info,
             "Request completed",
             [
-                "request_id": .string("req-123"),
-                "duration": .double(1.5)
+                "request_id": SentryLog.Attribute(string: "req-123"),
+                "duration": SentryLog.Attribute(double: 1.5)
             ]
         )
     }
@@ -164,8 +164,8 @@ final class SentryLoggerTests: XCTestCase {
             .warn,
             "Connection failed",
             [
-                "retry_count": .integer(3),
-                "will_retry": .boolean(true)
+                "retry_count": SentryLog.Attribute(integer: 3),
+                "will_retry": SentryLog.Attribute(boolean: true)
             ]
         )
     }
@@ -194,8 +194,8 @@ final class SentryLoggerTests: XCTestCase {
             .error,
             "Server error occurred",
             [
-                "error_code": .integer(500),
-                "recoverable": .boolean(false)
+                "error_code": SentryLog.Attribute(integer: 500),
+                "recoverable": SentryLog.Attribute(boolean: false)
             ]
         )
     }
@@ -224,8 +224,8 @@ final class SentryLoggerTests: XCTestCase {
             .fatal,
             "Application crashed",
             [
-                "exit_code": .integer(-1),
-                "critical": .boolean(true)
+                "exit_code": SentryLog.Attribute(integer: -1),
+                "critical": SentryLog.Attribute(boolean: true)
             ]
         )
     }
@@ -463,19 +463,19 @@ final class SentryLoggerTests: XCTestCase {
     
     func testBeforeSendLogCallback_ReturnsModifiedLog() {
         var beforeSendCalled = false
-        fixture.options.beforeSendLog = { mutableLog in
+        fixture.options.beforeSendLog = { log in
             beforeSendCalled = true
             
             // Verify the mutable log has expected properties
-            XCTAssertEqual(mutableLog.level, .info)
-            XCTAssertEqual(mutableLog.body, "Original message")
+            XCTAssertEqual(log.level, .info)
+            XCTAssertEqual(log.body, "Original message")
             
             // Modify the log
-            mutableLog.body = "Modified by callback"
-            mutableLog.level = .warn
-            mutableLog.attributes["callback_modified"] = true
+            log.body = "Modified by callback"
+            log.level = .warn
+            log.attributes["callback_modified"] = SentryLog.Attribute(boolean: true)
             
-            return mutableLog
+            return log
         }
         
         sut.info("Original message")
@@ -521,12 +521,12 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testBeforeSendLogCallback_MultipleLogLevels() {
-        var callbackInvocations: [(MutableSentryLogLevel, String)] = []
+        var callbackInvocations: [(SentryLog.Level, String)] = []
         
-        fixture.options.beforeSendLog = { mutableLog in
-            callbackInvocations.append((mutableLog.level, mutableLog.body))
-            mutableLog.attributes["processed"] = true
-            return mutableLog
+        fixture.options.beforeSendLog = { log in
+            callbackInvocations.append((log.level, log.body))
+            log.attributes["processed"] = SentryLog.Attribute(boolean: true)
+            return log
         }
         
         sut.trace("Trace message")
@@ -559,10 +559,10 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testBeforeSendLogCallback_PreservesOriginalLogAttributes() {
-        fixture.options.beforeSendLog = { mutableLog in
+        fixture.options.beforeSendLog = { log in
             // Add new attributes without removing existing ones
-            mutableLog.attributes["added_by_callback"] = "callback_value"
-            return mutableLog
+            log.attributes["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
+            return log
         }
         
         sut.info("Test message", attributes: [
@@ -635,18 +635,27 @@ final class SentryLoggerTests: XCTestCase {
             }
             
             XCTAssertEqual(actualAttribute.type, expectedAttribute.type, "Attribute type mismatch for key: \(key)", file: file, line: line)
+            
             // Compare values based on type
-            switch (expectedAttribute, actualAttribute) {
-            case let (.string(expected), .string(actual)):
-                XCTAssertEqual(actual, expected, "String attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.boolean(expected), .boolean(actual)):
-                XCTAssertEqual(actual, expected, "Boolean attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.integer(expected), .integer(actual)):
-                XCTAssertEqual(actual, expected, "Integer attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.double(expected), .double(actual)):
-                XCTAssertEqual(actual, expected, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
+            switch expectedAttribute.type {
+            case "string":
+                let expectedValue = expectedAttribute.value as! String
+                let actualValue = actualAttribute.value as! String
+                XCTAssertEqual(actualValue, expectedValue, "String attribute value mismatch for key: \(key)", file: file, line: line)
+            case "boolean":
+                let expectedValue = expectedAttribute.value as! Bool
+                let actualValue = actualAttribute.value as! Bool
+                XCTAssertEqual(actualValue, expectedValue, "Boolean attribute value mismatch for key: \(key)", file: file, line: line)
+            case "integer":
+                let expectedValue = expectedAttribute.value as! Int
+                let actualValue = actualAttribute.value as! Int
+                XCTAssertEqual(actualValue, expectedValue, "Integer attribute value mismatch for key: \(key)", file: file, line: line)
+            case "double":
+                let expectedValue = expectedAttribute.value as! Double
+                let actualValue = actualAttribute.value as! Double
+                XCTAssertEqual(actualValue, expectedValue, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
             default:
-                XCTFail("Attribute type mismatch for key: \(key). Expected: \(expectedAttribute.type), Actual: \(actualAttribute.type)", file: file, line: line)
+                XCTFail("Unknown attribute type for key: \(key). Type: \(expectedAttribute.type)", file: file, line: line)
             }
         }
     }

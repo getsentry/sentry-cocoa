@@ -1,52 +1,64 @@
 extension SentryLog {
-    enum Attribute: Codable {
-        case string(String)
-        case boolean(Bool)
-        case integer(Int)
-        case double(Double)
+    @objc(SentryStructuredLogAttribute)
+    @objcMembers
+    public class Attribute: NSObject, Codable {
+        public let type: String
+        public let value: Any
         
-        var type: String {
-            switch self {
-            case .string: return "string"
-            case .boolean: return "boolean"
-            case .integer: return "integer"
-            case .double: return "double"
-            }
+        public init(string value: String) {
+            self.type = "string"
+            self.value = value
+            super.init()
         }
         
-        var value: Any {
-            switch self {
-            case .string(let value): return value
-            case .boolean(let value): return value
-            case .integer(let value): return value
-            case .double(let value): return value
-            }
+        public init(boolean value: Bool) {
+            self.type = "boolean"
+            self.value = value
+            super.init()
         }
         
-        // MARK: - Initializers
+        public init(integer value: Int) {
+            self.type = "integer"
+            self.value = value
+            super.init()
+        }
         
-        /// Initializes a SentryLog.Attribute from any value, converting it to the appropriate type.
-        /// 
-        /// Supported types: String, Bool, Int, Double, and Float (converted to Double).
-        /// Other types (including Date, NSNumber, CGFloat, etc.) are converted to string representation.
-        /// 
-        /// See: https://develop.sentry.dev/sdk/telemetry/logs/#appendix-b-otel_log-envelope-item-payload
-        init(value: Any) {
+        public init(double value: Double) {
+            self.type = "double"
+            self.value = value
+            super.init()
+        }
+        
+        /// Creates a double attribute from a float value
+        public init(float value: Float) {
+            self.type = "double"
+            self.value = Double(value)
+            super.init()
+        }
+        
+        internal init(value: Any) {
             switch value {
             case let stringValue as String:
-                self = .string(stringValue)
+                self.type = "string"
+                self.value = stringValue
             case let boolValue as Bool:
-                self = .boolean(boolValue)
+                self.type = "boolean"
+                self.value = boolValue
             case let intValue as Int:
-                self = .integer(intValue)
+                self.type = "integer"
+                self.value = intValue
             case let doubleValue as Double:
-                self = .double(doubleValue)
+                self.type = "double"
+                self.value = doubleValue
             case let floatValue as Float:
-                self = .double(Double(floatValue))
+                self.type = "double"
+                self.value = Double(floatValue)
             default:
                 // For any other type, convert to string representation
-                self = .string(String(describing: value))
+                self.type = "string"
+                self.value = String(describing: value)
             }
+            super.init()
         }
         
         private enum CodingKeys: String, CodingKey {
@@ -54,38 +66,44 @@ extension SentryLog {
             case type
         }
         
-        init(from decoder: any Decoder) throws {
+        required public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
             let type = try container.decode(String.self, forKey: .type)
+            self.type = type
+            
             switch type {
             case "string":
-                self = .string(try container.decode(String.self, forKey: .value))
+                self.value = try container.decode(String.self, forKey: .value)
             case "boolean":
-                self = .boolean(try container.decode(Bool.self, forKey: .value))
+                self.value = try container.decode(Bool.self, forKey: .value)
             case "integer":
-                self = .integer(try container.decode(Int.self, forKey: .value))
+                self.value = try container.decode(Int.self, forKey: .value)
             case "double":
-                self = .double(try container.decode(Double.self, forKey: .value))
+                self.value = try container.decode(Double.self, forKey: .value)
             default:
                 throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown type: \(type)")
             }
+            
+            super.init()
         }
         
-        func encode(to encoder: any Encoder) throws {
+        public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             try container.encode(type, forKey: .type)
             
-            switch self {
-            case .string(let value):
-                try container.encode(value, forKey: .value)
-            case .boolean(let value):
-                try container.encode(value, forKey: .value)
-            case .integer(let value):
-                try container.encode(value, forKey: .value)
-            case .double(let value):
-                try container.encode(value, forKey: .value)
+            switch type {
+            case "string":
+                try container.encode(value as! String, forKey: .value)
+            case "boolean":
+                try container.encode(value as! Bool, forKey: .value)
+            case "integer":
+                try container.encode(value as! Int, forKey: .value)
+            case "double":
+                try container.encode(value as! Double, forKey: .value)
+            default:
+                try container.encode(String(describing: value), forKey: .value)
             }
         }
     }
