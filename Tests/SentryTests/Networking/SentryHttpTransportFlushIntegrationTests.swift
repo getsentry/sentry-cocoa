@@ -8,7 +8,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
 
-        let (sut, _, _) = try getSut()
+        let (sut, _, _, _) = try getSut()
 
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
@@ -26,7 +26,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _, _) = try getSut()
 
         requestManager.returnResponse(response: nil)
 
@@ -49,12 +49,18 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
-        let (sut, _, fileManager) = try getSut()
+        let (sut, _, fileManager, dispatchQueueWrapper) = try getSut()
 
         defer { fileManager.deleteAllEnvelopes() }
 
         for _ in 0..<10 {
             sut.send(envelope: SentryEnvelope(event: Event()))
+            // Wait until the dispath queue drains to confirm the envelope is stored
+            let expectation = XCTestExpectation(description: "Envelope sent")
+            dispatchQueueWrapper.dispatchAsync {
+                expectation.fulfill()
+            }
+            wait(for: [expectation], timeout: 0.5)
 
             XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
 
@@ -63,7 +69,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _, _) = try getSut()
 
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
@@ -80,11 +86,18 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
-        let (sut, requestManager, _) = try getSut()
+        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
+            
+            // Ensure envelope is stored
+            let expectation = XCTestExpectation(description: "Envelope sent")
+            dispatchQueueWrapper.dispatchAsync {
+                expectation.fulfill()
+            }
+            wait(for: [expectation], timeout: 0.5)
         }
         requestManager.returnResponse(response: HTTPURLResponse())
 
@@ -134,7 +147,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     // As we use real dispatch queues it could happen that some delayed operations don't finish before
     // the next test starts. Deleting the envelopes at the end or beginning of the test doesn't help,
     // when some operation is still in flight.
-    private func getSut(testName: String = #function) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager) {
+    private func getSut(testName: String = #function) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager, SentryDispatchQueueWrapper) {
         let options = Options()
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
@@ -148,6 +161,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         let currentDate = SentryDefaultCurrentDateProvider()
 
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
+        
+        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
 
         return (SentryHttpTransport(
             options: options,
@@ -158,8 +173,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
             requestBuilder: TestNSURLRequestBuilder(),
             rateLimits: rateLimits,
             envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-            dispatchQueueWrapper: SentryDispatchQueueWrapper()
-        ), requestManager, fileManager)
+            dispatchQueueWrapper: dispatchQueueWrapper
+        ), requestManager, fileManager, dispatchQueueWrapper)
     }
 
 }
