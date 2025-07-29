@@ -176,7 +176,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
 {
     @synchronized(self) {
-        return _cache.copy;
+        return SENTRY_UNWRAP_NULLABLE(NSArray<SentryBinaryImageInfo *>, _cache.copy);
     }
 }
 

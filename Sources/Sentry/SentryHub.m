@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:timestamp];
+            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];

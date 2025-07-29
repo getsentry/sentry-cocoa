@@ -44,7 +44,7 @@
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
     }
-    [self storeBreadcrumb:jsonData];
+    [self storeBreadcrumb:SENTRY_UNWRAP_NULLABLE(NSData, jsonData)];
 }
 
 - (void)clear

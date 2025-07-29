@@ -64,9 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       items:allowedEnvelopeItems];
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
-                                                                   url:self.apiURL
-                                                      didFailWithError:&requestError];
+    NSURLRequest *request =
+        [self.requestBuilder createEnvelopeRequest:envelopeToSend
+                                               url:SENTRY_UNWRAP_NULLABLE(NSURL, self.apiURL)
+                                  didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

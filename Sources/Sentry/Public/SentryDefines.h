@@ -220,3 +220,6 @@ typedef void (^SentryUserFeedbackConfigurationBlock)(
  *  pattern in the codebase.
  */
 #define SENTRY_UNWRAP_NULLABLE(type, nullable_var) (type *_Nonnull)(nullable_var)
+#define SENTRY_UNWRAP_NULLABLE_VALUE(type, nullable_var) (type _Nonnull)(nullable_var)
+#define SENTRY_UNWRAP_NULLABLE_DICT(key, value, nullable_var)                                      \
+    (NSDictionary<key, value> *_Nonnull)(nullable_var)

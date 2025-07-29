@@ -19,10 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        _url = [self convertDsnString:dsnString didFailWithError:error];
-        if (_url == nil) {
+        NSURL *_Nullable nullableUrl = [self convertDsnString:dsnString didFailWithError:error];
+        if (nullableUrl == nil) {
             return nil;
         }
+        _url = SENTRY_UNWRAP_NULLABLE(NSURL, nullableUrl);
     }
     return self;
 }
@@ -102,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
         errorMessage = @"URL scheme of DSN is missing";
         url = nil;
     }
-    if (url != nil && ![allowedSchemes containsObject:url.scheme]) {
+    if (url != nil && ![allowedSchemes containsObject:SENTRY_UNWRAP_NULLABLE(NSURL, url).scheme]) {
         errorMessage = @"Unrecognized URL scheme in DSN";
         url = nil;
     }
