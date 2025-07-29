@@ -4,6 +4,19 @@ import XCTest
 
 final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
+    private let missingTestCases = [
+            MissingTestCase(
+                title: "Testing flush multiple times in a row immediately returns false",
+                description: """
+                              Given 10 envelopes  in the offline cache
+                              And the transport is flushing
+                              
+                              When I call flush 10 times in a row
+                              
+                              Then the transport  immediately returns and returns isAlreadyFlushing for all flush calls
+                              """,
+                deletedTestCaseLink: "https://github.com/getsentry/sentry-cocoa/pull/5746")]
+
     private let flushTimeout: TimeInterval = 5.0
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
