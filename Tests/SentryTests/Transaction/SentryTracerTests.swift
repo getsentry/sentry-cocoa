@@ -53,7 +53,8 @@ class SentryTracerTests: XCTestCase {
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            
+            SentryDependencyContainer.sharedInstance().application = TestSentryApplication()
+
             debugImageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
             appStart = currentDateProvider.date()
@@ -1558,6 +1559,34 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expected, appContext?["start_type"])
     }
 
+}
+
+class TestSentryApplication: SentryApplication {
+
+    init() {
+
+    }
+
+    func isActive() -> Bool {
+        return false
+    }
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    var applicationState: UIApplication.State = .active
+    var windows: [UIWindow]? = []
+
+    func getDelegate(_ application: UIApplication) -> (any UIApplicationDelegate)? {
+        return nil
+    }
+
+    func getConnectedScenes(_ application: UIApplication) -> [UIScene] {
+        return []
+    }
+
+    func relevantViewControllersNames() -> [String]? {
+        return ["SentryViewController"]
+    }
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 }
 
 // swiftlint:enable file_length
