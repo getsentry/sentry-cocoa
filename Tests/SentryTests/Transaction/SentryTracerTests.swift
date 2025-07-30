@@ -1181,13 +1181,15 @@ class SentryTracerTests: XCTestCase {
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
 
-        let transactions = 5
+        let transactions = 500
         let expectation = XCTestExpectation(description: "Finish transactions")
         expectation.expectedFulfillmentCount = transactions
 
         for _ in 0..<transactions {
             queue.async {
-                self.fixture.getSut().finish()
+                let tracer = self.fixture.getSut()
+
+                tracer.finish()
                 expectation.fulfill()
             }
         }
@@ -1195,15 +1197,15 @@ class SentryTracerTests: XCTestCase {
         queue.activate()
         wait(for: [expectation], timeout: 5.0)
 
-        XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
-        
+        XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
+
         let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.invocations.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
         
-        XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
+        XCTAssertEqual(transactionsWithAppStartMeasurement.count, 1, "Only one transaction should have the app start measurement, but got \(transactionsWithAppStartMeasurement.count)")
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
