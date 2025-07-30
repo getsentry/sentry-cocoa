@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
-static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
 static SentryOptions *_Nullable startOption;
@@ -121,7 +121,7 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        return currentHub;
+        return SENTRY_UNWRAP_NULLABLE(SentryHub, currentHub);
     }
 }
 

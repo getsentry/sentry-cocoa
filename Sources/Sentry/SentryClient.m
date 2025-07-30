@@ -910,7 +910,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     *currentSpanCount = spanCountAfter;
 }
 
-- (BOOL)isSampled:(NSNumber *)sampleRate
+- (BOOL)isSampled:(NSNumber *_Nullable)sampleRate
 {
     if (sampleRate == nil) {
         return NO;
