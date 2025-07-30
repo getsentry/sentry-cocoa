@@ -1,10 +1,12 @@
-struct SentryLog: Codable {
-    let timestamp: Date
-    let traceId: SentryId
-    let level: SentryLog.Level
-    let body: String
-    let attributes: [String: SentryLog.Attribute]
-    let severityNumber: Int?
+@objc
+@objcMembers
+public class SentryLog: NSObject, Codable {
+    public var timestamp: Date
+    public var traceId: SentryId
+    public var level: Level
+    public var body: String
+    public var attributes: [String: Attribute]
+    public var severityNumber: NSNumber?
     
     private enum CodingKeys: String, CodingKey {
         case timestamp
@@ -17,35 +19,38 @@ struct SentryLog: Codable {
     
     /// The traceId is initially an empty default value and is populated during processing;
     /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
-    init(
+    public init(
         timestamp: Date,
         traceId: SentryId,
-        level: SentryLog.Level,
+        level: Level,
         body: String,
-        attributes: [String: SentryLog.Attribute],
-        severityNumber: Int? = nil
+        attributes: [String: Attribute],
+        severityNumber: NSNumber? = nil
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
         self.level = level
         self.body = body
         self.attributes = attributes
-        self.severityNumber = severityNumber ?? level.toSeverityNumber()
+        self.severityNumber = severityNumber ?? NSNumber(value: level.toSeverityNumber())
+        super.init()
     }
     
-    init(from decoder: any Decoder) throws {
+    required public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         timestamp = try container.decode(Date.self, forKey: .timestamp)
         let traceIdString = try container.decode(String.self, forKey: .traceId)
         traceId = SentryId(uuidString: traceIdString)
-        level = try container.decode(SentryLog.Level.self, forKey: .level)
+        level = try container.decode(Level.self, forKey: .level)
         body = try container.decode(String.self, forKey: .body)
-        attributes = try container.decode([String: SentryLog.Attribute].self, forKey: .attributes)
-        severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber)
+        attributes = try container.decode([String: Attribute].self, forKey: .attributes)
+        severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber).map { NSNumber(value: $0) }
+        
+        super.init()
     }
     
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(timestamp, forKey: .timestamp)
@@ -53,6 +58,6 @@ struct SentryLog: Codable {
         try container.encode(level, forKey: .level)
         try container.encode(body, forKey: .body)
         try container.encode(attributes, forKey: .attributes)
-        try container.encodeIfPresent(severityNumber, forKey: .severityNumber)
+        try container.encodeIfPresent(severityNumber?.intValue, forKey: .severityNumber)
     }
 }

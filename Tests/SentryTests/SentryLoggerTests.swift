@@ -72,10 +72,10 @@ final class SentryLoggerTests: XCTestCase {
             .trace,
             "Test trace with attributes",
             [
-                "user_id": .string("12345"),
-                "is_debug": .boolean(true),
-                "count": .integer(42),
-                "score": .double(3.14159)
+                "user_id": SentryLog.Attribute(string: "12345"),
+                "is_debug": SentryLog.Attribute(boolean: true),
+                "count": SentryLog.Attribute(integer: 42),
+                "score": SentryLog.Attribute(double: 3.14159)
             ]
         )
     }
@@ -104,8 +104,8 @@ final class SentryLoggerTests: XCTestCase {
             .debug,
             "Debug networking",
             [
-                "module": .string("networking"),
-                "enabled": .boolean(false)
+                "module": SentryLog.Attribute(string: "networking"),
+                "enabled": SentryLog.Attribute(boolean: false)
             ]
         )
     }
@@ -134,8 +134,8 @@ final class SentryLoggerTests: XCTestCase {
             .info,
             "Request completed",
             [
-                "request_id": .string("req-123"),
-                "duration": .double(1.5)
+                "request_id": SentryLog.Attribute(string: "req-123"),
+                "duration": SentryLog.Attribute(double: 1.5)
             ]
         )
     }
@@ -164,8 +164,8 @@ final class SentryLoggerTests: XCTestCase {
             .warn,
             "Connection failed",
             [
-                "retry_count": .integer(3),
-                "will_retry": .boolean(true)
+                "retry_count": SentryLog.Attribute(integer: 3),
+                "will_retry": SentryLog.Attribute(boolean: true)
             ]
         )
     }
@@ -194,8 +194,8 @@ final class SentryLoggerTests: XCTestCase {
             .error,
             "Server error occurred",
             [
-                "error_code": .integer(500),
-                "recoverable": .boolean(false)
+                "error_code": SentryLog.Attribute(integer: 500),
+                "recoverable": SentryLog.Attribute(boolean: false)
             ]
         )
     }
@@ -224,8 +224,8 @@ final class SentryLoggerTests: XCTestCase {
             .fatal,
             "Application crashed",
             [
-                "exit_code": .integer(-1),
-                "critical": .boolean(true)
+                "exit_code": SentryLog.Attribute(integer: -1),
+                "critical": SentryLog.Attribute(boolean: true)
             ]
         )
     }
@@ -459,6 +459,128 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(capturedLog.attributes["device.family"])
     }
     
+    // MARK: - BeforeSendLog Callback Tests
+    
+    func testBeforeSendLogCallback_ReturnsModifiedLog() {
+        var beforeSendCalled = false
+        fixture.options.beforeSendLog = { log in
+            beforeSendCalled = true
+            
+            // Verify the mutable log has expected properties
+            XCTAssertEqual(log.level, .info)
+            XCTAssertEqual(log.body, "Original message")
+            
+            // Modify the log
+            log.body = "Modified by callback"
+            log.level = .warn
+            log.attributes["callback_modified"] = SentryLog.Attribute(boolean: true)
+            
+            return log
+        }
+        
+        sut.info("Original message")
+        
+        XCTAssertTrue(beforeSendCalled, "beforeSendLog callback should be called")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        XCTAssertEqual(capturedLog.level, .warn)
+        XCTAssertEqual(capturedLog.body, "Modified by callback")
+        XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
+    }
+    
+    func testBeforeSendLogCallback_ReturnsNil_LogNotCaptured() {
+        var beforeSendCalled = false
+        fixture.options.beforeSendLog = { _ in
+            beforeSendCalled = true
+            return nil // Drop the log
+        }
+        
+        sut.error("This log should be dropped")
+        
+        XCTAssertTrue(beforeSendCalled, "beforeSendLog callback should be called")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 0, "Log should be dropped when callback returns nil")
+    }
+    
+    func testBeforeSendLogCallback_NotSet_LogCapturedUnmodified() {
+        // No beforeSendLog callback set
+        fixture.options.beforeSendLog = nil
+        
+        sut.debug("Debug message")
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        XCTAssertEqual(capturedLog.level, .debug)
+        XCTAssertEqual(capturedLog.body, "Debug message")
+    }
+    
+    func testBeforeSendLogCallback_MultipleLogLevels() {
+        var callbackInvocations: [(SentryLog.Level, String)] = []
+        
+        fixture.options.beforeSendLog = { log in
+            callbackInvocations.append((log.level, log.body))
+            log.attributes["processed"] = SentryLog.Attribute(boolean: true)
+            return log
+        }
+        
+        sut.trace("Trace message")
+        sut.debug("Debug message")  
+        sut.info("Info message")
+        sut.warn("Warn message")
+        sut.error("Error message")
+        sut.fatal("Fatal message")
+        
+        XCTAssertEqual(callbackInvocations.count, 6)
+        XCTAssertEqual(callbackInvocations[0].0, .trace)
+        XCTAssertEqual(callbackInvocations[0].1, "Trace message")
+        XCTAssertEqual(callbackInvocations[1].0, .debug)
+        XCTAssertEqual(callbackInvocations[1].1, "Debug message")
+        XCTAssertEqual(callbackInvocations[2].0, .info)
+        XCTAssertEqual(callbackInvocations[2].1, "Info message")
+        XCTAssertEqual(callbackInvocations[3].0, .warn)
+        XCTAssertEqual(callbackInvocations[3].1, "Warn message")
+        XCTAssertEqual(callbackInvocations[4].0, .error)
+        XCTAssertEqual(callbackInvocations[4].1, "Error message")
+        XCTAssertEqual(callbackInvocations[5].0, .fatal)
+        XCTAssertEqual(callbackInvocations[5].1, "Fatal message")
+        
+        // Verify all logs were processed
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 6)
+        for log in logs {
+            XCTAssertEqual(log.attributes["processed"]?.value as? Bool, true)
+        }
+    }
+    
+    func testBeforeSendLogCallback_PreservesOriginalLogAttributes() {
+        fixture.options.beforeSendLog = { log in
+            // Add new attributes without removing existing ones
+            log.attributes["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
+            return log
+        }
+        
+        sut.info("Test message", attributes: [
+            "original_key": "original_value",
+            "user_id": 12_345
+        ])
+        
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 1)
+        
+        let capturedLog = logs[0]
+        // Original attributes should be preserved
+        XCTAssertEqual(capturedLog.attributes["original_key"]?.value as? String, "original_value")
+        XCTAssertEqual(capturedLog.attributes["user_id"]?.value as? Int, 12_345)
+        // New attribute should be added
+        XCTAssertEqual(capturedLog.attributes["added_by_callback"]?.value as? String, "callback_value")
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
@@ -513,18 +635,27 @@ final class SentryLoggerTests: XCTestCase {
             }
             
             XCTAssertEqual(actualAttribute.type, expectedAttribute.type, "Attribute type mismatch for key: \(key)", file: file, line: line)
+            
             // Compare values based on type
-            switch (expectedAttribute, actualAttribute) {
-            case let (.string(expected), .string(actual)):
-                XCTAssertEqual(actual, expected, "String attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.boolean(expected), .boolean(actual)):
-                XCTAssertEqual(actual, expected, "Boolean attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.integer(expected), .integer(actual)):
-                XCTAssertEqual(actual, expected, "Integer attribute value mismatch for key: \(key)", file: file, line: line)
-            case let (.double(expected), .double(actual)):
-                XCTAssertEqual(actual, expected, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
+            switch expectedAttribute.type {
+            case "string":
+                let expectedValue = expectedAttribute.value as! String
+                let actualValue = actualAttribute.value as! String
+                XCTAssertEqual(actualValue, expectedValue, "String attribute value mismatch for key: \(key)", file: file, line: line)
+            case "boolean":
+                let expectedValue = expectedAttribute.value as! Bool
+                let actualValue = actualAttribute.value as! Bool
+                XCTAssertEqual(actualValue, expectedValue, "Boolean attribute value mismatch for key: \(key)", file: file, line: line)
+            case "integer":
+                let expectedValue = expectedAttribute.value as! Int
+                let actualValue = actualAttribute.value as! Int
+                XCTAssertEqual(actualValue, expectedValue, "Integer attribute value mismatch for key: \(key)", file: file, line: line)
+            case "double":
+                let expectedValue = expectedAttribute.value as! Double
+                let actualValue = actualAttribute.value as! Double
+                XCTAssertEqual(actualValue, expectedValue, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
             default:
-                XCTFail("Attribute type mismatch for key: \(key). Expected: \(expectedAttribute.type), Actual: \(actualAttribute.type)", file: file, line: line)
+                XCTFail("Unknown attribute type for key: \(key). Type: \(expectedAttribute.type)", file: file, line: line)
             }
         }
     }

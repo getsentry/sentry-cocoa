@@ -6,7 +6,7 @@ final class SentryLogAttributeTests: XCTestCase {
     // MARK: - Encoding Tests
     
     func testEncodeStringAttribute() throws {
-        let attribute = SentryLog.Attribute.string("test value")
+        let attribute = SentryLog.Attribute(string: "test value")
         
         let data = try JSONEncoder().encode(attribute)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -16,7 +16,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeBooleanAttribute() throws {
-        let attribute = SentryLog.Attribute.boolean(true)
+        let attribute = SentryLog.Attribute(boolean: true)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -26,7 +26,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeIntegerAttribute() throws {
-        let attribute = SentryLog.Attribute.integer(42)
+        let attribute = SentryLog.Attribute(integer: 42)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -36,7 +36,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testEncodeDoubleAttribute() throws {
-        let attribute = SentryLog.Attribute.double(3.14159)
+        let attribute = SentryLog.Attribute(double: 3.14159)
         
         let data = try JSONEncoder().encode(attribute)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -158,7 +158,7 @@ final class SentryLogAttributeTests: XCTestCase {
     // MARK: - Round-trip Tests
     
     func testRoundTripStringAttribute() throws {
-        let original = SentryLog.Attribute.string("round trip test")
+        let original = SentryLog.Attribute(string: "round trip test")
         
         let data = try JSONEncoder().encode(original)
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
@@ -168,7 +168,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testRoundTripBooleanAttribute() throws {
-        let original = SentryLog.Attribute.boolean(false)
+        let original = SentryLog.Attribute(boolean: false)
         
         let data = try JSONEncoder().encode(original)
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
@@ -178,7 +178,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testRoundTripIntegerAttribute() throws {
-        let original = SentryLog.Attribute.integer(-999)
+        let original = SentryLog.Attribute(integer: -999)
         
         let data = try JSONEncoder().encode(original)
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
@@ -188,7 +188,7 @@ final class SentryLogAttributeTests: XCTestCase {
     }
     
     func testRoundTripDoubleAttribute() throws {
-        let original = SentryLog.Attribute.double(-123.456)
+        let original = SentryLog.Attribute(double: -123.456)
         
         let data = try JSONEncoder().encode(original)
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Attribute?)
@@ -202,65 +202,65 @@ final class SentryLogAttributeTests: XCTestCase {
     // MARK: - Initializer Tests
     
     func testInitializer_StringValue() {
-        let attribute = SentryLog.Attribute(value: "test string")
+        let attribute = SentryLog.Attribute(string: "test string")
         XCTAssertEqual(attribute.type, "string")
         XCTAssertEqual(attribute.value as? String, "test string")
     }
     
     func testInitializer_EmptyStringValue() {
-        let attribute = SentryLog.Attribute(value: "")
+        let attribute = SentryLog.Attribute(string: "")
         XCTAssertEqual(attribute.type, "string")
         XCTAssertEqual(attribute.value as? String, "")
     }
     
     func testInitializer_BooleanValue() {
-        let trueAttribute = SentryLog.Attribute(value: true)
+        let trueAttribute = SentryLog.Attribute(boolean: true)
         XCTAssertEqual(trueAttribute.type, "boolean")
         XCTAssertEqual(trueAttribute.value as? Bool, true)
         
-        let falseAttribute = SentryLog.Attribute(value: false)
+        let falseAttribute = SentryLog.Attribute(boolean: false)
         XCTAssertEqual(falseAttribute.type, "boolean")
         XCTAssertEqual(falseAttribute.value as? Bool, false)
     }
     
     func testInitializer_IntegerValue() {
-        let attribute = SentryLog.Attribute(value: 42)
+        let attribute = SentryLog.Attribute(integer: 42)
         XCTAssertEqual(attribute.type, "integer")
         XCTAssertEqual(attribute.value as? Int, 42)
     }
     
     func testInitializer_ZeroIntegerValue() {
-        let attribute = SentryLog.Attribute(value: 0)
+        let attribute = SentryLog.Attribute(integer: 0)
         XCTAssertEqual(attribute.type, "integer")
         XCTAssertEqual(attribute.value as? Int, 0)
     }
     
     func testInitializer_NegativeIntegerValue() {
-        let attribute = SentryLog.Attribute(value: -42)
+        let attribute = SentryLog.Attribute(integer: -42)
         XCTAssertEqual(attribute.type, "integer")
         XCTAssertEqual(attribute.value as? Int, -42)
     }
     
     func testInitializer_DoubleValue() {
-        let attribute = SentryLog.Attribute(value: 3.14159)
+        let attribute = SentryLog.Attribute(double: 3.14159)
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as? Double, 3.14159)
     }
     
     func testInitializer_ZeroDoubleValue() {
-        let attribute = SentryLog.Attribute(value: 0.0)
+        let attribute = SentryLog.Attribute(double: 0.0)
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as? Double, 0.0)
     }
     
     func testInitializer_NegativeDoubleValue() {
-        let attribute = SentryLog.Attribute(value: -3.14)
+        let attribute = SentryLog.Attribute(double: -3.14)
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as? Double, -3.14)
     }
     
     func testInitializer_FloatValue() {
-        let attribute = SentryLog.Attribute(value: Float(2.71828))
+        let attribute = SentryLog.Attribute(float: Float(2.71828))
         XCTAssertEqual(attribute.type, "double")
         let doubleValue = attribute.value as? Double
         XCTAssertNotNil(doubleValue)

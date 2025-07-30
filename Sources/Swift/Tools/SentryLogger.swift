@@ -113,29 +113,36 @@ public final class SentryLogger: NSObject {
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
 
-        batcher.add(
-            SentryLog(
-                timestamp: dateProvider.date(),
-                traceId: propagationContextTraceId,
-                level: level,
-                body: body,
-                attributes: logAttributes
-            )
+        let log = SentryLog(
+            timestamp: dateProvider.date(),
+            traceId: propagationContextTraceId,
+            level: level,
+            body: body,
+            attributes: logAttributes
         )
+        
+        var processedLog: SentryLog? = log
+        if let beforeSendLog = batcher.options.beforeSendLog {
+            processedLog = beforeSendLog(log)
+        }
+        
+        if let processedLog {
+            batcher.add(processedLog)
+        }
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
         guard let batcher else {
             return
         }
-        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        attributes["sentry.environment"] = .string(batcher.options.environment)
+        attributes["sentry.sdk.name"] = SentryLog.Attribute(string: SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = SentryLog.Attribute(string: SentryMeta.versionString)
+        attributes["sentry.environment"] = SentryLog.Attribute(string: batcher.options.environment)
         if let releaseName = batcher.options.releaseName {
-            attributes["sentry.release"] = .string(releaseName)
+            attributes["sentry.release"] = SentryLog.Attribute(string: releaseName)
         }
         if let span = hub.scope.span {
-            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+            attributes["sentry.trace.parent_span_id"] = SentryLog.Attribute(string: span.spanId.sentrySpanIdString)
         }
     }
 
@@ -144,10 +151,10 @@ public final class SentryLogger: NSObject {
             return
         }
         if let osName = osContext["name"] as? String {
-            attributes["os.name"] = .string(osName)
+            attributes["os.name"] = SentryLog.Attribute(string: osName)
         }
         if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = .string(osVersion)
+            attributes["os.version"] = SentryLog.Attribute(string: osVersion)
         }
     }
     
@@ -156,13 +163,13 @@ public final class SentryLogger: NSObject {
             return
         }
         // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = .string("Apple")
+        attributes["device.brand"] = SentryLog.Attribute(string: "Apple")
         
         if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = .string(deviceModel)
+            attributes["device.model"] = SentryLog.Attribute(string: deviceModel)
         }
         if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = .string(deviceFamily)
+            attributes["device.family"] = SentryLog.Attribute(string: deviceFamily)
         }
     }
 
@@ -171,13 +178,13 @@ public final class SentryLogger: NSObject {
             return
         }
         if let userId = user.userId {
-            attributes["user.id"] = .string(userId)
+            attributes["user.id"] = SentryLog.Attribute(string: userId)
         }
         if let userName = user.name {
-            attributes["user.name"] = .string(userName)
+            attributes["user.name"] = SentryLog.Attribute(string: userName)
         }
         if let userEmail = user.email {
-            attributes["user.email"] = .string(userEmail)
+            attributes["user.email"] = SentryLog.Attribute(string: userEmail)
         }
     }
 }

@@ -11,12 +11,12 @@ final class SentryLogTests: XCTestCase {
         level: SentryLog.Level.info,
         body: "Test log message",
         attributes: [
-            "user_id": .string("12345"),
-            "is_active": .boolean(true),
-            "count": .integer(42),
-            "score": .double(3.14159)
+            "user_id": SentryLog.Attribute(string: "12345"),
+            "is_active": SentryLog.Attribute(boolean: true),
+            "count": SentryLog.Attribute(integer: 42),
+            "score": SentryLog.Attribute(double: 3.14159)
         ],
-        severityNumber: 21
+        severityNumber: NSNumber(value: 21)
     )
     
     private let jsonData = Data("""
@@ -103,7 +103,7 @@ final class SentryLogTests: XCTestCase {
                 // severityNumber not provided
             )
             
-            XCTAssertEqual(log.severityNumber, expectedSeverity, 
+            XCTAssertEqual(log.severityNumber?.intValue, expectedSeverity,
                           "Level \(level) should derive severity number \(expectedSeverity)")
         }
     }
