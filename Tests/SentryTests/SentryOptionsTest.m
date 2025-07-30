@@ -476,15 +476,21 @@
     NSArray<NSString *> *integrations = @[ @"integration1", @"integration2" ];
     SentryOptions *options = [self getValidOptions:@{ @"integrations" : integrations }];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self assertArrayEquals:integrations actual:options.integrations];
+#pragma clang diagnostic pop
 }
 
 - (void)testDefaultIntegrations
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
+#pragma clang diagnostic pop
 }
 
 #if SENTRY_HAS_UIKIT
@@ -671,8 +677,11 @@
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
     XCTAssertNil(options.onCrashedLastRun);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
+#pragma clang diagnostic pop
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);

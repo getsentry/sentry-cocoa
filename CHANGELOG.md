@@ -18,6 +18,7 @@
 - Move continuous profiling payload serialization off of the main thread (#5613)
 - Improve video generation using apple recommended loop (#5612)
 - Use -OSize for release builds (#5721)
+- Mark The `integrations` parameter of `SentryOptions` as deprecated rather than printing a warning (#5749)
 
 ### Fixes
 

@@ -78,6 +78,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testConcurrentStacktraces() throws {
         guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
             throw XCTSkip("Not available for earlier platform versions")
@@ -101,6 +102,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testConcurrentStacktraces_noStitching() throws {
         guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
             throw XCTSkip("Not available for earlier platform versions")
