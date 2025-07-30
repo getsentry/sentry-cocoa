@@ -149,10 +149,11 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    if (viewNames == nil) {
-        viewNames =
-            [SentryDependencyContainer.sharedInstance.application relevantViewControllersNames];
-    }
+    //    if (viewNames == nil) {
+    //        viewNames =
+    //            [SentryDependencyContainer.sharedInstance.application
+    //            relevantViewControllersNames];
+    //    }
 
 #endif // SENTRY_HAS_UIKIT
 

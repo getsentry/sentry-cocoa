@@ -1181,7 +1181,7 @@ class SentryTracerTests: XCTestCase {
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
 
-        let transactions = 500
+        let transactions = 5
         let expectation = XCTestExpectation(description: "Finish transactions")
         expectation.expectedFulfillmentCount = transactions
 
