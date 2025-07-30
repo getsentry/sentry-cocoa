@@ -1,5 +1,6 @@
 #import "SentryArray.h"
 #import "SentryDateUtils.h"
+#import "SentryInternalDefines.h"
 #import "SentryNSDictionarySanitize.h"
 
 @implementation SentryArray
