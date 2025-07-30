@@ -1,6 +1,7 @@
 import Foundation
 import Sentry
 import SentrySampleShared
+import SentrySwiftUI
 import SwiftUI
 
 @main
@@ -9,6 +10,9 @@ struct SwiftUIApp: App {
 
     init() {
         SentrySDKWrapper.shared.startSentry()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            _ = checkBody()
+        }
     }
 
     var body: some Scene {
@@ -16,6 +20,23 @@ struct SwiftUIApp: App {
             ContentView()
         }
     }
+}
+
+struct MyCustomView: View {
+    var body: some View {
+        SentryTracedView("Hey Phil") {
+            Text("Hey Phil")
+        }
+    }
+}
+
+private let view = MyCustomView()
+
+func checkBody() -> some View {
+    if view.body != nil {
+        print("The body is not nil")
+    }
+    return view
 }
 
 class MyAppDelegate: NSObject, UIApplicationDelegate, ObservableObject {

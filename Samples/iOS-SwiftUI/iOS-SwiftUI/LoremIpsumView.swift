@@ -8,10 +8,14 @@ struct LoremIpsumView: View {
     @StateObject var viewModel = LoremIpsumViewModel()
     
     var body: some View {
-        SentryTracedView("Lorem Ipsum") {
-            Text(viewModel.text)
-                .padding(16)
-        }
+//        SentryTracedView("Lorem Ipsum") {
+            VStack {
+                checkBody()
+                Text(viewModel.text)
+                    .padding(16)
+            }
+
+//        }
     }
 }
 
@@ -24,6 +28,8 @@ class LoremIpsumViewModel: ObservableObject {
     }
     
     private func fetchLoremIpsum() {
+        checkBody()
+
         let dispatchQueue = DispatchQueue(label: "LoremIpsumViewModel")
         dispatchQueue.async {
             if let path = BundleResourceProvider.loremIpsumTextFilePath {
