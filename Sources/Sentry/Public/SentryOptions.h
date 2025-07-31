@@ -191,10 +191,14 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
+#if !SDK_V9
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
+@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
+    "Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
+    "disabled using their respective `SentryOptions.enable*` property.");
+#endif // !SDK_V9
 
 /**
  * Array of default integrations. Will be used if @c integrations is @c nil .
