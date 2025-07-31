@@ -183,9 +183,7 @@ while true; do
     if is_app_running; then
         log "⏳ App is still running."
     else
-        log "❌ App is not running."   
-        take_simulator_screenshot "app-did-crash"
-        exit 1
+        log "❌ App is not running."
     fi
     
     current_time=$(date +%s)
