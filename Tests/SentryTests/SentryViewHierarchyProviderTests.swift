@@ -1,4 +1,5 @@
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -195,7 +196,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             let _ = sut.appViewHierarchyFromMainThread()
         }
 
-        wait(for: [ex], timeout: 1)
+        wait(for: [ex], timeout: 5)
     }
 
     func test_appViewHierarchy_usesMainThread() {
@@ -210,7 +211,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             ex.fulfill()
         }
 
-        wait(for: [ex], timeout: 1)
+        wait(for: [ex], timeout: 5)
         XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "appViewHierarchy is not using the main thread to get UI windows")
     }
 

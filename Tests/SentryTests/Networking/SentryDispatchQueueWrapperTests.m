@@ -1,4 +1,4 @@
-#import "SentryDispatchQueueWrapper.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

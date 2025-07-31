@@ -125,6 +125,11 @@ public class TestClient: SentryClient {
         captureFeedbackInvocations.record((feedback, scope))
     }
     
+    public var captureSerializedFeedbackInvocations = Invocations<(String, Scope)>()
+    public override func captureSerializedFeedback(_ serializedFeedback: [AnyHashable: Any], withEventId feedbackEventId: String, attachments: [Attachment], scope: Scope) {
+        captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
+    }
+    
     public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
     public override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
@@ -148,5 +153,10 @@ public class TestClient: SentryClient {
     public var flushInvocations = Invocations<TimeInterval>()
     public override func flush(timeout: TimeInterval) {
         flushInvocations.record(timeout)
+    }
+    
+    public var captureLogsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
+    public override func captureLogsData(_ data: Data, with count: NSNumber) {
+        captureLogsDataInvocations.record((data, count))
     }
 }

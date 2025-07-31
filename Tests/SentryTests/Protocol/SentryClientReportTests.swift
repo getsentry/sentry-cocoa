@@ -1,6 +1,6 @@
 @testable import Sentry
-import Sentry
-import SentryTestUtils
+@_spi(Private) import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryClientReportTests: XCTestCase {

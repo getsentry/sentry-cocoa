@@ -9,7 +9,7 @@ public class TestRequestManager: NSObject, RequestManager {
     
     var requests = Invocations<URLRequest>()
     
-    private let queue = DispatchQueue(label: "TestRequestManager", qos: .background, attributes: [])
+    private let queue = DispatchQueue(label: "TestRequestManager")
     private let group = DispatchGroup()
     
     public required init(session: URLSession) {
@@ -40,8 +40,8 @@ public class TestRequestManager: NSObject, RequestManager {
         })
     }
     
-    public func waitForAllRequests() {
-        group.waitWithTimeout()
+    public func waitForAllRequests(timeout: Double = 100) {
+        group.waitWithTimeout(timeout: timeout)
     }
     
     func returnResponse(response: HTTPURLResponse?) {

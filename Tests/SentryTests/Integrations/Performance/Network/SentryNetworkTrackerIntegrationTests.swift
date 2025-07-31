@@ -1,5 +1,5 @@
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import SwiftUI
 import XCTest
 
@@ -16,6 +16,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerIntegrationTests.dsnAsString
@@ -26,6 +27,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -149,7 +151,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         wait(for: [expect], timeout: 5)
         
-        let scope = SentrySDK.currentHub().scope
+        let scope = SentrySDKInternal.currentHub().scope
         let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
     }

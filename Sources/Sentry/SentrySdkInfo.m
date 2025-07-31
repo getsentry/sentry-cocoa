@@ -1,11 +1,9 @@
 #import "SentrySdkInfo.h"
 #import "SentryClient+Private.h"
-#import "SentryExtraPackages.h"
 #import "SentryHub+Private.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
-#import "SentrySdkPackage.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,18 +15,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)global
 {
-    SentryClient *_Nullable client = [SentrySDK.currentHub getClient];
+    SentryClient *_Nullable client = [SentrySDKInternal.currentHub getClient];
     return [[SentrySdkInfo alloc] initWithOptions:client.options];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray<NSString *> *features =
         [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+#pragma clang diagnostic pop
 
     NSMutableArray<NSString *> *integrations =
-        [SentrySDK.currentHub trimmedInstalledIntegrationNames];
+        [SentrySDKInternal.currentHub trimmedInstalledIntegrationNames];
 
 #if SENTRY_HAS_UIKIT
     if (options.enablePreWarmedAppStartTracing) {

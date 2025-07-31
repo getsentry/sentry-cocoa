@@ -1,4 +1,4 @@
-@testable import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 class TestFileManagerTests: XCTestCase {

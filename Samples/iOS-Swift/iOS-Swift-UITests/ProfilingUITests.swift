@@ -1,28 +1,18 @@
+@testable import Sentry
+import SentrySampleShared
 import XCTest
 
 //swiftlint:disable function_body_length todo
 
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
-    
-    override func setUp() {
-        super.setUp()
 
-        app.launchArguments.append(contentsOf: [
-            "--io.sentry.wipe-data" // make sure there are no previous configuration files or profile files written
-        ])
-    }
-    
     func testAppLaunchesWithTraceProfiler() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false)
-        
-        // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true)
+        try performTest(profileType: .trace)
     }
     
     func testAppLaunchesWithContinuousProfilerV1() throws {
@@ -30,11 +20,7 @@ class ProfilingUITests: BaseUITest {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true)
-        
-        // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true)
+        try performTest(profileType: .continuous)
     }
     
     func testAppLaunchesWithContinuousProfilerV2TraceLifecycle() throws {
@@ -42,11 +28,7 @@ class ProfilingUITests: BaseUITest {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2TraceLifecycle: true)
-
-        // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2TraceLifecycle: true)
+        try performTest(profileType: .ui, lifecycle: .trace)
     }
     
     func testAppLaunchesWithContinuousProfilerV2ManualLifeCycle() throws {
@@ -54,11 +36,7 @@ class ProfilingUITests: BaseUITest {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        // by default, launch profiling is not enabled
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, continuousProfiling: true, v2ManualLifecycle: true)
-
-        // after configuring for launch profiling, check the marker file exists, and that the profile happens
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, continuousProfiling: true, v2ManualLifecycle: true)
+        try performTest(profileType: .ui, lifecycle: .manual)
     }
     
     /**
@@ -67,14 +45,14 @@ class ProfilingUITests: BaseUITest {
     func testProfilingGPUInfo() throws {
         if #available(iOS 16, *) {
             app.launchArguments.append(contentsOf: [
-                "--io.sentry.wipe-data",
+                SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue,
 
                 // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-                "--disable-swizzling",
+                SentrySDKOverrides.Other.disableSwizzling.rawValue,
 
-                "--io.sentry.disable-app-start-profiling"
+                SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
             ])
-            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1.0"
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1.0"
             launchApp()
             
             goToTransactions()
@@ -152,72 +130,106 @@ extension ProfilingUITests {
     func stopContinuousProfiler() {
         app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].afterWaitingForExistence("Couldn't find button to stop continuous profiler").tap()
     }
-     
+
+    enum ProfilingType {
+        case trace
+        case continuous // aka "continuous beta"
+        case ui // aka "continuous v2"
+    }
+
+    func performTest(profileType: ProfilingType, lifecycle: SentryProfileOptions.SentryProfileLifecycle? = nil) throws {
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldProfileNextLaunch: true, profileType: profileType, lifecycle: lifecycle)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldProfileNextLaunch: false, profileType: profileType, lifecycle: lifecycle)
+    }
+
+    fileprivate func setAppLaunchParameters(_ profileType: ProfilingUITests.ProfilingType, _ lifecycle: SentryProfileOptions.SentryProfileLifecycle?, _ shouldProfileNextLaunch: Bool) {
+        app.launchArguments.append(contentsOf: [
+            // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
+            SentrySDKOverrides.Other.disableSwizzling.rawValue,
+            SentrySDKOverrides.Performance.disablePerformanceTracing.rawValue,
+            SentrySDKOverrides.Performance.disableUIVCTracing.rawValue,
+            SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.rawValue,
+
+            // sets a marker function to run in a load command that the launch profile should detect
+            SentrySDKOverrides.Profiling.slowLoadMethod.rawValue,
+            
+            // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
+            SentrySDKOverrides.Profiling.immediateStop.rawValue
+        ])
+        
+        switch profileType {
+        case .ui:
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sessionSampleRate.rawValue] = "1"
+            switch lifecycle {
+            case .none:
+                fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
+            case .trace:
+                break
+            case .manual:
+                app.launchArguments.append(SentrySDKOverrides.Profiling.manualLifecycle.rawValue)
+            }
+        case .continuous:
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
+        case .trace:
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
+            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1"
+        }
+        
+        if !shouldProfileNextLaunch {
+            app.launchArguments.append(SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue)
+        }
+    }
+    
     /**
      * Performs the various operations for the launch profiler test case:
      * - terminates an existing app session
-     * - creates a new one
+     * - starts a new app session
      * - sets launch args and env vars to set the appropriate `SentryOption` values for the desired behavior
-     * - launches the new configured app session
+     * - launches the new configured app session, which will optionally start a launch profiler and then call SentrySDK.startWithOptions configured based on the launch args and env vars
      * - asserts the expected outcomes of the config file and launch profiler
      */
     func launchAndConfigureSubsequentLaunches(
         terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool,
-        continuousProfiling: Bool = false,
-        v2TraceLifecycle: Bool = false,
-        v2ManualLifecycle: Bool = false
+        shouldProfileNextLaunch: Bool,
+        profileType: ProfilingType,
+        lifecycle: SentryProfileOptions.SentryProfileLifecycle?
     ) throws {
         if terminatePriorSession {
             app.terminate()
             app = newAppSession()
         }
         
-        app.launchArguments.append(contentsOf: [
-            // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
-            "--disable-swizzling",
-            "--disable-auto-performance-tracing",
-            "--disable-uiviewcontroller-tracing",
+        setAppLaunchParameters(profileType, lifecycle, shouldProfileNextLaunch)
 
-            // sets a marker function to run in a load command that the launch profile should detect
-            "--io.sentry.slow-load-method",
-
-            // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
-            "--io.sentry.continuous-profiler-immediate-stop"
-        ])
-
-        if continuousProfiling {
-            if v2TraceLifecycle {
-                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
-            } else if v2ManualLifecycle {
-                app.launchArguments.append(contentsOf: [
-                    "--io.sentry.profile-lifecycle-manual"
-                ])
-                app.launchEnvironment["--io.sentry.profile-session-sample-rate"] = "1"
-            } else {
-                app.launchArguments.append("--io.sentry.disable-ui-profiling")
-            }
-        } else {
-            app.launchEnvironment["--io.sentry.profilesSampleRate"] = "1"
-        }
-
-        launchApp()
+        launchApp(activateBeforeLaunch: false)
         goToProfiling()
-        XCTAssert(try checkLaunchProfileMarkerFileExistence())
+
+        let configFileExists = try checkLaunchProfileMarkerFileExistence()
+
+        if shouldProfileNextLaunch {
+            XCTAssert(configFileExists, "A launch profile config file should be present on disk if SentrySDK.startWithOptions configured launch profiling for the next launch.")
+        } else {
+            XCTAssertFalse(configFileExists, "Launch profile config files should be removed upon starting launch profiles. If SentrySDK.startWithOptions doesn't reconfigure launch profiling, the config file should not be present.")
+        }
 
         guard shouldProfileThisLaunch else {
             return
         }
-        
-        if continuousProfiling {
-            if !v2TraceLifecycle {
+
+        if profileType == .trace {
+            retrieveLastProfileData()
+        } else {
+            if profileType == .continuous || (profileType == .ui && lifecycle == .manual) {
                 stopContinuousProfiler()
             }
             retrieveFirstProfileChunkData()
-        } else {
-            retrieveLastProfileData()
         }
-        
+
+        try assertProfileContents()
+    }
+
+    func assertProfileContents() throws {
         let lastProfile = try marshalJSONDictionaryFromApp()
         let sampledProfile = try XCTUnwrap(lastProfile["profile"] as? [String: Any])
         let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
@@ -227,7 +239,7 @@ extension ProfilingUITests {
                 frames[stackFrame]["function"]
             }
         })
-        
+
         // grab the first stack that contained frames from the fixture code that simulates a slow +[load] method
         var stackID: Int?
         let stack = try XCTUnwrap(stackFunctions.enumerated().first { nextStack in
@@ -246,12 +258,12 @@ extension ProfilingUITests {
             XCTFail("Didn't find the ID of the stack containing the target function")
             return
         }
-        
+
         // ensure that the stack doesn't contain any calls to main functions; this ensures we actually captured pre-main stacks
         XCTAssertFalse(stack.contains("main"))
         XCTAssertFalse(stack.contains("UIApplicationMain"))
         XCTAssertFalse(stack.contains("-[UIApplication _run]"))
-        
+
         // ensure that the stack happened on the main thread; this is a cross-check to make sure we didn't accidentally grab a stack from a different thread that wouldn't have had a call to main() anyways, thereby possibly missing the real stack that may have contained main() calls (but shouldn't for this test)
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
         let sample = try XCTUnwrap(samples.first { nextSample in

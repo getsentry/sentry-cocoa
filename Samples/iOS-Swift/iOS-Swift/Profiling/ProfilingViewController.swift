@@ -59,8 +59,10 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func sampleRateEdited(_ sender: UITextField) {
+      #if !SDK_V9
         var sampleRate = SentrySDKOverrides.Profiling.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: sender)
+      #endif // !SDK_V9
     }
 
     @IBAction func tracesSampleRateEdited(_ sender: UITextField) {
@@ -75,14 +77,16 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func defineProfilesSampleRateToggled(_ sender: UISwitch) {
         sampleRateField.isEnabled = sender.isOn
-        
+
+      #if !SDK_V9
         var sampleRate = SentrySDKOverrides.Profiling.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: sampleRateField)
+      #endif // !SDK_V9
     }
 
     @IBAction func defineTracesSampleRateToggled(_ sender: UISwitch) {
         tracesSampleRateField.isEnabled = sender.isOn
-        
+
         var sampleRate = SentrySDKOverrides.Tracing.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: tracesSampleRateField)
     }
@@ -109,7 +113,16 @@ private extension ProfilingViewController {
         let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
         let fm = FileManager.default
         let dir = "\(cachesDirectory)/io.sentry/" + (continuous ? "continuous-profiles" : "trace-profiles")
-        let count = try! fm.contentsOfDirectory(atPath: dir).count
+
+        let count: Int
+        do {
+            count = try fm.contentsOfDirectory(atPath: dir).count
+        } catch {
+            print("[iOS-Swift] [debug] [ProfilingViewController] error reading directory \(dir): \(error)")
+            profilingUITestDataMarshalingStatus.text = "<error>"
+            return
+        }
+
         //swiftlint:disable empty_count
         guard continuous || count > 0 else {
             //swiftlint:enable empty_count
@@ -118,7 +131,7 @@ private extension ProfilingViewController {
         }
         let fileName = "profile\(continuous ? 0 : count - 1)"
         let fullPath = "\(dir)/\(fileName)"
-        
+
         if fm.fileExists(atPath: fullPath) {
             let url = NSURL.fileURL(withPath: fullPath)
             block(url)
@@ -129,17 +142,17 @@ private extension ProfilingViewController {
             }
             return
         }
-        
+
         block(nil)
     }
-    
+
     func handleContents(file: URL?) {
         guard let file = file else {
             profilingUITestDataMarshalingTextField.text = "<missing>"
             profilingUITestDataMarshalingStatus.text = "❌"
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: file)
             let contents = data.base64EncodedString()
@@ -154,8 +167,9 @@ private extension ProfilingViewController {
     }
 
     func optionsConfiguration() {
-        guard let options = SentrySDK.currentHub().getClient()?.options else { return }
+        guard let options = SentrySDKInternal.currentHub().getClient()?.options else { return }
 
+      #if !SDK_V9
         if let sampleRate = options.profilesSampleRate {
             sampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
             sampleRateField.isEnabled = true
@@ -165,6 +179,7 @@ private extension ProfilingViewController {
             sampleRateField.text = "nil"
             profilesSampleRateSwitch.isOn = false
         }
+      #endif // !SDK_V9
 
         if let sampleRate = options.tracesSampleRate {
             tracesSampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
@@ -182,7 +197,11 @@ private extension ProfilingViewController {
             profileAppStartsSwitch.isOn = v2Options.profileAppStarts
         } else {
             traceLifecycleSwitch.isOn = false
+          #if SDK_V9
+            profileAppStartsSwitch.isOn = false
+          #else
             profileAppStartsSwitch.isOn = options.enableAppLaunchProfiling
+          #endif // !SDK_V9
         }
     }
 

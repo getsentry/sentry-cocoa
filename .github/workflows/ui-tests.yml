@@ -18,6 +18,7 @@ on:
       - "Samples/iOS-Swift/**"
       - "Samples/iOS-Swift6/**"
       - "Samples/SentrySampleShared/**"
+      - "Samples/Shared/**"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
@@ -40,6 +41,9 @@ jobs:
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-14
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
@@ -47,9 +51,13 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
+      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift:
     name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests
@@ -60,20 +68,23 @@ jobs:
         include:
           - runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 14 (16.4)"
+            device: iPhone 14 (16.4)
           - runs-on: macos-14
             xcode: "15.4"
-            device: "iPhone 15 (17.5)"
+            device: iPhone 15 (17.5)
           - runs-on: macos-15
             xcode: "16.4"
-            device: "iPhone 16 (18.5)"
+            device: iPhone 16 (18.5)
     with:
       fastlane_command: ui_tests_ios_swift
-      fastlane_command_extra_arguments: device:"${{matrix.device}}"
+      fastlane_command_extra_arguments: device:${{matrix.device}}
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift6:
     name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
@@ -83,30 +94,6 @@ jobs:
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-15
-
-  build-xcframework-variant-slices:
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    with:
-      name: Sentry
-      macho-type: staticlib
-      variant-id: sentry-static-uitests
-      sdk-list: '["iphoneos", "iphonesimulator"]'
-
-  assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
-    with:
-      name: Sentry
-      variant-id: sentry-static-uitests
-      sdks: "iphoneos,iphonesimulator"
-
-  duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
-    uses: ./.github/workflows/ui-tests-common.yml
-    needs: assemble-xcframework-variant
-    with:
-      fastlane_command: duplication_test
-      xcode_version: 16.4
-      macos_version: macos-15
-      needs_xcframework: true
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

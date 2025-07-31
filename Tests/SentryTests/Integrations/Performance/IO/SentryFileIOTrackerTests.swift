@@ -1,5 +1,5 @@
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFileIOTrackerTests: XCTestCase {
@@ -33,6 +33,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
     private var fixture: Fixture!
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()

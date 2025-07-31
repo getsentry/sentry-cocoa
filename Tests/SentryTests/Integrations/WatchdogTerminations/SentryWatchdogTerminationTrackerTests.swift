@@ -1,6 +1,12 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
+
+#if compiler(>=6.0)
+@_spi(Private) extension SentryFileManager: @retroactive SentryFileManagerProtocol { }
+#else
+@_spi(Private) extension SentryFileManager: SentryFileManagerProtocol { }
+#endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
@@ -18,9 +24,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
-        let contextProcessor: SentryWatchdogTerminationContextProcessor
+        let attributesProcessor: SentryWatchdogTerminationAttributesProcessor
+        let scopePersistentStore: SentryScopePersistentStore
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             options = Options()
             options.maxBreadcrumbs = 2
@@ -31,10 +38,10 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
-            let scopeContextStore = SentryScopeContextPersistentStore(fileManager: fileManager)
-            contextProcessor = SentryWatchdogTerminationContextProcessor(
+            scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
+            attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: backgroundQueueWrapper,
-                scopeContextStore: scopeContextStore
+                scopePersistentStore: scopePersistentStore
             )
 
             client = TestClient(options: options)
@@ -42,36 +49,36 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
-            SentrySDK.setCurrentHub(hub)
+            SentrySDKInternal.setCurrentHub(hub)
         }
         
-        func getSut() -> SentryWatchdogTerminationTracker {
-            return getSut(fileManager: fileManager )
+        func getSut() throws -> SentryWatchdogTerminationTracker {
+            return try getSut(fileManager: fileManager )
         }
         
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationTracker {
+        func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
             let appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 dispatchQueueWrapper: self.dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                notificationCenterWrapper: NotificationCenter.default
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
-            let scopePersistentStore = SentryScopeContextPersistentStore(
+            let scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(
                 fileManager: fileManager
-            )
+            ))
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager,
-                scopeContextStore: scopePersistentStore
+                scopePersistentStore: scopePersistentStore
             )
         }
     }
@@ -79,12 +86,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     private var fixture: Fixture!
     private var sut: SentryWatchdogTerminationTracker!
     
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         
-        fixture = Fixture()
-        sut = fixture.getSut()
-        SentrySDK.startInvocations = 1
+        fixture = try Fixture()
+        sut = try fixture.getSut()
+        SentrySDKInternal.startInvocations = 1
     }
     
     override func tearDown() {
@@ -95,8 +102,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         clearTestState()
     }
 
-    func testStart_StoresAppState() {
-        sut = fixture.getSut()
+    func testStart_StoresAppState() throws {
+        sut = try fixture.getSut()
 
         XCTAssertNil(fixture.fileManager.readAppState())
 
@@ -110,8 +117,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
-    func testGoToForeground_SetsIsActive() {
-        sut = fixture.getSut()
+    func testGoToForeground_SetsIsActive() throws {
+        sut = try fixture.getSut()
 
         sut.start()
         
@@ -237,13 +244,13 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        SentrySDK.startInvocations = 2
+        SentrySDKInternal.startInvocations = 2
         sut.start()
         assertNoOOMSent()
     }
 
-    func testDifferentBootTime_NoOOM() {
-        sut = fixture.getSut()
+    func testDifferentBootTime_NoOOM() throws {
+        sut = try fixture.getSut()
         sut.start()
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp.addingTimeInterval(1))
 
@@ -254,7 +261,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppWasInForeground_OOM() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         goToForeground()
@@ -277,12 +284,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         let breadcrumb = TestData.crumb
         let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
             breadcrumbProcessor: fixture.breadcrumbProcessor,
-            contextProcessor: fixture.contextProcessor
+            attributesProcessor: fixture.attributesProcessor
         )
 
         for _ in 0..<3 {
@@ -300,9 +307,60 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
         XCTAssertEqual(fatalEvent?.timestamp, breadcrumb.timestamp)
     }
+    
+    func testAppOOM_WithAttributes() throws {
+        sut = try fixture.getSut()
+
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: fixture.breadcrumbProcessor,
+            attributesProcessor: fixture.attributesProcessor
+        )
+
+        let testUser = TestData.user
+        let extra = ["key": "value"] as [String: Any]
+        let testContext = ["device": ["name": "iPhone"], "appData": ["version": "1.0.0"]] as [String: [String: Any]]
+        let dist = "1.0.0"
+        let env = "development"
+        let tags = ["tag1": "value1", "tag2": "value2"]
+        sentryWatchdogTerminationScopeObserver.setUser(testUser)
+        sentryWatchdogTerminationScopeObserver.setContext(testContext)
+        sentryWatchdogTerminationScopeObserver.setDist(dist)
+        sentryWatchdogTerminationScopeObserver.setEnvironment(env)
+        sentryWatchdogTerminationScopeObserver.setTags(tags)
+        sentryWatchdogTerminationScopeObserver.setExtras(extra)
+        sentryWatchdogTerminationScopeObserver.setFingerprint(["fingerprint1", "fingerprint2"])
+
+        sut.start()
+        goToForeground()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.scopePersistentStore.moveAllCurrentStateToPreviousState()
+        sut.start()
+
+        let fatalEvent = fixture.client.captureFatalEventInvocations.first?.event
+
+        // Verify all attributes are properly set on the event
+        XCTAssertEqual(fatalEvent?.user?.userId, testUser.userId)
+        XCTAssertEqual(fatalEvent?.user?.email, testUser.email)
+        XCTAssertEqual(fatalEvent?.user?.username, testUser.username)
+        XCTAssertEqual(fatalEvent?.user?.name, testUser.name)
+        
+        XCTAssertEqual(fatalEvent?.dist, dist)
+        XCTAssertEqual(fatalEvent?.environment, env)
+        XCTAssertEqual(fatalEvent?.tags, tags)
+
+        XCTAssertEqual(NSDictionary(dictionary: fatalEvent?.extra ?? [:]), NSDictionary(dictionary: extra))
+        XCTAssertEqual(fatalEvent?.fingerprint, ["fingerprint1", "fingerprint2"])
+
+        // Verify context is properly set (including the app.in_foreground = true that's added by the tracker)
+        let eventContext = fatalEvent?.context
+        XCTAssertNotNil(eventContext)
+        XCTAssertEqual(eventContext?["device"] as? [String: String], testContext["device"] as? [String: String])
+        XCTAssertEqual(eventContext?["appData"] as? [String: String], testContext["appData"] as? [String: String])
+    }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         hybridSdkDidBecomeActive()
@@ -313,7 +371,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
 
         sut.start()
         goToForeground()
@@ -325,7 +383,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() throws {
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
         
         sut.start()
         hybridSdkDidBecomeActive()
@@ -355,9 +413,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testStop_StopsObserving_NoMoreFileManagerInvocations() {
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
         let fileManager = try! TestFileManager(options: Options())
-        sut = fixture.getSut(fileManager: fileManager)
+        sut = try fixture.getSut(fileManager: fileManager)
 
         sut.start()
         sut.stop()

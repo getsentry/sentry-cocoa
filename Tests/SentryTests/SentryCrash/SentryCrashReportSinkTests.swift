@@ -1,4 +1,4 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
@@ -32,7 +32,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     }
     
     func testFilterReports_CopyHubScope() {
-        SentrySDK.currentHub().scope.setEnvironment("testFilterReports_CopyHubScope")
+        SentrySDKInternal.currentHub().scope.setEnvironment("testFilterReports_CopyHubScope")
         
         let expect = expectation(description: "Callback Called")
         
@@ -122,7 +122,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     }
     
     private func getTestClient() -> TestClient {
-        let client = SentrySDK.currentHub().getClient() as? TestClient
+        let client = SentrySDKInternal.currentHub().getClient() as? TestClient
         
         if client == nil {
             XCTFail("Hub Client is not a `TestClient`")

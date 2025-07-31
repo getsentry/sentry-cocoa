@@ -419,3 +419,17 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/issues/4887
 - https://github.com/getsentry/sentry-cocoa/pull/4910
+
+## Decodable conformances to ObjC types
+
+A few types that are defined in ObjC have Decodable conformances in "Sources/Swift/Protocol/Codable/". This works for xcodebuild where ObjC and Swift are in the same target
+but not for SPM where ObjC and Swift have to be in different targets. This is because Swift does not support adding a protocol conformance to a type in a different module
+than the one the type/protocol is defined in. To work around this Swift code subclasses the ObjC type and adds the conformance to the subclass. It is then decoded as a
+subclass and cast back to the superclass. This is only done for SPM, not xcodebuild, because the Codable conformance is part of the public API and therefore requires a
+major version bump to change.
+
+Future types conforming to Decodable can be written in Swift from the start and therefore have the conformance added directly to the type.
+
+## v9
+
+Work on the v9 SDK is being done behind the compiler flag `SDK_V9`. CI builds the SDK with this flag enabled to ensure it does not break during the course of non-v9 development. This SDK version will focus on quality and be a part of Sentry’s quality quarter initiative. Notably, the minimum supported OS version will be bumped in this release. The changelog for this release is being tracked in [CHANGELOG-v9.md](../CHANGELOG-v9.md).

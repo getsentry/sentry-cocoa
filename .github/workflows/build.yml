@@ -31,7 +31,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -49,7 +49,7 @@ jobs:
         run: bundle exec fastlane build_ios_swift
 
   build-sample:
-    name: Sample ${{ matrix.scheme }}
+    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -57,15 +57,33 @@ jobs:
         # other sample projects are built in ui-tests
         include:
           - scheme: macOS-Swift
+            config: Debug
           - scheme: iOS13-Swift
+            config: Debug
           - scheme: watchOS-Swift WatchKit App
+            config: Debug
           - scheme: macOS-SwiftUI
+            config: Debug
           - scheme: SessionReplay-CameraTest
+            config: Debug
           - scheme: visionOS-Swift
+            config: Debug
+          - scheme: iOS-Swift
+            config: DebugV9
+          - scheme: macOS-Swift
+            config: DebugV9
+          - scheme: tvOS-Swift
+            config: DebugV9
+          - scheme: visionOS-Swift
+            config: DebugV9
+          - scheme: iOS-SwiftUI
+            config: DebugV9
+          - scheme: iOS-ObjectiveC
+            config: DebugV9
 
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
 
@@ -76,7 +94,7 @@ jobs:
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
-          -configuration Debug
+          -configuration ${{matrix.config}}
           CODE_SIGNING_ALLOWED="NO"
           build
 
@@ -87,10 +105,28 @@ jobs:
           name: raw-build-output-scheme-${{matrix.scheme}}
           path: |
             raw-build-output.log
+  build-spm:
+    name: Build with SPM
+    runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false
+    steps:
+      - uses: actions/checkout@v4
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
+        shell: sh
+      - run: EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos'
+        shell: sh
+
+  build-v9:
+    name: Build SDK v9
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os latest --device "iPhone 16" --command build --configuration DebugV9
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -100,7 +136,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -108,7 +144,7 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -118,7 +154,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -126,7 +162,7 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -136,7 +172,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Debug \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
@@ -144,7 +180,7 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -154,7 +190,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Release \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
@@ -163,6 +199,7 @@ jobs:
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error,
     # you only get the compiler error when setting the SENTRY_ASYNC_SAFE_LOG_LEVEL to SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG or lower.
+
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
@@ -178,7 +215,7 @@ jobs:
           sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
         shell: bash
 
-      - run: ./scripts/ci-select-xcode.sh 16.3
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |

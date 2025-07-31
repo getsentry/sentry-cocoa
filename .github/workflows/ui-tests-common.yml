@@ -35,6 +35,14 @@ on:
         required: false
         default: false
         type: boolean
+      codecov_test_analytics:
+        description: "Whether or not to push results to Codecov for analytics."
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   common-ui-tests:
@@ -56,7 +64,17 @@ jobs:
         with:
           bundler-cache: true
 
-      - run: ./scripts/ci-select-xcode.sh ${{ inputs.xcode_version }}
+      - name: Install old xcodegen
+        if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
+        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        run: |
+          brew install --formula ./scripts/xcodegen.rb
+          brew pin xcodegen
+
+      - name: Select Xcode version
+        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+        env:
+          XCODE_VERSION: ${{ inputs.xcode_version }}
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
@@ -71,7 +89,7 @@ jobs:
         if: ${{ inputs.needs_xcframework }}
         uses: actions/download-artifact@v4
         with:
-          name: xcframework-${{github.sha}}-sentry-static-uitests
+          name: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
 
       - name: Unzip XCFramework
@@ -80,16 +98,33 @@ jobs:
           unzip -o Carthage/Sentry.xcframework.zip -d Carthage/
 
       - name: Run Fastlane
-        run: bundle exec fastlane ${{ inputs.fastlane_command }} ${{ inputs.fastlane_command_extra_arguments }}
+        env:
+          FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
+          FASTLANE_EXTRA_ARGS: ${{ inputs.fastlane_command_extra_arguments }}
+        run: |
+          if [ -n "$FASTLANE_EXTRA_ARGS" ]; then
+            bundle exec fastlane "$FASTLANE_COMMAND" "$FASTLANE_EXTRA_ARGS"
+          else
+            bundle exec fastlane "$FASTLANE_COMMAND"
+          fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5.6.2
         if: always()
         with:
           report_paths: build/reports/*junit.xml
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
+
+      - name: Codecov test analytics
+        if: ${{ !cancelled() && inputs.codecov_test_analytics }}
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+          name: sentry-cocoa-unit-tests
+          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
@@ -98,6 +133,14 @@ jobs:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
           path: |
             fastlane/test_results/**/*.xcresult
+
+      - name: Upload iOS Simulator Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4

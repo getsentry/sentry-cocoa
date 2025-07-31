@@ -1,4 +1,4 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -103,7 +103,7 @@ class SentryAppStateManagerTests: XCTestCase {
         sut.stop(withForce: true)
         XCTAssertEqual(sut.startCount, 0)
 
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 4)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 4)
     }
 
     func testUpdateAppState() {

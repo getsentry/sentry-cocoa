@@ -32,13 +32,18 @@ concurrency:
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - name: Install old xcodegen
+        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        run: |
+          brew install --formula ./scripts/xcodegen.rb
+          brew pin xcodegen
       - run: make init-ci-build
       - run: make xcode-ci
       - name: Install SentryCli
@@ -171,69 +176,3 @@ jobs:
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
             --verbose
-
-  build-xcframework-variant-slices:
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    with:
-      name: Sentry
-      suffix: "-Dynamic"
-      variant-id: sentry-dynamic
-      sdk-list: '["iphoneos", "iphonesimulator"]'
-
-  assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    with:
-      name: Sentry
-      suffix: "-Dynamic"
-      variant-id: sentry-dynamic
-      sdks: "iphoneos,iphonesimulator"
-
-  app-metrics:
-    name: Collect app metrics
-    runs-on: macos-15
-    needs: assemble-xcframework-variant
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - run: ./scripts/ci-select-xcode.sh 16.3
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - uses: actions/cache@v4
-        id: app-plain-cache
-        with:
-          path: Tests/Perf/test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
-      - name: Build test app plain
-        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: bundle exec fastlane build_perf_test_app_plain
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: xcframework-${{github.sha}}-sentry-dynamic
-          path: Carthage/
-      - run: find Carthage -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
-      - name: Build test app with sentry
-        run: bundle exec fastlane build_perf_test_app_sentry
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Collect app metrics
-        uses: getsentry/action-app-sdk-overhead-metrics@v1
-        with:
-          config: Tests/Perf/metrics-test.yml
-          sauce-user: ${{ secrets.SAUCE_USERNAME }}
-          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}

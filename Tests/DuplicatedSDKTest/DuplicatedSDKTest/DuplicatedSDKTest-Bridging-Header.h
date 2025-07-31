@@ -1,7 +1,8 @@
 
 #import <Sentry/Sentry.h>
 
-@interface SentrySDK (DuplicatedSDKTest)
+// Added to run integration tests, do not attempt this in your app
+@interface SentrySDKInternal : NSObject
 
 + (SentryHub *)currentHub;
 

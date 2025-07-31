@@ -1,5 +1,5 @@
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class DataSentryTracingIntegrationTests: XCTestCase {
@@ -20,6 +20,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
         init() {}
 
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         func getSut(testName: String, isSDKEnabled: Bool = true, isEnabled: Bool = true) throws -> Data {
             let fileManager = FileManager.default
             let tempDirUrl = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -59,7 +60,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                 }
 
                 // Get the working directory of the SDK, as these files are ignored by default
-                guard let sentryPath = SentrySDK.currentHub().getClient()?.fileManager.sentryPath else {
+                guard let sentryPath = SentrySDKInternal.currentHub().getClient()?.fileManager.sentryPath else {
                     preconditionFailure("Sentry path is nil, but should be configured for test cases.")
                 }
                 let sentryPathUrl = URL(fileURLWithPath: sentryPath)
@@ -130,6 +131,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     // MARK: - Data.init(contentsOfWithSentryTracing:)
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_shouldTraceManually() throws {
         // -- Arrange --
         let expectedData = try fixture.getSut(testName: self.name)
@@ -159,6 +161,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
         // -- Arrange --
         let expectedData = try fixture.getSut(testName: self.name)
@@ -186,6 +189,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(mappedSentryData, expectedData)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
@@ -212,6 +216,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
@@ -225,6 +230,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name, isEnabled: false)
@@ -238,6 +244,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
@@ -251,6 +258,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_SDKIsNotStarted_shouldReadData() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name, isSDKEnabled: false)
@@ -263,6 +271,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(data, fixture.data)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInitContentsOfWithSentryTracing_SDKIsClosed_shouldReadData() throws {
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
@@ -278,6 +287,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     // MARK: - Data.writeWithSentryTracing(to:)
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
@@ -313,6 +323,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracingWithOptions_shouldPassOptionsToSystemImplementation() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
@@ -344,6 +355,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenData, sut)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_throwsError_shouldTraceManuallyWithErrorRethrow() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
@@ -370,6 +382,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertGreaterThan(endTimestamp.timeIntervalSince1970, startTimestamp.timeIntervalSince1970)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_nonFileUrl_shouldNotTraceManually() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
@@ -382,6 +395,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_trackerIsNotEnabled_shouldNotTraceManually() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name, isEnabled: false)
@@ -394,6 +408,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)
@@ -413,6 +428,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(parentTransaction.children.count, 0)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_SDKIsNotStarted_shouldWriteFile() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name, isSDKEnabled: false)
@@ -431,6 +447,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
         XCTAssertEqual(writtenData, fixture.data)
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testWriteWithSentryTracing_SDKIsClosed_shouldWriteFile() throws {
         // -- Arrange --
         let sut: Data = try fixture.getSut(testName: self.name)

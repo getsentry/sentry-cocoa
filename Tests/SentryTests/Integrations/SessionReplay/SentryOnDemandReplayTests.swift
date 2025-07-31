@@ -1,8 +1,8 @@
 import AVFoundation
 import CoreMedia
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -243,7 +243,40 @@ class SentryOnDemandReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(videos.count, 0)
     }
-    
+
+    func testCreateVideo_DeleteFrameImages_NoVideoCreated() throws {
+        // -- Arrange --
+        let processingQueue = SentryDispatchQueueWrapper()
+        let workerQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: workerQueue
+        )
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.addFrameAsync(timestamp: start, maskedViewImage: UIImage.add)
+
+        processingQueue.dispatchSync {
+            // Wait for the frame to be added by adding a sync operation to the serial queue
+        }
+        let end = start.addingTimeInterval(10)
+
+        // Delete the image added above so that reading the image at the image path fails,
+        // because it's removed.
+        let fileManager = FileManager.default
+        let contents = try fileManager.contentsOfDirectory(at: outputPath, includingPropertiesForKeys: nil)
+        for fileURL in contents {
+            try fileManager.removeItem(at: fileURL)
+        }
+
+        // -- Act --
+        let result = sut.createVideoWith(beginning: start, end: end)
+
+        // --  Assert --
+        XCTAssertEqual(result.count, 0)
+    }
+
     func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {
         // -- Arrange --
         let framesPerSecond = 1

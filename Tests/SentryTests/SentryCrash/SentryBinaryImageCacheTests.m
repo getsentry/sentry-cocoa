@@ -1,5 +1,6 @@
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashDynamicLinker+Test.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import <XCTest/XCTest.h>
@@ -85,6 +86,7 @@ delayAddBinaryImage(void)
     mach_headers_test_cache = [NSMutableArray array];
 
     // Manually include dyld
+    sentrycrashdl_initialize();
     [mach_headers_test_cache addObject:[NSValue valueWithPointer:sentryDyldHeader]];
     _dyld_register_func_for_add_image(&cacheMachHeaders);
 }
@@ -102,6 +104,7 @@ delayAddBinaryImage(void)
 
 - (void)tearDown
 {
+    sentrycrashdl_clearDyld();
     sentry_resetFuncForAddRemoveImage();
     sentrycrashbic_stopCache();
     sentry_setFuncForBeforeAdd(NULL);
@@ -273,7 +276,7 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
 
     SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
-    [imageCache start];
+    [imageCache start:false];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
     XCTAssertEqual(5, imageCache.cache.count);

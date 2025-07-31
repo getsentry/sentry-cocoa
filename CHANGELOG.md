@@ -2,9 +2,99 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix Infinite Session Replay Processing Loop (#5765)
+
+## 8.54.0
+
+### Fixes
+
+- Add null-handling for internal array sanitization (#5722)
+
+### Features
+
+- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637, #5643)
+- Add `isiOSAppOnMac` and `isMacCatalystApp` from ProcessInfo to the runtime context (#5570)
+- The SDK will show a warning in the console if it detects it was loaded twice (#5298)
+
+### Improvements
+
+- Extract video processing to a new class (#5604)
+- Move continuous profiling payload serialization off of the main thread (#5613)
+- Improve video generation using apple recommended loop (#5612)
+- Use -OSize for release builds (#5721)
+- Mark The `integrations` parameter of `SentryOptions` as deprecated rather than printing a warning (#5749)
+
+### Fixes
+
+- Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
+- Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
+- Launch profiling now respects original configured options if they change on the next launch (#5417)
+- User feedback no longer subject to sample rates or `beforeSend` (#5692)
+- Build error in app extensions (#5682)
+- Fix frame metrics including time while in background (#5681)
+
+## 8.53.2
+
+### Fixes
+
+- Set handled to false for fatal app hangs (#5514)
+- User feedback widget can now be displayed in SwiftUI apps (#5223)
+- Fix crash when SentryFileManger is nil (#5535)
+- Fix crash when capturing events at the same time `bindClient:` is called from a different thread (#5523)
+- Record user for watchdog termination events (#5558)
+- Add support for dist and environment fields for termination watch (#5560)
+- Add support for tags and context fields for termination watch (#5561)
+- Add support for extras, fingerprint, and level watchdog termination events (#5569)
+
+### Improvements
+
+- Removed `APPLICATION_EXTENSION_API_ONLY` requirement (#5524)
+- Improve launch profile configuration management (#5318)
+- Deprecate getStoreEndpoint (#5591)
+
+## 8.53.1
+
+### Fixes
+
+- Fix XCFramework version including commit sha on release. (#5493)
+
+## 8.53.0
+
+> [!Warning]
+> This version can cause build errors when using one of the XCFrameworks, such as
+> `The value for key CFBundleVersion [8.53.0+f92cfa9b1199c75411a263d2d9bc2df8ea8029cf] in the Info.plist file must be no longer than 18 characters.`
+> Updating to 8.53.1 fixes this problem.
+
 ### Features
 
 - Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+
+### Fixes
+
+- Fix building with Xcode 26 (#5386)
+- Fix usage of `@available` to be `iOS` instead of `iOSApplicationExtension` (#5361)
+- Fix stacktrace symbolication of fatal app hangs (#5438)
+- Robustness against corrupt launch profile configuration files (#5447)
+- Fix auto-start for session tracker when SDK is started after app did become active (#5121)
+- Sessions will now be marked as exited instead of abnormal exit when closing the SDK (#5121)
+- Manually add `dyld` image to image cache to fix dyld symbols appearing as `unknown` (#5418)
+
+### Improvements
+
+- Converted SentryUserFeedback from Objective-C to Swift (#5377)
+- Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
+- Move SentryExperimentalOptions to a property defined in Swift (#5329)
+- Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
+- Convert SentryNSURLRequest to Swift (#5457)
+
+## 8.53.0-alpha.0
+
+### Features
+
+- Capturing fatal CPPExceptions via hooking into cxa_throw when enabling `options.experimental.enableUnhandledCPPExceptionsV2 = true` (#5256)
+- [Structured Logging] Models + Preparation ([#5441](https://github.com/getsentry/sentry-cocoa/pull/5441))
 
 ### Fixes
 

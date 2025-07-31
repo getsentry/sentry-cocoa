@@ -5,6 +5,7 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
+  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -31,6 +32,7 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: visionOS-Swift.xcconfig
+      DebugV9: visionOS-Swift.xcconfig
       Release: visionOS-Swift.xcconfig
       Test: visionOS-Swift.xcconfig
       TestCI: visionOS-Swift.xcconfig

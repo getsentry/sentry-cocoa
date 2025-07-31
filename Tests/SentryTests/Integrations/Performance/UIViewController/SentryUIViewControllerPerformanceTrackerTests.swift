@@ -2,7 +2,7 @@
 
 import ObjectiveC
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class TestViewController: UIViewController {
@@ -41,6 +41,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
         }
         
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             options = Options.noIntegrations()
             let imageName = String(
@@ -67,6 +68,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
