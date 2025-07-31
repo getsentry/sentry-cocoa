@@ -4,6 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryModels+Serializable.h"

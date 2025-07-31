@@ -1,3 +1,4 @@
+#import "SentryInternalDefines.h"
 #import <SentryWatchdogTerminationLogic.h>
 
 #if SENTRY_HAS_UIKIT

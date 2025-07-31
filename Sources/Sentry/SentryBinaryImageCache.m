@@ -4,6 +4,7 @@
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"

@@ -1,3 +1,4 @@
+#import "SentryInternalDefines.h"
 #import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT

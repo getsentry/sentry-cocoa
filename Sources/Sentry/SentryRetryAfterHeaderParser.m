@@ -1,5 +1,6 @@
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryHttpDateParser.h"
+#import "SentryInternalDefines.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN

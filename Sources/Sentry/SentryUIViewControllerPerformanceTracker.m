@@ -1,4 +1,5 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import "SentryInternalDefines.h"
 
 #if SENTRY_HAS_UIKIT
 

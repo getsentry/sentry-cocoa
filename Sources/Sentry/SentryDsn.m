@@ -2,6 +2,7 @@
 
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryInternalDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
