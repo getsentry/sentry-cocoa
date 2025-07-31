@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix Infinite Session Replay Processing Loop (#5765)
+
 ## 8.54.0
 
 ### Fixes
@@ -28,7 +34,6 @@
 - User feedback no longer subject to sample rates or `beforeSend` (#5692)
 - Build error in app extensions (#5682)
 - Fix frame metrics including time while in background (#5681)
-- Fix Infinite Session Replay Processing Loop (#5765)
 
 ## 8.53.2
 
