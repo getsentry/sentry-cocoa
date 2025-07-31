@@ -5,6 +5,7 @@
 ### Fixes
 
 - Add null-handling for internal array sanitization (#5722)
+- Add support for PDFKit views in session replay (#5750)
 
 ### Features
 
