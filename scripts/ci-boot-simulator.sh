@@ -52,8 +52,8 @@ case "$XCODE_VERSION" in
 esac
 
 UDID=$(xcrun simctl list devices available | \
-grep -A 5 "^-- iOS 18.2 --" | \
-grep "iPhone 16 (" | \
+grep -A 5 "^-- iOS $IOS_VERSION --" | \
+grep "$SIMULATOR (" | \
 sed -n 's/.*(\([0-9A-F-]\{36\}\)).*/\1/p' | \
 head -n1)
 
