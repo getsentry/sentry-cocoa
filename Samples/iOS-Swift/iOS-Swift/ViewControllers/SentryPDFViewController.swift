@@ -4,7 +4,6 @@ class SentryPDFViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Set up the PDF view and add it to the view hierarchy
         let pdfView = PDFView()
         view.addSubview(pdfView)
 
@@ -16,7 +15,6 @@ class SentryPDFViewController: UIViewController {
             pdfView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
-        // Load a PDF document
         guard let fileUrl = Bundle.main.url(forResource: "ProjectProposal", withExtension: "pdf"),
               let document = PDFDocument(url: fileUrl) else {
             preconditionFailure("Failed to load PDF document from bundle.")
