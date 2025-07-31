@@ -154,6 +154,7 @@ while true; do
     
     if [ $elapsed -ge 20 ]; then
         log "❌ App is still running after 20 seconds but it should have crashed instead."
+        take_simulator_screenshot "app-did-not-crash"
         exit 1
     fi
 
@@ -183,6 +184,8 @@ while true; do
         log "⏳ App is still running."
     else
         log "❌ App is not running."   
+        take_simulator_screenshot "app-did-crash"
+        exit 1
     fi
     
     current_time=$(date +%s)
