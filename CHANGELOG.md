@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix Infinite Session Replay Processing Loop (#5765)
+
 ## 8.54.0
 
 ### Fixes
