@@ -112,10 +112,18 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
+
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | xcbeautify
         shell: sh
-      - run: EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos'
+        env:
+          NSUnbufferedIO: YES
+          EXPERIMENTAL_SPM_BUILDS: 1
+      - run: set -o pipefail && xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos' | xcbeautify
         shell: sh
+        env:
+          NSUnbufferedIO: YES
+          EXPERIMENTAL_SPM_BUILDS: 1
 
   build-v9:
     name: Build SDK v9
