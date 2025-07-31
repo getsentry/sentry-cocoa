@@ -4,6 +4,12 @@
 
 ### Fixes
 
+- Fix Infinite Session Replay Processing Loop (#5765)
+
+## 8.54.0
+
+### Fixes
+
 - Add null-handling for internal array sanitization (#5722)
 
 ### Features
