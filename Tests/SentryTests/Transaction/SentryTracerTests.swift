@@ -1178,7 +1178,7 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDKLog._configure(false, diagnosticLevel: .debug)
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
 
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
