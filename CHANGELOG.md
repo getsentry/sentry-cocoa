@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix Infinite Session Replay Processing Loop (#5765)
+- Fix memory leak in SessionReplayIntegration (#5770)
 
 ## 8.54.0
 

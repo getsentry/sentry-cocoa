@@ -159,12 +159,19 @@ static SentryTouchTracker *_touchTracker;
     [self cleanUp];
 
     [SentrySDKInternal.currentHub registerSessionListener:self];
+
+    __weak SentrySessionReplayIntegration *weakSelf = self;
     [SentryDependencyContainer.sharedInstance.globalEventProcessor
         addEventProcessor:^SentryEvent *_Nullable(SentryEvent *_Nonnull event) {
+            if (weakSelf == nil) {
+                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+                return event;
+            }
+
             if (event.isFatalEvent) {
-                [self resumePreviousSessionReplay:event];
+                [weakSelf resumePreviousSessionReplay:event];
             } else {
-                [self.sessionReplay captureReplayForEvent:event];
+                [weakSelf.sessionReplay captureReplayForEvent:event];
             }
             return event;
         }];
