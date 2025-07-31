@@ -668,6 +668,30 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
     }
 
+    func testSessionReplayIntegration_DoesNotLeakMemory() throws {
+
+        // -- Arrange --
+        weak var weakSut: SentrySessionReplayIntegration?
+
+        // Put into extra func so ARC deallocates the sut
+        func allocateSutAndDealloc() throws {
+            let options = Options()
+            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+
+            let instance = SentrySessionReplayIntegration()
+            instance.install(with: options)
+            instance.uninstall()
+
+            weakSut = instance
+        }
+
+        // --  Act --
+        try allocateSutAndDealloc()
+
+        // -- Assert --
+        XCTAssertNil(weakSut, "SentrySessionReplayIntegration should be deallocated")
+    }
+
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
