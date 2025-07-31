@@ -3,6 +3,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class FileManagerSentryTracingIntegrationTests: XCTestCase {
     private class Fixture {
         let mockDateProvider: TestCurrentDateProvider = {

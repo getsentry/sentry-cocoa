@@ -560,8 +560,15 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
+#if SDK_V9
+    NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
+#else
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDKInternal.currentHub getClient].options.integrations.mutableCopy;
+#    pragma clang diagnostic pop
+#endif // SDK_V9
 
     NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 

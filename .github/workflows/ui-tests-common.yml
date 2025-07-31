@@ -68,8 +68,7 @@ jobs:
         if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
         # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
         run: |
-          curl -o xcodegen.rb https://raw.githubusercontent.com/Homebrew/homebrew-core/ce15583d8bf5c7e9414d25fdadab704e06eabba9/Formula/x/xcodegen.rb
-          brew install --formula xcodegen.rb
+          brew install --formula ./scripts/xcodegen.rb
           brew pin xcodegen
 
       - name: Select Xcode version
@@ -125,6 +124,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
+          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
