@@ -356,8 +356,10 @@ private extension SentryContinuousProfilerTests {
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
 
+        #if arch(arm) || arch(arm64)
         // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch, expectOneLessEnergyReading: countMetricsReadingAtProfileStart)
+        #endif // arch(arm) || arch(arm64)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedContinuousProfileSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)

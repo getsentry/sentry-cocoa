@@ -356,10 +356,12 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 #endif // SENTRY_UIKIT_AVAILABLE
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 - (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
 }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
