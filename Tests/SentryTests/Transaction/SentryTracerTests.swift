@@ -1183,20 +1183,23 @@ class SentryTracerTests: XCTestCase {
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
 
         let transactions = 5
-        let expectation = XCTestExpectation(description: "Finish transactions")
-        expectation.expectedFulfillmentCount = transactions
+        let startTransactionExpectation = XCTestExpectation(description: "Start transactions")
+        let finishTransactionExpectation = XCTestExpectation(description: "Finish transactions")
+        startTransactionExpectation.expectedFulfillmentCount = transactions
+        finishTransactionExpectation.expectedFulfillmentCount = transactions
 
         for _ in 0..<transactions {
             queue.async {
                 let tracer = self.fixture.getSut()
+                startTransactionExpectation.fulfill()
 
                 tracer.finish()
-                expectation.fulfill()
+                finishTransactionExpectation.fulfill()
             }
         }
         
         queue.activate()
-        wait(for: [expectation], timeout: 5.0)
+        wait(for: [startTransactionExpectation, finishTransactionExpectation], timeout: 5.0)
 
         XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
 
