@@ -1178,6 +1178,8 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
+        SentrySDKLog._configure(false, diagnosticLevel: .debug)
+
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
@@ -1210,6 +1212,8 @@ class SentryTracerTests: XCTestCase {
         }
         
         XCTAssertEqual(transactionsWithAppStartMeasurement.count, 1, "Only one transaction should have the app start measurement, but got \(transactionsWithAppStartMeasurement.count)")
+
+        SentrySDKLog._configure(false, diagnosticLevel: .error)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
