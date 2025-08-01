@@ -425,7 +425,9 @@ static BOOL appStartMeasurementRead;
 
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
-    SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
+    SENTRY_LOG_DEBUG(@"Finished span %@ with operation '%@' and description '%@' for tracer %@",
+        finishedSpan.spanId.sentrySpanIdString, finishedSpan.operation, finishedSpan.description,
+        self.traceId.sentryIdString);
     // Calling canBeFinished on self would end up in an endless loop because canBeFinished
     // calls finish again.
     if (finishedSpan == self) {
@@ -552,10 +554,10 @@ static BOOL appStartMeasurementRead;
         }
 
         if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
-            SENTRY_LOG_DEBUG(
-                @"Span with id %@ has children but hasn't finished yet so isn't waiting "
-                @"for them right now.",
-                self.spanId.sentrySpanIdString);
+            SENTRY_LOG_DEBUG(@"Span with id %@ for tracer %@ has children but hasn't finished yet "
+                             @"so isn't waiting "
+                             @"for them right now.",
+                self.spanId.sentrySpanIdString, self.traceId.sentryIdString);
             return;
         }
     }
