@@ -4,17 +4,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
-    kSentrySessionStatusOk = 0,
-    kSentrySessionStatusExited = 1,
-    kSentrySessionStatusCrashed = 2,
-    kSentrySessionStatusAbnormal = 3,
-};
+NSString *nameForSentrySessionStatus(NSUInteger status);
 
 /**
  * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
-@interface SentrySession : NSObject <NSCopying>
+@interface SentrySessionInternal : NSObject <NSCopying>
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId;
@@ -32,10 +27,12 @@ SENTRY_NO_INIT
 
 - (void)incrementErrors;
 
+- (void)setFlagInit;
+
 @property (nonatomic, readonly, strong) NSUUID *sessionId;
 @property (nonatomic, readonly, strong) NSDate *started;
-@property (nonatomic, readonly) enum SentrySessionStatus status;
-@property (nonatomic, readonly) NSUInteger errors;
+@property (nonatomic, readonly) NSUInteger status;
+@property (nonatomic) NSUInteger errors;
 @property (nonatomic, readonly) NSUInteger sequence;
 @property (nonatomic, readonly, strong) NSString *distinctId;
 /**

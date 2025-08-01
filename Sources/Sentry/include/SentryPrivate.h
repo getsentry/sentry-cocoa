@@ -33,7 +33,7 @@
 #import "SentrySDKInternal.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
-#import "SentrySession.h"
+#import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
 #import "SentryTraceHeader.h"

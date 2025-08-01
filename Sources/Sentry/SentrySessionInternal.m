@@ -1,8 +1,8 @@
+#import "SentrySessionInternal.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -11,19 +11,19 @@ NSString *
 nameForSentrySessionStatus(SentrySessionStatus status)
 {
     switch (status) {
-    case kSentrySessionStatusOk:
+    case SentrySessionStatusOk:
         return @"ok";
-    case kSentrySessionStatusExited:
+    case SentrySessionStatusExited:
         return @"exited";
-    case kSentrySessionStatusCrashed:
+    case SentrySessionStatusCrashed:
         return @"crashed";
         break;
-    case kSentrySessionStatusAbnormal:
+    case SentrySessionStatusAbnormal:
         return @"abnormal";
     }
 }
 
-@implementation SentrySession
+@implementation SentrySessionInternal
 
 @synthesize flagInit = _init;
 
@@ -36,7 +36,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
         _started = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        _status = kSentrySessionStatusOk;
+        _status = SentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
         _distinctId = distinctId;
@@ -79,13 +79,13 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         if (status == nil || ![status isKindOfClass:[NSString class]])
             return nil;
         if ([@"ok" isEqualToString:status]) {
-            _status = kSentrySessionStatusOk;
+            _status = SentrySessionStatusOk;
         } else if ([@"exited" isEqualToString:status]) {
-            _status = kSentrySessionStatusExited;
+            _status = SentrySessionStatusExited;
         } else if ([@"crashed" isEqualToString:status]) {
-            _status = kSentrySessionStatusCrashed;
+            _status = SentrySessionStatusCrashed;
         } else if ([@"abnormal" isEqualToString:status]) {
-            _status = kSentrySessionStatusAbnormal;
+            _status = SentrySessionStatusAbnormal;
         } else {
             return nil;
         }
@@ -151,7 +151,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = kSentrySessionStatusExited;
+        _status = SentrySessionStatusExited;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -160,7 +160,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = kSentrySessionStatusCrashed;
+        _status = SentrySessionStatusCrashed;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -169,7 +169,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = kSentrySessionStatusAbnormal;
+        _status = SentrySessionStatusAbnormal;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -253,7 +253,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 
 - (id)copyWithZone:(nullable NSZone *)zone
 {
-    SentrySession *copy = [[[self class] allocWithZone:zone] init];
+    SentrySessionInternal *copy = [[[self class] allocWithZone:zone] init];
 
     if (copy != nil) {
         copy->_sessionId = _sessionId;
