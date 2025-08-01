@@ -9,6 +9,10 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 
+### Features
+
+- Provide a new unsigned dynamic variant for Sentry (#5784)
+
 ## 8.54.0
 
 ### Features
