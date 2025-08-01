@@ -39015,6 +39015,13 @@
       },
       {
         "kind": "Import",
+        "name": "PDFKit",
+        "printedName": "PDFKit",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
         "name": "Sentry",
         "printedName": "Sentry",
         "declKind": "Import",

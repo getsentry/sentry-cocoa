@@ -1,5 +1,6 @@
 #if os(iOS)
 import Foundation
+import PDFKit
 import SafariServices
 @testable import Sentry
 import SentryTestUtils
@@ -463,7 +464,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
     func testRedactList() {
         let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView"
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView", "PDFView"
         ].compactMap { NSClassFromString($0) }
         
         let sut = getSut()
@@ -572,6 +573,70 @@ class SentryUIRedactBuilderTests: XCTestCase {
             throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 16")
         }
         #endif
+    }
+
+    func testRedactPDFView() throws {
+        // -- Arrange --
+        let sut = getSut()
+        let pdfView = PDFView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(pdfView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ PDFView            (Public API)
+        //   └ PDFScrollView    (Private API)
+        XCTAssertEqual(result.count, 2)
+        let pdfRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(pdfRegion.type, .redact)
+        XCTAssertEqual(pdfRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(pdfRegion.color)
+
+        let pdfScrollViewRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(pdfScrollViewRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(pdfScrollViewRegion.type, .redact)
+        XCTAssertEqual(pdfScrollViewRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(pdfScrollViewRegion.color)
+    }
+
+    func testRedactPDFViewEvenWithMaskingDisabled() throws {
+        // -- Arrange --
+        // PDFView should always be redacted for security reasons,
+        // regardless of maskAllText and maskAllImages settings
+        let sut = getSut(TestRedactOptions(maskAllText: false, maskAllImages: false))
+        let pdfView = PDFView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(pdfView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ PDFView            (Public API)
+        //   └ PDFScrollView    (Private API)
+        XCTAssertEqual(result.count, 2)
+        let pdfRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(pdfRegion.type, .redact)
+        XCTAssertEqual(pdfRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(pdfRegion.color)
+
+        let pdfScrollViewRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(pdfScrollViewRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(pdfScrollViewRegion.type, .redact)
+        XCTAssertEqual(pdfScrollViewRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(pdfScrollViewRegion.color)
+    }
+
+    func testPDFViewInRedactList() {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        XCTAssertTrue(sut.containsRedactClass(PDFView.self), "PDFView should be in the redact class list")
     }
 }
 
