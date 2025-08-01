@@ -245,11 +245,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 
-    NSMutableDictionary *envelopeContent = [NSMutableDictionary dictionary];
-    envelopeContent[@"replay_event"] = replayEventData;
-    envelopeContent[@"replay_recording"] = recording;
-    envelopeContent[@"replay_video"] = videoURL;
-    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:envelopeContent
+    BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:@{
+        @"replay_event" : replayEventData,
+        @"replay_recording" : recording,
+        @"replay_video" : videoURL
+    }
                                                                     intoFile:envelopeContentUrl];
     if (success == NO) {
         SENTRY_LOG_ERROR(@"Could not create MessagePack for session replay envelope item.");
