@@ -57,6 +57,7 @@ take_simulator_screenshot() {
     # Generate timestamp-based filename with custom name
     timestamp=$(date '+%H%M%S')
     screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}.png"
+    full_screen_screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}_full_screen.png"
 
     log "Taking screenshot with name: $screenshot_name"
     
@@ -70,7 +71,7 @@ take_simulator_screenshot() {
     screenshot_pid=$!
 
     # take a screenshot of the whole screen
-    screencapture -x "${screenshot_name}_full_screen.png"
+    screencapture -x "$full_screen_screenshot_name"
     
     # Wait for 10 seconds or until process completes
     start_time=$(date +%s)
