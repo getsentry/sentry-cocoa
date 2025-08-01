@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -1326,6 +1325,41 @@
                                                                 <state key="normal" title="Get app support path"/>
                                                                 <connections>
                                                                     <action selector="getApplicationSupportPath:" destination="VqS-l1-kwe" eventType="touchUpInside" id="nck-yy-OlS"/>
+                                                                </connections>
+                                                            </button>
+                                                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="35d-Kb-jZ7">
+                                                                <rect key="frame" x="0.0" y="360" width="160" height="38"/>
+                                                                <subviews>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SsV-P2-Crh">
+                                                                        <rect key="frame" x="0.0" y="0.0" width="80" height="38"/>
+                                                                        <state key="normal" title="Button"/>
+                                                                        <buttonConfiguration key="configuration" style="plain" title="Use high energy">
+                                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                                        </buttonConfiguration>
+                                                                        <connections>
+                                                                            <action selector="highEnergyCPU:" destination="VqS-l1-kwe" eventType="touchUpInside" id="T6L-az-fGd"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Kd-xv-JiI">
+                                                                        <rect key="frame" x="80" y="0.0" width="80" height="38"/>
+                                                                        <state key="normal" title="Button"/>
+                                                                        <buttonConfiguration key="configuration" style="plain" title="Use low energy">
+                                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                                        </buttonConfiguration>
+                                                                        <connections>
+                                                                            <action selector="lowEnergyCPU:" destination="VqS-l1-kwe" eventType="touchUpInside" id="ufq-YQ-C4z"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                </subviews>
+                                                            </stackView>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ydY-kf-m7E">
+                                                                <rect key="frame" x="0.0" y="400" width="160" height="30"/>
+                                                                <state key="normal" title="Button"/>
+                                                                <buttonConfiguration key="configuration" style="plain" title="Stop energy">
+                                                                    <fontDescription key="titleFontDescription" type="system" pointSize="13"/>
+                                                                </buttonConfiguration>
+                                                                <connections>
+                                                                    <action selector="stopUsingEnergy:" destination="VqS-l1-kwe" eventType="touchUpInside" id="WQg-kX-cso"/>
                                                                 </connections>
                                                             </button>
                                                         </subviews>
