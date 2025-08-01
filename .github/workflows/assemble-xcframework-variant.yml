@@ -122,6 +122,12 @@ jobs:
         run: ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
         shell: bash
 
+      # Only do this for dynamic variants, as only that one is used by other SDKs
+      - name: Zip Unsigned XCFramework
+        if: steps.cache-xcframework.outputs.cache-hit != 'true' && ${{ inputs.signed == true }} && ${{ inputs.suffix == '-Dynamic' }}
+        run: ./scripts/compress-xcframework.sh --not-signed ${{inputs.name}}${{inputs.suffix}}-Unsigned
+        shell: bash
+
       - name: Cache XCFramework
         uses: actions/cache@v4
         with:
@@ -135,3 +141,12 @@ jobs:
           name: xcframework-${{github.sha}}-${{inputs.variant-id}}
           if-no-files-found: error
           path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
+
+      - name: Upload Unsigned XCFramework
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.signed == true }} && ${{ inputs.suffix == '-Dynamic' }}
+        with:
+          overwrite: true
+          name: xcframework-${{github.sha}}-${{inputs.variant-id}}-unsigned
+          if-no-files-found: error
+          path: ${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework.zip
