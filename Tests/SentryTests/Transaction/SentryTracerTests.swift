@@ -1180,22 +1180,17 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDKLog._configure(true, diagnosticLevel: .debug)
-
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "testConcurrentTransactions_OnlyOneGetsMeasurement", attributes: [.concurrent, .initiallyInactive] )
 
         let transactions = 5
-        let startTransactionExpectation = XCTestExpectation(description: "Start transactions")
         let finishTransactionExpectation = XCTestExpectation(description: "Finish transactions")
-        startTransactionExpectation.expectedFulfillmentCount = transactions
         finishTransactionExpectation.expectedFulfillmentCount = transactions
 
         for _ in 0..<transactions {
             queue.async {
                 let tracer = self.fixture.getSut()
-                startTransactionExpectation.fulfill()
 
                 tracer.finish()
                 finishTransactionExpectation.fulfill()
@@ -1204,7 +1199,6 @@ class SentryTracerTests: XCTestCase {
         
         queue.activate()
 
-        wait(for: [startTransactionExpectation], timeout: 10.0)
         wait(for: [finishTransactionExpectation], timeout: 10.0)
 
         XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
@@ -1217,7 +1211,6 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(transactionsWithAppStartMeasurement.count, 1, "Only one transaction should have the app start measurement, but got \(transactionsWithAppStartMeasurement.count)")
 
-        SentrySDKLog._configure(false, diagnosticLevel: .error)
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
