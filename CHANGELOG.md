@@ -34,16 +34,6 @@
 - Use -OSize for release builds (#5721)
 - Mark The `integrations` parameter of `SentryOptions` as deprecated rather than printing a warning (#5749)
 
-### Fixes
-
-- Fix video replay crashes due to video writer inputs not marked as finished on cancellation (#5608)
-- Fix wrong flush timeout (#5565). When flush timed out before the SDK finished sending data, it always blocked the full flush timeout the next time being called. This is fixed now.
-- Launch profiling now respects original configured options if they change on the next launch (#5417)
-- User feedback no longer subject to sample rates or `beforeSend` (#5692)
-- Build error in app extensions (#5682)
-- Fix frame metrics including time while in background (#5681)
-- Fix Infinite Session Replay Processing Loop (#5765)
-
 ## 8.53.2
 
 ### Fixes
