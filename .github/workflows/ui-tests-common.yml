@@ -124,7 +124,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
-          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}
+          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4
