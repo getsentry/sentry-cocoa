@@ -198,7 +198,6 @@
 #import "SentryPropagationContext.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySession+Private.h"
 #import "SentrySessionTracker.h"
 #import "SentrySpan.h"
 #import "SentrySpanDataKey.h"

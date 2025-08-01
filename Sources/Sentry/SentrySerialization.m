@@ -9,7 +9,6 @@
 #import "SentryLogC.h"
 #import "SentryModels+Serializable.h"
 #import "SentrySdkInfo.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 

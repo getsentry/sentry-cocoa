@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -173,6 +174,6 @@ class SentrySessionTestsSwift: XCTestCase {
 
 extension SentrySessionStatus {
     var description: String {
-        return nameForSentrySessionStatus(self)
+        return nameForSentrySessionStatus(self.rawValue)
     }
 }

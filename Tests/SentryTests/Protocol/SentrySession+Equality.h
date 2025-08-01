@@ -1,4 +1,4 @@
-#import "SentrySession.h"
+@import Sentry;
 
 NS_ASSUME_NONNULL_BEGIN
 
