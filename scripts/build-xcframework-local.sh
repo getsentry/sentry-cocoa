@@ -11,8 +11,11 @@ mkdir Carthage
 
 if [ "$variants" = "DynamicOnly" ] || [ "$variants" = "AllVariants" ]; then
     ./scripts/build-xcframework-variant.sh "Sentry" "-Dynamic" "mh_dylib" "" "$sdks"
+    cp -R Sentry-Dynamic.xcframework Sentry-Dynamic-Unsigned.xcframework
+    ditto -c -k -X --rsrc --keepParent "Sentry-Dynamic-Unsigned.xcframework" "Sentry-Dynamic-Unsigned.xcframework.zip"
     ./scripts/compress-xcframework.sh "$signed" Sentry-Dynamic
     mv Sentry-Dynamic.xcframework.zip Carthage/Sentry-Dynamic.xcframework.zip
+    mv Sentry-Dynamic-Unsigned.xcframework.zip Carthage/Sentry-Dynamic-Unsigned.xcframework.zip
 fi
 
 if [ "$variants" = "StaticOnly" ] || [ "$variants" = "AllVariants" ]; then
