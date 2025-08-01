@@ -395,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setCurrentScreen:(nullable NSString *)currentScreen
+- (void)setCurrentScreen:(NSString *_Nullable)currentScreen
 {
     _currentScreen = currentScreen;
 
