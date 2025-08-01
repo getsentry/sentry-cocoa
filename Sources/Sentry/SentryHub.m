@@ -453,6 +453,9 @@ NS_ASSUME_NONNULL_BEGIN
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                 configuration:(SentryTracerConfiguration *)configuration
 {
+    SENTRY_LOG_DEBUG(@"Starting transaction with name: %@, operation: %@, origin: %@",
+        transactionContext.name, transactionContext.operation, transactionContext.origin);
+
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
