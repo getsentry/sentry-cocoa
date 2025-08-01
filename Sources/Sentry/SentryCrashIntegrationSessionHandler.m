@@ -6,7 +6,6 @@
 #import "SentryHub.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryWatchdogTerminationLogic.h"
 
