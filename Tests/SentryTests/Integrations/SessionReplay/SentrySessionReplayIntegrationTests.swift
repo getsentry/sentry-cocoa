@@ -63,9 +63,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
-    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, callingFunction: String = #function, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
-            $0.dsn = "https://user@test.com/test"
+            $0.dsn = TestConstants.dsnAsString(username: "SessionReplayIntegrationTests.\(callingFunction)")
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
