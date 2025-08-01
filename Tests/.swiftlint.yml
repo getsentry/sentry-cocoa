@@ -1,7 +1,14 @@
 parent_config: ../.swiftlint.yml
 
-enabled_rules:
+opt_in_rules:
   - test_case_accessibility
+
+custom_rules:
+  avoid_background_qos_for_dispatch_queue:
+    name: "Avoid background QoS for dispatch queues in tests"
+    regex: 'qos:\s*\.background'
+    message: "Avoid background QoS for dispatch queues in tests, as in CI, work on dispatch queues with background QoS can take a long time to run and lead to flaky tests."
+    severity: error
 
 disabled_rules:
   - force_cast
