@@ -6,6 +6,7 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMessage.h"
 #import "SentryMsgPackSerializer.h"
@@ -232,15 +233,21 @@ NS_ASSUME_NONNULL_BEGIN
                                        video:(NSURL *)videoURL
 {
     NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
-    NSData *_Nullable recording = [SentrySerialization dataWithReplayRecording:replayRecording];
+    NSData *_Nullable nullableRecording =
+        [SentrySerialization dataWithReplayRecording:replayRecording];
+    if (nil == nullableRecording) {
+        SENTRY_LOG_ERROR(
+            @"Could not serialize replay recording data for envelope item. Recording will be nil.");
+        return nil;
+    }
+    NSData *_Nonnull recording = SENTRY_UNWRAP_NULLABLE(NSData, nullableRecording);
+
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 
     NSMutableDictionary *envelopeContent = [NSMutableDictionary dictionary];
     envelopeContent[@"replay_event"] = replayEventData;
-    if (nil != recording) {
-        envelopeContent[@"replay_recording"] = recording;
-    }
+    envelopeContent[@"replay_recording"] = recording;
     envelopeContent[@"replay_video"] = videoURL;
     BOOL success = [SentryMsgPackSerializer serializeDictionaryToMessagePack:envelopeContent
                                                                     intoFile:envelopeContentUrl];

@@ -544,6 +544,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
         SENTRY_LOG_DEBUG(@"The event preprocessor didn't update the replay event in place. The "
                          @"replay was discarded.");
+        // Record a lost event in case the preparing of the event (e.g. encoding the event) failed.
+        // This is used to determin if replay events are missing due to an error in the SDK.
+        [self recordLostEvent:kSentryDataCategoryReplay
+                       reason:kSentryDiscardReasonInsufficientData];
         return;
     }
 

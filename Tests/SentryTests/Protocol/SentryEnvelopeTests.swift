@@ -319,7 +319,32 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertNotNil(
             SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize))
     }
-    
+
+    func testInitWithReplayEvent_replayRecordingFailsToSerialize_shouldReturnNil() {
+        // -- Arrange --
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                // This will cause serialization to fail, because NSObject cannot be serialized to JSON
+                return [["KEY": NSObject()]]
+            }
+        }
+
+        let event = SentryReplayEvent(
+            eventId: SentryId(),
+            replayStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            replayType: SentryReplayType.buffer,
+            segmentId: 5
+        )
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
+        let videoUrl = URL(fileURLWithPath: fixture.path)
+
+        // -- Act --
+        let result = SentryEnvelopeItem(replayEvent: event, replayRecording: recording, video: videoUrl)
+
+        // -- Assert --
+        XCTAssertNil(result, "Expected nil result when replay recording serialization fails.")
+    }
+
     private func writeDataToFile(data: Data) {
         do {
             try data.write(to: URL(fileURLWithPath: fixture.path))
