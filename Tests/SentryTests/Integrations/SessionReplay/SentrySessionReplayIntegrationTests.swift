@@ -7,7 +7,9 @@ import XCTest
 
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
-    
+
+    private let dsn = TestConstants.dsnAsString(username: "SessionReplayIntegrationTests")
+
     private class TestSentryUIApplication: SentryUIApplication {
         init() {
             super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
@@ -63,9 +65,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
-    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, callingFunction: String = #function, configure: ((Options) -> Void)? = nil) {
+    private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
-            $0.dsn = TestConstants.dsnAsString(username: "SessionReplayIntegrationTests.\(callingFunction)")
+            $0.dsn = self.dsn
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
             $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
@@ -725,7 +727,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private func replayFolder() -> String {
         let options = Options()
-        options.dsn = "https://user@test.com/test"
+        options.dsn = self.dsn
         options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
         return options.cacheDirectoryPath + "/io.sentry/\(options.parsedDsn?.getHash() ?? "")/replay"
     }
