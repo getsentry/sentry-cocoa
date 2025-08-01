@@ -293,7 +293,8 @@ static BOOL appStartMeasurementRead;
 
 - (void)deadlineTimeoutExceeded
 {
-    SENTRY_LOG_DEBUG(@"Sentry tracer deadline exceeded");
+    SENTRY_LOG_DEBUG(
+        @"Sentry tracer deadline exceeded for traceID: @%", self.traceId.sentryIdString);
     @synchronized(self) {
         // This try to minimize a race condition with a proper call to `finishInternal`.
         if (self.isFinished) {
