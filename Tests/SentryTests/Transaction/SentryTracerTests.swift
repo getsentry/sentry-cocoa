@@ -62,8 +62,11 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())
-            client.options.tracesSampleRate = 1
+            let options = Options()
+            options.dsn = TestConstants.dsnAsString(username: "SentryTracerTests")
+            options.tracesSampleRate = 1
+
+            client = TestClient(options: options)
             hub = TestHub(client: client, andScope: scope)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
