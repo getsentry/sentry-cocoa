@@ -141,7 +141,6 @@ jobs:
             if [ -f "$binary_path" ]; then
               echo "Processing binary: $binary_path"
               echo "Removing architectures: ${{ inputs.excluded-archs }}"
-              
               temp_binary="${binary_path}.tmp"
               lipo -remove ${{ inputs.excluded-archs }} "$binary_path" -output "$temp_binary"
               mv "$temp_binary" "$binary_path"
