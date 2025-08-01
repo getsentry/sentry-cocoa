@@ -125,7 +125,9 @@ jobs:
       # Only do this for dynamic variants, as only that one is used by other SDKs
       - name: Zip Unsigned XCFramework
         if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.signed == true && inputs.suffix == '-Dynamic' }}
-        run: ./scripts/compress-xcframework.sh --not-signed ${{inputs.name}}${{inputs.suffix}}-Unsigned
+        run: |
+          cp ${{inputs.name}}${{inputs.suffix}}.xcframework ${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework
+          ditto -c -k -X --rsrc --keepParent "${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework" "${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework.zip"
         shell: bash
 
       - name: Cache XCFramework
