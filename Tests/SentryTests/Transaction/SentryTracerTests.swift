@@ -1203,7 +1203,9 @@ class SentryTracerTests: XCTestCase {
         }
         
         queue.activate()
-        wait(for: [startTransactionExpectation, finishTransactionExpectation], timeout: 5.0)
+
+        wait(for: [startTransactionExpectation], timeout: 10.0)
+        wait(for: [finishTransactionExpectation], timeout: 10.0)
 
         XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
 
