@@ -68,6 +68,9 @@ take_simulator_screenshot() {
     # Start screenshot command in background
     xcrun simctl io booted screenshot "$screenshot_name" &
     screenshot_pid=$!
+
+    # take a screenshot of the whole screen
+    screencapture -x "${screenshot_name}_full_screen.png"
     
     # Wait for 10 seconds or until process completes
     start_time=$(date +%s)
