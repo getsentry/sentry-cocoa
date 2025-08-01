@@ -126,7 +126,7 @@ jobs:
       - name: Zip Unsigned XCFramework
         if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.signed == true && inputs.suffix == '-Dynamic' }}
         run: |
-          cp ${{inputs.name}}${{inputs.suffix}}.xcframework ${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework
+          cp -R ${{inputs.name}}${{inputs.suffix}}.xcframework ${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework
           ditto -c -k -X --rsrc --keepParent "${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework" "${{inputs.name}}${{inputs.suffix}}-Unsigned.xcframework.zip"
         shell: bash
 
