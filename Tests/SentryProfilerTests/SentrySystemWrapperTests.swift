@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 class SentrySystemWrapperTests: XCTestCase {
     private struct Fixture {
         lazy var systemWrapper = SentrySystemWrapper()
@@ -20,3 +21,4 @@ class SentrySystemWrapperTests: XCTestCase {
         XCTAssert((0...UINT64_MAX).contains(memoryFootprint))
     }
 }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
