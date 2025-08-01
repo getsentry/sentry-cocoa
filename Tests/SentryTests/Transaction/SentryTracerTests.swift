@@ -1184,7 +1184,7 @@ class SentryTracerTests: XCTestCase {
 
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
-        let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
+        let queue = DispatchQueue(label: "testConcurrentTransactions_OnlyOneGetsMeasurement", attributes: [.concurrent, .initiallyInactive] )
 
         let transactions = 5
         let startTransactionExpectation = XCTestExpectation(description: "Start transactions")
