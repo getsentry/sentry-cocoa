@@ -436,9 +436,11 @@ private extension SentryTraceProfilerTests {
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMetrics.memoryFootprint, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitBytes)
 
+        #if arch(arm) || arch(arm64)
         // we wind up with one less energy reading for the first concurrent span's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
         let expectedEnergyReadings = oneLessEnergyReading ? expectedUsageReadings - 1 : expectedUsageReadings
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedEnergyReadings, expectedValue: fixture.mockMetrics.cpuEnergyUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules)
+        #endif // arch(arm) || arch(arm64)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedTraceProfileSlowFrames, transaction: transaction)

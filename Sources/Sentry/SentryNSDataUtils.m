@@ -3,6 +3,7 @@
 #endif
 
 #import "SentryError.h"
+#import "SentryInternalDefines.h"
 #import "SentryNSDataUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN

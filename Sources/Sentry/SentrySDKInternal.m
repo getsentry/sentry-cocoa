@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
-static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
 static SentryOptions *_Nullable startOption;
@@ -121,7 +121,7 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        return currentHub;
+        return SENTRY_UNWRAP_NULLABLE(SentryHub, currentHub);
     }
 }
 
@@ -560,8 +560,15 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
+#if SDK_V9
+    NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
+#else
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDKInternal.currentHub getClient].options.integrations.mutableCopy;
+#    pragma clang diagnostic pop
+#endif // SDK_V9
 
     NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 
