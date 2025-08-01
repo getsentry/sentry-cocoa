@@ -668,6 +668,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
     }
 
+    /// This test ensures to not have memory leaks in the SentrySessionReplayIntegration, such as a strong reference cycle.
+    /// For example, removing the weak reference for accessing self when adding the globalEventProcessor would leak memory and
+    /// this test would start to fail when doing so.
     func testSessionReplayIntegration_DoesNotLeakMemory() throws {
 
         // -- Arrange --

@@ -7,7 +7,8 @@ struct ContentView: View {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            let userDefaultsKey = "crash-on-launch"
+            Text("Crash flag value: \(UserDefaults.standard.bool(forKey: userDefaultsKey))")
         }
         .padding()
     }
