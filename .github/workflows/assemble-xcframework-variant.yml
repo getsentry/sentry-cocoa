@@ -105,6 +105,7 @@ jobs:
             echo "XCFRAMEWORK_NAME=${{ inputs.override-name }}" >> $GITHUB_ENV
           else
             echo "XCFRAMEWORK_NAME=${{ inputs.scheme }}${{inputs.suffix}}" >> $GITHUB_ENV
+          fi
 
       - name: Compute cache key
         run: |
