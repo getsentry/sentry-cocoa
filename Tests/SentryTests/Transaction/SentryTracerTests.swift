@@ -53,7 +53,7 @@ class SentryTracerTests: XCTestCase {
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            
+
             debugImageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
             appStart = currentDateProvider.date()
@@ -62,8 +62,11 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())
-            client.options.tracesSampleRate = 1
+            let options = Options()
+            options.dsn = TestConstants.dsnAsString(username: "SentryTracerTests")
+            options.tracesSampleRate = 1
+
+            client = TestClient(options: options)
             hub = TestHub(client: client, andScope: scope)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1179,30 +1182,35 @@ class SentryTracerTests: XCTestCase {
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
         SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
-        let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
-        let group = DispatchGroup()
-        
+        let queue = DispatchQueue(label: "testConcurrentTransactions_OnlyOneGetsMeasurement", attributes: [.concurrent, .initiallyInactive] )
+
         let transactions = 5
+        let finishTransactionExpectation = XCTestExpectation(description: "Finish transactions")
+        finishTransactionExpectation.expectedFulfillmentCount = transactions
+
         for _ in 0..<transactions {
-            group.enter()
             queue.async {
-                self.fixture.getSut().finish()
-                group.leave()
+                let tracer = self.fixture.getSut()
+
+                tracer.finish()
+                finishTransactionExpectation.fulfill()
             }
         }
         
         queue.activate()
-        group.wait()
-        
-        XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
-        
+
+        wait(for: [finishTransactionExpectation], timeout: 10.0)
+
+        XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
+
         let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.invocations.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
         
-        XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
+        XCTAssertEqual(transactionsWithAppStartMeasurement.count, 1, "Only one transaction should have the app start measurement, but got \(transactionsWithAppStartMeasurement.count)")
+
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
