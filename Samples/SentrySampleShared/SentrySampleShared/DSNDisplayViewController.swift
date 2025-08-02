@@ -77,6 +77,8 @@ class DSNDisplayViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.updateDSNLabel()
                 }
+
+                SentrySDKWrapper.shared.startSentry()
             }
         } else {
             showToast(in: self, type: .warning, message: "Invalid DSN, reverting to the default.")
@@ -92,6 +94,8 @@ class DSNDisplayViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.updateDSNLabel()
                 }
+
+                SentrySDKWrapper.shared.startSentry()
             }
         }
     }
@@ -119,6 +123,8 @@ class DSNDisplayViewController: UIViewController {
                 DispatchQueue.main.async {
                     showToast(in: self, type: .success, message: "DSN reset to default!")
                 }
+
+                SentrySDKWrapper.shared.startSentry()
             } catch {
                 SentrySDK.capture(error: error)
                 DispatchQueue.main.async {
