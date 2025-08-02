@@ -2,6 +2,7 @@
 #import "SentryClient.h"
 #import "SentryError.h"
 #import "SentryHub.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
@@ -36,7 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
                   SENTRY_LOG_DEBUG(@"Request status: %ld", (long)statusCode);
                   if ([SentrySDKInternal.currentHub getClient].options.debug == YES) {
                       SENTRY_LOG_DEBUG(@"Request response: %@",
-                          [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                          data != nil
+                              ? [[NSString alloc] initWithData:SENTRY_UNWRAP_NULLABLE(NSData, data)
+                                                      encoding:NSUTF8StringEncoding]
+                              : @"<no data>");
                   }
 
                   if (nil != error) {
