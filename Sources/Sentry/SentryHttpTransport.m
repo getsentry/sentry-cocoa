@@ -13,6 +13,7 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
@@ -377,7 +378,7 @@
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
-        [self.fileManager removeFileAtPath:envelopePath];
+        [self.fileManager removeFileAtPath:SENTRY_UNWRAP_NULLABLE(NSString, envelopePath)];
     }
     @synchronized(self) {
         self.isSending = NO;
@@ -417,7 +418,7 @@
                 return;
             }
 
-            [weakSelf.rateLimits update:response];
+            [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 
             if (response.statusCode == 200) {
                 SENTRY_LOG_DEBUG(@"Envelope sent successfully!");

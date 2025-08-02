@@ -1,5 +1,6 @@
 #import "SentryUser.h"
 #import "SentryGeo.h"
+#import "SentryInternalDefines.h"
 #import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 
@@ -125,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    return [self isEqualToUser:other];
+    return [self isEqualToUser:SENTRY_UNWRAP_NULLABLE(SentryUser, other)];
 }
 
 - (BOOL)isEqualToUser:(SentryUser *)user

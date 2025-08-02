@@ -145,7 +145,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [hub configureScope:^(SentryScope *scope) {
         if (scope.currentScreen != nil) {
-            self->viewNames = @[ scope.currentScreen ];
+            self->viewNames = @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];
         }
     }];
 
@@ -751,12 +751,14 @@ static BOOL appStartMeasurementRead;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpan *)self frames]) {
-        [framesOfAllSpans addObjectsFromArray:[(SentrySpan *)self frames]];
+        [framesOfAllSpans addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<SentryFrame *>,
+                                                  [(SentrySpan *)self frames])];
     }
 
     for (SentrySpan *span in spans) {
         if (span.frames) {
-            [framesOfAllSpans addObjectsFromArray:span.frames];
+            [framesOfAllSpans
+                addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<SentryFrame *>, span.frames)];
         }
     }
 

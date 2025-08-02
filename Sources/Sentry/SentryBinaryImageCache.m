@@ -4,6 +4,7 @@
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
@@ -176,7 +177,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 - (NSArray<SentryBinaryImageInfo *> *)getAllBinaryImages
 {
     @synchronized(self) {
-        return _cache.copy;
+        return SENTRY_UNWRAP_NULLABLE(NSArray<SentryBinaryImageInfo *>, _cache.copy);
     }
 }
 

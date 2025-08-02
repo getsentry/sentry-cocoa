@@ -9,6 +9,7 @@
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSTimerFactory.h"
@@ -28,7 +29,6 @@
 #import <SentryDependencyContainer.h>
 #import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
-#import <SentryInternalDefines.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>

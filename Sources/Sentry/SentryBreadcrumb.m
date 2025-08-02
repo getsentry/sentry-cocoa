@@ -1,6 +1,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
@@ -75,7 +76,7 @@
     if (!other || ![[other class] isEqual:[self class]])
         return NO;
 
-    return [self isEqualToBreadcrumb:other];
+    return [self isEqualToBreadcrumb:SENTRY_UNWRAP_NULLABLE(SentryBreadcrumb, other)];
 }
 
 - (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb

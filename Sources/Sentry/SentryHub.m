@@ -9,6 +9,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryNSTimerFactory.h"
@@ -194,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:timestamp];
+            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];

@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryFrame *frame in frames) {
         if (frame.imageAddress) {
-            [set addObject:frame.imageAddress];
+            [set addObject:SENTRY_UNWRAP_NULLABLE(NSString, frame.imageAddress)];
         }
     }
 }
@@ -85,7 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
 #    pragma clang diagnostic pop
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([addresses containsObject:sourceImage.imageAddress]) {
+        if (sourceImage.imageAddress &&
+            [addresses containsObject:SENTRY_UNWRAP_NULLABLE(NSString, sourceImage.imageAddress)]) {
             [result addObject:sourceImage];
         }
     }

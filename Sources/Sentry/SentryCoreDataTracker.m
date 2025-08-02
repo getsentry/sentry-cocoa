@@ -204,7 +204,8 @@
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@",
-            [predicateDescriptor predicateDescription:request.predicate]];
+            [predicateDescriptor
+                predicateDescription:SENTRY_UNWRAP_NULLABLE(NSPredicate, request.predicate)]];
     }
 
     if (request.sortDescriptors.count > 0) {

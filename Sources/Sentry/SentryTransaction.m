@@ -1,5 +1,6 @@
 #import "SentryTransaction.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryInternalDefines.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
@@ -56,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *tags = [NSMutableDictionary new];
-        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        [tags
+            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, serializedData[@"tags"])];
         [tags addEntriesFromDictionary:traceTags];
         serializedData[@"tags"] = tags;
     } else {
@@ -69,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *extra = [NSMutableDictionary new];
-        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        [extra addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(
+                                            NSDictionary, serializedData[@"extra"])];
         [extra addEntriesFromDictionary:traceData];
         serializedData[@"extra"] = extra;
     } else {

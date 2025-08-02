@@ -4,6 +4,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySession.h"
@@ -81,7 +82,8 @@
             return;
         }
 
-        [session endSessionAbnormalWithTimestamp:appHangEvent.timestamp];
+        [session
+            endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, appHangEvent).timestamp];
         [fileManager storeAbnormalSession:session];
         [fileManager deleteCurrentSession];
     }
