@@ -2070,21 +2070,59 @@ class SentryClientTest: XCTestCase {
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         replayEvent.sdk = ["name": "Test SDK", "version": "1.0.0"]
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
+
         //Not a video url, but its ok for test the envelope
         let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
-        
+
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
-        
+
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: scope)
-        
+
         let header = try XCTUnwrap(self.fixture.transport.sentEnvelopes.first?.header)
-        
+
         XCTAssertEqual(header.sdkInfo?.name, "Test SDK")
         XCTAssertEqual(header.sdkInfo?.version, "1.0.0")
     }
-    
+
+    func testCaptureReplayEvent_preparingEventFails_shouldNotCaptureAndRecordLostEvent() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
+        replayEvent.sdk = ["name": "Test SDK", "version": "1.0.0"]
+        let replayRecording = SentryReplayRecording(
+            segmentId: 2,
+            size: 200,
+            start: Date(timeIntervalSince1970: 2),
+            duration: 5_000,
+            frameCount: 5,
+            frameRate: 1,
+            height: 930,
+            width: 390,
+            extraEvents: [
+                SentryRRWebEvent(
+                    type: .custom,
+                    timestamp: Date(timeIntervalSince1970: 0),
+                    data: ["KEY": NSObject()] // There is a non-serializable object in the extra events, which will cause the event preparation to fail
+                )
+            ]
+        )
+        let movieUrl = try XCTUnwrap(URL(string: "https://example.com/movie.mp4"))
+        let scope = Scope()
+
+        // -- Act --
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.transport.sentEnvelopes.count, 0)
+
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.count, 1)
+        let lostEvent = try XCTUnwrap(fixture.transport.recordLostEventsWithCount.first)
+        XCTAssertEqual(lostEvent.category, .replay)
+        XCTAssertEqual(lostEvent.reason, SentryDiscardReason.eventProcessor)
+        XCTAssertEqual(lostEvent.quantity, 1)
+    }
+
     func testCaptureFatalEventSetReplayInScope() {
         let sut = fixture.getSut()
         let event = Event()
