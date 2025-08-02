@@ -11,7 +11,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTransaction.h"
 
