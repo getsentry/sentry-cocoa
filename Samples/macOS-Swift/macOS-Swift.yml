@@ -17,6 +17,7 @@ projectReferences:
 fileGroups:
   - ../Shared/Config
   - macOS-Swift.yml
+  - ../../Plans/macOS-Swift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
