@@ -188,7 +188,7 @@
                                                            .sysctlWrapper.systemBootTimestamp];
 }
 
-- (SentryAppState *)loadPreviousAppState
+- (nullable SentryAppState *)loadPreviousAppState
 {
     return [self.fileManager readPreviousAppState];
 }
