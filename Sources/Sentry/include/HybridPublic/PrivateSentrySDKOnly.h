@@ -188,7 +188,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 /**
  * Allow Hybrids SDKs to set the current Screen.
  */
-+ (void)setCurrentScreen:(NSString *)screenName;
++ (void)setCurrentScreen:(NSString *_Nullable)screenName;
 
 #endif // SENTRY_UIKIT_AVAILABLE
 

@@ -9,6 +9,10 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 
+### Internal
+
+- Add nullability property for `screenName` (#5782)
+
 ## 8.54.0
 
 ### Features
