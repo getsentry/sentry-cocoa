@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
+
 ### Fixes
 
 - Add support for PDFKit views in session replay (#5750)
@@ -13,7 +17,6 @@
 
 ### Features
 
-- Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637, #5678)
 - Add experimental support for capturing structured logs via `SentrySDK.logger` (#5532, #5593, #5639, #5628, #5637, #5643)
 - Add `isiOSAppOnMac` and `isMacCatalystApp` from ProcessInfo to the runtime context (#5570)
 - The SDK will show a warning in the console if it detects it was loaded twice (#5298)
