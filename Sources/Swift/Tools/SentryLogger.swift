@@ -179,7 +179,7 @@ public final class SentryLogger: NSObject {
         
         // Add template string if there are interpolations
         if !logMessage.attributes.isEmpty {
-            logAttributes["sentry.message.template"] = .string(logMessage.template)
+            logAttributes["sentry.message.template"] = .init(string: logMessage.template)
         }
         
         // Add attributes from the SentryLogMessage
@@ -217,14 +217,14 @@ public final class SentryLogger: NSObject {
         guard let batcher else {
             return
         }
-        attributes["sentry.sdk.name"] = SentryLog.Attribute(string: SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = SentryLog.Attribute(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = SentryLog.Attribute(string: batcher.options.environment)
+        attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
+        attributes["sentry.environment"] = .init(string: batcher.options.environment)
         if let releaseName = batcher.options.releaseName {
-            attributes["sentry.release"] = SentryLog.Attribute(string: releaseName)
+            attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = hub.scope.span {
-            attributes["sentry.trace.parent_span_id"] = SentryLog.Attribute(string: span.spanId.sentrySpanIdString)
+            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
         }
     }
 
@@ -233,10 +233,10 @@ public final class SentryLogger: NSObject {
             return
         }
         if let osName = osContext["name"] as? String {
-            attributes["os.name"] = SentryLog.Attribute(string: osName)
+            attributes["os.name"] = .init(string: osName)
         }
         if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = SentryLog.Attribute(string: osVersion)
+            attributes["os.version"] = .init(string: osVersion)
         }
     }
     
@@ -245,13 +245,13 @@ public final class SentryLogger: NSObject {
             return
         }
         // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = SentryLog.Attribute(string: "Apple")
+        attributes["device.brand"] = .init(string: "Apple")
         
         if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = SentryLog.Attribute(string: deviceModel)
+            attributes["device.model"] = .init(string: deviceModel)
         }
         if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = SentryLog.Attribute(string: deviceFamily)
+            attributes["device.family"] = .init(string: deviceFamily)
         }
     }
 
@@ -260,13 +260,13 @@ public final class SentryLogger: NSObject {
             return
         }
         if let userId = user.userId {
-            attributes["user.id"] = SentryLog.Attribute(string: userId)
+            attributes["user.id"] = .init(string: userId)
         }
         if let userName = user.name {
-            attributes["user.name"] = SentryLog.Attribute(string: userName)
+            attributes["user.name"] = .init(string: userName)
         }
         if let userEmail = user.email {
-            attributes["user.email"] = SentryLog.Attribute(string: userEmail)
+            attributes["user.email"] = .init(string: userEmail)
         }
     }
 }

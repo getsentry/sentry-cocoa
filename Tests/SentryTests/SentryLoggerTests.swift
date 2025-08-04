@@ -341,11 +341,11 @@ final class SentryLoggerTests: XCTestCase {
             .trace,
             "User john processed 42 items, active: true, score: 95.5",
             [
-                "sentry.message.template": .string("User {0} processed {1} items, active: {2}, score: {3}"),
-                "sentry.message.parameter.0": .string("john"),
-                "sentry.message.parameter.1": .integer(42),
-                "sentry.message.parameter.2": .boolean(true),
-                "sentry.message.parameter.3": .double(95.5)
+                "sentry.message.template": .init(string: "User {0} processed {1} items, active: {2}, score: {3}"),
+                "sentry.message.parameter.0": .init(string: "john"),
+                "sentry.message.parameter.1": .init(integer: 42),
+                "sentry.message.parameter.2": .init(boolean: true),
+                "sentry.message.parameter.3": .init(double: 95.5)
             ]
         )
     }
@@ -360,10 +360,10 @@ final class SentryLoggerTests: XCTestCase {
             .trace,
             "Processing user user123",
             [
-                "sentry.message.template": .string("Processing user {0}"),
-                "sentry.message.parameter.0": .string("user123"),
-                "extra": .string("data"),
-                "count": .integer(10)
+                "sentry.message.template": .init(string: "Processing user {0}"),
+                "sentry.message.parameter.0": .init(string: "user123"),
+                "extra": .init(string: "data"),
+                "count": .init(integer: 10)
             ]
         )
     }
@@ -379,9 +379,9 @@ final class SentryLoggerTests: XCTestCase {
             .debug,
             "Float value: 3.14, enabled: false",
             [
-                "sentry.message.template": .string("Float value: {0}, enabled: {1}"),
-                "sentry.message.parameter.0": .double(Double(value)), // Float is converted to Double
-                "sentry.message.parameter.1": .boolean(false)
+                "sentry.message.template": .init(string: "Float value: {0}, enabled: {1}"),
+                "sentry.message.parameter.0": .init(double: Double(value)), // Float is converted to Double
+                "sentry.message.parameter.1": .init(boolean: false)
             ]
         )
     }
@@ -397,9 +397,9 @@ final class SentryLoggerTests: XCTestCase {
             .info,
             "Temperature: 98.6°F",
             [
-                "sentry.message.template": .string("Temperature: {0}°{1}"),
-                "sentry.message.parameter.0": .double(98.6),
-                "sentry.message.parameter.1": .string("F")
+                "sentry.message.template": .init(string: "Temperature: {0}°{1}"),
+                "sentry.message.parameter.0": .init(double: 98.6),
+                "sentry.message.parameter.1": .init(string: "F")
             ]
         )
     }
@@ -415,10 +415,10 @@ final class SentryLoggerTests: XCTestCase {
             .warn,
             "Retry 3 of 5",
             [
-                "sentry.message.template": .string("Retry {0} of {1}"),
-                "sentry.message.parameter.0": .integer(3),
-                "sentry.message.parameter.1": .integer(5),
-                "retry_policy": .string("exponential")
+                "sentry.message.template": .init(string: "Retry {0} of {1}"),
+                "sentry.message.parameter.0": .init(integer: 3),
+                "sentry.message.parameter.1": .init(integer: 5),
+                "retry_policy": .init(string: "exponential")
             ]
         )
     }
@@ -434,9 +434,9 @@ final class SentryLoggerTests: XCTestCase {
             .error,
             "Service payment failed with code 500",
             [
-                "sentry.message.template": .string("Service {0} failed with code {1}"),
-                "sentry.message.parameter.0": .string("payment"),
-                "sentry.message.parameter.1": .integer(500)
+                "sentry.message.template": .init(string: "Service {0} failed with code {1}"),
+                "sentry.message.parameter.0": .init(string: "payment"),
+                "sentry.message.parameter.1": .init(integer: 500)
             ]
         )
     }
@@ -452,10 +452,10 @@ final class SentryLoggerTests: XCTestCase {
             .fatal,
             "Critical failure in database: true",
             [
-                "sentry.message.template": .string("Critical failure in {0}: {1}"),
-                "sentry.message.parameter.0": .string("database"),
-                "sentry.message.parameter.1": .boolean(true),
-                "shutdown": .boolean(true)
+                "sentry.message.template": .init(string: "Critical failure in {0}: {1}"),
+                "sentry.message.parameter.0": .init(string: "database"),
+                "sentry.message.parameter.1": .init(boolean: true),
+                "shutdown": .init(boolean: true)
             ]
         )
     }
@@ -474,12 +474,12 @@ final class SentryLoggerTests: XCTestCase {
             .debug,
             "Test test: 0 items, 0.0% complete, success: false, float: -1.5",
             [
-                "sentry.message.template": .string("Test {0}: {1} items, {2}% complete, success: {3}, float: {4}"),
-                "sentry.message.parameter.0": .string("test"),
-                "sentry.message.parameter.1": .integer(0),
-                "sentry.message.parameter.2": .double(0.0),
-                "sentry.message.parameter.3": .boolean(false),
-                "sentry.message.parameter.4": .double(Double(-1.5))
+                "sentry.message.template": .init(string: "Test {0}: {1} items, {2}% complete, success: {3}, float: {4}"),
+                "sentry.message.parameter.0": .init(string: "test"),
+                "sentry.message.parameter.1": .init(integer: 0),
+                "sentry.message.parameter.2": .init(double: 0.0),
+                "sentry.message.parameter.3": .init(boolean: false),
+                "sentry.message.parameter.4": .init(double: Double(-1.5))
             ]
         )
     }
