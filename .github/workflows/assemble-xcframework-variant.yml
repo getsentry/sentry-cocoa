@@ -171,6 +171,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: xcframework-${{github.sha}}-${{inputs.variant-id}}
+          name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
           path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
