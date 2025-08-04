@@ -276,7 +276,7 @@ public final class SentryLogger: NSObject {
  * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
  * drop the log.
  */
-typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
+public typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
 
 // Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
 // This works around `SentryLog` being only forward declared in the objc header, resulting in 
