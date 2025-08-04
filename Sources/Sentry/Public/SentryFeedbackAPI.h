@@ -12,8 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.")
 @interface SentryFeedbackAPI : NSObject
+
+SENTRY_NO_INIT
 
 /**
  * Show the feedback widget button.

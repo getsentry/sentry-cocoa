@@ -9,6 +9,7 @@
 #import "SentryCrash.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentryFeedbackAPI+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -494,7 +495,7 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     static SentryFeedbackAPI *feedbackAPI;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ feedbackAPI = [[SentryFeedbackAPI alloc] init]; });
+    dispatch_once(&onceToken, ^{ feedbackAPI = [SentryFeedbackAPI newInstance]; });
     return feedbackAPI;
 }
 
