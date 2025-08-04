@@ -1,11 +1,20 @@
+/// A structured log entry that captures log data with associated attribute metadata.
+///
+/// Use the `options.beforeSendLog` callback to modify or filter log data.
 @objc
 @objcMembers
 public class SentryLog: NSObject, Codable {
+    /// The timestamp when the log event occurred
     public var timestamp: Date
+    /// The trace ID to associate this log with distributed tracing
     public var traceId: SentryId
+    /// The severity level of the log entry
     public var level: Level
+    /// The main log message content
     public var body: String
+    /// A dictionary of structured attributes added to the log entry
     public var attributes: [String: Attribute]
+    /// Numeric representation of the severity level (Int)
     public var severityNumber: NSNumber?
     
     private enum CodingKeys: String, CodingKey {
@@ -17,9 +26,7 @@ public class SentryLog: NSObject, Codable {
         case severityNumber = "severity_number"
     }
     
-    /// The traceId is initially an empty default value and is populated during processing;
-    /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
-    public init(
+    internal init(
         timestamp: Date,
         traceId: SentryId,
         level: Level,

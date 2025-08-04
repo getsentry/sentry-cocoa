@@ -1,8 +1,14 @@
 extension SentryLog {
+    /// A typed attribute that can be attached to structured log entries.
+    ///
+    /// `Attribute` provides a type-safe way to store structured data alongside log messages.
+    /// Supports String, Bool, Int, and Double types.
     @objc(SentryStructuredLogAttribute)
     @objcMembers
     public class Attribute: NSObject, Codable {
+        /// The type identifier for this attribute ("string", "boolean", "integer", "double")
         public let type: String
+        /// The actual value stored in this attribute
         public let value: Any
         
         public init(string value: String) {

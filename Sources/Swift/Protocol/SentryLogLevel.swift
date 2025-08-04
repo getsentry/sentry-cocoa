@@ -1,4 +1,8 @@
 extension SentryLog {
+    /// Represents the severity level of a structured log entry.
+    ///
+    /// Log levels are ordered by severity from least (`trace`) to most severe (`fatal`).
+    /// Each level corresponds to a numeric severity value following the OpenTelemetry specification.
     @objc(SentryStructuredLogLevel)
     public enum Level: Int, Codable {
         case trace
@@ -8,6 +12,10 @@ extension SentryLog {
         case error
         case fatal
         
+        /// Creates a log level from its string representation.
+        ///
+        /// - Parameter value: The string representation of the log level
+        /// - Throws: An error if the string doesn't match any known log level
         public init(value: String) throws {
             switch value {
             case "trace":
@@ -27,6 +35,7 @@ extension SentryLog {
             }
         }
         
+        /// The string representation of the log level.
         public var value: String {
             switch self {
             case .trace:
@@ -44,7 +53,8 @@ extension SentryLog {
             }
         }
         
-        // Docs: https://develop.sentry.dev/sdk/telemetry/logs/#log-severity-number
+        /// Converts the log level to its numeric severity representation (1-21) following the OpenTelemetry specification.
+        /// Docs: https://develop.sentry.dev/sdk/telemetry/logs/#log-severity-number
         public func toSeverityNumber() -> Int {
             switch self {
             case .trace:
