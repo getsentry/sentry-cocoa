@@ -8,6 +8,7 @@
 - Fix Infinite Session Replay Processing Loop (#5765)
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
+- Fix SentrySDK not compiling on App Extensions (#5792)
 
 ## 8.54.0
 
