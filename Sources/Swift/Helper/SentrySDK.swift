@@ -261,7 +261,13 @@ import Foundation
     @available(iOS 13.0, *)
     @available(iOSApplicationExtension, unavailable)
     @objc public static let feedback = {
-      return SentryFeedbackAPI()
+        // When building the SDK, the compiler doesn't add `NS_EXTENSION_UNAVAILABLE` to the header so ObjC,
+        // this ensures that users will at least get a warning that `SentryFeedbackAPI` is not available.
+        if #available(iOSApplicationExtension 13.0, *) {
+            SentrySDKLog.warning("Sentry User Feedback is only available on iOS 13 or later.")
+        }
+            
+        return SentrySDKInternal.feedback
     }()
     #endif
     
