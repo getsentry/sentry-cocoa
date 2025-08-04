@@ -259,6 +259,7 @@ import Foundation
     
     #if os(iOS) && !SENTRY_NO_UIKIT
     @available(iOS 13.0, *)
+    @available(iOSApplicationExtension, unavailable)
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()
