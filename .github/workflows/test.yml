@@ -283,4 +283,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
-          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}
+          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests

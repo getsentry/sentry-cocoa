@@ -5,6 +5,7 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
     private class TestSentryUIApplication: SentryUIApplication {
@@ -665,6 +666,33 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // than the asset worker queue and that both are lower than the default priority.
         XCTAssertLessThan(processingQueue.queue.qos.relativePriority, 0)
         XCTAssertLessThan(processingQueue.queue.qos.relativePriority, assetWorkerQueue.queue.qos.relativePriority)
+    }
+
+    /// This test ensures to not have memory leaks in the SentrySessionReplayIntegration, such as a strong reference cycle.
+    /// For example, removing the weak reference for accessing self when adding the globalEventProcessor would leak memory and
+    /// this test would start to fail when doing so.
+    func testSessionReplayIntegration_DoesNotLeakMemory() throws {
+
+        // -- Arrange --
+        weak var weakSut: SentrySessionReplayIntegration?
+
+        // Put into extra func so ARC deallocates the sut
+        func allocateSutAndDealloc() throws {
+            let options = Options()
+            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+
+            let instance = SentrySessionReplayIntegration()
+            instance.install(with: options)
+            instance.uninstall()
+
+            weakSut = instance
+        }
+
+        // --  Act --
+        try allocateSutAndDealloc()
+
+        // -- Assert --
+        XCTAssertNil(weakSut, "SentrySessionReplayIntegration should be deallocated")
     }
 
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

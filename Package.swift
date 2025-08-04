@@ -18,13 +18,13 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.2/Sentry.xcframework.zip",
-        checksum: "b4c0b46ea2752d5fbf2b98b2c4bddc71e8803714b1faff0f2e427082474a7d3e" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.54.0/Sentry.xcframework.zip",
+        checksum: "f0f4b5582f7fef029ddedd22b6b9894a6d2d31ea9c7b52a2133b1ec7c4cff206" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.53.2/Sentry-Dynamic.xcframework.zip",
-        checksum: "d0a293654ab99979c5aae2a4a7ce50a4c40c62e36c98fb3c7b2bc1adcc2621d1" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.54.0/Sentry-Dynamic.xcframework.zip",
+        checksum: "2cd3ee298133ed3a6d3b98f3b040e5c67b752887e67647ae671f450ecfd3facf" //Sentry-Dynamic
     ),
     .target (
         name: "SentrySwiftUI",
@@ -47,13 +47,18 @@ let env = getenv("EXPERIMENTAL_SPM_BUILDS")
 if let env = env, String(cString: env, encoding: .utf8) == "1" {
     products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
     targets.append(contentsOf: [
-        // At least one source file is required
-        .target(name: "SentryHeaders", path: "Sources/Sentry", sources: ["SentryDsn.m"], publicHeadersPath: "Public"),
+        // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
+        .target(
+            name: "SentryHeaders",
+            path: "Sources/Sentry", 
+            sources: ["SentryDummyPublicEmptyClass.m"],
+            publicHeadersPath: "Public"
+        ),
         .target(
             name: "_SentryPrivate",
             dependencies: ["SentryHeaders"],
             path: "Sources/Sentry",
-            sources: ["NSLocale+Sentry.m"],
+            sources: ["SentryDummyPrivateEmptyClass.m"],
             publicHeadersPath: "include",
             cSettings: [.headerSearchPath("include/HybridPublic")]),
         .target(
@@ -70,7 +75,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDsn.m", "Sentry/NSLocale+Sentry.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),

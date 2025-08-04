@@ -1,5 +1,7 @@
 import Sentry
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
 public class TestSentrySystemWrapper: SentrySystemWrapper {
     public struct Override {
         public var memoryFootprintError: NSError?
@@ -29,10 +31,13 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
         return try overrides.cpuUsage ?? super.cpuUsage()
     }
 
+#if arch(arm) || arch(arm64)
     public override func cpuEnergyUsage() throws -> NSNumber {
         if let errorOverride = overrides.cpuEnergyUsageError {
             throw errorOverride
         }
         return try overrides.cpuEnergyUsage ?? super.cpuEnergyUsage()
     }
+#endif
 }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

@@ -121,6 +121,8 @@ xcodebuild -workspace Sentry.xcworkspace \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify
 
+xcrun simctl runtime dyld_shared_cache update iOS18.5
+
 log "Installing app on simulator."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
 
@@ -154,6 +156,7 @@ while true; do
     
     if [ $elapsed -ge 20 ]; then
         log "❌ App is still running after 20 seconds but it should have crashed instead."
+        take_simulator_screenshot "app-did-not-crash"
         exit 1
     fi
 
@@ -182,7 +185,7 @@ while true; do
     if is_app_running; then
         log "⏳ App is still running."
     else
-        log "❌ App is not running."   
+        log "❌ App is not running."
     fi
     
     current_time=$(date +%s)

@@ -5,6 +5,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryDsn.h"
 #import "SentryFileIOTrackingIntegration.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
@@ -195,10 +196,15 @@
         sentryOptions.onCrashedLastRun = options[@"onCrashedLastRun"];
     }
 
+#if !SDK_V9
     if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sentryOptions.integrations =
             [[options[@"integrations"] filteredArrayUsingPredicate:isNSString] mutableCopy];
+#    pragma clang diagnstic pop
     }
+#endif // !SDK_V9
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
         sentryOptions.sampleRate = options[@"sampleRate"];

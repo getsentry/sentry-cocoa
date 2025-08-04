@@ -16,6 +16,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerIntegrationTests.dsnAsString
@@ -26,6 +27,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()

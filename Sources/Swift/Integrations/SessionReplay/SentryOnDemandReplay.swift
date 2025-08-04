@@ -224,19 +224,14 @@ import UIKit
     // swiftlint:disable function_body_length cyclomatic_complexity
     private func renderVideo(with videoFrames: [SentryReplayFrame], from: Int, at outputFileURL: URL, completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
         SentrySDKLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(from), to output url: \(outputFileURL)")
+
         guard from < videoFrames.count else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
-            return completion(.success(SentryRenderVideoResult(
-                info: nil,
-                finalFrameIndex: from
-            )))
+            return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
         }
         guard let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't read image at path: \(videoFrames[from].imagePath)")
-            return completion(.success(SentryRenderVideoResult(
-                info: nil,
-                finalFrameIndex: from
-            )))
+            return completion(.failure(SentryOnDemandReplayError.cantReadImage))
         }
         
         let videoWidth = image.size.width * CGFloat(videoScale)

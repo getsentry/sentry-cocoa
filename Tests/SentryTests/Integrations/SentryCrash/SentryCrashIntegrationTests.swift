@@ -77,6 +77,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     // Test for GH-581
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testReleaseNamePassedToSentryCrash() throws {
         let releaseName = "1.0.0"
         let dist = "14G60"
@@ -95,6 +96,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
     }
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testContext_IsPassedToSentryCrash() throws {
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString

@@ -9,6 +9,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let options: Options
         let coreDataStack: TestCoreDataStack
 
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init(testName: String) {
             coreDataStack = TestCoreDataStack(databaseFilename: "db-\(testName.hashValue).sqlite")
             options = Options()
@@ -24,6 +25,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     
     private var fixture: Fixture!
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture(testName: self.name)
