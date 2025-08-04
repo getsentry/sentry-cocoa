@@ -270,3 +270,29 @@ public final class SentryLogger: NSObject {
         }
     }
 }
+
+#if SWIFT_PACKAGE
+/**
+ * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
+ * drop the log.
+ */
+typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
+
+// Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
+// This works around `SentryLog` being only forward declared in the objc header, resulting in 
+// compile time issues with SPM builds.
+@objc
+public extension Options {
+    /**
+     * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
+     * drop the log.
+     */
+    @objc
+    open var beforeSendLog: SentryBeforeSendLogCallback? {
+        // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
+        // property cannot be used due to Swift-to-Objective-C bridging limitations.
+        get { return value(forKey: "beforeSendLogSwift") as? SentryBeforeSendLogCallback }
+        set { setValue(newValue, forKey: "beforeSendLogSwift") }
+    }
+}
+#endif // SWIFT_PACKAGE

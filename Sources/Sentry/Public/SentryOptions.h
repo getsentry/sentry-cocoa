@@ -156,11 +156,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
+#if !SWIFT_PACKAGE
 /**
  * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
  * drop the log.
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendLogCallback beforeSendLog NS_SWIFT_SENDABLE;
+#endif // !SWIFT_PACKAGE
 
 /**
  * This block can be used to modify the event before it will be serialized and sent.

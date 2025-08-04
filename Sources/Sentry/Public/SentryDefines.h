@@ -108,11 +108,13 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
  */
 typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span);
 
+#if !SWIFT_PACKAGE
 /**
  * Use this block to drop or modify a log before the SDK sends it to Sentry. Return @c nil to drop
  * the log.
  */
 typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
+#endif // !SWIFT_PACKAGE
 
 /**
  * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
