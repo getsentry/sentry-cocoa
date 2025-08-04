@@ -44509,87 +44509,6 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(timestamp:traceId:level:body:attributes:severityNumber:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLog",
-                "printedName": "Sentry.SentryLog",
-                "usr": "c:@M@Sentry@objc(cs)SentryLog"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryId",
-                "printedName": "Sentry.SentryId",
-                "usr": "c:@M@Sentry@objc(cs)SentryId"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Level",
-                "printedName": "Sentry.SentryLog.Level",
-                "usr": "s:6Sentry0A3LogC5LevelO"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Sentry.SentryLog.Attribute]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Attribute",
-                    "printedName": "Sentry.SentryLog.Attribute",
-                    "usr": "s:6Sentry0A3LogC9AttributeC"
-                  }
-                ],
-                "usr": "s:SD"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Foundation.NSNumber?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "NSNumber",
-                    "printedName": "Foundation.NSNumber",
-                    "usr": "c:objc(cs)NSNumber"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryLog(im)initWithTimestamp:traceId:level:body:attributes:severityNumber:",
-            "mangledName": "$s6Sentry0A3LogC9timestamp7traceId5level4body10attributes14severityNumberAC10Foundation4DateV_AA0aE0CAC5LevelOSSSDySSAC9AttributeCGSo8NSNumberCSgtcfc",
-            "moduleName": "Sentry",
-            "objc_name": "initWithTimestamp:traceId:level:body:attributes:severityNumber:",
-            "declAttributes": [
-              "ObjC"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
             "printedName": "init(from:)",
             "children": [
               {
@@ -45575,6 +45494,7 @@
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
+        "hasMissingDesignatedInitializers": true,
         "superclassNames": [
           "ObjectiveC.NSObject"
         ],
