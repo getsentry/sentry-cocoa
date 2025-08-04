@@ -496,7 +496,11 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
-            XCTAssertEqual(sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody, "Envelope with only session item should be sent.")
+            let unzippedBody = try XCTUnwrap(sentry_unzippedData(XCTUnwrap(sessionRequest.httpBody)))
+            let requestUnzippedBody = try XCTUnwrap(sentry_unzippedData(XCTUnwrap(XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody)))
+            let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: unzippedBody))
+            let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: requestUnzippedBody))
+            try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
         } else {
             XCTFail("Expected a fourth invocation")
         }
