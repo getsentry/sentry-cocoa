@@ -446,7 +446,7 @@ extension SentrySDKWrapper {
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
     var dsn: String? {
         do {
-            if let dsn = env["--io.sentry.dsn"] {
+            if let dsn = env[SentrySDKOverrides.Special.dsn.rawValue] {
                 try DSNStorage.shared.saveDSN(dsn: dsn)
             }
             return try DSNStorage.shared.getDSN() ?? SentrySDKWrapper.defaultDSN
@@ -458,7 +458,7 @@ extension SentrySDKWrapper {
     
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
-    var isUITest: Bool { env["--io.sentry.scope.sdk-environment"] == "ui-tests" }
+    var isUITest: Bool { env[SentrySDKOverrides.Other.environment.rawValue] == "ui-tests" }
 }
 
 // MARK: Profiling configuration
