@@ -9,6 +9,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryNSTimerFactory.h"
@@ -774,13 +775,17 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *_Nullable eventJson =
+            NSDictionary *_Nullable nullableEventJson =
                 [SentrySerialization deserializeDictionaryFromJsonData:item.data];
-            if (eventJson == nil) {
+            if (nullableEventJson == nil) {
                 return NO;
             }
+            NSDictionary *_Nonnull eventJson
+                = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            // Fallback to error level if no level is set. This ensures that the parameter is a
+            // non-null value, while delegating the fallback to the function `sentryLevelForString`.
+            SentryLevel level = sentryLevelForString(eventJson[@"level"] ?: @"unknown");
             if (level >= kSentryLevelError) {
                 *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;

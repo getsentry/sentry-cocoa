@@ -5,6 +5,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryModels+Serializable.h"
@@ -308,7 +309,9 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentryLevelError;
     }
 
-    return sentryLevelForString(eventDictionary[@"level"]);
+    // Fallback to error level if no level is set. This ensures that the parameter is a non-null
+    // value, while delegating the fallback to the function `sentryLevelForString`.
+    return sentryLevelForString(eventDictionary[@"level"] ?: @"unknown");
 }
 
 + (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
