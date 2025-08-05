@@ -52,4 +52,21 @@ Pod::Spec.new do |s|
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
+
+  s.subspec 'AppExtension' do |sp|
+    sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+      "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
+    sp.preserve_path = "Sources/Sentry/include/module.modulemap"
+    sp.public_header_files =
+      "Sources/Sentry/Public/*.h"
+      
+    sp.preserve_path = "Sources/Sentry/include/module.modulemap"
+    sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
+
+    # For app extensions, disabling code paths using unavailable API
+    sp.pod_target_xcconfig = { 
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'SENTRY_IS_EXTENSION=1',
+      'OTHER_SWIFT_FLAGS' => '$(inherited) -DSENTRY_IS_EXTENSION'
+    }
+end
 end
