@@ -368,12 +368,6 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_dispatchFactory, [[SentryDispatchFactory alloc] init]);
 }
 
-- (id<SentryDispatchQueueProviderProtocol>)dispatchQueueProvider SENTRY_DISABLE_THREAD_SANITIZER(
-    "double-checked lock produce false alarms")
-{
-    SENTRY_LAZY_INIT(_dispatchQueueProvider, [[SentryDispatchFactory alloc] init]);
-}
-
 - (SentryNSTimerFactory *)timerFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_timerFactory, [[SentryNSTimerFactory alloc] init]);

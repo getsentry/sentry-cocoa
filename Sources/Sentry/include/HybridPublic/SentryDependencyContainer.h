@@ -122,7 +122,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
-@property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
