@@ -1,4 +1,4 @@
-name: Check Code Formatting
+name: Lint Clang Formatting
 on:
   push:
     branches:
@@ -25,10 +25,10 @@ on:
       - ".clang-format"
 
 jobs:
-  format-code:
+  lint:
     # While ubuntu runners have clang-format preinstalled, they use an older version. We want to use the most recent one,
     # that we can easily install locally via brew.
-    name: Check Formatting of Clang Format
+    name: Lint
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

@@ -1,4 +1,4 @@
-name: lint
+name: Lint
 on:
   push:
     branches:
@@ -29,8 +29,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  swift-lint:
-    name: Swift Lint
+  lint:
+    name: Lint
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - run: make analyze
 
   lint-podspec:
-    name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
+    name: Lint podspec ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     runs-on: macos-14
     strategy:
       fail-fast: false
@@ -67,7 +67,7 @@ jobs:
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
 
   lint-hybrid-sdk-podspec:
-    name: pod lint Sentry/HybridSDK
+    name: Lint Sentry/HybridSDK
     runs-on: macos-14
 
     steps:

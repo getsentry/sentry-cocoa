@@ -1,4 +1,4 @@
-name: Check Code Formatting
+name: Lint Swift Formatting
 on:
   push:
     branches:
@@ -15,8 +15,8 @@ on:
       - ".swiftlint.yml"
 
 jobs:
-  format-code:
-    name: Check Formatting of Swiftlint Code
+  lint:
+    name: Lint
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

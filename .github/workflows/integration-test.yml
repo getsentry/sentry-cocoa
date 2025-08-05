@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cocoapods:
-    name: Integration Test
+  test:
+    name: Test
     runs-on: macos-15
     steps:
       - name: Checkout Repository
