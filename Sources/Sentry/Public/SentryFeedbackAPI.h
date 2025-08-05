@@ -6,7 +6,7 @@
 #    import <SentryDefines.h>
 #endif
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 #    import <Foundation/Foundation.h>
 
@@ -34,4 +34,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION

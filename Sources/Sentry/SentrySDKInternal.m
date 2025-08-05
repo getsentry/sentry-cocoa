@@ -488,7 +488,7 @@ static NSDate *_Nullable startTimestamp = nil;
                                                 attachments:feedbackAttachments];
 }
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 + (SentryFeedbackAPI *)feedback
 {
@@ -498,7 +498,7 @@ static NSDate *_Nullable startTimestamp = nil;
     return feedbackAPI;
 }
 
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {

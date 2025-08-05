@@ -56,11 +56,11 @@
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
         [SentrySwiftAsyncIntegration class], nil];
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
+    if (@available(iOS 13.0, *)) {
         [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
     }
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
