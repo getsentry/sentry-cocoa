@@ -9,7 +9,6 @@
 #import "SentryCrash.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryFeedbackAPI+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -38,6 +37,7 @@
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
+#        import "SentryFeedbackAPI+Private.h"
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS
 #endif // SENTRY_HAS_UIKIT
