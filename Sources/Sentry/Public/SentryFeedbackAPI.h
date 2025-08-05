@@ -13,8 +13,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryFeedbackAPI : NSObject
-
+#    if !SDK_V9
 SENTRY_NO_INIT
+#    endif
 
 /**
  * Show the feedback widget button.
