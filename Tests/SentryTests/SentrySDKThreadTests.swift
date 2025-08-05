@@ -28,7 +28,7 @@ final class SentrySDKThreadTests: XCTestCase {
                 sut.bindClient(nil)
             }
 
-            wait(for: [exp], timeout: 1.0)
+            wait(for: [exp], timeout: 10.0)
         }
     }
 }

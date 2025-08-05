@@ -35,7 +35,7 @@ struct ContentView: View {
     }
     
     func checkIntegrations() -> Bool {
-        guard let integrations = SentrySDK.currentHub().installedIntegrations else {
+        guard let integrations = SentrySDKInternal.currentHub().installedIntegrations else {
             return false
         }
         

@@ -64,6 +64,13 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install old xcodegen
+        if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
+        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        run: |
+          brew install --formula ./scripts/xcodegen.rb
+          brew pin xcodegen
+
       - name: Select Xcode version
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
@@ -117,6 +124,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
+          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@v4

@@ -1200,9 +1200,10 @@ extension SentryFileManagerTests {
             kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
         ])
-        
-        let config = NSDictionary(contentsOf: launchProfileConfigFileURL())
-        
+
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
+        let config = NSDictionary(contentsOf: configURL)
+
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
         let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
@@ -1232,8 +1233,9 @@ extension SentryFileManagerTests {
         ])
         
         // -- Assert --
-        let config = NSDictionary(contentsOf: launchProfileConfigFileURL())
-        
+        let configURL = try XCTUnwrap(launchProfileConfigFileURL())
+        let config = NSDictionary(contentsOf: configURL)
+
         let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
         let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
         let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
@@ -1246,17 +1248,17 @@ extension SentryFileManagerTests {
     
     func testRemoveAppLaunchProfilingConfigFile() throws {
         try ensureAppLaunchProfileConfig(exists: true)
-        XCTAssertNotNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
+        XCTAssertNotNil(NSDictionary(contentsOf: try XCTUnwrap(launchProfileConfigFileURL())))
         removeAppLaunchProfilingConfigFile()
-        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
+        XCTAssertNil(NSDictionary(contentsOf: try XCTUnwrap(launchProfileConfigFileURL())))
     }
     
     // if there's not a file when we expect one, just make sure we don't crash
     func testRemoveAppLaunchProfilingConfigFile_noFileExists() throws {
         try ensureAppLaunchProfileConfig(exists: false)
-        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
+        XCTAssertNil(NSDictionary(contentsOf: try XCTUnwrap(launchProfileConfigFileURL())))
         removeAppLaunchProfilingConfigFile()
-        XCTAssertNil(NSDictionary(contentsOf: launchProfileConfigFileURL()))
+        XCTAssertNil(NSDictionary(contentsOf: try XCTUnwrap(launchProfileConfigFileURL())))
     }
     
     func testCheckForLaunchProfilingConfigFile_URLDoesNotExist() {
@@ -1270,7 +1272,7 @@ extension SentryFileManagerTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         
         // set the original value back so other tests don't crash
-        sentryLaunchConfigFileURL = (originalURL as NSURL)
+        sentryLaunchConfigFileURL = (originalURL as? NSURL)
     }
 
     func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
@@ -1383,7 +1385,7 @@ extension SentryFileManagerTests {
 // MARK: Private profiling tests
 private extension SentryFileManagerTests {
     func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, tracesSampleRand: Double = 1.0, profilesSampleRate: Double = 1, profilesSampleRand: Double = 1.0) throws {
-        let url = launchProfileConfigFileURL()
+        let url = try XCTUnwrap(launchProfileConfigFileURL())
         
         if exists {
             let dict = [

@@ -191,10 +191,14 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
+#if !SDK_V9
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
+@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
+    "Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
+    "disabled using their respective `SentryOptions.enable*` property.");
+#endif // !SDK_V9
 
 /**
  * Array of default integrations. Will be used if @c integrations is @c nil .
@@ -398,6 +402,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
+#if !SDK_V9
 /**
  * Indicates whether tracing should be enabled.
  * @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
@@ -406,6 +411,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic)
     BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
+#endif // !SDK_V9
 
 /**
  * Indicates the percentage of the tracing data that is collected.

@@ -5,6 +5,7 @@ import XCTest
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentryClientTest: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -79,7 +80,7 @@ class SentryClientTest: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
             var client: SentryClient!
             do {
-                let options = try Options(dict: [
+                let options = try SentryOptionsInternal.initWithDict([
                     "dsn": SentryClientTest.dsn
                 ])
                 options.removeAllIntegrations()
@@ -341,7 +342,11 @@ class SentryClientTest: XCTestCase {
             self.fixture.getSut().capture(event: event, scope: self.fixture.scope)
             group.leave()
         }
+
+        // Call group.enter a second time to ensure the main thread is blocked and the call to
+        // the main thread for getting the relevantViewControllersNames times out.
         group.enter()
+        
         let _ = group.wait(timeout: .now() + 1)
         
         let sentEvent = try lastSentEventWithAttachment()
@@ -1968,19 +1973,18 @@ class SentryClientTest: XCTestCase {
         addIntegrations(amount: 1_000)
         
         let queue = fixture.queue
-        let group = DispatchGroup()
         
         // Run this in a loop to ensure that add while iterating over the integrations
         // Running it once doesn't guaranty failure
-        for _ in 0..<10 {
-            group.enter()
+        for i in 0..<10 {
+            let expectation = XCTestExpectation(description: "Add integrations completed \(i)")
             queue.async {
                 addIntegrations(amount: 1_000)
-                group.leave()
+                expectation.fulfill()
             }
             
             sut.capture(event: Event())
-            group.waitWithTimeout()
+            wait(for: [expectation], timeout: 1)
             hub.removeAllIntegrations()
         }
     }
@@ -2164,6 +2168,7 @@ class SentryClientTest: XCTestCase {
 #endif // os(macOS)
 }
 
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 private extension SentryClientTest {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)

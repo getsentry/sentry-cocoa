@@ -164,7 +164,9 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 {
     [self recordCPUsage];
     [self recordMemoryFootprint];
+#    if defined(__arm__) || defined(__arm64__)
     [self recordEnergyUsageEstimate];
+#    endif
 }
 
 - (void)stop
@@ -283,6 +285,8 @@ serializeContinuousProfileMetrics(NSDictionary *state)
     }
 }
 
+// Only some architectures support reading energy.
+#    if defined(__arm__) || defined(__arm64__)
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
@@ -305,6 +309,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
         [_cpuEnergyUsage addObject:[self metricReadingForValue:@(value)]];
     }
 }
+#    endif
 
 - (SentryMetricReading *)metricReadingForValue:(NSNumber *)value
 {

@@ -48,8 +48,6 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 
 #endif // # SENTRY_TARGET_REPLAY_SUPPORTED
 
-@property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
-
 @property (nonatomic, strong, nullable)
     SentryUserFeedbackConfiguration *userFeedbackConfiguration API_AVAILABLE(ios(13.0));
 

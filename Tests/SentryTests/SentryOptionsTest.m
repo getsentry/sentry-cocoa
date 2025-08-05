@@ -1,6 +1,6 @@
 #import "SentryOptions.h"
 #import "SentryError.h"
-#import "SentryOptions+HybridSDKs.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
@@ -15,7 +15,7 @@
 - (void)testEmptyDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{} didFailWithError:&error];
 
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(NO, options.debug);
@@ -27,7 +27,7 @@
 - (void)testInvalidDsnBoolean
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @YES }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @YES }
                                                 didFailWithError:&error];
 
     [self assertDsnNil:options andError:error];
@@ -43,7 +43,7 @@
 - (void)testInvalidDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
                                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
@@ -51,7 +51,7 @@
 
 - (void)testInvalidDsnWithNoErrorArgument
 {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
                                                 didFailWithError:nil];
     XCTAssertNil(options);
 }
@@ -129,7 +129,7 @@
 - (void)testDebugWith:(NSObject *)debugValue expected:(BOOL)expectedDebugValue
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"dsn" : @"https://username:password@sentry.io/1",
         @"debug" : debugValue
     }
@@ -476,15 +476,21 @@
     NSArray<NSString *> *integrations = @[ @"integration1", @"integration2" ];
     SentryOptions *options = [self getValidOptions:@{ @"integrations" : integrations }];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self assertArrayEquals:integrations actual:options.integrations];
+#pragma clang diagnostic pop
 }
 
 - (void)testDefaultIntegrations
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
+#pragma clang diagnostic pop
 }
 
 #if SENTRY_HAS_UIKIT
@@ -595,7 +601,7 @@
 
 - (void)testNSNull_SetsDefaultValue
 {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
         @"enabled" : [NSNull null],
@@ -671,8 +677,11 @@
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
     XCTAssertNil(options.onCrashedLastRun);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
+#pragma clang diagnostic pop
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
@@ -1448,7 +1457,7 @@
 
     [options addEntriesFromDictionary:dict];
 
-    SentryOptions *sentryOptions = [[SentryOptions alloc] initWithDict:options
+    SentryOptions *sentryOptions = [SentryOptionsInternal initWithDict:options
                                                       didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;

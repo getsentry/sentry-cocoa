@@ -100,7 +100,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-13
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
@@ -113,7 +113,7 @@ jobs:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
       - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - run: make build-xcframework-sample
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
@@ -121,7 +121,7 @@ jobs:
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: macos-13
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
@@ -140,7 +140,7 @@ jobs:
 
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
-    runs-on: macos-13
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4
@@ -159,7 +159,7 @@ jobs:
 
   swift-build:
     name: Build with Swift
-    runs-on: macos-13
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v4

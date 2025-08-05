@@ -112,10 +112,21 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
+
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
         shell: sh
-      - run: EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos'
+      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm-iphoneos.log | xcbeautify
         shell: sh
+
+      - name: Upload SPM Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-spm
+          path: |
+            raw-build-output-spm-watchos.log
+            raw-build-output-spm-iphoneos.log
 
   build-v9:
     name: Build SDK v9
@@ -126,7 +137,7 @@ jobs:
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -136,7 +147,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -144,7 +155,7 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -154,7 +165,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
       - name: Ensure UIKit is not linked
@@ -162,7 +173,7 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Debug
@@ -172,7 +183,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Debug \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
@@ -180,7 +191,7 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Build for Release
@@ -190,7 +201,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 14" \
+            --device "iPhone 15" \
             --configuration Release \
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked

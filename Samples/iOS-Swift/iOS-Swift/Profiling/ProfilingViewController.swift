@@ -169,6 +169,7 @@ private extension ProfilingViewController {
     func optionsConfiguration() {
         guard let options = SentrySDKInternal.currentHub().getClient()?.options else { return }
 
+      #if !SDK_V9
         if let sampleRate = options.profilesSampleRate {
             sampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
             sampleRateField.isEnabled = true
@@ -178,6 +179,7 @@ private extension ProfilingViewController {
             sampleRateField.text = "nil"
             profilesSampleRateSwitch.isOn = false
         }
+      #endif // !SDK_V9
 
         if let sampleRate = options.tracesSampleRate {
             tracesSampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
@@ -195,7 +197,11 @@ private extension ProfilingViewController {
             profileAppStartsSwitch.isOn = v2Options.profileAppStarts
         } else {
             traceLifecycleSwitch.isOn = false
+          #if SDK_V9
+            profileAppStartsSwitch.isOn = false
+          #else
             profileAppStartsSwitch.isOn = options.enableAppLaunchProfiling
+          #endif // !SDK_V9
         }
     }
 

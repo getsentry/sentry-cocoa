@@ -118,9 +118,10 @@ SENTRY_NO_INIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
-@property (nonatomic, strong) id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;

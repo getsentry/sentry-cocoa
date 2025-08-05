@@ -558,6 +558,19 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+{
+    SentryClient *client = self.client;
+    if (client != nil) {
+        [client captureSerializedFeedback:serializedFeedback
+                              withEventId:feedbackEventId
+                              attachments:feedbackAttachments
+                                    scope:self.scope];
+    }
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryOptions *options = [[self client] options];
