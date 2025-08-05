@@ -1,4 +1,4 @@
-name: CocoaPods Integration 
+name: CocoaPods Integration
 on:
   push:
     branches:
