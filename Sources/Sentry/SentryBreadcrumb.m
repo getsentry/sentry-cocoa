@@ -1,6 +1,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
@@ -59,7 +60,11 @@
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
-    [serializedData setValue:sentry_toIso8601String(self.timestamp) forKey:@"timestamp"];
+    if (self.timestamp != nil) {
+        [serializedData
+            setValue:sentry_toIso8601String(SENTRY_UNWRAP_NULLABLE(NSDate, self.timestamp))
+              forKey:@"timestamp"];
+    }
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.origin forKey:@"origin"];
