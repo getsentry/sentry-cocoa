@@ -1,4 +1,5 @@
 #import "SentryProfileTimeseries.h"
+#import "SentryInternalDefines.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -114,7 +115,9 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
 
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : obj[@"value"],
+            // We unwrap the nullable to silence the compiler warning, as Objective-C will just
+            // ignore the null value.
+            @"value" : SENTRY_UNWRAP_NULLABLE(NSNumber, obj[@"value"]),
         }];
     }];
     if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
