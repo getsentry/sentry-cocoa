@@ -40872,6 +40872,7 @@
             "mangledName": "$s6Sentry0A3LogC9timestamp10Foundation4DateVvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -40895,6 +40896,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -40922,6 +40924,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -40945,6 +40948,7 @@
             "mangledName": "$s6Sentry0A3LogC7traceIdAA0aD0Cvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -40968,6 +40972,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -40995,6 +41000,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41018,6 +41024,7 @@
             "mangledName": "$s6Sentry0A3LogC5levelAC5LevelOvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -41041,6 +41048,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41068,6 +41076,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41091,6 +41100,7 @@
             "mangledName": "$s6Sentry0A3LogC4bodySSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -41114,6 +41124,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41141,6 +41152,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41178,6 +41190,7 @@
             "mangledName": "$s6Sentry0A3LogC10attributesSDySSAC9AttributeCGvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -41215,6 +41228,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41256,6 +41270,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41288,6 +41303,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -41319,6 +41335,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41354,63 +41371,12 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
               }
             ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(from:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLog",
-                "printedName": "Sentry.SentryLog",
-                "usr": "c:@M@Sentry@objc(cs)SentryLog"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Decoder",
-                "printedName": "any Swift.Decoder",
-                "usr": "s:s7DecoderP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A3LogC4fromACs7Decoder_p_tKcfc",
-            "mangledName": "$s6Sentry0A3LogC4fromACs7Decoder_p_tKcfc",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Required"
-            ],
-            "throwing": true,
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "encode",
-            "printedName": "encode(to:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Encoder",
-                "printedName": "any Swift.Encoder",
-                "usr": "s:s7EncoderP"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A3LogC6encode2toys7Encoder_p_tKF",
-            "mangledName": "$s6Sentry0A3LogC6encode2toys7Encoder_p_tKF",
-            "moduleName": "Sentry",
-            "throwing": true,
-            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "TypeDecl",
@@ -41740,55 +41706,6 @@
               {
                 "kind": "Constructor",
                 "name": "init",
-                "printedName": "init(from:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Level",
-                    "printedName": "Sentry.SentryLog.Level",
-                    "usr": "s:6Sentry0A3LogC5LevelO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Decoder",
-                    "printedName": "any Swift.Decoder",
-                    "usr": "s:s7DecoderP"
-                  }
-                ],
-                "declKind": "Constructor",
-                "usr": "s:6Sentry0A3LogC5LevelO4fromAEs7Decoder_p_tKcfc",
-                "mangledName": "$s6Sentry0A3LogC5LevelO4fromAEs7Decoder_p_tKcfc",
-                "moduleName": "Sentry",
-                "throwing": true,
-                "init_kind": "Designated"
-              },
-              {
-                "kind": "Function",
-                "name": "encode",
-                "printedName": "encode(to:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Encoder",
-                    "printedName": "any Swift.Encoder",
-                    "usr": "s:s7EncoderP"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A3LogC5LevelO6encode2toys7Encoder_p_tKF",
-                "mangledName": "$s6Sentry0A3LogC5LevelO6encode2toys7Encoder_p_tKF",
-                "moduleName": "Sentry",
-                "throwing": true,
-                "funcSelfKind": "NonMutating"
-              },
-              {
-                "kind": "Constructor",
-                "name": "init",
                 "printedName": "init(rawValue:)",
                 "children": [
                   {
@@ -41884,20 +41801,6 @@
             "isFromExtension": true,
             "enumRawTypeName": "Int",
             "conformances": [
-              {
-                "kind": "Conformance",
-                "name": "Decodable",
-                "printedName": "Decodable",
-                "usr": "s:Se",
-                "mangledName": "$sSe"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Encodable",
-                "printedName": "Encodable",
-                "usr": "s:SE",
-                "mangledName": "$sSE"
-              },
               {
                 "kind": "Conformance",
                 "name": "Copyable",
@@ -42197,58 +42100,6 @@
                   "ObjC"
                 ],
                 "init_kind": "Designated"
-              },
-              {
-                "kind": "Constructor",
-                "name": "init",
-                "printedName": "init(from:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Attribute",
-                    "printedName": "Sentry.SentryLog.Attribute",
-                    "usr": "s:6Sentry0A3LogC9AttributeC"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Decoder",
-                    "printedName": "any Swift.Decoder",
-                    "usr": "s:s7DecoderP"
-                  }
-                ],
-                "declKind": "Constructor",
-                "usr": "s:6Sentry0A3LogC9AttributeC4fromAEs7Decoder_p_tKcfc",
-                "mangledName": "$s6Sentry0A3LogC9AttributeC4fromAEs7Decoder_p_tKcfc",
-                "moduleName": "Sentry",
-                "declAttributes": [
-                  "Required"
-                ],
-                "throwing": true,
-                "init_kind": "Designated"
-              },
-              {
-                "kind": "Function",
-                "name": "encode",
-                "printedName": "encode(to:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Encoder",
-                    "printedName": "any Swift.Encoder",
-                    "usr": "s:s7EncoderP"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A3LogC9AttributeC6encode2toys7Encoder_p_tKF",
-                "mangledName": "$s6Sentry0A3LogC9AttributeC6encode2toys7Encoder_p_tKF",
-                "moduleName": "Sentry",
-                "throwing": true,
-                "funcSelfKind": "NonMutating"
               }
             ],
             "declKind": "Class",
@@ -42257,6 +42108,7 @@
             "moduleName": "Sentry",
             "objc_name": "SentryStructuredLogAttribute",
             "declAttributes": [
+              "Final",
               "ObjCMembers",
               "ObjC"
             ],
@@ -42267,20 +42119,6 @@
               "ObjectiveC.NSObject"
             ],
             "conformances": [
-              {
-                "kind": "Conformance",
-                "name": "Decodable",
-                "printedName": "Decodable",
-                "usr": "s:Se",
-                "mangledName": "$sSe"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Encodable",
-                "printedName": "Encodable",
-                "usr": "s:SE",
-                "mangledName": "$sSE"
-              },
               {
                 "kind": "Conformance",
                 "name": "Copyable",
@@ -42344,6 +42182,7 @@
         "mangledName": "$s6Sentry0A3LogC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -42353,20 +42192,6 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Decodable",
-            "printedName": "Decodable",
-            "usr": "s:Se",
-            "mangledName": "$sSe"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Encodable",
-            "printedName": "Encodable",
-            "usr": "s:SE",
-            "mangledName": "$sSE"
-          },
           {
             "kind": "Conformance",
             "name": "Copyable",

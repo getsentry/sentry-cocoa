@@ -5,7 +5,7 @@ extension SentryLog {
     /// Supports String, Bool, Int, and Double types.
     @objc(SentryStructuredLogAttribute)
     @objcMembers
-    public class Attribute: NSObject, Codable {
+    public final class Attribute: NSObject {
         /// The type identifier for this attribute ("string", "boolean", "integer", "double")
         public let type: String
         /// The actual value stored in this attribute
@@ -63,66 +63,69 @@ extension SentryLog {
                 // For any other type, convert to string representation
                 self.type = "string"
                 self.value = String(describing: value)
-            }
-            super.init()
+                    }
+        super.init()
+    }
+    }
+}
+
+// MARK: - Internal Codable Support
+@_spi(Private) extension SentryLog.Attribute: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case value
+        case type
+    }
+    
+    @_spi(Private) public convenience init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let type = try container.decode(String.self, forKey: .type)
+        
+        let value: Any
+        switch type {
+        case "string":
+            value = try container.decode(String.self, forKey: .value)
+        case "boolean":
+            value = try container.decode(Bool.self, forKey: .value)
+        case "integer":
+            value = try container.decode(Int.self, forKey: .value)
+        case "double":
+            value = try container.decode(Double.self, forKey: .value)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown type: \(type)")
         }
         
-        private enum CodingKeys: String, CodingKey {
-            case value
-            case type
-        }
+        self.init(value: value)
+    }
+    
+    @_spi(Private) public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
         
-        required public init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            
-            let type = try container.decode(String.self, forKey: .type)
-            self.type = type
-            
-            switch type {
-            case "string":
-                self.value = try container.decode(String.self, forKey: .value)
-            case "boolean":
-                self.value = try container.decode(Bool.self, forKey: .value)
-            case "integer":
-                self.value = try container.decode(Int.self, forKey: .value)
-            case "double":
-                self.value = try container.decode(Double.self, forKey: .value)
-            default:
-                throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown type: \(type)")
-            }
-            
-            super.init()
-        }
+        try container.encode(type, forKey: .type)
         
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            
-            try container.encode(type, forKey: .type)
-            
-            switch type {
-            case "string":
-                guard let stringValue = value as? String else {
-                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected String but got \(Swift.type(of: value))"))
-                }
-                try container.encode(stringValue, forKey: .value)
-            case "boolean":
-                guard let boolValue = value as? Bool else {
-                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Bool but got \(Swift.type(of: value))"))
-                }
-                try container.encode(boolValue, forKey: .value)
-            case "integer":
-                guard let intValue = value as? Int else {
-                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Int but got \(Swift.type(of: value))"))
-                }
-                try container.encode(intValue, forKey: .value)
-            case "double":
-                guard let doubleValue = value as? Double else {
-                    throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Double but got \(Swift.type(of: value))"))
-                }
-                try container.encode(doubleValue, forKey: .value)
-            default:
-                try container.encode(String(describing: value), forKey: .value)
+        switch type {
+        case "string":
+            guard let stringValue = value as? String else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected String but got \(Swift.type(of: value))"))
             }
+            try container.encode(stringValue, forKey: .value)
+        case "boolean":
+            guard let boolValue = value as? Bool else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Bool but got \(Swift.type(of: value))"))
+            }
+            try container.encode(boolValue, forKey: .value)
+        case "integer":
+            guard let intValue = value as? Int else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Int but got \(Swift.type(of: value))"))
+            }
+            try container.encode(intValue, forKey: .value)
+        case "double":
+            guard let doubleValue = value as? Double else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Double but got \(Swift.type(of: value))"))
+            }
+            try container.encode(doubleValue, forKey: .value)
+        default:
+            try container.encode(String(describing: value), forKey: .value)
         }
     }
 }
