@@ -22,7 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(Event)
-@interface SentryEvent : NSObject <SentrySerializable>
+@interface SentryEvent : NSObject
+#if !SDK_V9
+                         <SentrySerializable>
+#endif // !SDK_V9
 
 /**
  * This will be set by the initializer.

@@ -36,6 +36,9 @@ import Foundation
         fatalError("init() has not been implemented")
     }
     
+    #if SDK_V9
+    @_implementationOnly
+    #endif
     public override func serialize() -> [String: Any] {
         var result = super.serialize()
         result["urls"] = urls
