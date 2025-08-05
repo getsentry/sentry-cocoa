@@ -356,14 +356,21 @@
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
     rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
-    NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
-                                                                   dsn:self.options.parsedDsn
-                                                      didFailWithError:&requestError];
+    if (nil == self.options.parsedDsn) {
+        SENTRY_LOG_FATAL(@"No DSN configured, not sending envelope.");
+        [self deleteEnvelopeAndSendNext:envelopeFilePath];
+        return;
+    }
+
+    NSError *_Nullable requestError = nil;
+    NSURLRequest *request = [self.requestBuilder
+        createEnvelopeRequest:rateLimitedEnvelope
+                          dsn:SENTRY_UNWRAP_NULLABLE(SentryDsn, self.options.parsedDsn)
+             didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {
-            SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
+            SENTRY_LOG_FATAL(@"Failed to build request to send envelope: %@.", requestError);
         }
         [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFilePath];
