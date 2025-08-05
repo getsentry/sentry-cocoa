@@ -19,6 +19,7 @@
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -601,16 +602,25 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
+    [self captureSerializedFeedback:[feedback serialize]
+                        withEventId:feedback.eventId.sentryIdString
+                        attachments:[feedback attachmentsForEnvelope]
+                              scope:scope];
+}
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope
+{
     if ([self isDisabled]) {
         [self logDisabledMessage];
         return;
     }
 
     SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
-    feedbackEvent.eventId = feedback.eventId;
+    feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
     feedbackEvent.type = SentryEnvelopeItemTypeFeedback;
-
-    NSDictionary *serializedFeedback = [feedback serialize];
 
     NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (scope.replayId == nil ? 0 : 1);
     NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
@@ -630,7 +640,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
     NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
                                                                      attachments:scope.attachments]
-        arrayByAddingObjectsFromArray:[feedback attachmentsForEnvelope]];
+        arrayByAddingObjectsFromArray:feedbackAttachments];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -901,7 +911,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     *currentSpanCount = spanCountAfter;
 }
 
-- (BOOL)isSampled:(NSNumber *)sampleRate
+- (BOOL)isSampled:(NSNumber *_Nullable)sampleRate
 {
     if (sampleRate == nil) {
         return NO;
@@ -1080,10 +1090,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *dict = event.context[key] == nil
-        ? [[NSMutableDictionary alloc] init]
-        : [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+    NSMutableDictionary *context = [[NSMutableDictionary alloc]
+        initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, event.context)];
+    NSMutableDictionary *dict
+        = event.context[key] != nil && [event.context[key] isKindOfClass:[NSDictionary class]]
+        ? [[NSMutableDictionary alloc]
+              initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, context[key])]
+        : [NSMutableDictionary dictionary];
+
     block(dict);
     context[key] = dict;
     event.context = context;

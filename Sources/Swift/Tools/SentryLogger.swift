@@ -21,9 +21,13 @@ import Foundation
 /// let logger = SentrySDK.logger
 /// logger.info("User logged in", attributes: ["userId": "12345"])
 /// logger.error("Payment failed", attributes: ["errorCode": 500])
+/// 
+/// // Structured string interpolation with automatic type detection
+/// logger.info("User \(userId) processed \(count) items with \(percentage)% success")
+/// logger.debug("Processing \(itemCount) items, active: \(isActive)")
+/// logger.warn("Retry attempt \(currentAttempt) of \(maxAttempts) failed")
 /// ```
 @objc
-@objcMembers
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
@@ -37,74 +41,152 @@ public final class SentryLogger: NSObject {
         super.init()
     }
     
+    // MARK: - Trace Level
+    
+    /// Logs a trace-level message with structured string interpolation and optional attributes.
+    public func trace(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .trace, logMessage: message, attributes: attributes)
+    }
+    
     /// Logs a trace-level message.
+    @objc(trace:)
     public func trace(_ body: String) {
-        captureLog(level: .trace, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .trace, logMessage: message, attributes: [:])
     }
     
     /// Logs a trace-level message with additional attributes.
+    @objc(trace:attributes:)
     public func trace(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .trace, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .trace, logMessage: message, attributes: attributes)
+    }
+    
+    // MARK: - Debug Level
+    
+    /// Logs a debug-level message with structured string interpolation and optional attributes.
+    public func debug(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .debug, logMessage: message, attributes: attributes)
     }
     
     /// Logs a debug-level message.
+    @objc(debug:)
     public func debug(_ body: String) {
-        captureLog(level: .debug, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .debug, logMessage: message, attributes: [:])
     }
     
     /// Logs a debug-level message with additional attributes.
+    @objc(debug:attributes:)
     public func debug(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .debug, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .debug, logMessage: message, attributes: attributes)
+    }
+    
+    // MARK: - Info Level
+    
+    /// Logs an info-level message with structured string interpolation and optional attributes.
+    public func info(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .info, logMessage: message, attributes: attributes)
     }
     
     /// Logs an info-level message.
+    @objc(info:)
     public func info(_ body: String) {
-        captureLog(level: .info, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .info, logMessage: message, attributes: [:])
     }
     
     /// Logs an info-level message with additional attributes.
+    @objc(info:attributes:)
     public func info(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .info, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .info, logMessage: message, attributes: attributes)
+    }
+    
+    // MARK: - Warn Level
+    
+    /// Logs a warning-level message with structured string interpolation and optional attributes.
+    public func warn(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .warn, logMessage: message, attributes: attributes)
     }
     
     /// Logs a warning-level message.
+    @objc(warn:)
     public func warn(_ body: String) {
-        captureLog(level: .warn, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .warn, logMessage: message, attributes: [:])
     }
     
     /// Logs a warning-level message with additional attributes.
+    @objc(warn:attributes:)
     public func warn(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .warn, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .warn, logMessage: message, attributes: attributes)
+    }
+    
+    // MARK: - Error Level
+    
+    /// Logs an error-level message with structured string interpolation and optional attributes.
+    public func error(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .error, logMessage: message, attributes: attributes)
     }
     
     /// Logs an error-level message.
+    @objc(error:)
     public func error(_ body: String) {
-        captureLog(level: .error, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .error, logMessage: message, attributes: [:])
     }
     
     /// Logs an error-level message with additional attributes.
+    @objc(error:attributes:)
     public func error(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .error, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .error, logMessage: message, attributes: attributes)
+    }
+    
+    // MARK: - Fatal Level
+    
+    /// Logs a fatal-level message with structured string interpolation and optional attributes.
+    public func fatal(_ message: SentryLogMessage, attributes: [String: Any] = [:]) {
+        captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
     
     /// Logs a fatal-level message.
+    @objc(fatal:)
     public func fatal(_ body: String) {
-        captureLog(level: .fatal, body: body, attributes: [:])
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .fatal, logMessage: message, attributes: [:])
     }
     
     /// Logs a fatal-level message with additional attributes.
+    @objc(fatal:attributes:)
     public func fatal(_ body: String, attributes: [String: Any]) {
-        captureLog(level: .fatal, body: body, attributes: attributes)
+        let message = SentryLogMessage(stringLiteral: body)
+        captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
     
     // MARK: - Private
     
-    private func captureLog(level: SentryLog.Level, body: String, attributes: [String: Any]) {
+    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let batcher else {
             return
         }
         
+        // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+        
+        // Add template string if there are interpolations
+        if !logMessage.attributes.isEmpty {
+            logAttributes["sentry.message.template"] = .string(logMessage.template)
+        }
+        
+        // Add attributes from the SentryLogMessage
+        for (index, attribute) in logMessage.attributes.enumerated() {
+            logAttributes["sentry.message.parameter.\(index)"] = attribute
+        }
+        
         addDefaultAttributes(to: &logAttributes)
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
@@ -118,7 +200,7 @@ public final class SentryLogger: NSObject {
                 timestamp: dateProvider.date(),
                 traceId: propagationContextTraceId,
                 level: level,
-                body: body,
+                body: logMessage.message,
                 attributes: logAttributes
             )
         )

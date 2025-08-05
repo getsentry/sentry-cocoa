@@ -1,9 +1,12 @@
 #import "SentrySystemWrapper.h"
-#import "SentryDependencyContainer.h"
-#import "SentryError.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import <mach/mach.h>
-#include <thread>
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryDependencyContainer.h"
+#    import "SentryError.h"
+#    import "SentryNSProcessInfoWrapper.h"
+#    import <mach/mach.h>
+#    include <thread>
 
 @implementation SentrySystemWrapper {
     float processorCount;
@@ -84,6 +87,8 @@
     return @(usage);
 }
 
+// Only these architectures support `task_energy`
+#    if defined(__arm__) || defined(__arm64__)
 - (NSNumber *)cpuEnergyUsageWithError:(NSError **)error
 {
     struct task_power_info_v2 powerInfo;
@@ -99,7 +104,10 @@
             ;
         }
     }
-    return @(powerInfo.cpu_energy.total_system + powerInfo.cpu_energy.total_user);
+    return @(powerInfo.task_energy);
 }
+#    endif
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

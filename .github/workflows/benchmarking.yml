@@ -39,6 +39,11 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - name: Install old xcodegen
+        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        run: |
+          brew install --formula ./scripts/xcodegen.rb
+          brew pin xcodegen
       - run: make init-ci-build
       - run: make xcode-ci
       - name: Install SentryCli

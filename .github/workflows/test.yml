@@ -224,10 +224,6 @@ jobs:
           fail_on_parse_error: true
           detailed_summary: true
 
-      - name: Slowest Tests
-        if: ${{ always() }}
-        run: ./scripts/xcode-slowest-tests.sh
-
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
@@ -253,6 +249,9 @@ jobs:
           name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
+
+      - name: Gather code coverage information via slather
+        run: slather coverage --configuration TestCI --scheme Sentry
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
@@ -287,3 +286,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
+          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests

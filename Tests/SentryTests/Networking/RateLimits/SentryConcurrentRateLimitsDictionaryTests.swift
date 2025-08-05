@@ -33,8 +33,8 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
     }
 
     func testConcurrentReadWrite() {
-        let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", qos: .background, attributes: [.concurrent, .initiallyInactive])
-        let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", attributes: [.concurrent, .initiallyInactive])
+        let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", attributes: [.concurrent, .initiallyInactive])
         
         let group = DispatchGroup()
         

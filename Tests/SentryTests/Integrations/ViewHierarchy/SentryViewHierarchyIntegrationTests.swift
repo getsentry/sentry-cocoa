@@ -35,6 +35,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         clearTestState()
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_attachViewHierarchy() {
         SentrySDK.start {
             $0.attachViewHierarchy = false
@@ -44,6 +45,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_attachViewHierarchy_enabled() {
         SentrySDK.start {
             $0.attachViewHierarchy = true
@@ -53,6 +55,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_uninstall() {
         SentrySDK.start {
             $0.attachViewHierarchy = true
@@ -63,6 +66,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_integrationAddFileName() {
         SentrySDK.start {
             $0.attachViewHierarchy = true
@@ -168,6 +172,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         wait(for: [ex], timeout: 1)
     }
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testReportAccessibilityIdentifierTrue() {
         SentrySDK.start {
             $0.attachViewHierarchy = true
@@ -176,6 +181,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().viewHierarchyProvider.reportAccessibilityIdentifier)
     }
     
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testReportAccessibilityIdentifierFalse() {
         SentrySDK.start {
             $0.attachViewHierarchy = true

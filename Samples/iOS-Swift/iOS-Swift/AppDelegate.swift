@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("[iOS-Swift] [debug] launch arguments: \(args)")
         print("[iOS-Swift] [debug] launch environment: \(env)")
 
-        if args.contains("--io.sentry.special.wipe-data") {
+        if args.contains(SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue) {
             removeAppData()
         }
 

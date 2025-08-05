@@ -47,6 +47,33 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+@implementation SentryIdWrapper
+
+- (instancetype)initWithId:(NSString *)sentryIdString
+{
+    if (self = [super init]) {
+        self.sentryIdString = sentryIdString;
+        return self;
+    }
+    return nil;
+}
+
+- (SentryId *)sentryId
+{
+    return [[SentryId alloc] initWithUUIDString:self.sentryIdString];
+}
+
+@end
+
+@implementation SentryId (Wrapper)
+
+- (SentryIdWrapper *)wrapper
+{
+    return [[SentryIdWrapper alloc] initWithId:self.sentryIdString];
+}
+
+@end
+
 NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
 
 @interface SentrySDKInternal ()
@@ -59,10 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDKInternal
 static SentryHub *_Nullable currentHub;
 static NSObject *currentHubLock;
-static SentryLogger *_Nullable currentLogger;
-static NSObject *currentLoggerLock;
 static BOOL crashedLastRunCalled;
-static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
 static SentryOptions *_Nullable startOption;
@@ -84,7 +109,6 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDKInternal class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
-        currentLoggerLock = [[NSObject alloc] init];
         startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
@@ -97,7 +121,7 @@ static NSDate *_Nullable startTimestamp = nil;
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
-        return currentHub;
+        return SENTRY_UNWRAP_NULLABLE(SentryHub, currentHub);
     }
 }
 
@@ -116,30 +140,6 @@ static NSDate *_Nullable startTimestamp = nil;
     return replay;
 }
 #endif
-
-+ (SentryLogger *)logger
-{
-
-    @synchronized(currentLoggerLock) {
-        if (currentLogger == nil) {
-
-            SentryLogBatcher *batcher;
-            if (nil != currentHub.client && currentHub.client.options.experimental.enableLogs) {
-                batcher = [[SentryLogBatcher alloc]
-                    initWithClient:currentHub.client
-                     dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
-            } else {
-                batcher = nil;
-            }
-
-            currentLogger = [[SentryLogger alloc]
-                 initWithHub:currentHub
-                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                     batcher:batcher];
-        }
-        return currentLogger;
-    }
-}
 
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
@@ -325,21 +325,21 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #endif // SENTRY_HAS_UIKIT
 
-+ (SentryId *)captureEvent:(SentryEvent *)event
++ (SentryIdWrapper *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDKInternal captureEvent:event withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
++ (SentryIdWrapper *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureEvent:event withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (SentryIdWrapper *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope];
+    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope].wrapper;
 }
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
@@ -384,40 +384,41 @@ static NSDate *_Nullable startTimestamp = nil;
                                                customSamplingContext:customSamplingContext];
 }
 
-+ (SentryId *)captureError:(NSError *)error
++ (SentryIdWrapper *)captureError:(NSError *)error
 {
     return [SentrySDKInternal captureError:error withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block
++ (SentryIdWrapper *)captureError:(NSError *)error
+                   withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureError:error withScope:scope];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
++ (SentryIdWrapper *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureError:error withScope:scope];
+    return [SentrySDKInternal.currentHub captureError:error withScope:scope].wrapper;
 }
 
-+ (SentryId *)captureException:(NSException *)exception
++ (SentryIdWrapper *)captureException:(NSException *)exception
 {
     return [SentrySDKInternal captureException:exception
                                      withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SentryScope *))block
++ (SentryIdWrapper *)captureException:(NSException *)exception
+                       withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureException:exception withScope:scope];
 }
 
-+ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
++ (SentryIdWrapper *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureException:exception withScope:scope];
+    return [SentrySDKInternal.currentHub captureException:exception withScope:scope].wrapper;
 }
 
 #if TARGET_OS_OSX
@@ -431,26 +432,28 @@ static NSDate *_Nullable startTimestamp = nil;
                             userInfo:exception.userInfo
             callStackReturnAddresses:exception.callStackReturnAddresses];
     return [SentrySDKInternal captureException:wrappedException
-                                     withScope:SentrySDKInternal.currentHub.scope];
+                                     withScope:SentrySDKInternal.currentHub.scope]
+        .sentryId;
 }
 
 #endif // TARGET_OS_OSX
 
-+ (SentryId *)captureMessage:(NSString *)message
++ (SentryIdWrapper *)captureMessage:(NSString *)message
 {
     return [SentrySDKInternal captureMessage:message withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block
++ (SentryIdWrapper *)captureMessage:(NSString *)message
+                     withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureMessage:message withScope:scope];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
++ (SentryIdWrapper *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
+    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope].wrapper;
 }
 
 /**
@@ -476,9 +479,13 @@ static NSDate *_Nullable startTimestamp = nil;
 }
 #endif // !SDK_V9
 
-+ (void)captureFeedback:(SentryFeedback *)feedback
++ (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
 {
-    [SentrySDKInternal.currentHub captureFeedback:feedback];
+    [SentrySDKInternal.currentHub captureSerializedFeedback:serializedFeedback
+                                                withEventId:feedbackEventId
+                                                attachments:feedbackAttachments];
 }
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
@@ -553,8 +560,15 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
+#if SDK_V9
+    NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
+#else
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSMutableArray<NSString *> *integrationNames =
         [SentrySDKInternal.currentHub getClient].options.integrations.mutableCopy;
+#    pragma clang diagnostic pop
+#endif // SDK_V9
 
     NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 
@@ -657,9 +671,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentrySDKInternal setCurrentHub:nil];
 
-    @synchronized(currentLoggerLock) {
-        currentLogger = nil;
-    }
+    [SentrySDK clearLogger];
 
     [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];

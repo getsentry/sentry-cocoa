@@ -12,6 +12,7 @@ Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#
 Removes public SentrySerializable conformance from many public models (#5636)
 Removes Decodable conformances from the public API of model classes (#5691)
 Removes enableTracing property from SentryOptions (#5694)
+Removes `integrations` property from `SentryOptions` (#5749)
 
 ### Fixes
 
