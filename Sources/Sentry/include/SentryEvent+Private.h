@@ -4,6 +4,9 @@
 #import <Foundation/Foundation.h>
 
 @interface SentryEvent ()
+#if SDK_V9
+    <SentrySerializable>
+#endif // SDK_V9
 
 /**
  * This indicates whether this event is a result of a fatal app termination, such as a crash,
