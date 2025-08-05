@@ -1,4 +1,5 @@
 name: Lint Swift Formatting
+
 on:
   push:
     branches:

@@ -1,4 +1,4 @@
-name: Lint
+name: Lint Xcode Analyze
 
 on:
   push:
@@ -31,18 +31,7 @@ concurrency:
 
 jobs:
   lint:
-    name: SwiftLint
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install tooling
-        run: make init-ci-format
-      - run: swiftlint --version
-      - name: Run SwiftLint
-        run: swiftlint --strict
-
-  xcode-analyze:
-    name: Xcode Analyze
+    name: Lint
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

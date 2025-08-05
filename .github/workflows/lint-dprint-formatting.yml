@@ -2,7 +2,8 @@
 # expensive. For example, dprint should run for markdown changes, but pod lib lint doesn't need to
 # run for markdown changes. Therefore, we run it in an extra workflow.
 
-name: Lint dprint formatting
+name: Lint dprint Formatting
+
 on:
   push:
     branches:

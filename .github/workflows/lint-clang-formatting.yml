@@ -1,4 +1,5 @@
 name: Lint Clang Formatting
+
 on:
   push:
     branches:
