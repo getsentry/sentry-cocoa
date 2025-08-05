@@ -95,6 +95,16 @@ targets:
       Release: iOS-Benchmarking.xcconfig
       Test: iOS-Benchmarking.xcconfig
       TestCI: iOS-Benchmarking.xcconfig
+  iOS-Swift-ShareExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - iOS-Swift-ShareExtension
+    configFiles:
+      Debug: iOS-Swift-ShareExtension.xcconfig
+      Release: iOS-Swift-ShareExtension.xcconfig
+      Test: iOS-Swift-ShareExtension.xcconfig
+      TestCI: iOS-Swift-ShareExtension.xcconfig
 schemes:
   iOS-Swift:
     templates:

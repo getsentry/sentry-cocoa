@@ -1,0 +1,15 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift-ShareExtension
+INFOPLIST_FILE = iOS-Swift-ShareExtension/Info.plist
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.iOS-Swift-ShareExtension
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.iOS-Swift-ShareExtension
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.iOS-Swift-ShareExtension
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.iOS-Swift-ShareExtension
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
