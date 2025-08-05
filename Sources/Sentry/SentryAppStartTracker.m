@@ -11,6 +11,7 @@
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
+#    import <SentryInternalDefines.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
@@ -28,7 +29,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @interface SentryAppStartTracker () <SentryFramesTrackerListener>
 
-@property (nonatomic, strong) SentryAppState *previousAppState;
+@property (nonatomic, strong, nullable) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
@@ -258,15 +259,17 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     if (self.previousAppState == nil) {
         return SentryAppStartTypeCold;
     }
-
+    SentryAppState *_Nonnull previousAppState
+        = SENTRY_UNWRAP_NULLABLE(SentryAppState, self.previousAppState);
     SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
     // If the release name is different we assume it's an app upgrade
-    if (![currentAppState.releaseName isEqualToString:self.previousAppState.releaseName]) {
+    if (![currentAppState.releaseName
+            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, previousAppState.releaseName)]) {
         return SentryAppStartTypeCold;
     }
 
-    NSTimeInterval intervalSincePreviousBootTime = [self.previousAppState.systemBootTimestamp
+    NSTimeInterval intervalSincePreviousBootTime = [previousAppState.systemBootTimestamp
         timeIntervalSinceDate:currentAppState.systemBootTimestamp];
 
     // System rebooted, because the previous boot time is in the past.
