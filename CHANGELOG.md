@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Change conditional import of MetricKit (#5798)
+
 ### Fixes
 
 - Add support for PDFKit views in session replay (#5750)
