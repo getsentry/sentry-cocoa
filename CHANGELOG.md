@@ -12,6 +12,9 @@
 ### Internal
 
 - Add nullability property for `screenName` (#5782)
+### Features
+
+- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
 
 ## 8.54.0
 
