@@ -9,7 +9,6 @@ class SentryFramesTrackerTests: XCTestCase {
     private class Fixture {
         
         var displayLinkWrapper: TestDisplayLinkWrapper
-        var queue: DispatchQueue
         var dateProvider = TestCurrentDateProvider()
         var notificationCenter = TestNSNotificationCenterWrapper()
         let keepDelayedFramesDuration = 10.0
@@ -18,8 +17,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         init() {
             displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: dateProvider)
-            queue = DispatchQueue(label: "SentryFramesTrackerTests", qos: .background, attributes: [.concurrent])
-            
+
             slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
         

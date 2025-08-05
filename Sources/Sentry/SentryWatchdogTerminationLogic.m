@@ -1,4 +1,4 @@
-#import "SentryInternalDefines.h"
+#import <SentryInternalDefines.h>
 #import <SentryWatchdogTerminationLogic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -37,14 +37,15 @@
         return NO;
     }
 
-    SentryAppState *previousAppState = [self.appStateManager loadPreviousAppState];
-    SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
-
+    SentryAppState *_Nullable nullablePreviousAppState =
+        [self.appStateManager loadPreviousAppState];
     // If there is no previous app state, we can't do anything.
-    if (previousAppState == nil) {
+    if (nullablePreviousAppState == nil) {
         return NO;
     }
+    SentryAppState *_Nonnull previousAppState = (SentryAppState *_Nonnull)nullablePreviousAppState;
 
+    SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
     if (self.crashAdapter.isSimulatorBuild) {
         return NO;
     }
