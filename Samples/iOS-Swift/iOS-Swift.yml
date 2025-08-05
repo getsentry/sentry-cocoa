@@ -32,6 +32,7 @@ targets:
       - target: Sentry/Sentry
       - target: iOS-SwiftClip
       - target: SentrySampleShared/SentrySampleShared
+      - target: iOS-Swift-ShareExtension
     configFiles:
       Debug: iOS-Swift.xcconfig
       DebugV9: iOS-Swift.xcconfig
