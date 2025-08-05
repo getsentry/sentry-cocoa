@@ -41,6 +41,7 @@ concurrency:
 
 jobs:
   build-xcframework-variant-slices:
+    name: Build XCFramework Variant Slices
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -70,6 +71,7 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
+    name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
     with:
@@ -99,7 +101,7 @@ jobs:
             id: sentry-withoutuikit-dynamic
 
   validate-xcframework:
-    name: Validate XCFramework
+    name: Validate XCFramework - Static
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -120,7 +122,7 @@ jobs:
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
-    name: Validate Swift Package Manager
+    name: Validate Swift Package Manager - Static
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -139,7 +141,7 @@ jobs:
         working-directory: Samples/macOS-SPM-CommandLine
 
   validate-spm-dynamic:
-    name: Validate Swift Package Manager Dynamic
+    name: Validate Swift Package Manager - Dynamic
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -158,7 +160,7 @@ jobs:
         working-directory: Samples/SPM-Dynamic
 
   swift-build:
-    name: Build with Swift
+    name: Build with Swift - Static
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
