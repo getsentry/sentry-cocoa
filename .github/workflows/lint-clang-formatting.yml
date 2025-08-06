@@ -1,4 +1,4 @@
-name: Lint Clang Formatting
+name: Lint Clang
 
 on:
   push:

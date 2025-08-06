@@ -1,4 +1,4 @@
-name: Lint Xcode Analyze
+name: Lint Xcode
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/lint.yml"
+      - ".github/workflows/lint-xcode-analyze.yml"
       - "scripts/ci-select-xcode.sh"
 
   pull_request:
@@ -18,7 +18,7 @@ on:
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/lint.yml"
+      - ".github/workflows/lint-xcode-analyze.yml"
       - "scripts/ci-select-xcode.sh"
       - "Sentry.xcodeproj/**"
       - "*.podspec"

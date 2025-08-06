@@ -1,4 +1,4 @@
-name: UI Tests Critical
+name: Test UI Critical
 on:
   push:
     branches:
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: Test iOS on Xcode ${{matrix.platform.xcode}} - ${{ matrix.command.fastlane_command }} - V4 # Up the version with every change to keep track of flaky tests
+    name: Test iOS Critical V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ${{ matrix.command.fastlane_command }}

@@ -14,7 +14,7 @@ on:
 
 jobs:
   api-stability:
-    name: API Stability Check (${{ matrix.version }})
+    name: Check API Stability (${{ matrix.version }})
     runs-on: macos-15
     strategy:
       matrix:

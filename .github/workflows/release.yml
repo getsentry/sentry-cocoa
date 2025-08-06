@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   build-xcframework-variant-slices:
-    name: Build XCFramework Variant Slice
+    name: Build XCFramework Slice
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -71,7 +71,7 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
-    name: Assemble XCFramework Variant
+    name: Assemble XCFramework
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
     with:
@@ -101,7 +101,7 @@ jobs:
             id: sentry-withoutuikit-dynamic
 
   validate-xcframework:
-    name: Validate XCFramework - Static
+    name: Validate XCFramework
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -122,7 +122,7 @@ jobs:
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
-    name: Validate Swift Package Manager - Static
+    name: Validate SPM Static
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -141,7 +141,7 @@ jobs:
         working-directory: Samples/macOS-SPM-CommandLine
 
   validate-spm-dynamic:
-    name: Validate Swift Package Manager - Dynamic
+    name: Validate SPM Dynamic
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -160,7 +160,7 @@ jobs:
         working-directory: Samples/SPM-Dynamic
 
   swift-build:
-    name: Build with Swift - Static
+    name: Build Swift Static
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
@@ -178,7 +178,7 @@ jobs:
       - run: swift build
 
   duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
+    name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     needs: assemble-xcframework-variant
     secrets:
@@ -190,7 +190,7 @@ jobs:
       needs_xcframework: true
 
   app-metrics:
-    name: Collect app metrics
+    name: Collect App Metrics
     runs-on: macos-15
     needs: assemble-xcframework-variant
     timeout-minutes: 20
@@ -241,7 +241,7 @@ jobs:
 
   job_release:
     runs-on: ubuntu-latest
-    name: "Release a new version"
+    name: "Release New Version"
     needs: [
       validate-xcframework,
       validate-spm,

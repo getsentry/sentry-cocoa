@@ -1,4 +1,4 @@
-name: "Assemble Sentry Cocoa XCFramework variant"
+name: Assemble XCFramework
 
 on:
   workflow_call:

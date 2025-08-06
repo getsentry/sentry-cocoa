@@ -1,4 +1,4 @@
-name: Lint Swiftlint Formatting
+name: Lint SwiftLint
 
 on:
   push:

@@ -9,7 +9,7 @@ on:
       - "Tests/**"
       - "test-server/**"
       - "Samples/**"
-      - ".github/workflows/lint-cocoapods.yml"
+      - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
 
   pull_request:

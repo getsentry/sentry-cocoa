@@ -1,4 +1,4 @@
-name: Build Sentry Cocoa XCFramework Variant Slice
+name: Build XCFramework Slice
 
 on:
   workflow_call:
