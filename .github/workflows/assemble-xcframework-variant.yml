@@ -135,18 +135,7 @@ jobs:
 
       - name: Remove excluded archs
         if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.excluded-archs != '' }}
-        run: |
-          find xcframework-slices/iphoneos.xcarchive -name "*.framework" -type d | while read framework_path; do
-            binary_path="$framework_path/$(basename "$framework_path" .framework)"
-            if [ -f "$binary_path" ]; then
-              echo "Processing binary: $binary_path"
-              echo "Removing architectures: ${{ inputs.excluded-archs }}"
-              temp_binary="${binary_path}.tmp"
-              lipo -remove ${{ inputs.excluded-archs }} "$binary_path" -output "$temp_binary"
-              mv "$temp_binary" "$binary_path"
-              echo "Updated binary: $binary_path"
-            fi
-          done
+        run: ./scripts/remove-architectures.sh xcframework-slices/ "${{ inputs.excluded-archs }}"
         shell: bash
 
       - name: Assemble XCFramework
