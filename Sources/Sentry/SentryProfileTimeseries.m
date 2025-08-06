@@ -117,12 +117,13 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
             [@ { @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp) }
                 mutableCopy];
         NSNumber *value = obj[@"value"];
-        if (value != nil) {
+        if (value != nil && ![value isKindOfClass:[NSNull class]]) {
             entry[@"value"] = value;
         }
         [slicedGPUEntries addObject:entry];
     }];
-    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil
+        && ![nearestPredecessorValue isKindOfClass:[NSNull class]]) {
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : @"0",
             @"value" : SENTRY_UNWRAP_NULLABLE(NSNumber, nearestPredecessorValue),

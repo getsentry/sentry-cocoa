@@ -58,7 +58,7 @@
     XCTAssertEqualObjects(result[2][@"value"], @(120.0));
 }
 
-- (void)testSliceTraceProfileGPUData_WithNSNullValue_PreservesNSNull
+- (void)testSliceTraceProfileGPUData_WithNSNullValue_ExcludesNSNull
 {
     // -- Arrange --
     SentryFrameInfoTimeSeries *frameInfo = @[
@@ -79,9 +79,9 @@
     // -- Assert --
     XCTAssertEqual(result.count, 2);
 
-    // Verify first entry (with nil value) - NSNull is preserved in the result
+    // Verify first entry (with nil value) - NSNull is excluded from the value key
     XCTAssertEqualObjects(result[0][@"elapsed_since_start_ns"], @"500000000");
-    XCTAssertEqualObjects(result[0][@"value"], [NSNull null]);
+    XCTAssertNil(result[0][@"value"]);
 
     // Verify second entry (with valid value)
     XCTAssertEqualObjects(result[1][@"elapsed_since_start_ns"], @"1000000000");
@@ -229,10 +229,8 @@
         = sentry_sliceTraceProfileGPUData(frameInfo, startSystemTime, endSystemTime, YES);
 
     // -- Assert --
-    // Should add entry since NSNull is not nil - it creates an entry with NSNull value
-    XCTAssertEqual(result.count, 1);
-    XCTAssertEqualObjects(result[0][@"elapsed_since_start_ns"], @"0");
-    XCTAssertEqualObjects(result[0][@"value"], [NSNull null]);
+    // Should not add any entry since NSNull is treated as no data
+    XCTAssertEqual(result.count, 0);
 }
 
 - (void)testSliceTraceProfileGPUData_UseMostRecentRecording_WithTrueNilPredecessor
