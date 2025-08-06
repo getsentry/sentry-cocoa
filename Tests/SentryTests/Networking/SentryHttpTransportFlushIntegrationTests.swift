@@ -88,6 +88,12 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
+        // This must be long enough that all the threads we start below get to run
+        // while the first call to flush is still blocking
+        let flushTimeout = 10.0
+        requestManager.waitForResponseDispatchGroup = true
+        requestManager.responseDispatchGroup.enter()
+        
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
@@ -95,12 +101,6 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         // Wait until the dispath queue drains to confirm the envelope is stored
         waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
-
-        // This must be long enough that all the threads we start below get to run
-        // while the first call to flush is still blocking
-        let flushTimeout = 10.0
-        requestManager.waitForResponseDispatchGroup = true
-        requestManager.responseDispatchGroup.enter()
 
         let initialFlushCallGroup = DispatchGroup()
         let ensureFlushingGroup = DispatchGroup()
