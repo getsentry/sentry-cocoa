@@ -509,9 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
         uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
         debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
-        if (nil != debugMeta.debugID) {
-            debugMetas[SENTRY_UNWRAP_NULLABLE(NSString, debugMeta.debugID)] = debugMeta;
-        }
+        debugMetas[binaryUUID] = debugMeta;
     }
 
     return [debugMetas allValues];
