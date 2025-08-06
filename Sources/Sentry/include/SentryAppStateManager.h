@@ -36,7 +36,7 @@ SENTRY_NO_INIT
  */
 - (SentryAppState *)buildCurrentAppState;
 
-- (SentryAppState *)loadPreviousAppState;
+- (nullable SentryAppState *)loadPreviousAppState;
 
 - (void)storeCurrentAppState;
 

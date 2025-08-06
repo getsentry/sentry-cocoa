@@ -342,7 +342,11 @@ class SentryClientTest: XCTestCase {
             self.fixture.getSut().capture(event: event, scope: self.fixture.scope)
             group.leave()
         }
+
+        // Call group.enter a second time to ensure the main thread is blocked and the call to
+        // the main thread for getting the relevantViewControllersNames times out.
         group.enter()
+        
         let _ = group.wait(timeout: .now() + 1)
         
         let sentEvent = try lastSentEventWithAttachment()
@@ -1969,19 +1973,18 @@ class SentryClientTest: XCTestCase {
         addIntegrations(amount: 1_000)
         
         let queue = fixture.queue
-        let group = DispatchGroup()
         
         // Run this in a loop to ensure that add while iterating over the integrations
         // Running it once doesn't guaranty failure
-        for _ in 0..<10 {
-            group.enter()
+        for i in 0..<10 {
+            let expectation = XCTestExpectation(description: "Add integrations completed \(i)")
             queue.async {
                 addIntegrations(amount: 1_000)
-                group.leave()
+                expectation.fulfill()
             }
             
             sut.capture(event: Event())
-            group.waitWithTimeout()
+            wait(for: [expectation], timeout: 1)
             hub.removeAllIntegrations()
         }
     }
