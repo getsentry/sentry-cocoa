@@ -71,7 +71,7 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
-    name: Assemble XCFramework
+    name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
     with:

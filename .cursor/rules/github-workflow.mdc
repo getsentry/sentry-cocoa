@@ -34,8 +34,10 @@ Use clear, concise descriptions that avoid redundancy with the workflow name:
 
 #### Build Jobs
 - ✅ `Build XCFramework Slice` (not "Build XCFramework Variant Slice")
-- ✅ `Assemble XCFramework` (not "Assemble XCFramework Variant")
+- ✅ `Assemble XCFramework Variant` (not "Assemble XCFramework" - be specific about variants)
 - ✅ `Build App and Test Runner`
+- ✅ `${{matrix.sdk}}` for platform-specific builds (e.g., "iphoneos", "macosx")
+- ✅ `${{inputs.name}}${{inputs.suffix}}` for variant assembly (e.g., "Sentry-Dynamic")
 
 #### Test Jobs
 - ✅ `Test ${{matrix.target}} V3 # Up the version with every change to keep track of flaky tests`
@@ -43,7 +45,9 @@ Use clear, concise descriptions that avoid redundancy with the workflow name:
 - ✅ `Test SwiftUI V4 # Up the version with every change to keep track of flaky tests`
 - ✅ `Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests`
 
-**Note:** Version numbers (V1, V2, etc.) are included in test job names for flaky test tracking, with explanatory comments retained.
+**Note:** 
+- Version numbers (V1, V2, etc.) are included in test job names for flaky test tracking, with explanatory comments retained.
+- For matrix-based jobs, use clean variable names that produce readable job names (e.g., `${{matrix.sdk}}`, `${{inputs.name}}${{inputs.suffix}}`).
 
 #### Validation Jobs
 - ✅ `Validate XCFramework` (not "Validate XCFramework - Static")
@@ -90,7 +94,7 @@ For reusable workflows (workflow_call), use descriptive names that indicate thei
 
 **Examples:**
 - ✅ `Build XCFramework Slice`
-- ✅ `Assemble XCFramework`
+- ✅ `Assemble XCFramework Variant`
 - ✅ `UI Tests Common`
 
 ### Benefits of This Convention
