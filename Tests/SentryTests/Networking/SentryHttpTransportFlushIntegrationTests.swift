@@ -129,8 +129,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
             parallelFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
                 for _ in 0..<10 {
-                    let result = sut.flush(flushTimeout)
-                    XCTAssertEqual(.alreadyFlushing, result, "Flush should have returned immediately")
+                    XCTAssertEqual(.alreadyFlushing, sut.flush(flushTimeout), "Flush should have returned immediately")
                 }
 
                 parallelFlushCallsGroup.leave()
