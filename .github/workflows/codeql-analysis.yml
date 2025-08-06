@@ -3,11 +3,21 @@ name: "CodeQL"
 on:
   push:
     branches: [main]
+    paths:
+      - "Sources/**" # Core SDK source code to analyze
+      - "Sentry.xcworkspace/**" # Workspace configuration affects builds
+      - "Sentry.xcodeproj/**" # Project configuration affects builds
+      - ".github/workflows/codeql-analysis.yml" # Changes to this workflow
   pull_request:
     branches:
       - main
+    paths:
+      - "Sources/**" # Core SDK source code to analyze
+      - "Sentry.xcworkspace/**" # Workspace configuration affects builds
+      - "Sentry.xcodeproj/**" # Project configuration affects builds
+      - ".github/workflows/codeql-analysis.yml" # Changes to this workflow
   schedule:
-    - cron: "40 4 * * 6"
+    - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

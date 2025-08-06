@@ -8,17 +8,21 @@ on:
     branches:
       - main
     paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-      - "**/*.json"
-      - "**/*.md"
+      - "**/*.yml" # YAML files that need formatting
+      - "**/*.yaml" # YAML files that need formatting  
+      - "**/*.json" # JSON files that need formatting
+      - "**/*.md" # Markdown files that need formatting
+      - ".github/workflows/lint-dprint.yml" # Changes to this workflow
+      - "dprint.json" # Dprint configuration affects formatting rules
 
   pull_request:
     paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-      - "**/*.json"
-      - "**/*.md"
+      - "**/*.yml" # YAML files that need formatting
+      - "**/*.yaml" # YAML files that need formatting
+      - "**/*.json" # JSON files that need formatting
+      - "**/*.md" # Markdown files that need formatting
+      - ".github/workflows/lint-dprint.yml" # Changes to this workflow
+      - "dprint.json" # Dprint configuration affects formatting rules
 
 jobs:
   lint-dprint:

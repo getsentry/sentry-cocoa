@@ -7,16 +7,18 @@ on:
 
   pull_request:
     paths:
-      - "Sources/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/build.yml"
-      - "fastlane/**"
-      - "scripts/ci-select-xcode.sh"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - Gemfile.lock
-      - "Package.swift"
+      - "Sources/**" # Core SDK source code changes require building
+      - "test-server/**" # Test server used in build verification
+      - "Samples/**" # Sample projects are built to verify SDK integration
+      - ".github/workflows/build.yml" # Changes to this workflow
+      - "fastlane/**" # Fastlane scripts used for building
+      - "scripts/ci-select-xcode.sh" # Xcode version selection affects builds
+      - Sentry.xcworkspace/** # Workspace configuration affects builds
+      - Sentry.xcodeproj/** # Project configuration affects builds
+      - Gemfile.lock # Ruby dependencies used by fastlane
+      - "Package.swift" # SPM package configuration affects SPM builds
+      - "Makefile" # Make commands used for CI build setup
+      - "Brewfile*" # Dependency installation affects build environment
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

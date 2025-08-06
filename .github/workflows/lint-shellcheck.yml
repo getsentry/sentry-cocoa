@@ -8,13 +8,13 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
-      - "**/*.sh"
+      - ".github/workflows/lint-shellcheck.yml" # Changes to this workflow
+      - "**/*.sh" # Shell scripts that need linting
 
   pull_request:
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
-      - "**/*.sh"
+      - ".github/workflows/lint-shellcheck.yml" # Changes to this workflow
+      - "**/*.sh" # Shell scripts that need linting
 
 jobs:
   shellcheck:

@@ -4,25 +4,29 @@ on:
     branches:
       - main
     paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.c"
-      - "**/*.cpp"
-      - "**/*.m"
-      - "**/*.mm"
-      - ".github/workflows/lint-clang-formatting.yml"
-      - ".clang-format"
+      - "**/*.h" # C/Objective-C header files that need formatting
+      - "**/*.hpp" # C++ header files that need formatting
+      - "**/*.c" # C source files that need formatting
+      - "**/*.cpp" # C++ source files that need formatting
+      - "**/*.m" # Objective-C source files that need formatting
+      - "**/*.mm" # Objective-C++ source files that need formatting
+      - ".github/workflows/lint-clang-formatting.yml" # Changes to this workflow
+      - ".clang-format" # Clang format configuration affects formatting
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
   pull_request:
     paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.c"
-      - "**/*.cpp"
-      - "**/*.m"
-      - "**/*.mm"
-      - ".github/workflows/lint-clang-formatting.yml"
-      - ".clang-format"
+      - "**/*.h" # C/Objective-C header files that need formatting
+      - "**/*.hpp" # C++ header files that need formatting
+      - "**/*.c" # C source files that need formatting
+      - "**/*.cpp" # C++ source files that need formatting
+      - "**/*.m" # Objective-C source files that need formatting
+      - "**/*.mm" # Objective-C++ source files that need formatting
+      - ".github/workflows/lint-clang-formatting.yml" # Changes to this workflow
+      - ".clang-format" # Clang format configuration affects formatting
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
 jobs:
   format-code:

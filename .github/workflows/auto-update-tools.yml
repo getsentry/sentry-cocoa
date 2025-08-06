@@ -13,12 +13,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/auto-update-tools.yml"
-      - "Brewfile*"
-      - "Makefile"
-      - "scripts/.clang-format-version"
-      - "scripts/.swiftlint-version"
-      - ".pre-commit-config.yaml"
+      - ".github/workflows/auto-update-tools.yml" # Changes to this workflow
+      - "Brewfile*" # Brew dependency files that define tool versions
+      - "Makefile" # Make targets for tool management
+      - "scripts/.clang-format-version" # Clang format version specification
+      - "scripts/.swiftlint-version" # SwiftLint version specification
+      - ".pre-commit-config.yaml" # Pre-commit hook configuration with tool versions
+      - "scripts/update-tooling-versions.sh" # Script that updates tool versions
+      - "scripts/check-tooling-versions.sh" # Script that checks tool versions
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository

@@ -4,24 +4,30 @@ on:
     branches:
       - main
     paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/lint.yml"
-      - "scripts/ci-select-xcode.sh"
+      - "Sources/**" # Core SDK source code that needs linting
+      - "Tests/**" # Test source code that needs linting
+      - "test-server/**" # Test server Swift code that needs linting
+      - "Samples/**" # Sample project code that needs linting
+      - ".github/workflows/lint.yml" # Changes to this workflow
+      - "scripts/ci-select-xcode.sh" # Xcode selection script used in workflow
+      - "Makefile" # Make commands used for linting setup
+      - "Brewfile*" # Tools installation affects linting environment
+      - ".swiftlint.yml" # SwiftLint configuration affects linting rules
 
   pull_request:
     paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/lint.yml"
-      - "scripts/ci-select-xcode.sh"
-      - "Sentry.xcodeproj/**"
-      - "*.podspec"
-      - "Gemfile.lock"
+      - "Sources/**" # Core SDK source code that needs linting
+      - "Tests/**" # Test source code that needs linting
+      - "test-server/**" # Test server Swift code that needs linting
+      - "Samples/**" # Sample project code that needs linting
+      - ".github/workflows/lint.yml" # Changes to this workflow
+      - "scripts/ci-select-xcode.sh" # Xcode selection script used in workflow
+      - "Sentry.xcodeproj/**" # Project configuration affects Xcode analyze
+      - "*.podspec" # Podspec files are linted
+      - "Gemfile.lock" # Ruby dependencies used by pod commands
+      - "Makefile" # Make commands used for linting setup
+      - "Brewfile*" # Tools installation affects linting environment
+      - ".swiftlint.yml" # SwiftLint configuration affects linting rules
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

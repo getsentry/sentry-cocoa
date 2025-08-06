@@ -3,14 +3,18 @@ name: API Stability Check
 on:
   pull_request:
     paths:
-      - "Sources/**"
-      - "test-server/**"
-      - ".github/workflows/api-stability.yml"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - "Package.swift"
-      - "scripts/build-xcframework-local.sh"
-      - "scripts/update-api.sh"
+      - "Sources/**" # Core SDK source code changes affect public API
+      - "test-server/**" # Test server changes may affect API testing
+      - ".github/workflows/api-stability.yml" # Changes to this workflow
+      - Sentry.xcworkspace/** # Workspace configuration affects API generation
+      - Sentry.xcodeproj/** # Project configuration affects API generation
+      - "Package.swift" # SPM configuration affects API surface
+      - "scripts/build-xcframework-local.sh" # XCFramework build script for API generation
+      - "scripts/update-api.sh" # API update script
+      - "scripts/ci-select-xcode.sh" # Xcode version selection affects API generation
+      - "Makefile" # Make commands used for API generation
+      - "sdk_api.json" # API definition file
+      - "sdk_api_v9.json" # V9 API definition file
 
 jobs:
   api-stability:
