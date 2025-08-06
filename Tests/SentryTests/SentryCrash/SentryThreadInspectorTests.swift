@@ -86,6 +86,8 @@ class SentryThreadInspectorTests: XCTestCase {
 
                 // During testing we usually have around 90% to 100%
                 // We choose a bit lower threshold to avoid flaky tests in CI
+                // Especially during the test when launching multiple threads for the concurrent DispatchQueue
+                // it can occur that more than one thread have no stacktrace frames yet, because they just started.
                 XCTAssertGreaterThan(percantageWithStacktraceFrames, 0.6, "More than 60% of threads should have stacktrace frames, but got \(percantageWithStacktraceFrames * 100)%")
 
                 expect.fulfill()
@@ -134,6 +136,8 @@ class SentryThreadInspectorTests: XCTestCase {
 
                 // During testing we usually have around 90% to 100%
                 // We choose a bit lower threshold to avoid flaky tests in CI
+                // Especially during the test when launching multiple threads for the concurrent DispatchQueue
+                // it can occur that more than one thread have no stacktrace frames yet, because they just started.
                 XCTAssertGreaterThan(percantageWithStacktraceFrames, 0.6, "More than 60% of threads should have stacktrace frames, but got \(percantageWithStacktraceFrames * 100)%")
 
                 expect.fulfill()
