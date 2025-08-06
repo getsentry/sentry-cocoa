@@ -4,18 +4,18 @@ on:
   push:
     branches: [main]
     paths:
-      - "Sources/**" # Core SDK source code to analyze
-      - "Sentry.xcworkspace/**" # Workspace configuration affects builds
-      - "Sentry.xcodeproj/**" # Project configuration affects builds
-      - ".github/workflows/codeql-analysis.yml" # Changes to this workflow
+      - "Sources/**"
+      - "Sentry.xcworkspace/**"
+      - "Sentry.xcodeproj/**"
+      - ".github/workflows/codeql-analysis.yml"
   pull_request:
     branches:
       - main
     paths:
-      - "Sources/**" # Core SDK source code to analyze
-      - "Sentry.xcworkspace/**" # Workspace configuration affects builds
-      - "Sentry.xcodeproj/**" # Project configuration affects builds
-      - ".github/workflows/codeql-analysis.yml" # Changes to this workflow
+      - "Sources/**"
+      - "Sentry.xcworkspace/**"
+      - "Sentry.xcodeproj/**"
+      - ".github/workflows/codeql-analysis.yml"
   schedule:
     - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 

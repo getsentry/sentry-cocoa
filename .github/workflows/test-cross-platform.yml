@@ -6,11 +6,11 @@ on:
       - main
   pull_request:
     paths:
-      - ".github/workflows/test-cross-platform.yml" # Changes to this workflow
-      - "Sources/**" # Core SDK source code changes affect cross-platform compatibility
-      - "Sentry.podspec" # Podspec changes affect CocoaPods integration
-      - "SentrySwiftUI.podspec" # SwiftUI podspec changes
-      - "Package.swift" # SPM configuration affects cross-platform usage
+      - ".github/workflows/test-cross-platform.yml"
+      - "Sources/**"
+      - "Sentry.podspec"
+      - "SentrySwiftUI.podspec"
+      - "Package.swift"
       - "Makefile" # Make commands used for cross-platform setup
       - "Brewfile*" # Dependency installation affects cross-platform testing
 

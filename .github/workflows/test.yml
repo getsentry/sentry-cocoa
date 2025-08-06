@@ -7,19 +7,19 @@ on:
 
   pull_request:
     paths:
-      - "Sources/**" # Core SDK source code changes require testing
-      - "Tests/**" # Test source code changes
-      - "SentryTestUtils/**" # Test utility changes that affect test runs
+      - "Sources/**"
+      - "Tests/**"
+      - "SentryTestUtils/**"
       - "SentryTestUtilsDynamic/**" # Dynamic test utilities used by tests
-      - "test-server/**" # Test server changes affect integration tests
-      - ".github/workflows/test.yml" # Changes to this workflow
-      - "fastlane/**" # Fastlane scripts used for testing
-      - "scripts/tests-with-thread-sanitizer.sh" # Thread sanitizer test script
-      - "scripts/ci-select-xcode.sh" # Xcode version selection affects tests
-      - "scripts/sentry-xcodebuild.sh" # Build script used by tests
-      - ".codecov.yml" # Code coverage configuration
-      - "Sentry.xcodeproj" # Xcode project changes affect builds
-      - "**/*.xctestplan" # Test plan changes affect test execution
+      - "test-server/**"
+      - ".github/workflows/test.yml"
+      - "fastlane/**"
+      - "scripts/tests-with-thread-sanitizer.sh"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/sentry-xcodebuild.sh"
+      - ".codecov.yml"
+      - "Sentry.xcodeproj"
+      - "**/*.xctestplan"
       - "Makefile" # Make commands used for CI build setup
       - "Brewfile*" # Dependency installation affects test environment
 

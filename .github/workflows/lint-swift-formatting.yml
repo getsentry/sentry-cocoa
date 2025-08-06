@@ -4,17 +4,17 @@ on:
     branches:
       - main
     paths:
-      - "**/*.swift" # Swift source files that need formatting checks
-      - ".github/workflows/lint-swift-formatting.yml" # Changes to this workflow
-      - ".swiftlint.yml" # SwiftLint configuration affects formatting
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+      - ".swiftlint.yml"
       - "Makefile" # Make commands used for formatting setup
       - "Brewfile*" # Tools installation affects formatting environment
 
   pull_request:
     paths:
-      - "**/*.swift" # Swift source files that need formatting checks
-      - ".github/workflows/lint-swift-formatting.yml" # Changes to this workflow
-      - ".swiftlint.yml" # SwiftLint configuration affects formatting
+      - "**/*.swift"
+      - ".github/workflows/lint-swift-formatting.yml"
+      - ".swiftlint.yml"
       - "Makefile" # Make commands used for formatting setup
       - "Brewfile*" # Tools installation affects formatting environment
 

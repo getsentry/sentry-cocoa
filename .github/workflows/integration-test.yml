@@ -6,15 +6,15 @@ on:
 
   pull_request:
     paths:
-      - ".github/workflows/integration-test.yml" # Changes to this workflow
-      - "*.xcodeproj" # Project configuration affects integration
-      - "*.xcworkspace" # Workspace configuration affects integration
-      - "Samples/iOS-Cocoapods-*/**" # CocoaPods sample changes affect integration
-      - "scripts/ci-select-xcode.sh" # Xcode selection script used in workflow
-      - "Sources/**" # Core SDK source code changes affect integration
-      - "*.podspec" # Podspec changes affect CocoaPods integration
-      - "fastlane/**" # Fastlane scripts used for integration testing
-      - "Gemfile.lock" # Ruby dependencies used by fastlane
+      - ".github/workflows/integration-test.yml"
+      - "*.xcodeproj"
+      - "*.xcworkspace"
+      - "Samples/iOS-Cocoapods-*/**"
+      - "scripts/ci-select-xcode.sh"
+      - "Sources/**"
+      - "*.podspec"
+      - "fastlane/**"
+      - "Gemfile.lock"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

@@ -6,23 +6,23 @@ on:
 
   pull_request:
     paths:
-      - "Sources/**" # Core SDK source code changes affect UI functionality
-      - "Tests/**" # Test changes may include UI test helpers or utilities
-      - ".github/workflows/ui-tests.yml" # Changes to this workflow
-      - ".github/workflows/ui-tests-common.yml" # Shared UI test workflow logic
-      - "fastlane/**" # Fastlane scripts used for UI test execution
-      - ".sauce/config.yml" # SauceLabs configuration for remote UI testing
-      - "scripts/ci-select-xcode.sh" # Xcode version selection affects builds
-      - "**/*.xctestplan" # Test plans affect UI test execution
-      - "Samples/iOS-SwiftUI/**" # SwiftUI sample app used in UI tests
-      - "Samples/iOS-Swift/**" # iOS Swift sample app used in UI tests
-      - "Samples/iOS-Swift6/**" # iOS Swift6 sample app used in UI tests
-      - "Samples/SentrySampleShared/**" # Shared sample code used across UI tests
-      - "Samples/Shared/**" # Common sample resources and configurations
-      - "scripts/build-xcframework-slice.sh" # XCFramework build script for testing
-      - "scripts/assemble-xcframework.sh" # XCFramework assembly script for testing
-      - ".github/workflows/build-xcframework-variant-slices.yml" # XCFramework build dependency
-      - ".github/workflows/assemble-xcframework-variant.yml" # XCFramework assembly dependency
+      - "Sources/**"
+      - "Tests/**"
+      - ".github/workflows/ui-tests.yml"
+      - ".github/workflows/ui-tests-common.yml"
+      - "fastlane/**"
+      - ".sauce/config.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "**/*.xctestplan"
+      - "Samples/iOS-SwiftUI/**"
+      - "Samples/iOS-Swift/**"
+      - "Samples/iOS-Swift6/**"
+      - "Samples/SentrySampleShared/**"
+      - "Samples/Shared/**"
+      - "scripts/build-xcframework-slice.sh"
+      - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/build-xcframework-variant-slices.yml"
+      - ".github/workflows/assemble-xcframework-variant.yml"
       - "Makefile" # Make commands used for UI test environment setup
       - "Brewfile*" # Dependency installation affects UI test environment
 
