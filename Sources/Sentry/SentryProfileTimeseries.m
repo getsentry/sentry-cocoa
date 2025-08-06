@@ -94,7 +94,7 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
 {
     NSMutableArray<SentrySerializedMetricEntry *> *slicedGPUEntries =
         [NSMutableArray<SentrySerializedMetricEntry *> array];
-    __block NSNumber *nearestPredecessorValue;
+    __block NSNumber *_Nullable nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         unsigned long long timestamp = obj[@"timestamp"].unsignedLongLongValue;
@@ -113,17 +113,19 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
         }
         uint64_t relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
-        [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            // We unwrap the nullable to silence the compiler warning, as Objective-C will just
-            // ignore the null value.
-            @"value" : SENTRY_UNWRAP_NULLABLE(NSNumber, obj[@"value"]),
-        }];
+        NSMutableDictionary *entry =
+            [@ { @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp) }
+                mutableCopy];
+        NSNumber *value = obj[@"value"];
+        if (value != nil) {
+            entry[@"value"] = value;
+        }
+        [slicedGPUEntries addObject:entry];
     }];
     if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : @"0",
-            @"value" : nearestPredecessorValue,
+            @"value" : SENTRY_UNWRAP_NULLABLE(NSNumber, nearestPredecessorValue),
         }];
     }
     return slicedGPUEntries;
