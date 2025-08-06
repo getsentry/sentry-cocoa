@@ -783,9 +783,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSDictionary *_Nonnull eventJson
                 = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
-            // Fallback to error level if no level is set. This ensures that the parameter is a
-            // non-null value, while delegating the fallback to the function `sentryLevelForString`.
-            SentryLevel level = sentryLevelForString(eventJson[@"level"] ?: @"unknown");
+            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
                 *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;

@@ -309,9 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentryLevelError;
     }
 
-    // Fallback to error level if no level is set. This ensures that the parameter is a non-null
-    // value, while delegating the fallback to the function `sentryLevelForString`.
-    return sentryLevelForString(eventDictionary[@"level"] ?: @"unknown");
+    return sentryLevelForString(eventDictionary[@"level"]);
 }
 
 + (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
