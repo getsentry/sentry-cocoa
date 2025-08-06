@@ -8,6 +8,7 @@
 - Fix Infinite Session Replay Processing Loop (#5765)
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
 
 ### Internal
 
