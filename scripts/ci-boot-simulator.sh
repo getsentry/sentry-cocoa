@@ -59,6 +59,7 @@ head -n1)
 
 echo "Booting simulator $SIMULATOR - iOS $IOS_VERSION: $UDID"
 xcrun simctl boot "$UDID"
+open -a Simulator
 
 # Wait for the simulator to boot
 # We need to wait for the simulator to boot to avoid the test to fail due to timeout (because the simulator is not booted yet)
