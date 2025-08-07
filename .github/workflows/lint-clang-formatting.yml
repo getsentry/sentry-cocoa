@@ -12,6 +12,8 @@ on:
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
       - ".clang-format"
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
   pull_request:
     paths:
@@ -23,6 +25,8 @@ on:
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
       - ".clang-format"
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
 jobs:
   format-code:
