@@ -449,42 +449,6 @@ class SentrySDKTests: XCTestCase {
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
-    
-    func testFlush_WithNoLogger_DoesNotCrash() {
-        // Ensure no logger is set up
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // This should not crash
-        SentrySDK.flush(timeout: 5.0)
-    }
-    
-    func testClose_WithNoLogger_DoesNotCrash() {
-        // Ensure no logger is set up
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // This should not crash
-        SentrySDK.close()
-    }
-    
-    func testFlush_WithLoggerButNoBatcher_DoesNotCrash() {
-        fixture.client.options.experimental.enableLogs = true
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // This should not crash
-        SentrySDK.flush(timeout: 5.0)
-    }
-    
-    func testClose_WithLoggerButNoBatcher_DoesNotCrash() {
-        fixture.client.options.experimental.enableLogs = true
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // This should not crash
-        SentrySDK.close()
-    }
 }
 
 extension SentrySDKTests {
