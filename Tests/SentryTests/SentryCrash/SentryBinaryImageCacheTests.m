@@ -237,7 +237,16 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
+    // Guard against underflow when mach_headers_test_cache.count < 5
+    // because otherwise the expectedFulfillmentCount for the test expectation will be negative.
+    if (mach_headers_test_cache.count <= 5) {
+        XCTFail(@"Test requires more than 5 binary images in cache, but only has %lu",
+            (unsigned long)mach_headers_test_cache.count);
+        return;
+    }
+
     NSUInteger taskCount = mach_headers_test_cache.count - 5;
+
     XCTestExpectation *expectation =
         [self expectationWithDescription:@"Add binary images in parallel"];
     expectation.expectedFulfillmentCount = taskCount;
