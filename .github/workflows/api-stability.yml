@@ -8,7 +8,7 @@ on:
       - ".github/workflows/api-stability.yml"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
-      - "Package.swift"
+      - "Package*.swift"
       - "scripts/build-xcframework-local.sh"
       - "scripts/update-api.sh"
       - "scripts/ci-select-xcode.sh"
