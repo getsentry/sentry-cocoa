@@ -8,6 +8,7 @@
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
+#    import "SentryFeedbackAPI+Private.h"
 #    import "SentryFeedbackAPI.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
@@ -15,6 +16,11 @@
 #    import "SentryUserFeedbackIntegration.h"
 
 @implementation SentryFeedbackAPI
+
++ (instancetype)newInstance
+{
+    return [[SentryFeedbackAPI alloc] init];
+}
 
 - (void)showWidget
 {

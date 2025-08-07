@@ -12,8 +12,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.")
 @interface SentryFeedbackAPI : NSObject
+#    if SDK_V9
+SENTRY_NO_INIT
+#    endif
 
 /**
  * Show the feedback widget button.
@@ -21,7 +23,8 @@ NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extens
  * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
  * @note User feedback widget is only available for iOS 13 or later.
  */
-- (void)showWidget API_AVAILABLE(ios(13.0));
+- (void)showWidget API_AVAILABLE(ios(13.0))
+    NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
 
 /**
  * Hide the feedback widget button.
@@ -29,7 +32,8 @@ NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extens
  * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
  * @note User feedback widget is only available for iOS 13 or later.
  */
-- (void)hideWidget API_AVAILABLE(ios(13.0));
+- (void)hideWidget API_AVAILABLE(ios(13.0))
+    NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
 
 @end
 

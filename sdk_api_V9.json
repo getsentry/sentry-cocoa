@@ -25131,31 +25131,6 @@
               "Dynamic"
             ],
             "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedbackAPI",
-                "printedName": "Sentry.SentryFeedbackAPI",
-                "usr": "c:objc(cs)SentryFeedbackAPI"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)NSObject(im)init",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "implicit": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "Override",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
           }
         ],
         "declKind": "Class",
@@ -47074,6 +47049,7 @@
             "declAttributes": [
               "Final",
               "ObjC",
+              "Available",
               "Available",
               "HasStorage"
             ],

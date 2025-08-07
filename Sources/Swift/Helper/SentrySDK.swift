@@ -259,8 +259,15 @@ import Foundation
     
     #if os(iOS) && !SENTRY_NO_UIKIT
     @available(iOS 13.0, *)
+    @available(iOSApplicationExtension, unavailable)
     @objc public static let feedback = {
-      return SentryFeedbackAPI()
+        // When building the SDK, the compiler doesn't add `NS_EXTENSION_UNAVAILABLE` to the header so
+        // this ensures that users will at least get a warning that `SentryFeedbackAPI` is not available.
+        if Bundle.main.bundlePath.hasSuffix(".appex") {
+            SentrySDKLog.error("Sentry User Feedback is unavailable in app extensions. It is only available on iOS 13 or later.")
+        }
+            
+        return SentrySDKInternal.feedback
     }()
     #endif
     

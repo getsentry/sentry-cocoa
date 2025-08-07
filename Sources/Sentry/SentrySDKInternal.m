@@ -37,6 +37,7 @@
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
+#        import "SentryFeedbackAPI+Private.h"
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS
 #endif // SENTRY_HAS_UIKIT
@@ -494,7 +495,7 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     static SentryFeedbackAPI *feedbackAPI;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ feedbackAPI = [[SentryFeedbackAPI alloc] init]; });
+    dispatch_once(&onceToken, ^{ feedbackAPI = [SentryFeedbackAPI newInstance]; });
     return feedbackAPI;
 }
 
