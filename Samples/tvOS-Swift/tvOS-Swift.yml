@@ -18,6 +18,7 @@ fileGroups:
   - ../Shared/Config
   - tvOS-Swift.yml
   - ../../Plans/tvOS-Swift_Base.xctestplan
+  - ../../Plans/tvOS-SBSwift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:

@@ -19,6 +19,7 @@
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -1089,10 +1090,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *dict = event.context[key] == nil
-        ? [[NSMutableDictionary alloc] init]
-        : [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+    NSMutableDictionary *context = [[NSMutableDictionary alloc]
+        initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, event.context)];
+    NSMutableDictionary *dict
+        = event.context[key] != nil && [event.context[key] isKindOfClass:[NSDictionary class]]
+        ? [[NSMutableDictionary alloc]
+              initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, context[key])]
+        : [NSMutableDictionary dictionary];
+
     block(dict);
     context[key] = dict;
     event.context = context;

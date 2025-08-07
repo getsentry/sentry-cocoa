@@ -1,4 +1,5 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import "SentryInternalDefines.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -171,7 +172,7 @@
         if (self.tracker.activeSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Started new transaction with id %@ to track view controller %@.",
                 spanId.sentrySpanIdString, name);
-            [self.tracker pushActiveSpan:spanId];
+            [self.tracker pushActiveSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
         } else {
             SENTRY_LOG_DEBUG(@"Started child span with id %@ to track view controller %@.",
                 spanId.sentrySpanIdString, name);
@@ -179,7 +180,8 @@
     }
 
     spanId = [self getSpanIdForViewController:controller];
-    SentrySpan *_Nullable vcSpan = [self.tracker getSpan:spanId];
+    SentrySpan *_Nullable vcSpan =
+        [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
         // Since TTID and TTFD are meant to the whole screen
@@ -261,7 +263,8 @@
             @"Tracking UIViewController.viewWillAppear for controller: %@", controller);
         SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (spanId == nil
+            || ![self.tracker isSpanAlive:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(
@@ -279,7 +282,8 @@
                                              inBlock:callbackToOrigin];
         };
 
-        [self.tracker activateSpan:spanId duringBlock:duringBlock];
+        [self.tracker activateSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)
+                       duringBlock:duringBlock];
         [self reportInitialDisplayForController:controller];
     };
 
@@ -330,9 +334,10 @@
 {
     SENTRY_LOG_DEBUG(@"Finishing transaction for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
+        SentrySpanId *_Nullable nullableSpanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (nullableSpanId == nil
+            || ![self.tracker isSpanAlive:SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId)]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.%@ because there is no active span.",
@@ -340,6 +345,7 @@
             callbackToOrigin();
             return;
         }
+        SentrySpanId *_Nonnull spanId = SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId);
 
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:lifecycleMethod
@@ -377,9 +383,10 @@
     SENTRY_LOG_DEBUG(
         @"Tracking UIViewController.viewWillLayoutSubviews for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
+        SentrySpanId *_Nullable nullableSpanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (nullableSpanId == nil
+            || ![self.tracker isSpanAlive:SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId)]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewWillLayoutSubviews because there "
@@ -387,6 +394,7 @@
             callbackToOrigin();
             return;
         }
+        SentrySpanId *_Nonnull spanId = SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId);
 
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
@@ -427,9 +435,10 @@
     SENTRY_LOG_DEBUG(
         @"Tracking UIViewController.viewDidLayoutSubviews for view controller: %@", controller);
     void (^limitOverrideBlock)(void) = ^{
-        SentrySpanId *_Nullable spanId = [self getSpanIdForViewController:controller];
+        SentrySpanId *_Nullable nullableSpanId = [self getSpanIdForViewController:controller];
 
-        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        if (nullableSpanId == nil
+            || ![self.tracker isSpanAlive:SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId)]) {
             // We are no longer tracking this UIViewController, just call the base
             // method.
             SENTRY_LOG_DEBUG(@"Not tracking UIViewController.viewDidLayoutSubviews because there "
@@ -437,6 +446,7 @@
             callbackToOrigin();
             return;
         }
+        SentrySpanId *_Nonnull spanId = SENTRY_UNWRAP_NULLABLE(SentrySpanId, nullableSpanId);
 
         void (^duringBlock)(void) = ^{
             SentrySpanId *layoutSubViewId =

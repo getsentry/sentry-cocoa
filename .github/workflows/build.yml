@@ -17,6 +17,8 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - "Package.swift"
+      - "Makefile" # Make commands used for CI build setup
+      - "Brewfile*" # Dependency installation affects build environment
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

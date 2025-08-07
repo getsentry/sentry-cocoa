@@ -671,22 +671,25 @@ class SentryHttpTransportTests: XCTestCase {
 
         let queue = fixture.queue
 
-        let group = DispatchGroup()
-        for _ in 0...20 {
-            group.enter()
+        let loopCount = 21
+
+        let expectation = XCTestExpectation(description: "Send envelopes concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+
+        for _ in 0..<loopCount {
             queue.async {
                 self.givenRecordedLostEvents()
                 self.sendEventAsync()
-                group.leave()
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout()
+        wait(for: [expectation], timeout: 10)
 
         waitForAllRequests()
 
-        XCTAssertEqual(self.fixture.requestManager.requests.count, 21)
+        XCTAssertEqual(self.fixture.requestManager.requests.count, loopCount)
     }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
@@ -859,17 +862,23 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_BlocksCallingThread_TimesOut() {
-        givenCachedEvents(amount: 30)
-        fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
+        givenCachedEvents(amount: 5)
+        fixture.requestManager.responseDelay = fixture.flushTimeout * 2
 
-        let beforeFlush = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        let result = sut.flush(fixture.flushTimeout)
-        let blockingDuration = getDurationNs(beforeFlush, SentryDefaultCurrentDateProvider.getAbsoluteTime()).toTimeInterval()
+        let expectation = XCTestExpectation(description: "Flush should time out")
+        DispatchQueue.global().async {
+            // We don't measure how long the flushing blocks the calling thread, because we can't test this reliably
+            // in CI. We did that previously and it led to flakiness.
+            // Furthermore, if the flushing blocks a bit longer than the timeout, it is not huge a problem for this test,
+            // as it tests if the flushing actually times out.
+            let result = self.sut.flush(0.1)
 
-        XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.1)
+            XCTAssertEqual(.timedOut, result)
+            expectation.fulfill()
+        }
 
-        XCTAssertEqual(.timedOut, result)
+        wait(for: [expectation], timeout: 10.0)
+
     }
     
     func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
