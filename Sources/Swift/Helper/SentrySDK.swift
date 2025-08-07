@@ -368,7 +368,7 @@ import Foundation
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
-        flushLogger(timeout: 1.0)
+        flushLogger(timeout: 1.5)
         SentrySDKInternal.close()
     }
     
