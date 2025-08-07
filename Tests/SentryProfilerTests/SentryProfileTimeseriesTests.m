@@ -45,15 +45,12 @@
     // -- Assert --
     XCTAssertEqual(result.count, 3);
 
-    // Verify first entry
     XCTAssertEqualObjects(result[0][@"elapsed_since_start_ns"], @"500000000");
     XCTAssertEqualObjects(result[0][@"value"], @(60.0));
 
-    // Verify second entry
     XCTAssertEqualObjects(result[1][@"elapsed_since_start_ns"], @"1000000000");
     XCTAssertEqualObjects(result[1][@"value"], @(30.0));
 
-    // Verify third entry
     XCTAssertEqualObjects(result[2][@"elapsed_since_start_ns"], @"1500000000");
     XCTAssertEqualObjects(result[2][@"value"], @(120.0));
 }
