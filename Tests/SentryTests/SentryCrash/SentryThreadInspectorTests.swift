@@ -67,6 +67,7 @@ class SentryThreadInspectorTests: XCTestCase {
                     // This is a known limitation SentryThreadInspector and should be
                     // addressed in https://github.com/getsentry/sentry-cocoa/issues/2825.
                     // We see this sometimes happening in CI.
+                    expect.fulfill()
                     return
                 }
 
@@ -126,6 +127,7 @@ class SentryThreadInspectorTests: XCTestCase {
                     // This is a known limitation SentryThreadInspector and should be
                     // addressed in https://github.com/getsentry/sentry-cocoa/issues/2825.
                     // We see this sometimes happening in CI.
+                    expect.fulfill()
                     return
                 }
 
