@@ -75,6 +75,24 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSNumber *_Nullable columnNumber;
 
 /**
+ * Source code line at the error location.
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSString *_Nullable contextLine;
+
+/**
+ * Source code lines before the error location (up to 5 lines).
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable preContext;
+
+/**
+ * Source code lines after the error location (up to 5 lines).
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable postContext;
+
+/**
  * Determines if the Frame is inApp or not
  */
 @property (nonatomic, copy) NSNumber *_Nullable inApp;
