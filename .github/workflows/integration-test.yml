@@ -1,4 +1,4 @@
-name: CocoaPods Integration Tests
+name: Test CocoaPods
 on:
   push:
     branches:
@@ -22,8 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cocoapods:
-    name: Integration Test
+  test:
+    name: CocoaPods Integration
     runs-on: macos-15
     steps:
       - name: Checkout Repository

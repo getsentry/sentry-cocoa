@@ -1,0 +1,42 @@
+name: Lint SwiftLint
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-swiftlint-formatting.yml"
+      - "scripts/ci-select-xcode.sh"
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-swiftlint-formatting.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Sentry.xcodeproj/**"
+      - "*.podspec"
+      - "Gemfile.lock"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tooling
+        run: make init-ci-format
+      - run: swiftlint --version
+      - name: Run SwiftLint
+        run: swiftlint --strict

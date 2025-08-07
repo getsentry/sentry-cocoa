@@ -1,4 +1,4 @@
-name: "Assemble Sentry Cocoa XCFramework variant"
+name: Assemble XCFramework Variant
 
 on:
   workflow_call:
@@ -53,7 +53,7 @@ on:
 
 jobs:
   assemble-xcframework-variant:
-    name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
+    name: ${{inputs.name}}${{inputs.suffix}}
 
     runs-on: macos-14
     steps:

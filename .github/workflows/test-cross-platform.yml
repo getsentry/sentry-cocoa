@@ -1,4 +1,4 @@
-name: Test Cross-Platform Sentry SDK Installation
+name: Test Cross Platform
 
 on:
   push:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   test-react-native:
-    name: React Native
+    name: React Native Installation
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

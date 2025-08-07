@@ -2,7 +2,8 @@
 # expensive. For example, dprint should run for markdown changes, but pod lib lint doesn't need to
 # run for markdown changes. Therefore, we run it in an extra workflow.
 
-name: lint-dprint
+name: Lint dprint
+
 on:
   push:
     branches:
@@ -12,7 +13,7 @@ on:
       - "**/*.yaml"
       - "**/*.json"
       - "**/*.md"
-      - ".github/workflows/lint-dprint.yml"
+      - ".github/workflows/lint-dprint-formatting.yml"
       - "dprint.json"
 
   pull_request:
@@ -21,12 +22,12 @@ on:
       - "**/*.yaml"
       - "**/*.json"
       - "**/*.md"
-      - ".github/workflows/lint-dprint.yml"
+      - ".github/workflows/lint-dprint-formatting.yml"
       - "dprint.json"
 
 jobs:
-  lint-dprint:
-    name: Run dprint
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

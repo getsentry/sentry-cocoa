@@ -1,4 +1,5 @@
-name: Check Code Formatting
+name: Lint Swift
+
 on:
   push:
     branches:
@@ -19,8 +20,8 @@ on:
       - "Brewfile*" # Tools installation affects formatting environment
 
 jobs:
-  format-code:
-    name: Check Formatting of Swiftlint Code
+  lint:
+    name: Lint
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
