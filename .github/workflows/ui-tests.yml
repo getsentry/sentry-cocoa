@@ -23,6 +23,8 @@ on:
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
+      - "Makefile" # Make commands used for UI test environment setup
+      - "Brewfile*" # Dependency installation affects UI test environment
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

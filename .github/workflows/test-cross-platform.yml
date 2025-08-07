@@ -9,6 +9,10 @@ on:
       - ".github/workflows/test-cross-platform.yml"
       - "Sources/**"
       - "Sentry.podspec"
+      - "SentrySwiftUI.podspec"
+      - "Package.swift"
+      - "Makefile" # Make commands used for cross-platform setup
+      - "Brewfile*" # Dependency installation affects cross-platform testing
 
 jobs:
   test-react-native:

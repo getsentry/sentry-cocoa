@@ -38,8 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isRateLimitActive:(SentryDataCategory)category
 {
-    NSDate *categoryDate = [self.rateLimits getRateLimitForCategory:category];
-    NSDate *allCategoriesDate = [self.rateLimits getRateLimitForCategory:kSentryDataCategoryAll];
+    NSDate *_Nullable categoryDate = [self.rateLimits getRateLimitForCategory:category];
+    NSDate *_Nullable allCategoriesDate =
+        [self.rateLimits getRateLimitForCategory:kSentryDataCategoryAll];
 
     BOOL isActiveForCategory = [self.dateUtil isInFuture:categoryDate];
     BOOL isActiveForCategories = [self.dateUtil isInFuture:allCategoriesDate];

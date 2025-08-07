@@ -11,6 +11,9 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
+      - "Makefile" # Make commands used for linting setup
+      - "Brewfile*" # Tools installation affects linting environment
+      - ".swiftlint.yml"
 
   pull_request:
     paths:
@@ -23,6 +26,9 @@ on:
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
+      - "Makefile" # Make commands used for linting setup
+      - "Brewfile*" # Tools installation affects linting environment
+      - ".swiftlint.yml"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

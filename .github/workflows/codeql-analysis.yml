@@ -7,7 +7,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "40 4 * * 6"
+    - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
