@@ -32,7 +32,7 @@ var targets: [Target] = [
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
         swiftSettings: [
-            .interoperabilityMode(.Cxx)
+            .interoperabilityMode(.Cxx, .when(platforms: [.visionOS]))
         ],
         linkerSettings: [
             .linkedFramework("Sentry")
@@ -94,7 +94,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
+    platforms: [.iOS(.v12), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v4), .visionOS(.v1)],
     products: products,
     targets: targets,
     cxxLanguageStandard: .cxx14
