@@ -9,12 +9,12 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
+      - ".github/workflows/lint-shellcheck-formatting.yml"
       - "**/*.sh"
 
   pull_request:
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
+      - ".github/workflows/lint-shellcheck-formatting.yml"
       - "**/*.sh"
 
 jobs:
