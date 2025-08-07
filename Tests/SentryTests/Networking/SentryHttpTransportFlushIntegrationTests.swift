@@ -88,6 +88,12 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
+        // This must be long enough that all the threads we start below get to run
+        // while the first call to flush is still blocking
+        let flushTimeout = 10.0
+        requestManager.waitForResponseDispatchGroup = true
+        requestManager.responseDispatchGroup.enter()
+        
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
@@ -96,11 +102,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
 
-        let flushTimeout = 0.1
-        requestManager.waitForResponseDispatchGroup = true
-        requestManager.responseDispatchGroup.enter()
-
-        let allFlushCallsGroup = DispatchGroup()
+        let initialFlushCallGroup = DispatchGroup()
         let ensureFlushingGroup = DispatchGroup()
         let ensureFlushingQueue = DispatchQueue(label: "First flushing")
 
@@ -108,12 +110,11 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
             ensureFlushingGroup.leave()
         }
 
-        allFlushCallsGroup.enter()
+        initialFlushCallGroup.enter()
         ensureFlushingGroup.enter()
         ensureFlushingQueue.async {
-            XCTAssertEqual(.timedOut, sut.flush(flushTimeout))
-            requestManager.responseDispatchGroup.leave()
-            allFlushCallsGroup.leave()
+            XCTAssertEqual(.success, sut.flush(flushTimeout), "Initial call to flush should succeed")
+            initialFlushCallGroup.leave()
         }
 
         // Ensure transport is flushing.
@@ -122,20 +123,23 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         // Now the transport should also have left the synchronized block, and the
         // flush should return immediately.
 
+        let parallelFlushCallsGroup = DispatchGroup()
         let initiallyInactiveQueue = DispatchQueue(label: "testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
         for _ in 0..<2 {
-            allFlushCallsGroup.enter()
+            parallelFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
                 for _ in 0..<10 {
                     XCTAssertEqual(.alreadyFlushing, sut.flush(flushTimeout), "Flush should have returned immediately")
                 }
 
-                allFlushCallsGroup.leave()
+                parallelFlushCallsGroup.leave()
             }
         }
 
         initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
+        parallelFlushCallsGroup.waitWithTimeout()
+        requestManager.responseDispatchGroup.leave()
+        initialFlushCallGroup.waitWithTimeout()
     }
 
     // We use the test name as part of the DSN to ensure that each test runs in isolation.
