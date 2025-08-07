@@ -47,7 +47,7 @@ var targets: [Target] = [
 ]
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
+if let env = env, String(cString: env) == "1" {
     products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
@@ -79,7 +79,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["SentrySwift"],
             path: "Sources",
             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
-            publicHeadersPath: "Sentry/Public",
+            publicHeadersPath: "",
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
