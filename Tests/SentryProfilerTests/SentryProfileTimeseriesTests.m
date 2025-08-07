@@ -1,6 +1,7 @@
 #import "SentryProfileTimeseries.h"
 #import <XCTest/XCTest.h>
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_UIKIT_AVAILABLE && SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryProfileTimeseriesTests : XCTestCase
 
