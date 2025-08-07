@@ -40,14 +40,16 @@ Use clear, concise descriptions that avoid redundancy with the workflow name:
 - ✅ `${{inputs.name}}${{inputs.suffix}}` for variant assembly (e.g., "Sentry-Dynamic")
 
 #### Test Jobs
-- ✅ `Test ${{matrix.target}} V3 # Up the version with every change to keep track of flaky tests`
-- ✅ `Test iOS Swift V5 # Up the version with every change to keep track of flaky tests`
+- ✅ `Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests`
+- ✅ `Unit ${{matrix.name}}` (for unit test matrices)
+- ✅ `Run Benchmarks ${{matrix.suite}}` (for benchmarking matrices)
 - ✅ `Test SwiftUI V4 # Up the version with every change to keep track of flaky tests`
 - ✅ `Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests`
 
 **Note:** 
 - Version numbers (V1, V2, etc.) are included in test job names for flaky test tracking, with explanatory comments retained.
-- For matrix-based jobs, use clean variable names that produce readable job names (e.g., `${{matrix.sdk}}`, `${{inputs.name}}${{inputs.suffix}}`).
+- For matrix-based jobs, use clean variable names that produce readable job names (e.g., `${{matrix.sdk}}`, `${{matrix.name}}`, `${{inputs.name}}${{inputs.suffix}}`).
+- When matrix includes multiple iOS versions, add a descriptive `name` field to each matrix entry (e.g., "iOS 16 Swift", "iOS 17 Swift") for clear job identification.
 
 #### Validation Jobs
 - ✅ `Validate XCFramework` (not "Validate XCFramework - Static")
@@ -84,7 +86,10 @@ name: Test iOS Swift V5 # Up the version with every change to keep track of flak
 When using matrix variables, prefer descriptive names over technical details:
 
 **Examples:**
-- ✅ `Test ${{matrix.target}}` where target = "ios_objc", "tvos_swift"
+- ✅ `Test ${{matrix.name}}` where name = "iOS Objective-C", "tvOS Swift"
+- ✅ `Test ${{matrix.name}}` where name = "iOS 16 Swift", "iOS 17 Swift", "iOS 18 Swift"
+- ✅ `Unit ${{matrix.name}}` where name = "iOS 16 Sentry", "macOS 15 Sentry", "tvOS 18 Sentry"
+- ✅ `Run Benchmarks ${{matrix.suite}}` where suite = "High-end device", "Low-end device"
 - ✅ `Check API Stability (${{ matrix.version }})` where version = "default", "v9"
 - ❌ `Test iOS Swift Xcode ${{matrix.xcode}}` (version-specific)
 
@@ -108,7 +113,7 @@ For reusable workflows (workflow_call), use descriptive names that indicate thei
 ### Anti-Patterns to Avoid
 
 ❌ **Don't include:**
-- Tool versions (Xcode 15.4, Swift 5.9, etc.)
+- Tool versions (Xcode 15.4, Swift 5.9, etc.) unless they are relevant to the job
 - Redundant workflow prefixes ("Release /", "UI Tests /")
 - Overly verbose descriptions
 - Technical implementation details in user-facing names

@@ -78,7 +78,7 @@ jobs:
             test-server-build-arm64.log
 
   unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}} ${{matrix.scheme}}
+    name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
     needs: build-test-server
@@ -91,7 +91,8 @@ jobs:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 16
-          - runs-on: macos-13
+          - name: iOS 16 Sentry
+            runs-on: macos-13
             platform: "iOS"
             xcode: "14.3.1"
             test-destination-os: "16.4"
@@ -99,7 +100,8 @@ jobs:
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - name: iOS 17 Sentry
+            runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -107,7 +109,8 @@ jobs:
             scheme: "Sentry"
 
           # iOS 18
-          - runs-on: macos-15
+          - name: iOS 18 Sentry
+            runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
             test-destination-os: "18.2"
@@ -119,14 +122,16 @@ jobs:
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # macOS 14
-          - runs-on: macos-14
+          - name: macOS 14 Sentry
+            runs-on: macos-14
             platform: "macOS"
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
           # macOS 15
-          - runs-on: macos-15
+          - name: macOS 15 Sentry
+            runs-on: macos-15
             platform: "macOS"
             xcode: "16.4"
             test-destination-os: "latest"
@@ -135,13 +140,15 @@ jobs:
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
-          - runs-on: macos-14
+          - name: Catalyst 14 Sentry
+            runs-on: macos-14
             platform: "Catalyst"
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
-          - runs-on: macos-15
+          - name: Catalyst 15 Sentry
+            runs-on: macos-15
             platform: "Catalyst"
             xcode: "16.4"
             test-destination-os: "latest"
@@ -152,14 +159,16 @@ jobs:
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
-          - runs-on: macos-14
+          - name: tvOS 17 Sentry
+            runs-on: macos-14
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - name: iOS 17 SentrySwiftUI
+            runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -167,7 +176,8 @@ jobs:
             scheme: "SentrySwiftUI"
 
           # tvOS 18
-          - runs-on: macos-15
+          - name: tvOS 18 Sentry
+            runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
             test-destination-os: "18.1"

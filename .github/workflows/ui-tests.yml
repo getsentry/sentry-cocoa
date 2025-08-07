@@ -33,11 +33,15 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: Test ${{matrix.target}} V3 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       matrix:
-        target: ["ios_objc", "tvos_swift"]
+        include:
+          - name: iOS Objective-C
+            target: ios_objc
+          - name: tvOS Swift
+            target: tvos_swift
     with:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: 16.2
@@ -62,19 +66,22 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift:
-    name: Test iOS Swift V5 # Up the version with every change to keep track of flaky tests
+    name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
+          - name: iOS 16
+            runs-on: macos-13
             xcode: "14.3.1"
             device: iPhone 14 (16.4)
-          - runs-on: macos-14
+          - name: iOS 17
+            runs-on: macos-14
             xcode: "15.4"
             device: iPhone 15 (17.5)
-          - runs-on: macos-15
+          - name: iOS 18
+            runs-on: macos-15
             xcode: "16.4"
             device: iPhone 16 (18.5)
     with:
