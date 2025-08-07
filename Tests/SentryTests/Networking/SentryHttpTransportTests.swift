@@ -671,22 +671,25 @@ class SentryHttpTransportTests: XCTestCase {
 
         let queue = fixture.queue
 
-        let group = DispatchGroup()
-        for _ in 0...20 {
-            group.enter()
+        let loopCount = 21
+
+        let expectation = XCTestExpectation(description: "Send envelopes concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+
+        for _ in 0..<loopCount {
             queue.async {
                 self.givenRecordedLostEvents()
                 self.sendEventAsync()
-                group.leave()
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout()
+        wait(for: [expectation], timeout: 10)
 
         waitForAllRequests()
 
-        XCTAssertEqual(self.fixture.requestManager.requests.count, 21)
+        XCTAssertEqual(self.fixture.requestManager.requests.count, loopCount)
     }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
