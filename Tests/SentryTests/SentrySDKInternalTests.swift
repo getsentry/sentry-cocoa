@@ -759,7 +759,6 @@ class SentrySDKInternalTests: XCTestCase {
         let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
 
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
-            group.enter()
             queue.async {
                 let appStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(i))
                 let appStartMeasurement = TestData.getAppStartMeasurement(
@@ -768,7 +767,8 @@ class SentrySDKInternalTests: XCTestCase {
                     runtimeInitSystemTimestamp: UInt64(runtimeInitSystemTimestamp.timeIntervalSince1970)
                 )
                 SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
@@ -778,9 +778,11 @@ class SentrySDKInternalTests: XCTestCase {
 
         let queue1 = createQueue()
         let queue2 = createQueue()
-        let group = DispatchGroup()
 
         let amount = 100
+
+        let expectation = XCTestExpectation(description: "Wait for all measurements to be set")
+        expectation.expectedFulfillmentCount = amount * 2
 
         for i in 0...amount {
             setAppStartMeasurement(queue1, i)
@@ -789,7 +791,8 @@ class SentrySDKInternalTests: XCTestCase {
 
         queue1.activate()
         queue2.activate()
-        group.waitWithTimeout(timeout: 100)
+
+        wait(for: [expectation], timeout: 10.0)
 
         let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount))
         XCTAssertEqual(timestamp, SentrySDKInternal.getAppStartMeasurement()?.appStartTimestamp)
