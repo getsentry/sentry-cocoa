@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+
 ### Fixes
 
 - Add support for PDFKit views in session replay (#5750)
