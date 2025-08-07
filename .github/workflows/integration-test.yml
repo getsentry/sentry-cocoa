@@ -12,6 +12,9 @@ on:
       - "Samples/iOS-Cocoapods-*/**"
       - "scripts/ci-select-xcode.sh"
       - "Sources/**"
+      - "*.podspec"
+      - "fastlane/**"
+      - "Gemfile.lock"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

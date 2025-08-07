@@ -12,6 +12,8 @@ on:
       - "**/*.yaml"
       - "**/*.json"
       - "**/*.md"
+      - ".github/workflows/lint-dprint.yml"
+      - "dprint.json"
 
   pull_request:
     paths:
@@ -19,6 +21,8 @@ on:
       - "**/*.yaml"
       - "**/*.json"
       - "**/*.md"
+      - ".github/workflows/lint-dprint.yml"
+      - "dprint.json"
 
 jobs:
   lint-dprint:

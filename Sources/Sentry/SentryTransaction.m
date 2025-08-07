@@ -1,5 +1,6 @@
 #import "SentryTransaction.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryInternalDefines.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
@@ -35,8 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
     serializedData[@"spans"] = serializedSpans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    if (serializedData[@"contexts"] != nil &&
+        [serializedData[@"contexts"] isKindOfClass:NSDictionary.class]) {
+        [mutableContext addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(
+                                                     NSDictionary, serializedData[@"contexts"])];
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -50,7 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags = [sentry_sanitize(self.trace.tags) mutableCopy];
-    [traceTags addEntriesFromDictionary:sentry_sanitize(self.trace.tags)];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
