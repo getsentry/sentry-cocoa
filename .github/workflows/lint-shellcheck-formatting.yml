@@ -2,23 +2,24 @@
 # expensive. For example, pod lib lint doesn't need to run for sh changes. Therefore, we run it in an
 # extra workflow.
 
-name: lint-shellcheck
+name: Lint Shellcheck
+
 on:
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
+      - ".github/workflows/lint-shellcheck-formatting.yml"
       - "**/*.sh"
 
   pull_request:
     paths:
-      - ".github/workflows/lint-shellcheck.yml"
+      - ".github/workflows/lint-shellcheck-formatting.yml"
       - "**/*.sh"
 
 jobs:
-  shellcheck:
-    name: Run Shellcheck
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -11,9 +11,14 @@ on:
       - "Package.swift"
       - "scripts/build-xcframework-local.sh"
       - "scripts/update-api.sh"
+      - "scripts/ci-select-xcode.sh"
+      - "Makefile" # Make commands used for API generation
+      - "sdk_api.json"
+      - "sdk_api_v9.json"
 
 jobs:
   api-stability:
+    name: Check API Stability (${{ matrix.version }})
     runs-on: macos-15
     strategy:
       matrix:

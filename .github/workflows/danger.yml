@@ -6,4 +6,5 @@ on:
 
 jobs:
   danger:
+    name: Danger
     uses: getsentry/github-workflows/.github/workflows/danger.yml@v2

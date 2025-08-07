@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   files-changed:
-    name: Detect changed files
+    name: Detect File Changes
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
@@ -29,6 +29,7 @@ jobs:
           list-files: csv
 
   validate-high-risk-code:
+    name: Validate High-Risk Code
     if: needs.files-changed.outputs.high_risk_code == 'true'
     needs: files-changed
     runs-on: ubuntu-latest

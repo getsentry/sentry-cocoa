@@ -1,0 +1,134 @@
+---
+globs: .github/workflows/*
+alwaysApply: false
+---
+
+# Cursor Rules for Sentry Cocoa Repository
+
+## GitHub Workflow Naming Convention
+
+### Workflow Names (Top-level `name:` field)
+
+Use concise, action-oriented names that describe the workflow's primary purpose:
+
+**Format:** `[Action] [Subject]`
+
+**Examples:**
+- ✅ `Release` (not "Release a new version")
+- ✅ `UI Tests` (not "Sentry Cocoa UI Tests")
+- ✅ `Benchmarking` (not "Run benchmarking tests")
+- ✅ `Lint SwiftLint` (not "Lint Swiftlint Formatting")
+- ✅ `Test CocoaPods` (not "CocoaPods Integration Test")
+
+### Job Names (Job-level `name:` field)
+
+Use clear, concise descriptions that avoid redundancy with the workflow name:
+
+**Principles:**
+1. **Remove redundant prefixes** - Don't repeat the workflow name
+2. **Use action verbs** - Start with what the job does
+3. **Avoid version-specific naming** - Don't include Xcode versions, tool versions, etc.
+4. **Keep it concise** - Maximum 3-4 words when possible
+
+**Patterns:**
+
+#### Build Jobs
+- ✅ `Build XCFramework Slice` (not "Build XCFramework Variant Slice")
+- ✅ `Assemble XCFramework Variant` (not "Assemble XCFramework" - be specific about variants)
+- ✅ `Build App and Test Runner`
+- ✅ `${{matrix.sdk}}` for platform-specific builds (e.g., "iphoneos", "macosx")
+- ✅ `${{inputs.name}}${{inputs.suffix}}` for variant assembly (e.g., "Sentry-Dynamic")
+
+#### Test Jobs
+- ✅ `Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests`
+- ✅ `Unit ${{matrix.name}}` (for unit test matrices)
+- ✅ `Run Benchmarks ${{matrix.suite}}` (for benchmarking matrices)
+- ✅ `Test SwiftUI V4 # Up the version with every change to keep track of flaky tests`
+- ✅ `Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests`
+
+**Note:** 
+- Version numbers (V1, V2, etc.) are included in test job names for flaky test tracking, with explanatory comments retained.
+- For matrix-based jobs, use clean variable names that produce readable job names (e.g., `${{matrix.sdk}}`, `${{matrix.name}}`, `${{inputs.name}}${{inputs.suffix}}`).
+- When matrix includes multiple iOS versions, add a descriptive `name` field to each matrix entry (e.g., "iOS 16 Swift", "iOS 17 Swift") for clear job identification.
+
+#### Validation Jobs
+- ✅ `Validate XCFramework` (not "Validate XCFramework - Static")
+- ✅ `Validate SPM Static` (not "Validate Swift Package Manager - Static")
+- ✅ `Check API Stability` (not "API Stability Check")
+
+#### Lint Jobs
+- ✅ `Lint` (job name when workflow already specifies the tool, e.g., "Lint SwiftLint")
+- ❌ `SwiftLint` (redundant with workflow name "Lint SwiftLint")
+- ❌ `Clang Format` (redundant with workflow name "Lint Clang")
+
+#### Utility Jobs
+- ✅ `Collect App Metrics` (not "Collect app metrics")
+- ✅ `Detect File Changes` (not "Detect Changed Files")
+- ✅ `Release New Version` (not "Release a new version")
+
+### Version Tracking for Flaky Test Management
+
+For UI test jobs that need version tracking for flaky test management, include the version number in BOTH the job name AND a comment:
+
+**Format:** `[Job Name] V{number} # Up the version with every change to keep track of flaky tests`
+
+**Example:**
+```yaml
+name: Test iOS Swift V5 # Up the version with every change to keep track of flaky tests
+```
+
+**Rationale:** 
+- Version numbers must be in the job name because failure rate monitoring captures job names and ignores comments
+- Comments are kept to provide context and instructions for developers
+
+### Matrix Variables in Names
+
+When using matrix variables, prefer descriptive names over technical details:
+
+**Examples:**
+- ✅ `Test ${{matrix.name}}` where name = "iOS Objective-C", "tvOS Swift"
+- ✅ `Test ${{matrix.name}}` where name = "iOS 16 Swift", "iOS 17 Swift", "iOS 18 Swift"
+- ✅ `Unit ${{matrix.name}}` where name = "iOS 16 Sentry", "macOS 15 Sentry", "tvOS 18 Sentry"
+- ✅ `Run Benchmarks ${{matrix.suite}}` where suite = "High-end device", "Low-end device"
+- ✅ `Check API Stability (${{ matrix.version }})` where version = "default", "v9"
+- ❌ `Test iOS Swift Xcode ${{matrix.xcode}}` (version-specific)
+
+### Reusable Workflow Names
+
+For reusable workflows (workflow_call), use descriptive names that indicate their purpose:
+
+**Examples:**
+- ✅ `Build XCFramework Slice`
+- ✅ `Assemble XCFramework Variant`
+- ✅ `UI Tests Common`
+
+### Benefits of This Convention
+
+1. **Status Check Stability** - Names won't break when tool versions change
+2. **Cleaner GitHub UI** - Shorter, more readable names in PR checks
+3. **Better Organization** - Consistent patterns make workflows easier to understand
+4. **Future-Proof** - Version-agnostic naming reduces maintenance overhead
+5. **Branch Protection Compatibility** - Stable names work well with GitHub's branch protection rules
+
+### Anti-Patterns to Avoid
+
+❌ **Don't include:**
+- Tool versions (Xcode 15.4, Swift 5.9, etc.) unless they are relevant to the job
+- Redundant workflow prefixes ("Release /", "UI Tests /")
+- Overly verbose descriptions
+- Technical implementation details in user-facing names
+- Lowercase inconsistency
+
+❌ **Examples of what NOT to do:**
+- "Release / Build XCFramework Variant Slice (Sentry, mh_dylib, -Dynamic, sentry-dynamic) / Build XCFramework Slice"
+- "UI Tests / UI Tests for iOS-Swift Xcode 15.4 - V5"
+- "Lint Swiftlint Formatting / SwiftLint" (redundant job name)
+- "Build Sentry Cocoa XCFramework Variant Slice"
+
+### Implementation Notes
+
+- Always include version numbers in test job names AND keep explanatory comments for flaky test management
+- Keep matrix variable usage minimal and descriptive
+- Ensure names remain meaningful when viewed in GitHub's status check UI
+- Test names in the GitHub PR interface before committing changes
+- For lint workflows, use simple "Lint" job name since the tool is already specified in the workflow name

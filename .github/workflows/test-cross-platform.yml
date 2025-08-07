@@ -1,4 +1,4 @@
-name: Test Cross-Platform Sentry SDK Installation
+name: Test Cross Platform
 
 on:
   push:
@@ -9,10 +9,14 @@ on:
       - ".github/workflows/test-cross-platform.yml"
       - "Sources/**"
       - "Sentry.podspec"
+      - "SentrySwiftUI.podspec"
+      - "Package.swift"
+      - "Makefile" # Make commands used for cross-platform setup
+      - "Brewfile*" # Dependency installation affects cross-platform testing
 
 jobs:
   test-react-native:
-    name: React Native
+    name: React Native Installation
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

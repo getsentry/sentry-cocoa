@@ -1,4 +1,5 @@
-name: Check Code Formatting
+name: Lint Clang
+
 on:
   push:
     branches:
@@ -12,6 +13,8 @@ on:
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
       - ".clang-format"
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
   pull_request:
     paths:
@@ -23,12 +26,14 @@ on:
       - "**/*.mm"
       - ".github/workflows/lint-clang-formatting.yml"
       - ".clang-format"
+      - "Makefile" # Make commands used for formatting setup
+      - "Brewfile*" # Tools installation affects formatting environment
 
 jobs:
-  format-code:
+  lint:
     # While ubuntu runners have clang-format preinstalled, they use an older version. We want to use the most recent one,
     # that we can easily install locally via brew.
-    name: Check Formatting of Clang Format
+    name: Lint
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
