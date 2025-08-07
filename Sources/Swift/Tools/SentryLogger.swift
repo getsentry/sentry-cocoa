@@ -166,6 +166,12 @@ public final class SentryLogger: NSObject {
         let message = SentryLogMessage(stringLiteral: body)
         captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
+
+    // MARK: - Internal
+
+    func flush(timeout: TimeInterval) {
+        batcher?.flushSync(timeout: timeout)
+    }
     
     // MARK: - Private
     

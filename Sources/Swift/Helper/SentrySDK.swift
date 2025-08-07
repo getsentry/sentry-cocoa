@@ -361,12 +361,14 @@ import Foundation
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
+        flushLogger(timeout: timeout)
         SentrySDKInternal.flush(timeout: timeout)
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
+        flushLogger(timeout: 1.0)
         SentrySDKInternal.close()
     }
     
@@ -422,6 +424,12 @@ import Foundation
     
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
+
+    private static func flushLogger(timeout: TimeInterval) {
+        _loggerLock.synchronized {
+            _logger?.flush(timeout: timeout)
+        }
+    }
 }
 
 extension SentryIdWrapper {

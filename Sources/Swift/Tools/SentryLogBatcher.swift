@@ -70,6 +70,20 @@ import Foundation
             self?.performFlush()
         }
     }
+    
+    /// Synchronously flushes all buffered logs with a timeout.
+    /// - Parameter timeout: The maximum time to wait for the flush operation to complete.
+    @_spi(Private) func flushSync(timeout: TimeInterval) {
+        let group = DispatchGroup()
+        
+        group.enter()
+        dispatchQueue.dispatchAsync { [weak self] in
+            self?.performFlush()
+            group.leave()
+        }
+        
+        _ = group.wait(timeout: .now() + timeout)
+    }
 
     // Helper
 
