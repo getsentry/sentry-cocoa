@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -e pipefail
 
 if csrutil status | grep -q 'disabled'; then
     epochdate=$(($(date +'%s * 1000 + %-N / 1000000')))
