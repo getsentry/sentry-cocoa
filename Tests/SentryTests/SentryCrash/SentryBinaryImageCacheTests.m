@@ -239,7 +239,7 @@ delayAddBinaryImage(void)
 
     // Guard against underflow when mach_headers_test_cache.count < 5
     // because otherwise the expectedFulfillmentCount for the test expectation will be negative.
-    if (mach_headers_test_cache.count <= 5) {
+    if (mach_headers_test_cache.count < 5) {
         XCTFail(@"Test requires more than 5 binary images in cache, but only has %lu",
             (unsigned long)mach_headers_test_cache.count);
         return;
