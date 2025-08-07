@@ -239,13 +239,11 @@ delayAddBinaryImage(void)
 
     // Guard against underflow when mach_headers_test_cache.count < 5
     // because otherwise the expectedFulfillmentCount for the test expectation will be negative.
-    if (mach_headers_test_cache.count < 5) {
-        XCTFail(@"Test requires more than 5 binary images in cache, but only has %lu",
-            (unsigned long)mach_headers_test_cache.count);
+    NSInteger taskCount = mach_headers_test_cache.count - 5;
+    if (taskCount <= 0) {
+        XCTFail(@"Expected a positive task count, but got %ld", taskCount);
         return;
     }
-
-    NSUInteger taskCount = mach_headers_test_cache.count - 5;
 
     XCTestExpectation *expectation =
         [self expectationWithDescription:@"Add binary images in parallel"];
