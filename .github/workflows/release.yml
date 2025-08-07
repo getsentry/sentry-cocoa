@@ -162,7 +162,6 @@ jobs:
         run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          rm -rf ${{matrix.package-file.delete-package-file}}
           sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
@@ -177,9 +176,7 @@ jobs:
       matrix:
         package-file:
           - name: Package.swift
-            delete-package-file: Package@swift-5.9.swift
           - name: Package@swift-5.9.swift
-            delete-package-file: Package.swift
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic ${{matrix.package-file.name}}
@@ -196,7 +193,6 @@ jobs:
         run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          rm -rf ${{matrix.package-file.delete-package-file}}
           sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
@@ -211,9 +207,7 @@ jobs:
       matrix:
         package-file:
           - name: Package.swift
-            delete-package-file: Package@swift-5.9.swift
           - name: Package@swift-5.9.swift
-            delete-package-file: Package.swift
 
   swift-build:
     name: Build Swift Static ${{matrix.package-file.name}}
@@ -230,7 +224,6 @@ jobs:
         run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          rm -rf ${{matrix.package-file.delete-package-file}}
           sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
@@ -244,9 +237,7 @@ jobs:
       matrix:
         package-file:
           - name: Package.swift
-            delete-package-file: Package@swift-5.9.swift
           - name: Package@swift-5.9.swift
-            delete-package-file: Package.swift
 
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
