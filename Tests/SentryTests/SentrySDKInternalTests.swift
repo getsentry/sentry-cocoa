@@ -783,8 +783,9 @@ class SentrySDKInternalTests: XCTestCase {
 
         let expectation = XCTestExpectation(description: "Wait for all measurements to be set")
         expectation.expectedFulfillmentCount = amount * 2
+        expectation.assertForOverFulfill = true
 
-        for i in 0...amount {
+        for i in 0..<amount {
             setAppStartMeasurement(queue1, i)
             setAppStartMeasurement(queue2, i)
         }
@@ -794,7 +795,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         wait(for: [expectation], timeout: 10.0)
 
-        let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount))
+        let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount - 1 ))
         XCTAssertEqual(timestamp, SentrySDKInternal.getAppStartMeasurement()?.appStartTimestamp)
     }
 
