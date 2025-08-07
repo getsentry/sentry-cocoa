@@ -20,10 +20,16 @@ on:
       - "Makefile" # Make commands used for CI build setup
       - "Brewfile*" # Dependency installation affects build environment
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
+#   which would waste CI resources without providing additional value.
+# - For pull requests, we cancel in-progress builds when new commits are pushed since only the
+#   latest commit's build results matter for merge decisions.
+# - For main branch pushes, we never cancel builds to ensure all release and sample builds complete,
+#   as broken builds on main could block releases and affect downstream consumers.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 jobs:
   # We had issues that the release build was broken on main.

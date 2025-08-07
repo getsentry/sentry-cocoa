@@ -9,10 +9,16 @@ on:
   schedule:
     - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple CodeQL security analysis runs,
+#   as these are comprehensive security scans that shouldn't run simultaneously.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest security analysis results matter for identifying potential vulnerabilities.
+# - For main branch pushes and scheduled runs, we never cancel security analysis to ensure
+#   complete security validation and maintain our security baseline with weekly scheduled scans.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') && github.event_name != 'schedule' }}
 
 jobs:
   analyze:

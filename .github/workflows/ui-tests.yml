@@ -26,10 +26,16 @@ on:
       - "Makefile" # Make commands used for UI test environment setup
       - "Brewfile*" # Dependency installation affects UI test environment
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple UI test runs on the same code,
+#   as UI tests are resource-intensive and long-running operations.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to provide faster
+#   feedback and avoid wasting expensive UI testing resources on outdated code.
+# - For main branch pushes, we never cancel UI tests to ensure complete validation of the user
+#   interface before the code reaches production, maintaining our quality standards.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 jobs:
   ui-tests:

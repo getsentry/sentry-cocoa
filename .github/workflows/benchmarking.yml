@@ -24,10 +24,16 @@ on:
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
+#   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to avoid wasting
+#   expensive external testing resources and provide timely performance feedback.
+# - For main branch pushes, we never cancel benchmarks to ensure we have complete performance
+#   baselines for every main branch commit, which are critical for performance regression detection.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 jobs:
   build-benchmark-test-target:
@@ -171,8 +177,40 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
           echo "::warning SauceLabs benchmark tests need to be retried"
-          saucectl run \
+          set -o pipefail && saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
-            --verbose
+            --verbose \
+            2>&1 | tee retry-output.log
+
+      - name: Force Cancel SauceLabs Job on Workflow Cancellation
+        if: ${{ cancelled() }}
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: |
+          echo "::warning Workflow was cancelled, attempting to cancel SauceLabs jobs"
+
+          # Function to extract and cancel job from log file
+          cancel_jobs_from_log() {
+            local log_file="$1"
+            if [[ -f "$log_file" ]]; then
+              echo "Checking $log_file for SauceLabs test IDs..."
+              # Extract all SauceLabs test IDs from the log
+              grep -oE 'https://app\.saucelabs\.com/tests/[^\s]+' "$log_file" | while read -r url; do
+                test_id=$(echo "$url" | sed 's|.*tests/||')
+                if [[ -n "$test_id" ]]; then
+                  echo "Attempting to cancel SauceLabs job: $test_id"
+                  # Cancel the job using saucectl
+                  saucectl jobs stop "$test_id" || echo "Failed to cancel job $test_id (may already be finished)"
+                fi
+              done
+            fi
+          }
+
+          # Cancel jobs from both possible log files
+          cancel_jobs_from_log "output.log"
+          cancel_jobs_from_log "retry-output.log"
+
+          echo "SauceLabs job cancellation attempts completed"

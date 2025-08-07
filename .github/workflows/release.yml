@@ -35,9 +35,16 @@ on:
         description: Target branch to merge into. Uses the default branch as a fallback (optional)
         required: false
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple release builds from running
+#   simultaneously, which could lead to race conditions in artifact generation and storage.
+# - For pull requests, we cancel in-progress runs when testing release workflow changes since
+#   only the latest version needs validation before merging.
+# - For main branch pushes (actual releases), we never cancel runs to ensure every release
+#   process completes fully, as partial releases could corrupt our distribution pipeline.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') && github.event_name != 'workflow_dispatch' }}
 
 jobs:
   build-xcframework-variant-slices:
