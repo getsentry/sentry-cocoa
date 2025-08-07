@@ -66,6 +66,7 @@ jobs:
       - run: make xcode-ci
 
       - name: Enable screenshots permissions
+        shell: bash
         run: ./scripts/ci-enable-permissions.sh
 
       - name: Boot simulator
