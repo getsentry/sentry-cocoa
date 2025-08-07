@@ -79,6 +79,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["SentrySwift"],
             path: "Sources",
             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
+            publicHeadersPath: "Sentry/Public",
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
@@ -94,7 +95,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v12), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v4), .visionOS(.v1)],
+    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4), .visionOS(.v1)],
     products: products,
     targets: targets,
     cxxLanguageStandard: .cxx14
