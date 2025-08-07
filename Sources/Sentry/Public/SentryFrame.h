@@ -102,6 +102,12 @@ NS_SWIFT_NAME(Frame)
  */
 @property (nonatomic, copy) NSNumber *_Nullable stackStart;
 
+/**
+ * A mapping of variables which were available within this frame.
+ * Mostly used for Godot errors.
+ */
+@property (nonatomic, copy) NSDictionary<NSString *, id> *_Nullable vars;
+
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
