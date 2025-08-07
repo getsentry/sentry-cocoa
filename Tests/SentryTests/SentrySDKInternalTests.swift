@@ -795,7 +795,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         wait(for: [expectation], timeout: 10.0)
 
-        let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount - 1 ))
+        let timestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(TimeInterval(amount - 1))
         XCTAssertEqual(timestamp, SentrySDKInternal.getAppStartMeasurement()?.appStartTimestamp)
     }
 
