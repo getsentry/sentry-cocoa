@@ -39,6 +39,7 @@ let fromVersionFile = "./Sentry.podspec"
 let files = [
     "./Sentry.podspec",
     "./Package.swift",
+    "./Package@swift-5.9.swift",
     "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
@@ -179,7 +180,7 @@ func getRegexString(for file: String) throws -> String {
             return "s\\.dependency\\s\"Sentry\\/HybridSDK\",\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
         }
         return "\\ss\\.version\\s+=\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
-    } else if file == "./Package.swift" {
+    } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
     } else if file == "./Sources/Sentry/SentryMeta.m" {
         return "static NSString \\*versionString = @\"(?<version>[a-zA-z0-9\\.\\-]+)\""
