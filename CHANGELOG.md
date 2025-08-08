@@ -3,14 +3,14 @@
 ## Unreleased
 
 > [!Important]
-> Because of Xcode's 26 changes not allowing individual frameworks to contain arm64e slices if the main binary doesn't contain it.
-> We have decided to split the Dynamic variant of Sentry into 2:
+> Xcode 26 is not allowing individual frameworks to contain arm64e slices anymore if the main binary doesn't contain it.
+> We have decided to split the Dynamic variant of Sentry into two variants:
 >
 > - `Sentry-Dynamic`: Without arm64e
 > - `Sentry-Dynamic-WithARM64e`: _With_ ARM64e slice
 >
-> If your app does not need arm64e, you don't need to do any change.
-> But if your app _does need arm64e_ please use `Sentry-Dynamic-WithARM64e` from 8.55.0 so you don't have issues uploading to the AppStore.
+> If your app does not need arm64e, you don't need to do any changes.
+> But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` from 8.55.0 so you don't have issues uploading to the AppStore.
 
 ### Features
 
@@ -26,6 +26,7 @@
 ### Internal
 
 - Add nullability property for `screenName` (#5782)
+
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
