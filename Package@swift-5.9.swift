@@ -1,4 +1,7 @@
 // swift-tools-version:5.9
+// This Package.swift for Swift 5.9 (and newer) fixes an issue on Xcode 26 when linking `SentrySwiftUI`.
+// Don't remove this comment.
+
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
