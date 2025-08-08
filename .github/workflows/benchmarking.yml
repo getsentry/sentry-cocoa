@@ -24,10 +24,16 @@ on:
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
+#   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to avoid wasting
+#   expensive external testing resources and provide timely performance feedback.
+# - For main branch pushes, we never cancel benchmarks to ensure we have complete performance
+#   baselines for every main branch commit, which are critical for performance regression detection.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-benchmark-test-target:
@@ -171,8 +177,110 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
           echo "::warning SauceLabs benchmark tests need to be retried"
-          saucectl run \
+          set -o pipefail && saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
-            --verbose
+            --verbose \
+            2>&1 | tee retry-output.log
+
+      - name: Force Cancel SauceLabs Job on Workflow Cancellation
+        if: ${{ cancelled() }}
+        uses: actions/github-script@v7
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            console.log("::warning Workflow was cancelled, attempting to cancel SauceLabs jobs");
+
+            // SauceLabs API configuration
+            const sauceUsername = process.env.SAUCE_USERNAME;
+            const sauceAccessKey = process.env.SAUCE_ACCESS_KEY;
+            const apiBaseUrl = 'https://api.us-west-1.saucelabs.com';
+
+            if (!sauceUsername || !sauceAccessKey) {
+              console.log("::error SauceLabs credentials not found, cannot cancel jobs");
+              return;
+            }
+
+            // Function to extract job IDs from log files
+            const extractJobIdsFromLog = (logFile) => {
+              if (!fs.existsSync(logFile)) {
+                console.log(`Log file ${logFile} not found, skipping...`);
+                return [];
+              }
+
+              console.log(`Checking ${logFile} for SauceLabs test IDs...`);
+              const logContent = fs.readFileSync(logFile, 'utf8');
+
+              // Extract all SauceLabs test URLs and get job IDs
+              const urlRegex = /https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/g;
+              const jobIds = [];
+              let match;
+
+              while ((match = urlRegex.exec(logContent)) !== null) {
+                const jobId = match[1];
+                if (jobId) {
+                  jobIds.push(jobId);
+                  console.log(`Found SauceLabs job ID: ${jobId}`);
+                }
+              }
+
+              return jobIds;
+            };
+
+            // Function to cancel a SauceLabs job via REST API
+            // Reference: https://docs.saucelabs.com/dev/api/jobs/#stop-a-job
+            const cancelSauceLabsJob = async (jobId) => {
+              try {
+                console.log(`Attempting to cancel SauceLabs job: ${jobId}`);
+
+                // Create basic auth header
+                const auth = Buffer.from(`${sauceUsername}:${sauceAccessKey}`).toString('base64');
+
+                // Make PUT request to stop the job
+                const response = await fetch(`${apiBaseUrl}/rest/v1/${sauceUsername}/jobs/${jobId}/stop`, {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+
+                if (response.ok) {
+                  console.log(`Successfully cancelled SauceLabs job: ${jobId}`);
+                } else if (response.status === 404) {
+                  console.log(`Job ${jobId} not found (may already be finished)`);
+                } else {
+                  const errorText = await response.text();
+                  console.log(`Failed to cancel job ${jobId}: HTTP ${response.status} - ${errorText}`);
+                }
+              } catch (error) {
+                console.log(`Error cancelling job ${jobId}: ${error.message}`);
+              }
+            };
+
+            // Extract job IDs from both possible log files
+            const jobIds = [
+              ...extractJobIdsFromLog('output.log'),
+              ...extractJobIdsFromLog('retry-output.log')
+            ];
+
+            // Remove duplicates
+            const uniqueJobIds = [...new Set(jobIds)];
+
+            if (uniqueJobIds.length === 0) {
+              console.log("No SauceLabs job IDs found in log files");
+              return;
+            }
+
+            // Cancel all found jobs
+            console.log(`Found ${uniqueJobIds.length} unique job(s) to cancel`);
+            for (const jobId of uniqueJobIds) {
+              await cancelSauceLabsJob(jobId);
+            }
+
+            console.log("SauceLabs job cancellation attempts completed");

@@ -2,9 +2,13 @@ name: Changes In High Risk Code
 on:
   pull_request:
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple high-risk code analysis runs,
+#   as these detect changes to critical code paths and trigger additional validation workflows.
+# - We always cancel in-progress runs since this workflow only runs on pull requests, and only
+#   the latest commit's high-risk code changes matter for determining which additional tests to run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

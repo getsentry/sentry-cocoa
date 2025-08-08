@@ -17,6 +17,17 @@ on:
       - ".github/workflows/testflight.yml"
   workflow_dispatch:
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple TestFlight uploads of the same build,
+#   as these operations involve app building, signing, and upload to Apple's servers.
+# - For pull requests, we cancel in-progress runs when testing workflow changes since only the
+#   latest configuration needs validation before merging.
+# - For main branch pushes (actual uploads), we never cancel uploads to ensure every main branch
+#   commit gets properly built and distributed to TestFlight for testing by our team.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   upload_to_testflight:
     name: Build and Upload iOS-Swift to Testflight
