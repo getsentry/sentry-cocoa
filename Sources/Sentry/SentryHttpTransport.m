@@ -33,7 +33,8 @@
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryDsn *dsn;
+@property (nonatomic) BOOL sendClientReports;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
@@ -67,7 +68,8 @@
 
 @implementation SentryHttpTransport
 
-- (id)initWithOptions:(SentryOptions *)options
+- (id)initWithDsn:(SentryDsn *)dsn
+          sendClientReports:(BOOL)sendClientReports
     cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
                dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                 fileManager:(SentryFileManager *)fileManager
@@ -78,7 +80,8 @@
        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        self.options = options;
+        self.dsn = dsn;
+        self.sendClientReports = sendClientReports;
         _cachedEnvelopeSendDelay = cachedEnvelopeSendDelay;
         self.requestManager = requestManager;
         self.requestBuilder = requestBuilder;
@@ -162,7 +165,7 @@
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity
 {
-    if (!self.options.sendClientReports) {
+    if (!self.sendClientReports) {
         return;
     }
 
@@ -276,7 +279,7 @@
 
 - (SentryEnvelope *)addClientReportTo:(SentryEnvelope *)envelope
 {
-    if (!self.options.sendClientReports) {
+    if (!self.sendClientReports) {
         return envelope;
     }
 
@@ -357,17 +360,10 @@
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
     rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
-    if (nil == self.options.parsedDsn) {
-        SENTRY_LOG_FATAL(@"No DSN configured, not sending envelope.");
-        [self deleteEnvelopeAndSendNext:envelopeFilePath];
-        return;
-    }
-
     NSError *_Nullable requestError = nil;
-    NSURLRequest *request = [self.requestBuilder
-        createEnvelopeRequest:rateLimitedEnvelope
-                          dsn:SENTRY_UNWRAP_NULLABLE(SentryDsn, self.options.parsedDsn)
-             didFailWithError:&requestError];
+    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
+                                                                   dsn:self.dsn
+                                                      didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

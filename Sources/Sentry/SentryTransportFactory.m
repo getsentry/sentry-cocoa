@@ -3,6 +3,8 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
@@ -27,6 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                                       rateLimits:(id<SentryRateLimits>)rateLimits
 {
+    if (!options.parsedDsn) {
+        SENTRY_LOG_FATAL(@"Failed to create transports because the SentryOptions does not contain "
+                         @"a parsed DSN.");
+        return @[];
+    }
+    SentryDsn *_Nonnull dsn = SENTRY_UNWRAP_NULLABLE(SentryDsn, options.parsedDsn);
+
     NSURLSession *session;
 
     if (options.urlSession) {
@@ -54,15 +63,16 @@ NS_ASSUME_NONNULL_BEGIN
     SentryNSURLRequestBuilder *requestBuilder = [[SentryNSURLRequestBuilder alloc] init];
 
     SentryHttpTransport *httpTransport =
-        [[SentryHttpTransport alloc] initWithOptions:options
-                             cachedEnvelopeSendDelay:0.1
-                                        dateProvider:dateProvider
-                                         fileManager:sentryFileManager
-                                      requestManager:requestManager
-                                      requestBuilder:requestBuilder
-                                          rateLimits:rateLimits
-                                   envelopeRateLimit:envelopeRateLimit
-                                dispatchQueueWrapper:dispatchQueueWrapper];
+        [[SentryHttpTransport alloc] initWithDsn:dsn
+                               sendClientReports:options.sendClientReports
+                         cachedEnvelopeSendDelay:0.1
+                                    dateProvider:dateProvider
+                                     fileManager:sentryFileManager
+                                  requestManager:requestManager
+                                  requestBuilder:requestBuilder
+                                      rateLimits:rateLimits
+                               envelopeRateLimit:envelopeRateLimit
+                            dispatchQueueWrapper:dispatchQueueWrapper];
 
     if (options.enableSpotlight) {
         SentrySpotlightTransport *spotlightTransport =
