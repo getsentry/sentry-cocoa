@@ -78,3 +78,14 @@ jobs:
         with:
           name: swiftui-crash-test-screenshots
           path: swiftui-crash-test-screenshots
+
+      - name: Collect Logs
+        if: always()
+        run: xcrun simctl spawn booted log collect --output swiftui-crash-test-log.logarchive
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swiftui-crash-test-log.logarchive
+          path: swiftui-crash-test-log.logarchive
