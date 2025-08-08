@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.54.1-alpha.0
 
 > [!Important]
 > Xcode 26 is not allowing individual frameworks to contain arm64e slices anymore if the main binary doesn't contain it.
