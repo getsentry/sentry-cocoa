@@ -44,7 +44,7 @@ on:
 #   process completes fully, as partial releases could corrupt our distribution pipeline.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') && github.event_name != 'workflow_dispatch' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-xcframework-variant-slices:

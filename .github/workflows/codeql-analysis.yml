@@ -18,7 +18,7 @@ on:
 #   complete security validation and maintain our security baseline with weekly scheduled scans.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') && github.event_name != 'schedule' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze:
