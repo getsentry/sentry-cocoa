@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
+
 ### Fixes
 
 - Add support for PDFKit views in session replay (#5750)
