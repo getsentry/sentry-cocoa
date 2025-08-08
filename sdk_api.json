@@ -50844,7 +50844,7 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)clipOutView:",
+            "usr": "c:@CM@Sentry@objc(cs)SentryRedactViewHelper(cm)clipOutView:",
             "mangledName": "$s6Sentry0A16RedactViewHelperC07clipOutC0yySo6UIViewCFZ",
             "moduleName": "Sentry",
             "static": true,
@@ -50852,6 +50852,7 @@
               "Final",
               "ObjC"
             ],
+            "isFromExtension": true,
             "funcSelfKind": "NonMutating"
           },
           {
@@ -50872,7 +50873,7 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)maskSwiftUI:",
+            "usr": "c:@CM@Sentry@objc(cs)SentryRedactViewHelper(cm)maskSwiftUI:",
             "mangledName": "$s6Sentry0A16RedactViewHelperC11maskSwiftUIyySo6UIViewCFZ",
             "moduleName": "Sentry",
             "static": true,
@@ -50880,6 +50881,7 @@
               "Final",
               "ObjC"
             ],
+            "isFromExtension": true,
             "funcSelfKind": "NonMutating"
           }
         ],
