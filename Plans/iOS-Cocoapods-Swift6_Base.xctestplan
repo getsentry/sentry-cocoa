@@ -17,11 +17,10 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:iOS-Cocoapods-Swift6.xcodeproj",
         "identifier" : "D4DC1E792D6F0FAD00F562AA",
-        "name" : "iOS-Cocoapods-Swift6-UITests"
+        "name" : "UITests"
       }
     }
   ],
