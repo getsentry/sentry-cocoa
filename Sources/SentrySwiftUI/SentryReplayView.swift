@@ -1,5 +1,5 @@
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-import Sentry
+@_spi(Private) import Sentry
 import SwiftUI
 import UIKit
 

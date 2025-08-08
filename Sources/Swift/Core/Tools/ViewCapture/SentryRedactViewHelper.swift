@@ -7,14 +7,20 @@ import UIKit
 import WebKit
 #endif
 
-@objcMembers
-public class SentryRedactViewHelper: NSObject {
+#if SDK_V9
+@objcMembers @_spi(Private) public class SentryRedactViewHelper: NSObject {
+    override private init() {}
+}
+#else
+@objcMembers public class SentryRedactViewHelper: NSObject {
+    override private init() {}
+}
+#endif
+extension SentryRedactViewHelper {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     private static var associatedClipOutObjectHandle: UInt8 = 0
     private static var associatedSwiftUIRedactObjectHandle: UInt8 = 0
-    
-    override private init() {}
     
     @_spi(Private) public static func maskView(_ view: UIView) {
         objc_setAssociatedObject(view, &associatedRedactObjectHandle, true, .OBJC_ASSOCIATION_ASSIGN)
