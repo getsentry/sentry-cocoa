@@ -58,7 +58,7 @@
 		7CA106457CC640CDCEDB05E5 /* Pods_TestKeyboardExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TestKeyboardExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D46156852D63555100D7C33D /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4DC1E7A2D6F0FAD00F562AA /* UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D4DC1E852D6F0FD400F562AA /* iOS-Cocoapods-Swift6_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = "iOS-Cocoapods-Swift6_Base.xctestplan"; path = "../../../Plans/iOS-Cocoapods-Swift6_Base.xctestplan"; sourceTree = "<group>"; };
+		D4DC1E852D6F0FD400F562AA /* iOS-Cocoapods-Swift6_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Cocoapods-Swift6_Base.xctestplan"; sourceTree = "<group>"; };
 		D4DC1E8B2D6F0FDE00F562AA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D4DC1E8C2D6F0FDE00F562AA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D4DC1E8D2D6F0FDE00F562AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -163,41 +163,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D4DC1E872D6F0FDE00F562AA /* Headers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Headers;
-			sourceTree = "<group>";
-		};
-		D4DC1E882D6F0FDE00F562AA /* Local Podspecs */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Local Podspecs";
-			sourceTree = "<group>";
-		};
-		D4DC1E892D6F0FDE00F562AA /* Target Support Files */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Target Support Files";
-			sourceTree = "<group>";
-		};
-		D4DC1E8A2D6F0FDE00F562AA /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D4DC1E872D6F0FDE00F562AA /* Headers */,
-				D4DC1E882D6F0FDE00F562AA /* Local Podspecs */,
-				D4DC1E892D6F0FDE00F562AA /* Target Support Files */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		D4DC1E942D6F0FDE00F562AA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				D4DC1E8A2D6F0FDE00F562AA /* Pods */,
 				D4DC1E8B2D6F0FDE00F562AA /* AppDelegate.swift */,
 				D4DC1E8C2D6F0FDE00F562AA /* Assets.xcassets */,
 				D4DC1E8D2D6F0FDE00F562AA /* Info.plist */,
@@ -217,12 +185,13 @@
 			path = UITests;
 			sourceTree = "<group>";
 		};
-		D4DC1EA12D6F0FEB00F562AA /* Test Plans */ = {
+		D4DC1EA12D6F0FEB00F562AA /* Plans */ = {
 			isa = PBXGroup;
 			children = (
 				D4DC1E852D6F0FD400F562AA /* iOS-Cocoapods-Swift6_Base.xctestplan */,
 			);
-			path = "Test Plans";
+			name = Plans;
+			path = ../../Plans;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
