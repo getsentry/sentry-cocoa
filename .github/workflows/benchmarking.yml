@@ -33,7 +33,7 @@ on:
 #   baselines for every main branch commit, which are critical for performance regression detection.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-benchmark-test-target:

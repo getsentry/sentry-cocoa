@@ -29,7 +29,7 @@ on:
 #   as broken builds on main could block releases and affect downstream consumers.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # We had issues that the release build was broken on main.

@@ -18,7 +18,7 @@ on:
 #   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze-objc-conversion:
