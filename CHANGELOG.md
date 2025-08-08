@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add source context and vars fields to SentryFrame ([#5853](https://github.com/getsentry/sentry-cocoa/pull/5853))
+- Add source context and vars fields to SentryFrame (#5853)
 
 ### Fixes
 
