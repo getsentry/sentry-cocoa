@@ -280,11 +280,11 @@ SENTRY_NO_INIT
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 @property (nonatomic, class, readonly) SentryFeedbackAPI *feedback;
 
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

@@ -6,7 +6,7 @@
 #    import <SentryDefines.h>
 #endif
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 #    import "SentryFeedbackAPI.h"
 #    import "SentryHub+Private.h"
@@ -40,4 +40,4 @@
 
 @end
 
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION

@@ -257,7 +257,7 @@ import Foundation
         attachments: feedback.attachmentsForEnvelope())
     }
     
-    #if os(iOS) && !SENTRY_NO_UIKIT
+    #if os(iOS) && !SENTRY_NO_UIKIT && !SENTRY_IS_EXTENSION
     @available(iOS 13.0, *)
     @objc public static let feedback = {
       return SentryFeedbackAPI()

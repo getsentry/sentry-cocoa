@@ -6,5 +6,5 @@ target 'App' do
 end
 
 target 'TestKeyboardExtension' do
-  pod 'Sentry', :path => "../../"
+  pod 'Sentry/AppExtension', :path => "../../"
 end

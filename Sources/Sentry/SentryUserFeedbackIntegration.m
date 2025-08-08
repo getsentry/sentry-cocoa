@@ -4,7 +4,7 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
 
 @interface SentryUserFeedbackIntegration () <SentryUserFeedbackIntegrationDriverDelegate>
 @end
@@ -45,4 +45,4 @@
 
 @end
 
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT && !SENTRY_IS_EXTENSION
