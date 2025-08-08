@@ -193,34 +193,34 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             console.log("::warning Workflow was cancelled, attempting to cancel SauceLabs jobs");
-            
+
             // SauceLabs API configuration
             const sauceUsername = process.env.SAUCE_USERNAME;
             const sauceAccessKey = process.env.SAUCE_ACCESS_KEY;
             const apiBaseUrl = 'https://api.us-west-1.saucelabs.com';
-            
+
             if (!sauceUsername || !sauceAccessKey) {
               console.log("::error SauceLabs credentials not found, cannot cancel jobs");
               return;
             }
-            
+
             // Function to extract job IDs from log files
             const extractJobIdsFromLog = (logFile) => {
               if (!fs.existsSync(logFile)) {
                 console.log(`Log file ${logFile} not found, skipping...`);
                 return [];
               }
-              
+
               console.log(`Checking ${logFile} for SauceLabs test IDs...`);
               const logContent = fs.readFileSync(logFile, 'utf8');
-              
+
               // Extract all SauceLabs test URLs and get job IDs
               const urlRegex = /https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/g;
               const jobIds = [];
               let match;
-              
+
               while ((match = urlRegex.exec(logContent)) !== null) {
                 const jobId = match[1];
                 if (jobId) {
@@ -228,18 +228,19 @@ jobs:
                   console.log(`Found SauceLabs job ID: ${jobId}`);
                 }
               }
-              
+
               return jobIds;
             };
-            
+
             // Function to cancel a SauceLabs job via REST API
+            // Reference: https://docs.saucelabs.com/dev/api/jobs/#stop-a-job
             const cancelSauceLabsJob = async (jobId) => {
               try {
                 console.log(`Attempting to cancel SauceLabs job: ${jobId}`);
-                
+
                 // Create basic auth header
                 const auth = Buffer.from(`${sauceUsername}:${sauceAccessKey}`).toString('base64');
-                
+
                 // Make PUT request to stop the job
                 const response = await fetch(`${apiBaseUrl}/rest/v1/${sauceUsername}/jobs/${jobId}/stop`, {
                   method: 'PUT',
@@ -248,7 +249,7 @@ jobs:
                     'Content-Type': 'application/json'
                   }
                 });
-                
+
                 if (response.ok) {
                   console.log(`Successfully cancelled SauceLabs job: ${jobId}`);
                 } else if (response.status === 404) {
@@ -261,25 +262,25 @@ jobs:
                 console.log(`Error cancelling job ${jobId}: ${error.message}`);
               }
             };
-            
+
             // Extract job IDs from both possible log files
             const jobIds = [
               ...extractJobIdsFromLog('output.log'),
               ...extractJobIdsFromLog('retry-output.log')
             ];
-            
+
             // Remove duplicates
             const uniqueJobIds = [...new Set(jobIds)];
-            
+
             if (uniqueJobIds.length === 0) {
               console.log("No SauceLabs job IDs found in log files");
               return;
             }
-            
+
             // Cancel all found jobs
             console.log(`Found ${uniqueJobIds.length} unique job(s) to cancel`);
             for (const jobId of uniqueJobIds) {
               await cancelSauceLabsJob(jobId);
             }
-            
+
             console.log("SauceLabs job cancellation attempts completed");
