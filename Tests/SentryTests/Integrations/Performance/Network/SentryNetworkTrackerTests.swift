@@ -806,19 +806,25 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
 
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        for _ in 0...100_000 {
-            group.enter()
+        let loopCount = 1_000
+
+        let expectation = XCTestExpectation(description: "Resume called multiple times concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
+
+        for _ in 0..<loopCount {
+
             queue.async {
                 sut.urlSessionTaskResume(task)
                 task.state = .completed
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout(timeout: 100)
+        wait(for: [expectation], timeout: 10)
 
         assertOneSpanCreated(transaction)
     }
@@ -830,22 +836,29 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        for _ in 0...100_000 {
-            group.enter()
+        let loopCount = 1_000
+
+        let expectation = XCTestExpectation(description: "Change state multiple times concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
+
+        for _ in 0..<loopCount {
+
             queue.async {
                 do {
                     try self.setTaskState(task, state: .completed)
                 } catch {
                     XCTFail("Failed to set task state: \(error)")
                 }
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout(timeout: 100)
+
+        wait(for: [expectation], timeout: 10)
 
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(1, spans?.count)

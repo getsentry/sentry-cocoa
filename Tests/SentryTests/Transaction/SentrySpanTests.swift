@@ -603,7 +603,6 @@ class SentrySpanTests: XCTestCase {
     
     func testModifyingExtraFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
         
         let span = fixture.getSut()
         
@@ -612,9 +611,13 @@ class SentrySpanTests: XCTestCase {
         let innerLoop = 1_000
         let outerLoop = 20
         let value = fixture.extraValue
+
+        let expectation = XCTestExpectation(description: "ModifyingExtraFromMultipleThreads")
+        expectation.expectedFulfillmentCount = outerLoop 
+        expectation.assertForOverFulfill = true
         
         for i in 0..<outerLoop {
-            group.enter()
+            
             queue.async {
                 
                 for j in 0..<innerLoop {
@@ -622,12 +625,13 @@ class SentrySpanTests: XCTestCase {
                     span.setTag(value: value, key: "\(i)-\(j)")
                 }
                 
-                group.leave()
+                expectation.fulfill()
             }
         }
         
         queue.activate()
-        group.wait()
+        wait(for: [expectation], timeout: 10.0)
+        
         let threadDataItemCount = 2
         XCTAssertEqual(span.data.count, outerLoop * innerLoop + threadDataItemCount)
     }
