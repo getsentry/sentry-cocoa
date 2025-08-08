@@ -19,6 +19,8 @@ on:
       - "scripts/.clang-format-version"
       - "scripts/.swiftlint-version"
       - ".pre-commit-config.yaml"
+      - "scripts/update-tooling-versions.sh"
+      - "scripts/check-tooling-versions.sh"
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository

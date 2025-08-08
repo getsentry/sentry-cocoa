@@ -1254,16 +1254,19 @@ class SentryHubTests: XCTestCase {
         sut.startSession()
         
         let queue = fixture.queue
-        let group = DispatchGroup()
+
+        let expectation = XCTestExpectation(description: "Capture should be called \(count) times")
+        expectation.expectedFulfillmentCount = count
+
         for _ in 0..<count {
-            group.enter()
+
             queue.async {
                 capture(sut)
-                group.leave()
+                expectation.fulfill()
             }
         }
-        
-        group.waitWithTimeout()
+
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func testModifyIntegrationsConcurrently() {
@@ -1274,10 +1277,11 @@ class SentryHubTests: XCTestCase {
         let innerLoopAmount = 100
         
         let queue = fixture.queue
-        let group = DispatchGroup()
-        
+
+        let expectation = XCTestExpectation(description: "Installing integrations concurrently")
+        expectation.expectedFulfillmentCount = outerLoopAmount
+
         for i in 0..<outerLoopAmount {
-            group.enter()
             queue.async {
                 for j in 0..<innerLoopAmount {
                     let integrationName = "Integration\(i)\(j)"
@@ -1285,12 +1289,12 @@ class SentryHubTests: XCTestCase {
                     XCTAssertTrue(sut.hasIntegration(integrationName))
                     XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
                 }
-                group.leave()
+                expectation.fulfill()
             }
         }
-        
-        group.waitWithTimeout()
-        
+
+        wait(for: [expectation], timeout: 5.0)
+
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations().count)
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames().count)
         
@@ -1303,10 +1307,13 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut()
         
         let queue = fixture.queue
-        let group = DispatchGroup()
-        
-        for i in 0..<1_000 {
-            group.enter()
+
+        let loopCount = 1_000
+        let expectation = XCTestExpectation(description: "Installing integrations concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+
+        for i in 0..<loopCount {
+
             queue.async {
                 for j in 0..<10 {
                     let integrationName = "Integration\(i)\(j)"
@@ -1322,11 +1329,11 @@ class SentryHubTests: XCTestCase {
                 sut.installedIntegrationNames().forEach { XCTAssertNotNil($0) }
                 sut.removeAllIntegrations()
                 
-                group.leave()
+                expectation.fulfill()
             }
         }
         
-        group.wait()
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func testGetInstalledIntegration() {

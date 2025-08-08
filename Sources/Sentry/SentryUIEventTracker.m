@@ -1,3 +1,4 @@
+#import "SentryInternalDefines.h"
 #import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
@@ -67,14 +68,14 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
     // which is unacceptable for a transaction name. Ideally, we should somehow shorten
     // the long name.
 
-    NSString *targetClass = NSStringFromClass([target class]);
+    NSString *targetClass = NSStringFromClass([SENTRY_UNWRAP_NULLABLE_VALUE(Class, target) class]);
     if ([targetClass containsString:@"SwiftUI"]) {
         SENTRY_LOG_DEBUG(@"Won't record transaction for SwiftUI target event.");
         return;
     }
 
     NSString *actionName = [self getTransactionName:action target:targetClass];
-    NSString *operation = [self getOperation:sender];
+    NSString *operation = [self getOperation:SENTRY_UNWRAP_NULLABLE_VALUE(id, sender)];
 
     NSString *accessibilityIdentifier = nil;
     if (_reportAccessibilityIdentifier && [[sender class] isSubclassOfClass:[UIView class]]) {
