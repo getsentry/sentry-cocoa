@@ -192,7 +192,29 @@ final class SentryLogBatcherTests: XCTestCase {
         // Then
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
     }
-
+    
+    func testFlushSync_FlushesSynchronously() throws {
+        // Given
+        let log1 = createTestLog(body: "Log 1")
+        let log2 = createTestLog(body: "Log 2")
+        
+        // When
+        sut.add(log1)
+        sut.add(log2)
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
+        
+        sut.flushSync(timeout: 1.0)
+        
+        // Then
+        XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
+        
+        let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first?.data)
+        let sentString = String(data: sentData, encoding: .utf8) ?? ""
+        
+        XCTAssertTrue(sentString.contains("Log 1"))
+        XCTAssertTrue(sentString.contains("Log 2"))
+    }
+    
     // MARK: - Edge Cases Tests
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {

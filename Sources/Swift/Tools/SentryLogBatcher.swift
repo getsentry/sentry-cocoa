@@ -70,6 +70,18 @@ import Foundation
             self?.performFlush()
         }
     }
+    
+    @_spi(Private) func flushSync(timeout: TimeInterval) {
+        let group = DispatchGroup()
+        
+        group.enter()
+        dispatchQueue.dispatchAsync { [weak self] in
+            self?.performFlush()
+            group.leave()
+        }
+        
+        _ = group.wait(timeout: .now() + timeout)
+    }
 
     // Helper
 
