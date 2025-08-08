@@ -10,7 +10,7 @@ on:
       - "Utils/VersionBump/**"
       - ".github/workflows/version-bump-util.yml"
       - "./Sentry.podspec"
-      - "./Package.swift"
+      - "./Package*.swift"
       - "./SentryPrivate.podspec"
       - "./SentrySwiftUI.podspec"
       - "./Sources/Sentry/SentryMeta.m"
