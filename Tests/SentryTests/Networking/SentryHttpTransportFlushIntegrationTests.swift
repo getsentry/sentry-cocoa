@@ -164,7 +164,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         let dispatchQueueWrapper = SentryDispatchQueueWrapper()
 
         return (SentryHttpTransport(
-            options: options,
+            dsn: try XCTUnwrap(options.parsedDsn),
+            sendClientReports: options.sendClientReports,
             cachedEnvelopeSendDelay: 0.0,
             dateProvider: SentryDefaultCurrentDateProvider(),
             fileManager: fileManager,
