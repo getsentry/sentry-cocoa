@@ -65,7 +65,7 @@ if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_STATIC_CHECKSUM" ]; then
 fi
 
 echo "Verify checksum of dynamic xcframework in Package.swift"
-UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" Package.swift | cut -d '"' -f 2)
+UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" Package.swift | cut -d '"' -f 2 | head -n 1)
 if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
     echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA"
     exit 1
