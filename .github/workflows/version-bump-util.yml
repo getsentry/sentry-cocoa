@@ -65,6 +65,7 @@ jobs:
           mkdir -p Carthage
           echo "<FAKE STATIC ZIP>" > Carthage/Sentry.xcframework.zip
           echo "<FAKE DYNAMIC ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
+          echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > Carthage/Sentry-Dynamic-WithARM64e.xcframework.zip
 
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
@@ -77,4 +78,5 @@ jobs:
           ./scripts/verify-package-sha.sh \
             --static-checksum "7062a80f8a80f8b6d812698af87384751567a6aaa0df6f03b0596d728b22dcfd" \
             --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
+            --dynamic-with-arm64e-checksum "bbb84b054e5792aa705b95541aa4585f793e566a6b95638f8fef8e308d9782c3" \
             --last-release-runid "${{ github.run_id }}"

@@ -26,6 +26,11 @@ var targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.54.0/Sentry-Dynamic.xcframework.zip",
         checksum: "2cd3ee298133ed3a6d3b98f3b040e5c67b752887e67647ae671f450ecfd3facf" //Sentry-Dynamic
     ),
+    .binaryTarget(
+        name: "Sentry-Dynamic-WithARM64e",
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.54.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "bbb84b054e5792aa705b95541aa4585f793e566a6b95638f8fef8e308d9782c3" //Sentry-Dynamic-WithARM64e
+    ),
     .target (
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
