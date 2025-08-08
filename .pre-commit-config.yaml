@@ -79,7 +79,7 @@ repos:
       - id: format-yaml
         name: Format YAML
         description: "Format YAML"
-        files: ^.*\.{yaml,yml}$
+        files: ^.*\.(yaml|yml)$
         types_or: [yaml]
         entry: dprint
         language: system
