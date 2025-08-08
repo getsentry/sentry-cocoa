@@ -1,5 +1,6 @@
 #import "SentryTransaction.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryEvent+Serialize.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
