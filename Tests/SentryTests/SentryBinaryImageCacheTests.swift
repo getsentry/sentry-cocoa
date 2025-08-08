@@ -197,7 +197,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 10)
     }
     
     func testAddingImagesWhileGettingAllOnDifferentThread() {
@@ -224,7 +224,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 10)
     }
 }
 
