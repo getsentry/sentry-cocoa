@@ -31333,49 +31333,6 @@
         "moduleName": "Sentry"
       },
       {
-        "kind": "TypeAlias",
-        "name": "SentrySpanCallback",
-        "printedName": "SentrySpanCallback",
-        "children": [
-          {
-            "kind": "TypeFunc",
-            "name": "Function",
-            "printedName": "((any Sentry.Span)?) -> Swift.Void",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Sentry.Span)?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Span",
-                    "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ]
-          }
-        ],
-        "declKind": "TypeAlias",
-        "usr": "c:@T@SentrySpanCallback",
-        "moduleName": "Sentry"
-      },
-      {
         "kind": "TypeDecl",
         "name": "SentrySpanStatus",
         "printedName": "SentrySpanStatus",
@@ -34230,58 +34187,6 @@
             "protocolReq": true,
             "objc_name": "setDataValue:forKey:",
             "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "setExtra",
-            "printedName": "setExtra(value:key:)",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Any?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(pl)SentrySpan(im)setExtraValue:forKey:",
-            "moduleName": "Sentry",
-            "genericSig": "<Self where Self : Sentry.Span>",
-            "deprecated": true,
-            "protocolReq": true,
-            "objc_name": "setExtraValue:forKey:",
-            "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
