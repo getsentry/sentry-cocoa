@@ -11,6 +11,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
+#import "SentrySpanSerializable.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
@@ -38,8 +39,8 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
-    id<SentrySpan> _Nullable fetchSpan;
+    id<SentrySpanSerializable> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    id<SentrySpanSerializable> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
         fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataFetchOperation
@@ -75,12 +76,13 @@
                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
 {
 
-    __block id<SentrySpan> _Nullable saveSpan = nil;
+    __block id<SentrySpanSerializable> _Nullable saveSpan = nil;
     if (context.hasChanges) {
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+        id<SentrySpanSerializable> _Nullable currentSpan =
+            [SentrySDKInternal.currentHub.scope span];
         if (currentSpan) {
             NSString *spanDescription = [self descriptionForOperations:operations
                                                              inContext:context];

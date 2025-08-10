@@ -1,6 +1,8 @@
 #import "SentryNoOpSpan.h"
+#import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySpanSerializable.h"
 #import "SentrySwift.h"
 #import "SentryTraceHeader.h"
 
@@ -28,13 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+- (id<SentrySpanSerializable>)startChildWithOperation:(NSString *)operation
 {
     return [SentryNoOpSpan shared];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpanSerializable>)startChildWithOperation:(NSString *)operation
+                                          description:(nullable NSString *)description
 {
     return [SentryNoOpSpan shared];
 }

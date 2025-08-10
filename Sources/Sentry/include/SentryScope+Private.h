@@ -6,6 +6,7 @@
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
+@protocol SentrySpanSerializable;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,6 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, copy, nullable) NSString *environmentString;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
+
+- (void)setSpan:(nullable id<SentrySpanSerializable>)span;
+
+- (nullable id<SentrySpanSerializable>)serializableSpan;
 
 /**
  * The propagation context has a setter, requiring it to be nonatomic

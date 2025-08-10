@@ -184,6 +184,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
+    return [self internal_startChildWithOperation:operation description:description];
+}
+
+- (id<SentrySpanSerializable>)internal_startChildWithOperation:(NSString *)operation
+                                                   description:(nullable NSString *)description
+{
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(@"No tracer, returning no-op span");
         return [SentryNoOpSpan shared];

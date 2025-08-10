@@ -12,6 +12,7 @@
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
+#import "SentrySpanSerializable.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -35,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryScope {
     NSObject *_spanLock;
+    id<SentrySpanSerializable> _span;
 }
 
 @synthesize span = _span;
@@ -83,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
-        self.span = scope.span;
+        self.span = scope.serializableSpan;
         self.replayId = scope.replayId;
     }
     return self;
@@ -121,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setSpan:(nullable id<SentrySpan>)span
+- (void)setSpan:(nullable id<SentrySpanSerializable>)span
 {
     @synchronized(_spanLock) {
         _span = span;
@@ -146,7 +148,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id<SentrySpan>)span
+- (nullable id<SentrySpanSerializable>)span
+{
+    return [self serializableSpan];
+}
+
+- (nullable id<SentrySpanSerializable>)serializableSpan
 {
     @synchronized(_spanLock) {
         return _span;
@@ -466,11 +473,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSDictionary *traceContext = nil;
-    id<SentrySpan> span = nil;
+    id<SentrySpanSerializable> span = nil;
 
     if (self.span != nil) {
         @synchronized(_spanLock) {
-            span = self.span;
+            span = self.serializableSpan;
         }
     }
     traceContext = [self buildTraceContext:span];
@@ -591,11 +598,11 @@ NS_ASSUME_NONNULL_BEGIN
         event.level = level;
     }
 
-    id<SentrySpan> span;
+    id<SentrySpanSerializable> span;
 
     if (self.span != nil) {
         @synchronized(_spanLock) {
-            span = self.span;
+            span = self.serializableSpan;
         }
 
         // Span could be nil as we do the first check outside the synchronize
@@ -623,7 +630,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.observers addObject:observer];
 }
 
-- (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
+- (NSDictionary *)buildTraceContext:(nullable id<SentrySpanSerializable>)span
 {
     if (span != nil) {
         return [span serialize];

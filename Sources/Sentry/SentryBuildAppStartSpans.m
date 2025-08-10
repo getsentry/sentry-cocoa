@@ -9,7 +9,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-id<SentrySpan>
+id<SentrySpanSerializable>
 sentryBuildAppStartSpan(
     SentryTracer *tracer, SentrySpanId *parentId, NSString *operation, NSString *description)
 {

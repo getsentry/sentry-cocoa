@@ -8,6 +8,7 @@
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
+#import "SentrySpanSerializable.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -75,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    SentryTracer *tracer = [SentryTracer getTracer:scope.span];
+    SentryTracer *tracer = [SentryTracer getTracer:scope.serializableSpan];
     if (tracer == nil) {
         return nil;
     } else {

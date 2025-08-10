@@ -1,8 +1,8 @@
-#import "SentrySpan.h"
-
 #import "SentryProfilingConditionals.h"
+#import "SentrySpan.h"
+#import "SentrySpanSerializable.h"
 
-@interface SentrySpan ()
+@interface SentrySpan () <SentrySpanSerializable>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (copy, nonatomic) NSString *_Nullable profileSessionID;

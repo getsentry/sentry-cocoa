@@ -8,12 +8,12 @@
 #if !SDK_V9
 #    import SENTRY_HEADER(SentrySerializable)
 #endif // SDK_V9
-#import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryAttachment;
 @class SentryBreadcrumb;
 @class SentryOptions;
 @class SentryUser;
+@protocol SentrySpan;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ NS_SWIFT_NAME(Scope)
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
-@property (nullable, nonatomic, strong) id<SentrySpan> span;
+@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
 
 /**
  * The id of current session replay.

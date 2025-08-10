@@ -9,12 +9,13 @@
     return self;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(NSString *)description
+- (id<SentrySpanSerializable>)startChildWithOperation:(NSString *)operation
+                                          description:(NSString *)description
 {
     return nil;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(nonnull NSString *)operation
+- (id<SentrySpanSerializable>)startChildWithOperation:(nonnull NSString *)operation
 {
     return nil;
 }

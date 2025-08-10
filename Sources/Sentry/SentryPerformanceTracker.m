@@ -2,10 +2,13 @@
 #import "SentryHub+Private.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
+#import "SentrySpanSerializable.h"
+#import "SentryTracer+Private.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 
@@ -22,8 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryPerformanceTracker () <SentryTracerDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
+@property (nonatomic, strong)
+    NSMutableDictionary<SentrySpanId *, id<SentrySpanSerializable>> *spans;
+@property (nonatomic, strong) NSMutableArray<id<SentrySpanSerializable>> *activeSpanStack;
 
 @end
 
@@ -51,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                           operation:(NSString *)operation
                              origin:(NSString *)origin
 {
-    id<SentrySpan> activeSpan;
+    id<SentrySpanSerializable> activeSpan;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     activeSpan = sentry_launchTracer;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -62,9 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    id<SentrySpan> newSpan;
+    id<SentrySpanSerializable> newSpan;
     if (activeSpan != nil) {
-        newSpan = [activeSpan startChildWithOperation:operation description:name];
+        newSpan = [activeSpan internal_startChildWithOperation:operation description:name];
         newSpan.origin = origin;
     } else {
         SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
@@ -72,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                  operation:operation
                                                                                     origin:origin];
 
-        id<SentrySpan> span = SentrySDKInternal.currentHub.scope.span;
+        id<SentrySpanSerializable> span = SentrySDKInternal.currentHub.scope.serializableSpan;
 
         BOOL bindToScope = NO;
         if (span == nil) {
@@ -175,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId
 {
     SENTRY_LOG_DEBUG(@"Pushing active span %@", spanId.sentrySpanIdString);
-    id<SentrySpan> toActiveSpan;
+    id<SentrySpanSerializable> toActiveSpan;
     @synchronized(self.spans) {
         toActiveSpan = self.spans[spanId];
     }
@@ -206,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status
 {
-    id<SentrySpan> spanTracker;
+    id<SentrySpanSerializable> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
         // Hold reference for tracer until the tracer finishes because automatic
@@ -227,14 +231,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId
+- (nullable id<SentrySpanSerializable>)getSpan:(SentrySpanId *)spanId
 {
     @synchronized(self.spans) {
         return self.spans[spanId];
     }
 }
 
-- (nullable id<SentrySpan>)getActiveSpan
+- (nullable id<SentrySpanSerializable>)getActiveSpan
 {
     @synchronized(self.activeSpanStack) {
         return [self.activeSpanStack lastObject];

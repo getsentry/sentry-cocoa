@@ -33,6 +33,7 @@
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentrySpanSerializable.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryUser+Serialize.h"

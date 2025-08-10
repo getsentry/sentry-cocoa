@@ -16,11 +16,13 @@
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"
 #import "SentryScope+Private.h"
+#import "SentrySpan+Private.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySpanOperation.h"
+#import "SentrySpanSerializable.h"
 #import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import "SentryTime.h"
@@ -88,7 +90,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     NSObject *_dispatchTimeoutLock;
     dispatch_block_t _idleTimeoutBlock;
     dispatch_block_t _deadlineTimeoutBlock;
-    NSMutableArray<id<SentrySpan>> *_children;
+    NSMutableArray<id<SentrySpanSerializable>> *_children;
     BOOL _startTimeChanged;
 
 #if SENTRY_HAS_UIKIT
@@ -292,7 +294,7 @@ static BOOL appStartMeasurementRead;
     }
 
     @synchronized(_children) {
-        for (id<SentrySpan> span in _children) {
+        for (id<SentrySpanSerializable> span in _children) {
             if (![span isFinished])
                 [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
         }
@@ -336,9 +338,9 @@ static BOOL appStartMeasurementRead;
     return _configuration.waitForChildren || [self hasIdleTimeout];
 }
 
-- (id<SentrySpan>)getActiveSpan
+- (id<SentrySpanSerializable>)getActiveSpan
 {
-    id<SentrySpan> span;
+    id<SentrySpanSerializable> span;
 
     if (self.delegate) {
         @synchronized(_children) {
@@ -354,30 +356,30 @@ static BOOL appStartMeasurementRead;
     return span;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+- (id<SentrySpanSerializable>)startChildWithOperation:(NSString *)operation
 {
-    id<SentrySpan> activeSpan = [self getActiveSpan];
+    id<SentrySpanSerializable> activeSpan = [self getActiveSpan];
     if (activeSpan == self) {
         return [self startChildWithParentId:self.spanId operation:operation description:nil];
     }
-    return [activeSpan startChildWithOperation:operation];
+    return [activeSpan internal_startChildWithOperation:operation description:nil];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpanSerializable>)startChildWithOperation:(NSString *)operation
+                                          description:(nullable NSString *)description
 {
-    id<SentrySpan> activeSpan = [self getActiveSpan];
+    id<SentrySpanSerializable> activeSpan = [self getActiveSpan];
     if (activeSpan == self) {
         return [self startChildWithParentId:self.spanId
                                   operation:operation
                                 description:description];
     }
-    return [activeSpan startChildWithOperation:operation description:description];
+    return [activeSpan internal_startChildWithOperation:operation description:description];
 }
 
-- (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
-                             description:(nullable NSString *)description
+- (id<SentrySpanSerializable>)startChildWithParentId:(SentrySpanId *)parentId
+                                           operation:(NSString *)operation
+                                         description:(nullable NSString *)description
 {
     [self cancelIdleTimeout];
 
@@ -413,7 +415,7 @@ static BOOL appStartMeasurementRead;
     return child;
 }
 
-- (void)spanFinished:(id<SentrySpan>)finishedSpan
+- (void)spanFinished:(id<SentrySpanSerializable>)finishedSpan
 {
     SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
     // Calling canBeFinished on self would end up in an endless loop because canBeFinished
@@ -445,7 +447,7 @@ static BOOL appStartMeasurementRead;
     return _traceContext;
 }
 
-- (NSArray<id<SentrySpan>> *)children
+- (NSArray<id<SentrySpanSerializable>> *)children
 {
     return [_children copy];
 }
@@ -562,7 +564,7 @@ static BOOL appStartMeasurementRead;
     }
 
     @synchronized(_children) {
-        for (id<SentrySpan> span in _children) {
+        for (id<SentrySpanSerializable> span in _children) {
             if (self.shouldIgnoreWaitForChildrenCallback != nil
                 && self.shouldIgnoreWaitForChildrenCallback(span)) {
                 continue;
@@ -663,7 +665,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if (shouldCleanUp) {
-        id<SentrySpan> _Nullable currentSpan = [_hub.scope span];
+        id<SentrySpanSerializable> _Nullable currentSpan = [_hub.scope serializableSpan];
         if (currentSpan == self) {
             [_hub.scope setSpan:nil];
         }
@@ -682,7 +684,7 @@ static BOOL appStartMeasurementRead;
             return YES;
         }
 
-        for (id<SentrySpan> span in _children) {
+        for (id<SentrySpanSerializable> span in _children) {
             if (!span.isFinished) {
                 [span finishWithStatus:unfinishedSpansFinishStatus];
 
@@ -705,7 +707,7 @@ static BOOL appStartMeasurementRead;
     NSDate *oldest = self.startTimestamp;
 
     @synchronized(_children) {
-        for (id<SentrySpan> childSpan in _children) {
+        for (id<SentrySpanSerializable> childSpan in _children) {
             if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
                 oldest = childSpan.timestamp;
             }
@@ -730,13 +732,15 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<id<SentrySpanSerializable>> *appStartSpans
+        = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
 #endif // SENTRY_HAS_UIKIT
 
-    NSMutableArray<id<SentrySpan>> *spans = [[NSMutableArray alloc] initWithCapacity:capacity];
+    NSMutableArray<id<SentrySpanSerializable>> *spans =
+        [[NSMutableArray alloc] initWithCapacity:capacity];
 
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
@@ -917,14 +921,14 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span
++ (nullable SentryTracer *)getTracer:(id<SentrySpanSerializable>)span
 {
     if (span == nil) {
         return nil;
     }
 
     if ([span isKindOfClass:[SentryTracer class]]) {
-        return span;
+        return (SentryTracer *)span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
         return [(SentrySpan *)span tracer];
     }

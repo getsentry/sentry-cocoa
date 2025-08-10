@@ -40,6 +40,7 @@
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
+#import "SentryTracer+Private.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
@@ -412,7 +413,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
 {
-    id<SentrySpan> span;
+    id<SentrySpanSerializable> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
         span = [(SentryTransaction *)event trace];
     } else {
@@ -851,9 +852,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
     if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
         SentryTransaction *transaction = (SentryTransaction *)event;
-        NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
-        for (id<SentrySpan> span in transaction.spans) {
-            id<SentrySpan> processedSpan = self.options.beforeSendSpan(span);
+        NSMutableArray<id<SentrySpanSerializable>> *processedSpans = [NSMutableArray array];
+        for (id<SentrySpanSerializable> span in transaction.spans) {
+            id<SentrySpanSerializable> processedSpan = self.options.beforeSendSpan(span);
             if (processedSpan) {
                 [processedSpans addObject:processedSpan];
             }

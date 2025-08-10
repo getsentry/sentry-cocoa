@@ -10,6 +10,7 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
+#    import "SentrySpanSerializable.h"
 #    import "SentrySwift.h"
 #    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTraceOrigin.h"
@@ -350,7 +351,7 @@
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
-        id<SentrySpan> vcSpan = [self.tracker getSpan:spanId];
+        id<SentrySpanSerializable> vcSpan = [self.tracker getSpan:spanId];
         // If the current controller span has no parent,
         // it means it is the root transaction and need to be pop from the queue.
         if (vcSpan.parentSpanId == nil) {

@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
-#import "SentrySpanProtocol.h"
 #import "SentryTracerConfiguration.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -14,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTraceHeader;
 @class SentryTracer;
 @class SentryTransactionContext;
+@protocol SentrySpanSerializable;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -25,7 +25,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  * Return the active span.
  * This function is used to determine which span will be used to create a new child.
  */
-- (nullable id<SentrySpan>)getActiveSpan;
+- (nullable id<SentrySpanSerializable>)getActiveSpan;
 
 /**
  * Report that the tracer has finished.
@@ -40,12 +40,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
-@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
+@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)
+    (id<SentrySpanSerializable>);
 
 /**
  * All the spans that where created with this tracer but rootSpan.
  */
-@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+@property (nonatomic, readonly) NSArray<id<SentrySpanSerializable>> *children;
 
 /**
  * A delegate that provides extra information for the transaction.
@@ -75,20 +76,20 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
                                        hub:(nullable SentryHub *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 
-- (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
-                             description:(nullable NSString *)description
+- (id<SentrySpanSerializable>)startChildWithParentId:(SentrySpanId *)parentId
+                                           operation:(NSString *)operation
+                                         description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
  * A method to inform the tracer that a span finished.
  */
-- (void)spanFinished:(id<SentrySpan>)finishedSpan;
+- (void)spanFinished:(id<SentrySpanSerializable>)finishedSpan;
 
 /**
  * Get the tracer from a span.
  */
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
++ (nullable SentryTracer *)getTracer:(id<SentrySpanSerializable>)span;
 
 - (void)startIdleTimeout;
 

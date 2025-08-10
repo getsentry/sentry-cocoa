@@ -308,7 +308,7 @@
 
 - (void)testBeforeSendSpan
 {
-    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) { return span; };
+    SentryBeforeSendSpanCallback callback = ^(id<SentrySpanSerializable> span) { return span; };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
 
     XCTAssertEqual(callback, options.beforeSendSpan);

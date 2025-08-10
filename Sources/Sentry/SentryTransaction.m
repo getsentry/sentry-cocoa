@@ -5,6 +5,7 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan+Private.h"
+#import "SentrySpanSerializable.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
@@ -12,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTransaction
 
-- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
+- (instancetype)initWithTrace:(SentryTracer *)trace
+                     children:(NSArray<id<SentrySpanSerializable>> *)children
 {
     if (self = [super init]) {
         self.timestamp = trace.timestamp;
@@ -30,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
-    for (id<SentrySpan> span in self.spans) {
+    for (id<SentrySpanSerializable> span in self.spans) {
         [serializedSpans addObject:[span serialize]];
     }
     serializedData[@"spans"] = serializedSpans;

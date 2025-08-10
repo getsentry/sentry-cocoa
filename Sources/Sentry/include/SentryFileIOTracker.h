@@ -4,6 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSProcessInfoWrapper;
 @class SentryThreadInspector;
+@protocol SentrySpanSerializable;
 
 @interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT
@@ -83,14 +84,14 @@ SENTRY_NO_INIT
 
 // MARK: - Internal Methods available for Swift Extension
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation;
+- (nullable id<SentrySpanSerializable>)spanForPath:(NSString *)path
+                                            origin:(NSString *)origin
+                                         operation:(NSString *)operation;
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                                origin:(NSString *)origin
-                             operation:(NSString *)operation
-                                  size:(NSUInteger)size;
+- (nullable id<SentrySpanSerializable>)spanForPath:(NSString *)path
+                                            origin:(NSString *)origin
+                                         operation:(NSString *)operation
+                                              size:(NSUInteger)size;
 
 @end
 

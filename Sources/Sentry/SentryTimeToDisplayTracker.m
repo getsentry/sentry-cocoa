@@ -13,6 +13,7 @@
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
+#    import "SentrySpanSerializable.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
@@ -83,7 +84,7 @@
 
     [SentryDependencyContainer.sharedInstance.framesTracker addListener:self];
 
-    [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpan> span) {
+    [tracer setShouldIgnoreWaitForChildrenCallback:^(id<SentrySpanSerializable> span) {
         if ([span.origin isEqualToString:SentryTraceOriginAutoUITimeToDisplay]) {
             return YES;
         }

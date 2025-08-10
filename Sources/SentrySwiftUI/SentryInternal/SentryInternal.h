@@ -22,7 +22,7 @@
 #    import "SentryTracer.h"
 #else
 @class SentrySpan;
-@interface SentryTracer : NSObject <SentrySpan>
+@interface SentryTracer : NSObject <SentrySpanSerializable>
 @end
 #endif
 
@@ -69,7 +69,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId;
 
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+- (nullable id<SentrySpanSerializable>)getSpan:(SentrySpanId *)spanId;
 
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 

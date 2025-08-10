@@ -8,9 +8,11 @@
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySDKInternal.h>
+#    import <SentryScope+Private.h>
 #    import <SentryScope.h>
 #    import <SentrySpanId.h>
 #    import <SentrySpanOperation.h>
+#    import <SentrySpanSerializable.h>
 #    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
 #    import <SentryTransactionContext+Private.h>
@@ -70,7 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
                                              operation:operation
                                                 origin:SentryTraceOriginAutoUiEventTracker];
 
-    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    id<SentrySpanSerializable> _Nullable currentSpan =
+        [SentrySDKInternal.currentHub.scope serializableSpan];
     BOOL ongoingScreenLoadTransaction = false;
     BOOL ongoingManualTransaction = false;
     if (currentSpan != nil) {

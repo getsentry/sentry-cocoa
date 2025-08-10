@@ -4,6 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
+@protocol SentrySpanSerializable;
 
 /**
  * Tracks performance synchronizing span with its child's.
@@ -100,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param spanId Id of the span to return.
  * @return SentrySpan
  */
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+- (nullable id<SentrySpanSerializable>)getSpan:(SentrySpanId *)spanId;
 
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 

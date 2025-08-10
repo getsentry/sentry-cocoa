@@ -20,6 +20,7 @@
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
 #import "SentrySpanOperation.h"
+#import "SentrySpanSerializable.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -177,8 +178,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
     @synchronized(sessionTask) {
-        __block id<SentrySpan> _Nullable span;
-        __block id<SentrySpan> _Nullable netSpan;
+        __block id<SentrySpanSerializable> _Nullable span;
+        __block id<SentrySpanSerializable> _Nullable netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
         // The task already has a span. Nothing to do.
@@ -186,13 +187,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             return;
         }
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+        id<SentrySpanSerializable> _Nullable currentSpan =
+            [SentrySDKInternal.currentHub.scope serializableSpan];
         if (currentSpan != nil) {
             span = currentSpan;
-            netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
-                                        description:[NSString stringWithFormat:@"%@ %@",
-                                                        sessionTask.currentRequest.HTTPMethod,
-                                                        safeUrl.sanitizedUrl]];
+            netSpan =
+                [span internal_startChildWithOperation:SentrySpanOperationNetworkRequestOperation
+                                           description:[NSString stringWithFormat:@"%@ %@",
+                                                           sessionTask.currentRequest.HTTPMethod,
+                                                           safeUrl.sanitizedUrl]];
             netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
             [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
@@ -338,7 +341,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    id<SentrySpan> netSpan;
+    id<SentrySpanSerializable> netSpan;
     @synchronized(sessionTask) {
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
         // We'll just go through once
