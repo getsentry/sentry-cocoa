@@ -33,16 +33,18 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
     }
 
     func testConcurrentReadWrite() {
-        let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", qos: .background, attributes: [.concurrent, .initiallyInactive])
-        let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", attributes: [.concurrent, .initiallyInactive])
+        let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", attributes: [.concurrent, .initiallyInactive])
         
-        let group = DispatchGroup()
+        let loopCount = 10
+        let expectation = XCTestExpectation(description: "ConcurrentReadWrite")
+        expectation.expectedFulfillmentCount = loopCount * 2
+        expectation.assertForOverFulfill = true
         
-        for i in 0...10 {
-            
+        for i in 0..<loopCount {
+
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
             
-            group.enter()
             queue1.async {
                 let a = i as NSNumber
                 let b = 100 + i as NSNumber
@@ -51,10 +53,10 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
                 self.sut.addRateLimit(self.getCategory(rawValue: b), validUntil: date)
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: a)))
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: b)))
-                group.leave()
+                
+                expectation.fulfill()
             }
             
-            group.enter()
             queue2.async {
                                 
                 let c = 200 + i as NSNumber
@@ -64,15 +66,16 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
                 
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: c)))
                 self.sut.addRateLimit(self.getCategory(rawValue: d), validUntil: date)
-                group.leave()
+                expectation.fulfill()
             }
         }
         
         queue1.activate()
         queue2.activate()
-        group.waitWithTimeout()
+
+        wait(for: [expectation], timeout: 10.0)
         
-        for i in 0...10 {
+        for i in 0..<loopCount {
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
             
             let a = i as NSNumber

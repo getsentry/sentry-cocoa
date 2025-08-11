@@ -57,6 +57,7 @@ take_simulator_screenshot() {
     # Generate timestamp-based filename with custom name
     timestamp=$(date '+%H%M%S')
     screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}.png"
+    full_screen_screenshot_name="$SCREENSHOTS_DIR/${timestamp}_${name}_full_screen.png"
 
     log "Taking screenshot with name: $screenshot_name"
     
@@ -68,6 +69,9 @@ take_simulator_screenshot() {
     # Start screenshot command in background
     xcrun simctl io booted screenshot "$screenshot_name" &
     screenshot_pid=$!
+
+    # take a screenshot of the whole screen
+    screencapture -x "$full_screen_screenshot_name"
     
     # Wait for 10 seconds or until process completes
     start_time=$(date +%s)
@@ -120,6 +124,8 @@ xcodebuild -workspace Sentry.xcworkspace \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify
+
+xcrun simctl runtime dyld_shared_cache update iOS18.5
 
 log "Installing app on simulator."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app

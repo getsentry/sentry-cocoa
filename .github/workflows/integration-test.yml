@@ -1,4 +1,4 @@
-name: CocoaPods Integration Tests
+name: Test CocoaPods
 on:
   push:
     branches:
@@ -12,6 +12,10 @@ on:
       - "Samples/iOS-Cocoapods-*/**"
       - "scripts/ci-select-xcode.sh"
       - "Sources/**"
+      - "*.podspec"
+      - "fastlane/**"
+      - "Gemfile.lock"
+      - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -19,8 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cocoapods:
-    name: Integration Test
+  test:
+    name: CocoaPods Integration
     runs-on: macos-15
     steps:
       - name: Checkout Repository

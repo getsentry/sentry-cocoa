@@ -1,0 +1,39 @@
+name: Lint Xcode
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-xcode-analyze.yml"
+      - "scripts/ci-select-xcode.sh"
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-xcode-analyze.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "Sentry.xcodeproj/**"
+      - "*.podspec"
+      - "Gemfile.lock"
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: make analyze

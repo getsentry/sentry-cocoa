@@ -1,4 +1,4 @@
-name: UI Tests Critical
+name: Test UI Critical
 on:
   push:
     branches:
@@ -23,10 +23,10 @@ concurrency:
 
 jobs:
   run-tests:
-    name: Test iOS on Xcode ${{matrix.platform.xcode}} - ${{ matrix.command.fastlane_command }} - V4 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
-      fastlane_command: ${{ matrix.command.fastlane_command }}
+      fastlane_command: ui_critical_tests_ios_swiftui_envelope
       build_with_make: true
       xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
@@ -34,20 +34,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
+        include:
           # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
-          - runs-on: macos-13
-            xcode: "14.3.1"
+          - name: iOS 16
+            platform:
+              runs-on: macos-13
+              xcode: "14.3.1"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
           # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
-          - runs-on: macos-15
-            xcode: "16.2"
-        command:
-          - fastlane_command: ui_critical_tests_ios_swiftui_envelope
+          - name: iOS 18
+            platform:
+              runs-on: macos-15
+              xcode: "16.2"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -76,3 +78,14 @@ jobs:
         with:
           name: swiftui-crash-test-screenshots
           path: swiftui-crash-test-screenshots
+
+      - name: Collect Logs
+        if: always()
+        run: xcrun simctl spawn booted log collect --output $(pwd)/swiftui-crash-test-log.logarchive
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swiftui-crash-test-log.logarchive
+          path: swiftui-crash-test-log.logarchive

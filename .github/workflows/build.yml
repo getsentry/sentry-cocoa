@@ -17,6 +17,8 @@ on:
       - Sentry.xcodeproj/**
       - Gemfile.lock
       - "Package.swift"
+      - "Makefile" # Make commands used for CI build setup
+      - "Brewfile*" # Dependency installation affects build environment
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -112,10 +114,21 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
       - uses: actions/checkout@v4
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace && EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS'
+
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
         shell: sh
-      - run: EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos'
+      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm-iphoneos.log | xcbeautify
         shell: sh
+
+      - name: Upload SPM Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-spm
+          path: |
+            raw-build-output-spm-watchos.log
+            raw-build-output-spm-iphoneos.log
 
   build-v9:
     name: Build SDK v9

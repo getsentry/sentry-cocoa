@@ -1,9 +1,9 @@
-name: "Assemble Sentry Cocoa XCFramework variant"
+name: Assemble XCFramework Variant
 
 on:
   workflow_call:
     inputs:
-      name:
+      scheme:
         description: |-
           The Sentry project target to build an XCFramework slice for.
           Possible values: Sentry, SentrySwiftUI.
@@ -51,9 +51,21 @@ on:
         required: false
         type: string
 
+      excluded-archs:
+        description: |-
+          The archs to exclude from the XCFramework.
+        required: false
+        type: string
+
+      override-name:
+        description: |-
+          The name to use for the XCFramework. If not provided, the default name will be used.
+        required: false
+        type: string
+
 jobs:
   assemble-xcframework-variant:
-    name: Assemble ${{inputs.name}}${{inputs.suffix}} XCFramework Variant
+    name: ${{ inputs.override-name || format('{0}{1}', inputs.scheme, inputs.suffix) }}
 
     runs-on: macos-14
     steps:
@@ -86,6 +98,15 @@ jobs:
           fi
         shell: sh
 
+      - name: Set XCFramework name
+        id: set-xcframework-name
+        run: |
+          if [ -n "${{ inputs.override-name }}" ]; then
+            echo "XCFRAMEWORK_NAME=${{ inputs.override-name }}" >> $GITHUB_ENV
+          else
+            echo "XCFRAMEWORK_NAME=${{ inputs.scheme }}${{inputs.suffix}}" >> $GITHUB_ENV
+          fi
+
       - name: Compute cache key
         run: |
           sdks_string=${{inputs.sdks}}
@@ -97,7 +118,7 @@ jobs:
         uses: actions/cache@v4
         with:
           key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
+          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
 
       - name: Download ${{inputs.variant-id}} Slices
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
@@ -112,26 +133,33 @@ jobs:
           find xcframework-slices -type f -print0 | xargs -t0I @ unzip @ -d xcframework-slices
         shell: bash
 
+      - name: Remove excluded archs
+        if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.excluded-archs != '' }}
+        run: ./scripts/remove-architectures.sh xcframework-slices/ "${{ inputs.excluded-archs }}"
+        shell: bash
+
       - name: Assemble XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
-        run: ./scripts/assemble-xcframework.sh "${{inputs.name}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
+        run: ./scripts/assemble-xcframework.sh "${{inputs.scheme}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
         shell: bash
 
       - name: Zip XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
-        run: ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.name}}${{inputs.suffix}}
+        run: |
+          ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.scheme}}${{inputs.suffix}}
+          mv ${{inputs.scheme}}${{inputs.suffix}}.xcframework.zip ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
         shell: bash
 
       - name: Cache XCFramework
         uses: actions/cache@v4
         with:
           key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
+          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
 
       - name: Upload XCFramework
         uses: actions/upload-artifact@v4
         with:
           overwrite: true
-          name: xcframework-${{github.sha}}-${{inputs.variant-id}}
+          name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
-          path: ${{inputs.name}}${{inputs.suffix}}.xcframework.zip
+          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip

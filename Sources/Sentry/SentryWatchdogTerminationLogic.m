@@ -1,3 +1,4 @@
+#import <SentryInternalDefines.h>
 #import <SentryWatchdogTerminationLogic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -36,21 +37,23 @@
         return NO;
     }
 
-    SentryAppState *previousAppState = [self.appStateManager loadPreviousAppState];
-    SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
-
+    SentryAppState *_Nullable nullablePreviousAppState =
+        [self.appStateManager loadPreviousAppState];
     // If there is no previous app state, we can't do anything.
-    if (previousAppState == nil) {
+    if (nullablePreviousAppState == nil) {
         return NO;
     }
+    SentryAppState *_Nonnull previousAppState = (SentryAppState *_Nonnull)nullablePreviousAppState;
 
+    SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
     if (self.crashAdapter.isSimulatorBuild) {
         return NO;
     }
 
     // If the release name is different we assume it's an upgrade
     if (currentAppState.releaseName != nil && previousAppState.releaseName != nil
-        && ![currentAppState.releaseName isEqualToString:previousAppState.releaseName]) {
+        && ![currentAppState.releaseName
+            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, previousAppState.releaseName)]) {
         return NO;
     }
 
