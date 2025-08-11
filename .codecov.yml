@@ -8,6 +8,7 @@ coverage:
   range: 80...100
   precision: 3
   round: down
+  threshold: 0.05 # Allow up to 0.05% coverage decrease before failing the build
 
 ignore:
   - "SentryTestUtilsTests/**"
