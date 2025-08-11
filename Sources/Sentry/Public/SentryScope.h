@@ -173,11 +173,6 @@ NS_SWIFT_NAME(Scope)
         "now considered unsafe and deprecated. Use `span` instead.");
 #endif // !SDK_V9
 
-/**
- * Returns the current span.
- */
-- (id<SentrySpan> _Nullable)span;
-
 @end
 
 NS_ASSUME_NONNULL_END

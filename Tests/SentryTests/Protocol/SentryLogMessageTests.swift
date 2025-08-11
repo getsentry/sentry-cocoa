@@ -30,7 +30,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.template, "User: {0}")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .string(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? String else {
             XCTFail("Expected string attribute")
             return
         }
@@ -44,7 +44,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Active: true")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .boolean(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Bool else {
             XCTFail("Expected boolean attribute")
             return
         }
@@ -58,7 +58,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Enabled: false")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .boolean(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Bool else {
             XCTFail("Expected boolean attribute")
             return
         }
@@ -72,7 +72,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Count: 42")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .integer(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Int else {
             XCTFail("Expected integer attribute")
             return
         }
@@ -86,7 +86,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Value: -123")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .integer(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Int else {
             XCTFail("Expected integer attribute")
             return
         }
@@ -100,7 +100,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Pi: 3.14159")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .double(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Double else {
             XCTFail("Expected double attribute")
             return
         }
@@ -114,7 +114,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "E: 2.718")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .double(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Double else {
             XCTFail("Expected double attribute (from Float)")
             return
         }
@@ -128,7 +128,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Negative Pi: -3.14159")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .double(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Double else {
             XCTFail("Expected double attribute")
             return
         }
@@ -142,7 +142,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Negative E: -2.718")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .double(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? Double else {
             XCTFail("Expected double attribute (from Float)")
             return
         }
@@ -163,25 +163,25 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.template, "User {0} has active={1}, score={2}, attempts={3}")
         XCTAssertEqual(logString.attributes.count, 4)
         
-        guard case .string(let userValue) = logString.attributes[0] else {
+        guard let userValue = logString.attributes[0].value as? String else {
             XCTFail("Expected string attribute for user")
             return
         }
         XCTAssertEqual(userValue, "john")
         
-        guard case .boolean(let activeValue) = logString.attributes[1] else {
+        guard let activeValue = logString.attributes[1].value as? Bool else {
             XCTFail("Expected boolean attribute for active")
             return
         }
         XCTAssertEqual(activeValue, true)
         
-        guard case .double(let scoreValue) = logString.attributes[2] else {
+        guard let scoreValue = logString.attributes[2].value as? Double else {
             XCTFail("Expected double attribute for score")
             return
         }
         XCTAssertEqual(scoreValue, 95.5, accuracy: 0.001)
         
-        guard case .integer(let attemptsValue) = logString.attributes[3] else {
+        guard let attemptsValue = logString.attributes[3].value as? Int else {
             XCTFail("Expected integer attribute for attempts")
             return
         }
@@ -197,13 +197,13 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Processing 10 items with 85.7% completion rate")
         XCTAssertEqual(logString.attributes.count, 2)
         
-        guard case .integer(let countValue) = logString.attributes[0] else {
+        guard let countValue = logString.attributes[0].value as? Int else {
             XCTFail("Expected integer attribute")
             return
         }
         XCTAssertEqual(countValue, 10)
         
-        guard case .double(let percentageValue) = logString.attributes[1] else {
+        guard let percentageValue = logString.attributes[1].value as? Double else {
             XCTFail("Expected double attribute")
             return
         }
@@ -222,19 +222,19 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.message, "Zero int: 0, zero double: 0.0, empty: ''")
         XCTAssertEqual(logString.attributes.count, 3)
         
-        guard case .integer(let zeroValue) = logString.attributes[0] else {
+        guard let zeroValue = logString.attributes[0].value as? Int else {
             XCTFail("Expected integer attribute")
             return
         }
         XCTAssertEqual(zeroValue, 0)
         
-        guard case .double(let zeroFloatValue) = logString.attributes[1] else {
+        guard let zeroFloatValue = logString.attributes[1].value as? Double else {
             XCTFail("Expected double attribute")
             return
         }
         XCTAssertEqual(zeroFloatValue, 0.0)
         
-        guard case .string(let emptyValue) = logString.attributes[2] else {
+        guard let emptyValue = logString.attributes[2].value as? String else {
             XCTFail("Expected string attribute")
             return
         }
@@ -250,13 +250,13 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertTrue(logString.message.contains("Large int: \(Int.max)"))
         XCTAssertEqual(logString.attributes.count, 2)
         
-        guard case .integer(let largeIntValue) = logString.attributes[0] else {
+        guard let largeIntValue = logString.attributes[0].value as? Int else {
             XCTFail("Expected integer attribute")
             return
         }
         XCTAssertEqual(largeIntValue, Int.max)
         
-        guard case .double(let largeDoubleValue) = logString.attributes[1] else {
+        guard let largeDoubleValue = logString.attributes[1].value as? Double else {
             XCTFail("Expected double attribute")
             return
         }
@@ -427,7 +427,7 @@ final class SentryLogMessageTests: XCTestCase {
         XCTAssertEqual(logString.template, "Custom object: {0}")
         XCTAssertEqual(logString.attributes.count, 1)
         
-        guard case .string(let attributeValue) = logString.attributes[0] else {
+        guard let attributeValue = logString.attributes[0].value as? String else {
             XCTFail("Expected string attribute")
             return
         }
