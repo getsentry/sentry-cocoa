@@ -135,43 +135,32 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
+          # Retry Logic: This step only runs when the benchmark test has failed.
+          # We determine if the failure was due to SauceLabs infrastructure issues
+          # (which can be fixed by retrying) or legitimate test failures (which cannot).
+          # SauceLabs internal errors frequently cause CI failures that can be resolved
+          # by re-running the test. See scripts/saucelabs-helpers.js for detailed logic.
           script: |
-            const fs = require('fs');
-            const { execSync } = require('child_process');
+            console.log("::debug Checking if the test should be retried");
 
-            console.log("Extracting test ID from output log");
-            const outputLog = fs.readFileSync('output.log', 'utf8');
+            const path = require('path');
+            const { shouldRetryTest } = require('./scripts/saucelabs-helpers.js');
 
-            // Lookup for the test ID in the output log
-            // Note: The CLI output might change over time, so this might need to be updated.
-            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            const testId = match?.[1] ?? '';
+            const outputLogPath = path.join(__dirname, "output.log");
+            const result = await shouldRetryTest(outputLogPath);
 
-            if (!testId) {
-              core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
-              core.setOutput('RETRY_TEST', 'true');
-
-              return;
-            }
-
-            try {
-              console.log(`Checking if the test exists in SauceLabs: ${testId}`);
-              execSync(`saucectl jobs get ${testId}`, {
-                env: process.env,
-                stdio: 'inherit'
-              });
-
-              console.log("Test exists but failed, not retrying.");
+            if (result.shouldRetry) {
+              console.log(`Test should be retried: ${result.reason}`);
+              core.setOutput('SHOULD_RETRY_TEST', 'true');
+            } else {
+              console.log(`Test exists but failed, not retrying: ${result.reason}`);
               core.setFailed('Test exists but failed');
-            } catch (error) {
-              console.log("Failed to get job, retrying...");
-              core.setOutput('RETRY_TEST', 'true');
             }
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
         # Note: We need to use always() here, because the previous run step might be marked as failed.
-        if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
+        if: ${{ always() && steps.should-retry-test.outputs.SHOULD_RETRY_TEST == 'true' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
@@ -191,96 +180,21 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
+          # As soon as the workflow is cancelled, we attempt to cancel the SauceLabs jobs.
+          # This is to avoid wasting expensive device time on SauceLabs, as the results are not used anymore.
           script: |
-            const fs = require('fs');
+            console.log("::warning Workflow was cancelled, attempting to cancel SauceLabs jobs based on the output logs");
 
-            console.log("::warning Workflow was cancelled, attempting to cancel SauceLabs jobs");
+            const { cancelJobs } = require('./scripts/saucelabs-helpers.js');
+            const path = require('path');
 
-            // SauceLabs API configuration
-            const sauceUsername = process.env.SAUCE_USERNAME;
-            const sauceAccessKey = process.env.SAUCE_ACCESS_KEY;
-            const apiBaseUrl = 'https://api.us-west-1.saucelabs.com';
+            const outputLogPath = path.join(__dirname, "output.log");
+            const retryOutputLogPath = path.join(__dirname, "retry-output.log");
 
-            if (!sauceUsername || !sauceAccessKey) {
-              console.log("::error SauceLabs credentials not found, cannot cancel jobs");
-              return;
+            const result = await cancelJobs([outputLogPath, retryOutputLogPath]);
+
+            if (result.success) {
+              console.log("::debug Successfully cancelled SauceLabs jobs");
+            } else {
+              console.error("::error Failed to cancel SauceLabs jobs");
             }
-
-            // Function to extract job IDs from log files
-            const extractJobIdsFromLog = (logFile) => {
-              if (!fs.existsSync(logFile)) {
-                console.log(`Log file ${logFile} not found, skipping...`);
-                return [];
-              }
-
-              console.log(`Checking ${logFile} for SauceLabs test IDs...`);
-              const logContent = fs.readFileSync(logFile, 'utf8');
-
-              // Extract all SauceLabs test URLs and get job IDs
-              const urlRegex = /https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/g;
-              const jobIds = [];
-              let match;
-
-              while ((match = urlRegex.exec(logContent)) !== null) {
-                const jobId = match[1];
-                if (jobId) {
-                  jobIds.push(jobId);
-                  console.log(`Found SauceLabs job ID: ${jobId}`);
-                }
-              }
-
-              return jobIds;
-            };
-
-            // Function to cancel a SauceLabs job via REST API
-            // Reference: https://docs.saucelabs.com/dev/api/jobs/#stop-a-job
-            const cancelSauceLabsJob = async (jobId) => {
-              try {
-                console.log(`Attempting to cancel SauceLabs job: ${jobId}`);
-
-                // Create basic auth header
-                const auth = Buffer.from(`${sauceUsername}:${sauceAccessKey}`).toString('base64');
-
-                // Make PUT request to stop the job
-                const response = await fetch(`${apiBaseUrl}/rest/v1/${sauceUsername}/jobs/${jobId}/stop`, {
-                  method: 'PUT',
-                  headers: {
-                    'Authorization': `Basic ${auth}`,
-                    'Content-Type': 'application/json'
-                  }
-                });
-
-                if (response.ok) {
-                  console.log(`Successfully cancelled SauceLabs job: ${jobId}`);
-                } else if (response.status === 404) {
-                  console.log(`Job ${jobId} not found (may already be finished)`);
-                } else {
-                  const errorText = await response.text();
-                  console.log(`Failed to cancel job ${jobId}: HTTP ${response.status} - ${errorText}`);
-                }
-              } catch (error) {
-                console.log(`Error cancelling job ${jobId}: ${error.message}`);
-              }
-            };
-
-            // Extract job IDs from both possible log files
-            const jobIds = [
-              ...extractJobIdsFromLog('output.log'),
-              ...extractJobIdsFromLog('retry-output.log')
-            ];
-
-            // Remove duplicates
-            const uniqueJobIds = [...new Set(jobIds)];
-
-            if (uniqueJobIds.length === 0) {
-              console.log("No SauceLabs job IDs found in log files");
-              return;
-            }
-
-            // Cancel all found jobs
-            console.log(`Found ${uniqueJobIds.length} unique job(s) to cancel`);
-            for (const jobId of uniqueJobIds) {
-              await cancelSauceLabsJob(jobId);
-            }
-
-            console.log("SauceLabs job cancellation attempts completed");
