@@ -12,6 +12,7 @@ import PackageDescription
 var products: [Product] = [
     .library(name: "Sentry", targets: ["Sentry"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
+    .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI"])
 ]
 
