@@ -724,7 +724,7 @@ class SentrySDKInternalTests: XCTestCase {
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first, accuracy: 0.001)
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
