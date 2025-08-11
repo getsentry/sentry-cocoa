@@ -130,49 +130,60 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
           script: |
-            const fs = require('fs');
-            const { execSync } = require('child_process');
+            console.log("::debug Checking if the test should be retried");
 
-            console.log("Extracting test ID from output log");
-            const outputLog = fs.readFileSync('output.log', 'utf8');
+            const path = require('path');
+            const { shouldRetryTest } = require('./scripts/saucelabs-helpers.js');
 
-            // Lookup for the test ID in the output log
-            // Note: The CLI output might change over time, so this might need to be updated.
-            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            const testId = match?.[1] ?? '';
+            const outputLogPath = path.join(__dirname, "output.log");
+            const result = await shouldRetryTest(outputLogPath);
 
-            if (!testId) {
-              core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
-              core.setOutput('RETRY_TEST', 'true');
-
-              return;
-            }
-
-            try {
-              console.log(`Checking if the test exists in SauceLabs: ${testId}`);
-              execSync(`saucectl jobs get ${testId}`, {
-                env: process.env,
-                stdio: 'inherit'
-              });
-
-              console.log("Test exists but failed, not retrying.");
+            if (result.shouldRetry) {
+              console.log(`Test should be retried: ${result.reason}`);
+              core.setOutput('SHOULD_RETRY_TEST', 'true');
+            } else {
+              console.log(`Test exists but failed, not retrying: ${result.reason}`);
               core.setFailed('Test exists but failed');
-            } catch (error) {
-              console.log("Failed to get job, retrying...");
-              core.setOutput('RETRY_TEST', 'true');
             }
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
         # Note: We need to use always() here, because the previous run step might be marked as failed.
-        if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
+        if: ${{ always() && steps.should-retry-test.outputs.SHOULD_RETRY_TEST == 'true' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         run: |
           echo "::warning SauceLabs benchmark tests need to be retried"
-          saucectl run \
+          set -o pipefail && saucectl run \
             --select-suite "${{matrix.suite}}" \
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
-            --verbose
+            --verbose \
+            2>&1 | tee retry-output.log
+
+      - name: Force Cancel SauceLabs Job on Workflow Cancellation
+        if: ${{ cancelled() }}
+        uses: actions/github-script@v7
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        with:
+          # As soon as the workflow is cancelled, we attempt to cancel the SauceLabs jobs.
+          # This is to avoid wasting expensive device time on SauceLabs, as the results are not used anymore.
+          script: |
+            console.log("::warning Workflow was cancelled, attempting to cancel SauceLabs jobs based on the output logs");
+
+            const { cancelJobs } = require('./scripts/saucelabs-helpers.js');
+            const path = require('path');
+
+            const outputLogPath = path.join(__dirname, "output.log");
+            const retryOutputLogPath = path.join(__dirname, "retry-output.log");
+
+            const result = await cancelJobs([outputLogPath, retryOutputLogPath]);
+
+            if (result.success) {
+              console.log("::debug Successfully cancelled SauceLabs jobs");
+            } else {
+              console.error("::error Failed to cancel SauceLabs jobs");
+            }
