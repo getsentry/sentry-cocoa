@@ -100,10 +100,11 @@ class SentryTransportFactoryTests: XCTestCase {
         })
     }
 
-    func testInitTransports_whenOptionsParsedDsnNil_shouldReturnEmptyTransports() throws {
+    func testInitTransports_whenOptionsParsedDsnNilAndSpotlightDisabled_shouldReturnEmptyTransports() throws {
         // -- Arrange --
         let options = Options()
         options.dsn = nil
+        options.enableSpotlight = false
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
@@ -115,6 +116,27 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(transports.count, 0)
+    }
+
+    func testInitTransports_whenOptionsParsedDsnNilAndSpotlightEnabled_shouldReturnSpotlightTransport() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = nil
+        options.enableSpotlight = true
+
+        // -- Act --
+        let transports = TransportInitializer.initTransports(
+            options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            sentryFileManager: try SentryFileManager(options: options),
+            rateLimits: rateLimiting()
+        )
+
+        // -- Assert --
+        XCTAssertEqual(transports.count, 1)
+        XCTAssert(transports.contains {
+            $0.isKind(of: SentrySpotlightTransport.self)
+        })
     }
 
     // MARK: - Helpers
