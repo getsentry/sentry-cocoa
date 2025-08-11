@@ -209,7 +209,7 @@ NS_ASSUME_NONNULL_BEGIN
             data = [[NSFileManager defaultManager] contentsAtPath:attachmentPath];
         }
 #else
-        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+        data = [[NSFileManager defaultManager] contentsAtPath:attachmentPath];
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 

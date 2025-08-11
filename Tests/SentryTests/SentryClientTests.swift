@@ -2122,7 +2122,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.count, 1)
         let lostEvent = try XCTUnwrap(fixture.transport.recordLostEventsWithCount.first)
         XCTAssertEqual(lostEvent.category, .replay)
-        XCTAssertEqual(lostEvent.reason, SentryDiscardReason.eventProcessor)
+        XCTAssertEqual(lostEvent.reason, SentryDiscardReason.insufficientData)
         XCTAssertEqual(lostEvent.quantity, 1)
     }
 
