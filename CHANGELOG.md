@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Features
-
-- Structured Logs: Flush logs on SDK flush/close (#5834)
 > [!Important]
 > Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
 > We have decided to split the Dynamic variant of Sentry into two variants:
@@ -18,6 +15,7 @@
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
+- Structured Logs: Flush logs on SDK flush/close (#5834)
 
 ### Fixes
 

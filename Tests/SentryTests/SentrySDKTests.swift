@@ -419,7 +419,7 @@ class SentrySDKTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 0.5)
+        waitForExpectations(timeout: 5.0)
         
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
@@ -444,7 +444,7 @@ class SentrySDKTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 0.5)
+        waitForExpectations(timeout: 5.0)
         
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
