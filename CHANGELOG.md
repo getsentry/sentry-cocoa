@@ -15,6 +15,7 @@
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
 
 ### Fixes
 
