@@ -361,8 +361,18 @@ import Foundation
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        flushLogger(timeout: timeout)
-        SentrySDKInternal.flush(timeout: timeout)
+        // Logger gets max 25% of the timeout
+        let loggerTimeout = timeout * 0.25 
+        
+        // Calculate how long logger flush took
+        let startTime = CFAbsoluteTimeGetCurrent()
+        flushLogger(timeout: loggerTimeout)
+        let endTime = CFAbsoluteTimeGetCurrent()
+        let loggerElapsedTime = endTime - startTime
+        
+        // Main flush gets the remaining time
+        let remainingTime = max(timeout * 0.75, timeout - loggerElapsedTime)
+        SentrySDKInternal.flush(timeout: remainingTime)
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
