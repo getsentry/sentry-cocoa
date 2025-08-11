@@ -1774,13 +1774,17 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
-    func testSendDefaultPiiEnabled_GivenNoIP_AutoIsSet() throws {
+    func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any")
         
         let actual = try lastSentEvent()
-        XCTAssertEqual("{{auto}}", actual.user?.ipAddress)
+        XCTAssertNotNil(actual.sdk)
+        let sdk = try XCTUnwrap(actual.sdk)
+        XCTAssertNotNil(sdk["settings"])
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
     }
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {

@@ -1,9 +1,11 @@
 #import "SentrySdkInfo.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
+#import "SentrySDKSettings.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,12 +45,14 @@ NS_ASSUME_NONNULL_BEGIN
     if (sdkPackage != nil) {
         [packages addObject:sdkPackage];
     }
+    SentrySDKSettings *settings = [[SentrySDKSettings alloc] initWithOptions:options];
 
     return [self initWithName:SentryMeta.sdkName
                       version:SentryMeta.versionString
                  integrations:integrations
                      features:features
-                     packages:[packages allObjects]];
+                     packages:[packages allObjects]
+                     settings:settings];
 }
 
 - (instancetype)initWithName:(NSString *)name
@@ -56,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
                 integrations:(NSArray<NSString *> *)integrations
                     features:(NSArray<NSString *> *)features
                     packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
+                    settings:(SentrySDKSettings *)settings
 {
     if (self = [super init]) {
         _name = name ?: @"";
@@ -63,6 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
         _integrations = integrations ?: @[];
         _features = features ?: @[];
         _packages = packages ?: @[];
+        _settings = settings;
     }
 
     return self;
@@ -75,6 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *integrations = [[NSMutableSet alloc] init];
     NSMutableSet<NSString *> *features = [[NSMutableSet alloc] init];
     NSMutableSet<NSDictionary<NSString *, NSString *> *> *packages = [[NSMutableSet alloc] init];
+    SentrySDKSettings *settings = [[SentrySDKSettings alloc] initWithDict:@{}];
 
     if ([dict[@"name"] isKindOfClass:[NSString class]]) {
         name = dict[@"name"];
@@ -110,11 +117,17 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
+    if (dict[@"settings"] && [dict[@"settings"] isKindOfClass:[NSDictionary class]]) {
+        settings = [[SentrySDKSettings alloc]
+            initWithDict:SENTRY_UNWRAP_NULLABLE(NSDictionary, dict[@"settings"])];
+    }
+
     return [self initWithName:name
                       version:version
                  integrations:[integrations allObjects]
                      features:[features allObjects]
-                     packages:[packages allObjects]];
+                     packages:[packages allObjects]
+                     settings:settings];
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -125,6 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"integrations" : self.integrations,
         @"features" : self.features,
         @"packages" : self.packages,
+        @"settings" : [self.settings serialize]
     };
 }
 
