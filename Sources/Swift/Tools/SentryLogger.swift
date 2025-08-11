@@ -291,8 +291,8 @@ public extension Options {
     var beforeSendLog: SentryBeforeSendLogCallback? {
         // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
         // property cannot be used due to Swift-to-Objective-C bridging limitations.
-        get { return value(forKey: "beforeSendLogSwift") as? SentryBeforeSendLogCallback }
-        set { setValue(newValue, forKey: "beforeSendLogSwift") }
+        get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
+        set { setValue(newValue, forKey: "beforeSendLogDynamic") }
     }
 }
 #endif // SWIFT_PACKAGE

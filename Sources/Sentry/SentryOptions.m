@@ -44,6 +44,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     _beforeSendLogDynamic = beforeSendLogDynamic;
 }
+
 #endif // SWIFT_PACKAGE || SENTRY_TEST
 
 + (NSArray<NSString *> *)defaultIntegrations
