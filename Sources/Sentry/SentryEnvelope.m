@@ -232,7 +232,15 @@ NS_ASSUME_NONNULL_BEGIN
                              replayRecording:(SentryReplayRecording *)replayRecording
                                        video:(NSURL *)videoURL
 {
-    NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
+    NSData *_Nullable nullableReplayEventData =
+        [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
+    if (nil == nullableReplayEventData) {
+        SENTRY_LOG_ERROR(
+            @"Could not serialize replay event data for envelope item. Event will be nil.");
+        return nil;
+    }
+    NSData *_Nonnull replayEventData = SENTRY_UNWRAP_NULLABLE(NSData, nullableReplayEventData);
+
     NSData *_Nullable nullableRecording =
         [SentrySerialization dataWithReplayRecording:replayRecording];
     if (nil == nullableRecording) {
