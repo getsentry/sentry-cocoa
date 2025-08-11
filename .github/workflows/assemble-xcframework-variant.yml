@@ -90,9 +90,11 @@ jobs:
 
       - name: Get version
         id: get-version
+        env:
+          RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
-          if [ -n "${{ inputs.release-version }}" ]; then
-            echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
+          if [ -n "$RELEASE_VERSION" ]; then
+            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
           else
             echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
           fi
@@ -100,18 +102,27 @@ jobs:
 
       - name: Set XCFramework name
         id: set-xcframework-name
+        env:
+          OVERRIDE_NAME: ${{ inputs.override-name }}
+          SCHEME: ${{ inputs.scheme }}
+          SUFFIX: ${{ inputs.suffix }}
         run: |
-          if [ -n "${{ inputs.override-name }}" ]; then
-            echo "XCFRAMEWORK_NAME=${{ inputs.override-name }}" >> $GITHUB_ENV
+          if [ -n "$OVERRIDE_NAME" ]; then
+            echo "XCFRAMEWORK_NAME=$OVERRIDE_NAME" >> $GITHUB_ENV
           else
-            echo "XCFRAMEWORK_NAME=${{ inputs.scheme }}${{inputs.suffix}}" >> $GITHUB_ENV
+            echo "XCFRAMEWORK_NAME=$SCHEME$SUFFIX" >> $GITHUB_ENV
           fi
 
       - name: Compute cache key
+        env:
+          SDKS: ${{ inputs.sdks }}
+          VARIANT_ID: ${{ inputs.variant-id }}
+          SIGNED: ${{ inputs.signed }}
+          VERSION: ${{ env.VERSION }}
         run: |
-          sdks_string=${{inputs.sdks}}
-          sdks_string_slugified=${sdks_string//,/_}
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-${{inputs.variant-id}}-$sdks_string_slugified-${{inputs.signed}}-${{env.VERSION}}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
+          sdks_string="$SDKS"
+          sdks_string_slugified="${sdks_string//,/_}"
+          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-$VARIANT_ID-$sdks_string_slugified-$SIGNED-$VERSION-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
 
       - name: Restore XCFramework cache
         id: cache-xcframework
@@ -135,19 +146,34 @@ jobs:
 
       - name: Remove excluded archs
         if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.excluded-archs != '' }}
-        run: ./scripts/remove-architectures.sh xcframework-slices/ "${{ inputs.excluded-archs }}"
+        env:
+          EXCLUDED_ARCHS: ${{ inputs.excluded-archs }}
+        run: ./scripts/remove-architectures.sh xcframework-slices/ "$EXCLUDED_ARCHS"
         shell: bash
 
       - name: Assemble XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
-        run: ./scripts/assemble-xcframework.sh "${{inputs.scheme}}" "${{inputs.suffix}}" "${{inputs.configuration-suffix}}" "${{inputs.sdks}}" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
+        env:
+          SCHEME: ${{ inputs.scheme }}
+          SUFFIX: ${{ inputs.suffix }}
+          CONFIGURATION_SUFFIX: ${{ inputs.configuration-suffix }}
+          SDKS: ${{ inputs.sdks }}
+        run: ./scripts/assemble-xcframework.sh "$SCHEME" "$SUFFIX" "$CONFIGURATION_SUFFIX" "$SDKS" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
         shell: bash
 
       - name: Zip XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
+        env:
+          SIGNED: ${{ inputs.signed }}
+          SCHEME: ${{ inputs.scheme }}
+          SUFFIX: ${{ inputs.suffix }}
         run: |
-          ./scripts/compress-xcframework.sh ${{inputs.signed && '--sign' || '--not-signed'}} ${{inputs.scheme}}${{inputs.suffix}}
-          mv ${{inputs.scheme}}${{inputs.suffix}}.xcframework.zip ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
+          if [ "$SIGNED" = "true" ]; then
+            ./scripts/compress-xcframework.sh --sign "$SCHEME$SUFFIX"
+          else
+            ./scripts/compress-xcframework.sh --not-signed "$SCHEME$SUFFIX"
+          fi
+          mv "$SCHEME$SUFFIX.xcframework.zip" "${{env.XCFRAMEWORK_NAME}}.xcframework.zip"
         shell: bash
 
       - name: Cache XCFramework
