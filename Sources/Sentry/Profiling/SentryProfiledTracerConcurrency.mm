@@ -179,8 +179,11 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
     } else if (internalTraceId != nil) {
 #    if !SDK_V9
         SentryClient *_Nullable client = hub.getClient;
-        if (nil != client
-            && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
+        if (client == nil) {
+            SENTRY_LOG_ERROR(@"No client found, skipping cleanup.");
+            return;
+        }
+        if (sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
             SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
             return;
         }
