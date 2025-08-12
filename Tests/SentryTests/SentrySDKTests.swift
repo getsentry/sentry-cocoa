@@ -397,7 +397,7 @@ class SentrySDKTests: XCTestCase {
 
         assertHubScopeNotChanged()
     }
-
+    
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
     /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334
     func testCaptureNonFatalEvent_HasDebugMeta() throws {
@@ -440,6 +440,44 @@ class SentrySDKTests: XCTestCase {
             XCTAssertNotNil(debugMeta.imageAddress)
             XCTAssertNotNil(debugMeta.imageSize)
         }
+    }
+
+    // MARK: - Logger Flush Tests
+    
+    func testFlush_CallsLoggerCaptureLogs() {
+        fixture.client.options.experimental.enableLogs = true
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Add a log to ensure there's something to flush
+        SentrySDK.logger.info("Test log message")
+        
+        // Initially no logs should be sent (they're buffered)
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        
+        // Flush the SDK
+        SentrySDK.flush(timeout: 1.0)
+        
+        // Now logs should be sent
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+    
+    func testClose_CallsLoggerCaptureLogs() {
+        fixture.client.options.experimental.enableLogs = true
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Add a log to ensure there's something to flush
+        SentrySDK.logger.info("Test log message")
+        
+        // Initially no logs should be sent (they're buffered)
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        
+        // Close the SDK
+        SentrySDK.close()
+        
+        // Now logs should be sent
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
 }
 
