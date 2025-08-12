@@ -6,6 +6,10 @@
 
 - Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
+## 8.54.1-alpha.1
+
+- No documented changes.
+
 ## 8.54.1-alpha.0
 
 > [!Important]

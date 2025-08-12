@@ -9,9 +9,16 @@ on:
       - ".github/workflows/objc-conversion-analysis.yml"
       - "SwiftConversion/**"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
+#   as these analyze code conversion progress and generate tracking reports.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest conversion analysis matters for tracking progress on SwiftConversion changes.
+# - For main branch pushes, we never cancel conversion analysis to ensure we maintain accurate
+#   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze-objc-conversion:

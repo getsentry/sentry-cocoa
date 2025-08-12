@@ -17,6 +17,17 @@ on:
       - ".github/workflows/lint-shellcheck-formatting.yml"
       - "**/*.sh"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
+#   as linting checks are deterministic and don't require parallel validation.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the latest
+#   linting matters for merge decisions.
+# - For main branch pushes, we never cancel formatting checks to ensure our code maintains consistent
+#   style standards across the entire project.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     name: Lint
