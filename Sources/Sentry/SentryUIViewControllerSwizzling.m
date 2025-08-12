@@ -14,7 +14,6 @@
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryInAppLogic.h>
 #    import <SentryOptions.h>
-#    import <SentryUIApplication.h>
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>

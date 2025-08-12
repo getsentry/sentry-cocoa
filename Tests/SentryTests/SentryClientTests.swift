@@ -302,7 +302,9 @@ class SentryClientTest: XCTestCase {
     
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     func testCaptureEventWithCurrentScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -315,7 +317,9 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureEventWithCurrentScreenInTheScope() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -359,7 +363,9 @@ class SentryClientTest: XCTestCase {
     // swiftlint:enable avoid_dispatch_groups_in_tests
     
     func testCaptureTransactionWithScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: nil)
         let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -397,7 +403,9 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureTransactionWithoutScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil), children: [])
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -984,7 +992,7 @@ class SentryClientTest: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = TestData.event
@@ -996,7 +1004,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureTransaction_WithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = fixture.transaction
@@ -1007,9 +1015,7 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInBackground() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .background
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .background, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1019,9 +1025,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInactive() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .inactive
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .inactive, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1031,9 +1035,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroundDoNotOverwriteExistingValue() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .active
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .active, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         event.context?["app"] = ["in_foreground": "keep-value"]
@@ -2325,28 +2327,6 @@ private extension SentryClientTest {
             return callback(attachments, event)
         }
     }
-    
-#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-    class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        override func relevantViewControllers() -> [UIViewController] {
-            return [ClientTestViewController()]
-        }
-        
-        private var _underlyingAppState: UIApplication.State = .active
-        override var applicationState: UIApplication.State {
-            get { _underlyingAppState }
-            set { _underlyingAppState = newValue }
-        }
-    }
-    
-    class ClientTestViewController: UIViewController {
-        
-    }
-#endif
     
     @available(*, deprecated, message: "This is only marked as deprecated because assertNothingSent is marked as deprecated, due to it using a deprecated property inside it. When that property usage is removed, this deprecation annotations can be removed.")
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
