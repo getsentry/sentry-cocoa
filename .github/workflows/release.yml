@@ -114,6 +114,7 @@ jobs:
             suffix: "-WithoutUIKitOrAppKit"
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
+            excluded-archs: arm64e
 
   validate-xcframework:
     name: Validate XCFramework

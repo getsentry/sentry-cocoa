@@ -5,6 +5,7 @@
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
+- Exclude arm64e slice from Sentry-WithoutUIKitOrAppKit in sync with Sentry-Dynamic
 
 ## 8.54.1-alpha.1
 

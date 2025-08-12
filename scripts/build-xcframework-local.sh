@@ -34,7 +34,7 @@ if [ "$variants" = "SwiftUIOnly" ] || [ "$variants" = "AllVariants" ]; then
 fi
 
 if [ "$variants" = "WithoutUIKitOnly" ] || [ "$variants" = "AllVariants" ]; then
-    ./scripts/build-xcframework-variant.sh "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "$sdks" ""
+    ./scripts/build-xcframework-variant.sh "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "$sdks" "arm64e"
     ./scripts/compress-xcframework.sh "$signed" Sentry-WithoutUIKitOrAppKit
     mv Sentry-WithoutUIKitOrAppKit.xcframework.zip Carthage/Sentry-WithoutUIKitOrAppKit.xcframework.zip
 fi
