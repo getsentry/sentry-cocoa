@@ -168,9 +168,10 @@ public final class SentryLogger: NSObject {
     }
 
     // MARK: - Internal
-
-    func flush(timeout: TimeInterval) {
-        batcher?.flushSync(timeout: timeout)
+    
+    // Captures batched logs sync and return the duration.
+    func captureLogs() -> TimeInterval {
+        return batcher?.captureLogs() ?? 0.0
     }
     
     // MARK: - Private

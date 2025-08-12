@@ -359,26 +359,19 @@ import Foundation
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
     /// doesn't dispose the client or the hub.
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
+    /// - note: This might take slightly longer than the specified timeout if there are many batched logs to capture.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        // Logger gets max 25% of the timeout
-        let loggerTimeout = timeout * 0.25 
-        
-        // Calculate how long logger flush took
-        let startTime = CFAbsoluteTimeGetCurrent()
-        flushLogger(timeout: loggerTimeout)
-        let endTime = CFAbsoluteTimeGetCurrent()
-        let loggerElapsedTime = endTime - startTime
-        
-        // Main flush gets the remaining time
-        let remainingTime = max(timeout * 0.75, timeout - loggerElapsedTime)
-        SentrySDKInternal.flush(timeout: remainingTime)
+        let captureLogsDuration = captureLogs()
+        // Capturing batched logs should never take long, but we need to fall back to a sane value.
+        SentrySDKInternal.flush(timeout: max(timeout / 2, timeout - captureLogsDuration))
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
-        flushLogger(timeout: 1.5)
+        // Capturing batched logs should never take long, ignore the duration here.
+        _ = captureLogs()
         SentrySDKInternal.close()
     }
     
@@ -435,10 +428,13 @@ import Foundation
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
 
-    private static func flushLogger(timeout: TimeInterval) {
+    @discardableResult
+    private static func captureLogs() -> TimeInterval {
+        var duration: TimeInterval = 0.0
         _loggerLock.synchronized {
-            _logger?.flush(timeout: timeout)
+            duration = _logger?.captureLogs() ?? 0.0
         }
+        return duration
     }
 }
 
