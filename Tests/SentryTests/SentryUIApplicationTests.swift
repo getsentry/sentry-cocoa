@@ -135,11 +135,6 @@ class SentryUIApplicationTests: XCTestCase {
         override func getDelegate(_ application: UIApplication) -> UIApplicationDelegate? {
             return appDelegate
         }
-
-        @available(iOS 13.0, tvOS 13.0, *)
-        override func getConnectedScenes(_ application: UIApplication) -> [UIScene] {
-            return scenes as? [UIScene] ?? super.getConnectedScenes(application)
-        }
     }
 }
 #endif

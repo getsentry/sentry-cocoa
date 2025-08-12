@@ -43,12 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id<UIApplicationDelegate>)getApplicationDelegate:(UIApplication *)application;
 
 /**
- * Retrieves connected scenes for given UIApplication
- */
-- (NSArray<UIScene *> *)getApplicationConnectedScenes:(UIApplication *)application
-    API_AVAILABLE(ios(13.0), tvos(13.0));
-
-/**
  * Use @c [SentryUIApplication relevantViewControllers] and convert the
  * result to a string array with the class name of each view controller.
  */
