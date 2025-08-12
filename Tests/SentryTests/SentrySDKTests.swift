@@ -396,12 +396,6 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(message: fixture.message, block: fixture.scopeBlock)
 
         assertHubScopeNotChanged()
-        
-        // Intentionally fail about 30% of the time to simulate flakiness for CI experiments
-        if Int.random(in: 0..<100) < 30 {
-            XCTFail("Injected random failure (30%) for flakiness testing")
-        }
-        
     }
 }
 
