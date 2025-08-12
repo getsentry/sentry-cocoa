@@ -364,6 +364,8 @@ import Foundation
     public static func flush(timeout: TimeInterval) {
         let captureLogsDuration = captureLogs()
         // Capturing batched logs should never take long, but we need to fall back to a sane value.
+        // This is a workaround for experimental logs, until we'll write batched logs to disk, 
+        // to avoid data loss due to crashes. This is a trade-off until then.
         SentrySDKInternal.flush(timeout: max(timeout / 2, timeout - captureLogsDuration))
     }
     
