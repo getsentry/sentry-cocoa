@@ -14,6 +14,17 @@ on:
       - "Makefile" # Make commands used for cross-platform setup
       - "Brewfile*" # Dependency installation affects cross-platform testing
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple cross-platform tests,
+#   as these involve complex React Native and cross-platform integration setups.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest cross-platform compatibility results matter for validating multi-platform support.
+# - For main branch pushes, we never cancel cross-platform tests to ensure our SDK remains
+#   compatible with React Native and other cross-platform frameworks that depend on us.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test-react-native:
     name: React Native Installation
