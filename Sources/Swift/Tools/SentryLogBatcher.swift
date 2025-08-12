@@ -67,12 +67,12 @@ import Foundation
     // Captures batched logs sync and returns the duration.
     @discardableResult
     @_spi(Private) func captureLogs() -> TimeInterval {
-        let startTime = CFAbsoluteTimeGetCurrent()
+        let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
         dispatchQueue.dispatchSync { [weak self] in
             self?.performCaptureLogs()
         }
-        let endTime = CFAbsoluteTimeGetCurrent()
-        return endTime - startTime
+        let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+        return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
     }
 
     // Helper
