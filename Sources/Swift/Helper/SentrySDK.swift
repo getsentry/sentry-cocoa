@@ -361,24 +361,14 @@ import Foundation
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        // Logger gets max 25% of the timeout
-        let loggerTimeout = timeout * 0.25 
-        
-        // Calculate how long logger flush took
-        let startTime = CFAbsoluteTimeGetCurrent()
-        flushLogger(timeout: loggerTimeout)
-        let endTime = CFAbsoluteTimeGetCurrent()
-        let loggerElapsedTime = endTime - startTime
-        
-        // Main flush gets the remaining time
-        let remainingTime = max(timeout * 0.75, timeout - loggerElapsedTime)
-        SentrySDKInternal.flush(timeout: remainingTime)
+        captureLogs()
+        SentrySDKInternal.flush(timeout: timeout)
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
-        flushLogger(timeout: 1.5)
+        captureLogs()
         SentrySDKInternal.close()
     }
     
@@ -435,9 +425,9 @@ import Foundation
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
 
-    private static func flushLogger(timeout: TimeInterval) {
+    private static func captureLogs() {
         _loggerLock.synchronized {
-            _logger?.flush(timeout: timeout)
+            _logger?.captureLogs()
         }
     }
 }

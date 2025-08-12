@@ -170,9 +170,13 @@ public final class SentryLogger: NSObject {
     // MARK: - Internal
 
     func flush(timeout: TimeInterval) {
-        batcher?.flushSync(timeout: timeout)
+        batcher?.flush(timeout: timeout)
     }
-    
+
+    func captureLogs() {
+        batcher?.captureLogsSync()
+    }
+
     // MARK: - Private
     
     private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
