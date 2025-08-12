@@ -100,5 +100,6 @@ TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 
 Sentry.xcframework*
 Sentry-Dynamic.xcframework*
+Sentry-Dynamic-WithARM64e.xcframework*
 SentrySwiftUI.xcframework*
 Sentry-WithoutUIKitOrAppKit.xcframework*

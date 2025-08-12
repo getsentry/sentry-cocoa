@@ -24,10 +24,16 @@ on:
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
+#   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to avoid wasting
+#   expensive external testing resources and provide timely performance feedback.
+# - For main branch pushes, we never cancel benchmarks to ensure we have complete performance
+#   baselines for every main branch commit, which are critical for performance regression detection.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-benchmark-test-target:
@@ -129,6 +135,11 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
+          # Retry Logic: This step only runs when the benchmark test has failed.
+          # We determine if the failure was due to SauceLabs infrastructure issues
+          # (which can be fixed by retrying) or legitimate test failures (which cannot).
+          # SauceLabs internal errors frequently cause CI failures that can be resolved
+          # by re-running the test. See scripts/saucelabs-helpers.js for detailed logic.
           script: |
             const fs = require('fs');
             const { execSync } = require('child_process');

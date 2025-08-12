@@ -15,11 +15,18 @@ on:
       - "*.podspec"
       - "fastlane/**"
       - "Gemfile.lock"
+      - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple CocoaPods integration tests,
+#   as these tests involve complex dependency resolution and build processes.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest integration test results matter for validating CocoaPods compatibility.
+# - For main branch pushes, we never cancel integration tests to ensure our CocoaPods
+#   integration remains functional for all downstream consumers relying on our library.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:

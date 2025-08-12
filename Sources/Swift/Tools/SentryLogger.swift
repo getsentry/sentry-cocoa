@@ -166,6 +166,13 @@ public final class SentryLogger: NSObject {
         let message = SentryLogMessage(stringLiteral: body)
         captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
+
+    // MARK: - Internal
+    
+    // Captures batched logs sync and return the duration.
+    func captureLogs() -> TimeInterval {
+        return batcher?.captureLogs() ?? 0.0
+    }
     
     // MARK: - Private
     
@@ -179,7 +186,7 @@ public final class SentryLogger: NSObject {
         
         // Add template string if there are interpolations
         if !logMessage.attributes.isEmpty {
-            logAttributes["sentry.message.template"] = .string(logMessage.template)
+            logAttributes["sentry.message.template"] = .init(string: logMessage.template)
         }
         
         // Add attributes from the SentryLogMessage
@@ -194,30 +201,37 @@ public final class SentryLogger: NSObject {
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
-
-        batcher.add(
-            SentryLog(
-                timestamp: dateProvider.date(),
-                traceId: propagationContextTraceId,
-                level: level,
-                body: logMessage.message,
-                attributes: logAttributes
-            )
+        
+        let log = SentryLog(
+            timestamp: dateProvider.date(),
+            traceId: propagationContextTraceId,
+            level: level,
+            body: logMessage.message,
+            attributes: logAttributes
         )
+        
+        var processedLog: SentryLog? = log
+        if let beforeSendLog = batcher.options.beforeSendLog {
+            processedLog = beforeSendLog(log)
+        }
+        
+        if let processedLog {
+            batcher.add(processedLog)
+        }
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
         guard let batcher else {
             return
         }
-        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        attributes["sentry.environment"] = .string(batcher.options.environment)
+        attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
+        attributes["sentry.environment"] = .init(string: batcher.options.environment)
         if let releaseName = batcher.options.releaseName {
-            attributes["sentry.release"] = .string(releaseName)
+            attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = hub.scope.span {
-            attributes["sentry.trace.parent_span_id"] = .string(span.spanId.sentrySpanIdString)
+            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
         }
     }
 
@@ -226,10 +240,10 @@ public final class SentryLogger: NSObject {
             return
         }
         if let osName = osContext["name"] as? String {
-            attributes["os.name"] = .string(osName)
+            attributes["os.name"] = .init(string: osName)
         }
         if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = .string(osVersion)
+            attributes["os.version"] = .init(string: osVersion)
         }
     }
     
@@ -238,13 +252,13 @@ public final class SentryLogger: NSObject {
             return
         }
         // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = .string("Apple")
+        attributes["device.brand"] = .init(string: "Apple")
         
         if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = .string(deviceModel)
+            attributes["device.model"] = .init(string: deviceModel)
         }
         if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = .string(deviceFamily)
+            attributes["device.family"] = .init(string: deviceFamily)
         }
     }
 
@@ -253,13 +267,39 @@ public final class SentryLogger: NSObject {
             return
         }
         if let userId = user.userId {
-            attributes["user.id"] = .string(userId)
+            attributes["user.id"] = .init(string: userId)
         }
         if let userName = user.name {
-            attributes["user.name"] = .string(userName)
+            attributes["user.name"] = .init(string: userName)
         }
         if let userEmail = user.email {
-            attributes["user.email"] = .string(userEmail)
+            attributes["user.email"] = .init(string: userEmail)
         }
     }
 }
+
+#if SWIFT_PACKAGE
+/**
+ * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
+ * drop the log.
+ */
+public typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
+
+// Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
+// This works around `SentryLog` being only forward declared in the objc header, resulting in 
+// compile time issues with SPM builds.
+@objc
+public extension Options {
+    /**
+     * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
+     * drop the log.
+     */
+    @objc
+    var beforeSendLog: SentryBeforeSendLogCallback? {
+        // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
+        // property cannot be used due to Swift-to-Objective-C bridging limitations.
+        get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
+        set { setValue(newValue, forKey: "beforeSendLogDynamic") }
+    }
+}
+#endif // SWIFT_PACKAGE

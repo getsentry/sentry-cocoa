@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.54.0"
+  s.version      = "8.54.1-alpha.1"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -19,6 +19,7 @@ Pod::Spec.new do |s|
   s.swift_versions = "5.5"
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
+      'APPLICATION_EXTENSION_API_ONLY' => 'NO',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
       'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include',

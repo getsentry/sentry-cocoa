@@ -4,6 +4,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited, ready_for_review]
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple Danger runs on the same PR,
+#   as Danger performs PR validation and comment generation that should be based on the latest code.
+# - We always cancel in-progress runs since this workflow only runs on pull requests, and only
+#   the latest commit's validation results matter for providing accurate PR feedback and reviews.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   danger:
     name: Danger
