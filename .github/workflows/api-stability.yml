@@ -84,6 +84,7 @@ jobs:
   api-stability-required-check:
     needs:
       [
+        files-changed,
         api-stability,
       ]
     name: API Stability
