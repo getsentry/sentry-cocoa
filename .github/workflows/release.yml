@@ -115,6 +115,12 @@ jobs:
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
             excluded-archs: arm64e
+          - scheme: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+            override-name: Sentry-WithoutUIKitOrAppKit-WithARM64e
 
   validate-xcframework:
     name: Validate XCFramework
