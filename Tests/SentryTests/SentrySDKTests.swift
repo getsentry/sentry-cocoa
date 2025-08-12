@@ -400,7 +400,7 @@ class SentrySDKTests: XCTestCase {
     
     // MARK: - Logger Flush Tests
     
-    func testFlush_CallsLoggerFlush() {
+    func testFlush_CallsLoggerCaptureLogs() {
         fixture.client.options.experimental.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
@@ -414,18 +414,11 @@ class SentrySDKTests: XCTestCase {
         // Flush the SDK
         SentrySDK.flush(timeout: 1.0)
         
-        // Wait a bit for the log to be flushed
-        let expectation = self.expectation(description: "Wait for async add.")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
-        
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
     
-    func testClose_CallsLoggerFlush() {
+    func testClose_CallsLoggerCaptureLogs() {
         fixture.client.options.experimental.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
@@ -438,13 +431,6 @@ class SentrySDKTests: XCTestCase {
         
         // Close the SDK
         SentrySDK.close()
-        
-        // Wait a bit for the log to be added to the batcher
-        let expectation = self.expectation(description: "Wait for flush")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
         
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
