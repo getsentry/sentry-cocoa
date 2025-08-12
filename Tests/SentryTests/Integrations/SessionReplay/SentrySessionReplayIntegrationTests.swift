@@ -8,24 +8,6 @@ import XCTest
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
-    private class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        var windowsMock: [UIWindow]? = [UIWindow()]
-        var screenName: String?
-        
-        override var windows: [UIWindow]? {
-            windowsMock
-        }
-        
-        override func relevantViewControllersNames() -> [String]? {
-            guard let screenName = screenName else { return nil }
-            return [screenName]
-        }
-    }
-    
     private class TestCrashWrapper: SentryCrashWrapper {
         let traced: Bool
         
@@ -49,6 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private var globalEventProcessor = SentryGlobalEventProcessor()
 
     override func setUp() {
+        uiApplication.windows = [UIWindow()]
         SentryDependencyContainer.sharedInstance().application = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
@@ -133,13 +116,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testWaitForNotificationWithNoWindow() throws {
-        uiApplication.windowsMock = nil
+        uiApplication.windows = nil
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
         
         XCTAssertNil(sut.sessionReplay)
-        uiApplication.windowsMock = [UIWindow()]
+        uiApplication.windows = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         XCTAssertNotNil(sut.sessionReplay)
     }
@@ -199,7 +182,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
     }
     
@@ -211,7 +194,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
     
@@ -612,7 +595,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testShowMaskPreviewForDebug() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
@@ -625,7 +608,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testDontShowMaskPreviewForRelese() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()

@@ -1,5 +1,4 @@
 #import "SentrySessionTracker.h"
-#import "SentryApplication.h"
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryFileManager.h"
@@ -94,7 +93,7 @@
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
     //            closing the SDK and starting it again.
-    if (self.application.isActive) {
+    if (self.application.mainThread_isActive) {
         [self startSession];
     }
 #else

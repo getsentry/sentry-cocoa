@@ -324,13 +324,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_ButBackground_EventNotCaptured() {
 
-        class BackgroundSentryUIApplication: SentryUIApplication {
-            override var applicationState: UIApplication.State { .background }
-        }
-
         givenInitializedTracker()
         setUpThreadInspector()
-        SentryDependencyContainer.sharedInstance().application = BackgroundSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let backgroundUIApplication = TestSentryUIApplication()
+        backgroundUIApplication.unsafeApplicationState = .background
+        SentryDependencyContainer.sharedInstance().application = backgroundUIApplication
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
 

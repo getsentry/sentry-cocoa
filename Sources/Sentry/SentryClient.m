@@ -45,7 +45,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -782,7 +781,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             context[@"app"] = app;
 
             UIApplicationState appState =
-                [SentryDependencyContainer sharedInstance].application.applicationState;
+                [SentryDependencyContainer sharedInstance].threadsafeApplication.applicationState;
             BOOL inForeground = appState == UIApplicationStateActive;
             app[@"in_foreground"] = @(inForeground);
             event.context = context;
