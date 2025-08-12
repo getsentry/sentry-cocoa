@@ -109,6 +109,7 @@ class SentryFrameTests: XCTestCase {
         XCTAssertEqual(original.columnNumber, decoded.columnNumber)
         XCTAssertEqual(original.package, decoded.package)
         XCTAssertEqual(original.imageAddress, decoded.imageAddress)
+        XCTAssertEqual(original.instructionAddress, decoded.instructionAddress)
         XCTAssertEqual(original.platform, decoded.platform)
         XCTAssertEqual(original.contextLine, decoded.contextLine)
         XCTAssertEqual(original.preContext, decoded.preContext)
