@@ -1,23 +1,16 @@
 name: API Stability Check
 
 on:
-  push:
-    branches:
-      - main
-      - release/**
-
   pull_request:
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple API stability checks on the same code,
 #   as these analyze public API changes and generate detailed breaking change reports.
-# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
-#   latest commit's API changes matter for determining if the PR introduces breaking changes.
-# - For main branch pushes and scheduled runs, we never cancel in-progress runs to ensure the complete
-#   API stability check always finishes, maintaining the integrity of our main branch quality gates.
+# - We always cancel in-progress runs since this workflow only runs on pull requests, and only
+#   the latest commit's API changes matter for determining if the PR introduces breaking changes.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
   # This job detects if the PR contains changes that require running API stability checks.
