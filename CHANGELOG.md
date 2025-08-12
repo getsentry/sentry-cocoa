@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+
 ## 8.54.1-alpha.1
 
 - No documented changes.
@@ -19,7 +25,6 @@
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
-- Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add `beforeSendLog` callback to `SentryOptions` (#5678)
 
 ### Fixes
