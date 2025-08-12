@@ -130,14 +130,12 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
             const auto profileIsContinuousV2 = configurationFromLaunch.profileOptions != nil;
             const auto v2LifecycleIsManual = profileIsContinuousV2
                 && !sentry_isTraceLifecycle(
-                    SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, configurationFromLaunch)
-                        .profileOptions);
+                    SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, configurationFromLaunch.profileOptions));
 
 #    if SENTRY_HAS_UIKIT
             const auto v2LifecycleIsTrace = profileIsContinuousV2
                 && sentry_isTraceLifecycle(
-                    SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, configurationFromLaunch)
-                        .profileOptions);
+                    SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, configurationFromLaunch.profileOptions));
             const auto profileIsCorrelatedToTrace = !profileIsContinuousV2 || v2LifecycleIsTrace;
             if (profileIsCorrelatedToTrace && configurationFromLaunch.waitForFullDisplay) {
                 SENTRY_LOG_DEBUG(
