@@ -17,7 +17,7 @@
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
-- Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit
+- Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
 
 ## 8.54.1-alpha.1
 
