@@ -10,7 +10,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/check-package-diff.yml"
-      - "./Package*.swift"
+      - "Package*.swift"
       - "Makefile"
       - "Utils/expected_package_diff.patch"
 
