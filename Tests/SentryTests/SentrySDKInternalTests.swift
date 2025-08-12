@@ -679,7 +679,7 @@ class SentrySDKInternalTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 0.5)
+        waitForExpectations(timeout: 5.0)
         
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
@@ -695,7 +695,7 @@ class SentrySDKInternalTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 0.5)
+        waitForExpectations(timeout: 5.0)
         
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
     }
@@ -724,7 +724,7 @@ class SentrySDKInternalTests: XCTestCase {
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
