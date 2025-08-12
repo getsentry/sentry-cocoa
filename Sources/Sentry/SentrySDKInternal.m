@@ -23,7 +23,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 
