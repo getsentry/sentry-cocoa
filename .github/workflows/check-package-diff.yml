@@ -1,6 +1,6 @@
 # We want to ensure that the Package.swift and Package@swift-5.9.swift are in sync.
 
-name: Lint Package.swift Diff
+name: Check Package.swift Diff
 
 on:
   push:
@@ -9,14 +9,14 @@ on:
 
   pull_request:
     paths:
-      - ".github/workflows/lint-package-diff.yml"
+      - ".github/workflows/check-package-diff.yml"
       - "./Package*.swift"
       - "Makefile"
       - "Utils/expected_package_diff.patch"
 
 jobs:
-  lint:
-    name: Lint Package.swift Diff
+  check:
+    name: Check Package.swift Diff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
