@@ -16,6 +16,15 @@ on:
       - "sdk_api.json"
       - "sdk_api_v9.json"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple API stability checks on the same code,
+#   as these analyze public API changes and generate detailed breaking change reports.
+# - We always cancel in-progress runs since this workflow only runs on pull requests, and only
+#   the latest commit's API changes matter for determining if the PR introduces breaking changes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   api-stability:
     name: Check API Stability (${{ matrix.version }})

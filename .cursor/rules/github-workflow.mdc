@@ -132,3 +132,161 @@ For reusable workflows (workflow_call), use descriptive names that indicate thei
 - Ensure names remain meaningful when viewed in GitHub's status check UI
 - Test names in the GitHub PR interface before committing changes
 - For lint workflows, use simple "Lint" job name since the tool is already specified in the workflow name
+
+---
+
+## GitHub Actions Concurrency Strategy
+
+### Overview
+
+This document outlines the concurrency configuration strategy for all GitHub Actions workflows in the Sentry Cocoa repository. The strategy optimizes CI resource usage while ensuring critical runs (like main branch pushes) are never interrupted.
+
+### Core Principles
+
+#### 1. Resource Optimization
+- **Cancel outdated PR runs** - When new commits are pushed to a PR, cancel the previous workflow run since only the latest commit matters for merge decisions
+- **Protect critical runs** - Never cancel workflows running on main branch, release branches, or scheduled runs as these are essential for maintaining baseline quality and release integrity
+- **Per-branch grouping** - Use `github.ref` for consistent concurrency grouping across all branch types
+
+#### 2. Consistent Patterns
+All workflows follow standardized concurrency patterns based on their trigger types and criticality.
+
+### Concurrency Patterns
+
+#### Pattern 1: Conditional Cancellation (Most Common)
+**Used by:** Most workflows that run on both main/release branches AND pull requests
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+```
+
+**Behavior:**
+- ✅ Cancels in-progress runs when new commits are pushed to PRs
+- ✅ Never cancels runs on main branch pushes
+- ✅ Never cancels runs on release branch pushes  
+- ✅ Never cancels scheduled runs
+- ✅ Never cancels manual workflow_dispatch runs
+
+**Examples:** `test.yml`, `build.yml`, `benchmarking.yml`, `ui-tests.yml`, all lint workflows
+
+#### Pattern 2: Always Cancel (PR-Only Workflows)
+**Used by:** Workflows that ONLY run on pull requests
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+**Behavior:**
+- ✅ Always cancels in-progress runs (safe since they only run on PRs)
+- ✅ Provides immediate feedback on latest changes
+
+**Examples:** `danger.yml`, `api-stability.yml`, `changes-in-high-risk-code.yml`
+
+#### Pattern 3: Fixed Group Name (Special Cases)
+**Used by:** Utility workflows with specific requirements
+
+```yaml
+concurrency:
+  group: "auto-update-tools"
+  cancel-in-progress: true
+```
+
+**Example:** `auto-update-tools.yml` (uses fixed group name for global coordination)
+
+### Implementation Details
+
+#### Group Naming Convention
+- **Standard:** `${{ github.workflow }}-${{ github.ref }}`
+- **Benefits:**
+  - Unique per workflow and branch/PR
+  - Consistent across all workflow types
+  - Works with main, release, and feature branches
+  - Handles PRs and direct pushes uniformly
+
+#### Why `github.ref` Instead of `github.head_ref || github.run_id`?
+- **Simpler logic** - No conditional expressions needed
+- **Consistent behavior** - Same pattern works for all trigger types
+- **Per-branch grouping** - Natural grouping by branch without special cases
+- **Better maintainability** - Single pattern to understand and maintain
+
+#### Cancellation Logic Evolution
+**Before:**
+```yaml
+cancel-in-progress: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') && github.event_name != 'schedule' }}
+```
+
+**After:**
+```yaml
+cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+```
+
+**Why simplified:**
+- ✅ Much more readable and maintainable
+- ✅ Functionally identical behavior
+- ✅ Clear intent: "only cancel on pull requests"
+- ✅ Less prone to errors
+
+### Workflow-Specific Configurations
+
+#### High-Resource Workflows
+**Examples:** `benchmarking.yml`, `ui-tests.yml`
+- Use conditional cancellation to protect expensive main branch runs
+- Include detailed comments explaining resource considerations
+- May include special cleanup steps (e.g., SauceLabs job cancellation)
+
+#### Fast Validation Workflows  
+**Examples:** All lint workflows, `danger.yml`
+- Use appropriate cancellation strategy based on trigger scope
+- Focus on providing quick feedback on latest changes
+
+#### Critical Infrastructure Workflows
+**Examples:** `test.yml`, `build.yml`, `release.yml`
+- Never cancel on main/release branches to maintain quality gates
+- Ensure complete validation of production-bound code
+
+### Documentation Requirements
+
+Each workflow's concurrency block must include comments explaining:
+
+1. **Purpose** - Why concurrency control is needed for this workflow
+2. **Resource considerations** - Any expensive operations (SauceLabs, device time, etc.)
+3. **Branch protection logic** - Why main/release branches need complete runs
+4. **User experience** - How the configuration improves feedback timing
+
+#### Example Documentation:
+```yaml
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
+#   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to avoid wasting
+#   expensive external testing resources and provide timely performance feedback.
+# - For main branch pushes, we never cancel benchmarks to ensure we have complete performance
+#   baselines for every main branch commit, which are critical for performance regression detection.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+```
+
+### Maintenance Guidelines
+
+#### When Adding New Workflows
+1. **Identify trigger scope** - Does it run on main/release branches?
+2. **Choose appropriate pattern** - Conditional vs always cancel
+3. **Add documentation** - Explain the resource and timing considerations
+4. **Follow naming convention** - Use standard group naming pattern
+
+#### When Modifying Existing Workflows
+1. **Preserve protection** - Don't break main/release branch safeguards
+2. **Update documentation** - Keep comments accurate and helpful
+3. **Test edge cases** - Verify behavior with scheduled/manual triggers
+4. **Consider resource impact** - Evaluate cost of additional runs
+
+#### Red Flags to Avoid
+- ❌ Never use `cancel-in-progress: true` on workflows that run on main/release branches
+- ❌ Don't create complex conditional logic when simple patterns work
+- ❌ Avoid custom group names unless absolutely necessary
+- ❌ Don't skip documentation - future maintainers need context
