@@ -5,6 +5,9 @@
 ### Fixes
 
 - Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
 
 ## 8.54.1-alpha.1
 
