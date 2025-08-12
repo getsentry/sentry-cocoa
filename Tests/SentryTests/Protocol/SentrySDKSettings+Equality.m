@@ -1,3 +1,4 @@
+#import "SentryInternalDefines.h"
 #import "SentrySDKSettings+Equality.h"
 
 @implementation SentrySDKSettings (Equality)
@@ -9,7 +10,8 @@
     if ([self class] != [object class])
         return NO;
 
-    SentrySDKSettings *otherSDKSettings = (SentrySDKSettings *)object;
+    SentrySDKSettings *_Nonnull otherSDKSettings
+        = SENTRY_UNWRAP_NULLABLE(SentrySDKSettings, object);
 
     if (!self.autoInferIP == otherSDKSettings.autoInferIP) {
         return NO;
@@ -20,7 +22,7 @@
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = 18;
+    NSUInteger hash = 19;
 
     hash = hash * 29 + [@(self.autoInferIP) integerValue];
 
