@@ -15,3 +15,20 @@ high_risk_code: &high_risk_code
   - "Sources/Sentry/SentryFileManager.m"
   - "Sources/Sentry/SentrySerialization.m"
   - "Sources/Sentry/SentrySerialization.h"
+
+run_unit_tests_for_prs: &run_unit_tests_for_prs
+  - "Sources/**"
+  - "Tests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsDynamic/**"
+  - "test-server/**"
+  - ".github/workflows/test.yml"
+  - "fastlane/**"
+  - "scripts/tests-with-thread-sanitizer.sh"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/sentry-xcodebuild.sh"
+  - ".codecov.yml"
+  - "Sentry.xcodeproj"
+  - "**/*.xctestplan"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects test environment
