@@ -9,6 +9,7 @@ excluded:
   - Tests/Perf
   - SentryTestUtils/Dynamic/**
   - .build/**
+  - .git/**
 
 only_rules:
   - class_delegate_protocol
