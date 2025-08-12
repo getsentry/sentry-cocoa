@@ -4,3 +4,7 @@ use_frameworks!
 target 'App' do
   pod 'Sentry', :path => "../../"
 end
+
+target 'TestKeyboardExtension' do
+  pod 'Sentry', :path => "../../"
+end

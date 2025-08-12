@@ -8,6 +8,7 @@ set -euo pipefail
 # Parse command line arguments
 EXPECTED_STATIC_CHECKSUM=""
 EXPECTED_DYNAMIC_CHECKSUM=""
+EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM=""
 EXPECTED_LAST_RELEASE_RUNID=""
 
 while [[ $# -gt 0 ]]; do
@@ -18,6 +19,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --dynamic-checksum)
         EXPECTED_DYNAMIC_CHECKSUM="$2"
+        shift 2
+        ;;
+    --dynamic-with-arm64e-checksum)
+        EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM="$2"
         shift 2
         ;;
     --last-release-runid)
@@ -42,6 +47,11 @@ if [ -z "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
     exit 1
 fi
 
+if [ -z "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
+    echo "Error: --dynamic-with-arm64e-checksum is required"
+    exit 1
+fi
+
 if [ -z "$EXPECTED_LAST_RELEASE_RUNID" ]; then
     echo "Error: --last-release-runid is required"
     exit 1
@@ -55,9 +65,16 @@ if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_STATIC_CHECKSUM" ]; then
 fi
 
 echo "Verify checksum of dynamic xcframework in Package.swift"
-UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" Package.swift | cut -d '"' -f 2)
+UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" Package.swift | cut -d '"' -f 2 | head -n 1)
 if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
     echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA"
+    exit 1
+fi
+
+echo "Verify checksum of dynamic with arm64e xcframework in Package.swift"
+UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic-WithARM64e" Package.swift | cut -d '"' -f 2)
+if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
+    echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA"
     exit 1
 fi
 
