@@ -1,33 +1,49 @@
 name: API Stability Check
 
 on:
+  push:
+    branches:
+      - main
+      - release/**
+
   pull_request:
-    paths:
-      - "Sources/**"
-      - "test-server/**"
-      - ".github/workflows/api-stability.yml"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - "Package.swift"
-      - "scripts/build-xcframework-local.sh"
-      - "scripts/update-api.sh"
-      - "scripts/ci-select-xcode.sh"
-      - "Makefile" # Make commands used for API generation
-      - "sdk_api.json"
-      - "sdk_api_v9.json"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple API stability checks on the same code,
 #   as these analyze public API changes and generate detailed breaking change reports.
-# - We always cancel in-progress runs since this workflow only runs on pull requests, and only
-#   the latest commit's API changes matter for determining if the PR introduces breaking changes.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest commit's API changes matter for determining if the PR introduces breaking changes.
+# - For main branch pushes and scheduled runs, we never cancel in-progress runs to ensure the complete
+#   API stability check always finishes, maintaining the integrity of our main branch quality gates.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running API stability checks.
+  # If yes, the job will output a flag that will be used by the next job to run the API stability checks.
+  # If no, the job will output a flag that will be used by the next job to skip running the API stability checks.
+  # At the end of this workflow, we run a check that validates that either all API stability checks passed or were
+  # skipped, called api-stability-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_api_stability_for_prs: ${{ steps.changes.outputs.run_api_stability_for_prs }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   api-stability:
     name: Check API Stability (${{ matrix.version }})
+    if: needs.files-changed.outputs.run_api_stability_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     strategy:
       matrix:
@@ -67,3 +83,24 @@ jobs:
             cat result.json
             exit 1
           fi
+
+  # This check validates that either all API stability checks passed or were skipped, which allows us
+  # to make API stability checks a required check with only running the API stability checks when required.
+  # So, we don't have to run API stability checks, for example, for Changelog or ReadMe changes.
+
+  api-stability-required-check:
+    needs:
+      [
+        api-stability,
+      ]
+    name: API Stability
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the API stability check jobs has failed." && exit 1
