@@ -16,10 +16,16 @@ on:
       - "scripts/ci-boot-simulator.sh"
       - "scripts/ci-select-xcode.sh"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,
+#   as these test the most essential user interface functionality and are resource-intensive.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to provide
+#   faster feedback on critical functionality and avoid wasting expensive testing resources.
+# - For main branch pushes, we never cancel critical UI tests to ensure the most important
+#   user interface features are always validated before code reaches production.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   run-tests:
@@ -64,6 +70,10 @@ jobs:
 
       - run: make init-ci-build
       - run: make xcode-ci
+
+      - name: Enable screenshots permissions
+        shell: bash
+        run: ./scripts/ci-enable-permissions.sh
 
       - name: Boot simulator
         run: ./scripts/ci-boot-simulator.sh

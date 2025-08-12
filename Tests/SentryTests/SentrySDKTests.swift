@@ -397,6 +397,88 @@ class SentrySDKTests: XCTestCase {
 
         assertHubScopeNotChanged()
     }
+    
+    /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
+    /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334
+    func testCaptureNonFatalEvent_HasDebugMeta() throws {
+        // Arrange
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "testCaptureNonFatalEvent_HasDebugMeta")
+        }
+
+        let fileManager = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager)
+        fileManager.deleteAllEnvelopes()
+
+        defer {
+            fileManager.deleteAllEnvelopes()
+        }
+
+        // Act
+        SentrySDK.capture(message: "Test message")
+        // Ensures that the capture envelope is written to disk before we read it.
+        SentrySDK.flush(timeout: 0.1)
+
+        // Assert
+        let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
+            return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
+        }.flatMap { envelope in
+            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypeEvent }
+        }
+
+        XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")
+        let eventEnvelopeItem = try XCTUnwrap(eventEnvelopeItems.first)
+
+        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: eventEnvelopeItem.data))
+
+        let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
+        // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.
+        XCTAssertGreaterThanOrEqual(debugMetas.count, 3, "Expected debug meta to have at least 3 items, but got \(debugMetas.count)")
+
+        for debugMeta in debugMetas {
+            XCTAssertEqual(debugMeta.type, "macho")
+            XCTAssertNotNil(debugMeta.debugID)
+            XCTAssertNotNil(debugMeta.imageAddress)
+            XCTAssertNotNil(debugMeta.imageSize)
+        }
+    }
+
+    // MARK: - Logger Flush Tests
+    
+    func testFlush_CallsLoggerCaptureLogs() {
+        fixture.client.options.experimental.enableLogs = true
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Add a log to ensure there's something to flush
+        SentrySDK.logger.info("Test log message")
+        
+        // Initially no logs should be sent (they're buffered)
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        
+        // Flush the SDK
+        SentrySDK.flush(timeout: 1.0)
+        
+        // Now logs should be sent
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+    
+    func testClose_CallsLoggerCaptureLogs() {
+        fixture.client.options.experimental.enableLogs = true
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Add a log to ensure there's something to flush
+        SentrySDK.logger.info("Test log message")
+        
+        // Initially no logs should be sent (they're buffered)
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        
+        // Close the SDK
+        SentrySDK.close()
+        
+        // Now logs should be sent
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
 }
 
 extension SentrySDKTests {
