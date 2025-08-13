@@ -4,8 +4,8 @@
 
 ### Features
 
-- Add source context and vars fields to SentryFrame (#5853)
 - Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add source context and vars fields to SentryFrame (#5853)
 
 ## 8.54.1-alpha.1
 
