@@ -11,7 +11,7 @@ if [ "$EVENT_NAME" = "pull_request" ]; then
   '
   VARIANTS_COMBINATIONS='
     [
-      { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "override-name": "Sentry-Dynamic-WithARM64e" },
+      { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e" },
       { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
     ]
   '
