@@ -18,6 +18,7 @@
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
+- Add source context and vars fields to SentryFrame (#5853)
 
 ## 8.54.1-alpha.1
 

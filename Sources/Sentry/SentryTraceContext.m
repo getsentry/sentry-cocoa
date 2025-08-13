@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
 #import "SentryDsn.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryOptions+Private.h"
 #import "SentrySampleDecision.h"
@@ -78,17 +79,17 @@ NS_ASSUME_NONNULL_BEGIN
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
         return nil;
-    } else {
-        return [self initWithTracer:tracer scope:scope options:options];
     }
+    return [self initWithTracer:tracer scope:scope options:options];
 }
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options
 {
-    if (tracer.traceId == nil || options.parsedDsn == nil)
+    if (tracer.traceId == nil || options.parsedDsn == nil) {
         return nil;
+    }
 
 #if !SDK_V9
     NSString *userSegment = nil;
@@ -154,7 +155,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
 {
-    SentryId *traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];
+    NSString *_Nullable rawTraceId = dictionary[@"trace_id"];
+    if (rawTraceId == nil || ![rawTraceId isKindOfClass:[NSString class]]) {
+        SENTRY_LOG_ERROR(@"Invalid trace_id: %@", rawTraceId);
+        return nil;
+    }
+
+    SentryId *traceId =
+        [[SentryId alloc] initWithUUIDString:SENTRY_UNWRAP_NULLABLE(NSString, rawTraceId)];
     NSString *publicKey = dictionary[@"public_key"];
     if (traceId == nil || publicKey == nil)
         return nil;
