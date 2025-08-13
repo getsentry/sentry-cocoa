@@ -10,6 +10,7 @@ on:
     paths:
       - "Sources/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/generate_release_matrix.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - "Package.swift"
