@@ -97,7 +97,7 @@ jobs:
       release-version: ${{ github.event.inputs.version }}
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
-      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
     strategy:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
