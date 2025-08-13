@@ -48,9 +48,10 @@ extension SentryFeedback: SentrySerializable { }
 
 extension SentryFeedback {
     #if SDK_V9
-    @_spi(Private)
-    #endif
+    @_spi(Private) public func serialize() -> [String: Any] {
+    #else
     public func serialize() -> [String: Any] {
+    #endif
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
         var dict = [String: Any](minimumCapacity: 2 + numberOfOptionalItems)
         dict["message"] = message
