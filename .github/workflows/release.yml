@@ -50,6 +50,7 @@ jobs:
   setup-matrix:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Setup matrix combinations
         id: setup-matrix-combinations
         run: |
