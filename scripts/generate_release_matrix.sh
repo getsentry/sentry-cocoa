@@ -17,7 +17,7 @@ if [ "$EVENT_NAME" = "pull_request" ]; then
       { "scheme": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui" }
     ]
   '
-  SDK_LIST='["iphoneos", "macosx"]'
+  SDK_LIST='["iphoneos", "iphonesimulator", "macosx"]'
 else
   SLICES_COMBINATIONS='
     [
