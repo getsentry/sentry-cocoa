@@ -1,0 +1,23 @@
+name: "Prepare Package.swift"
+description: "Prepares Package.swift"
+inputs:
+  is-pr:
+    description: "Whether the build is a PR"
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Remove Sentry-Dynamic-WithARM64e target
+      if: ${{ inputs.is-pr == 'true' }}
+      shell: bash
+      run: |
+        sed -i '' '/Sentry-Dynamic-WithARM64e/d' Package.swift
+        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' Package.swift
+    - name: Change path of the framework
+      shell: bash
+      run: |
+        sed -i '' 's/url.*//g' Package.swift
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' Package.swift
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift

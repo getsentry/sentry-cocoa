@@ -136,16 +136,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -167,16 +161,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -198,16 +186,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
