@@ -6,13 +6,15 @@ if [ "$EVENT_NAME" = "pull_request" ]; then
   SLICES_COMBINATIONS='
     [
       { "name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic" },
-      { "name": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
+      { "name": "Sentry", "macho-type": "staticlib", "id": "sentry-static" },
+      { "name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui" },
     ]
   '
   VARIANTS_COMBINATIONS='
     [
       { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e" },
-      { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
+      { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" },
+      { "scheme": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui" },
     ]
   '
   SDK_LIST='["iphoneos", "macosx"]'
