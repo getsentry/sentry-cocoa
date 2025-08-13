@@ -67,7 +67,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
     }
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
-    newImage.name = imageName;
+    newImage.name = SENTRY_UNWRAP_NULLABLE(NSString, imageName);
     newImage.UUID = [SentryBinaryImageCache convertUUID:image->uuid];
     newImage.address = image->address;
     newImage.vmAddress = image->vmAddress;

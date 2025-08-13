@@ -5,6 +5,7 @@
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryHub.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryReachability.h"
 #import "SentryScope.h"
@@ -220,9 +221,10 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
             NSDictionary *data = nil;
             for (UITouch *touch in event.allTouches) {
-                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                if (touch.view != nil
+                    && (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded)) {
                     data = [SentryBreadcrumbTracker
-                                extractDataFromView:touch.view
+                                extractDataFromView:SENTRY_UNWRAP_NULLABLE_VALUE(id, touch.view)
                         withAccessibilityIdentifier:self->_reportAccessibilityIdentifier];
                 }
             }

@@ -125,7 +125,7 @@
         __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         [systems addObject:obj.type];
         if (obj.URL != nil) {
-            [names addObject:obj.URL.path];
+            [names addObject:SENTRY_UNWRAP_NULLABLE(NSString, obj.URL.path)];
         } else {
             [names addObject:@"(null)"];
         }
