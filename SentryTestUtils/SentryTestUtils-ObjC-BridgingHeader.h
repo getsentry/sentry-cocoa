@@ -10,7 +10,6 @@
 #    import "SentryAppStartTracker.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryFramesTracker+TestInit.h"
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 

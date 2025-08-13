@@ -3,7 +3,7 @@
 #import "SentryCrashWrapper.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryUIDeviceWrapper.h"
+#import "SentrySwift.h"
 
 NSString *const kSentryProcessInfoThermalStateNominal = @"nominal";
 NSString *const kSentryProcessInfoThermalStateFair = @"fair";
@@ -16,7 +16,7 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
+@property (nonatomic, strong) id<SentryUIDeviceWrapper> deviceWrapper;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 @end
@@ -26,7 +26,7 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 - (instancetype)initWithCrashWrapper:(id)crashWrapper
                   processInfoWrapper:(id)processInfoWrapper
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-                       deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
+                       deviceWrapper:(id<SentryUIDeviceWrapper>)deviceWrapper
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 {
     if (self = [super init]) {

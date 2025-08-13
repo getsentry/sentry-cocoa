@@ -20,7 +20,6 @@
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
-#import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
 #import <SentryCrashWrapper.h>
@@ -48,10 +47,6 @@
 #    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
-
-#if TARGET_OS_IOS
-#    import "SentryUIDeviceWrapper.h"
-#endif // TARGET_OS_IOS
 
 #if TARGET_OS_OSX
 #    import "SentryNSApplication.h"
@@ -168,7 +163,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _uiDeviceWrapper = [[DefaultSentryUIDeviceWrapper alloc] init];
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];

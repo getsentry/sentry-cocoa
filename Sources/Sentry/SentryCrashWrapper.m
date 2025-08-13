@@ -7,7 +7,7 @@
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
-#import "SentryUIDeviceWrapper.h"
+#import "SentrySwift.h"
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
 #import <SentryCrashMonitor_System.h>
