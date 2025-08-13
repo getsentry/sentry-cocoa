@@ -61,6 +61,8 @@ jobs:
     outputs:
       slices: ${{ steps.setup-matrix-combinations.outputs.slices }}
       variants: ${{ steps.setup-matrix-combinations.outputs.variants }}
+      sdk-list-array: ${{ steps.setup-matrix-combinations.outputs.sdk-list-array }}
+      sdk-list-string: ${{ steps.setup-matrix-combinations.outputs.sdk-list-string }}
 
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
@@ -73,8 +75,7 @@ jobs:
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       release-version: ${{ github.event.inputs.version }}
-      # Build only selected platforms on PRs, but all for main / release.
-      sdk-list: ${{ github.event_name == 'pull_request' && '["iphoneos", "macosx"]' || null }}
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
     strategy:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
@@ -96,6 +97,7 @@ jobs:
       release-version: ${{ github.event.inputs.version }}
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-string }}
     strategy:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
