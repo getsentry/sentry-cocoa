@@ -66,7 +66,10 @@ final class SentryUIRedactBuilder {
             // Used by:
             // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
             // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
-            "SFSafariView"
+            "SFSafariView",
+            // Used by:
+            // - https://developer.apple.com/documentation/avkit/avplayerviewcontroller
+            "AVPlayerView"
         ].compactMap(NSClassFromString(_:))
 
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
