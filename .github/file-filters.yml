@@ -39,3 +39,26 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs # Code
   - ".codecov.yml"
   - "Brewfile*" # Dependency installation affects test environment
   - "Makefile" # Make commands used for CI build setup
+
+run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
+  - "Sources/**"
+  - "test-server/**"
+
+  # GH Actions
+  - ".github/workflows/api-stability.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package.swift"
+
+  # Scripts
+  - "scripts/build-xcframework-local.sh"
+  - "scripts/update-api.sh"
+  - "scripts/ci-select-xcode.sh"
+
+  # Other
+  - "Makefile" # Make commands used for API generation
+  - "sdk_api.json"
+  - "sdk_api_v9.json"
