@@ -20,6 +20,10 @@
 - Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
 - Add source context and vars fields to SentryFrame (#5853)
 
+### Fixes
+
+- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+
 ## 8.54.1-alpha.1
 
 - No documented changes.
