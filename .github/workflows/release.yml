@@ -11,6 +11,7 @@ on:
       - "Sources/**"
       - "scripts/ci-select-xcode.sh"
       - "scripts/ci-diagnostics.sh"
+      - "scripts/generate_release_matrix.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - "Package*.swift"
