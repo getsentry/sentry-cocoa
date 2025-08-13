@@ -15,6 +15,7 @@ if [ "$EVENT_NAME" = "pull_request" ]; then
       { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
     ]
   '
+  SDK_LIST='["iphoneos", "macosx"]'
 else
   SLICES_COMBINATIONS='
     [
@@ -34,9 +35,12 @@ else
       { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "override-name": "Sentry-WithoutUIKitOrAppKit-WithARM64e" }
     ]
   '
+  SDK_LIST='["iphoneos", "iphonesimulator", "macosx", "maccatalyst", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
 fi
 
-echo "SLICES_COMBINATIONS=$SLICES_COMBINATIONS"
-
-echo "slices=$( echo "$SLICES_COMBINATIONS" | jq -c . )" >> "$GITHUB_OUTPUT"
-echo "variants=$( echo "$VARIANTS_COMBINATIONS" | jq -c . )" >> "$GITHUB_OUTPUT"
+{
+  echo "slices=$( echo "$SLICES_COMBINATIONS" | jq -c . )"
+  echo "variants=$( echo "$VARIANTS_COMBINATIONS" | jq -c . )"
+  echo "sdk-list-array=$( echo "$SDK_LIST" | jq -c . )"
+  echo "sdk-list-string=$( echo "$SDK_LIST" | jq -r 'join(",")' )"
+} >> "$GITHUB_OUTPUT"
