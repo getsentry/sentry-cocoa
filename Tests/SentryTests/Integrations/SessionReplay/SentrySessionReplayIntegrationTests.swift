@@ -284,6 +284,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             expectation.fulfill()
         }
         
+        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
