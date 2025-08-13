@@ -133,13 +133,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
 
@@ -153,13 +150,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
 
@@ -173,13 +167,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
       - run: swift build
 
   duplication-tests:
