@@ -48,9 +48,59 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup matrix combinations
+        id: setup-matrix-combinations
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            SLICES_COMBINATIONS='
+              [
+                { "name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic" },
+                { "name": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
+              ]
+            '
+            VARIANTS_COMBINATIONS='
+              [
+                { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "override-name": "Sentry-Dynamic-WithARM64e" },
+                { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" }
+              ]
+            '
+          else
+            SLICES_COMBINATIONS='
+              [
+                { "name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic" },
+                { "name": "Sentry", "macho-type": "staticlib", "id": "sentry-static" },
+                { "name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui" },
+                { "name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic" }
+              ]
+            '
+            VARIANTS_COMBINATIONS='
+              [
+                { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e" },
+                { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "override-name": "Sentry-Dynamic-WithARM64e" },
+                { "scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static" },
+                { "scheme": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui" },
+                { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "excluded-archs": "arm64e" },
+                { "scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "override-name": "Sentry-WithoutUIKitOrAppKit-WithARM64e" }
+              ]
+            '
+          fi
+
+
+          echo ::set-output name=slices::{\"include\":[$SLICES_COMBINATIONS]}
+          echo ::set-output name=variants::{\"include\":[$VARIANTS_COMBINATIONS]}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+    outputs:
+      slices: ${{ steps.setup-matrix-combinations.outputs.slices }}
+      variants: ${{ steps.setup-matrix-combinations.outputs.variants }}
+
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    needs: setup-matrix
     with:
       name: ${{matrix.variant.name}}
       suffix: ${{matrix.variant.suffix}}
@@ -58,27 +108,16 @@ jobs:
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       release-version: ${{ github.event.inputs.version }}
+      # Build only selected platforms on PRs, but all for main / release.
+      sdk-list: ${{ github.event_name == 'pull_request' && '["iphoneos", "macosx"]' || null }}
     strategy:
-      matrix:
-        variant:
-          - name: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-          - name: Sentry
-            macho-type: staticlib
-            id: sentry-static
-          - name: SentrySwiftUI
-            macho-type: mh_dylib
-            id: sentry-swiftui
-          - name: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
 
   assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
+    needs: [
+      "build-xcframework-variant-slices",
+      "setup-matrix",
+    ]
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -92,36 +131,7 @@ jobs:
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
     strategy:
-      matrix:
-        variant:
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-            excluded-archs: arm64e
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-            override-name: Sentry-Dynamic-WithARM64e
-          - scheme: Sentry
-            macho-type: staticlib
-            id: sentry-static
-          - scheme: SentrySwiftUI
-            macho-type: mh_dylib
-            id: sentry-swiftui
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
-            excluded-archs: arm64e
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
-            override-name: Sentry-WithoutUIKitOrAppKit-WithARM64e
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
   validate-xcframework:
     name: Validate XCFramework
