@@ -120,7 +120,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        NSArray<SentryFrame *> *_Nullable frames = thread.stacktrace.frames;
+        if (frames != nil) {
+            [self extractDebugImageAddressFromFrames:SENTRY_UNWRAP_NULLABLE(NSArray, frames)
+                                             intoSet:imageAddresses];
+        }
     }
 
     return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
@@ -179,7 +183,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
+        NSArray<SentryFrame *> *_Nullable frames = thread.stacktrace.frames;
+        if (frames != nil) {
+            [self extractDebugImageAddressFromFrames:SENTRY_UNWRAP_NULLABLE(NSArray, frames)
+                                             intoSet:imageAddresses];
+        }
     }
 
     return [self getDebugImagesForImageAddressesFromCache:imageAddresses];

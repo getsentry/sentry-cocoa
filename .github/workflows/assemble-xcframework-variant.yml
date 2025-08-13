@@ -161,6 +161,17 @@ jobs:
         run: ./scripts/assemble-xcframework.sh "$SCHEME" "$SUFFIX" "$CONFIGURATION_SUFFIX" "$SDKS" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
         shell: bash
 
+      - name: Rename XCFramework
+        env:
+          OVERRIDE_NAME: ${{ inputs.override-name }}
+          XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
+          SCHEME: ${{ inputs.scheme }}
+          SUFFIX: ${{ inputs.suffix }}
+        if: ${{ inputs.override-name != '' }}
+        run: |
+          mv "${{env.SCHEME}}${{env.SUFFIX}}.xcframework" "${{env.OVERRIDE_NAME}}.xcframework"
+        shell: bash
+
       - name: Zip XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
         env:
@@ -169,11 +180,10 @@ jobs:
           SUFFIX: ${{ inputs.suffix }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign "$SCHEME$SUFFIX"
+            ./scripts/compress-xcframework.sh --sign "${{env.XCFRAMEWORK_NAME}}"
           else
-            ./scripts/compress-xcframework.sh --not-signed "$SCHEME$SUFFIX"
+            ./scripts/compress-xcframework.sh --not-signed "${{env.XCFRAMEWORK_NAME}}"
           fi
-          mv "$SCHEME$SUFFIX.xcframework.zip" "${{env.XCFRAMEWORK_NAME}}.xcframework.zip"
         shell: bash
 
       - name: Cache XCFramework

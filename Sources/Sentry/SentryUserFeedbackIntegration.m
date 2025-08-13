@@ -1,5 +1,6 @@
 #import "SentryUserFeedbackIntegration.h"
 #import "SentryDependencyContainer.h"
+#import "SentryInternalDefines.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
@@ -20,7 +21,8 @@
     }
 
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
-        initWithConfiguration:options.userFeedbackConfiguration
+        initWithConfiguration:SENTRY_UNWRAP_NULLABLE(SentryUserFeedbackConfiguration,
+                                  options.userFeedbackConfiguration)
                      delegate:self
            screenshotProvider:SentryDependencyContainer.sharedInstance.screenshot];
     return YES;
