@@ -284,11 +284,38 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             expectation.fulfill()
         }
         
-        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
         globalEventProcessor.reportAll(crash)
+        
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+    }
+    
+    func testBufferReplayIgnoredBecauseEventDroppedInBeforeSend() throws {
+        try createLastSessionReplay(writeSessionInfo: false)
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1, configure: { options in
+            options.beforeSend = { _ in
+                return nil
+            }
+        })
+        
+        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be capture")
+        expectation.isInverted = true
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+        
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        client?.capture(event: crash)
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
