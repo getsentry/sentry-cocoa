@@ -319,6 +319,7 @@ jobs:
   unit-tests-required-check:
     needs:
       [
+        files-changed,
         build-test-server,
         unit-tests,
       ]
