@@ -1146,13 +1146,16 @@ class SentryTracerTests: XCTestCase {
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
 
-        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-
         let children = 5
         let grandchildren = 10
+
+        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+        let expectation = XCTestExpectation(description: "Finish Children Async")
+        expectation.expectedFulfillmentCount = children
+        expectation.assertForOverFulfill = true
+
         for _ in 0 ..< children {
-            group.enter()
+
             queue.async {
                 let grandChild = child.startChild(operation: self.fixture.transactionOperation)
                 for _ in 0 ..< grandchildren {
@@ -1162,12 +1165,14 @@ class SentryTracerTests: XCTestCase {
 
                 grandChild.finish()
                 self.assertTransactionNotCaptured(sut)
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.wait()
+
+        wait(for: [expectation], timeout: 10.0)
 
         child.finish()
 
@@ -1225,32 +1230,40 @@ class SentryTracerTests: XCTestCase {
         }
 
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        func addChildrenAsync() {
-            for _ in 0 ..< 100 {
-                group.enter()
-                queue.async {
-                    let child = sut.startChild(operation: self.fixture.transactionOperation)
-                    Dynamic(child).frames = [] as [Frame]
-                    child.finish()
-                    group.leave()
-                }
+        let addChildrenCount = 100
+        let expectation = XCTestExpectation(description: "Add spans while finishing")
+        expectation.expectedFulfillmentCount = addChildrenCount * 2 + 1
+        expectation.assertForOverFulfill = true
+
+        for _ in 0 ..< 100 {
+            queue.async {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                Dynamic(child).frames = [] as [Frame]
+                child.finish()
+
+                expectation.fulfill()
             }
         }
 
-        addChildrenAsync()
-
-        group.enter()
         queue.async {
             sut.finish()
-            group.leave()
+            expectation.fulfill()
         }
 
-        addChildrenAsync()
+        for _ in 0 ..< 100 {
+            queue.async {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                Dynamic(child).frames = [] as [Frame]
+                child.finish()
+
+                expectation.fulfill()
+            }
+        }
 
         queue.activate()
-        group.wait()
+
+        wait(for: [expectation], timeout: 10.0)
 
         let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
         XCTAssertGreaterThanOrEqual(spans.count, children)
