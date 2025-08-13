@@ -90,8 +90,8 @@ jobs:
 
           echo "SLICES_COMBINATIONS=$SLICES_COMBINATIONS"
 
-          echo "slices=$SLICES_COMBINATIONS" >> $GITHUB_OUTPUT
-          echo "variants=$VARIANTS_COMBINATIONS" >> $GITHUB_OUTPUT
+          echo "slices=$( echo "$SLICES_COMBINATIONS" )" >> $GITHUB_OUTPUT
+          echo "variants=$( echo "$VARIANTS_COMBINATIONS" )" >> $GITHUB_OUTPUT
         env:
           EVENT_NAME: ${{ github.event_name }}
     outputs:
