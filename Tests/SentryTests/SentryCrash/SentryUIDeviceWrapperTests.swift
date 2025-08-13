@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -10,8 +11,7 @@ class SentryUIDeviceWrapperTests: XCTestCase {
     
     func testExecutesLogicViaDispatchQueue() {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-        let sut = SentryUIDeviceWrapper()
+        let sut = DefaultSentryUIDeviceWrapper(queueWrapper: dispatchQueue)
         sut.start()
         XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 1)
 
