@@ -88,9 +88,10 @@ jobs:
             '
           fi
 
+          echo "SLICES_COMBINATIONS=$SLICES_COMBINATIONS"
 
-          echo ::set-output name=slices::{\"include\":[$SLICES_COMBINATIONS]}
-          echo ::set-output name=variants::{\"include\":[$VARIANTS_COMBINATIONS]}
+          echo "slices=$SLICES_COMBINATIONS" >> $GITHUB_OUTPUT
+          echo "variants=$VARIANTS_COMBINATIONS" >> $GITHUB_OUTPUT
         env:
           EVENT_NAME: ${{ github.event_name }}
     outputs:
@@ -111,7 +112,8 @@ jobs:
       # Build only selected platforms on PRs, but all for main / release.
       sdk-list: ${{ github.event_name == 'pull_request' && '["iphoneos", "macosx"]' || null }}
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
+      matrix:
+        variant: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
 
   assemble-xcframework-variant:
     needs: [
@@ -131,7 +133,8 @@ jobs:
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
+      matrix:
+        variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
   validate-xcframework:
     name: Validate XCFramework
