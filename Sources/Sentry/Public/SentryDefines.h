@@ -152,6 +152,7 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
+#if !SDK_V9
 /**
  * Function pointer for span manipulation.
  * @param span The span to be used.
@@ -159,7 +160,6 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
     "See `SentryScope.useSpan` for reasoning of deprecation."));
 
-#if !SDK_V9
 /**
  * Log level.
  */
